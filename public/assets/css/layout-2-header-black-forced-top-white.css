@@ -1,0 +1,478 @@
+header {
+    background-color: #000000 /* blackish */ !important;
+    box-shadow: 0px 5px 14.25px 0.75px #ff030c;
+}
+
+#header,
+.header {
+    background-color: #000000 /* blackish */ !important;
+    box-shadow: 0 0 0 aliceblue;
+}
+
+#site-header-inner {
+    background-color: #000000 /* blackish */ !important;
+}
+
+#header.is-fixed {
+    background-color: #000000 /* blackish */;
+}
+
+header.homepagex {
+    background-color: #000000 /* blackish */ !important;
+}
+
+.forced-blacked {
+    background-color: #000000 /* blackish */ !important;
+}
+
+.forced-whited {
+    background-color: #fff /* blackish */ !important;
+}
+
+#header.homepagex {
+    background-color: #000000 /* blackish */ !important;
+}
+
+.forced-blacked #mainnav.hlayout-2>ul>li.active>a,
+#mainnav.hlayout-2>ul>li>a:hover {
+    color: #ff030c;
+}
+
+.homepagex #mainnav.hlayout-2>ul>li.active>a,
+.homepagex #mainnav.hlayout-2>ul>li>a:hover {
+    color: #ff030c !important;
+}
+
+
+
+#mainnav.hlayout-2>ul>li.active>a,
+#mainnav.hlayout-2>ul>li>a:hover {
+    color: #C31924;
+}
+
+/* Submenu */
+#mainnav.hlayout-2 ul.submenu {
+    position: absolute;
+    top: 94%;
+    left: 0;
+    width: 230px;
+    background: #ffffff;
+    box-shadow: 0px 5px 14.25px 0.75px rgba(0, 0, 0, 0.05);
+    padding: 0px 0px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#mainnav.hlayout-2 ul.submenu:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 6px;
+    width: 100%;
+    background: #C31924;
+    /* submenu-menu-border-top */
+    /* menu color */
+}
+
+#mainnav.hlayout-2 ul.submenu:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 6px;
+    width: 100%;
+    background: #C31924;
+    /* submenu-menu-border-top */
+    /* menu color */
+}
+
+
+#mainnav.hlayout-2 ul.submenu>li>a {
+    font-weight: 400;
+    line-height: 50px;
+    color: #000000 /* blackish */;
+    padding: 0px 0px 0px 12px;
+    display: block;
+    margin-bottom: 2px;
+    font-size: 1.4rem;
+}
+
+
+#mainnav.hlayout-2 ul.submenu li ul {
+    position: absolute;
+    left: 220px;
+    top: 45px !important;
+    border-left: 6px solid black;
+    /* border-top: 6px solid #C31924; */
+    /* color: #C31924; */
+  }
+
+#mainnav.hlayout-2 ul.submenu>li>a:hover,
+#mainnav.hlayout-2 ul.submenu>li.active>a,
+#mainnav.hlayout-2 ul.submenu-child>li.active>a {
+    background: #000000 /* blackish */;
+}
+
+#mainnav.hlayout-2 ul.submenu>li>a:hover {
+    color: white;
+}
+
+/* mobile nav setting */
+/* Main nav mobile */
+#mainnav.hlayout-2-mobi {
+    margin: 0 auto;
+    width: 100%;
+    /* position: absolute; */
+    top: 100%;
+    left: 0;
+    z-index: 9999;
+    background-color: #000000 /* blackish */;
+}
+
+#mainnav.hlayout-2-mobi ul li {
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    border-top: 1px solid #333;
+}
+
+#mainnav.hlayout-2-mobi ul li.active>a {
+    color: #C31924;
+}
+
+#mainnav.hlayout-2-mobi ul li a {
+    display: inline-block;
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 48px;
+    color: #ffffff;
+}
+
+#mainnav.hlayout-2-mobi>ul>li>a {
+    padding: 0px 20px;
+}
+
+#mainnav.hlayout-2-mobi ul.submenu>li>a {
+    padding: 0px 40px;
+}
+
+#mainnav.hlayout-2-mobi ul.submenu li ul.submenu>li>a {
+    padding: 0px 60px;
+}
+
+.btn-submenu {
+    color: #000000 /* blackish */;
+    background: #ffffff;
+}
+
+.has-menu-extra .menu-extra {
+    display: inherit;
+    z-index: 500;
+}
+
+.header-style-2.has-menu-extra .nav-wrap {
+    position: inherit;
+    top: inherit;
+    right: inherit;
+    transform: inherit;
+}
+
+.header-style-2 .nav-wrap {
+    position: inherit;
+    top: inherit;
+    right: inherit;
+    transform: inherit;
+}
+
+.header-style-2.header-center .menu-extra>li,
+.header-style-2.header-center #mainnav.hlayout-2>ul>li>a,
+.header-absolute .menu-extra>li,
+.header-absolute #mainnav.hlayout-2>ul>li>a {
+    line-height: 18px;
+}
+
+#mainnav.hlayout-2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 10px 20px; */
+}
+
+#mainnav.hlayout-2>ul>li>a {
+    font-weight: 500;
+    font-size: 1.3rem;
+    line-height: inherit;
+    margin: 0;
+    padding: 10px 10px;
+    display: block;
+    text-decoration: none;
+    letter-spacing: 0.1rem;
+    color: white;
+}
+
+#mainnav.hlayout-2 > ul > li:first-child > a {
+    padding-left: 0; /* Remove left padding for the first list item */
+}
+
+
+.mot-button {
+    position: absolute;
+    right: 20px;
+    /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    list-style: none;
+    border: 0.5px solid gray;
+    border-radius: 10px;
+}
+
+.mot-button a {
+    text-decoration: none;
+    color: gray;
+    padding: 10px 15px;
+    display: block;
+}
+
+#mainnav.hlayout-2>ul {
+    display: inherit;
+    /* Ensures the main menu is displayed inline */
+    margin-right: inherit;
+    /* Pushes the menu to the left */
+}
+
+#mainnav>ul {
+    list-style: inherit;
+    margin: inherit;
+    margin-right: inherit;
+    padding: inherit;
+}
+
+/* Ensure the nav container takes up full width within hlayout-2 */
+.hlayout-2 nav.mainnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.hlayout-2 ul.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.hlayout-2 ul.menu.left-menu {
+    /* This will make the left menu take up available space */
+    justify-content: flex-start;
+    /* Align items to the left */
+}
+
+.hlayout-2 ul.menu.right-menu {
+    justify-content: flex-end;
+    /* Align items to the right */
+}
+
+.hlayout-2 ul.menu li a {
+    text-decoration: none;
+    color: #333;
+    /* Adjust the color as needed */
+}
+
+.hlayout-2 ul.menu li ul.submenu {
+    display: none;
+    /* Initially hide submenus */
+    position: absolute;
+    background-color: #fff;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+#mainnav-mobi ul li{
+    background: #000;
+}
+
+.hlayout-2 ul.menu li:hover ul.submenu {
+    display: block;
+    /* Show submenu on hover */
+}
+
+
+
+#site-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-search-bar {
+    display: flex;
+    flex: 1;
+    /* Takes up available space between logo and cart chnging */
+    /* padding-left: 50px; */
+    padding-right: 50px;
+}
+
+.talkus-box {
+    font-size: 13px; /* Default size for smaller screens */
+}
+
+
+@media (min-width: 950px) {
+    .talkus-box {
+        font-size: 14px;
+    }
+}
+@media (min-width: 1200px) {
+    .talkus-box {
+        font-size: 15px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .talkus-box {
+        font-size: 19px;
+    }
+}
+
+
+.header-search-form {
+    width: 100%;
+    display: flex;
+}
+
+.header-search-field {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    box-sizing: border-box;
+    color:black !important;
+}
+.menu-extra li a {
+    background: #ffffff42;
+  }
+.header-search-submit {
+    padding: 5px 15px;
+    color: #fff;
+    border: 1px solid #C31924;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-weight: 300;
+/*
+font-weight: 700;
+color: #ffffff;
+line-height: 30px;
+text-transform: uppercase;
+padding: 7px 26px; */
+background-color: #C31924;
+}
+
+.menu-extra {
+    position: inherit;
+    top: inherit;
+    transform: inherit;
+    right: inherit;
+    display: inherit;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Hide the center search bar on mobile devices */
+@media (max-width: 992px) {
+    .header-search-bar {
+        display: none;
+    }
+    .hlayout-2 ul.menu li ul.submenu {
+        /* Initially hide submenus */
+        position: inherit;
+    }
+    .has-menu-extra .menu-extra {
+        display: block;
+        z-index: 500;
+    }
+
+    .menu-extra {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+        display: inline-block;
+        display: flex;
+        justify-content: inherit;
+        align-items: inherit;
+    }
+    .menu-extra ul{
+    display: flex;
+    }
+    .menu-extra .header-search-form .header-search-field {
+        border-radius: 6px;
+        margin-left: -48px;
+  margin-top: 40px;
+      }
+
+.menu-extra .header-search-form .header-search-field {
+    margin: 0;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    padding-left: 28px;
+    background-color: #fff;
+    box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.15);
+    color: black;
+}
+
+/* Search show */
+.menu-extra li.box-search .header-search-form {
+    position: absolute;
+    top: 100%;
+    right: -50px;
+    width: 270px;
+    line-height: normal;
+    opacity: 0;
+    visibility: hidden;
+}
+    /* Show the clickable search icon on mobile devices */
+    .box-search.d-lg-none {
+        display: inline-block;
+        margin-right: 10px !important;
+    }
+}
+
+.mobile-button:before,
+.mobile-button:after,
+.mobile-button span {
+    background-color: #fff;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+
+#header.header-bg-black-toggle {
+    background-color: #000;
+  }
+
+
+  #site-header-inner {
+    padding: 10px 0 0px 0 !important;
+  }
+@media (max-width: 991px) {
+    #site-header-inner {
+        background-color: black !important;
+        position: relative;
+        height: 100%;
+        padding: 19px 0 19px 0 !important;
+    }
+}

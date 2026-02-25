@@ -1,0 +1,11 @@
+
+
+.homepagex #mainnav>ul>li.active>a,
+.homepagex #mainnav>ul>li>a:hover {
+    color: #fff !important;
+}
+
+.is-fixed.HeaderBG #mainnav>ul>li.active>a,
+.is-fixed.HeaderBG #mainnav>ul>li>a:hover{
+    color: #ff030c;
+}

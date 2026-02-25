@@ -1,0 +1,3 @@
+.homepagex #mainnav > ul > li.active > a, .homepagex #mainnav > ul > li > a:hover{
+    color: #000 !important;
+}

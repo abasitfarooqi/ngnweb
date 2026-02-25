@@ -1,0 +1,215 @@
+/* File: resources/js/assets/styles/main.css */
+/* Global styles */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Existing components */
+
+  /* NGN Button Effect */
+  .btn-ngn-effect {
+    @apply bg-ngn-primary-500 text-white transition-colors duration-150 ease-in-out;
+  }
+
+  .btn-ngn-effect:hover {
+    @apply bg-black text-ngn-primary-500;
+  }
+
+  .btn-ngn-effect:focus {
+    @apply ring-2 ring-offset-2 ring-ngn-primary-500;
+  }
+
+  /* Optional: Disabled State */
+  .btn-ngn-effect:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+}
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+
+
+
+.default-layout {
+  display: flex;
+  flex-direction: column;
+}
+
+
+.ngn-image-effect {
+  @apply relative overflow-hidden;
+}
+:root {
+  --trans-duration: 0.6s; /* Duration of the animation */
+  --hover-color: rgba(228, 4, 4, 0.3); /* Overlay color */
+}
+
+/* Image container */
+.ngn-image-effect {
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* Ensure the image scales properly */
+.ngn-image-effect img {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: transform 0.4s cubic-bezier(0.3, 0.15, 0.18, 1);
+  
+  transition: transform 0.4s ease-in-out;
+}
+
+/* Rotated overlay pseudo-element */
+.ngn-image-effect::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  
+  left: 50%;
+  width: 70%;
+  height: 190%;
+  border:5px solid rgba(254, 0, 0, 0.1);
+  background: rgba(228, 4, 4, 0.3);
+  transform: translate(0%, -0%) rotate(45deg); /* Positioned off-screen at an angle */
+  transform-origin: center;
+  opacity: 0;
+  z-index: 1;
+  transition: transform 0.4s cubic-bezier(0.3, 0.15, 0.18, 1),
+              opacity 0.4s ease-in-out;
+}
+
+/* On hover, the rotated box slides into view */
+.ngn-image-effect:hover::before {
+  transform: translate(-50%, -50%) rotate(-45deg); /* Move to the center */
+  opacity: 1;
+}
+
+/* Zoom the image slightly on hover */
+.ngn-image-effect:hover img {
+  transform: scale(1.1);
+}
+
+.logo{
+  margin:inherit !important;
+  padding:inherit !important;
+  /* width: 50%; */
+  height: inherit !important;
+  display: block;
+  /* position: relative; */
+  /* background-color: #fff; */
+  /* border-radius: 10px; */
+  margin-top: 0;
+}
+#logo{
+  margin:inherit !important;
+  padding:inherit !important;
+  /* width: 50%; */
+  height: inherit !important;
+  display: inherit !important;
+  /* position: relative; */
+  /* background-color: #fff; */
+  /* border-radius: 10px; */
+  margin-top: 0;
+  top: 0;
+  padding: 0 !important;
+  padding-left: 10px !important;
+  
+}
+#site-header-inner {
+  position: relative !important;
+  height: inherit !important;
+  padding: 00px 0 00px 0 !important;
+  top: 0;
+}
+footer .flat-contact img{
+  margin: auto !important;
+}
+.location-image {
+  height: 150px;
+  -o-object-fit: cover;
+  object-fit: cover;
+  border-radius: 0;
+  border: 2px solid #C31924;
+}
+#header.homepagex.header-bg-black-toggle {
+  background-color: white !important;
+}
+@media (max-width: 575.98px) {
+  #site-header-inner .logo {
+      width: 65% !important;
+      margin: 0;
+  }
+  
+  #site-header-inner {
+    position: relative !important;
+    height: inherit !important;
+    padding: 00px 0 00px 0 !important;
+    top: 0;
+    margin: 0;
+  }
+  
+  #logo{
+    margin:inherit !important;
+    padding:inherit !important;
+    /* width: 90%; */
+    height: inherit !important;
+    display: inherit !important;
+    /* position: relative; */
+    background-color: #fff;
+    border-radius: 10px;
+    margin-top: 0;
+    top: 0;
+    margin: 0;
+    padding: 0px !important;
+    padding-left: 10px !important;
+  }
+
+  #header.homepagex.header-bg-black-toggle {
+      background-color: white !important;
+  }
+  footer .flat-contact img{
+    margin: inherit !important;
+  }
+  .bg-ngn-primary{
+      background-color: #C31924;
+  }
+  
+}
+
+.ngn-active-color{
+  color: #C31924;
+}
+.ngn-active-color:hover{
+  color: #0f0102;
+}
+.ngn-store-title-lg{
+  font-size: 2.3rem;
+  font-weight: 600;
+  letter-spacing: -0.5px; 
+  
+}
+.ngn-store-title-md{
+  font-size: 1.4rem;
+  font-weight: 500; 
+  
+}
+.ngn-store-title-sm{
+  font-size: 1.2rem;
+  font-weight: 500; 
+  
+}
+.ngn-store-paragraph{
+  font-size: 1rem;
+  font-weight: 400; 
+  
+}
+.ngn-store-list{
+  font-size: 1rem;
+  font-weight: 400; 
+  
+}

@@ -1,0 +1,36 @@
+header {
+    background-color: rgb(255, 255, 255) !important;
+    box-shadow: 0px 5px 14.25px 0.75px #ff030c;
+}
+
+#header,
+.header {
+    background-color: white !important;
+    box-shadow: 0 0 0 aliceblue;
+}
+
+#site-header-inner {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+#header.is-fixed {
+    background-color: rgb(255, 255, 255);
+}
+
+header.homepagex {
+    background-color: white !important;
+}
+
+.forced-whited {
+    background-color: white !important;
+}
+
+#header.homepagex {
+    background-color: white !important;
+}
+
+#site-header-inner {
+    position: relative !important;
+    height: inherit !important;
+    padding: 15px 0 15px 0 !important;
+}

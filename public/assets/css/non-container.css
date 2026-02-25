@@ -1,0 +1,236 @@
+
+/* OWL Media Queries  NON-CONTAINER*/
+
+.owl-carousel-info {
+
+    top: 217px;
+    z-index: 402;
+  }
+  /* non-container */
+  .owl-carousel-info-wrap {
+    height: 335px;
+}
+/* Large Devices */
+@media (max-width: 992px) {
+    /* non-container */
+    .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 176px;
+    }
+    /* non-container */
+    .owl-carousel .badge {
+        padding: 3px;
+        font-size: 8.2px;
+    }
+     /* non-container */
+  .owl-carousel-info-wrap {
+    height: 285px;
+}
+}
+
+/* Medium Devices */
+@media (max-width: 768px) {
+    /* non-container */
+    .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 219px;
+    }
+    /* non-container */
+    .owl-carousel-info-wrap {
+        height: 335px;
+    }
+    /* non-container */
+    .owl-carousel .badge {
+        padding: 3px;
+        font-size: 8.2px;
+    }
+}
+
+@media (max-width: 575.98px) {
+    /* non-container */
+    .owl-carousel-info {
+        padding: 0px 4px 0 10px;
+    }
+    /* non-container */
+    .owl-carousel .badge {
+        padding: 3px;
+        font-size: 8px;
+    }
+    .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 169px;
+    }
+    /* non-container */
+    .owl-carousel-info-wrap {
+        height: 295px;
+    }
+
+}
+
+@media (max-width: 480px) {
+    /* non-container */
+    .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 130px;
+    }
+    /* non-container */
+    .owl-carousel-info-wrap {
+        height: 245px;
+    }
+    /* non-container */
+    .owl-carousel .badge {
+        padding: 3px;
+        font-size: 6.8px;
+    }
+}
+
+
+/* Small Devices */
+@media (max-width: 380px) {
+    /* non-container */
+    .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+
+        top: 100px !important;
+    }
+    /* non-container */
+    .owl-carousel-info-wrap {
+        height: 225px;
+    }
+    /* non-container */
+    .owl-carousel h4 {
+        font-size: 22px;
+        line-height: 0.9;
+        margin-bottom: 0.75rem;
+    }
+    /* non-container */
+    .owl-carousel .badge {
+        padding: 2px;
+        font-size: 5.5px !important;
+    }
+
+    .owl-carousel-info .price span,
+    .owl-carousel-info .price i {
+        font-size: 20px !important;
+        font-weight: 600;
+    }
+
+}
+
+/* EtraXXS Sizes */
+@media (max-width: 320px) {
+    /* non-container */
+    .owl-carousel-info {
+        left: inherit;
+        padding: 0px 4px 0 10px;
+    }
+    /* non-container */
+    .owl-carousel .badge {
+        padding: 2px;
+        font-size: 4.5px !important;
+    }
+}
+
+
+/* OWL Media Queries  IN CONTAINER*/
+/* @media (max-width: 992px) {
+    .container .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 186px;
+    }
+    .container .owl-carousel .badge  {
+        padding: 3px;
+        font-size: 8.2px;
+    }
+}
+@media (max-width: 768px) {
+    .container .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 149px;
+    }
+    .container .owl-carousel-info-wrap {
+        height: 275px;
+    }
+    .container .owl-carousel .badge  {
+        padding: 3px;
+        font-size: 8.2px;
+  }
+}
+@media (max-width: 575.98px) {
+    .container .owl-carousel-info {
+        padding: 0px 4px 0 10px;
+    }
+    .container .owl-carousel .badge  {
+        padding: 3px;
+        font-size: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+        top: 130px;
+    }
+    .container .owl-carousel-info-wrap {
+        height: 245px;
+    }
+    .container .owl-carousel .badge  {
+        padding: 3px;
+        font-size: 6.8px;
+    }
+}
+
+
+@media (max-width: 380px) {
+    .container .owl-carousel-info {
+        padding: 0px 10px 0 10px;
+        top: 0;
+        z-index: 402;
+
+        top: 100px !important;
+    }
+    .container .owl-carousel-info-wrap {
+        height: 205px;
+    }
+    .container .owl-carousel h4 {
+        font-size: 22px;
+        line-height: 0.9;
+        margin-bottom: 0.75rem;
+      }
+    .container .owl-carousel .badge  {
+        padding: 2px;
+        font-size: 5.5px !important;
+    }
+    .owl-carousel-info .price span, .owl-carousel-info .price i{
+        font-size: 20px !important;
+        font-weight: 600;
+    }
+
+}
+
+@media (max-width: 320px) {
+    .container .owl-carousel-info {
+        left: inherit;
+        padding: 0px 4px 0 10px;
+    }
+    .container .owl-carousel .badge  {
+        padding: 2px;
+        font-size: 4.5px !important;
+    }
+} */

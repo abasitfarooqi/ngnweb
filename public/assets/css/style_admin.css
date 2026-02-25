@@ -1,0 +1,18 @@
+@media (min-width: 1200px) {
+    .admin-container {
+        padding-left: 20px;
+        padding-top: 15px;
+    }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    /* CSS rules for M screen size go here */
+}
+
+@media (min-width: 768px) and (max-width: 991.98px) {
+    /* CSS rules for MD screen size go here */
+}
+
+@media (min-width: 576px) and (max-width: 767.98px) {
+    /* CSS rules for SM screen size go here */
+}

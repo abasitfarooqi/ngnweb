@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Repair Invoice</title>
+    <style>
+        /* Add your custom styles here */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+        body {
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 20px;
+            /* background: url('https://neguinhomotors.co.uk/img/watermark.png'); */
+            background: url('{{ secure_asset('https: //neguinhomotors.co.uk/img/watermark.png') }}');
+            background-repeat: repeat;
+            background-size: 1100px;
+            background-position: top;
+            
+
+        }
+
+        h3 {
+            colo
+        }
+
+        p {
+            margin: 0;
+            font-size: 10px;
+            /* font-weight: bold; */
+            /* color: #fff; */
+            /* text-align: center; */
+        }
+
+        .page-container {
+            background-color: #cf3334;
+            border-radius: 10px;
+
+        }
+
+        .page-container-overlay {
+            background-image: url('https://neguinhomotors.co.uk/img/watermark.png');
+            background-repeat: repeat;
+            border-radius: 10px;
+            background-size: 500px;
+            background-position: top;
+            padding: 10px;
+            /* background: url('{{ secure_asset('https: //neguinhomotors.co.uk/img/watermark.png') }}'); */
+            background-color: rgba(8, 8, 8, 0.5); /* Adding a white overlay for dimming effect */
+            background-repeat: repeat;
+            border-radius: 10px;
+            background-size: 500px;
+            background-position: top;
+            padding: 10px;
+        }
+
+        h1 {
+            color: #fff;
+        }
+
+
+        .header {
+            /* display: flex; */
+            align-items: center;
+            width: 100%;
+            
+            color: #fff;
+            /* justify-content: space-between; */
+        }
+
+        .logo {
+            float: left;
+        }
+
+        .contact-info {
+            float: right;
+            text-align: right;
+        }
+
+        .clear {
+            clear: both;
+        }
+        h2{
+            margin: 0;
+            padding: 0;
+            margin-bottom: 10px;
+        }
+
+        .box {
+            /* width:50%; */
+            /* float: left; */
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            font-size: 10px;
+            /* font-weight: bold; */
+        }
+
+        li {
+            line-height: 1.5;
+        }
+
+        ul.header-info {
+            margin-right: 10px;
+            border-right: 2px solid #000;
+            padding: 10px;
+            border-radius: 0px;
+        }
+
+        table.customer-details-table {
+            font-size: 10px;
+            width: 100%;
+            border-collapse: collapse;
+            /* margin-top: 20px; */
+            /* border: 1px solid #d30b0b; Added border for the table */
+            border-radius: 10px;
+            overflow: hidden;
+            /* Ensures border radius is applied */
+        }
+
+        table.customer-details-table tr {
+            border-radius: 10px;
+            background-color: white;
+
+        }
+
+        table.customer-details-table th {
+            padding: 10px;
+            padding-bottom: 0px;
+            color: #cf3334;
+            text-transform: uppercase;
+        }
+
+        table.customer-details-table th,
+        table.customer-details-table td {
+            text-align: left;
+            border-radius: 10px;
+        }
+
+
+        .td-paragraph {
+            font-size: 10px;
+            margin: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 10px;
+        }
+
+        .td-paragraph-first {
+            margin: 10px;
+        }
+
+        .td-paragraph-middle {
+            margin: 10px 0px;
+        }
+
+        .td-paragraph-last {
+            margin: 10px;
+        }
+
+
+        .customer-details-lineitem-label {
+            font-size: 10px;
+            margin: 10px;
+            padding: 10px;
+            font-weight: bold;
+            /* max-width: 100px; */
+            background-color: transparent;
+            color: #cf3334;
+            border-radius: 10px;
+        }
+
+        td.customer-details-lineitem-value {}
+
+        table.customer-info-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        table.customer-info-table tr {}
+
+        table.customer-info-table th,
+        table.customer-info-table td {
+            text-align: left;
+            border-radius: 10px;
+            /* background-color: #fff; */
+        }
+
+        table.customer-info-table th {
+            padding: 10px;
+            padding-bottom: 0px;
+            color: #fff;
+            text-transform: uppercase;
+        }
+
+        
+        .customer-info-lineitem-label {
+            font-size: 10px;
+            margin: 10px;
+            padding: 10px;
+            font-weight: bold;
+            /* max-width: 100px; */
+            background-color: transparent;
+            color: #cf3334;
+            border-radius: 10px;
+            max-width: 100px;
+        }
+
+        td.customer-details-lineitem-value {}
+
+        .active-color {
+            color: #cf3334;
+        }
+        
+        .customer-info-paragraph {
+            font-size: 10px;
+            padding: 10px;
+            background-color: #fdfdfd;
+            border-radius: 10px;
+            
+        }
+        .customer-info-paragraph {
+            border: 1px solid #b9b9b9;
+            background-color: #fff;
+            margin: 5px 0;
+        }
+
+        .base-container {
+            background-color: #f7f7f7;
+            /* border: 1px solid #cf3334; */
+            border-radius: 10px;
+            padding: 20px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="page-container">
+        <div class="page-container-overlay">
+            <div class="header" style="">
+                <div class="logo">
+                    <h1 class="">Repair Report </h1>
+                </div>
+                <div class="contact-info" style="display: flex; align-items: center;">
+                    <ul class="header-info">
+                        <li>NGN Motors</li>
+                        <li>0203 409 5478 / 0208 314 1498</li>
+                        <li>customerservice@neguinhomotors.co.uk</li>
+                        <li>ngnmotors.co.uk</li>
+
+                    </ul>
+
+                    <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="Neguinho Motors"
+                        style="max-width: 200px;">
+                </div>
+                <div class="clear"></div>
+            </div>
+            <div class="clear"></div>
+            <div class="base-container">
+                <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+                    <div class="box" style="flex: 1; min-width: 300px; margin-right: 10px;">
+                        <h2 class="">Customer Details</h2>
+                        <table class="customer-info-table" style="width: 100%;">
+                            <tr>
+                                <td class="customer-info-lineitem-label">Name:</td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->fullname }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-info-lineitem-label">Email:</td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->email }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-info-lineitem-label">Phone:</td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->phone }}</p>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td class="customer-info-lineitem-label">Branch:</td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->branch->name }}</p>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="box" style="flex: 1; min-width: 300px;">
+                        <h2 class="">Vehicle Details</h2>
+                        <table class="customer-info-table" style="width: 100%;">
+                            <tr>
+                                <td class="customer-info-lineitem-label"><strong>Arrival Date:</strong></td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->arrival_date->format('d/m/Y H:i') }}
+                                    </p>
+                                </td>
+                            </tr>
+                            @if($repair->is_returned)
+                            <tr>
+                                <td class="customer-info-lineitem-label"><strong>Returned Date:</strong></td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->repaired_date ?
+                                        $repair->repaired_date->format('d/m/Y') : 'N/A' }}</p>
+                                </td>
+                            </tr>
+                            @endif
+
+                            <tr>
+                                <td class="customer-info-lineitem-label">REG No:</td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->motorbike->reg_no }}</p>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="customer-info-lineitem-label">Model:</td>
+                                <td class="customer-info-lineitem-value">
+                                    <p class="customer-info-paragraph">{{ $repair->motorbike->model }}</p>
+                                </td>
+                            </tr>
+
+
+
+                        </table>
+                    </div>
+                </div>
+
+                <div class="box">
+                    <h2 class="">Repair Details</h2>
+                    <table class="customer-details-table">
+                        <thead>
+                            <tr>
+                                <th>Repair Name</th>
+                                <th>Notes</th>
+                                <th>Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($repair->updates as $update)
+                            <tr>
+                                <td>
+                                    <p class="td-paragraph td-paragraph-first">{{ $update->repair_name }}</p>
+                                </td>
+                                <td>
+                                    <p class="td-paragraph td-paragraph-middle">{{ $update->note }}</p>
+                                </td>
+                                <td>
+                                    <p class="td-paragraph td-paragraph-last">£{{ number_format($update->price, 2) }}
+                                    </p>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="box">
+                    <table class="customer-details-table">
+                        <thead>
+                            <tr>
+                                <th>Observations</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($repair->vehicleObservations as $observation)
+                            <tr>
+                                <td>
+                                    <p class="td-paragraph">{{ $observation->observation_description }}</p>
+                                </td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="clear"></div>
+
+        </div>
+    </div>
+
+</body>
+
+</html>

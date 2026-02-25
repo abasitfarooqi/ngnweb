@@ -1,0 +1,101 @@
+.filters-sidebar {
+  @apply w-72 flex-shrink-0 ;
+}
+
+.filter-section {
+  @apply border-b border-gray-200 last:border-0;
+}
+
+.filter-content {
+  @apply pb-3 max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-400;
+}
+
+.filter-header {
+  @apply text-xl font-semibold mb-4 px-2;
+}
+
+.filter-button {
+  @apply w-full flex items-center justify-between p-3 text-left hover:bg-gray-50 rounded-lg transition-colors;
+}
+
+.filter-button-icon {
+  @apply w-5 h-5 transition-transform duration-200;
+}
+
+.filter-button-icon.open {
+  @apply rotate-180;
+}
+
+.filter-option {
+  @apply flex items-center p-2 hover:bg-gray-50 rounded-md cursor-pointer;
+}
+
+.filter-checkbox {
+  @apply w-4 h-4 rounded border-gray-300 ;
+}
+
+.filter-label {
+  @apply ml-3 text-sm text-gray-700;
+}
+
+.filter-option:hover .filter-label {
+  @apply text-gray-900;
+}
+
+.color-swatch {
+  @apply ml-3 w-6 h-6 rounded-full border border-gray-200;
+}
+
+.reset-button {
+  @apply w-full py-2 px-4   transition-colors;
+} 
+
+
+
+
+
+@media (max-width: 768px) {
+  .shop-container{
+    display: inherit !important;
+  }
+  .filters-sidebar {
+    @apply w-full flex-shrink-0;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .shop-container{
+    display: inherit !important;
+  }
+  .filters-sidebar {
+    @apply w-full flex-shrink-0;
+  }
+}
+
+@media (min-width: 824px) {
+  .filters-sidebar {
+    @apply w-full flex-shrink-0;
+  }
+  .shop-container{
+    display: inherit !important;
+  }
+  .product-grid-container {
+    display: block !important;
+  }
+}
+@media (min-width: 1025px) {
+  .filters-sidebar {
+    @apply w-60 flex-shrink-0;
+  }
+}
+.filter-content {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: #000000 transparent  ; /* Thumb and track colors for Firefox */
+  /* width: 95%; */
+  /* For WebKit browsers (Chrome, Edge, Safari) */
+  --scrollbar-track: #ffffff;
+  --scrollbar-thumb: #ffffff;
+  --scrollbar-thumb-hover: #b2171f;
+  margin-right: 12.5px !important;
+}

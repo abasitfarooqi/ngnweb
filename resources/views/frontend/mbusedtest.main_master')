@@ -1,0 +1,1916 @@
+@extends('frontend.main_master')
+
+@section('content')
+    <style>
+        .product-info-key .product-info-value {
+            font-size: 12px !important;
+            line-height: 24px;
+        }
+
+        .sold-badge {
+            background-color: #b89592;
+            color: white;
+            font-weight: bold;
+            padding: 5px;
+            border-radius: 5px;
+        }
+    </style>
+    <ul class="row">
+            <!--[if BLOCK]><![endif]-->                <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse8" aria-expanded="true" aria-controls="collapse8">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Hornet</h3>
+                                        <h4 class="product-sq-price"><span>£2500.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse8" class="collapse" aria-labelledby="heading8" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****DXZ</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2010</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>599</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>72483</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+
+    <!-- Page title -->
+    <div class="page-title parallax parallax1 pagehero-header">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <div class="pagehero-title-heading">
+                        <h1 class="">Used Motorcycles For Sale</h1>
+                    </div>
+                    <div class="breadcrumbs">
+                        <ul class="breadcrumbul-parallax">
+                            <li><a href="/">Home Page</a></li>
+                            <li><a href="{{ route('sale-motorcycles') }}">Motorcycle Sales</a></li>
+                            <li><a href="{{ route('motorcycles.used') }}">Used Motorcycles for Sales</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container ">
+        <ul class="row">
+            <!--[if BLOCK]><![endif]-->                <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse8" aria-expanded="true" aria-controls="collapse8">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Hornet</h3>
+                                        <h4 class="product-sq-price"><span>£2500.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse8" class="collapse" aria-labelledby="heading8" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****DXZ</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2010</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>599</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>72483</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse9" aria-expanded="true" aria-controls="collapse9">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Pcx</h3>
+                                        <h4 class="product-sq-price"><span>£800.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse9" class="collapse" aria-labelledby="heading9" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****HHO</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2011</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>SILVER</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>54131</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse10" aria-expanded="true" aria-controls="collapse10">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Cbr</h3>
+                                        <h4 class="product-sq-price"><span>£1800.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse10" class="collapse" aria-labelledby="heading10" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****XST</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2018</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>WHITE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>5405</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse11" aria-expanded="true" aria-controls="collapse11">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Forza</h3>
+                                        <h4 class="product-sq-price"><span>£3100.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse11" class="collapse" aria-labelledby="heading11" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****CKC</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2019</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>RED</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>49671</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse12" aria-expanded="true" aria-controls="collapse12">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh Mode</h3>
+                                        <h4 class="product-sq-price"><span>£1700.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse12" class="collapse" aria-labelledby="heading12" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****CWE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2020</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>WHITE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>11215</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse14" aria-expanded="true" aria-controls="collapse14">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh</h3>
+                                        <h4 class="product-sq-price"><span>£1400.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse14" class="collapse" aria-labelledby="heading14" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****WBY</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2014</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>123260</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse16" aria-expanded="true" aria-controls="collapse16">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh</h3>
+                                        <h4 class="product-sq-price"><span>£2150.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse16" class="collapse" aria-labelledby="heading16" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****YSL</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2022</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>WHITE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>23063</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse17" aria-expanded="true" aria-controls="collapse17">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Pcx</h3>
+                                        <h4 class="product-sq-price"><span>£2450.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse17" class="collapse" aria-labelledby="heading17" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****SHB</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2021</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>SILVER</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>23765</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse18" aria-expanded="true" aria-controls="collapse18">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Vision</h3>
+                                        <h4 class="product-sq-price"><span>£1400.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse18" class="collapse" aria-labelledby="heading18" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****ZNE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2016</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>108</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>39401</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse19" aria-expanded="true" aria-controls="collapse19">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Pcx</h3>
+                                        <h4 class="product-sq-price"><span>£1600.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse19" class="collapse" aria-labelledby="heading19" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****OEL</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2020</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>70639</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse20" aria-expanded="true" aria-controls="collapse20">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh Mode</h3>
+                                        <h4 class="product-sq-price"><span>£1600.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse20" class="collapse" aria-labelledby="heading20" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****JGO</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2017</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>39512</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse21" aria-expanded="true" aria-controls="collapse21">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Pcx</h3>
+                                        <h4 class="product-sq-price"><span>£1150.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse21" class="collapse" aria-labelledby="heading21" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****KKU</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2015</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>WHITE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>81034</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse22" aria-expanded="true" aria-controls="collapse22">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh Mode</h3>
+                                        <h4 class="product-sq-price"><span>£1160.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse22" class="collapse" aria-labelledby="heading22" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****KUC</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2014</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>40781</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse27" aria-expanded="true" aria-controls="collapse27">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh 300</h3>
+                                        <h4 class="product-sq-price"><span>£2950.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse27" class="collapse" aria-labelledby="heading27" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****KGF</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2018</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>279</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>RED</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>31907</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse31" aria-expanded="true" aria-controls="collapse31">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/storage/uploads/motorbikes/lvjl55Dua0QGzVbtbo787MPeDcnTxbPSSLgJVXc8.jpg" alt="Used HONDA SH For sale London, Tooting, Catford" style="width:100%;    ">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh</h3>
+                                        <h4 class="product-sq-price"><span>£1790.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse31" class="collapse" aria-labelledby="heading31" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****HGD</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2020</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>RED</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>80011</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse214" aria-expanded="true" aria-controls="collapse214">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Honda</h3>
+                                        <h4 class="product-sq-price"><span>£3000.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse214" class="collapse" aria-labelledby="heading214" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****GGO</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2016</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>1000</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse4" aria-expanded="true" aria-controls="collapse4">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-warning" style="font-size: 16px;background-color: #c31924;">Used</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Honda
+                                            Sh 125</h3>
+                                        <h4 class="product-sq-price"><span>£1799.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse4" class="collapse" aria-labelledby="heading4" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****UJZ</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2020</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>WHITE</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>83448</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse26" aria-expanded="true" aria-controls="collapse26">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Swm
+                                            S.w.m 650 </h3>
+                                        <h4 class="product-sq-price"><span>£3299.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse26" class="collapse" aria-labelledby="heading26" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****FPU</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2018</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>600</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>7049</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse15" aria-expanded="true" aria-controls="collapse15">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Yamaha
+                                            Xenter</h3>
+                                        <h4 class="product-sq-price"><span>£1100.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse15" class="collapse" aria-labelledby="heading15" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****LSN</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2012</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>124</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>BLACK</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>27560</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+                            <li class="col-lg-3 col-md-4 col-sm-6  col-xs-12 mt-4 mb-4">
+                    <div class="product-sq" data-toggle="collapse" data-target="#collapse23" aria-expanded="true" aria-controls="collapse23">
+                        <div style="position: relative;">
+                            <div class="text-left" style="position: absolute; top: 11px; left: 14px; z-index: 10;">
+                                <!--[if BLOCK]><![endif]-->                                    <span class="badge badge-danger" style="font-size: 16px;background-color: #474747;">Sold</span>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </div>
+                            <a href="#" style="z-index:auto;">
+
+                                <!--[if BLOCK]><![endif]-->                                    <div style="position:relative; z-index: 1;">
+                                        <img loading="lazy" src="https://neguinhomotors.co.uk/assets/img/no-image.png" alt="No Image Available" style="width:100%;">
+                                    </div>
+                                <!--[if ENDBLOCK]><![endif]-->
+                            </a>
+                            <div class="clearfix"></div>
+                        </div>
+                        <div class="clearfix"></div>
+                        <div class="motorcycle-card" style="">
+                            <div class="row">
+                                <div class="col-md-9 col-sm-9 col-xs-9">
+                                    <div class="" style="">
+                                        <h3 class="product-sq-title" style="">
+                                            Yamaha
+                                            Nmax</h3>
+                                        <h4 class="product-sq-price"><span>£2400.00</span></h4>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3">
+                                    <div class="icon-area">
+                                        <i class="fa fa-chevron-down " style="" aria-hidden="true"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="accordion">
+                                <div class="motorcycle-card">
+                                    <div id="collapse23" class="collapse" aria-labelledby="heading23" data-parent="#accordion">
+                                        <div class="card-body product-sq-toggle-hideshow">
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Reg No. </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>****EGJ</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Year </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>2021</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Engine </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>125</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Color </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>GREY</strong></span>
+                                                </div>
+                                            </div>
+
+                                            <div class="row">
+                                                <div class="col-md-6 col-sm-6 col-xs-6"><span>Mileage </span></div>
+                                                <div class="col-md-6 col-sm-6 col-xs-6 tright-d">
+                                                    <span><strong>11121</strong></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style="text-align: center;" class="mt-1">
+                                <strong>
+                                    <a href="tel:02083141498" class="btn btn-sm ngn-btn" style="width: 100%;padding:4px;">CALL NOW
+                                        02083141498</a>
+                                </strong>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </li>
+            <!--[if ENDBLOCK]><![endif]-->
+        </ul>
+    </div>
+@endsection
+
+{{-- <script src="//unpkg.com/alpinejs" defer></script> --}}

@@ -1,0 +1,18 @@
+Typical SOP to request and response:
+In simpler terms, here's how the process flows for displaying a complex report on the UI, facilitated by a Controller, which in turn contacts a Service, and the Service contacts a Repository:
+
+Controller: Acts as the middleman between your UI (user interface) and the application logic. It receives the request from the UI to generate a complex report.
+
+Service: The Controller then delegates this request to a Service. The Service contains the business logic needed to assemble the report. It knows what data is needed and how to process it, but it doesn't directly fetch the data from the database.
+
+Repository: The Service contacts the Repository to retrieve the necessary data. The Repository knows how to access the database and perform the necessary queries to fetch the data. It acts as a layer that abstracts the data source from the rest of the application.
+
+Data Flow: Once the Repository fetches the data, it returns it to the Service. The Service may then perform additional processing or logic on this data, preparing it exactly as needed for the report.
+
+Response: Finally, the processed report data is sent back from the Service to the Controller, which then sends it to the UI to be displayed to the user.
+
+This structure helps keep your application organized, making it easier to manage, update, and test by clearly separating concerns:
+
+- Controllers handle HTTP requests and responses.
+- Services implement the business logic.
+- Repositories manage data access and manipulation.

@@ -1,0 +1,49 @@
+
+<!-- POST Requests
+    Endpoint: /admin/renting/bookings/motorbike-pricing
+
+    Trigger: Confirm Motorbike Selection (#btn-confirm-selection in #modal-motorbike).
+    Endpoint: /admin/customers/documents/left
+
+    Trigger: Confirm Customer Selection (#btn-confirm-customer-selection in #modal-customer).
+    Endpoint: /admin/renting/bookings/create
+
+    Trigger: Automatically invoked after confirming customer selection, not directly tied to a button click but part of the customer selection process.
+    Endpoint: /admin/renting/bookings/update
+
+    Trigger: Confirm Payment Selection (#btn-confirm-customer-selection in #modal-paynow).
+    Endpoint: /admin/renting/customers/{customer_id}/documents/upload (Dynamic endpoint depending on the customer ID)
+
+    Trigger: Document upload input change, not a button but triggered by file input change (input[type="file"]).
+    -->
+    <!-- GET Requests
+    Endpoint: {{ '/admin/payment-methods' }} (Exact endpoint might vary based on template rendering)
+
+    Trigger: Click on Payment Modal (#btnpaynow).
+    Endpoint: /generate-agreement-access/{customer_id} (Assumed based on description)
+
+    Trigger: Generate QR Code Button (#btnGenQR). 
+-->
+<!-- 
+    Modals: ////
+    Success Alert Modal (#modal-success)
+    Error Alert Modal (#modal-error)
+    Issue Alert Modal (#modal-issue)
+    Motorbike Selection Modal (#modal-motorbike)
+    Customer Selection Modal (#modal-customer)
+    Payment Modal (#modal-paynow)
+    Finished Modal (#modal-finished)
+    BUTTONS ////
+    Close Button (data-bs-dismiss="modal")
+    Confirm Selection Button (#btn-confirm-selection)
+    Cancel Selection Button (#btn-cancel-selection)
+    Confirm Customer Selection Button (#btn-confirm-customer-selection)
+    Cancel Customer Selection Button (#btn-cancel-customer-selection)
+    Confirm Payment Button (Same ID as Confirm Customer Selection)
+    Cancel Payment Button (Same ID as Cancel Customer Selection)
+    Send Upload Link Button (#btnSendUploadLink)
+    Proceed with Documents Button (#btnDocsCompleted)
+    Generate QR Code Button (#btnGenQR)
+    Send Agreement Contract Button (#btnAgreementSend)
+    Done Button (#btnFinished)
+ -->

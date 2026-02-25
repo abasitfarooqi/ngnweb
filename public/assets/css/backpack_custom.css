@@ -1,0 +1,113 @@
+.my-gradient-admin{
+    background: linear-gradient(90deg, #1d1d1d 50%, #1d1d1d 50%) !important;
+    background-size: 200% 100%;
+    animation: gradient 1.5s linear infinite;
+    color: fff;
+}
+.sidebar-nav .nav-link {
+    color: #fff !important;
+}
+.sidebar-nav .nav-link.active {
+    color: #fff !important;
+    background: #000000;
+}
+.sidebar-nav .nav-link.active .nav-icon {
+    color: #fff !important;
+}
+.sidebar-nav .nav-title {
+    color: #fff !important;
+}
+.sidebar-nav .nav-link {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    padding: var(--cui-sidebar-nav-link-padding-y) var(--cui-sidebar-nav-link-padding-x);
+    color: var(--cui-sidebar-nav-link-color);
+    text-decoration: none;
+    white-space: nowrap;
+    /* background: #; */
+    border: var(--cui-sidebar-nav-link-border);
+    border-radius: var(--cui-sidebar-nav-link-border-radius);
+    transition: background .15s ease, color .15s ease;
+}
+.sidebar-nav .nav-icon {
+    color: rgb(239 82 82);
+}
+.sidebar-nav .nav-link:hover .nav-icon {
+    color: rgb(239 82 82);
+}
+
+.sidebar-nav .nav-link {
+    font-size: 12px !important;
+    height: 35px !important;
+}
+/* 
+.sidebar-nav .nav-title {
+    font-size: 13px !important;
+}
+
+.navbar-brand {
+    font-size: 16px !important;
+} */
+/* 
+.card-header {
+    font-size: 12px !important;
+}
+
+.table {
+    font-size: 12px !important;
+}
+
+.btn {
+    font-size: 12px !important;
+}
+
+.form-control {
+    font-size: 13px !important;
+} */
+
+
+/* Menu Sub-items Styling */
+.sidebar-nav .nav-dropdown-items {
+    background-color: rgba(0, 0, 0, 0.3) !important;
+    margin-left: 10px !important;
+    border-left: 3px solid rgba(119, 106, 106, 0.5) !important;
+}
+
+.sidebar-nav .nav-dropdown-items .nav-link {
+    padding-left: 20px !important;
+    font-size: 11px !important;
+    height: 30px !important;
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    margin-bottom: 1px !important;
+    border-radius: 0 !important;
+}
+
+.sidebar-nav .nav-dropdown-items .nav-link:hover {
+    background-color: rgba(239, 82, 82, 0.2) !important;
+    color: #fff !important;
+}
+
+.sidebar-nav .nav-dropdown-items .nav-link.active {
+    background-color: rgba(233, 121, 121, 0.3) !important;
+    color: #ede3e3 !important;
+}
+
+/* Main dropdown items */
+.sidebar-nav .nav-dropdown-toggle {
+    font-weight: 600 !important;
+    background-color: rgba(0, 0, 0, 0.1) !important;
+}
+
+.sidebar-nav .nav-dropdown-toggle:hover {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Dropdown arrow styling */
+.sidebar-nav .nav-dropdown-toggle .nav-icon {
+    transition: transform 0.3s ease !important;
+}
+
+.sidebar-nav .nav-dropdown-toggle[aria-expanded="true"] .nav-icon {
+    transform: rotate(90deg) !important;
+}

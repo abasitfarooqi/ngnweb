@@ -1,0 +1,89 @@
+
+
+
+WITH member_visits AS (
+    SELECT 
+        cm.make,
+        cm.model,
+        COUNT(*) AS total_visits
+    FROM club_member_purchases cmp
+    INNER JOIN club_members cm
+        ON cmp.club_member_id = cm.id
+    WHERE cmp.created_at >= LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 4 MONTH)) + INTERVAL 1 DAY
+      AND cmp.created_at < LAST_DAY(DATE_SUB(CURDATE(), INTERVAL 0 MONTH)) + INTERVAL 1 DAY
+      AND cm.make IS NOT NULL
+      AND cm.model IS NOT NULL
+      AND TRIM(cm.make) != ''
+      AND TRIM(cm.model) != ''
+    GROUP BY cm.make, cm.model
+),
+make_totals AS (
+    SELECT 
+        make,
+        SUM(total_visits) AS make_total
+    FROM member_visits
+    GROUP BY make
+)
+SELECT 
+    mt.make,
+    CONCAT(' ', mv.model) AS model,
+    mv.total_visits,
+    mt.make_total
+FROM make_totals mt
+INNER JOIN member_visits mv
+    ON mv.make = mt.make
+ORDER BY mt.make_total DESC, mv.total_visits DESC;
+
+---
+
+SELECT 
+    cm.make,
+    COUNT(*) AS total_visits
+FROM club_member_purchases cmp
+INNER JOIN club_members cm
+    ON cmp.club_member_id = cm.id
+WHERE cmp.created_at >= MAKEDATE(YEAR(CURDATE()), 1)   -- 1 Jan of current year
+  AND cmp.created_at < MAKEDATE(YEAR(CURDATE()) + 1, 1) -- 1 Jan next year
+  AND cm.make IS NOT NULL
+  AND TRIM(cm.make) != ''
+GROUP BY cm.make
+ORDER BY total_visits DESC;
+
+
+
+--
+
+WITH member_visits AS (
+    SELECT 
+        cm.make,
+        cm.model,
+        COUNT(*) AS total_visits
+    FROM club_member_purchases cmp
+    INNER JOIN club_members cm
+        ON cmp.club_member_id = cm.id
+    WHERE cmp.created_at >= MAKEDATE(YEAR(CURDATE()), 1)   -- 1 Jan of current year
+      AND cmp.created_at < MAKEDATE(YEAR(CURDATE()) + 1, 1) -- 1 Jan next year
+      AND cm.make IS NOT NULL
+      AND cm.model IS NOT NULL
+      AND TRIM(cm.make) != ''
+      AND TRIM(cm.model) != ''
+    GROUP BY cm.make, cm.model
+),
+make_totals AS (
+    SELECT 
+        make,
+        SUM(total_visits) AS make_total
+    FROM member_visits
+    GROUP BY make
+)
+SELECT 
+    mt.make,
+    CONCAT(' ', mv.model) AS model,
+    mv.total_visits,
+    mt.make_total
+FROM make_totals mt
+INNER JOIN member_visits mv
+    ON mv.make = mt.make
+ORDER BY mt.make_total DESC, mv.total_visits DESC;
+
+

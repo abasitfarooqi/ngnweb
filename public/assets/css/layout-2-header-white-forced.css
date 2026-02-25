@@ -1,0 +1,544 @@
+
+header {
+    background-color: rgb(255, 255, 255) !important;
+    box-shadow: 0px 5px 14.25px 0.75px #ff030c;
+}
+
+#header,
+.header {
+    background-color: white !important;
+    box-shadow: 0 0 0 aliceblue;
+}
+
+#site-header-inner {
+    background-color: rgb(255, 255, 255) !important;
+}
+#header.is-fixed {
+    background-color: rgb(255, 255, 255);
+  }
+header.homepagex {
+    background-color: transparent !important;
+}
+
+
+
+
+#header.header-bg-#000000 -toggle {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+/* This rule keeps homepagex transparent but allows toggling to #000000  when needed */
+#header.homepagex {
+    background-color: transparent !important;
+}
+
+#site-header-inner.homepagex {
+    background-color: transparent !important;
+}
+#header.header-bg-#000000 -toggle {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+/* Preserves the original transparent background when not toggled */
+#header.homepagex.header-bg-#000000 -toggle {
+    background-color: rgb(255, 255, 255) !important;
+}
+
+#mainnav>ul>li>a {
+    color: #ff030c;
+}
+
+.mobile-button::before, .mobile-button::after, .mobile-button span {
+    background-color: #000;
+}
+.menu-extra li a {
+    color: #000000 ;
+}
+
+#mainnav>ul>li.active>a,
+#mainnav>ul>li>a:hover {
+    color: #ff030c;
+}
+
+.HeaderBG{
+    background-color: white !important;
+}
+
+.HeaderBG #mainnav>ul>li>a {
+    color: #ff030c;
+}
+
+.HeaderBG.menu-extra li a {
+    color: #ff030c;
+}
+
+.HeaderBG #mainnav>ul>li.active>a,
+#mainnav>ul>li>a:hover {
+    color: #ff030c;
+}
+/* ------------ navigation setting css */
+
+#mainnav>ul>li.active>a,
+#mainnav>ul>li>a:hover {
+    color: #ff030c;
+}
+
+/* Submenu */
+#mainnav ul.submenu {
+    position: absolute;
+    top: 150%;
+    left: 0;
+    width: 230px;
+    background: #ffffff;
+    box-shadow: 0px 5px 14.25px 0.75px rgba(0, 0, 0, 0.05);
+    padding: 0px 0px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#mainnav ul.submenu:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: #C31924;
+}
+#mainnav ul.submenu:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: #C31924;
+}
+
+#mainnav ul.submenu>li>a {
+    font-weight: 400;
+    line-height: 45px;
+    color: #000000;
+    padding: 0px 0px 0px 12px;
+    display: block;
+    margin-bottom: 2px;
+    font-size: 21px;
+}
+
+#mainnav ul.submenu li ul {
+    position: absolute;
+    left: 220px;
+    /* top: -15px !important; */
+}
+
+#mainnav ul.submenu>li>a:hover,
+#mainnav ul.submenu>li.active>a,
+#mainnav ul.submenu-child>li.active>a {
+    background: #000000;
+}
+#mainnav ul.submenu > li > a:hover{
+    color: white;
+}
+/* mobile nav setting */
+/* Main nav mobile */
+#mainnav-mobi {
+    margin: 0 auto;
+    width: 100%;
+    /* position: absolute; */
+    top: 100%;
+    left: 0;
+    z-index: 9999;
+    background-color: #ffffff;
+}
+
+#mainnav-mobi ul li {
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    border-top: 1px solid #333;
+    background: #ffffff;
+}
+
+#mainnav-mobi ul li.active>a {
+    color: #C31924;
+}
+
+#mainnav-mobi ul li a {
+    display: inline-block;
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 48px;
+    color: #000000;
+}
+
+#mainnav-mobi>ul>li>a {
+    padding: 0px 20px;
+}
+
+#mainnav-mobi ul.submenu>li>a {
+    padding: 0px 40px;
+}
+
+#mainnav-mobi ul.submenu li ul.submenu>li>a {
+    padding: 0px 60px;
+}
+
+.btn-submenu {
+    color: #fff;
+    background: #000000;
+}
+
+
+.homepagex #mainnav>ul>li.active>a,
+.homepagex #mainnav>ul>li>a:hover {
+    color: #ff030c !important;
+}
+
+.is-fixed.HeaderBG #mainnav>ul>li.active>a,
+.is-fixed.HeaderBG #mainnav>ul>li>a:hover{
+    color: #ff030c;
+}
+
+
+header {
+    background-color: rgb(255,255,255) !important;
+    box-shadow: 0px 5px 14.25px 0.75px #ff030c;
+}
+
+#header,
+.header {
+    background-color: white !important;
+    box-shadow: 0 0 0 aliceblue;
+}
+
+#site-header-inner {
+    background-color: rgb(255,255,255) !important;
+}
+#header.is-fixed {
+    background-color: rgb(255,255,255);
+  }
+header.homepagex {
+    background-color: white !important;
+}
+.forced-whited{
+    background-color: white !important;
+}
+#header.homepagex {
+    background-color: white !important;
+}
+
+.has-menu-extra .menu-extra {
+    display: inherit;
+    z-index: 500;
+}
+
+.header-style-2.has-menu-extra .nav-wrap {
+    position: inherit;
+    top: inherit;
+    right: inherit;
+    transform: inherit;
+}
+
+.header-style-2 .nav-wrap {
+    position: inherit;
+    top: inherit;
+    right: inherit;
+    transform: inherit;
+}
+
+.header-style-2.header-center .menu-extra>li,
+.header-style-2.header-center #mainnav.hlayout-2>ul>li>a,
+.header-absolute .menu-extra>li,
+.header-absolute #mainnav.hlayout-2>ul>li>a {
+    line-height: 18px;
+}
+
+#mainnav.hlayout-2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* padding: 10px 20px; */
+}
+
+#mainnav.hlayout-2>ul>li>a {
+    font-weight: 500;
+    font-size: 1.3rem;
+    line-height: inherit;
+    margin: 0;
+    padding: 10px 10px;
+    display: block;
+    text-decoration: none;
+    letter-spacing: 0.1rem;
+    color:black;
+}
+
+#mainnav.hlayout-2 > ul > li:first-child > a {
+    padding-left: 0; /* Remove left padding for the first list item */
+}
+
+
+.mot-button {
+    position: absolute;
+    right: 20px;
+    /* Adjust as needed */
+    top: 50%;
+    transform: translateY(-50%);
+    list-style: none;
+    border: 0.5px solid gray;
+    border-radius: 10px;
+}
+
+.mot-button a {
+    text-decoration: none;
+    color: gray;
+    padding: 10px 15px;
+    display: block;
+}
+
+#mainnav.hlayout-2>ul {
+    display: inherit;
+    /* Ensures the main menu is displayed inline */
+    margin-right: inherit;
+    /* Pushes the menu to the left */
+}
+
+#mainnav>ul {
+    list-style: inherit;
+    margin: inherit;
+    margin-right: inherit;
+    padding: inherit;
+}
+
+/* Ensure the nav container takes up full width within hlayout-2 */
+.hlayout-2 nav.mainnav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+}
+
+.hlayout-2 ul.menu {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.hlayout-2 ul.menu.left-menu {
+    flex: 1;
+    /* This will make the left menu take up available space */
+    justify-content: flex-start;
+    /* Align items to the left */
+}
+
+.hlayout-2 ul.menu.right-menu {
+    justify-content: flex-end;
+    /* Align items to the right */
+}
+
+.hlayout-2 ul.menu li a {
+    text-decoration: none;
+    color: #333;
+    /* Adjust the color as needed */
+}
+
+.hlayout-2 ul.menu li ul.submenu {
+    display: none;
+    /* Initially hide submenus */
+    position: absolute;
+    background-color: #000000;
+    box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.hlayout-2 ul.menu li:hover ul.submenu {
+    display: block;
+    /* Show submenu on hover */
+}
+
+
+
+#site-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-search-bar {
+    display: flex;
+    flex: 1;
+    /* Takes up available space between logo and cart chnging */
+    padding-left: 50px;
+  padding-right: 100px;
+}
+/*
+.header-search-bar {
+    display: flex;
+    flex: 1;
+    padding-right: 50px;
+} */
+
+.talkus-box {
+    font-size: 13.5px; /* Default size for smaller screens */
+}
+
+
+@media (min-width: 950px) {
+    .talkus-box {
+        font-size: 14px;
+    }
+}
+@media (min-width: 1200px) {
+    .talkus-box {
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 1400px) {
+    .talkus-box {
+        font-size: 20px;
+    }
+}
+
+
+.header-search-form {
+    width: 100%;
+    display: flex;
+}
+
+.header-search-field {
+    flex: 1;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px 0 0 4px;
+    box-sizing: border-box;
+    color:black !important;
+}
+
+.header-search-submit {
+    padding: 5px 15px;
+    color: #f4f4f4;
+    border: 1px solid #C31924;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-weight: 300;
+/*
+font-weight: 700;
+color: #000000;
+line-height: 30px;
+text-transform: uppercase;
+padding: 7px 26px; */
+background-color: #C31924;
+}
+
+.menu-extra {
+    position: inherit;
+    top: inherit;
+    transform: inherit;
+    right: inherit;
+    display: inherit;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+/* Hide the center search bar on mobile devices */
+@media (max-width: 992px) {
+    .header-search-bar {
+        display: none;
+    }
+
+    .has-menu-extra .menu-extra {
+        display: block;
+        z-index: 500;
+    }
+
+    .menu-extra {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        right: 0;
+        display: inline-block;
+        display: flex;
+        justify-content: inherit;
+        align-items: inherit;
+    }
+    .menu-extra ul{
+    display: flex;
+    }
+    .menu-extra .header-search-form .header-search-field {
+        border-radius: 6px;
+        margin-left: -48px;
+  margin-top: 40px;
+      }
+
+.menu-extra .header-search-form .header-search-field {
+    margin: 0;
+    padding-top: 10px;
+    padding-bottom: 8px;
+    padding-left: 28px;
+    background-color: #fff;
+    box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.15);
+    color: black;
+}
+
+/* Search show */
+.menu-extra li.box-search .header-search-form {
+    position: absolute;
+    top: 100%;
+    right: -50px;
+    width: 270px;
+    line-height: normal;
+    opacity: 0;
+    visibility: hidden;
+}
+    /* Show the clickable search icon on mobile devices */
+    .box-search.d-lg-none {
+        display: inline-block;
+        margin-right: 10px !important;
+    }
+}
+
+
+.menu-extra li a {
+    background: #e3e3e3;
+    color:black;
+  }
+  .mobile-button:before,
+  .mobile-button:after,
+  .mobile-button span {
+      background-color: #000;
+      -webkit-transition: all 0.3s ease-in-out;
+      -moz-transition: all 0.3s ease-in-out;
+      -ms-transition: all 0.3s ease-in-out;
+      -o-transition: all 0.3s ease-in-out;
+      transition: all 0.3s ease-in-out;
+  }
+
+  #header.header-bg-black-toggle {
+    background-color: #ffffff !important;
+  }
+
+  #header.homepagex.header-bg-black-toggle {
+    background-color: #ffffff !important;
+  }
+
+  @media (max-width: 992px) {
+    .hlayout-2 ul.menu li ul.submenu {
+        /* Initially hide submenus */
+        position: inherit;
+    }
+    }
+    #site-header-inner {
+
+        padding: 10px 0 0px 0 !important;
+      }

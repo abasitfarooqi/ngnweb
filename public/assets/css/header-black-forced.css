@@ -1,0 +1,166 @@
+header {
+    background-color: #000000 /* blackish */ !important;
+    box-shadow: 0px 5px 14.25px 0.75px #ff030c;
+}
+
+#header,
+.header {
+    background-color: #000000 /* blackish */ !important;
+    box-shadow: 0 0 0 aliceblue;
+}
+
+#site-header-inner {
+    background-color: #000000 /* blackish */ !important;
+}
+
+#header.is-fixed {
+    background-color: #000000 /* blackish */;
+}
+
+header.homepagex {
+    background-color: #000000 /* blackish */ !important;
+}
+
+.forced-blacked {
+    background-color: #000000 /* blackish */ !important;
+}
+
+#header.homepagex {
+    background-color: #000000 /* blackish */ !important;
+}
+
+.forced-blacked #mainnav.hlayout-2>ul>li.active>a,
+#mainnav.hlayout-2>ul>li>a:hover {
+    color: #ff030c;
+}
+
+.homepagex #mainnav.hlayout-2>ul>li.active>a,
+.homepagex #mainnav.hlayout-2>ul>li>a:hover {
+    color: #ff030c !important;
+}
+
+
+
+#mainnav.hlayout-2>ul>li.active>a,
+#mainnav.hlayout-2>ul>li>a:hover {
+    color: #C31924;
+}
+
+/* Submenu */
+#mainnav.hlayout-2 ul.submenu {
+    position: absolute;
+    top: 150%;
+    left: 0;
+    width: 230px;
+    background: #ffffff;
+    box-shadow: 0px 5px 14.25px 0.75px rgba(0, 0, 0, 0.05);
+    padding: 0px 0px;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+
+#mainnav.hlayout-2 ul.submenu:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #C31924;
+    /* submenu-menu-border-top */
+    /* menu color */
+}
+
+#mainnav.hlayout-2 ul.submenu:after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 3px;
+    width: 100%;
+    background: #C31924;
+    /* submenu-menu-border-top */
+    /* menu color */
+}
+
+#mainnav.hlayout-2 ul.submenu>li>a {
+    font-weight: 400;
+    line-height: 45px;
+    color: #000000 /* blackish */;
+    padding: 0px 0px 0px 12px;
+    display: block;
+    margin-bottom: 2px;
+    font-size: 21px;
+}
+
+#mainnav.hlayout-2 ul.submenu li ul {
+    position: absolute;
+    left: 220px;
+    top: -15px !important;
+}
+
+#mainnav.hlayout-2 ul.submenu>li>a:hover,
+#mainnav.hlayout-2 ul.submenu>li.active>a,
+#mainnav.hlayout-2 ul.submenu-child>li.active>a {
+    background: #000000 /* blackish */;
+}
+
+#mainnav.hlayout-2 ul.submenu>li>a:hover {
+    color: white;
+}
+
+/* mobile nav setting */
+/* Main nav mobile */
+#mainnav.hlayout-2-mobi {
+    margin: 0 auto;
+    width: 100%;
+    /* position: absolute; */
+    top: 100%;
+    left: 0;
+    z-index: 9999;
+    background-color: #000000 /* blackish */;
+}
+
+#mainnav.hlayout-2-mobi ul li {
+    margin: 0;
+    text-align: left;
+    cursor: pointer;
+    padding: 0;
+    position: relative;
+    border-top: 1px solid #333;
+}
+
+#mainnav.hlayout-2-mobi ul li.active>a {
+    color: #C31924;
+}
+
+#mainnav.hlayout-2-mobi ul li a {
+    display: inline-block;
+    text-transform: uppercase;
+    font-weight: 400;
+    line-height: 48px;
+    color: #ffffff;
+}
+
+#mainnav.hlayout-2-mobi>ul>li>a {
+    padding: 0px 20px;
+}
+
+#mainnav.hlayout-2-mobi ul.submenu>li>a {
+    padding: 0px 40px;
+}
+
+#mainnav.hlayout-2-mobi ul.submenu li ul.submenu>li>a {
+    padding: 0px 60px;
+}
+
+.btn-submenu {
+    color: #000000 /* blackish */;
+    background: #ffffff;
+}

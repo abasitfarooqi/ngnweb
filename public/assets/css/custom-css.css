@@ -1,0 +1,192 @@
+/* ADDED BY SHARIQ */
+
+.selection-section {
+    display: none;
+    font-size: 12px;
+}
+
+.selected-customer {
+    display: none;
+    font-size: 12px;
+}
+
+.regplate {
+    background-color: #efd83e !important;
+    font-size: 16px;
+    color: rgb(0, 0, 0) !important;
+    text-shadow: 1px 1px 1px rgb(255, 255, 255);
+    max-width: 190px;
+    min-width: 140px;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.selected-vehicle {
+    display: none;
+    font-size: 12px;
+    color: white;    
+}
+
+.selected-payment {
+    display: none;
+}
+
+.selected-agreement {
+    display: none;
+}
+
+.inforce-font-size{
+    font-size: 0.70rem !important;
+}
+
+.stateReadyColor{
+    background-color: #ffd866 !important;
+    /* max-width: 190px;
+    min-width: 180px; */
+    color:  rgb(0, 0, 0);
+    text-shadow: 1px 1px 1px rgb(255, 255, 255);
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.stateGoColor{
+    background-color: #66ff66 !important;
+    /* max-width: 190px;
+    min-width: 180px; */
+    color:  rgb(0, 0, 0);
+    text-shadow: 1px 1px 1px rgb(255, 255, 255);;
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.stateStopColor{
+    background-color: #ff6666 !important;
+    /* max-width: 190px;
+    min-width: 180px; */
+    color:  rgb(255, 255, 255);
+    text-shadow: 1px 1px 1px rgb(0, 0, 0);
+    border-radius: 5px;
+    padding: 8px;
+}
+
+.stateReadyColor-square{
+    background-color: #ffd866 !important;
+    color:  rgb(0, 0, 0);
+    text-shadow: 1px 1px 1px rgb(255, 255, 255);
+    padding: 20px;
+    margin-right: 6px;
+    border-radius: 5px;
+}
+
+.stateGoColor-square{
+    background-color: #66ff66 !important;
+    color:  rgb(0, 0, 0);
+    text-shadow: 1px 1px 1px rgb(255, 255, 255);
+    padding: 20px;
+    margin-right: 6px;
+    border-radius: 5px;
+}
+
+.stateStopColor-square{
+    background-color: #ff6666 !important;
+    color:  rgb(255, 255, 255);
+    text-shadow: 1px 1px 1px rgb(0, 0, 0);
+    padding: 20px;
+    margin-right: 6px;
+    border-radius: 5px;
+}
+
+.inforce-font-color{
+    color: #000 !important;
+}
+
+.inforce-padding{
+    padding: 0.3rem !important;
+}
+
+.selected-row {
+    background-color: #85b0f8;
+    color: rgb(0, 0, 0) !important;
+}
+
+@media only screen and (max-width: 600px) {
+
+    .selection-section,
+    .selected-customer,
+    .selected-vehicle,
+    .selected-payment,
+    .selected-agreement {
+        font-size: 10px;
+    }
+
+    .stateReadyColor,
+    .stateGoColor,
+    .stateStopColor {
+        padding: 6px;
+    }
+
+    .regplate {
+        background-color: #efd83e !important;
+        font-size: 12px !important;
+        color: rgb(0, 0, 0) !important;
+        text-shadow: 1px 1px 1px rgb(255, 255, 255);
+        max-width: 190px;
+        min-width: 140px;
+        border-radius: 5px;
+        padding: 6px;
+    }
+
+    .stateReadyColor{
+        background-color: transparent !important;
+        color:  rgb(0, 0, 0);
+        border-radius: 5px;
+        padding: 6px;
+        font-size: 10px;
+        font-weight: lighter !important;
+    }
+    
+    .stateGoColor{
+        background-color: transparent !important;
+        color:  rgb(0, 0, 0);
+        border-radius: 5px;
+        padding: 6px;
+        font-size: 10px;
+        font-weight: lighter !important;
+    }    
+    
+    .stateStopColor{
+        background-color: transparent !important;
+        color:  rgb(0, 0, 0);
+        border-radius: 5px;
+        text-shadow: none !important;
+        padding: 6px;
+        font-size: 10px;
+        font-weight: lighter !important;
+    }
+
+    .stateReadyColor-square{
+        background-color: #ffd866 !important;
+        color:  rgb(0, 0, 0);
+        padding: 20px;
+        margin-right: 6px;
+    }
+    
+    .stateGoColor-square{
+        background-color: #66ff66 !important;
+        color:  rgb(0, 0, 0);
+        padding: 20px;
+        margin-right: 6px;
+    }
+    
+    .stateStopColor-square{
+        background-color: #ff6666 !important;
+        color:  rgb(0, 0, 0);
+        padding: 20px;
+        margin-right: 6px;
+    }
+
+    .tr-booking-list {
+        font-size: 10px;
+    }
+
+}

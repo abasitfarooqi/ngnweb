@@ -1,0 +1,43 @@
+<?php
+
+namespace App\Models;
+
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Permission\Traits\HasRoles;
+
+class NgnCategory extends Model
+{
+    use CrudTrait;
+    use HasFactory;
+    use HasRoles;
+
+    protected $table = 'ngn_categories';
+
+    protected $primaryKey = 'id';
+
+    protected $fillable = [
+        'name',
+        'image_url',
+        'slug',
+        'description',
+        'is_ecommerce',
+        'is_active',
+        'sort_order',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
+        'super_category_id',
+    ];
+
+    public function products()
+    {
+        return $this->hasMany(NgnProduct::class, 'category_id');
+    }
+
+    public function superCategory()
+    {
+        return $this->belongsTo(NgnSuperCategory::class, 'super_category_id');
+    }
+}

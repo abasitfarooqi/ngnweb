@@ -1,0 +1,15 @@
+.basket-page {
+    /* Component-specific styles if needed */
+  }
+  
+  .btn-primary {
+    @apply bg-primary-500 text-white hover:bg-primary-600 rounded px-4 py-2;
+  }
+  
+  .order-summary {
+    /* Additional styles if necessary */
+  }
+  
+  .shipping-options {
+    /* Styles for shipping options section */
+  }

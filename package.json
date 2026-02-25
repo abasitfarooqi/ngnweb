@@ -1,0 +1,49 @@
+{
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && mv public/build/.vite/manifest.json public/build/manifest.json",
+        "devtools": "vue-devtools --host 0.0.0.0 --port 8098",
+        "dev:all": "concurrently \"npm run dev\" \"npm run devtools\""
+    },
+    "devDependencies": {
+        "@tailwindcss/forms": "^0.5.2",
+        "@vitejs/plugin-vue": "^5.2.1",
+        "@vue/devtools": "^7.4.4",
+        "autoprefixer": "^10.4.20",
+        "axios": "^0.28.1",
+        "concurrently": "^9.1.0",
+        "laravel-mix": "^6.0.49",
+        "laravel-vite-plugin": "^1.1.1",
+        "postcss": "^8.4.41",
+        "purgecss": "^7.0.2",
+        "tailwind-scrollbar": "^3.1.0",
+        "tailwindcss": "^3.4.17",
+        "vite": "^6.0.3",
+        "vite-plugin-vue-devtools": "^7.6.8",
+        "vue": "^3.5.13"
+    },
+    "dependencies": {
+        "@fortawesome/fontawesome-free": "^6.7.2",
+        "@headlessui/vue": "^1.7.23",
+        "@heroicons/vue": "^2.2.0",
+        "@inertiajs/vue3": "^1.2.0",
+        "@tailwindcss/aspect-ratio": "^0.4.2",
+        "@tailwindcss/typography": "^0.5.15",
+        "bootstrap": "^5.3.3",
+        "chart.js": "^4.3.1",
+        "flexslider": "^2.7.2",
+        "http-proxy-middleware": "^2.0.7",
+        "jquery": "^3.7.1",
+        "laravel-echo": "^1.19.0",
+        "pinia": "^2.3.0",
+        "puppeteer": "^24.18.0",
+        "pusher-js": "^8.4.0-rc2",
+        "vue-meta": "^3.0.0-alpha.2",
+        "vue-router": "^4.3.0"
+    },
+    "optionalDependencies": {
+        "@rollup/rollup-darwin-x64": "4.29.1"
+    }
+}
