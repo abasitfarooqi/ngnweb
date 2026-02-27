@@ -1,4 +1,4 @@
-@extends('frontend.shop')
+@extends('olders.frontend.shop')
 
 @section('content')
 <div class="product-content product-threecolumn product-slidebar clearfix">

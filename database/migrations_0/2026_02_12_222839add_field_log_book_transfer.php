@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (Schema::hasColumn('finance_applications', 'log_book_sent')) {
+            return;
+        }
+        Schema::table('finance_applications', function (Blueprint $table) {
+            $table->boolean('log_book_sent')->nullable(false)->default(false);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        if (! Schema::hasColumn('finance_applications', 'log_book_sent')) {
+            return;
+        }
+        Schema::table('finance_applications', function (Blueprint $table) {
+            $table->dropColumn('log_book_sent');
+        });
+    }
+};

@@ -1,4 +1,4 @@
-@extends('frontend.main_master')
+@extends('olders.frontend.main_master')
 
 @section('content')
 
@@ -265,7 +265,7 @@
             </div>
         </section><!-- /.shop-detail-content -->
 
-        @include('frontend.body.footer')
+        @include('olders.frontend.body.footer')
 
         <!-- Go Top -->
         <a class="go-top">

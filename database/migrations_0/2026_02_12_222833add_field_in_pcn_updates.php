@@ -1,0 +1,34 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (Schema::hasColumn('pcn_case_updates', 'is_cancled')) {
+            return;
+        }
+        Schema::table('pcn_case_updates', function (Blueprint $table) {
+            $table->boolean('is_cancled')->default(false);
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        if (! Schema::hasColumn('pcn_case_updates', 'is_cancled')) {
+            return;
+        }
+        Schema::table('pcn_case_updates', function (Blueprint $table) {
+            $table->dropColumn('is_cancled');
+        });
+    }
+};

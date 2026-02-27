@@ -23,7 +23,7 @@ use Illuminate\Support\Str;
 
 class FinanceApplicationCrudController extends CrudController
 {
-    use \Backpack\CalendarOperation\CalendarOperation;
+    // use \Backpack\CalendarOperation\CalendarOperation; // removed - L12 incompatible
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
@@ -53,33 +53,7 @@ class FinanceApplicationCrudController extends CrudController
 
     }
 
-    protected function getCalendarFieldsMap(): array
-    {
-        return [
-            'id' => 'id',
-            'first_instalment_date' => 'first_instalment_date',
-        ];
-
-        return [
-            'id' => 'id',
-            'first_instalment_date' => 'first_instalment_date',
-        ];
-    }
-
-    public function setupCalendarOperation()
-    {
-        CRUD::setOperationSetting('initial-view', 'dayGridMonth');
-
-        CRUD::setOperationSetting('views', ['dayGridMonth', 'timeGridWeek', 'timeGridDay']);
-
-        CRUD::setOperationSetting('editable', true);
-
-        CRUD::setOperationSetting('background_color', '#3788d8');
-
-        CRUD::setOperationSetting('text_color', '#ffffff');
-
-        CRUD::setOperationSetting('with-javascript-widget', true);
-    }
+    // CalendarOperation methods removed - package not compatible with L12
 
     protected function setupListOperation()
     {

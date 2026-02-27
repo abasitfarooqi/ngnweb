@@ -11,7 +11,7 @@ class MotCheckerController extends Controller
 {
     public function index()
     {
-        return view('frontend.mot_checker_form');
+        return view('olders.frontend.mot_checker_form');
     }
 
     public function submit(Request $request)

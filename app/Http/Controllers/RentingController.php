@@ -34,8 +34,7 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-// DateTime
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCodeGenerator;
 
 class RentingController extends Controller
 {
@@ -58,8 +57,7 @@ class RentingController extends Controller
 
         if ($access) {
 
-            $qrImage = QrCode::format('png')->size(200)->generate($url);
-            $qrBase64 = 'data:image/png;base64,'.base64_encode($qrImage);
+            $qrBase64 = QrCodeGenerator::dataUrl($url, 200);
 
             return response()->json([
                 'qrImage' => $qrBase64,

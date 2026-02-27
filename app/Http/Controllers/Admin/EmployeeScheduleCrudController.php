@@ -11,7 +11,7 @@ class EmployeeScheduleCrudController extends CrudController
     // use \Backpack\CRUD\app\Http\Controllers\Operations\UpdateOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
     // use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;
-    use \Backpack\CalendarOperation\CalendarOperation;
+    // use \Backpack\CalendarOperation\CalendarOperation; // removed - L12 incompatible
 
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
 
@@ -26,31 +26,7 @@ class EmployeeScheduleCrudController extends CrudController
 
     }
 
-    public function setupCalendarOperation()
-    {
-        CRUD::setOperationSetting('initial-view', 'dayGridMonth');
-        CRUD::setOperationSetting('firstDay', 2);
-        CRUD::setOperationSetting('views', ['dayGridMonth', 'timeGridWeek', 'timeGridDay']);
-        CRUD::setOperationSetting('editable', true);
-        CRUD::setOperationSetting('background_color', fn ($event) => $event->active ? 'green' : 'red');
-        CRUD::setOperationSetting('text_color', fn ($event) => $event->active ? 'white' : 'black');
-        CRUD::setOperationSetting('with-javascript-widget', true);
-        CRUD::setOperationSetting('javascript-configuration', [
-            'dayMaxEvents' => false,
-        ]);
-    }
-
-    protected function getCalendarFieldsMap()
-    {
-        return [
-            'title' => 'title',
-            'start' => 'start',
-            'end' => 'end',
-            'background_color' => 'background_color',
-            'text_color' => 'text_color',
-            'all_day' => 'all_day',
-        ];
-    }
+    // CalendarOperation methods removed - L12 incompatible
 
     protected function setupListOperation()
     {

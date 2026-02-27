@@ -17,24 +17,22 @@ class ContactController extends Controller
 {
     public function Contact()
     {
-        return view('contacts.contact');
+        return redirect('/contact', 301);
     }
 
     public function CallMeBack()
     {
-        return view('contacts.contactCallBack');
+        return redirect('/contact/call-back', 301);
     }
 
     public function TradeAccount()
     {
-        return view('contacts.contactTradeAccount');
+        return redirect('/contact/trade-account', 301);
     }
 
     public function ContactNewSales($id)
     {
-        $motorcycle = Motorcycle::findOrFail($id);
-
-        return view('contacts.contactNewSales', compact('motorcycle'));
+        return redirect('/contact', 301);
     }
 
     public function AccidentManagement(Request $request)
@@ -177,7 +175,7 @@ class ContactController extends Controller
 
     public function showBookingForm()
     {
-        return view('frontend.service-enquiry-form');
+        return redirect('/service-enquiry-form', 301);
     }
 
     public function handleBookingForm(Request $request)

@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Mail;
 
 class MOTBookingCrudController extends CrudController
 {
-    use \Backpack\CalendarOperation\CalendarOperation;
+    // use \Backpack\CalendarOperation\CalendarOperation; // removed - package not compatible with L12
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {
         store as traitStore;
@@ -109,31 +109,9 @@ class MOTBookingCrudController extends CrudController
 
     }
 
-    public function setupCalendarOperation()
-    {
-        CRUD::setOperationSetting('initial-view', 'listWeek');
-        CRUD::setOperationSetting('firstDay', 2);
-        CRUD::setOperationSetting('views', ['dayGridMonth', 'timeGridWeek', 'timeGridDay']);
-        CRUD::setOperationSetting('editable', true);
-        CRUD::setOperationSetting('background_color', fn ($event) => $event->active ? 'green' : 'red');
-        CRUD::setOperationSetting('text_color', fn ($event) => $event->active ? 'white' : 'black');
-        CRUD::setOperationSetting('with-javascript-widget', true);
-        CRUD::setOperationSetting('javascript-configuration', [
-            'dayMaxEvents' => false,
-        ]);
-    }
+    // public function setupCalendarOperation() { } // CalendarOperation removed - L12 incompatible
 
-    protected function getCalendarFieldsMap()
-    {
-        return [
-            'title' => 'title',
-            'start' => 'start',
-            'end' => 'end',
-            'background_color' => 'background_color',
-            'text_color' => 'text_color',
-            'all_day' => 'all_day',
-        ];
-    }
+    // protected function getCalendarFieldsMap() { } // CalendarOperation removed
 
     protected function setupListOperation()
     {

@@ -14,7 +14,7 @@ class NgnPartnerController extends Controller
 {
     public function showSubscribePage()
     {
-        return view('frontend.ngnpartner.subscribe');
+        return view('olders.frontend.ngnpartner.subscribe');
     }
 
     public function subscribe(Request $request)
@@ -77,11 +77,11 @@ class NgnPartnerController extends Controller
 
     public function showThankYouPage()
     {
-        return view('frontend.ngnpartner.thankyou');
+        return view('olders.frontend.ngnpartner.thankyou');
     }
 
     public function showTermsPage()
     {
-        return view('frontend.ngnpartner.terms');
+        return view('olders.frontend.ngnpartner.terms');
     }
 }

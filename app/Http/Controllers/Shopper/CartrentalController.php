@@ -25,7 +25,7 @@ class CartrentalController extends Controller
         $cartTax = $cartSubtotal * $tax;
         $newTotal = Cart::instance('default')->total();
 
-        return view('frontend.cart', [
+        return view('olders.frontend.cart', [
             'cartCount' => $cartCount,
             'cartItems' => $cartItems,
             'cartTaxRate' => $cartTaxRate,
@@ -39,7 +39,7 @@ class CartrentalController extends Controller
     // Needs to be shown in users dashboard
     public function wishList()
     {
-        return view('frontend.cart', [
+        return view('olders.frontend.cart', [
             'cartItems' => Cart::instance('wishlist')->content(),
         ]);
     }
@@ -103,6 +103,6 @@ class CartrentalController extends Controller
     {
         Cart::count();
 
-        return view('frontend.checkout');
+        return view('olders.frontend.checkout');
     }
 }

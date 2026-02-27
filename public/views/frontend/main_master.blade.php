@@ -3,7 +3,7 @@
 <!--[if (gte IE 9)|!(IE)]><!-->
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"><!--<![endif]-->
 
-@include('frontend.body.head')
+@include('olders.frontend.body.head')
 
 <!-- /#site-header-wrap -->
 
@@ -18,7 +18,7 @@
     <div class="boxed">
         <div id="site-header-wrap">
 
-            @include('frontend.body.header')
+            @include('olders.frontend.body.header')
 
         </div>
 
@@ -38,7 +38,7 @@
 
         <!-- Footer -->
 
-        @include('frontend.body.footer')
+        @include('olders.frontend.body.footer')
 
         <!-- End Footer -->
 
@@ -49,7 +49,7 @@
 
     </div>
     <!-- Javascript -->
-    @include('frontend.body.footer-scripts')
+    @include('olders.frontend.body.footer-scripts')
 </body>
 
 </html>

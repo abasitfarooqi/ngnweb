@@ -1,0 +1,136 @@
+> vite build
+
+vite v6.3.6 building for production...
+transforming (1) resources/js/app.jsBrowserslist: browsers data (caniuse-lite) is 14 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+transforming (2) node_modules/@alpinejs/intersect/dist/module.esm.jsUnable to resolve `@import "../../vendor/livewire/flux
+transforming (2) node_modules/@alpinejs/intersect/dist/module.esm.jsUnable to resolve `@import "../../vendor/livewire/flux/dist/flux.css"` from /Users/abdulbasit/NGNWEBTONGN/resources/css
+✓ 6 modules transformed.
+✗ Build failed in 395ms
+error during build:
+[vite:css] [post[vite:css] [post[vite:css] [post[vite:css] [post[vite:clivewire/flux/dist/flux.css'
+file: /Users/abdulbasit/NGNWEBTONGN/resources/css/app.css:undefined:NaN
+    at async open (node:internal/fs/promises:634:25)
+    at async Object.readFile (node:internal/fs/promises:1236:14)
+    at async Object.load (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:43745:25
+    at async Object.load (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:43745:25)
+    at async loadImportContent (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:67
+    at async loadImportContent (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:673:19)
+    at async Promise.all (index 0)
+    at async resolveImportId (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:629:
+    at async resolveImportId (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:629:27)
+    at async parseStyles$1 (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:537:5)
+    at async Object.Once (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:794:22)
+    at async LazyResult.runAsync (/Users/abdulbasit/NGNWEBTONGN/node_modules/postcss/lib/lazy-result.js:293:11)
+    at async runPostCSS (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:43842:21)
+zsh: command not found: #
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_pat
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_pat
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18php artisan serve --port=8001
+zsh: number expected
+Loading composer repositories with package information
+https://composer.fluxui.dev could not be fully loaded (Invalid credentials (HTTP 401) for 'https://composer.fluxui.dev/pac
+https://composer.fluxui.dev could not be fully loaded (Invalid credentials (HTTP 401) for 'https://composer.fluxui.dev/packages.json', aborting.), package information was loaded from the local cache and may be out of date
+
+In AuthHelper.php line 216:
+                                                                                                         
+  Invalid credentials (HTTP 401) for 'https://composer.fluxui.dev/p2/livewire/flux-pro.json', aborting.  
+                                                                                                         
+
+update [--with WITH] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--dev] [--no-dev] [-
+update [--with WITH] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--dev] [--no-dev] [--lock] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--no-autoloader] [--no-suggest] [--no-progress] [-w|--wi
+update [--with WITH] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--dev] [--no-dev] [--lock] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--no-autoloader] [--no-suggest] [--no-progress] [-w|--with-dependencies] [-W|--with-all-dependencies] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritativ
+update [--with WITH] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--dev] [--no-dev] [--lock] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--no-autoloader] [--no-suggest] [--no-progress] [-w|--with-dependencies] [-W|--with-all-dependencies] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ig
+update [--with WITH] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--dev] [--no-dev] [--lock] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--no-autoloader] [--no-suggest] [--no-progress] [-w|--with-dependencies] [-W|--with-all-dependencies] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--prefer-stable] [--prefer-lowest] [-m|--minimal-changes] [--patch-only] [-i|--interactive] [--root-r
+update [--with WITH] [--prefer-source] [--prefer-dist] [--prefer-install PREFER-INSTALL] [--dry-run] [--dev] [--no-dev] [--lock] [--no-install] [--no-audit] [--audit-format AUDIT-FORMAT] [--no-autoloader] [--no-suggest] [--no-progress] [-w|--with-dependencies] [-W|--with-all-dependencies] [-v|vv|vvv|--verbose] [-o|--optimize-autoloader] [-a|--classmap-authoritative] [--apcu-autoloader] [--apcu-autoloader-prefix APCU-AUTOLOADER-PREFIX] [--ignore-platform-req IGNORE-PLATFORM-REQ] [--ignore-platform-reqs] [--prefer-stable] [--prefer-lowest] [-m|--minimal-changes] [--patch-only] [-i|--interactive] [--root-reqs] [--bump-after-update [BUMP-AFTER-UPDATE]] [--] [<packages>...]
+
+zsh: number expected
+
+> build
+> vite build
+
+vite v6.3.6 building for production...
+transforming (1) resources/js/app.jsBrowserslist: browsers data (caniuse-lite) is 14 months old. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+transforming (2) node_modules/@alpinejs/intersect/dist/module.esm.jsUnable to resolve `@import "../../vendor/livewire/flux
+transforming (2) node_modules/@alpinejs/intersect/dist/module.esm.jsUnable to resolve `@import "../../vendor/livewire/flux/dist/flux.css"` from /Users/abdulbasit/NGNWEBTONGN/resources/css
+✓ 6 modules transformed.
+✗ Build failed in 395ms
+error during build:
+[vite:css] [postcss] ENOENT: no such file or directory, open '../../vendor/livewire/flux/dist/flux.css'
+file: /Users/abdulbasit/NGNWEBTONGN/resources/css/app.css:undefined:NaN
+    at async open (node:internal/fs/promises:634:25)
+    at async Object.readFile (node:internal/fs/promises:1236:14)
+    at async Object.load (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:43745:25
+    at async Object.load (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:43745:25)
+    at async loadImportContent (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:67
+    at async loadImportContent (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:673:19)
+    at async Promise.all (index 0)
+    at async resolveImportId (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:629: at async resolveImportId (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:629:27)
+    at async parseStyles$1 (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:537:5)
+    at async Object.Once (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-D67CHC8_.js:794:22)
+    at async LazyResult.runAsync (/Users/abdulbasit/NGNWEBTONGN/node_modules/postcss/lib/lazy-result.js:293:11)
+    at async runPostCSS (file:///Users/abdulbasit/NGNWEBTONGN/node_modules/vite/dist/node/chunks/dep-Bu492Fnd.js:43842:21)
+zsh: command not found: #
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_pat
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory
+PHP Warning:  require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /
+Warning: require(/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php): Failed to open stream: No such file or directory in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_pat
+PHP Fatal error:  Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}
+  thrown in /Users/abdulbasit/NGNWEBTONGN/artisan on line 18
+
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:
+Fatal error: Uncaught Error: Failed opening required '/Users/abdulbasit/NGNWEBTONGN/vendor/autoload.php' (include_path='.:/opt/homebrew/Cellar/php@8.2/8.2.29/share/php@8.2/pear') in /Users/abdulbasit/NGNWEBTONGN/artisan:18
+Stack trace:
+#0 {main}

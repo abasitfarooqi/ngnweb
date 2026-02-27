@@ -289,7 +289,7 @@ class MotorcycleController extends Controller
         $toDay = new DateTime;
         $deposit = $motorcycle->rental_deposit;
 
-        return view('frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
+        return view('olders.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
     }
 
     // Remove the rental motorcycle from the client

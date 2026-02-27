@@ -38,7 +38,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Mail;
 use PDF;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Support\QrCodeGenerator;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
 class AgreementController extends Controller
@@ -114,16 +114,12 @@ class AgreementController extends Controller
 
             $qrBase64 = '';
 
-            // Temporary block.
-            // try {
-            //     // Attempt to generate the QR code
-            //     $qrImage = QrCode::format('png')->size(200)->generate($url);
-            //     $qrBase64 = 'data:image/png;base64,' . base64_encode($qrImage);
-            // } catch (\Exception $e) {
-            //     // Log the error and use a default or blank image
-            //     \Log::error("The Library is not installed on Server. for QR Generation. Failed to generate QR code: " . $e->getMessage());
-            //     $qrBase64 = 'data:image/png;base64,'; // A fallback QR image or keep it empty
-            // }
+            try {
+                $qrBase64 = QrCodeGenerator::dataUrl($url, 200);
+            } catch (\Exception $e) {
+                \Log::error('QR generation failed: ' . $e->getMessage());
+                $qrBase64 = '';
+            }
 
             $data['email'] = [$customer->email, 'customerservice@neguinhomotors.co.uk'];
             $data['title'] = 'Rental Agreement';

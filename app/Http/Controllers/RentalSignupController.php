@@ -118,7 +118,7 @@ class RentalSignupController extends Controller
         $deposit = 300;
         $toDay = new DateTime;
 
-        return view('frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
+        return view('olders.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
     }
 
     public function customerBikeLink($motorcycle_id, $user_id)
@@ -178,7 +178,7 @@ class RentalSignupController extends Controller
 
         $deposit = $request->deposit;
 
-        return view('frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
+        return view('olders.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
     }
 
     // Process rental agreement - Save new client signature function

@@ -1,4 +1,4 @@
-@extends('frontend.main_master')
+@extends('olders.frontend.main_master')
 
 @section('content')
 <!-- IMAGE BOX -->
@@ -172,6 +172,6 @@
 </section>
 <!-- END ANIMATION BOX -->
 
-@include('frontend.body.newsletter')
+@include('olders.frontend.body.newsletter')
 
 @endsection

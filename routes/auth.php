@@ -11,16 +11,8 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
+// Login and register: Fortify (guard: customer) at /login, /register. See config/fortify.php and FortifyServiceProvider.
 Route::middleware('guest')->group(function () {
-    // DISABLED REGISTRATION
-    Route::get('register', [RegisteredUserController::class, 'create'])
-        ->name('register');
-    // DISABLED REGISTRATION
-    Route::post('register', [RegisteredUserController::class, 'store']);
-
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])
-        ->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
     // changesss
     // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
     // ->name('password.request');

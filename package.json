@@ -3,7 +3,7 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "vite build && mv public/build/.vite/manifest.json public/build/manifest.json",
+        "build": "vite build",
         "devtools": "vue-devtools --host 0.0.0.0 --port 8098",
         "dev:all": "concurrently \"npm run dev\" \"npm run devtools\""
     },
@@ -25,12 +25,16 @@
         "vue": "^3.5.13"
     },
     "dependencies": {
+        "@alpinejs/focus": "^3.14.1",
+        "@alpinejs/intersect": "^3.14.1",
+        "@alpinejs/persist": "^3.14.1",
         "@fortawesome/fontawesome-free": "^6.7.2",
         "@headlessui/vue": "^1.7.23",
         "@heroicons/vue": "^2.2.0",
         "@inertiajs/vue3": "^1.2.0",
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "@tailwindcss/typography": "^0.5.15",
+        "alpinejs": "^3.14.1",
         "bootstrap": "^5.3.3",
         "chart.js": "^4.3.1",
         "flexslider": "^2.7.2",
@@ -38,7 +42,6 @@
         "jquery": "^3.7.1",
         "laravel-echo": "^1.19.0",
         "pinia": "^2.3.0",
-        "puppeteer": "^24.18.0",
         "pusher-js": "^8.4.0-rc2",
         "vue-meta": "^3.0.0-alpha.2",
         "vue-router": "^4.3.0"

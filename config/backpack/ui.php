@@ -18,8 +18,8 @@ return [
     // and choosing that view_namespace instead of the default one. Backpack will load a file from there
     // if it exists, otherwise it will load it from the fallback namespace.
 
-    'view_namespace' => 'backpack.theme-coreuiv4::',
-    'view_namespace_fallback' => 'backpack.theme-coreuiv4::',
+    'view_namespace' => 'backpack.theme-tabler::',
+    'view_namespace_fallback' => 'backpack.theme-tabler::',
 
     /*
     |--------------------------------------------------------------------------
@@ -93,12 +93,8 @@ return [
     // GLOBAL STYLES
     // -------------
 
-    // CSS files that are loaded in all pages, using Laravel's asset() helper
-    'styles' => [
-        '/assets/css/bootstrap.css',
-        '/assets/css/backpack_custom.css',
-        // 'https://some-cdn.com/example.css',
-    ],
+    // Use default theme styling only — no custom CSS
+    'styles' => [],
 
     // CSS files that are loaded in all pages, using Laravel's mix() helper
     'mix_styles' => [ // file_path => manifest_directory_path

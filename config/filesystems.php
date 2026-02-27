@@ -126,6 +126,19 @@ return [
             'use_path_style_endpoint' => false,
         ],
 
+        // DigitalOcean Spaces — used by Storage::disk('spaces') throughout the app
+        'spaces' => [
+            'driver' => 's3',
+            'key' => env('DO_SPACES_KEY'),
+            'secret' => env('DO_SPACES_SECRET'),
+            'region' => env('DO_SPACES_REGION', 'lon1'),
+            'bucket' => env('DO_SPACES_BUCKET'),
+            'endpoint' => env('DO_SPACES_ENDPOINT', 'https://lon1.digitaloceanspaces.com'),
+            'url' => env('DO_SPACES_URL', 'https://ngnmotors.lon1.digitaloceanspaces.com'),
+            'use_path_style_endpoint' => env('DO_SPACES_USE_PATH_STYLE', false),
+            'throw' => false,
+        ],
+
     ],
 
     'links' => [

@@ -33,19 +33,21 @@ return [
         // 'store'  => 'redis',
     ],
 
-    'providers' => ServiceProvider::defaultProviders()->merge([
-        Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
-        Spatie\Permission\PermissionServiceProvider::class,
-        App\Providers\AppServiceProvider::class,
-        App\Providers\AuthServiceProvider::class,
-        // App\Providers\BroadcastServiceProvider::class,
-        App\Providers\EventServiceProvider::class,
-        App\Providers\RouteServiceProvider::class,
-        App\Providers\RepositoryServiceProvider::class,
-        Maatwebsite\Excel\ExcelServiceProvider::class,
-        App\Providers\BlockDangerousCommandsServiceProvider::class,
-
-    ])->toArray(),
+    'providers' => array_merge(
+        ServiceProvider::defaultProviders()->toArray(),
+        [
+            Bugsnag\BugsnagLaravel\BugsnagServiceProvider::class,
+            Spatie\Permission\PermissionServiceProvider::class,
+            App\Providers\AppServiceProvider::class,
+            App\Providers\AuthServiceProvider::class,
+            App\Providers\EventServiceProvider::class,
+            App\Providers\RouteServiceProvider::class,
+            App\Providers\RepositoryServiceProvider::class,
+            Maatwebsite\Excel\ExcelServiceProvider::class,
+            App\Providers\BlockDangerousCommandsServiceProvider::class,
+            App\Providers\FortifyServiceProvider::class,
+        ]
+    ),
 
     'aliases' => Facade::defaultAliases()->merge([
         // 'Example' => App\Facades\Example::class,

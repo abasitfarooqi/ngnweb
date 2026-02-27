@@ -3,7 +3,7 @@
 <!--[if (gte IE 9)|!(IE)]><!-->
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}"><!--<![endif]-->
 
-@include('frontend.body.head')
+@include('olders.frontend.body.head')
 
 <body class="header_sticky header-style-2 has-menu-extra">
     <!-- Preloader -->
@@ -15,7 +15,7 @@
     <div class="boxed">
         <div id="site-header-wrap">
 
-            @include('frontend.body.header')
+            @include('olders.frontend.body.header')
 
         </div>
 
@@ -168,7 +168,7 @@
             </div><!-- /.container -->
         </section><!-- /.flat-row -->
 
-        @include('frontend.body.footer')
+        @include('olders.frontend.body.footer')
 
         <!-- Go Top -->
         <a class="go-top">
@@ -177,7 +177,7 @@
 
     </div>
     <!-- Javascript -->
-    @include('frontend.body.footer-scripts')
+    @include('olders.frontend.body.footer-scripts')
 </body>
 
 </html>

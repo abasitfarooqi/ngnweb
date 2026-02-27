@@ -20,7 +20,7 @@ class SurveyController extends Controller
     {
         $survey = NgnSurvey::with('questions.options')->findOrFail($surveyId);
 
-        return view('frontend.ngnsurvey.survey', compact('survey'));
+        return view('olders.frontend.ngnsurvey.survey', compact('survey'));
     }
 
     /**
@@ -33,7 +33,7 @@ class SurveyController extends Controller
     {
         $survey = NgnSurvey::with('questions.options')->where('slug', $slug)->firstOrFail();
 
-        return view('frontend.ngnsurvey.survey', compact('survey'));
+        return view('olders.frontend.ngnsurvey.survey', compact('survey'));
     }
 
     /**
@@ -90,7 +90,7 @@ class SurveyController extends Controller
 
     public function thankyou()
     {
-        return view('frontend.ngnsurvey.thankyou');
+        return view('olders.frontend.ngnsurvey.thankyou');
     }
 
     // IT WILL BE DELETED ---- no use of this function

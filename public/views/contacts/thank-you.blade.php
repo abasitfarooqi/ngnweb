@@ -1,5 +1,5 @@
 {{-- public/views/contacts/thank-you.blade.php --}}
-@extends('frontend.main_master')
+@extends('olders.frontend.main_master')
 
 @section('content')
     <div class="page-title parallax parallax1 pagehero-header">

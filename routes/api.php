@@ -278,4 +278,4 @@ Route::middleware(['auth:customer'])->group(function () {
 
 Route::get('/email/verify/{id}/{hash}',
     [CustomerVerificationController::class, 'verify'])
-    ->name('customer.verification.verify');
+    ->name('api.customer.verification.verify');

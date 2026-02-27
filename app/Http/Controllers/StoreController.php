@@ -13,7 +13,7 @@ class StoreController extends Controller
     public function home()
     {
         // Logic for home page
-        return view('frontend.ngnstore.home');
+        return view('olders.frontend.ngnstore.home');
     }
 
     public function searchResults(Request $request)
@@ -72,6 +72,6 @@ class StoreController extends Controller
         // logger('Search Query: ', ['query' => $query, 'products' => $products, 'pages' => $filteredPages]);
 
         // Return the results to the view
-        return view('frontend.ngnstore.search-results', compact('query', 'products', 'filteredPages'));
+        return view('olders.frontend.ngnstore.search-results', compact('query', 'products', 'filteredPages'));
     }
 }

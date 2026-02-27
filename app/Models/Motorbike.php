@@ -167,4 +167,9 @@ class Motorbike extends Model
     {
         return $this->reg_no.' | '.$this->make.' '.$this->model.' | '.$this->year.' | '.$this->vin_number;
     }
+    public function currentRentingPricing()
+    {
+        return $this->hasOne(RentingPricing::class)->where('iscurrent', true)->latest('update_date');
+    }
+
 }

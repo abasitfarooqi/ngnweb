@@ -1,4 +1,4 @@
-@extends('frontend.main_master')
+@extends('olders.frontend.main_master')
 
 @section('content')
 
@@ -61,7 +61,7 @@
 
             </div><!-- /.col-md-9 -->
             <div class="col-md-3">
-                @include('frontend.legals.sidenav.legal-sidenav')
+                @include('olders.frontend.legals.sidenav.legal-sidenav')
             </div><!-- /.col-md-3 -->
         </div><!-- /.row -->
     </div><!-- /.container -->

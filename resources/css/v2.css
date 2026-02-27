@@ -1,0 +1,35 @@
+/* NGN V2 – Brand tokens & Flux Pro theme overrides (from NGN project) */
+
+:root {
+    /* Brand colours */
+    --color-brand-red:      #c31924;
+    --color-brand-red-dark: #9e1320;
+
+    /* Flux accent = NGN red */
+    --color-accent:             #c31924;
+    --color-accent-foreground:  #ffffff;
+
+    /* Zero border radius – user preference */
+    --radius:     0px;
+    --radius-sm:  0px;
+    --radius-md:  0px;
+    --radius-lg:  0px;
+    --radius-xl:  0px;
+    --radius-2xl: 0px;
+    --radius-full: 0px;
+}
+
+/* Tailwind utility aliases for brand colour */
+@layer utilities {
+    .bg-brand-red            { background-color: var(--color-brand-red); }
+    .text-brand-red          { color: var(--color-brand-red); }
+    .border-brand-red        { border-color: var(--color-brand-red); }
+    .hover\:bg-brand-red:hover   { background-color: var(--color-brand-red); }
+    .hover\:text-brand-red:hover { color: var(--color-brand-red); }
+    .ring-brand-red          { --tw-ring-color: var(--color-brand-red); }
+
+    .no-radius,
+    .no-radius * { border-radius: 0 !important; }
+}
+
+[class*="rounded"] { border-radius: 0 !important; }

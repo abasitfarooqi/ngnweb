@@ -16,7 +16,7 @@ class CareerController extends Controller
         // Retrieve all careers from the database.
         $careers = NgnCareer::all(); // You might want to paginate or add filtering.
 
-        return view('frontend.ngnstore.careers', compact('careers'));
+        return view('olders.frontend.ngnstore.careers', compact('careers'));
     }
 
     /**
@@ -30,6 +30,6 @@ class CareerController extends Controller
         // Find a career by ID or throw a 404 error if not found.
         $career = NgnCareer::findOrFail($id);
 
-        return view('frontend.ngnstore.career-details', compact('career'));
+        return view('olders.frontend.ngnstore.career-details', compact('career'));
     }
 }

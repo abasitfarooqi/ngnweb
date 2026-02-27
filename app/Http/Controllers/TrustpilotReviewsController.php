@@ -14,6 +14,6 @@ class TrustpilotReviewsController extends Controller
 
         $reviews = $response->json();
 
-        return view('frontend.home', ['reviews' => $reviews]);
+        return view('olders.frontend.home', ['reviews' => $reviews]);
     }
 }

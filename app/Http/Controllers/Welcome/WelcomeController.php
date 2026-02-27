@@ -3,198 +3,156 @@
 namespace App\Http\Controllers\Welcome;
 
 use App\Http\Controllers\Controller;
-use App\Models\BlogPost;
-use App\Models\Motorbike;
-use App\Models\Motorcycle;
+use Illuminate\Http\Response;
 
+/**
+ * Legacy WelcomeController — all frontend routes now served by Livewire Site\* components.
+ * These methods issue permanent 301 redirects to the correct new URLs so old bookmarks / links don't break.
+ */
 class WelcomeController extends Controller
 {
     public function HomeMain()
     {
-        return view('frontend.index');
+        return redirect('/', 301);
     }
 
     public function BikesForSaleHome()
     {
-        // Fetch all columns for the latest new bikes using the Motorcycle model
-        $latestNewBikes = Motorcycle::select('*')
-            ->where('availability', '=', 'for sale')
-            ->orderBy('created_at', 'desc')
-            ->limit(12)
-            ->get();
-
-        // Fetch the latest used bikes using the Motorbike model
-        $latestUsedBikes = Motorbike::join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
-            ->select('motorbikes.*', 'motorbikes_sale.price', 'motorbikes_sale.image_one')
-            ->where('motorbikes_sale.is_sold', 0) // Only available bikes
-            ->orderBy('motorbikes.created_at', 'desc')
-            ->limit(12)
-            ->get();
-
-        $blogPosts = BlogPost::with(['category', 'images'])
-            ->where('slug', '!=', '')
-            ->orderBy('created_at', 'desc')
-            ->limit(3)
-            ->get();
-
-        // Pass the motorcycle data to the view
-        return view('frontend.index', compact('latestNewBikes', 'latestUsedBikes', 'blogPosts'));
+        return redirect('/', 301);
     }
 
     public function BikesForSale()
     {
-        // Fetch all columns for the latest new bikes using the Motorcycle model
-        $latestNewBikes = Motorcycle::select('*')
-            ->where('availability', '=', 'for sale')
-            ->orderBy('created_at', 'desc')
-            ->limit(8)
-            ->get();
-
-        // Fetch the latest used bikes using the Motorbike model
-        $latestUsedBikes = Motorbike::join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
-            ->select('motorbikes.*', 'motorbikes_sale.price', 'motorbikes_sale.image_one')
-            ->where('motorbikes_sale.is_sold', 0) // Only available bikes
-            ->orderBy('motorbikes.created_at', 'desc')
-            ->limit(8)
-            ->get();
-
-        return view('frontend.motorcycle-sales', compact('latestNewBikes', 'latestUsedBikes'));
+        return redirect('/bikes', 301);
     }
 
-    // public function BikesForSale()
-    // {
-    //     return view('frontend.motorcycle-sales');
-    // }
-
-    // newly added
     public function accessories()
     {
-        return view('frontend.ngnstore.accessories');
+        return redirect('/accessories', 301);
     }
 
     public function RentInformation()
     {
-        return view('frontend.rentals-information');
+        return redirect('/rentals', 301);
     }
 
     public function GetServices()
     {
-        return view('frontend.motorbike-motorcycle-servicing-repairs-london');
+        return redirect('/repairs', 301);
     }
 
     public function AllGetServices()
     {
-        return view('frontend.all-services-main-page');
+        return redirect('/repairs', 301);
     }
 
     public function Repairs()
     {
-        return view('frontend.service-repairs');
+        return redirect('/repairs', 301);
     }
 
     public function RepairServices()
     {
-        return view('frontend.repairs.RepairServices');
+        return redirect('/motorbike-repair-services', 301);
     }
 
     public function ServiceBike()
     {
-        return view('frontend.service-motorcycle');
+        return redirect('/repairs', 301);
     }
 
     public function ServiceMot()
     {
-        return view('frontend.service-mot');
+        return redirect('/mot', 301);
     }
 
     public function MotorcycleShop()
     {
-        return view('frontend.shop-motorcycle');
+        return redirect('/shop', 301);
     }
 
     public function MotorcycleAccessories()
     {
-        return view('frontend.shop-accessories');
+        return redirect('/accessories', 301);
     }
 
     public function AccidentClaim()
     {
-        return view('frontend.accidents');
+        return redirect('/recovery', 301);
     }
 
     public function GetProducts()
     {
-        return view('frontend.shop');
+        return redirect('/shop', 301);
     }
 
     public function GpsTracker()
     {
-        return view('frontend.gps-tracker');
+        return redirect('/gps-tracker', 301);
     }
 
     public function SpareParts()
     {
-        return view('frontend.spare-parts');
+        return redirect('/spare-parts', 301);
     }
 
     public function AboutMethod()
     {
-        return view('frontend.about_page');
+        return redirect('/about', 301);
     }
 
     public function ContactMethod()
     {
-        return view('contact');
+        return redirect('/contact', 301);
     }
 
-    // LEGALS
     public function CookiePrivacyPolicy()
     {
-        return view('frontend.legals.cookies-and-privacy-policy');
+        return redirect('/cookie-policy', 301);
     }
 
     public function TermsOfUse()
     {
-        return view('frontend.legals.terms-of-service');
+        return redirect('/terms-and-conditions', 301);
     }
 
     public function ShippingPolicy()
     {
-        return view('frontend.legals.shipping-policy');
+        return redirect('/shipping-policy', 301);
     }
 
     public function RefundPolicy()
     {
-        return view('frontend.legals.refund-policy');
+        return redirect('/refund-policy', 301);
     }
 
     public function returnPolicy()
     {
-        return view('frontend.legals.return-policy'); // Return the view for the return policy
+        return redirect('/return-policy', 301);
     }
 
     public function RepairsIndex()
     {
-        return view('frontend.repairs.index'); // Main repairs page
+        return redirect('/repairs', 301);
     }
 
     public function BasicServices()
     {
-        return view('frontend.repairs.BasicServices'); // Basic services page
+        return redirect('/motorbike-basic-service-london', 301);
     }
 
     public function MajorServices()
     {
-        return view('frontend.repairs.MajorServices'); // Major services page
+        return redirect('/motorbike-full-service-london', 301);
     }
 
     public function ServiceComparison()
     {
-        return view('frontend.repairs.ServiceComparison'); // Service comparison page
+        return redirect('/motorbike-service-comparison', 301);
     }
 
     public function SoonCome()
     {
-        return view('coming-soon.soon-come');
+        return redirect('/coming-soon', 301);
     }
 }

@@ -1,4 +1,4 @@
-@extends('frontend.main_master')
+@extends('olders.frontend.main_master')
 
 @section('content')
     <!-- Page title -->
@@ -106,7 +106,7 @@
     </div>
 
 
-    @include('frontend.body.newsletter')
+    @include('olders.frontend.body.newsletter')
 
 
 @endsection

@@ -25,7 +25,7 @@ class OxfordController extends Controller
         $category_id = 1;
         $category = 'helmets';
 
-        return view('frontend.products', compact('products', 'category', 'category_id'));
+        return view('olders.frontend.products', compact('products', 'category', 'category_id'));
     }
 
     // Helmets
@@ -46,7 +46,7 @@ class OxfordController extends Controller
         $category_id = 1;
         $category = 'MT Helmets';
 
-        return view('frontend.products', compact('products', 'category', 'category_id'));
+        return view('olders.frontend.products', compact('products', 'category', 'category_id'));
     }
 
     public function getProductCategory($category_id)
@@ -70,7 +70,7 @@ class OxfordController extends Controller
 
         $category = strtolower($cat->category);
 
-        return view('frontend.products', compact('products', 'category', 'category_id'));
+        return view('olders.frontend.products', compact('products', 'category', 'category_id'));
     }
 
     public function getOxfordProduct($id)
@@ -83,7 +83,7 @@ class OxfordController extends Controller
         $cookie = strtolower($item->description);
         $title = $item->description;
 
-        return view('frontend.product', [
+        return view('olders.frontend.product', [
             'item' => $item,
             'title' => $title,
             'category_id' => $category_id,
@@ -95,7 +95,7 @@ class OxfordController extends Controller
 
     public function oxfordCart()
     {
-        return view('frontend.cart');
+        return view('olders.frontend.cart');
     }
 
     public function addProductCart($id)
