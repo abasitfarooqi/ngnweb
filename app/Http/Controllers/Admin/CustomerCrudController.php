@@ -19,7 +19,7 @@ use Illuminate\Support\Facades\Log;
 // -- added thisX
 use PhpParser\Node\Stmt\Label;
 
-class CustomerCrudController extends CrudController
+class CustomerCrudController extends BaseCrudController
 {
     protected $motorbikeService;
 

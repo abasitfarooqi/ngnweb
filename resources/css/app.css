@@ -1,6 +1,6 @@
-/* NGN Motors — public site + portal CSS (NOT loaded in Backpack admin)
-   Flux Pro CSS is injected by @fluxAppearance / @fluxStyles in the Blade layout —
-   do NOT import flux.css here (it uses Tailwind v4 syntax, incompatible with v3). */
+/* NGN Motors — single CSS entry: frontend, portal, auth (NOT Backpack admin).
+   Layouts use @vite(['resources/css/app.css', 'resources/js/app.js']).
+   Dark mode: class="dark" on <html>; set via inline script before paint. */
 
 /* All @import rules MUST precede @tailwind in Tailwind v3 */
 @import './v2.css';
@@ -10,25 +10,30 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Alpine: prevent flash of unstyled content */
+[x-cloak] { display: none !important; }
+
 @layer components {
-    .btn-primary {
-        @apply inline-flex items-center px-4 py-2 bg-red-600 border border-transparent font-semibold text-xs text-white uppercase tracking-widest hover:bg-red-700 focus:bg-red-700 active:bg-red-800 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150;
+    /* Accordion (delivery pages) */
+    .delivery-accordion-menu .accordion-item    { @apply border border-gray-200 mb-2 overflow-hidden; }
+    .delivery-accordion-menu .accordion-button  { @apply w-full px-6 py-4 text-left text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 font-medium; }
+    .delivery-accordion-menu .accordion-button.collapsed { @apply border-b-0; }
+    .delivery-accordion-menu .accordion-button:not(.collapsed) { @apply bg-gray-50 dark:bg-gray-700 text-brand-red; }
+    .delivery-accordion-menu .accordion-body    { @apply px-6 py-4 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
+    .delivery-accordion-menu .accordion-button::after  { @apply float-right ml-auto transition-transform duration-200; content: '+'; font-size: 1.5rem; line-height: 1; }
+    .delivery-accordion-menu .accordion-button:not(.collapsed)::after { content: '−'; }
+
+    /* Portal sidebar nav link */
+    .portal-nav-link {
+        @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors;
+    }
+    .portal-nav-link.active {
+        @apply bg-brand-red text-white hover:bg-red-700 hover:text-white;
+    }
+    .portal-nav-sub-link {
+        @apply flex items-center px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
+    }
+    .portal-nav-sub-link.active {
+        @apply bg-brand-red text-white hover:bg-red-700 hover:text-white;
     }
 }
-
-.delivery-accordion-menu .accordion-item {
-    @apply border border-gray-200 mb-2 overflow-hidden;
-}
-.delivery-accordion-menu .accordion-button {
-    @apply w-full px-6 py-4 text-left text-gray-800 bg-white hover:bg-gray-50 focus:outline-none transition-all duration-200 font-medium;
-}
-.delivery-accordion-menu .accordion-button.collapsed { @apply border-b-0; }
-.delivery-accordion-menu .accordion-button:not(.collapsed) { @apply bg-gray-50 text-red-600; }
-.delivery-accordion-menu .accordion-body { @apply px-6 py-4 bg-white text-gray-600; }
-.delivery-accordion-menu .accordion-button::after {
-    @apply float-right ml-auto transition-transform duration-200;
-    content: '+';
-    font-size: 1.5rem;
-    line-height: 1;
-}
-.delivery-accordion-menu .accordion-button:not(.collapsed)::after { content: '−'; }

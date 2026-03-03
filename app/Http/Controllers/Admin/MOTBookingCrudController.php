@@ -12,7 +12,7 @@ use DateTimeZone;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
-class MOTBookingCrudController extends CrudController
+class MOTBookingCrudController extends BaseCrudController
 {
     // use \Backpack\CalendarOperation\CalendarOperation; // removed - package not compatible with L12
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;

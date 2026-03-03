@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Request;
  *
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class NgnDigitalInvoiceCrudController extends CrudController
+class NgnDigitalInvoiceCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {

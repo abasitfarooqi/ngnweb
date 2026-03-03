@@ -11,7 +11,7 @@ use Backpack\CRUD\app\Library\Widget;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 
-class MotorbikesSaleCrudController extends CrudController
+class MotorbikesSaleCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
@@ -85,8 +85,6 @@ class MotorbikesSaleCrudController extends CrudController
 
         CRUD::removeColumn('motorbike_id');
 
-        // Add the export button
-        CRUD::addButton('line', 'export', 'view', 'vendor.backpack.crud.buttons.export', 'beginning');
         CRUD::enableExportButtons();
     }
 

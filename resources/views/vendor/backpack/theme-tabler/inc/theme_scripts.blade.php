@@ -1,3 +1,2 @@
-{{-- Override: load Tabler JS via CDN + local so sidebar/menu work without Basset. --}}
-<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js" integrity="sha256-tgx2Fg6XYkV027jPEKvmrummSTtgCW/fwV3R3SvZnrk=" crossorigin="anonymous"></script>
-<script src="{{ route('backpack.theme-tabler.asset', ['package' => 'theme-tabler', 'path' => 'resources/assets/js/tabler.js']) }}"></script>
+@basset('https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js', true, ['integrity' => 'sha256-tgx2Fg6XYkV027jPEKvmrummSTtgCW/fwV3R3SvZnrk=', 'crossorigin' => 'anonymous'])
+@basset(base_path('vendor/backpack/theme-tabler/resources/assets/js/tabler.js'))

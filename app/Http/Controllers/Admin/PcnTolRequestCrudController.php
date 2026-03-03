@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
  *
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class PcnTolRequestCrudController extends CrudController
+class PcnTolRequestCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {

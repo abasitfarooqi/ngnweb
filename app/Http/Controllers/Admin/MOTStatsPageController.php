@@ -80,7 +80,7 @@ class MOTStatsPageController extends Controller
         ];
     });
 
-    return view('admin.mot_stats_page', [
+    return view('olders.admin.mot_stats_page', [
         'title' => 'M O T Stats Page',
         'motList' => $motList,
     ]);

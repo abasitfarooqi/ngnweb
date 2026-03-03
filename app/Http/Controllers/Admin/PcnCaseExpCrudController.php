@@ -11,7 +11,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
-class PcnCaseExpCrudController extends CrudController
+class PcnCaseExpCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
@@ -264,7 +264,7 @@ class PcnCaseExpCrudController extends CrudController
     {
         $pcnCase = PcnCase::with('updates')->findOrFail($id);
 
-        return view('admin.pcn_case_updates.show', compact('pcnCase'));
+        return view('olders.admin.pcn_case_updates.show', compact('pcnCase'));
     }
 
     public function getUpdatesLink()

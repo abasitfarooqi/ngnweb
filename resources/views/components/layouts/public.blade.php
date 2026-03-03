@@ -5,72 +5,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    <title>{{ $title ?? 'NGN Motors – Motorcycle Rentals, MOT, Repairs & Sales in London' }}</title>
+    {{-- SEO --}}
+    <title>{{ $title ?? 'NGN Motors – Motorcycle Rentals, MOT, Repairs &amp; Sales in London' }}</title>
     <meta name="description" content="{{ $description ?? 'Motorcycle services in London – Catford, Tooting, Sutton. Rentals, MOT, repairs, used bikes, finance.' }}">
     <link rel="canonical" href="{{ $canonical ?? url()->current() }}">
 
-    <meta property="og:title" content="{{ $title ?? 'NGN Motors – Motorcycle Rentals, MOT, Repairs & Sales in London' }}">
-    <meta property="og:description" content="{{ $description ?? 'Motorcycle services in London – Catford, Tooting, Sutton.' }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="website">
+    {{-- Open Graph --}}
+    <meta property="og:title"       content="{{ $title ?? 'NGN Motors' }}">
+    <meta property="og:description" content="{{ $description ?? 'Motorcycle services in London' }}">
+    <meta property="og:url"         content="{{ url()->current() }}">
+    <meta property="og:type"        content="website">
+    @isset($ogImage)
+    <meta property="og:image"       content="{{ $ogImage }}">
+    @endisset
 
+    {{-- Fonts --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+
+    {{-- Dark mode: set class before paint --}}
+    <script>
+        (function(){
+            var t = localStorage.getItem('ngn-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            if (t === 'dark') document.documentElement.classList.add('dark');
+        })();
+    </script>
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
     @livewireStyles
+
+    @stack('head')
 </head>
-<body class="font-sans antialiased bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+<body class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
 
     @livewire('site.header')
 
-    @if(isset($breadcrumbs) && count($breadcrumbs) > 0)
-        <nav class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-4 py-2">
-            <div class="max-w-7xl mx-auto">
-                <flux:breadcrumbs>
-                    @foreach($breadcrumbs as $crumb)
-                        @if(isset($crumb['url']))
-                            <flux:breadcrumbs.item href="{{ $crumb['url'] }}">{{ $crumb['label'] }}</flux:breadcrumbs.item>
-                        @else
-                            <flux:breadcrumbs.item>{{ $crumb['label'] }}</flux:breadcrumbs.item>
-                        @endif
-                    @endforeach
-                </flux:breadcrumbs>
-            </div>
-        </nav>
-    @endif
+    @isset($breadcrumbs)
+        @if(count($breadcrumbs) > 0)
+            <nav class="bg-gray-100 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700" aria-label="Breadcrumb">
+                <div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-2">
+                    <ol class="flex flex-wrap items-center gap-1 text-sm text-gray-500 dark:text-gray-400">
+                        <li><a href="/" class="hover:text-brand-red transition">Home</a></li>
+                        @foreach($breadcrumbs as $crumb)
+                            <li class="flex items-center gap-1">
+                                <svg class="h-3 w-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                @if(!empty($crumb['url']))
+                                    <a href="{{ $crumb['url'] }}" class="hover:text-brand-red transition">{{ $crumb['label'] }}</a>
+                                @else
+                                    <span class="text-gray-700 dark:text-gray-200 font-medium">{{ $crumb['label'] }}</span>
+                                @endif
+                            </li>
+                        @endforeach
+                    </ol>
+                </div>
+            </nav>
+        @endif
+    @endisset
 
-    <main>
+    <main id="main-content">
         {{ $slot }}
     </main>
 
     @livewire('site.footer')
 
-    {{-- Quick Book Modal --}}
-    <flux:modal name="quick-book" class="max-w-lg">
-        <div class="p-6">
-            <flux:heading size="lg" class="mb-4">Quick Booking</flux:heading>
-            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                Call us or fill in our contact form and we'll get back to you within the hour.
-            </p>
-            <div class="space-y-3">
-                <flux:button href="tel:02083141498" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
-                    Call Catford: 0208 314 1498
-                </flux:button>
-                <flux:button href="tel:02034095478" variant="outline" class="w-full">
-                    Call Tooting: 0203 409 5478
-                </flux:button>
-                <flux:button href="tel:02084129275" variant="outline" class="w-full">
-                    Call Sutton: 0208 412 9275
-                </flux:button>
-                <flux:button href="/contact" variant="ghost" class="w-full">Send a Message →</flux:button>
-            </div>
-        </div>
-    </flux:modal>
-
     @stack('schema')
+    <flux:toast />
     @fluxScripts
     @livewireScripts
+    @stack('scripts')
 </body>
 </html>

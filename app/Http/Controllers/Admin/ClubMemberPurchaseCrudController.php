@@ -11,7 +11,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD; // Import ClubM
 use Backpack\CRUD\app\Library\Widget; // Import User model
 use Illuminate\Http\Request;
 
-class ClubMemberPurchaseCrudController extends CrudController
+class ClubMemberPurchaseCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;

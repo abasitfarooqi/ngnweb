@@ -33,12 +33,11 @@
 
             <flux:field>
                 <flux:label>Preferred Time *</flux:label>
-                <flux:select wire:model="preferredTime">
-                    <option value="">Select time...</option>
-                    <option value="morning">Morning (9AM – 12PM)</option>
-                    <option value="afternoon">Afternoon (12PM – 5PM)</option>
-                    <option value="evening">Evening (5PM – 7PM)</option>
-                    <option value="anytime">Any time</option>
+                <flux:select wire:model="preferredTime" variant="listbox" placeholder="Select time...">
+                    <flux:select.option value="morning">Morning (9AM – 12PM)</flux:select.option>
+                    <flux:select.option value="afternoon">Afternoon (12PM – 5PM)</flux:select.option>
+                    <flux:select.option value="evening">Evening (5PM – 7PM)</flux:select.option>
+                    <flux:select.option value="anytime">Any time</flux:select.option>
                 </flux:select>
                 <flux:error name="preferredTime" />
             </flux:field>

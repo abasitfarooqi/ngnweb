@@ -16,7 +16,7 @@ use Backpack\CRUD\app\Library\Widget;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
 
-class NgnProductManagementCrudController extends CrudController
+class NgnProductManagementCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;
@@ -420,7 +420,7 @@ class NgnProductManagementCrudController extends CrudController
             'name' => 'stock_movements_display',
             'label' => 'Existing Stock Movements',
             'type' => 'custom_html',
-            'value' => view('admin.stock_movements_table', compact('stockMovements', 'branchStocks', 'totalAvailableStock'))->render(),
+            'value' => view('olders.admin.stock_movements_table', compact('stockMovements', 'branchStocks', 'totalAvailableStock'))->render(),
         ]);
 
     }

@@ -44,6 +44,6 @@ return [
         'menuHorizontalContent' => null,
         'footer' => null,
         'table' => null,
-        'tableWrapper' => null,
+        'tableWrapper' => 'crud-table-wrapper',
     ],
 ];

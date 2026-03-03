@@ -191,13 +191,8 @@
     });
 
     Livewire.on('upload-committed', () => {
-        const el = document.createElement('div');
-        el.setAttribute('role', 'status');
-        el.className = 'fixed bottom-4 right-4 px-4 py-3 bg-green-600 dark:bg-green-700 text-white text-sm shadow-lg z-50';
-        el.innerHTML = '<strong>Success!</strong> Files were added to the media library.';
-        document.body.appendChild(el);
-        setTimeout(() => { el.style.opacity = '0'; el.style.transition = 'opacity 0.3s'; setTimeout(() => el.remove(), 300); }, 3000);
-        setTimeout(() => window.location.reload(), 3500);
+        window.dispatchEvent(new CustomEvent('toast-show', { detail: { variant: 'success', message: 'Files were added to the media library.' } }));
+        setTimeout(() => window.location.reload(), 2000);
     });
     Livewire.on('document-upload-committed', () => {
         console.log('document-upload-committed event received');

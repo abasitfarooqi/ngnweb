@@ -67,7 +67,7 @@ class RecurringController extends Controller
             ])
             ->get();
 
-        return view('admin.judopay', [
+        return view('olders.admin.judopay', [
             'customers' => $customers,
         ]);
     }
@@ -126,7 +126,7 @@ class RecurringController extends Controller
             ->orderBy('created_at', 'desc')
             ->get(); // Show all payments today
 
-        return view('admin.judopay-subscribe', [
+        return view('olders.admin.judopay-subscribe', [
             'subscription' => $subscription,
             'customer' => $customer,
             'serviceData' => $serviceData,
@@ -1209,7 +1209,7 @@ class RecurringController extends Controller
             });
         }
 
-        return view('admin.judopay-mit-dashboard', [
+        return view('olders.admin.judopay-mit-dashboard', [
             'subscriptions' => $subscriptions,
             'recentMitPayments' => $recentMitPayments,
         ]);
@@ -1521,7 +1521,7 @@ class RecurringController extends Controller
         // Get weekly summary using helper function
         $summary = JudopayWeeklyMitSummary::getWeeklySummary($weekParam);
 
-        return view('admin.judopay-weekly-mit-queue', [
+        return view('olders.admin.judopay-weekly-mit-queue', [
             'queueItems' => $queueItems,
             'liveQueueItems' => $liveQueueItems,
             'currentWeekStart' => $currentWeekStart,

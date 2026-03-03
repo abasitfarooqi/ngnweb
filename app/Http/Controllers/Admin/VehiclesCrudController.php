@@ -8,7 +8,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\DB;
 
-class VehiclesCrudController extends CrudController
+class VehiclesCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
 

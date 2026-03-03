@@ -98,7 +98,7 @@ class DashboardController extends Controller
             $labels = ['For Rent', 'Rented', 'For Sale', 'Sold', 'Repairs', 'Cat B', 'CIP', 'Impounded', 'Accident', 'Missing', 'Stolen'];
             $rentaldata = [$forRentCount, $rentedCount, $forSaleCount, $soldCount, $repairsCount, $catBCount, $claimInProgressCount, $impoundedCount, $accident, $missing, $stolenCount];
 
-            return view('admin.dashboard', compact(
+            return view('olders.admin.dashboard', compact(
                 'labels',
                 'rentaldata',
                 'stolenCount',
@@ -229,7 +229,7 @@ class DashboardController extends Controller
         $taxDue = Motorcycle::where('tax_due_date', '<', Carbon::now()->addDays(10));
         $motDue = Motorcycle::where('mot_expiry_date', '<', Carbon::now()->addDays(10));
 
-        return view('admin.dashboard', compact(
+        return view('olders.admin.dashboard', compact(
             'labels',
             'rentaldata',
             'stolenCount',

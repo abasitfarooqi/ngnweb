@@ -21,26 +21,24 @@
         <form wire:submit="submitBooking" class="space-y-5">
             <flux:field>
                 <flux:label>Service Type *</flux:label>
-                <flux:select wire:model="serviceType">
-                    <option value="">Select service...</option>
-                    <option value="basic-service">Basic Service</option>
-                    <option value="full-service">Full Service</option>
-                    <option value="mot">MOT Test</option>
-                    <option value="repair">Repair</option>
-                    <option value="tyres">Tyres</option>
-                    <option value="brakes">Brakes</option>
-                    <option value="diagnostic">Diagnostic</option>
-                    <option value="other">Other</option>
+                <flux:select wire:model="serviceType" variant="listbox" placeholder="Select service...">
+                    <flux:select.option value="basic-service">Basic Service</flux:select.option>
+                    <flux:select.option value="full-service">Full Service</flux:select.option>
+                    <flux:select.option value="mot">MOT Test</flux:select.option>
+                    <flux:select.option value="repair">Repair</flux:select.option>
+                    <flux:select.option value="tyres">Tyres</flux:select.option>
+                    <flux:select.option value="brakes">Brakes</flux:select.option>
+                    <flux:select.option value="diagnostic">Diagnostic</flux:select.option>
+                    <flux:select.option value="other">Other</flux:select.option>
                 </flux:select>
                 <flux:error name="serviceType" />
             </flux:field>
 
             <flux:field>
                 <flux:label>Select Branch *</flux:label>
-                <flux:select wire:model="selectedBranch">
-                    <option value="">Choose a branch...</option>
+                <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch...">
                     @foreach($branches as $branch)
-                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
                 <flux:error name="selectedBranch" />
@@ -83,20 +81,19 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Preferred Date *</flux:label>
-                    <flux:input wire:model="preferredDate" type="date" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
+                    <flux:date-picker wire:model="preferredDate" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
                     <flux:error name="preferredDate" />
                 </flux:field>
                 <flux:field>
                     <flux:label>Preferred Time *</flux:label>
-                    <flux:select wire:model="preferredTime">
-                        <option value="">Select time...</option>
-                        <option value="09:00">09:00 AM</option>
-                        <option value="10:00">10:00 AM</option>
-                        <option value="11:00">11:00 AM</option>
-                        <option value="12:00">12:00 PM</option>
-                        <option value="14:00">02:00 PM</option>
-                        <option value="15:00">03:00 PM</option>
-                        <option value="16:00">04:00 PM</option>
+                    <flux:select wire:model="preferredTime" variant="listbox" placeholder="Select time...">
+                        <flux:select.option value="09:00">09:00 AM</flux:select.option>
+                        <flux:select.option value="10:00">10:00 AM</flux:select.option>
+                        <flux:select.option value="11:00">11:00 AM</flux:select.option>
+                        <flux:select.option value="12:00">12:00 PM</flux:select.option>
+                        <flux:select.option value="14:00">02:00 PM</flux:select.option>
+                        <flux:select.option value="15:00">03:00 PM</flux:select.option>
+                        <flux:select.option value="16:00">04:00 PM</flux:select.option>
                     </flux:select>
                     <flux:error name="preferredTime" />
                 </flux:field>

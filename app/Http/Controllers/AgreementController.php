@@ -55,7 +55,7 @@ class AgreementController extends Controller
                 return $access;
             });
 
-        return view('admin.customers.upload-links', compact('access'));
+        return view('olders.admin.customers.upload-links', compact('access'));
     }
 
     public function agreement_Logs()
@@ -71,7 +71,7 @@ class AgreementController extends Controller
             });
 
         // admin/customers/agreement-links
-        return view('admin.customers.agreement-links', compact('access'));
+        return view('olders.admin.customers.agreement-links', compact('access'));
     }
 
     public function generateAgreementAccess($customer_id)

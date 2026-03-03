@@ -18,7 +18,7 @@ use Maatwebsite\Excel\Facades\Excel; // Import the Request class correctly
  *
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class NgnStockHandlerCrudController extends CrudController
+class NgnStockHandlerCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\DeleteOperation;

@@ -68,7 +68,7 @@ class RentalDuePaymentsController extends Controller
             return $row;
         });
 
-        return view('admin.rental_due_payments', [
+        return view('olders.admin.rental_due_payments', [
             'title' => 'Rental Due Payments',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

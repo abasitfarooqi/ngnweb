@@ -326,7 +326,7 @@ class PcnCaseCrudController extends CrudController
     {
         $pcnCase = PcnCase::with('updates')->findOrFail($id);
 
-        return view('admin.pcn_case_updates.show', compact('pcnCase'));
+        return view('olders.admin.pcn_case_updates.show', compact('pcnCase'));
     }
 
     public function getUpdatesLink()

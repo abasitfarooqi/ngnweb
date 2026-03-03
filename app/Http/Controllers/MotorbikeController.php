@@ -27,7 +27,7 @@ class MotorbikeController extends Controller
     // USED MOTORBIES PAGE FOR DISPLAY IN ADMIN PANEL //
     public function addForSale(Request $request)
     {
-        return view('admin.motorbikes.add_forsale');
+        return view('olders.admin.motorbikes.add_forsale');
     }
 
     public function store_used(Request $request)
@@ -82,7 +82,7 @@ class MotorbikeController extends Controller
             )->where('MS.is_sold', 0)
             ->get();
 
-        return view('admin.motorbikes.used-for-sale', compact('motorbikes'));
+        return view('olders.admin.motorbikes.used-for-sale', compact('motorbikes'));
     }
 
     // Universal Method //
@@ -472,7 +472,7 @@ class MotorbikeController extends Controller
             )
             ->get();
 
-        return view('admin.motorbikes.add_used', compact('motorbikes', 'motorbikes_sale'));
+        return view('olders.admin.motorbikes.add_used', compact('motorbikes', 'motorbikes_sale'));
     }
 
     public function showReport()
@@ -497,7 +497,7 @@ class MotorbikeController extends Controller
             // ->paginate(10);
             ->get(); // Use ->get() for fetching all at once or ->paginate() for paginated results
 
-        return view('admin.motorbikes.motorbikes', compact('motorbikes'));
+        return view('olders.admin.motorbikes.motorbikes', compact('motorbikes'));
     }
 
     // Motorbike Dashboard
@@ -511,7 +511,7 @@ class MotorbikeController extends Controller
     {
         $motorbikes = Motorbike::all();
 
-        return view('admin.motorbikes.motorbikes', compact('motorbikes'));
+        return view('olders.admin.motorbikes.motorbikes', compact('motorbikes'));
     }
 
     public function vehicleCheck(Request $request)
@@ -547,17 +547,17 @@ class MotorbikeController extends Controller
     {
         $motorbikes = Motorbike::all();
 
-        return view('admin.renting.index', compact('motorbikes'));
+        return view('olders.admin.renting.index', compact('motorbikes'));
     }
 
     public function renting_agreement()
     {
-        return view('admin.renting.agreement');
+        return view('olders.admin.renting.agreement');
     }
 
     public function create()
     {
-        return view('admin.motorbikes.create');
+        return view('olders.admin.motorbikes.create');
     }
 
     public function checkRegNo(Request $request)
@@ -642,7 +642,7 @@ class MotorbikeController extends Controller
 
     public function edit(Motorbike $motorbike)
     {
-        return view('admin.motorbikes.edit', compact('motorbike'));
+        return view('olders.admin.motorbikes.edit', compact('motorbike'));
     }
 
     public function update(Request $request, Motorbike $motorbike)
@@ -674,5 +674,55 @@ class MotorbikeController extends Controller
         $motorbike->images()->create(['image_path' => $path]);
 
         return back()->with('success', 'Image uploaded successfully.');
+    }
+
+    /**
+     * Old admin: rental motorbikes list (DVLA / rental fleet).
+     */
+    public function rentalList()
+    {
+        return redirect()->route('admin.index');
+    }
+
+    /**
+     * Old admin: create rental bike (DVLA add/edit).
+     */
+    public function createRentalBike()
+    {
+        return view('olders.admin.motorbikes.create');
+    }
+
+    /**
+     * Old admin: store new rental bike.
+     */
+    public function storeRentalBike(Request $request)
+    {
+        return redirect()->route('admin.renting.motorbikes')->with('info', 'Use Backpack Motorbikes CRUD to add bikes.');
+    }
+
+    /**
+     * Old admin: show single rental bike.
+     */
+    public function showRentalBike($motorbike)
+    {
+        $motorbike = Motorbike::findOrFail($motorbike);
+        return view('olders.admin.motorbikes.show', compact('motorbike'));
+    }
+
+    /**
+     * Old admin: edit rental bike.
+     */
+    public function editRentalBike($motorbike)
+    {
+        $motorbike = Motorbike::findOrFail($motorbike);
+        return view('olders.admin.motorbikes.create', ['motorbike' => $motorbike]);
+    }
+
+    /**
+     * Old admin: update rental bike.
+     */
+    public function updateRentalBike(Request $request, $motorbike)
+    {
+        return redirect()->route('admin.renting.motorbikes')->with('info', 'Use Backpack Motorbikes CRUD to update.');
     }
 }

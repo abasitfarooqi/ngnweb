@@ -103,10 +103,9 @@
         </flux:field>
         <flux:field>
             <flux:label>Service Type</flux:label>
-            <flux:select wire:model="serviceType">
-                <option value="">Select service…</option>
+            <flux:select wire:model="serviceType" variant="listbox" placeholder="Select service…">
                 @foreach(['basic_service'=>'Basic Service','major_service'=>'Major Service','repair'=>'Repair/Diagnostic','mot'=>'MOT Test','other'=>'Other'] as $val => $label)
-                    <option value="{{ $val }}">{{ $label }}</option>
+                    <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
                 @endforeach
             </flux:select>
         </flux:field>

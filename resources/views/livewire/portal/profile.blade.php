@@ -29,10 +29,9 @@
                 </flux:field>
                 <flux:field>
                     <flux:label>Preferred Branch</flux:label>
-                    <flux:select wire:model="preferred_branch_id">
-                        <option value="">Select a branch</option>
+                    <flux:select wire:model="preferred_branch_id" variant="listbox" searchable placeholder="Select a branch">
                         @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                         @endforeach
                     </flux:select>
                 </flux:field>
@@ -63,7 +62,7 @@
                 </flux:field>
                 <flux:field>
                     <flux:label>Date of Birth *</flux:label>
-                    <flux:input wire:model="dob" type="date" :disabled="$profile && $profile->isFieldLocked('dob')" />
+                    <flux:date-picker wire:model="dob" :disabled="$profile && $profile->isFieldLocked('dob')" />
                     <flux:error name="dob" />
                 </flux:field>
                 <flux:field>
@@ -113,11 +112,11 @@
                 </flux:field>
                 <flux:field>
                     <flux:label>Issue Date *</flux:label>
-                    <flux:input wire:model="license_issuance_date" type="date" :disabled="$profile && $profile->isFieldLocked('license_number')" />
+                    <flux:date-picker wire:model="license_issuance_date" :disabled="$profile && $profile->isFieldLocked('license_number')" />
                 </flux:field>
                 <flux:field>
                     <flux:label>Expiry Date *</flux:label>
-                    <flux:input wire:model="license_expiry_date" type="date" :disabled="$profile && $profile->isFieldLocked('license_number')" />
+                    <flux:date-picker wire:model="license_expiry_date" :disabled="$profile && $profile->isFieldLocked('license_number')" />
                 </flux:field>
             </div>
             <flux:callout variant="info" icon="document-text" class="mt-4">

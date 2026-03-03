@@ -7,7 +7,7 @@ use Backpack\PermissionManager\app\Http\Requests\PermissionStoreCrudRequest as S
 use Backpack\PermissionManager\app\Http\Requests\PermissionUpdateCrudRequest as UpdateRequest;
 use Spatie\Permission\PermissionRegistrar;
 
-class PermissionCrudController extends CrudController
+class PermissionCrudController extends BaseCrudController
 {
     protected string $role_model;
 
@@ -41,6 +41,8 @@ class PermissionCrudController extends CrudController
 
     public function setupListOperation()
     {
+        $this->crud->setOperationSetting('datatablesUrl', $this->crud->getRoute() ?: config('backpack.base.route_prefix').'/permission');
+
         $this->crud->addColumn([
             'name' => 'name',
             'label' => trans('backpack::permissionmanager.name'),

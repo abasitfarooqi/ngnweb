@@ -1,90 +1,86 @@
-<div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-md w-full space-y-8">
-        <div>
-            <a href="/" class="flex justify-center">
-                <img class="h-12 w-auto" src="{{ asset('images/logo.png') }}" alt="NGN Motor">
-            </a>
-            <h2 class="mt-6 text-center text-3xl font-bold text-gray-900 dark:text-white">
-                Sign in to your account
-            </h2>
-            <p class="mt-2 text-center text-sm text-gray-600 dark:text-gray-400">
-                Or
-                <a href="{{ route('register') }}" class="font-medium text-brand-red hover:text-red-700">
-                    create a new account
-                </a>
-            </p>
-        </div>
+<div class="w-full max-w-md mx-auto px-4">
+    {{-- Logo --}}
+    <div class="text-center mb-8">
+        <a href="/" class="inline-block">
+            <img class="h-12 w-auto mx-auto" src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors">
+        </a>
+        <h1 class="mt-5 text-2xl font-bold text-gray-900 dark:text-white">Sign in to your account</h1>
+        <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+            Don't have an account?
+            <a href="{{ route('register') }}" class="font-medium text-brand-red hover:text-red-700 transition">Create one</a>
+        </p>
+    </div>
 
-        <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg px-8 py-6">
-            @if (session('status'))
-                <div class="mb-4 text-sm text-green-600 dark:text-green-300">
-                    {{ session('status') }}
-                </div>
-            @endif
+    {{-- Card --}}
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm px-6 py-8 sm:px-8">
 
-            <form wire:submit.prevent="login" class="space-y-6">
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Email address
-                    </label>
-                    <input
-                        id="email"
-                        type="email"
-                        wire:model.defer="email"
-                        autocomplete="username"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-red focus:border-brand-red dark:bg-gray-700 dark:text-white"
-                    >
-                    @error('email')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
+        @if (session('status'))
+            <div class="mb-5 px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 text-sm">
+                {{ session('status') }}
+            </div>
+        @endif
 
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Password
-                    </label>
-                    <input
-                        id="password"
-                        type="password"
-                        wire:model.defer="password"
-                        autocomplete="current-password"
-                        class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:ring-brand-red focus:border-brand-red dark:bg-gray-700 dark:text-white"
-                    >
-                    @error('password')
-                        <span class="text-red-600 text-sm">{{ $message }}</span>
-                    @enderror
-                </div>
+        @if (session('error'))
+            <div class="mb-5 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-800 dark:text-red-200 text-sm">
+                {{ session('error') }}
+            </div>
+        @endif
 
-                <div class="flex items-center justify-between">
-                    <label class="flex items-center text-sm text-gray-700 dark:text-gray-300">
-                        <input
-                            type="checkbox"
-                            wire:model="remember"
-                            class="h-4 w-4 text-brand-red focus:ring-brand-red border-gray-300"
-                        >
-                        <span class="ml-2">Remember me</span>
-                    </label>
+        <form wire:submit="login" class="space-y-5">
 
-                    @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-sm text-brand-red hover:text-red-700">
-                            Forgot your password?
-                        </a>
-                    @endif
-                </div>
+            {{-- Email --}}
+            <div>
+                <label for="email" class="ngn-label">Email address</label>
+                <input id="email" type="email" wire:model.blur="email"
+                    autocomplete="username"
+                    class="ngn-input @error('email') border-red-500 dark:border-red-500 @enderror"
+                    placeholder="you@example.com">
+                @error('email')
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <input
-                    type="hidden"
-                    x-data
-                    x-init="$wire.timezone = Intl.DateTimeFormat().resolvedOptions().timeZone"
-                >
+            {{-- Password --}}
+            <div>
+                <label for="password" class="ngn-label">Password</label>
+                <input id="password" type="password" wire:model.blur="password"
+                    autocomplete="current-password"
+                    class="ngn-input @error('password') border-red-500 dark:border-red-500 @enderror">
+                @error('password')
+                    <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
 
-                <button
-                    type="submit"
-                    class="w-full py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-brand-red hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-red"
-                >
-                    Login
-                </button>
-            </form>
-        </div>
+            {{-- Remember + forgot --}}
+            <div class="flex items-center justify-between gap-4">
+                <label class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                    <input type="checkbox" wire:model="remember" class="accent-brand-red">
+                    <span>Remember me</span>
+                </label>
+                @if (Route::has('password.request'))
+                    <a href="{{ route('password.request') }}"
+                        class="text-sm text-brand-red hover:text-red-700 transition whitespace-nowrap">
+                        Forgot password?
+                    </a>
+                @endif
+            </div>
+
+            {{-- Submit --}}
+            <button type="submit"
+                class="ngn-btn-primary w-full py-2.5 justify-center"
+                wire:loading.attr="disabled">
+                <span wire:loading.remove>Sign in</span>
+                <span wire:loading class="flex items-center gap-2">
+                    <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/></svg>
+                    Signing in…
+                </span>
+            </button>
+
+        </form>
+
+        <p class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+            <a href="/ngn-admin/login" class="hover:text-gray-600 dark:hover:text-gray-300 transition">Staff login</a>
+        </p>
+
     </div>
 </div>

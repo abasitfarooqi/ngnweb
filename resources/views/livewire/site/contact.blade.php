@@ -42,10 +42,10 @@
 
                 <flux:field>
                     <flux:label>Preferred Branch</flux:label>
-                    <flux:select wire:model="branch_id">
-                        <option value="">Any branch</option>
+                    <flux:select wire:model="branch_id" variant="listbox" searchable placeholder="Any branch">
+                        <flux:select.option value="">Any branch</flux:select.option>
                         @foreach($branches as $branch)
-                            <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                         @endforeach
                     </flux:select>
                     <flux:error name="branch_id" />
@@ -53,10 +53,9 @@
 
                 <flux:field>
                     <flux:label>Topic *</flux:label>
-                    <flux:select wire:model="topic">
-                        <option value="">Select a topic</option>
+                    <flux:select wire:model="topic" variant="listbox" placeholder="Select a topic">
                         @foreach(['rentals'=>'Rentals','mot'=>'MOT','repairs'=>'Repairs & Servicing','sales'=>'Bike Sales','finance'=>'Finance','recovery'=>'Recovery','other'=>'Other'] as $val => $label)
-                            <option value="{{ $val }}">{{ $label }}</option>
+                            <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>
                     <flux:error name="topic" />

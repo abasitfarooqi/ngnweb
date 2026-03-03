@@ -17,7 +17,7 @@ class SparePartsController extends Controller
 {
     public function spareparts_dashboard()
     {
-        return view('admin.spareparts.index');
+        return view('olders.admin.spareparts.index');
     }
 
     public function viewPurchaseRequests()
@@ -86,7 +86,7 @@ class SparePartsController extends Controller
             ];
         });
 
-        return view('admin.spareparts.view-all-prs', compact('formattedData'));
+        return view('olders.admin.spareparts.view-all-prs', compact('formattedData'));
     }
 
     // GENERATE PDF
@@ -316,7 +316,7 @@ class SparePartsController extends Controller
 
         \Log::info($brands);
 
-        return view('admin.spareparts.create-pr', compact('brands'));
+        return view('olders.admin.spareparts.create-pr', compact('brands'));
     }
 
     //        Route::get('/fetch-pr-items', [SparePartsController::class, 'fetch_pr_items'])->name('admin.spareparts.fetch-pr-items');

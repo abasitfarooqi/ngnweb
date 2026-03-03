@@ -7,6 +7,7 @@ import scrollbar from 'tailwind-scrollbar';
 
 /** @type {import('tailwindcss').Config} */
 export default {
+    darkMode: 'class',
     content: [
         './vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php',
         './storage/framework/views/*.php',
@@ -24,7 +25,7 @@ export default {
                 'custom': '599px',
             },
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['Inter', 'Figtree', ...defaultTheme.fontFamily.sans],
             },
             backgroundImage: {
                 'hero-pattern': "url('/assets/images/temp/delivery-service-lg.png')",
@@ -67,6 +68,10 @@ export default {
                     900: '#40060c',   // Darkest shade
                     1000: '#000000',
                 },
+                'brand-red': '#c31924',
+                'brand-black': '#000000',
+                'brand-gray': '#424242',
+                'brand-light': '#f8f9fa',
                 'bg-ngn-primary': {
                     50: '#ffe5e5',   // Lightest shade
                     100: '#ffcccc',

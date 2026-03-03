@@ -38,9 +38,15 @@ use Illuminate\Support\Facades\Route;
 // ], function () {
 Route::group([
     'prefix' => config('backpack.base.route_prefix', 'admin'),
-    'middleware' => ['web', 'auth', 'admin', 'check.admin.access'], // Add 'admin' middleware here
+    'middleware' => ['web', 'auth', 'admin', 'check.admin.access'],
     'namespace' => 'App\Http\Controllers\Admin',
 ], function () {
+
+    // NGN dashboard (replaces default; data from BackpackDashboardController)
+    Route::get('dashboard', [\App\Http\Controllers\Admin\BackpackDashboardController::class, 'dashboard'])->name('backpack.dashboard');
+    Route::get('/', function () {
+        return redirect(backpack_url('dashboard'));
+    })->name('backpack');
 
     Route::crud('user', UserCrudController::class);
     Route::crud('role', RoleCrudController::class);

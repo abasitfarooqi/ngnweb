@@ -6,7 +6,7 @@ use App\Http\Requests\MotorbikeAnnualComplianceMRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
-class MotorbikeAnnualComplianceMCrudController extends CrudController
+class MotorbikeAnnualComplianceMCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;

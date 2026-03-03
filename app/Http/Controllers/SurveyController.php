@@ -116,8 +116,9 @@ class SurveyController extends Controller
     public function index()
     {
         $surveyEmailCampaigns = SurveyEmailCampaign::count();
+        $surveys = NgnSurvey::orderBy('id')->get();
 
-        return view('admin.survey_index', compact('surveyEmailCampaigns'));
+        return view('olders.admin.survey_index', compact('surveyEmailCampaigns', 'surveys'));
     }
 
     public function getResponses($surveyId)
@@ -126,7 +127,7 @@ class SurveyController extends Controller
             ->where('survey_id', $surveyId) // Adjust the survey ID as needed
             ->get();
 
-        return view('admin.survey_responses', compact('responses'));
+        return view('olders.admin.survey_responses', compact('responses'));
     }
 
     /**

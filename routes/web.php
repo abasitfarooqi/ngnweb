@@ -35,6 +35,7 @@ use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RentalController;
+use App\Http\Controllers\RentingController;
 use App\Http\Controllers\RentalSignupController;
 use App\Http\Controllers\Shopper\CartController;
 use App\Http\Controllers\Shopper\CartrentalController;
@@ -454,32 +455,88 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
         Route::post('/image/upload', [SparePartsController::class, 'upload'])->name('pr.image.upload');
     });
 
-    // --- Renting / Finance ---
+    // --- Finance (from NGN-WEB, deprecated / Backpack may overtake) ---
+    Route::prefix('finance')->group(function () {
+        Route::get('/', [FinanceController::class, 'finance_dashboard'])->name('admin.finance.index');
+        Route::get('/applications', [FinanceController::class, 'finance_applications'])->name('admin.finance.applications');
+        Route::get('/applications/new', [FinanceController::class, 'finance_application_new'])->name('admin.finance.application.new');
+    });
+
+    // --- Renting (structure from NGN-WEB: flat routes, static paths before {id}) ---
     Route::prefix('renting')->group(function () {
-        Route::get('/dashboard', [\App\Http\Controllers\RentingController::class, 'index'])->name('admin.renting.index');
-
-        Route::prefix('bookings')->group(function () {
-            Route::get('/', [\App\Http\Controllers\RentingController::class, 'bookings'])->name('admin.renting.bookings');
-            Route::get('/create', [\App\Http\Controllers\RentingController::class, 'createBooking'])->name('admin.renting.bookings.create');
-            Route::post('/create', [\App\Http\Controllers\RentingController::class, 'storeBooking'])->name('admin.renting.bookings.store');
-            Route::get('/{booking}', [\App\Http\Controllers\RentingController::class, 'showBooking'])->name('admin.renting.bookings.show');
-            Route::get('/{booking}/edit', [\App\Http\Controllers\RentingController::class, 'editBooking'])->name('admin.renting.bookings.edit');
-            Route::patch('/{booking}', [\App\Http\Controllers\RentingController::class, 'updateBooking'])->name('admin.renting.bookings.update');
-            Route::delete('/{booking}', [\App\Http\Controllers\RentingController::class, 'deleteBooking'])->name('admin.renting.bookings.delete');
-        });
-
-        Route::prefix('motorbikes')->group(function () {
-            Route::get('/', [MotorbikeController::class, 'rentalList'])->name('admin.renting.motorbikes');
-            Route::get('/create', [MotorbikeController::class, 'createRentalBike'])->name('admin.renting.motorbikes.create');
-            Route::post('/create', [MotorbikeController::class, 'storeRentalBike'])->name('admin.renting.motorbikes.store');
-            Route::get('/{motorbike}', [MotorbikeController::class, 'showRentalBike'])->name('admin.renting.motorbikes.show');
-            Route::get('/{motorbike}/edit', [MotorbikeController::class, 'editRentalBike'])->name('admin.renting.motorbikes.edit');
-            Route::patch('/{motorbike}', [MotorbikeController::class, 'updateRentalBike'])->name('admin.renting.motorbikes.update');
-            Route::post('/{motorbike}/upload-image', [MotorbikeController::class, 'uploadImage'])->name('admin.motorbikes.uploadImage');
-            Route::get('/{motorbike}/image-upload', [MotorbikeController::class, 'showImageUploadForm'])->name('admin.motorbikes.showImageUploadForm');
-            Route::post('/motorbikes/vehiclecheck', [MotorbikeController::class, 'vehicleCheck'])->name('admin.motorbikes.vehicleCheck');
-        });
-
+        // 7 CLOSING (POST)
+        Route::post('/notice-period', [RentingController::class, 'noticePeriod']);
+        Route::post('/collect-motorbike', [RentingController::class, 'collectMotorbike']);
+        Route::post('/damages-cost', [RentingController::class, 'damagesCost']);
+        Route::post('/pcn-pendings', [RentingController::class, 'pcnPendings']);
+        Route::post('/pending-rent', [RentingController::class, 'pendingRent']);
+        Route::post('/deposit-return', [RentingController::class, 'depositReturn']);
+        // GET booking by id (singular path to avoid conflict with /bookings)
+        Route::get('/booking/{bookingId}/closing-status', [RentingController::class, 'getClosingStatus']);
+        Route::get('/booking/{bookingId}/additional-costs', [RentingController::class, 'getAdditionalCosts']);
+        Route::get('/booking/{bookingId}/deposit', [RentingController::class, 'getDepositAmount']);
+        Route::get('/booking/{booking_item_id}/pcn-pendings', [RentingController::class, 'getPcnPending'])->name('admin.renting.bookings.pcn-pendings');
+        // Bookings list / static paths (must be before /bookings/{bookingId})
+        Route::get('/bookings', [RentingController::class, 'renting_bookings'])->name('admin.renting.bookings');
+        Route::get('/bookings/inactive', [RentingController::class, 'inactive_renting_bookings'])->name('admin.renting.bookings.inactive');
+        Route::get('/bookings/new', [RentingController::class, 'renting_booking_new'])->name('admin.renting.booking.new');
+        Route::post('/bookings/motorbike-pricing', [RentingController::class, 'getMotorbikeInvoices'])->name('admin.motorbike.pricing');
+        Route::get('/bookings/history', [RentingController::class, 'all_renting_bookings'])->name('admin.renting.bookings.history');
+        Route::get('/bookings/invoice-dates-all', [RentingController::class, 'invoiceDatesAllView'])->name('admin.renting.invoice.dates.all');
+        Route::post('/bookings/invoice-dates/update', [RentingController::class, 'updateInvoiceDate'])->name('admin.renting.invoice.dates.update');
+        Route::get('/bookings/change-start-date', [RentingController::class, 'showUpdateStartDateForm'])->name('admin.renting.bookings.showUpdateStartDateForm');
+        Route::post('/bookings/change-start-date', [RentingController::class, 'updateStartDate'])->name('admin.renting.bookings.updateStartDate');
+        Route::get('/motorbike-price-check', [RentingController::class, 'getMotorbikePrice'])->name('admin.motorbike.price');
+        Route::post('/bookings/doc-confirm', [RentingController::class, 'docConfirm'])->name('admin.renting.bookings.doc-confirm');
+        // Bookings by {bookingId}
+        Route::post('/bookings/{bookingId}/startbooking', [RentingController::class, 'startbooking'])->name('admin.renting.bookings.startbooking');
+        Route::post('/bookings/{bookingId}/other-charges', [RentingController::class, 'addOtherCharges'])->name('admin.renting.bookings.other-charges.pay');
+        Route::get('/bookings/{bookingId}/other-charges', [RentingController::class, 'getOtherCharges'])->name('admin.renting.bookings.other-charges');
+        Route::post('/bookings/other-charges/pay', [RentingController::class, 'payOtherCharges'])->name('admin.renting.bookings.other-charges.pay.post');
+        Route::post('/bookings/{bookingId}/issue', [RentingController::class, 'issueMotorbike'])->name('admin.renting.bookings.issue');
+        Route::post('/bookings/{bookingId}/reissue', [RentingController::class, 'issueMotorbike'])->name('admin.renting.bookings.reissue');
+        Route::post('/bookings/{bookingId}/video/upload', [RentingController::class, 'uploadServiceVideo'])->name('admin.renting.bookings.video.upload');
+        Route::get('/bookings/{bookingId}/videos', [RentingController::class, 'getServiceVideos'])->name('admin.renting.bookings.videos.index');
+        Route::post('/bookings/{bookingId}/maintenance-logs', [RentingController::class, 'addMaintenanceLog'])->name('admin.renting.bookings.maintenance-logs.store');
+        Route::get('/bookings/{bookingId}/maintenance-logs', [RentingController::class, 'getMaintenanceLogs'])->name('admin.renting.bookings.maintenance-logs.index');
+        Route::delete('/bookings/maintenance-logs/{logId}', [RentingController::class, 'deleteMaintenanceLog'])->name('admin.renting.bookings.maintenance-logs.destroy');
+        Route::get('/bookings/{bookingId}/summary', [RentingController::class, 'getBookingSummary']);
+        Route::get('/bookings/{bookingId}/summary_view', [RentingController::class, 'getBookingSummaryView']);
+        Route::post('/bookings/create-new-agreement', [AgreementController::class, 'createNewAgreement'])->name('admin.renting.bookings.createNewAgreement');
+        Route::post('/bookings/create-new-agreement-ins', [AgreementController::class, 'createNewAgreementIns'])->name('admin.renting.bookings.createNewAgreement.ins');
+        Route::get('/bookings/{bookingId}/customer', [RentingController::class, 'getCustomer'])->name('admin.renting.bookings.customer');
+        Route::get('/bookings/{bookingId}/invoices', [RentingController::class, 'getInvoices'])->name('admin.renting.bookings.invoices');
+        Route::get('/bookings/invoices/{invoiceId}/details', [RentingController::class, 'getInvoiceDetails'])->name('admin.renting.bookings.invoices.details');
+        Route::post('/bookings/invoices/{invoiceId}/send-whatsapp', [RentingController::class, 'sendInvoiceWhatsappReminder'])->name('admin.renting.bookings.invoices.send-whatsapp');
+        Route::put('/bookings/invoices/{invoiceId}/update-date', [RentingController::class, 'updateInvoiceDateById'])->name('admin.renting.bookings.invoices.update-date');
+        Route::get('/bookings/motorbike-availability', [RentingController::class, 'checkMotorbikeAvailability'])->name('admin.renting.bookings.motorbike-availability');
+        Route::post('/bookings/create', [RentingController::class, 'createBooking'])->name('admin.renting.bookings.create');
+        Route::post('/bookings/update', [RentingController::class, 'updateBooking'])->name('admin.renting.bookings.update');
+        Route::put('/bookings/{bookingId}/update', [RentingController::class, 'customerUpdate'])->name('admin.renting.customer.update');
+        Route::post('/bookings/{bookingId}/invoice/create', [RentingController::class, 'createUpdateInvoice'])->name('admin.renting.bookings.invoice.create');
+        Route::post('/bookings/{bookingId}/finalize', [RentingController::class, 'finalizeBooking'])->name('admin.renting.bookings.finalize');
+        Route::post('/bookings/{bookingId}/cancel', [RentingController::class, 'cancelBooking'])->name('admin.renting.bookings.cancel');
+        // Renting index and agreement templates
+        Route::get('/', [RentingController::class, 'renting_index'])->name('admin.renting.index');
+        Route::get('/agreement', [RentingController::class, 'renting_agreement_template'])->name('admin.renting.agreement');
+        Route::get('/hire-contract', [RentingController::class, 'renting_agreement_template'])->name('admin.hire.contract');
+        Route::get('/contract', [RentingController::class, 'finance_agreement_template'])->name('admin.finance.agreement');
+        // Motorbikes (NGN-WEB style: showReport, create, store, edit, update, destroy, show)
+        Route::get('/motorbikes', [MotorbikeController::class, 'showReport'])->name('admin.motorbikes.index');
+        Route::get('/motorbikes/check-reg-no', [MotorbikeController::class, 'checkRegNo'])->name('admin.motorbikes.checkregno');
+        Route::get('/motorbikes/create', [MotorbikeController::class, 'create'])->name('admin.motorbikes.create');
+        Route::get('/motorbikes/pricing', [RentingController::class, 'showPricing'])->name('admin.motorbikes.pricing');
+        Route::post('/motorbikes/pricing', [RentingController::class, 'storePricing'])->name('admin.motorbikes.storePricing');
+        Route::post('/motorbikes/pricing/update', [RentingController::class, 'updatePricing'])->name('admin.motorbikes.updatePricing');
+        Route::post('/motorbikes', [MotorbikeController::class, 'store'])->name('admin.motorbikes.store');
+        Route::get('/motorbikes/{motorbike}/edit', [MotorbikeController::class, 'edit'])->name('admin.motorbikes.edit');
+        Route::put('/motorbikes/{motorbike}', [MotorbikeController::class, 'update'])->name('admin.motorbikes.update');
+        Route::delete('/motorbikes/{motorbike}', [MotorbikeController::class, 'destroy'])->name('admin.motorbikes.destroy');
+        Route::get('/motorbikes/{motorbike}', [MotorbikeController::class, 'show'])->name('admin.motorbikes.show');
+        Route::post('/motorbikes/{motorbike}/upload-image', [MotorbikeController::class, 'uploadImage'])->name('admin.motorbikes.uploadImage');
+        Route::get('/motorbikes/{motorbike}/image-upload', [MotorbikeController::class, 'showImageUploadForm'])->name('admin.motorbikes.showImageUploadForm');
+        Route::post('/motorbikes/vehiclecheck', [MotorbikeController::class, 'vehicleCheck'])->name('admin.motorbikes.vehicleCheck');
+        Route::post('/customers/{customer_id}/documents/upload', [CustomerController::class, 'upload'])->name('customers.documents.upload');
         Route::get('/customers', [CustomerController::class, 'customers'])->name('admin.customers.index');
         Route::get('/customers/create', [CustomerController::class, 'create'])->name('admin.customers.create');
         Route::post('/customers', [CustomerController::class, 'store'])->name('admin.customers.store');
@@ -498,6 +555,41 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
     Route::get('/bookings/invoices/{invoice}/print', [InvoicePdfController::class, 'print'])->name('invoices.print');
 });
 
+
+Route::get('/ebikes', function () {
+    return view('frontend.ebike-landing');
+})->name('ebike.landing');
+
+
+// Welcome Routes GET
+Route::controller(WelcomeController::class)->group(function () {
+    Route::get('/motorcycle-sales', 'BikesForSale')->name('sale-motorcycles');
+    Route::get('/rentals-information', 'RentInformation')->name('rental-information');
+    Route::get('/services', 'GetServices')->name('services');
+    Route::get('/all-services', 'AllGetServices')->name('all-services');
+    Route::get('/service-repairs', 'Repairs')->name('service-repairs');
+    Route::get('/service-motorcycle', 'ServiceBike')->name('service-motorcycle');
+    Route::get('/service-mot', 'ServiceMot')->name('service-mot');
+    Route::get('/accident-management-services', 'AccidentClaim')->name('road-traffic-accidents');
+    Route::get('/shop-motorcycle', 'MotorcycleShop')->name('shop');
+    Route::get('/shop-accessories', 'MotorcycleAccessories')->name('shop-accessories');
+    Route::get('/gps-tracker', 'GpsTracker')->name('gps-tracker');
+    Route::get('/spare-parts', 'SpareParts')->name('spare-parts');
+    Route::get('/about', 'AboutMethod')->name('about.page');
+    // newly added
+    Route::get('/accessories', 'accessories')->name('accessories');
+
+    // Legals
+    Route::get('/cookie-and-privacy-policy', 'CookiePrivacyPolicy')->name('CookiePrivacyPolicy');
+    Route::get('/terms-of-use', 'TermsOfUse')->name('TermsOfUse');
+    Route::get('/shipping-policy', 'ShippingPolicy')->name('ShippingPolicy');
+    Route::get('/refund-policy', 'RefundPolicy')->name('RefundPolicy');
+    Route::get('/return-policy', 'ReturnPolicy')->name('ReturnPolicy');
+    Route::get('/mot-checker', [MotCheckerController::class, 'index']);
+    Route::post('/mot-checker/submit', [MotCheckerController::class, 'submit']);
+
+    Route::get('/coming-soon', 'SoonCome');
+});
 // ============================================================
 // AUTH — Fortify handles GET/POST /login, /register (customer guard). Logout below for web guard.
 // ============================================================

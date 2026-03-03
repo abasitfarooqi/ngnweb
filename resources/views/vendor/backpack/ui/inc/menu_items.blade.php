@@ -141,62 +141,51 @@
 </x-backpack::menu-dropdown>
 @endcan
 
-<!-- // misc -->
+{{-- MISC / EXPERIMENTS (Admin only) --}}
 @role('Admin')
-<x-backpack::menu-separator title="MISC/Experiments" />
+<x-backpack::menu-separator title="MISC / EXPERIMENTS" />
 
-<x-backpack::menu-dropdown title="..." icon="las la-blog">
-
-    <x-backpack::menu-dropdown title="Club Members" icon="la la-external-link-alt">
-        <x-backpack::menu-dropdown-item title="Club members" :link="backpack_url('club-member')" />
-        <x-backpack::menu-dropdown-item title="Club member purchases" :link="backpack_url('club-member-purchase')" />
-        <x-backpack::menu-dropdown-item title="Club member redeems" :link="backpack_url('club-member-redeem')" />
-        <x-backpack::menu-dropdown-item title="0% Spendings" :link="backpack_url('club-member-spending')" />
-
+<x-backpack::menu-dropdown title="Misc" icon="la la-th-large">
+    <x-backpack::menu-dropdown :nested="true" title="Club Members" icon="la la-users">
+        <x-backpack::menu-dropdown-item title="Club members" icon="la la-user-friends" :link="backpack_url('club-member')" />
+        <x-backpack::menu-dropdown-item title="Club member purchases" icon="la la-shopping-bag" :link="backpack_url('club-member-purchase')" />
+        <x-backpack::menu-dropdown-item title="Club member redeems" icon="la la-gift" :link="backpack_url('club-member-redeem')" />
+        <x-backpack::menu-dropdown-item title="0% Spendings" icon="la la-money-bill" :link="backpack_url('club-member-spending')" />
     </x-backpack::menu-dropdown>
-    
-    <x-backpack::menu-dropdown-item title="Purchase request items" icon="la la-external-link-alt" :link="backpack_url('purchase-request-item')" />
 
-    <li class="nav-item"><a class="nav-link" href="/admin"><i class="la la-cog nav-icon"></i> Old Admin Panel </a></li>
-    {{-- <x-backpack::menu-item title="List" icon="la la-motorcycle" :link="backpack_url('motorbike-list')" /> --}}
-
+    <x-backpack::menu-dropdown-item title="Purchase request items" icon="la la-clipboard-list" :link="backpack_url('purchase-request-item')" />
+    <x-backpack::menu-dropdown-item title="Old Admin Panel" icon="la la-cog" :link="url('/admin')" />
     <x-backpack::menu-dropdown-item title="Vehicles Database" icon="la la-motorcycle" :link="backpack_url('motorbike-annual-compliance')" />
-    <x-backpack::menu-dropdown-item title="Customer documents" icon="la la-external-link-alt" :link="backpack_url('customer-document')" />
-    <x-backpack::menu-dropdown-item title="Vehicle issuances" icon="la la-motorcycle" :link="backpack_url('vehicle-issuance')" />
-    <!-- <x-backpack::menu-item title="New motorbikes for sales" icon="la la-question" :link="backpack_url('new-motorbikes-for-sale')" /> -->
-
-    <x-backpack::menu-dropdown-item title="Vehicle delivery orders" icon="la la-question" :link="backpack_url('vehicle-delivery-order')" />    
+    <x-backpack::menu-dropdown-item title="Customer documents" icon="la la-file-alt" :link="backpack_url('customer-document')" />
+    <x-backpack::menu-dropdown-item title="Vehicle issuances" icon="la la-id-card" :link="backpack_url('vehicle-issuance')" />
+    <x-backpack::menu-dropdown-item title="Vehicle delivery orders" icon="la la-truck" :link="backpack_url('vehicle-delivery-order')" />
 </x-backpack::menu-dropdown>
 @endrole
 
-
-
-{{-- IP RESTRICTIONS --}}
+{{-- SECURITY --}}
 @can('see-menu-security')
 <x-backpack::menu-separator title="Security" />
-<x-backpack::menu-dropdown title="..." icon="la la-exclamation-circle">
-    <x-backpack::menu-dropdown-item title="Ip restrictions" icon="la la-question" :link="backpack_url('ip-restriction')" />
-    <x-backpack::menu-dropdown-item title="Access logs" icon="la la-question" :link="backpack_url('access-log')" />
-    <!-- <x-backpack::menu-item title="AI Chat Agent" icon="la la-robot" :link="backpack_url('agent-settings')" /> -->
+<x-backpack::menu-dropdown title="Security" icon="la la-shield-alt">
+    <x-backpack::menu-dropdown-item title="IP restrictions" icon="la la-network-wired" :link="backpack_url('ip-restriction')" />
+    <x-backpack::menu-dropdown-item title="Access logs" icon="la la-list-alt" :link="backpack_url('access-log')" />
 </x-backpack::menu-dropdown>
 @endcan
 
+{{-- PERMISSIONS --}}
 @can('see-menu-permissions')
-    <x-backpack::menu-item title="Users" icon="la la-user-shield" :link="backpack_url('user')" />
-    <x-backpack::menu-item title="Roles" icon="la la-user-tag" :link="backpack_url('role')" />
-    <x-backpack::menu-item title="Permissions" icon="la la-key" :link="backpack_url('permission')" />
+<x-backpack::menu-separator title="Permissions" />
+<x-backpack::menu-item title="Users" icon="la la-user-shield" :link="backpack_url('user')" />
+<x-backpack::menu-item title="Roles" icon="la la-user-tag" :link="backpack_url('role')" />
+<x-backpack::menu-item title="Permissions" icon="la la-key" :link="backpack_url('permission')" />
 @endcan
 
-
-
-<!-- Staff -->
+{{-- JUDO PAY --}}
 @canany(['see-judopay-home', 'see-judopay'])
+<x-backpack::menu-separator title="Judo Pay" />
 <x-backpack::menu-dropdown title="JUDO PAY" icon="las la-chevron-circle-down">
-    <x-backpack::menu-dropdown-item title="Judo Pay" icon="la la-question" :link="backpack_url('judopay')" />
-    <x-backpack::menu-dropdown-item title="MIT Dashboard" icon="la la-credit-card" :link="backpack_url('judopay/mit-dashboard')" />
-    <x-backpack::menu-dropdown-item title="Weekly Schedule" icon="la la-credit-card" :link="backpack_url('judopay/weekly-mit-queue')" />
- 
-
+    <x-backpack::menu-dropdown-item title="Judo Pay" icon="la la-credit-card" :link="backpack_url('judopay')" />
+    <x-backpack::menu-dropdown-item title="MIT Dashboard" icon="la la-chart-line" :link="backpack_url('judopay/mit-dashboard')" />
+    <x-backpack::menu-dropdown-item title="Weekly Schedule" icon="la la-calendar-week" :link="backpack_url('judopay/weekly-mit-queue')" />
 </x-backpack::menu-dropdown>
 @endcan
 
@@ -210,7 +199,7 @@
 <!-- @endcan -->
 
 
-{{-- REPORTS --}}
+<!-- {{-- REPORTS --}} -->
 <!-- <x-backpack::menu-dropdown title="REPORTS" icon="las la-chevron-circle-down"> -->
 <!--     <x-backpack::menu-item title="NGN Club dashboard" icon="la la-user-friends" :link="backpack_url('ngn_club')" /> -->
 <!--     <x-backpack::menu-item title="Employee schedules" icon="las la-user-check" :link="backpack_url('employee-schedule')" /> -->

@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Requests\DsOrderItemRequest;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 
-class DsOrderItemCrudController extends CrudController
+class DsOrderItemCrudController extends BaseCrudController
 {
     public function setup()
     {

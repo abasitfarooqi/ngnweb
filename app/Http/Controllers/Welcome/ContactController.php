@@ -153,7 +153,7 @@ class ContactController extends Controller
     {
         $contacts = Contact::latest()->get();
 
-        return view('admin.contact.allcontact', compact('contacts'));
+        return view('olders.admin.contact.allcontact', compact('contacts'));
     }
 
     public function DeleteMessage($id)

@@ -6,7 +6,7 @@ use App\Models\JudopayMitQueue;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
-class JudopayMitQueueCrudController extends CrudController
+class JudopayMitQueueCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;

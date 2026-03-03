@@ -10,12 +10,12 @@ class FinanceController extends Controller
 {
     public function finance_dashboard()
     {
-        return view('admin.finance.dashboard');
+        return view('olders.admin.finance.dashboard');
     }
 
     public function finance_applications()
     {
-        return view('admin.finance.applications');
+        return view('olders.admin.finance.applications');
     }
 
     public function finance_application_new()

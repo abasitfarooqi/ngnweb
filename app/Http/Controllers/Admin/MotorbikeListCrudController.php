@@ -7,7 +7,7 @@ use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
-class MotorbikeListCrudController extends CrudController
+class MotorbikeListCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;

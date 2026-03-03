@@ -11,7 +11,7 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return view('admin.index');
+        return view('olders.admin.index');
     }
 
     // /rotas-view
@@ -34,8 +34,8 @@ class AdminController extends Controller
                 return $schedule;
             });
 
-        return view('admin.rotas-view', ['employeeSchedules' => $employeeSchedules]);
+        return view('olders.admin.rotas-view', ['employeeSchedules' => $employeeSchedules]);
 
-        // return view('admin.rotas-view', compact('employeeSchedules'));
+        // return view('olders.admin.rotas-view', compact('employeeSchedules'));
     }
 }

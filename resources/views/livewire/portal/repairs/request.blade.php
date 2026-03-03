@@ -17,14 +17,14 @@
 
             <flux:field>
                 <flux:label>Service Type *</flux:label>
-                <flux:select wire:model="service_type">
-                    <option value="basic_service">Basic Service</option>
-                    <option value="full_service">Full/Major Service</option>
-                    <option value="repairs">Repairs/Diagnosis</option>
-                    <option value="tyres">Tyres</option>
-                    <option value="brakes">Brakes</option>
-                    <option value="electrical">Electrical</option>
-                    <option value="other">Other</option>
+                <flux:select wire:model="service_type" variant="listbox" placeholder="Select service type">
+                    <flux:select.option value="basic_service">Basic Service</flux:select.option>
+                    <flux:select.option value="full_service">Full/Major Service</flux:select.option>
+                    <flux:select.option value="repairs">Repairs/Diagnosis</flux:select.option>
+                    <flux:select.option value="tyres">Tyres</flux:select.option>
+                    <flux:select.option value="brakes">Brakes</flux:select.option>
+                    <flux:select.option value="electrical">Electrical</flux:select.option>
+                    <flux:select.option value="other">Other</flux:select.option>
                 </flux:select>
                 <flux:error name="service_type" />
             </flux:field>
@@ -98,24 +98,23 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <flux:field>
                         <flux:label>Date *</flux:label>
-                        <flux:input wire:model="date_requested" type="date" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
+                        <flux:date-picker wire:model="date_requested" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
                         <flux:error name="date_requested" />
                     </flux:field>
                     <flux:field>
                         <flux:label>Time Slot *</flux:label>
-                        <flux:select wire:model="time_slot">
+                        <flux:select wire:model="time_slot" variant="listbox" placeholder="Select time slot">
                             @foreach($timeSlots as $value => $label)
-                                <option value="{{ $value }}">{{ $label }}</option>
+                                <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                             @endforeach
                         </flux:select>
                         <flux:error name="time_slot" />
                     </flux:field>
                     <flux:field>
                         <flux:label>Branch *</flux:label>
-                        <flux:select wire:model="branch_id">
-                            <option value="">Select branch</option>
+                        <flux:select wire:model="branch_id" variant="listbox" searchable placeholder="Select branch">
                             @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                             @endforeach
                         </flux:select>
                         <flux:error name="branch_id" />
@@ -127,13 +126,13 @@
 
             <flux:field>
                 <flux:label>Approve repairs up to *</flux:label>
-                <flux:select wire:model="repair_authorisation_limit">
-                    <option value="0">Do not repair without approval</option>
-                    <option value="50">Up to £50</option>
-                    <option value="100">Up to £100</option>
-                    <option value="150">Up to £150</option>
-                    <option value="200">Up to £200</option>
-                    <option value="999999">Any amount needed</option>
+                <flux:select wire:model="repair_authorisation_limit" variant="listbox" placeholder="Select authorisation limit">
+                    <flux:select.option value="0">Do not repair without approval</flux:select.option>
+                    <flux:select.option value="50">Up to £50</flux:select.option>
+                    <flux:select.option value="100">Up to £100</flux:select.option>
+                    <flux:select.option value="150">Up to £150</flux:select.option>
+                    <flux:select.option value="200">Up to £200</flux:select.option>
+                    <flux:select.option value="999999">Any amount needed</flux:select.option>
                 </flux:select>
                 <flux:error name="repair_authorisation_limit" />
             </flux:field>

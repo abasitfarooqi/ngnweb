@@ -25,7 +25,7 @@ use Illuminate\Support\Str;
  *
  * @property-read \Backpack\CRUD\app\Library\CrudPanel\CrudPanel $crud
  */
-class MotorbikeDeliveryOrderEnquiriesCrudController extends CrudController
+class MotorbikeDeliveryOrderEnquiriesCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation {

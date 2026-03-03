@@ -21,7 +21,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
-class FinanceApplicationCrudController extends CrudController
+class FinanceApplicationCrudController extends BaseCrudController
 {
     // use \Backpack\CalendarOperation\CalendarOperation; // removed - L12 incompatible
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;
@@ -57,6 +57,7 @@ class FinanceApplicationCrudController extends CrudController
 
     protected function setupListOperation()
     {
+        $this->crud->setOperationSetting('datatablesUrl', $this->crud->getRoute() ?: config('backpack.base.route_prefix').'/finance-application');
 
         CRUD::addColumn(['name' => 'id', 'type' => 'number', 'label' => 'Contract ID']);
 

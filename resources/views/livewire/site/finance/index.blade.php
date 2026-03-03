@@ -45,9 +45,9 @@
                 </flux:field>
                 <flux:field>
                     <flux:label>Term (months)</flux:label>
-                    <flux:select wire:model.live="term">
+                    <flux:select wire:model.live="term" variant="listbox" placeholder="Select term">
                         @foreach([12, 24, 36, 48, 60] as $t)
-                            <option value="{{ $t }}">{{ $t }} months</option>
+                            <flux:select.option value="{{ $t }}">{{ $t }} months</flux:select.option>
                         @endforeach
                     </flux:select>
                 </flux:field>
@@ -105,10 +105,9 @@
         </div>
         <flux:field>
             <flux:label>Employment Status</flux:label>
-            <flux:select wire:model="employmentStatus">
-                <option value="">Select…</option>
+            <flux:select wire:model="employmentStatus" variant="listbox" placeholder="Select…">
                 @foreach(['employed'=>'Employed', 'self_employed'=>'Self-Employed', 'retired'=>'Retired', 'student'=>'Student', 'other'=>'Other'] as $val => $label)
-                    <option value="{{ $val }}">{{ $label }}</option>
+                    <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
                 @endforeach
             </flux:select>
         </flux:field>

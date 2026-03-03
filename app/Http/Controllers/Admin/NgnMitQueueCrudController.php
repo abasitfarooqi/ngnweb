@@ -6,7 +6,7 @@ use App\Models\NgnMitQueue;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
-class NgnMitQueueCrudController extends CrudController
+class NgnMitQueueCrudController extends BaseCrudController
 {
     use \Backpack\CRUD\app\Http\Controllers\Operations\ListOperation;
     use \Backpack\CRUD\app\Http\Controllers\Operations\ShowOperation;

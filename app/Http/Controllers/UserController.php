@@ -34,7 +34,7 @@ class UserController extends Controller
 
         $count = $users->count();
 
-        return view('admin.users', compact('users', 'count'));
+        return view('olders.admin.users', compact('users', 'count'));
     }
 
     /**
@@ -44,7 +44,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('admin.users-create');
+        return view('olders.admin.users-create');
     }
 
     /**
@@ -132,7 +132,7 @@ class UserController extends Controller
 
         $address = UserAddress::all()->where('user_id', $user_id);
 
-        return view('admin.user', compact('user', 'address', 'documents', 'dlFront', 'motorcycles', 'days', 'notes'));
+        return view('olders.admin.user', compact('user', 'address', 'documents', 'dlFront', 'motorcycles', 'days', 'notes'));
     }
 
     /**
@@ -145,7 +145,7 @@ class UserController extends Controller
     {
         $user = User::find($id);
 
-        return view('admin.users-edit', compact('user'));
+        return view('olders.admin.users-edit', compact('user'));
     }
 
     /**

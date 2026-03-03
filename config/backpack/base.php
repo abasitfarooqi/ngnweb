@@ -48,9 +48,8 @@ return [
     // Warning: if you disable this, the password recovery routes (below) will be disabled too!
     'setup_auth_routes' => true,
 
-    // Set this to false if you would like to skip adding the dashboard routes
-    // (you then need to overwrite the login route on your AuthController)
-    'setup_dashboard_routes' => true,
+    // Set this to false so we use our NGN dashboard (BackpackDashboardController) from routes/backpack/custom.php
+    'setup_dashboard_routes' => false,
 
     // Set this to false if you would like to skip adding "my account" routes
     // (you then need to manually define the routes in your web.php)

@@ -12,20 +12,20 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <flux:field>
                 <flux:label>Branch</flux:label>
-                <flux:select wire:model.live="selectedBranch">
-                    <option value="">All Branches</option>
+                <flux:select wire:model.live="selectedBranch" variant="listbox" searchable placeholder="All Branches">
+                    <flux:select.option value="">All Branches</flux:select.option>
                     @foreach ($branches as $branch)
-                        <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                        <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
             </flux:field>
 
             <flux:field>
                 <flux:label>Type</flux:label>
-                <flux:select wire:model.live="filterType">
-                    <option value="all">All Types</option>
-                    <option value="scooter">Scooters (≤125cc)</option>
-                    <option value="motorbike">Motorbikes (>125cc)</option>
+                <flux:select wire:model.live="filterType" variant="listbox" placeholder="All Types">
+                    <flux:select.option value="all">All Types</flux:select.option>
+                    <flux:select.option value="scooter">Scooters (≤125cc)</flux:select.option>
+                    <flux:select.option value="motorbike">Motorbikes (&gt;125cc)</flux:select.option>
                 </flux:select>
             </flux:field>
 

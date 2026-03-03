@@ -7,7 +7,7 @@ use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Carbon\Carbon;
 
-class CalanderCrudController extends CrudController
+class CalanderCrudController extends BaseCrudController
 {
     // use \Backpack\CalendarOperation\CalendarOperation; // removed - L12 incompatible
     use \Backpack\CRUD\app\Http\Controllers\Operations\CreateOperation;

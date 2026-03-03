@@ -833,7 +833,24 @@ class RentingController extends Controller
             ->whereNull('RBI.end_date')
             ->get();
 
-        return view('admin.renting.bookings', compact('bookingDetails'));
+        return view('olders.admin.renting.bookings', compact('bookingDetails'));
+    }
+
+    /**
+     * Alias for route admin.renting.bookings.
+     */
+    public function bookings()
+    {
+        return $this->renting_bookings();
+    }
+
+    /**
+     * Show a single booking (route admin.renting.bookings.show).
+     */
+    public function showBooking($booking)
+    {
+        $booking = RentingBooking::findOrFail($booking);
+        return redirect()->route('admin.renting.bookings')->with('info', 'Booking #'.$booking->id);
     }
 
     public function inactive_renting_bookings()
@@ -868,7 +885,7 @@ class RentingController extends Controller
             ->whereNotNull('RBI.end_date')
             ->get();
 
-        return view('admin.renting.inactive-bookings', compact('bookingDetails'));
+        return view('olders.admin.renting.inactive-bookings', compact('bookingDetails'));
     }
 
     public function all_renting_bookings(Request $request)
@@ -946,14 +963,14 @@ class RentingController extends Controller
         $customers = DB::table('customers')->select('id', 'first_name', 'last_name')->get();
         $motorbikes = DB::table('motorbikes')->select('id', 'reg_no')->get();
 
-        return view('admin.renting.bookings_history', compact('bookingHistory', 'customers', 'motorbikes'));
+        return view('olders.admin.renting.bookings_history', compact('bookingHistory', 'customers', 'motorbikes'));
     }
 
     public function renting_index()
     {
         $motorbikes = Motorbike::all();
 
-        return view('admin.renting.index', compact('motorbikes'));
+        return view('olders.admin.renting.index', compact('motorbikes'));
     }
 
     // Single Motorbike ONLY
@@ -1681,7 +1698,7 @@ class RentingController extends Controller
 
         $documentTypes = DocumentType::all();
 
-        return view('admin.renting.booking-new', compact(
+        return view('olders.admin.renting.booking-new', compact(
             'motorbikes',
             'customers',
             'documentTypes'
@@ -1738,7 +1755,7 @@ class RentingController extends Controller
 
     //     $documentTypes = DocumentType::all();
 
-    //     return view('admin.renting.booking-new', [
+    //     return view('olders.admin.renting.booking-new', [
     //         'motorbikes' => $motorbikes,
     //         'customers' => $customers,
     //         'documentTypes' => $documentTypes,
@@ -1900,7 +1917,7 @@ class RentingController extends Controller
 
         // 'id', 'make', 'model', 'year', 'engine', 'color', 'fuel_type', 'reg_no'
 
-        return view('admin.motorbikes.pricing', ['pricing' => $pricing, 'motorbikes_not_priced' => $instance->motorbikeNotPriced()]);
+        return view('olders.admin.motorbikes.pricing', ['pricing' => $pricing, 'motorbikes_not_priced' => $instance->motorbikeNotPriced()]);
     }
 
     // SET MOTORBIKE PRICE
@@ -2034,12 +2051,12 @@ class RentingController extends Controller
 
     public function finance_agreement_template()
     {
-        return view('admin.finance.agreement');
+        return view('olders.admin.finance.agreement');
     }
 
     public function renting_agreement_template()
     {
-        return view('admin.renting.agreement');
+        return view('olders.admin.renting.agreement');
     }
 
     public function updateInvoiceDate(Request $request)
@@ -2101,7 +2118,7 @@ class RentingController extends Controller
         // For dropdowns if you want to keep them for future
         $bookingIds = $invoices->pluck('booking_id')->unique();
 
-        return view('admin.renting.invoice-dates-all', compact('invoices', 'bookingIds', 'search'));
+        return view('olders.admin.renting.invoice-dates-all', compact('invoices', 'bookingIds', 'search'));
     }
 
     public function updateStartDate(Request $request)
@@ -2126,7 +2143,7 @@ class RentingController extends Controller
     {
         $bookings = RentingBooking::with('customer')->get();
 
-        return view('admin.renting.update-start-date', compact('bookings'));
+        return view('olders.admin.renting.update-start-date', compact('bookings'));
     }
 
     public function uploadServiceVideo(Request $request, $bookingId)
@@ -2339,7 +2356,7 @@ class RentingController extends Controller
         $pricePeriods = isset($pricePeriods) ? $pricePeriods : [];
         $paidInvoiceCount = isset($paidInvoiceCount) ? $paidInvoiceCount : 0;
 
-        return view('admin.renting.summary-view', compact('booking'));
+        return view('olders.admin.renting.summary-view', compact('booking'));
     }
 
     // Delete a maintenance log by its ID

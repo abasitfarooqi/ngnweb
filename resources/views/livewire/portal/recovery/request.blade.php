@@ -81,12 +81,12 @@
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">What's Wrong?</h3>
                 <flux:field class="mb-4">
                     <flux:label>Issue Type *</flux:label>
-                    <flux:select wire:model="issue_type">
-                        <option value="wont_start">Won't Start</option>
-                        <option value="flat_tyre">Flat Tyre</option>
-                        <option value="electrical">Electrical Problem</option>
-                        <option value="accident">Accident</option>
-                        <option value="other">Other</option>
+                    <flux:select wire:model="issue_type" variant="listbox" placeholder="Select issue type">
+                        <flux:select.option value="wont_start">Won't Start</flux:select.option>
+                        <flux:select.option value="flat_tyre">Flat Tyre</flux:select.option>
+                        <flux:select.option value="electrical">Electrical Problem</flux:select.option>
+                        <flux:select.option value="accident">Accident</flux:select.option>
+                        <flux:select.option value="other">Other</flux:select.option>
                     </flux:select>
                     <flux:error name="issue_type" />
                 </flux:field>
@@ -103,20 +103,19 @@
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Destination</h3>
                 <flux:field class="mb-4">
                     <flux:label>Deliver To *</flux:label>
-                    <flux:select wire:model="destination_type">
-                        <option value="branch">NGN Branch</option>
-                        <option value="home">My Home</option>
-                        <option value="other">Other Address</option>
+                    <flux:select wire:model="destination_type" variant="listbox" placeholder="Select destination">
+                        <flux:select.option value="branch">NGN Branch</flux:select.option>
+                        <flux:select.option value="home">My Home</flux:select.option>
+                        <flux:select.option value="other">Other Address</flux:select.option>
                     </flux:select>
                     <flux:error name="destination_type" />
                 </flux:field>
                 @if($destination_type === 'branch')
                     <flux:field>
                         <flux:label>Select Branch</flux:label>
-                        <flux:select wire:model="branch_id">
-                            <option value="">Choose branch</option>
+                        <flux:select wire:model="branch_id" variant="listbox" searchable placeholder="Choose branch">
                             @foreach($branches as $branch)
-                                <option value="{{ $branch->id }}">{{ $branch->name }}</option>
+                                <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                             @endforeach
                         </flux:select>
                         <flux:error name="branch_id" />

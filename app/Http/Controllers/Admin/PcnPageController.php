@@ -129,24 +129,24 @@ class PcnPageController extends Controller
                 $customerName = $pcnCase->customer ? $pcnCase->customer->first_name.' '.$pcnCase->customer->last_name : 'N/A';
                 $regNo = $pcnCase->motorbike ? $pcnCase->motorbike->reg_no : 'N/A';
 
-                // first check for whatsapp number
-                $phoneNumber = $pcnCase->customer->whatsapp ?? $pcnCase->customer->phone;
+                // first check for whatsapp number (customer may be null)
+                $phoneNumber = $pcnCase->customer
+                    ? ($pcnCase->customer->whatsapp ?? $pcnCase->customer->phone ?? '')
+                    : '';
 
-                $phoneNumber = preg_replace('/\s+|^0/', '', $phoneNumber);
-                $phoneNumber = preg_replace('/^(\+44)+/', '', $phoneNumber); // Remove leading +44 if present
-                $phoneNumber = preg_replace('/^44/', '', $phoneNumber); // Remove leading 44 if present
-                $phoneNumber = '+44'.$phoneNumber; // Ensure the number starts with +44
-                $phoneNumber = preg_replace('/\s+/', '', $phoneNumber); // Remove any spaces
+                $phoneNumber = preg_replace('/\s+|^0/', '', (string) $phoneNumber);
+                $phoneNumber = preg_replace('/^(\+44)+/', '', $phoneNumber);
+                $phoneNumber = preg_replace('/^44/', '', $phoneNumber);
+                $phoneNumber = $phoneNumber !== '' ? '+44'.$phoneNumber : '';
+                $phoneNumber = preg_replace('/\s+/', '', $phoneNumber);
 
                 $fullAmount = $pcnCase->full_amount;
                 $reducedAmount = $pcnCase->reduced_amount;
 
-                // Determine the amount due based on whether the reduced amount applies
-                // $amountDue = $pcnCase->date_of_contravention >= now()->subDays(14) ? $reducedAmount : $fullAmount;
                 $amountDue = $reducedAmount;
 
                 $message = "Dear {$customerName}, this is a reminder regarding Penalty Charge Notice {$pcnCase->pcn_number} for vehicle {$regNo}. The outstanding amount of £{$amountDue} remains unpaid. Please ensure payment is made as soon as possible to avoid increases. If you have already paid, please contact us immediately at 0208 314 1498 or WhatsApp us on 07951790568, NGN Motors.";
-                $url = "https://wa.me/{$phoneNumber}?text=".urlencode($message);
+                $url = $phoneNumber !== '' ? "https://wa.me/{$phoneNumber}?text=".urlencode($message) : '#';
 
                 return [
                     'customer_name' => $customerName,
@@ -162,14 +162,14 @@ class PcnPageController extends Controller
 
         // ✅ If this is an AJAX request, return only the table body HTML
         if ($request->ajax()) {
-            $html = view('admin.partials.pcn_list_body', [
+            $html = view('olders.admin.partials.pcn_list_body', [
                 'pcnList' => $pcnList,
             ])->render();
 
             return response()->json(['html' => $html]);
         }
 
-        return view('admin.pcn_page', [
+        return view('olders.admin.pcn_page', [
             'title' => 'PCN Statistics',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),
