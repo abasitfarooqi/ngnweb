@@ -42,7 +42,7 @@ class Faq extends Component
         [
             'category' => 'MOT',
             'q' => 'How long does an MOT take?',
-            'a' => 'A standard motorcycle MOT typically takes 30–45 minutes. If minor advisories are found and you'd like them rectified on the same day, allow extra time.',
+            'a' => 'A standard motorcycle MOT typically takes 30-45 minutes. If minor advisories are found and you\'d like them rectified on the same day, allow extra time.',
         ],
         [
             'category' => 'MOT',
@@ -52,7 +52,7 @@ class Faq extends Component
         [
             'category' => 'Repairs & Servicing',
             'q' => 'What types of motorcycles do you service?',
-            'a' => 'We service all makes and models with a focus on Japanese motorcycles (Honda, Yamaha, Kawasaki, Suzuki) and popular European brands. Contact us if you're unsure about your specific model.',
+            'a' => 'We service all makes and models with a focus on Japanese motorcycles (Honda, Yamaha, Kawasaki, Suzuki) and popular European brands. Contact us if you are unsure about your specific model.',
         ],
         [
             'category' => 'Repairs & Servicing',
@@ -77,7 +77,7 @@ class Faq extends Component
         [
             'category' => 'Sales & Finance',
             'q' => 'Do you buy or part-exchange motorcycles?',
-            'a' => 'We consider part-exchange on a case-by-case basis. Contact us with details of your bike and we'll advise.',
+            'a' => 'We consider part-exchange on a case-by-case basis. Contact us with details of your bike and we will advise.',
         ],
         [
             'category' => 'General',
@@ -87,7 +87,7 @@ class Faq extends Component
         [
             'category' => 'General',
             'q' => 'What are your opening hours?',
-            'a' => config('site.hours', 'Monday – Saturday: 9:00am – 6:00pm. We are closed on Sundays and Bank Holidays.'),
+            'a' => 'Monday to Saturday: 9:00am to 6:00pm. We are closed on Sundays and Bank Holidays.',
         ],
         [
             'category' => 'General',
