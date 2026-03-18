@@ -19,22 +19,23 @@
                             <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Order #{{ $order->id }}</h3>
                             <p class="text-sm text-gray-500">{{ $order->created_at->format('d M Y H:i') }}</p>
                         </div>
-                        <flux:badge color="{{ match($order->status ?? 'pending') {
+                        <flux:badge color="{{ match(strtolower($order->order_status ?? 'pending')) {
                             'pending' => 'yellow',
-                            'processing' => 'blue',
-                            'shipped' => 'purple',
-                            'delivered', 'completed' => 'green',
+                            'in progress' => 'blue',
+                            'confirmed' => 'blue',
+                            'ready to collect' => 'purple',
+                            'delivered' => 'green',
                             'cancelled' => 'red',
                             default => 'zinc'
                         } }}">
-                            {{ ucfirst($order->status ?? 'Pending') }}
+                            {{ $order->order_status ?? 'Pending' }}
                         </flux:badge>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-sm mb-4">
                         <div>
                             <p class="text-gray-500">Total Amount</p>
-                            <p class="text-lg font-semibold text-gray-900 dark:text-white">£{{ number_format($order->total ?? 0, 2) }}</p>
+                            <p class="text-lg font-semibold text-gray-900 dark:text-white">£{{ number_format($order->grand_total ?? 0, 2) }}</p>
                         </div>
                         <div>
                             <p class="text-gray-500">Payment</p>
@@ -42,7 +43,7 @@
                         </div>
                         <div>
                             <p class="text-gray-500">Delivery Method</p>
-                            <p class="font-medium text-gray-900 dark:text-white">{{ $order->delivery_method ?? 'Standard' }}</p>
+                            <p class="font-medium text-gray-900 dark:text-white">{{ $order->shippingMethod?->name ?? 'Standard' }}</p>
                         </div>
                     </div>
 
@@ -61,9 +62,9 @@
                     @endif
 
                     <div class="flex gap-3 flex-wrap">
-                        <flux:button variant="outline" size="sm">View Details</flux:button>
-                        @if(!in_array($order->status, ['cancelled', 'completed']))
-                            <flux:button variant="ghost" size="sm">Contact Support</flux:button>
+                        <flux:button href="{{ route('account.orders.show', $order->id) }}" variant="outline" size="sm">View Details</flux:button>
+                        @if(!in_array($order->order_status, ['Cancelled', 'Delivered']))
+                            <flux:button href="mailto:support@neguinhomotors.co.uk?subject=Order+%23{{ $order->id }}" variant="ghost" size="sm">Contact Support</flux:button>
                         @endif
                     </div>
                 </flux:card>

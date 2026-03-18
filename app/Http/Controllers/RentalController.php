@@ -11,6 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\View\View;
 
+/**
+ * @deprecated Admin renting is handled by RentingController. This controller is not used by any route.
+ */
 class RentalController extends Controller
 {
     /**
@@ -26,16 +29,13 @@ class RentalController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    /**
+     * Public rentals listing: redirect to Livewire page (RentingController / Site use that).
+     * View [rentals.index] is deprecated; use route('rentals') which points to Livewire.
+     */
     public function index()
     {
-        $r = Rental::all()->where('payment_date', null);
-        // dd($p);
-        $rentals = json_decode($r);
-        $count = $r->count();
-
-        // $users = User::all()->where('user_id', $payments->user_id);
-        // dd($users);
-        return view('rentals.index', compact('rentals', 'count'));
+        return redirect()->route('rentals');
     }
 
     /**

@@ -234,22 +234,22 @@
                                 <a href="{{ url('/finance') }}">FINANCE</a>
                             </li>
                             <li>
-                                <a href="{{ route('repairs.comparison') }}">MOTORBIKE SERVICES</a>
+                                <a href="{{ route('site.repairs.comparison') }}">MOTORBIKE SERVICES</a>
                                 <ul class="submenu">
                                     
                                     <li>
-                                        <a href="{{ route('repairs.comparison') }}">Service Comparison</a>
+                                        <a href="{{ route('site.repairs.comparison') }}">Service Comparison</a>
                                     </li>
                                     <li>
-                                        <a href="{{ route('repairs.basic') }}">Basic Service</a>
+                                        <a href="{{ route('site.repairs.basic') }}">Basic Service</a>
                                     </li>
                                     <li>
-                                        <a href="{{ route('repairs.major') }}">Full Service</a>
+                                        <a href="{{ route('site.repairs.full') }}">Full Service</a>
                                     </li>
                                 </ul>
                             </li>
                             <li>
-                                <a href="{{ route('repairs.repair') }}">MOTORBIKE REPAIRS</a>
+                                <a href="{{ route('site.repairs.repair-services') }}">MOTORBIKE REPAIRS</a>
                             </li>
                         </ul>
                     </li> -->
@@ -638,13 +638,13 @@
                     <a href="{{ route('motorcycle.delivery') }}">Motorcycle Delivery</a>
                 </li> -->
                 <!-- <li>
-                    <a href="{{ route('repairs.index') }}">Motorcycle Services</a>
+                    <a href="{{ route('site.repairs') }}">Motorcycle Services</a>
                     <ul class="submenu">
                         <li>
-                            <a href="{{ route('repairs.basic') }}">Basic Service</a>
+                            <a href="{{ route('site.repairs.basic') }}">Basic Service</a>
                         </li>
                         <li>
-                            <a href="{{ route('repairs.major') }}">Full Service</a>
+                            <a href="{{ route('site.repairs.full') }}">Full Service</a>
                         </li>
                     </ul>
                 </li> -->
@@ -656,7 +656,7 @@
                             <a href="{{ route('about.page') }}">ABOUT</a>
                         </li>
                         <li class="mt-2 d-lg-none d-md-none d-sm-block d-xs-block">
-                            <a href="{{ route('careers.index') }}">CAREERS</a>
+                            <a href="{{ route('site.careers.index') }}">CAREERS</a>
                         </li>
                     </ul>
                 </li>

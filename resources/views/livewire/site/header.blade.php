@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <a href="{{ route('about.page') }}" class="flux-navbar-item px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('about*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }}">About</a>
+        <a href="/about" class="flux-navbar-item px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('about*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }}">About</a>
         <a href="{{ route('contact.me') }}" class="flux-navbar-item px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('contact*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }}">Contact</a>
     </nav>
 
@@ -162,7 +162,7 @@
             <flux:navlist.item href="/ebikes">E-Bikes</flux:navlist.item>
         </flux:navlist.group>
 
-        <flux:navlist.item href="{{ route('about.page') }}">About</flux:navlist.item>
+        <flux:navlist.item href="/about">About</flux:navlist.item>
         <flux:navlist.item href="{{ route('contact.me') }}">Contact</flux:navlist.item>
         <flux:navlist.item href="/locations">Locations</flux:navlist.item>
 

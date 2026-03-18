@@ -33,7 +33,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{{ route('repairs.comparison') }}">
+                <a href="{{ route('site.repairs.comparison') }}">
                     <button class="ngn-btn ngn-btn-primary w-100 mt-2" style="margin-bottom: 0;">Learn More</button>
                 </a>
             </div>
@@ -64,7 +64,7 @@
 
                     </div>
                 </div>
-                <a href="{{ route('repairs.comparison') }}">
+                <a href="{{ route('site.repairs.comparison') }}">
                     <button class="ngn-btn ngn-btn-primary w-100 mt-2" style="margin-bottom: 0;">Learn More</button>
                 </a>
             </div>
@@ -97,7 +97,7 @@
                     </div>
 
                 </div>
-                <a href="{{ route('repairs.repair') }}">
+                <a href="{{ route('site.repairs.repair-services') }}">
                     <button class="ngn-btn ngn-btn-primary w-100 mt-2" style="margin-bottom: 0;">Learn More</button>
                 </a>
             </div>

@@ -55,12 +55,7 @@ class Register extends Component
             ]);
         }
 
-        if ($this->currentStep === 2) {
-            $this->validate([
-                'first_name' => 'required|string|max:255',
-                'last_name'  => 'required|string|max:255',
-            ]);
-        }
+        // Step 2 is informational only (email verification info) — no validation needed here
     }
 
     /**

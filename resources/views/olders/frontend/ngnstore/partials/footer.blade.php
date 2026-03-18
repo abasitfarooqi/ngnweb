@@ -124,7 +124,7 @@
                     <h3 class="">Account</h3>
 
                     <ul>
-                        <li><a href="{{ route('careers.index') }}">Careers</a></li>
+                        <li><a href="{{ route('site.careers.index') }}">Careers</a></li>
                         <li><a href="{{ route('contact.me') }}">Contact Us</a></li>
                         <li><a href="/dashboard">My Account</a></li>
                         <li><a href="{{ route('product.cart') }}">My Cart</a></li>

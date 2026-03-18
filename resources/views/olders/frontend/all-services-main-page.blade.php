@@ -187,7 +187,7 @@
                                     service. Book your Yamaha or Honda Motorcycle Service today.</p>
                                 <br>
                                 <p>For a detailed comparison of our service options, please visit our <a class="ngn-btn effect-on-btn"
-                                        href="{{ route('repairs.comparison') }}">Service Comparison</a> page.</p>
+                                        href="{{ route('site.repairs.comparison') }}">Service Comparison</a> page.</p>
                                 <div class="d-flex gap-2 mt-2">
                                     <a href="tel:02083141498"
                                         class="effect-on-btn btn-shape btn-shape-adjustment ngn-bg">Call Now</a>

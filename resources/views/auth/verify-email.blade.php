@@ -28,14 +28,14 @@
             @endif
 
             <div class="flex flex-col sm:flex-row gap-3">
-                <form method="POST" action="{{ route('verification.send') }}" class="flex-1">
+                <form method="POST" action="{{ route('customer.verification.send') }}" class="flex-1">
                     @csrf
                     <button type="submit" class="ngn-btn-primary w-full py-2.5 justify-center">
                         Resend verification email
                     </button>
                 </form>
 
-                <form method="POST" action="{{ route('logout') }}" class="flex-1">
+                <form method="POST" action="{{ route('customer.logout') }}" class="flex-1">
                     @csrf
                     <button type="submit" class="ngn-btn-secondary w-full py-2.5 justify-center">
                         Sign out

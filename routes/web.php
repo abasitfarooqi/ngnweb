@@ -34,7 +34,6 @@ use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RentalController;
 use App\Http\Controllers\RentingController;
 use App\Http\Controllers\RentalSignupController;
 use App\Http\Controllers\Shopper\CartController;
@@ -74,6 +73,14 @@ Route::middleware('web')->group(function () {
     Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Auth\CustomerVerificationController::class, 'verify'])
         ->middleware(['signed', 'throttle:6,1'])
         ->name('customer.verification.verify');
+    // Resend verification email (customer guard) — distinct from Fortify's default endpoint
+    Route::post('/customer/email/verification-notification', function (\Illuminate\Http\Request $request) {
+        $customer = auth('customer')->user();
+        if (!$customer) return redirect()->route('login');
+        if ($customer->hasVerifiedEmail()) return redirect()->route('account.dashboard');
+        $customer->sendEmailVerificationNotification();
+        return back()->with('status', 'verification-link-sent');
+    })->middleware(['auth:customer', 'throttle:6,1'])->name('customer.verification.send');
 });
 
 // ============================================================
@@ -240,8 +247,24 @@ Route::get('/get-in-touch', fn () => redirect('/contact', 301))->name('contact.m
 Route::get('/motorcycle-shop', fn () => redirect('/shop', 301))->name('shop-motorcycle');
 Route::get('/ngn-club', \App\Livewire\Site\Club\Index::class)->name('ngnclub.subscribe');
 Route::get('/search', fn () => redirect('/shop?q=' . urlencode(request()->get('query'))))->name('ngn_search_results');
-Route::redirect('/cart', '/shop')->name('product.cart');
 Route::redirect('/account/dashboard', '/account');
+
+// ============================================================
+// LIVEWIRE SHOP (replaces Vue SPA; sits BEFORE the old catch-all below)
+// ============================================================
+Route::prefix('shop')->name('shop.')->group(function () {
+    Route::get('/', \App\Livewire\Shop\Home::class)->name('home');
+    Route::get('/basket', \App\Livewire\Shop\Basket::class)->name('basket');
+    Route::get('/checkout', \App\Livewire\Shop\Checkout::class)->name('checkout')->middleware('customer');
+    Route::get('/blog', \App\Livewire\Shop\BlogIndex::class)->name('blog');
+    Route::get('/blog/{slug}', \App\Livewire\Shop\BlogShow::class)->name('blog.show');
+    Route::get('/product/{slug}', \App\Livewire\Shop\Product::class)->name('product');
+    // category/brand shorthand
+    Route::get('/accessories', fn () => redirect('/shop?cat=accessories', 301))->name('accessories');
+    Route::get('/spare-parts', fn () => redirect('/shop?cat=spare-parts', 301))->name('spare-parts');
+    Route::get('/gps-tracker', fn () => redirect('/shop?cat=gps-tracker', 301))->name('gps-tracker');
+    Route::get('/helmets', fn () => redirect('/shop?cat=helmets', 301))->name('helmets');
+});
 
 // (GET /login and /register defined above; POST handled by Fortify.)
 
@@ -298,6 +321,9 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/recovery/request', \App\Livewire\Portal\Recovery\Request::class)->name('recovery.request');
     Route::get('/recovery/my-requests', \App\Livewire\Portal\Recovery\MyRequests::class)->name('recovery.my-requests');
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
+    Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
+    Route::get('/addresses', \App\Livewire\Portal\Addresses::class)->name('addresses');
+    Route::get('/payment-methods', \App\Livewire\Portal\PaymentMethods::class)->name('payment-methods');
 });
 
 // Judopay portal callbacks
@@ -705,8 +731,6 @@ Route::post('/users', [UserController::class, 'store'])->name('store.users');
 Route::get('/users/{id}/edit', [UserController::class, 'edit'])->name('edit.user');
 Route::patch('/users/{id}', [UserController::class, 'update'])->name('update.users');
 
-// Rentals (internal)
-Route::get('/rentals', [RentalController::class, 'index'])->name('rentals');
 Route::get('/rental-motorcycle/{motorcycle_id}/{user_id}', [RentalSignupController::class, 'customerBikeLink'])->name('rental.motorcycle.rental');
 Route::controller(RentalSignupController::class)->group(function () {
     Route::get('/rental-signup/{id}', 'rentalSignUp');
