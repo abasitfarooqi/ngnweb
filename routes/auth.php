@@ -12,12 +12,11 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 // Login and register: Fortify (guard: customer) at /login, /register. See config/fortify.php and FortifyServiceProvider.
-Route::middleware('guest')->group(function () {
-    // changesss
-    // Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
-    // ->name('password.request');
-    // Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
-    // ->name('password.email');
+Route::middleware('guest:customer')->group(function () {
+    Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
+        ->name('password.request');
+    Route::post('forgot-password', [PasswordResetLinkController::class, 'store'])
+        ->name('password.email');
     Route::get('reset-password/{token}', [NewPasswordController::class, 'create'])
         ->name('password.reset');
     Route::post('reset-password', [NewPasswordController::class, 'store'])

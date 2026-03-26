@@ -60,7 +60,7 @@
                     @endforeach
                 </div>
                 <div class="text-center">
-                    <p class="text-4xl font-bold text-brand-red mb-1">£{{ number_format(calculatePrice(), 2) }}</p>
+                    <p class="text-4xl font-bold text-brand-red mb-1">£{{ number_format($currentPrice, 2) }}</p>
                     <p class="text-sm text-gray-500">per {{ $selectedPeriod === 'daily' ? 'day' : ($selectedPeriod === 'weekly' ? 'week' : 'month') }}</p>
                 </div>
             </div>

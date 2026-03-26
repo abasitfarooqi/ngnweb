@@ -8,7 +8,9 @@ use Livewire\Component;
 class Show extends Component
 {
     public $motorbike;
+
     public $pricing;
+
     public $selectedPeriod = 'weekly';
 
     public function mount($id)
@@ -29,21 +31,26 @@ class Show extends Component
 
     public function calculatePrice()
     {
-        if (!$this->pricing) return 80;
-        return match($this->selectedPeriod) {
-            'daily'   => round($this->pricing->weekly_price / 6, 2),
-            'weekly'  => $this->pricing->weekly_price,
+        if (! $this->pricing) {
+            return 80;
+        }
+
+        return match ($this->selectedPeriod) {
+            'daily' => round($this->pricing->weekly_price / 6, 2),
+            'weekly' => $this->pricing->weekly_price,
             'monthly' => round($this->pricing->weekly_price * 4 * 0.9, 2),
-            default   => $this->pricing->weekly_price,
+            default => $this->pricing->weekly_price,
         };
     }
 
     public function render()
     {
-        return view('livewire.site.rentals.show')
+        $currentPrice = $this->calculatePrice();
+
+        return view('livewire.site.rentals.show', compact('currentPrice'))
             ->layout('components.layouts.public', [
-                'title' => $this->motorbike->make . ' ' . $this->motorbike->model . ' - Motorcycle Rental | NGN Motors',
-                'description' => 'Rent ' . $this->motorbike->make . ' ' . $this->motorbike->model . ' from £' . $this->calculatePrice() . '/' . $this->selectedPeriod . '.',
+                'title' => $this->motorbike->make.' '.$this->motorbike->model.' - Motorcycle Rental | NGN Motors',
+                'description' => 'Rent '.$this->motorbike->make.' '.$this->motorbike->model.' from £'.$currentPrice.'/'.$this->selectedPeriod.'.',
             ]);
     }
 }

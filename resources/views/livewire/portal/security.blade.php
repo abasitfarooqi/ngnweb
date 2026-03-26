@@ -32,46 +32,15 @@
     </flux:card>
 
     {{-- Two-Factor Authentication --}}
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-6">
-        <h2 class="text-lg font-medium text-gray-900 dark:text-white mb-4">Two-Factor Authentication</h2>
-        
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">
-                    Status: 
-                    @if ($twoFactorEnabled)
-                        <span class="font-medium text-green-600 dark:text-green-400">Enabled</span>
-                    @else
-                        <span class="font-medium text-gray-500">Disabled</span>
-                    @endif
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Add an extra layer of security to your account
-                </p>
-            </div>
-
-            <div>
-                @if ($twoFactorEnabled)
-                    <form method="POST" action="{{ url('/user/two-factor-authentication') }}">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit"
-                            class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm font-medium rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
-                            Disable
-                        </button>
-                    </form>
-                @else
-                    <form method="POST" action="{{ url('/user/two-factor-authentication') }}">
-                        @csrf
-                        <button type="submit"
-                            class="px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-brand-red hover:bg-red-700">
-                            Enable
-                        </button>
-                    </form>
-                @endif
-            </div>
-        </div>
-    </div>
+    <flux:card class="p-6 mb-6">
+        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-2">Two-Factor Authentication</h2>
+        <flux:callout variant="info" icon="information-circle">
+            <flux:callout.text>
+                Two-factor authentication for customer accounts is coming soon.
+                For account security concerns, please <a href="{{ route('site.contact') }}" class="underline font-medium">contact us</a>.
+            </flux:callout.text>
+        </flux:callout>
+    </flux:card>
 
     {{-- Email Verification --}}
     <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">

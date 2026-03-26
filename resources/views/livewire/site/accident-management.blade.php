@@ -62,16 +62,19 @@
             <div>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">What We Offer</h2>
                 <ul class="space-y-4">
-                    @foreach([
-                        'Free accident management – no cost to you if the accident wasn't your fault',
-                        'Like-for-like replacement motorcycle during your claim',
-                        'Expert handling of all insurer communications',
-                        'Motorcycle repairs at our London workshops',
-                        'Recovery and delivery service',
-                        'Support in multiple languages (English, Portuguese, Spanish, French, Arabic, Bengali, Punjabi, Polish)',
-                        'No win no fee claim support',
-                        '3 convenient London locations: Catford, Tooting & Sutton',
-                    ] as $benefit)
+                    @php
+                        $benefits = [
+                            'Free accident management – no cost to you if the accident wasn\'t your fault',
+                            'Like-for-like replacement motorcycle during your claim',
+                            'Expert handling of all insurer communications',
+                            'Motorcycle repairs at our London workshops',
+                            'Recovery and delivery service',
+                            'Support in multiple languages (English, Portuguese, Spanish, French, Arabic, Bengali, Punjabi, Polish)',
+                            'No win no fee claim support',
+                            '3 convenient London locations: Catford, Tooting & Sutton',
+                        ];
+                    @endphp
+                    @foreach($benefits as $benefit)
                         <li class="flex items-start gap-3 text-sm text-gray-600 dark:text-gray-400">
                             <svg class="h-5 w-5 text-brand-red flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

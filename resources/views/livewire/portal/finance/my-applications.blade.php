@@ -7,7 +7,7 @@
         </div>
     @endif
 
-    @if (count($applications) > 0)
+    @if ($applications->isNotEmpty())
         <div class="space-y-4">
             @foreach ($applications as $app)
                 <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">

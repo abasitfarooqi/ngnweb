@@ -2,12 +2,12 @@
 
 namespace App\Livewire\Portal;
 
-use Livewire\Component;
-use Livewire\WithFileUploads;
+use App\Models\CustomerDocument;
+use App\Models\DocumentType;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use App\Models\DocumentType;
-use App\Models\CustomerDocument;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 class Documents extends Component
 {
@@ -16,9 +16,13 @@ class Documents extends Component
     protected $listeners = ['document-upload-committed' => 'onDocumentUploadCommitted'];
 
     public $activeTab = 'rental';
+
     public $uploadingFor = null;
+
     public $file;
+
     public $document_number;
+
     public $valid_until;
 
     public function switchTab($tab)
@@ -30,17 +34,17 @@ class Documents extends Component
     public function startUpload($documentTypeId)
     {
         Log::info('Documents: startUpload called', ['documentTypeId' => $documentTypeId]);
-        $this->uploadingFor    = (int) $documentTypeId;
-        $this->file            = null;
+        $this->uploadingFor = (int) $documentTypeId;
+        $this->file = null;
         $this->document_number = '';
-        $this->valid_until     = '';
+        $this->valid_until = '';
         $this->resetValidation();
     }
 
     public function cancelUpload()
     {
         $this->uploadingFor = null;
-        $this->file         = null;
+        $this->file = null;
         $this->resetValidation();
     }
 
@@ -56,28 +60,29 @@ class Documents extends Component
             'file' => 'required|file|max:10240',
         ], [
             'file.required' => 'Please select a file first.',
-            'file.max'      => 'File must be 10MB or smaller.',
+            'file.max' => 'File must be 10MB or smaller.',
         ]);
 
         $customerAuth = Auth::guard('customer')->user();
-        $profile      = $customerAuth->profile;
+        $profile = $customerAuth->profile;
 
-        if (!$profile) {
+        if (! $profile) {
             session()->flash('error', 'Please complete your profile first.');
+
             return;
         }
 
         $path = $this->file->store('customer-documents', 'public');
 
         CustomerDocument::create([
-            'customer_id'       => $profile->id,
-            'document_type_id'  => $this->uploadingFor,
-            'file_name'         => $this->file->getClientOriginalName(),
-            'file_path'         => $path,
-            'file_format'       => $this->file->getClientOriginalExtension(),
-            'document_number'   => $this->document_number ?: '',
-            'valid_until'       => $this->valid_until ?: null,
-            'status'            => 'pending_review',
+            'customer_id' => $profile->id,
+            'document_type_id' => $this->uploadingFor,
+            'file_name' => $this->file->getClientOriginalName(),
+            'file_path' => $path,
+            'file_format' => $this->file->getClientOriginalExtension(),
+            'document_number' => $this->document_number ?: '',
+            'valid_until' => $this->valid_until ?: null,
+            'status' => 'pending_review',
         ]);
 
         session()->flash('success', 'Document uploaded successfully!');
@@ -87,21 +92,34 @@ class Documents extends Component
     public function render()
     {
         $customerAuth = Auth::guard('customer')->user();
-        $profile      = $customerAuth?->profile;
-        $customer     = $customerAuth?->customer;
+        $profile = $customerAuth?->profile;
+        $customer = $customerAuth?->customer;
+        $customerId = $customer?->id ?? $profile?->id ?? null;
 
-        $rentalDocs  = DocumentType::forRental()->orderBy('sort_order')->get();
-        $financeDocs = DocumentType::forFinance()->orderBy('sort_order')->get();
-
-        $uploadedDocs = [];
-        if ($customer?->id) {
-            $uploadedDocs = CustomerDocument::where('customer_id', $customer->id)
-                ->with('documentType')
-                ->get()
-                ->keyBy('document_type_id');
+        try {
+            $rentalDocs = DocumentType::where('category', 'rental')->orderBy('sort_order')->get();
+        } catch (\Exception $e) {
+            $rentalDocs = collect();
+        }
+        try {
+            $financeDocs = DocumentType::where('category', 'finance')->orderBy('sort_order')->get();
+        } catch (\Exception $e) {
+            $financeDocs = collect();
         }
 
-        return view('livewire.portal.documents', compact('rentalDocs', 'financeDocs', 'uploadedDocs', 'profile'))
-            ->layout('components.layouts.portal');
+        $uploadedDocs = collect();
+        if ($customerId) {
+            try {
+                $uploadedDocs = CustomerDocument::where('customer_id', $customerId)
+                    ->with('documentType')
+                    ->get()
+                    ->keyBy('document_type_id');
+            } catch (\Exception $e) {
+                $uploadedDocs = collect();
+            }
+        }
+
+        return view('livewire.portal.documents', compact('rentalDocs', 'financeDocs', 'uploadedDocs', 'profile', 'customerId'))
+            ->layout('components.layouts.portal', ['title' => 'My Documents | My Account']);
     }
 }

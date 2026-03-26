@@ -47,10 +47,10 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
             @foreach ($motorbikes as $bike)
                 @php
-                    $pricing = $bike->currentRentingPricing;
-                    $estimatedPrice = $pricing ? ($pricing->weekly_rent * 52) : 5000;
-                    $minDeposit = max($this->minDeposit, $estimatedPrice * 0.1);
-                    $monthlyPayment = $this->calculateMonthlyPayment($estimatedPrice, $minDeposit);
+                    $estimatedPrice  = isset($bike->sale_price) && $bike->sale_price > 0 ? (float) $bike->sale_price : 5000;
+                    $bikeMinDeposit  = max((float) $minDeposit, $estimatedPrice * 0.1);
+                    $financeAmount   = max(0, $estimatedPrice - $bikeMinDeposit);
+                    $monthlyPayment  = $financeAmount > 0 ? round($financeAmount / 52, 2) : 0;
                 @endphp
 
                 <div wire:key="bike-{{ $bike->id }}" class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden hover:shadow-lg transition-shadow">
@@ -77,7 +77,7 @@
                             </div>
                             <div class="flex justify-between items-center mb-2">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">Min Deposit (10%):</span>
-                                <span class="text-sm font-semibold text-gray-900 dark:text-white">£{{ number_format($minDeposit, 2) }}</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white">£{{ number_format($bikeMinDeposit, 2) }}</span>
                             </div>
                             <div class="flex justify-between items-center">
                                 <span class="text-sm text-gray-600 dark:text-gray-400">From per month:</span>

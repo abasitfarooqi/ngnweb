@@ -75,6 +75,17 @@ class RentingBooking extends Model
         return $this->hasMany(RentingBookingItem::class, 'booking_id');
     }
 
+    public function activeItems()
+    {
+        return $this->hasMany(RentingBookingItem::class, 'booking_id')->whereNull('end_date');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_posted', true)
+            ->whereHas('rentingBookingItems', fn ($q) => $q->whereNull('end_date'));
+    }
+
     public function invoices()
     {
         return $this->hasMany(BookingInvoice::class, 'booking_id');

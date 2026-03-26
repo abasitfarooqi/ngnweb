@@ -78,7 +78,16 @@
 
         </form>
 
-        <p class="mt-6 text-center text-xs text-gray-400 dark:text-gray-500">
+        {{-- NGN Club login shortcut --}}
+        <div class="mt-6 pt-6 border-t border-gray-100 dark:border-gray-700 text-center">
+            <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">NGN Club member?</p>
+            <a href="{{ route('ngnclub.login') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 border border-amber-400 text-amber-600 dark:text-amber-400 text-sm font-semibold hover:bg-amber-50 dark:hover:bg-amber-900/20 transition">
+                ★ NGN Club Login
+            </a>
+        </div>
+
+        <p class="mt-4 text-center text-xs text-gray-400 dark:text-gray-500">
             <a href="/ngn-admin/login" class="hover:text-gray-600 dark:hover:text-gray-300 transition">Staff login</a>
         </p>
 

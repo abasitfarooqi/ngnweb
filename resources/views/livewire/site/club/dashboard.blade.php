@@ -1,116 +1,159 @@
 <div>
-{{-- Hero --}}
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-12">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between flex-wrap gap-4">
+{{-- Hero bar --}}
+<div class="bg-gray-900 text-white py-8 px-4">
+    <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-bold mb-1">Welcome back, {{ $member->name }}!</h1>
-            <p class="text-red-100">Member since {{ \Carbon\Carbon::parse($member->member_since)->format('F Y') }}</p>
+            <p class="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-1">★ NGN Club Member</p>
+            <h1 class="text-2xl sm:text-3xl font-bold">Welcome back, {{ $member->full_name }}</h1>
+            <p class="text-gray-400 text-sm mt-1">{{ $member->email }} · {{ $member->phone }}</p>
         </div>
-        <flux:badge color="yellow" size="lg">NGN Club Member</flux:badge>
+        <div class="flex gap-3 flex-wrap">
+            @if($qualifiedReferral)
+                <a href="{{ route('ngnclub.referral', $member->id) }}"
+                   class="inline-flex items-center gap-1.5 px-4 py-2 bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    Refer a Friend
+                </a>
+            @endif
+            <button wire:click="logout" type="button"
+                class="inline-flex items-center gap-1.5 px-4 py-2 border border-gray-600 text-gray-300 text-sm hover:border-gray-400 hover:text-white transition">
+                Logout
+            </button>
+        </div>
     </div>
 </div>
 
-{{-- Dashboard --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-    {{-- Stats Cards --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-        @foreach([
-            ['label' => 'Your Discount',  'value' => $member->discount_rate,                        'color' => 'text-brand-red'],
-            ['label' => 'Total Spent',    'value' => '£' . number_format($member->total_spent, 2),  'color' => 'text-gray-900 dark:text-white'],
-            ['label' => 'Reward Points',  'value' => $member->points,                                'color' => 'text-gray-900 dark:text-white'],
-            ['label' => 'Referrals',      'value' => $member->referrals_count,                      'color' => 'text-gray-900 dark:text-white'],
-        ] as $stat)
-            <flux:card class="p-5">
-                <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">{{ $stat['label'] }}</p>
-                <p class="text-3xl font-bold {{ $stat['color'] }}">{{ $stat['value'] }}</p>
-            </flux:card>
-        @endforeach
+    {{-- Summary cards --}}
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <flux:card class="p-5 text-center">
+            <p class="text-3xl font-black text-amber-500">{{ $purchases->count() }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-wide">Purchases</p>
+        </flux:card>
+        <flux:card class="p-5 text-center">
+            <p class="text-3xl font-black text-gray-900 dark:text-white">£{{ number_format($totalSpend, 2) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-wide">Total Spent</p>
+        </flux:card>
+        <flux:card class="p-5 text-center">
+            <p class="text-3xl font-black text-green-600">£{{ number_format($totalDiscount, 2) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-wide">Earned Rewards</p>
+        </flux:card>
+        <flux:card class="p-5 text-center">
+            <p class="text-3xl font-black text-brand-red">£{{ number_format($availableCredit, 2) }}</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 font-medium uppercase tracking-wide">Available Credit</p>
+        </flux:card>
     </div>
 
-    {{-- Main Content --}}
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-        {{-- Left Column --}}
-        <div class="lg:col-span-2 space-y-6">
-
-            {{-- Recent Activity --}}
-            <flux:card class="p-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Recent Activity</h2>
-                <div class="divide-y divide-gray-200 dark:divide-gray-700">
-                    @foreach([
-                        ['service' => 'Full Service – Honda PCX 125', 'date' => '15 Jan 2026', 'amount' => '£135.00', 'saved' => 'Saved £15.00'],
-                        ['service' => 'MOT Test',                     'date' => '28 Dec 2025', 'amount' => '£27.00',  'saved' => 'Saved £3.00'],
-                        ['service' => 'Chain & Sprocket Kit',         'date' => '10 Nov 2025', 'amount' => '£108.00', 'saved' => 'Saved £12.00'],
-                    ] as $activity)
-                        <div class="flex items-center justify-between py-4">
-                            <div>
-                                <p class="font-medium text-gray-900 dark:text-white">{{ $activity['service'] }}</p>
-                                <p class="text-sm text-gray-500">{{ $activity['date'] }}</p>
-                            </div>
-                            <div class="text-right">
-                                <p class="font-bold text-gray-900 dark:text-white">{{ $activity['amount'] }}</p>
-                                <p class="text-xs text-green-600">{{ $activity['saved'] }}</p>
-                            </div>
-                        </div>
-                    @endforeach
+    {{-- Bike info --}}
+    @if($member->vrm)
+        <flux:card class="p-6">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">My Bike</h2>
+            <div class="flex flex-wrap gap-6 items-center">
+                <div class="bg-yellow-400 border-2 border-black px-4 py-2 font-black text-lg tracking-widest uppercase shadow-sm">
+                    {{ $member->vrm }}
                 </div>
-            </flux:card>
-
-            {{-- Rewards --}}
-            <flux:card class="p-6">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4">Your Rewards</h2>
-                <div class="bg-gray-50 dark:bg-gray-900 p-6 mb-4 border border-gray-200 dark:border-gray-700">
-                    <p class="text-sm text-gray-500 mb-1">Available Points</p>
-                    <p class="text-4xl font-bold text-brand-red mb-3">{{ $member->points }} Points</p>
-                    <div class="w-full bg-gray-200 dark:bg-gray-700 h-2 mb-2">
-                        <div class="bg-brand-red h-2 transition-all" style="width: {{ min(($member->points / 200) * 100, 100) }}%"></div>
-                    </div>
-                    <p class="text-xs text-gray-500">{{ max(0, 200 - $member->points) }} points to next reward</p>
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                    @if($member->make || $member->model)
+                        <p class="font-semibold text-base">{{ $member->make }} {{ $member->model }}</p>
+                    @endif
+                    @if($member->year)
+                        <p class="text-gray-500">{{ $member->year }}</p>
+                    @endif
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400">Earn 1 point for every £10 spent. Redeem 200 points for a £20 voucher!</p>
-            </flux:card>
-        </div>
+            </div>
+        </flux:card>
+    @endif
 
-        {{-- Right Column --}}
-        <div class="space-y-5">
+    {{-- Purchases history --}}
+    <flux:card class="p-6">
+        <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Purchase History</h2>
+        @if($purchases->isEmpty())
+            <div class="text-center py-8 text-gray-500 dark:text-gray-400">
+                <p class="text-sm">No purchases recorded yet. Visit any NGN branch and mention your club membership!</p>
+            </div>
+        @else
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="text-left py-2 pr-4 font-semibold text-gray-600 dark:text-gray-400">Date</th>
+                            <th class="text-right py-2 pr-4 font-semibold text-gray-600 dark:text-gray-400">Total</th>
+                            <th class="text-right py-2 pr-4 font-semibold text-gray-600 dark:text-gray-400">Reward</th>
+                            <th class="text-right py-2 font-semibold text-gray-600 dark:text-gray-400">Invoice</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @foreach($purchases as $purchase)
+                            <tr>
+                                <td class="py-2 pr-4 text-gray-700 dark:text-gray-300">
+                                    {{ $purchase->date ? \Carbon\Carbon::parse($purchase->date)->format('d M Y') : '—' }}
+                                </td>
+                                <td class="py-2 pr-4 text-right font-medium text-gray-900 dark:text-white">
+                                    £{{ number_format($purchase->total, 2) }}
+                                </td>
+                                <td class="py-2 pr-4 text-right text-green-600 font-medium">
+                                    £{{ number_format($purchase->discount, 2) }}
+                                </td>
+                                <td class="py-2 text-right text-gray-500">
+                                    {{ $purchase->pos_invoice ?? '—' }}
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @endif
+    </flux:card>
 
-            {{-- Profile --}}
-            <flux:card class="p-5">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-4">Profile</h3>
-                <div class="space-y-3 text-sm mb-4">
-                    <div>
-                        <p class="text-gray-500">Email</p>
-                        <p class="text-gray-900 dark:text-white font-medium">{{ $member->email }}</p>
-                    </div>
-                    <div>
-                        <p class="text-gray-500">Phone</p>
-                        <p class="text-gray-900 dark:text-white font-medium">{{ $member->phone }}</p>
-                    </div>
+    {{-- Redemption history --}}
+    @if($redemptions->isNotEmpty())
+        <flux:card class="p-6">
+            <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Reward Redemptions</h2>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200 dark:border-gray-700">
+                            <th class="text-left py-2 pr-4 font-semibold text-gray-600 dark:text-gray-400">Date</th>
+                            <th class="text-right py-2 pr-4 font-semibold text-gray-600 dark:text-gray-400">Redeemed</th>
+                            <th class="text-left py-2 font-semibold text-gray-600 dark:text-gray-400">Note</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                        @foreach($redemptions as $redeem)
+                            <tr>
+                                <td class="py-2 pr-4 text-gray-700 dark:text-gray-300">
+                                    {{ $redeem->date ? \Carbon\Carbon::parse($redeem->date)->format('d M Y') : '—' }}
+                                </td>
+                                <td class="py-2 pr-4 text-right text-brand-red font-medium">
+                                    £{{ number_format($redeem->redeem_total, 2) }}
+                                </td>
+                                <td class="py-2 text-gray-500">{{ $redeem->note ?? '—' }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </flux:card>
+    @endif
+
+    {{-- Referral CTA --}}
+    @if($qualifiedReferral)
+        <flux:card class="p-6 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white">Refer a friend & earn rewards</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                        You've qualified for referral rewards! Share your referral link and both you and your friend get rewarded.
+                    </p>
                 </div>
-                <flux:button variant="outline" size="sm" class="w-full">Edit Profile</flux:button>
-            </flux:card>
+                <a href="{{ route('ngnclub.referral', $member->id) }}"
+                   class="flex-shrink-0 px-5 py-2.5 bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition">
+                    Get Referral Link
+                </a>
+            </div>
+        </flux:card>
+    @endif
 
-            {{-- Referral --}}
-            <flux:card class="p-5">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Refer a Friend</h3>
-                <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Share your code and earn £20 credit when they join!</p>
-                <div class="bg-gray-50 dark:bg-gray-900 p-3 mb-3 text-center border border-gray-200 dark:border-gray-700">
-                    <p class="text-2xl font-bold text-brand-red tracking-widest">{{ $member->referral_code }}</p>
-                </div>
-                <flux:button variant="filled" size="sm" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">Share Code</flux:button>
-            </flux:card>
-
-            {{-- Quick Actions --}}
-            <flux:card class="p-5">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Quick Actions</h3>
-                <div class="space-y-2">
-                    <flux:button href="/contact/service-booking" variant="outline" size="sm" class="w-full">Book Service</flux:button>
-                    <flux:button href="/mot/book" variant="outline" size="sm" class="w-full">Book MOT</flux:button>
-                    <flux:button href="/contact" variant="outline" size="sm" class="w-full">Contact Us</flux:button>
-                </div>
-            </flux:card>
-        </div>
-    </div>
 </div>
 </div>

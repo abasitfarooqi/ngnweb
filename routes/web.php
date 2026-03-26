@@ -10,8 +10,6 @@ use App\Http\Controllers\Admin\MotorbikesCrudController;
 use App\Http\Controllers\Admin\NgnStockHandlerCrudController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgreementController;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
-use App\Http\Controllers\CareerController;
 use App\Http\Controllers\ChatAgentController;
 use App\Http\Controllers\ClubMemberTrackingController;
 use App\Http\Controllers\CustomContractController;
@@ -19,7 +17,6 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\FinanceController;
-use App\Http\Controllers\FinancePaymentController;
 use App\Http\Controllers\InvoicePdfController;
 use App\Http\Controllers\MailController;
 use App\Http\Controllers\MotCheckerController;
@@ -34,19 +31,16 @@ use App\Http\Controllers\PayPalController;
 use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\RentingController;
 use App\Http\Controllers\RentalSignupController;
+use App\Http\Controllers\RentingController;
 use App\Http\Controllers\Shopper\CartController;
 use App\Http\Controllers\Shopper\CartrentalController;
-use App\Http\Controllers\Shopper\SalesController;
 use App\Http\Controllers\SMSController;
 use App\Http\Controllers\SparePartsController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\SubscriberController;
-use App\Http\Controllers\SurveyController;
 use App\Http\Controllers\TrustpilotReviewsController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\Welcome\ContactController;
 use App\Http\Controllers\Welcome\WelcomeController;
 use App\Jobs\SendBatchUserCredentials;
 use Illuminate\Support\Facades\Auth;
@@ -76,9 +70,14 @@ Route::middleware('web')->group(function () {
     // Resend verification email (customer guard) — distinct from Fortify's default endpoint
     Route::post('/customer/email/verification-notification', function (\Illuminate\Http\Request $request) {
         $customer = auth('customer')->user();
-        if (!$customer) return redirect()->route('login');
-        if ($customer->hasVerifiedEmail()) return redirect()->route('account.dashboard');
+        if (! $customer) {
+            return redirect()->route('login');
+        }
+        if ($customer->hasVerifiedEmail()) {
+            return redirect()->route('account.dashboard');
+        }
         $customer->sendEmailVerificationNotification();
+
         return back()->with('status', 'verification-link-sent');
     })->middleware(['auth:customer', 'throttle:6,1'])->name('customer.verification.send');
 });
@@ -89,15 +88,16 @@ Route::middleware('web')->group(function () {
 Route::get('/backpack-assets/{package}/{path}', function (string $package, string $path) {
     $path = str_replace(['..', '\\'], ['', '/'], $path);
     $allowed = ['theme-tabler' => 'vendor/backpack/theme-tabler', 'crud' => 'vendor/backpack/crud/src/resources'];
-    if (!isset($allowed[$package]) || !preg_match('#^[a-z0-9/._-]+\.(css|js)$#', $path)) {
+    if (! isset($allowed[$package]) || ! preg_match('#^[a-z0-9/._-]+\.(css|js)$#', $path)) {
         abort(404);
     }
     $base = realpath(base_path($allowed[$package]));
     $file = $base.DIRECTORY_SEPARATOR.str_replace('/', DIRECTORY_SEPARATOR, $path);
-    if (!$base || !is_file($file) || !str_starts_with(realpath($file), $base)) {
+    if (! $base || ! is_file($file) || ! str_starts_with(realpath($file), $base)) {
         abort(404);
     }
     $mime = pathinfo($file, PATHINFO_EXTENSION) === 'css' ? 'text/css' : 'application/javascript';
+
     return response()->file($file, ['Content-Type' => $mime]);
 })->where('path', '.*')->name('backpack.theme-tabler.asset');
 
@@ -113,6 +113,7 @@ Route::get('/refresh-csrf-token', function (\Illuminate\Http\Request $request) {
         $request->session()->regenerate();
     }
     $request->session()->put('_last_activity', time());
+
     return response()->json(['csrf_token' => csrf_token(), 'success' => true]);
 })->name('refresh.csrf.token');
 
@@ -161,7 +162,7 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/bikes', \App\Livewire\Site\Bikes\Index::class)->name('bikes');
     Route::get('/bikes/{type}/{id}', \App\Livewire\Site\Bikes\Show::class)->name('bikes.show');
     Route::get('/bikes/used', fn () => redirect('/bikes'))->name('bikes.used');
-    Route::get('/bikes/new',  fn () => redirect('/bikes'))->name('bikes.new');
+    Route::get('/bikes/new', fn () => redirect('/bikes'))->name('bikes.new');
 
     // Shop & E-Bikes
     Route::get('/shop', \App\Livewire\Site\Shop\Index::class)->name('shop');
@@ -245,8 +246,14 @@ Route::get('/road-traffic-accidents', fn () => redirect('/accident-management', 
 Route::get('/about-us', fn () => redirect('/about', 301))->name('about.page');
 Route::get('/get-in-touch', fn () => redirect('/contact', 301))->name('contact.me');
 Route::get('/motorcycle-shop', fn () => redirect('/shop', 301))->name('shop-motorcycle');
-Route::get('/ngn-club', \App\Livewire\Site\Club\Index::class)->name('ngnclub.subscribe');
-Route::get('/search', fn () => redirect('/shop?q=' . urlencode(request()->get('query'))))->name('ngn_search_results');
+// NGN Club — Livewire routes (must be BEFORE the legacy NgnClubController group below)
+Route::get('/ngn-club', \App\Livewire\Site\Club\Index::class)->name('ngnclub.home');
+Route::get('/ngn-club/register', \App\Livewire\Site\Club\Register::class)->name('ngnclub.register');
+Route::get('/ngn-club/subscribe', \App\Livewire\Site\Club\Register::class)->name('ngnclub.subscribe');
+Route::get('/ngn-club/login', \App\Livewire\Site\Club\Login::class)->name('ngnclub.login');
+Route::get('/ngn-club/dashboard', \App\Livewire\Site\Club\Dashboard::class)->name('ngnclub.dashboard');
+Route::get('/ngn-club/terms-and-conditions', \App\Livewire\Site\Club\Terms::class)->name('ngnclub.terms');
+Route::get('/search', fn () => redirect('/shop?q='.urlencode(request()->get('query'))))->name('ngn_search_results');
 Route::redirect('/account/dashboard', '/account');
 
 // ============================================================
@@ -281,11 +288,15 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
             'document_type_id' => 'required|integer|exists:document_types,id',
         ]);
         $customerAuth = auth('customer')->user();
-        if (!$customerAuth) return response()->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+        if (! $customerAuth) {
+            return response()->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
+        }
         $profile = $customerAuth->profile;
-        if (!$profile) return response()->json(['ok' => false, 'message' => 'Complete your profile first.'], 422);
+        if (! $profile) {
+            return response()->json(['ok' => false, 'message' => 'Complete your profile first.'], 422);
+        }
         $file = request()->file('file');
-        $path = 'customer-documents/' . \Illuminate\Support\Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        $path = 'customer-documents/'.\Illuminate\Support\Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
         \Illuminate\Support\Facades\Storage::disk('spaces')->put($path, $file->get());
         $doc = \App\Models\CustomerDocument::create([
             'customer_id' => $profile->id,
@@ -297,6 +308,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
             'valid_until' => request('valid_until') ?: null,
             'status' => 'pending_review',
         ]);
+
         return response()->json(['ok' => true, 'message' => 'Document uploaded.', 'document_id' => $doc->id]);
     })->name('documents.upload-curl');
     Route::get('/security', \App\Livewire\Portal\Security::class)->name('security');
@@ -334,14 +346,16 @@ Route::get('/judopay/failure/{token}', [\App\Http\Controllers\Portal\RentalPayme
 // NGN CLUB (controller-based legacy)
 // ============================================================
 Route::prefix('ngn-club')->group(function () {
-    Route::redirect('/', '/ngn-club/subscribe');
-    Route::get('/subscribe', [NgnClubController::class, 'showSubscribePage'])->name('ngnclub.subscribe');
+    // GET routes for subscribe/login/dashboard are handled by Livewire (lines ~249-253 above)
+    // Only POST/action routes kept here to avoid overwriting the Livewire GET routes
+    // Route::redirect('/', '/ngn-club/subscribe');
+    // Route::get('/subscribe', [NgnClubController::class, 'showSubscribePage'])->name('ngnclub.subscribe');
     Route::post('/subscribe', [NgnClubController::class, 'subscribe'])->name('ngnclub.subscribe.submit');
     Route::post('/send-verification-code', [NgnClubController::class, 'sendVerificationCode'])->name('ngnclub.send-verification-code');
     Route::post('/resend-verification-code', [NgnClubController::class, 'resendVerificationCode'])->name('ngnclub.resend-verification-code');
     Route::get('/terms-and-conditions', [NgnClubController::class, 'showTermsPage'])->name('ngnclub.terms');
-    Route::get('/dashboard', [NgnClubController::class, 'showDashboard'])->name('ngnclub.dashboard');
-    Route::post('/login', [NgnClubController::class, 'login'])->name('ngnclub.login');
+    // Route::get('/dashboard', [NgnClubController::class, 'showDashboard'])->name('ngnclub.dashboard');
+    Route::post('/login', [NgnClubController::class, 'login'])->name('ngnclub.login.post');
     Route::post('/logout', [NgnClubController::class, 'logout'])->name('ngnclub.logout');
     Route::get('/forgot', [NgnClubController::class, 'showForgotPage'])->name('ngnclub.forgot');
     Route::post('/forgot/send-verification-code', [NgnClubController::class, 'sendForgotVerificationCode'])->name('ngnclub.forgot.sendVerificationCode');
@@ -433,6 +447,7 @@ Route::post('customer/inline/create', [CustomerCrudController::class, 'storeInli
 Route::redirect('NGN-CLUB', 'ngn-club');
 Route::get('/send-batch-emails', function () {
     dispatch(new SendBatchUserCredentials);
+
     return Redirect::to(env('APP_URL').'/ngn-admin/club-member');
 });
 
@@ -583,11 +598,9 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
     Route::get('/bookings/invoices/{invoice}/print', [InvoicePdfController::class, 'print'])->name('invoices.print');
 });
 
-
 Route::get('/ebikes', function () {
     return view('frontend.ebike-landing');
 })->name('ebike.landing');
-
 
 // Welcome Routes GET
 Route::controller(WelcomeController::class)->group(function () {
@@ -603,7 +616,7 @@ Route::controller(WelcomeController::class)->group(function () {
     Route::get('/shop-accessories', 'MotorcycleAccessories')->name('shop-accessories');
     Route::get('/gps-tracker', 'GpsTracker')->name('gps-tracker');
     Route::get('/spare-parts', 'SpareParts')->name('spare-parts');
-    Route::get('/about', 'AboutMethod')->name('about.page');
+    // /about is handled by the Livewire Site\About component (line ~199)
     // newly added
     Route::get('/accessories', 'accessories')->name('accessories');
 
@@ -625,6 +638,7 @@ Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
     request()->session()->regenerateToken();
+
     return redirect('/');
 })->name('logout');
 

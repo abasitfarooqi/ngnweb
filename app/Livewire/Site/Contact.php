@@ -2,17 +2,25 @@
 
 namespace App\Livewire\Site;
 
+use App\Mail\ContactSubmission;
 use App\Models\Branch;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class Contact extends Component
 {
     public $branches;
+
     public $name = '';
+
     public $email = '';
+
     public $phone = '';
+
     public $branch_id = '';
+
     public $topic = '';
+
     public $message = '';
 
     public function mount()
@@ -22,16 +30,37 @@ class Contact extends Component
 
     public function submit()
     {
-        $this->validate([
-            'name'      => 'required|min:2',
-            'email'     => 'required|email',
-            'phone'     => 'required',
+        $validated = $this->validate([
+            'name' => 'required|min:2',
+            'email' => 'required|email',
+            'phone' => 'required',
             'branch_id' => 'nullable|exists:branches,id',
-            'topic'     => 'required',
-            'message'   => 'required|min:10',
+            'topic' => 'required',
+            'message' => 'required|min:10',
         ]);
 
-        session()->flash('success', 'Thank you for your message. We\'ll get back to you soon.');
+        $branchName = '';
+        if ($this->branch_id) {
+            $branch = Branch::find($this->branch_id);
+            $branchName = $branch?->name ?? '';
+        }
+
+        $toEmail = config('mail.from.address', 'customerservice@neguinhomotors.co.uk');
+
+        try {
+            Mail::to($toEmail)->send(new ContactSubmission(
+                senderName: $this->name,
+                senderEmail: $this->email,
+                phone: $this->phone,
+                topic: $this->topic,
+                messageBody: $this->message,
+                branchName: $branchName,
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Contact form mail failed: '.$e->getMessage());
+        }
+
+        session()->flash('success', 'Thank you for your message. We will get back to you soon.');
         $this->reset(['name', 'email', 'phone', 'branch_id', 'topic', 'message']);
     }
 

@@ -8,7 +8,10 @@ class MyRequests extends Component
 {
     public function render()
     {
-        return view('livewire.portal.recovery.my-requests')
-            ->layout('components.layouts.portal');
+        // Recovery requests table not yet linked to customer portal — show empty state
+        $requests = collect();
+
+        return view('livewire.portal.recovery.my-requests', compact('requests'))
+            ->layout('components.layouts.portal', ['title' => 'My Recovery Requests | My Account']);
     }
 }

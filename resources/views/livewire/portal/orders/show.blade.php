@@ -81,16 +81,15 @@
                 {{ $order->shippingMethod?->name ?? 'Standard Shipping' }}
             </p>
             @if($order->customerAddress)
-                @with(['a' => $order->customerAddress])
-                    <address class="text-sm text-gray-500 dark:text-gray-400 not-italic mt-2 space-y-0.5">
-                        <p>{{ $a->first_name }} {{ $a->last_name }}</p>
-                        <p>{{ $a->street_address }}</p>
-                        @if($a->street_address_plus && $a->street_address_plus !== '-')
-                            <p>{{ $a->street_address_plus }}</p>
-                        @endif
-                        <p>{{ $a->city }}, {{ $a->postcode }}</p>
-                    </address>
-                @endwith
+                @php $addr = $order->customerAddress; @endphp
+                <address class="text-sm text-gray-500 dark:text-gray-400 not-italic mt-2 space-y-0.5">
+                    <p>{{ $addr->first_name }} {{ $addr->last_name }}</p>
+                    <p>{{ $addr->street_address }}</p>
+                    @if(!empty($addr->street_address_plus) && $addr->street_address_plus !== '-')
+                        <p>{{ $addr->street_address_plus }}</p>
+                    @endif
+                    <p>{{ $addr->city }}, {{ $addr->postcode }}</p>
+                </address>
             @endif
             <p class="text-xs mt-2 {{ $order->shipping_status === 'delivered' ? 'text-green-600' : 'text-yellow-600' }}">
                 Shipping: {{ ucfirst($order->shipping_status) }}

@@ -5,7 +5,7 @@ namespace App\Livewire\Site\Club;
 use App\Models\ClubMember;
 use Livewire\Component;
 
-class Index extends Component
+class Register extends Component
 {
     public string $full_name = '';
 
@@ -30,7 +30,7 @@ class Index extends Component
         'vrm' => 'nullable|string|max:10',
         'make' => 'nullable|string|max:50',
         'model' => 'nullable|string|max:50',
-        'year' => 'nullable|digits:4|max:4',
+        'year' => 'nullable|digits:4',
         'tc_agreed' => 'accepted',
     ];
 
@@ -38,12 +38,13 @@ class Index extends Component
     {
         $this->validate();
 
-        // Normalise phone
         $phone = preg_replace('/\s+/', '', $this->phone);
         $phone = preg_replace('/^\+44/', '0', $phone);
 
-        // Check for existing membership
-        $existing = ClubMember::where('email', $this->email)->orWhere('phone', $phone)->first();
+        $existing = ClubMember::where('email', $this->email)
+            ->orWhere('phone', $phone)
+            ->first();
+
         if ($existing) {
             $this->addError('email', 'A membership already exists with this email or phone number.');
 
@@ -62,21 +63,16 @@ class Index extends Component
             'is_active' => true,
         ]);
 
-        session()->flash('success', 'Welcome to NGN Club! We will be in touch with your passkey shortly.');
+        session()->flash('success', 'Welcome to NGN Club! Your passkey will be sent via SMS shortly. You can then login to your dashboard.');
         $this->reset(['full_name', 'email', 'phone', 'make', 'model', 'year', 'vrm', 'tc_agreed']);
     }
 
     public function render()
     {
-        $loggedInMember = null;
-        if (session('club_member_id')) {
-            $loggedInMember = ClubMember::find(session('club_member_id'));
-        }
-
-        return view('livewire.site.club.index', compact('loggedInMember'))
+        return view('livewire.site.club.register')
             ->layout('components.layouts.public', [
-                'title' => 'NGN Motorcycle Club | Exclusive Member Benefits | London',
-                'description' => 'Join the NGN Motorcycle Club for exclusive discounts, events, and member-only benefits.',
+                'title' => 'Join NGN Club — Free Membership | NGN Motors London',
+                'description' => 'Join NGN Club for free. Earn loyalty rewards, get MOT reminders and exclusive member discounts at all NGN branches.',
             ]);
     }
 }

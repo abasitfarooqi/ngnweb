@@ -225,7 +225,7 @@
                         </button>
                         <p class="text-xs text-center text-gray-500 mt-3">
                             By placing your order you agree to our
-                            <a href="{{ route('terms') }}" target="_blank" class="text-brand-red hover:underline">Terms &amp; Conditions</a>.
+                            <a href="{{ route('site.terms') }}" target="_blank" class="text-brand-red hover:underline">Terms &amp; Conditions</a>.
                         </p>
                     </div>
                 @endif
