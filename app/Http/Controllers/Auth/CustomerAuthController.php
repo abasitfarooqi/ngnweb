@@ -18,6 +18,13 @@ use Illuminate\Validation\Rule;
 
 class CustomerAuthController extends Controller
 {
+    protected function issueApiToken(CustomerAuth $customerAuth, Request $request): string
+    {
+        $deviceName = (string) ($request->input('device_name') ?: $request->userAgent() ?: 'customer-api');
+
+        return $customerAuth->createToken($deviceName)->plainTextToken;
+    }
+
     public function register(Request $request)
     {
         try {
@@ -132,12 +139,15 @@ class CustomerAuthController extends Controller
             // Log in the customer
             Auth::guard('customer')->login($customerAuth);
             \Log::info('Customer logged in');
+            $token = $this->issueApiToken($customerAuth, $request);
 
             return response()->json([
                 'user' => $customerAuth->load('customer'),
+                'token' => $token,
+                'token_type' => 'Bearer',
                 'message' => 'Registration successful. Please check your email for verification.',
                 'verified' => false,
-                'redirect_url' => '/accountinformation',
+                'redirect_url' => '/account',
             ], 201);
 
         } catch (\Exception $e) {
@@ -163,12 +173,15 @@ class CustomerAuthController extends Controller
                 $request->session()->regenerate();
                 // Broadcast the UserLoggedIn event
                 event(new UserLoggedIn($user));
+                $token = $this->issueApiToken($user, $request);
 
                 return response()->json([
                     'user' => $user->load('customer'),
+                    'token' => $token,
+                    'token_type' => 'Bearer',
                     'message' => 'Login successful',
                     'verified' => $user->hasVerifiedEmail(),
-                    'redirect_url' => '/accountinformation',
+                    'redirect_url' => '/account',
                 ]);
             }
 
@@ -206,6 +219,11 @@ class CustomerAuthController extends Controller
         session()->forget('cart_items');
 
         // Perform standard logout operations
+        $customer = $request->user('sanctum') ?: Auth::guard('customer')->user();
+        if ($customer?->currentAccessToken()) {
+            $customer->currentAccessToken()->delete();
+        }
+
         Auth::guard('customer')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -220,16 +238,23 @@ class CustomerAuthController extends Controller
 
     public function getUser(Request $request)
     {
-        $user = Auth::guard('customer')->user()->load('customer');
+        $user = ($request->user('sanctum') ?: Auth::guard('customer')->user())->load('customer');
 
         return response()->json($user);
     }
 
-    public function getUserById($id)
+    public function getUserById(Request $request, $id)
     {
-        $user = Customer::findOrFail($id);
+        $authUser = $request->user('sanctum') ?: Auth::guard('customer')->user();
+        $customer = $authUser?->customer;
 
-        return response()->json($user);
+        if (! $customer || (int) $customer->id !== (int) $id) {
+            return response()->json([
+                'message' => 'You are not allowed to access this customer record.',
+            ], 403);
+        }
+
+        return response()->json($customer);
     }
 
     /**

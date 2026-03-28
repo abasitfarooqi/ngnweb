@@ -66,8 +66,8 @@
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <flux:badge color="{{ $badgeColor }}" size="sm">{{ $statusLabel }}</flux:badge>
-                                    @if($uploaded && isset($uploaded->file_path))
-                                        <flux:button href="{{ asset('storage/' . $uploaded->file_path) }}" target="_blank" variant="outline" size="sm">View</flux:button>
+                                    @if($uploaded?->file_url)
+                                        <flux:button href="{{ $uploaded->file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
                                     @endif
                                     <flux:button
                                         wire:key="upload-btn-rental-{{ $docType->id }}"
@@ -130,8 +130,8 @@
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <flux:badge color="{{ $badgeColor }}" size="sm">{{ $statusLabel }}</flux:badge>
-                                    @if($uploaded && isset($uploaded->file_path))
-                                        <flux:button href="{{ asset('storage/' . $uploaded->file_path) }}" target="_blank" variant="outline" size="sm">View</flux:button>
+                                    @if($uploaded?->file_url)
+                                        <flux:button href="{{ $uploaded->file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
                                     @endif
                                     <flux:button
                                         wire:key="upload-btn-finance-{{ $docType->id }}"

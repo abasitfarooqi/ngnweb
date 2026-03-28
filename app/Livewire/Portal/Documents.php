@@ -5,7 +5,6 @@ namespace App\Livewire\Portal;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -25,15 +24,20 @@ class Documents extends Component
 
     public $valid_until;
 
+    protected function getPortalCustomerId(): ?int
+    {
+        $customerAuth = Auth::guard('customer')->user();
+
+        return $customerAuth?->customer_id ?? $customerAuth?->customer?->id;
+    }
+
     public function switchTab($tab)
     {
-        Log::info('Documents: switchTab', ['tab' => $tab]);
         $this->activeTab = $tab;
     }
 
     public function startUpload($documentTypeId)
     {
-        Log::info('Documents: startUpload called', ['documentTypeId' => $documentTypeId]);
         $this->uploadingFor = (int) $documentTypeId;
         $this->file = null;
         $this->document_number = '';
@@ -72,10 +76,20 @@ class Documents extends Component
             return;
         }
 
-        $path = $this->file->store('customer-documents', 'public');
+        $customerId = $this->getPortalCustomerId();
+        if (! $customerId) {
+            session()->flash('error', 'Your account is not linked to a customer record yet.');
 
-        CustomerDocument::create([
-            'customer_id' => $profile->id,
+            return;
+        }
+
+        $path = $this->file->store('customer-documents', 'spaces');
+
+        CustomerDocument::updateOrCreate([
+            'customer_id' => $customerId,
+            'document_type_id' => $this->uploadingFor,
+        ], [
+            'customer_id' => $customerId,
             'document_type_id' => $this->uploadingFor,
             'file_name' => $this->file->getClientOriginalName(),
             'file_path' => $path,
@@ -93,26 +107,19 @@ class Documents extends Component
     {
         $customerAuth = Auth::guard('customer')->user();
         $profile = $customerAuth?->profile;
-        $customer = $customerAuth?->customer;
-        $customerId = $customer?->id ?? $profile?->id ?? null;
+        $customerId = $this->getPortalCustomerId();
 
-        try {
-            $rentalDocs = DocumentType::where('category', 'rental')->orderBy('sort_order')->get();
-        } catch (\Exception $e) {
-            $rentalDocs = collect();
-        }
-        try {
-            $financeDocs = DocumentType::where('category', 'finance')->orderBy('sort_order')->get();
-        } catch (\Exception $e) {
-            $financeDocs = collect();
-        }
+        $rentalDocs = DocumentType::query()->forRental()->orderBy('sort_order')->get();
+        $financeDocs = DocumentType::query()->forFinance()->orderBy('sort_order')->get();
 
         $uploadedDocs = collect();
         if ($customerId) {
             try {
                 $uploadedDocs = CustomerDocument::where('customer_id', $customerId)
                     ->with('documentType')
+                    ->latest('id')
                     ->get()
+                    ->unique('document_type_id')
                     ->keyBy('document_type_id');
             } catch (\Exception $e) {
                 $uploadedDocs = collect();

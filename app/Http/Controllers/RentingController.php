@@ -23,6 +23,7 @@ use App\Models\RentingPricing;
 use App\Models\RentingServiceVideo;
 use App\Models\RentingTransaction;
 use App\Models\TransactionType;
+use App\Support\QrCodeGenerator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Exception;
@@ -34,7 +35,6 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use App\Support\QrCodeGenerator;
 
 class RentingController extends Controller
 {
@@ -70,7 +70,6 @@ class RentingController extends Controller
     // addOtherCharges
     public function addOtherCharges(Request $request)
     {
-
 
         $validatedData = $request->validate([
             'booking_id' => 'required',
@@ -110,7 +109,7 @@ class RentingController extends Controller
     //     DB::beginTransaction();
 
     //     try {
-    // 
+    //
 
     //         $validatedData = $request->validate([
     //             'charges_id' => 'required',
@@ -166,7 +165,6 @@ class RentingController extends Controller
         DB::beginTransaction();
 
         try {
-    
 
             $validatedData = $request->validate([
                 'charges_id' => 'required',
@@ -309,7 +307,7 @@ class RentingController extends Controller
             ->where('BI.id', $invoiceId)
             ->first();
 
-        if (!$invoice) {
+        if (! $invoice) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice not found',
@@ -393,7 +391,7 @@ class RentingController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error: ' . $e->getMessage(),
+                'message' => 'Error: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -850,6 +848,7 @@ class RentingController extends Controller
     public function showBooking($booking)
     {
         $booking = RentingBooking::findOrFail($booking);
+
         return redirect()->route('admin.renting.bookings')->with('info', 'Booking #'.$booking->id);
     }
 
@@ -1059,7 +1058,6 @@ class RentingController extends Controller
         DB::beginTransaction();
         \Log::info('Transaction started');
 
-
         if (empty($request->amount)) {
             \Log::error('Amount is null or empty');
 
@@ -1170,7 +1168,6 @@ class RentingController extends Controller
         // log
         \Log::info('Booking ID: '.$bookingId);
 
-
         $booking = RentingBooking::findOrFail($bookingId);
         // log booking
         \Log::info($booking);
@@ -1187,8 +1184,6 @@ class RentingController extends Controller
     // 3.1 - Payment Section > Confirm Amount >>>
     public function updateBooking(Request $request)
     {
-
-
 
         $bookingId = $request->input('booking_id');
         $paymentMethodId = $request->input('payment_method_id');
@@ -1621,7 +1616,6 @@ class RentingController extends Controller
     public function getMotorbikePrice(Request $request)
     {
 
-
         $validatedData = $request->validate([
             'motorbike_id' => 'required|exists:motorbikes,id',
         ]);
@@ -1639,45 +1633,42 @@ class RentingController extends Controller
         }
     }
 
-    // The function that respond to get reuest to display the new booking page
-    public function renting_booking_new()
+    /**
+     * Data for the new renting booking page (legacy admin layout and Backpack rental operations).
+     *
+     * @return array{motorbikes:\Illuminate\Support\Collection, customers:\Illuminate\Database\Eloquent\Collection, documentTypes:\Illuminate\Database\Eloquent\Collection}
+     */
+    public function bookingNewPageData(): array
     {
-        \Log::info('New Booking Page Requested.');
-
-        try {
-            $motorbikes = DB::table('motorbikes as MB')
-                ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
-                ->rightJoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
-                ->leftJoin('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
-                ->select(
-                    'MB.id as MOTORBIKE_ID',
-                    'MB.make as MAKE',
-                    'MB.model as MODEL',
-                    'MB.year as YEAR',
-                    'MB.engine as ENGINE',
-                    'MB.color as COLOR',
-                    'MB.is_ebike as IS_EBIKE',
-                    'MR.registration_number as REG_NO',
-                    DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
-                    DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
-                    'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
-                    'MC.insurance_status as INSURANCE_STATUS'
-                )
-                ->where('MB.vehicle_profile_id', 1)
-                ->where('RP.iscurrent', true)
-
-                // Availability check (same for bike + e-bike)
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('renting_booking_items')
-                        ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
-                        ->where('renting_booking_items.is_posted', true)
-                        ->whereNull('renting_booking_items.end_date');
-                })
-
-                // Compliance rules
-                ->where(function ($q) {
-                    $q->where('MB.is_ebike', true) // e-bike → always allowed
+        $motorbikes = DB::table('motorbikes as MB')
+            ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
+            ->rightJoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
+            ->leftJoin('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
+            ->select(
+                'MB.id as MOTORBIKE_ID',
+                'MB.make as MAKE',
+                'MB.model as MODEL',
+                'MB.year as YEAR',
+                'MB.engine as ENGINE',
+                'MB.color as COLOR',
+                'MB.is_ebike as IS_EBIKE',
+                'MR.registration_number as REG_NO',
+                DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
+                DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
+                'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
+                'MC.insurance_status as INSURANCE_STATUS'
+            )
+            ->where('MB.vehicle_profile_id', 1)
+            ->where('RP.iscurrent', true)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('renting_booking_items')
+                    ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
+                    ->where('renting_booking_items.is_posted', true)
+                    ->whereNull('renting_booking_items.end_date');
+            })
+            ->where(function ($q) {
+                $q->where('MB.is_ebike', true)
                     ->orWhere(function ($q2) {
                         $q2->where('MB.is_ebike', false)
                             ->where('MC.road_tax_status', 'Taxed')
@@ -1686,23 +1677,26 @@ class RentingController extends Controller
                                     ->orWhere('MC.mot_status', 'No details held by DVLA');
                             });
                     });
-                })
-                ->get();
+            })
+            ->get();
 
-            $customers = Customer::all();
-
-        } catch (\Exception $e) {
-            \Log::error('Error: '.$e->getMessage());
-            return response()->json(['error' => 'An error occurred'], 500);
-        }
-
+        $customers = Customer::all();
         $documentTypes = DocumentType::all();
 
-        return view('olders.admin.renting.booking-new', compact(
-            'motorbikes',
-            'customers',
-            'documentTypes'
-        ));
+        return compact('motorbikes', 'customers', 'documentTypes');
+    }
+
+    public function renting_booking_new()
+    {
+        Log::info('New Booking Page Requested.');
+
+        try {
+            return view('olders.admin.renting.booking-new', $this->bookingNewPageData());
+        } catch (\Exception $e) {
+            Log::error('Error: '.$e->getMessage());
+
+            return response()->json(['error' => 'An error occurred'], 500);
+        }
     }
 
     // public function renting_booking_new()
@@ -1948,7 +1942,6 @@ class RentingController extends Controller
     // update bike renting price / deposit
     public function updatePricing(Request $request)
     {
-
 
         $existingPricing = RentingPricing::findOrFail($request->id);
 

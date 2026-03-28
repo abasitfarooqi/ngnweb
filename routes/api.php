@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\CustomerDocumentController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\CustomerVerificationController;
 use App\Http\Controllers\AuthController;
@@ -260,11 +261,13 @@ Route::prefix('v1/shop')->group(function () {
 Route::prefix('v1/customer')->group(function () {
     Route::post('register', [CustomerAuthController::class, 'register']);
     Route::post('login', [CustomerAuthController::class, 'login']);
-    Route::post('logout', [CustomerAuthController::class, 'logout'])->middleware('auth:customer');
-    Route::get('user', [CustomerAuthController::class, 'getUser'])->middleware('auth:customer');
-    Route::get('user/{id}', [CustomerAuthController::class, 'getUserById'])->middleware('auth:customer');
+    Route::post('logout', [CustomerAuthController::class, 'logout'])->middleware('auth:customer,sanctum');
+    Route::get('user', [CustomerAuthController::class, 'getUser'])->middleware('auth:customer,sanctum');
+    Route::get('user/{id}', [CustomerAuthController::class, 'getUserById'])->middleware('auth:customer,sanctum');
     Route::post('forgot-password', [CustomerAuthController::class, 'resetPassword']);
     Route::post('confirm-reset-password', [CustomerAuthController::class, 'confirmResetPassword']);
+    Route::get('documents/requirements', [CustomerDocumentController::class, 'requirements'])->middleware('auth:customer,sanctum');
+    Route::post('documents', [CustomerDocumentController::class, 'store'])->middleware('auth:customer,sanctum');
 
 });
 // ECOMMERCE Customer Auth Routes / V1 API / 28/12/2024 >> END

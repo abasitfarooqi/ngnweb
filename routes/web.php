@@ -168,6 +168,7 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/shop', \App\Livewire\Site\Shop\Index::class)->name('shop');
     Route::get('/ebikes', \App\Livewire\Site\Ebikes\Index::class)->name('ebikes');
     Route::get('/accessories', \App\Livewire\Site\Shop\Accessories::class)->name('accessories');
+    Route::get('/spareparts', \App\Livewire\Site\Shop\SpareParts::class)->name('spareparts');
     Route::get('/spare-parts', \App\Livewire\Site\Shop\SpareParts::class)->name('spare-parts');
     Route::get('/gps-tracker', \App\Livewire\Site\Shop\GpsTracker::class)->name('gps-tracker');
 
@@ -291,15 +292,18 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
         if (! $customerAuth) {
             return response()->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
         }
-        $profile = $customerAuth->profile;
-        if (! $profile) {
-            return response()->json(['ok' => false, 'message' => 'Complete your profile first.'], 422);
+        $customerId = $customerAuth->customer_id ?? $customerAuth->customer?->id;
+        if (! $customerId) {
+            return response()->json(['ok' => false, 'message' => 'Customer account is not linked yet.'], 422);
         }
         $file = request()->file('file');
         $path = 'customer-documents/'.\Illuminate\Support\Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
         \Illuminate\Support\Facades\Storage::disk('spaces')->put($path, $file->get());
-        $doc = \App\Models\CustomerDocument::create([
-            'customer_id' => $profile->id,
+        $doc = \App\Models\CustomerDocument::updateOrCreate([
+            'customer_id' => $customerId,
+            'document_type_id' => $valid['document_type_id'],
+        ], [
+            'customer_id' => $customerId,
             'document_type_id' => $valid['document_type_id'],
             'file_name' => $file->getClientOriginalName(),
             'file_path' => $path,
@@ -309,7 +313,12 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
             'status' => 'pending_review',
         ]);
 
-        return response()->json(['ok' => true, 'message' => 'Document uploaded.', 'document_id' => $doc->id]);
+        return response()->json([
+            'ok' => true,
+            'message' => 'Document uploaded.',
+            'document_id' => $doc->id,
+            'file_url' => $doc->file_url,
+        ]);
     })->name('documents.upload-curl');
     Route::get('/security', \App\Livewire\Portal\Security::class)->name('security');
     Route::get('/club', \App\Livewire\Portal\Club::class)->name('club');
@@ -389,6 +398,11 @@ Route::post('/accountinformation/logout', [\App\Http\Controllers\Customer\AuthCo
     ->name('customer.logout')->middleware('auth:customer');
 Route::get('/accountinformation/register', fn () => view('olders.frontend.vue_store.app'))
     ->where('any', '.*')->name('customer.register')->middleware('ecommerce.view');
+Route::get('/accountinformation/reset-password/{token}', function (string $token) {
+    $query = request()->only('email');
+
+    return redirect()->route('password.reset', array_merge(['token' => $token], $query));
+})->middleware('guest:customer');
 Route::get('/accountinformation/{any?}', fn () => view('olders.frontend.vue_store.app'))
     ->where('any', '.*')->name('accountinformation')->middleware(['ecommerce.view', 'auth.customer']);
 
@@ -615,7 +629,7 @@ Route::controller(WelcomeController::class)->group(function () {
     Route::get('/shop-motorcycle', 'MotorcycleShop')->name('shop');
     Route::get('/shop-accessories', 'MotorcycleAccessories')->name('shop-accessories');
     Route::get('/gps-tracker', 'GpsTracker')->name('gps-tracker');
-    Route::get('/spare-parts', 'SpareParts')->name('spare-parts');
+    Route::get('/spare-parts-legacy', 'SpareParts')->name('spare-parts-legacy');
     // /about is handled by the Livewire Site\About component (line ~199)
     // newly added
     Route::get('/accessories', 'accessories')->name('accessories');

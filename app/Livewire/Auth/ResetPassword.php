@@ -12,8 +12,11 @@ use Livewire\Component;
 class ResetPassword extends Component
 {
     public string $token = '';
+
     public string $email = '';
+
     public string $password = '';
+
     public string $password_confirmation = '';
 
     public function mount(string $token): void
@@ -38,8 +41,13 @@ class ResetPassword extends Component
         }
 
         if ($status === Password::PASSWORD_RESET) {
-            $this->redirectRoute('login', navigate: true);
-            session()->flash('status', __($status));
+            session()->flash(
+                'status',
+                __('Your password has been reset successfully. Please sign in with your new password.')
+            );
+
+            $this->redirect(route('login'), navigate: false);
+
             return;
         }
 

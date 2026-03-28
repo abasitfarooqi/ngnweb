@@ -6,24 +6,25 @@ use App\Http\Controllers\Admin\ClubMemberPurchaseCrudController;
 use App\Http\Controllers\Admin\ClubMemberSpendingCrudController;
 use App\Http\Controllers\Admin\FinanceApplicationCrudController;
 use App\Http\Controllers\Admin\MotorbikeRepairCrudController;
-use App\Http\Controllers\Admin\NgnBrandCrudController;
-use App\Http\Controllers\Admin\NgnProductCrudController;
-use App\Http\Controllers\Admin\NgnStorePageController;
-use App\Http\Controllers\Admin\PermissionCrudController;
-use App\Http\Controllers\Admin\RecurringController;
-use App\Http\Controllers\Admin\RoleCrudController;
-use App\Http\Controllers\Admin\PcnCaseCrudController;
 use App\Http\Controllers\Admin\MotorbikesSaleCrudController;
-use App\Http\Controllers\Admin\NgnStockHandlerCrudController;
-use App\Http\Controllers\Admin\NgnProductManagementCrudController;
+use App\Http\Controllers\Admin\NgnBrandCrudController;
 use App\Http\Controllers\Admin\NgnInventoryManagementCrudController;
+use App\Http\Controllers\Admin\NgnProductCrudController;
+use App\Http\Controllers\Admin\NgnProductManagementCrudController;
+use App\Http\Controllers\Admin\NgnStockHandlerCrudController;
+use App\Http\Controllers\Admin\NgnStorePageController;
+use App\Http\Controllers\Admin\PcnCaseCrudController;
 use App\Http\Controllers\Admin\PcnTolRequestCrudController;
+use App\Http\Controllers\Admin\PermissionCrudController;
+use App\Http\Controllers\Admin\QueueMonitorController;
+use App\Http\Controllers\Admin\RecurringController;
+use App\Http\Controllers\Admin\RentalOperationsController;
 // use App\Http\Controllers\Admin\ClubMemberStaffCrudController;
 // use App\Http\Controllers\Admin\NgnDigitalInvoiceCrudController;
 // use App\Http\Controllers\Admin\NgnDigitalInvoiceItemCrudController;
+use App\Http\Controllers\Admin\RoleCrudController;
 use App\Http\Controllers\Admin\UserCrudController;
 use App\Http\Controllers\Admin\VehicleDeliveryOrderCrudController;
-use App\Http\Controllers\Admin\QueueMonitorController;
 use Backpack\CRUD\app\Http\Controllers\CrudController as CRUD;
 use Illuminate\Support\Facades\Route;
 
@@ -57,7 +58,7 @@ Route::group([
     Route::crud('customer', 'CustomerCrudController');
     // Route::delete('customer/contract/{id}', [\App\Http\Controllers\Admin\CustomerCrudController::class, 'deleteContract'])->name('customer.contract.delete');
     Route::delete('/customer/contract/{id}', [\App\Http\Controllers\Admin\CustomerCrudController::class, 'destroyContract'])
-    ->name('customer.contract.destroy');
+        ->name('customer.contract.destroy');
     Route::delete('customer/agreement/{id}', [\App\Http\Controllers\Admin\CustomerCrudController::class, 'deleteAgreement'])->name('customer.agreement.delete');
     Route::delete('customer/document/{id}', [\App\Http\Controllers\Admin\CustomerCrudController::class, 'deleteDocument'])->name('customer.document.delete');
 
@@ -197,6 +198,14 @@ Route::group([
     Route::crud('ec-order', 'EcOrderCrudController');
 
     Route::get('active_renting', 'ActiveRentingController@index')->name('page.active_renting.index');
+    Route::get('rental-operations', [RentalOperationsController::class, 'index'])->name('page.rental_operations.index');
+    Route::get('rental-operations/new-booking', [RentalOperationsController::class, 'newBooking'])->name('page.rental_operations.new_booking');
+    Route::get('rental-operations/bookings-management', [RentalOperationsController::class, 'bookingsManagement'])->name('page.rental_operations.bookings_management');
+    Route::get('rental-operations/inactive-bookings', [RentalOperationsController::class, 'inactiveBookings'])->name('page.rental_operations.inactive_bookings');
+    Route::match(['get', 'post'], 'rental-operations/all-bookings', [RentalOperationsController::class, 'allBookings'])->name('page.rental_operations.all_bookings');
+    Route::get('rental-operations/booking-invoice-dates', [RentalOperationsController::class, 'bookingInvoiceDates'])->name('page.rental_operations.booking_invoice_dates');
+    Route::get('rental-operations/change-booking-start-date', [RentalOperationsController::class, 'changeBookingStartDate'])->name('page.rental_operations.change_booking_start_date');
+    Route::get('rental-operations/booking/{bookingId}', [RentalOperationsController::class, 'bookingDetails'])->name('page.rental_operations.booking_details');
     Route::get('ngn_club', 'NgnClubController@index')->name('page.ngn_club.index');
 
     Route::get('pcn_page', 'PcnPageController@index')->name('page.pcn_page.index');
@@ -294,12 +303,12 @@ Route::group([
     });
     Route::get('ebike_manager', 'EbikeManagerController@index')->name('page.ebike_manager.index');
     Route::post('ebike_manager/store', [\App\Http\Controllers\Admin\EbikeManagerController::class, 'store'])
-    ->name('page.ebike_manager.store');
+        ->name('page.ebike_manager.store');
     Route::post('ebike_manager/{id}/update', [\App\Http\Controllers\Admin\EbikeManagerController::class, 'update'])
-    ->name('page.ebike_manager.update');
+        ->name('page.ebike_manager.update');
 
-Route::post('ebike_manager/{id}/delete', [\App\Http\Controllers\Admin\EbikeManagerController::class, 'destroy'])
-    ->name('page.ebike_manager.delete');
+    Route::post('ebike_manager/{id}/delete', [\App\Http\Controllers\Admin\EbikeManagerController::class, 'destroy'])
+        ->name('page.ebike_manager.delete');
 
     // AI Chat Agent settings
     Route::get('agent-settings', [AgentSettingsController::class, 'index'])->name('page.agent_settings.index');
@@ -316,4 +325,3 @@ Route::post('ebike_manager/{id}/delete', [\App\Http\Controllers\Admin\EbikeManag
     // Queue Monitor - View Redis delayed jobs
     Route::get('queue-monitor', [QueueMonitorController::class, 'index'])->name('queue-monitor.index');
 });
- 

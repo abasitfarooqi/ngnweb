@@ -10,6 +10,9 @@ class CustomerAddress extends Model
 {
     use HasFactory;
 
+    /** @var int Default {@see SystemCountry} id used across shop/checkout when none supplied (UK). */
+    public const DEFAULT_COUNTRY_ID = 3;
+
     protected $table = 'customer_addresses';
 
     protected $fillable = [
@@ -26,6 +29,15 @@ class CustomerAddress extends Model
         'type',
         'country_id',
     ];
+
+    protected static function booted(): void
+    {
+        static::creating(function (self $address): void {
+            if ($address->country_id === null) {
+                $address->country_id = self::DEFAULT_COUNTRY_ID;
+            }
+        });
+    }
 
     public function customer(): BelongsTo
     {

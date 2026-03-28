@@ -13,8 +13,8 @@ class Customer extends Model
 {
     use CrudTrait;
     use HasFactory;
-    use Notifiable;
     use HasRoles;
+    use Notifiable;
 
     protected $fillable = [
         'first_name',
@@ -88,5 +88,32 @@ class Customer extends Model
     public function financeApplications()
     {
         return $this->hasMany(FinanceApplication::class, 'customer_id');
+    }
+
+    public function customerAuth()
+    {
+        return $this->hasOne(CustomerAuth::class, 'customer_id');
+    }
+
+    public function customerProfile()
+    {
+        return $this->hasOneThrough(
+            CustomerProfile::class,
+            CustomerAuth::class,
+            'customer_id',
+            'customer_auth_id',
+            'id',
+            'id'
+        );
+    }
+
+    public function customerAddresses()
+    {
+        return $this->hasMany(CustomerAddress::class, 'customer_id');
+    }
+
+    public function customerDocuments()
+    {
+        return $this->hasMany(CustomerDocument::class, 'customer_id');
     }
 }
