@@ -98,7 +98,7 @@
 
         {{-- Pagination --}}
         <div class="mt-6">
-            {{ $motorbikes->links() }}
+            {{-- Pagination not available: $motorbikes is a Collection, not a LengthAwarePaginator --}}
         </div>
     @else
         <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-12 text-center">

@@ -2,42 +2,98 @@
 
 namespace App\Livewire\Site\Contact;
 
+use App\Http\Controllers\MailController;
 use App\Models\Branch;
+use App\Models\ServiceBooking as ServiceBookingModel;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class ServiceBooking extends Component
 {
     public $branches;
+
     public $name = '';
+
     public $email = '';
+
     public $phone = '';
-    public $branch_id = '';
-    public $service_type = '';
+
+    public $selectedBranch = '';
+
+    public $serviceType = '';
+
     public $regNo = '';
+
     public $make = '';
+
     public $model = '';
-    public $preferred_date = '';
-    public $notes = '';
 
-    protected $rules = [
-        'name'          => 'required|string|min:2',
-        'email'         => 'required|email',
-        'phone'         => 'required|string|min:10',
-        'branch_id'     => 'required|exists:branches,id',
-        'service_type'  => 'required|string',
-        'preferred_date'=> 'required|date|after:today',
-    ];
+    public $preferredDate = '';
 
-    public function mount()
+    public $preferredTime = '';
+
+    public $message = '';
+
+    public bool $cookiePolicy = false;
+
+    public function mount(): void
     {
         $this->branches = Branch::orderBy('name')->get();
     }
 
-    public function submit()
+    public function submitBooking(): void
     {
-        $this->validate();
+        $validated = $this->validate($this->rules());
+
+        $branch = $this->branches->firstWhere('id', (int) ($validated['selectedBranch'] ?: 0));
+        $serviceTypeLabel = (string) $validated['serviceType'];
+
+        $descriptionBits = array_filter([
+            $branch ? 'Branch: '.$branch->name : null,
+            'Make: '.($this->make ?: 'N/A'),
+            'Model: '.($this->model ?: 'N/A'),
+            'Message: '.($this->message ?: 'N/A'),
+        ]);
+
+        $booking = ServiceBookingModel::create([
+            'service_type' => $serviceTypeLabel,
+            'description' => implode(' | ', $descriptionBits),
+            'requires_schedule' => $this->requiresScheduleSelection,
+            'booking_date' => $validated['preferredDate'] ?: null,
+            'booking_time' => $validated['preferredTime'] ?: null,
+            'status' => 'Pending',
+            'fullname' => $validated['name'],
+            'phone' => $validated['phone'],
+            'reg_no' => $this->regNo ?: 'N/A',
+            'email' => $validated['email'],
+        ]);
+
+        app(MailController::class)->sendBookingConfirmation($booking);
+
         session()->flash('success', 'Service booking request received. We will confirm your appointment shortly.');
-        $this->reset(['name', 'email', 'phone', 'branch_id', 'service_type', 'regNo', 'make', 'model', 'preferred_date', 'notes']);
+
+        $this->reset([
+            'name',
+            'email',
+            'phone',
+            'selectedBranch',
+            'serviceType',
+            'regNo',
+            'make',
+            'model',
+            'preferredDate',
+            'preferredTime',
+            'message',
+            'cookiePolicy',
+        ]);
+    }
+
+    public function getRequiresScheduleSelectionProperty(): bool
+    {
+        return in_array($this->serviceType, [
+            'MOT Booking Enquiry',
+            'Accident Management Services Enquiry',
+        ], true);
     }
 
     public function render()
@@ -47,5 +103,19 @@ class ServiceBooking extends Component
                 'title' => 'Book a Service Enquiry | NGN Motors',
                 'description' => 'Book a motorcycle service at NGN Motors London.',
             ]);
+    }
+
+    private function rules(): array
+    {
+        return [
+            'name' => ['required', 'string', 'min:2'],
+            'email' => ['nullable', 'email'],
+            'phone' => ['required', 'string', 'min:10'],
+            'selectedBranch' => ['nullable', Rule::exists('branches', 'id')],
+            'serviceType' => ['required', 'string'],
+            'preferredDate' => [$this->requiresScheduleSelection ? 'required' : 'nullable', 'date', 'after_or_equal:today'],
+            'preferredTime' => [$this->requiresScheduleSelection ? 'required' : 'nullable', 'date_format:H:i'],
+            'cookiePolicy' => ['accepted'],
+        ];
     }
 }

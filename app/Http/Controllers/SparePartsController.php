@@ -24,17 +24,17 @@ class SparePartsController extends Controller
     {
         \Log::info('Fetching unposted purchase requests');
 
-        $purchaseRequestItems = PurchaseRequestItem::whereHas('purchase_request', function ($query) {
+        $purchaseRequestItems = PurchaseRequestItem::whereHas('purchaseRequest', function ($query) {
             $query->where('is_posted', false);
         })
-            ->with(['purchase_request', 'brandName', 'bikeModel', 'creator'])  // Include 'creator' to load related user data
+            ->with(['purchaseRequest', 'brandName', 'bikeModel', 'creator'])
             ->get();
 
         $formattedData = $purchaseRequestItems->map(function ($item) {
             return [
-                'pr_number' => $item->purchase_request->id ?? 'N/A',
+                'pr_number' => $item->purchaseRequest->id ?? 'N/A',
                 'brand_name' => $item->brandName->name ?? 'N/A',
-                'bike_model' => $item->bike_model->model ?? 'N/A',
+                'bike_model' => $item->bikeModel->model ?? 'N/A',
                 'color' => $item->color,
                 'year' => $item->year,
                 'chassis_no' => $item->chassis_no,
@@ -56,22 +56,21 @@ class SparePartsController extends Controller
     {
         \Log::info('Fetching all purchase requests');
 
-        $purchaseRequestItems = PurchaseRequestItem::whereHas('purchase_request', function ($query) {
+        $purchaseRequestItems = PurchaseRequestItem::whereHas('purchaseRequest', function ($query) {
             $query->where('is_posted', true);
         })
-            ->with(['purchase_request', 'brandName', 'bikeModel', 'creator'])
-            // ->orderBy('purchase_request.date', 'desc')
+            ->with(['purchaseRequest', 'brandName', 'bikeModel', 'creator'])
             ->get()->sortByDesc(function ($item) {
-                return $item->purchase_request->date;
+                return $item->purchaseRequest->date;
             });
 
         $formattedData = $purchaseRequestItems->map(function ($item) {
             return [
-                'pr_number' => $item->purchase_request->id ?? 'N/A',
-                'pr_date' => $item->purchase_request->date ?? 'N/A', // Added this line
-                'is_posted' => $item->purchase_request->is_posted ? 'Yes' : 'No', // Added this line
+                'pr_number' => $item->purchaseRequest->id ?? 'N/A',
+                'pr_date' => $item->purchaseRequest->date ?? 'N/A',
+                'is_posted' => $item->purchaseRequest?->is_posted ? 'Yes' : 'No',
                 'brand_name' => $item->brandName->name ?? 'N/A',
-                'bike_model' => $item->bike_model->model ?? 'N/A',
+                'bike_model' => $item->bikeModel->model ?? 'N/A',
                 'color' => $item->color,
                 'year' => $item->year,
                 'chassis_no' => $item->chassis_no,
@@ -102,7 +101,7 @@ class SparePartsController extends Controller
 
             $purchaseRequest = PurchaseRequest::where('is_posted', 0)->firstOrFail();
 
-            $items = PurchaseRequestItem::with(['brand_name', 'bike_model', 'creator'])
+            $items = PurchaseRequestItem::with(['brandName', 'bikeModel', 'creator'])
                 ->where('pr_id', $purchaseRequest->id)->get();
 
             // $items = PurchaseRequestItem::where('pr_id', $purchaseRequest->id)->get();
@@ -240,8 +239,6 @@ class SparePartsController extends Controller
     {
         \Log::info('Received Purchase Request creation request.');
 
-
-
         $pr = new PurchaseRequest([
             'date' => now(),
             'note' => '-',
@@ -311,10 +308,7 @@ class SparePartsController extends Controller
 
     public function create_pr()
     {
-
-        $brands = BrandName::all();
-
-        \Log::info($brands);
+        $brands = Make::query()->orderBy('name')->get();
 
         return view('olders.admin.spareparts.create-pr', compact('brands'));
     }
@@ -322,7 +316,9 @@ class SparePartsController extends Controller
     //        Route::get('/fetch-pr-items', [SparePartsController::class, 'fetch_pr_items'])->name('admin.spareparts.fetch-pr-items');
     public function fetch_pr_items()
     {
-        $pr_items = PurchaseRequestItem::where('is_posted', false)->get();
+        $pr_items = PurchaseRequestItem::whereHas('purchaseRequest', function ($query) {
+            $query->where('is_posted', false);
+        })->get();
 
         return response()->json($pr_items);
     }

@@ -17,15 +17,15 @@ class Basket extends Component
         $this->cart = $cart;
     }
 
-    public function updateQuantity(int $productId, int $quantity): void
+    public function updateQuantity(string $rowId, int $quantity): void
     {
-        $this->cart->update($productId, $quantity);
+        $this->cart->update($rowId, $quantity);
         $this->dispatch('cart-updated', count: $this->cart->count());
     }
 
-    public function remove(int $productId): void
+    public function remove(string $rowId): void
     {
-        $this->cart->remove($productId);
+        $this->cart->remove($rowId);
         $this->dispatch('cart-updated', count: $this->cart->count());
     }
 

@@ -17,7 +17,7 @@
                    class="bg-brand-red hover:bg-red-700 text-white font-semibold px-6 py-3 transition">
                     View My Orders
                 </a>
-                <a href="{{ route('shop.home') }}"
+                <a href="{{ route($continueShoppingRoute) }}"
                    class="border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium px-6 py-3 hover:bg-gray-50 dark:hover:bg-gray-800 transition">
                     Continue Shopping
                 </a>
@@ -176,7 +176,7 @@
                         <div class="space-y-3 mb-6">
                             @foreach($items as $item)
                                 <div class="flex items-center gap-3">
-                                    @if($item['image_url'])
+                            @if($item['image_url'])
                                         <img src="{{ $item['image_url'] }}" alt="{{ $item['product_name'] }}"
                                              class="w-12 h-12 object-contain bg-gray-50 p-1 flex-shrink-0">
                                     @endif
@@ -239,7 +239,7 @@
                                 <flux:icon name="arrow-left" class="h-4 w-4" /> Back
                             </button>
                         @else
-                            <a href="{{ route('shop.basket') }}"
+                            <a href="{{ route($basketRoute) }}"
                                class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 hover:text-brand-red transition">
                                 <flux:icon name="arrow-left" class="h-4 w-4" /> Back to Basket
                             </a>

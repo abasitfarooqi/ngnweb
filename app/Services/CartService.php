@@ -3,6 +3,8 @@
 namespace App\Services;
 
 use App\Models\NgnProduct;
+use App\Models\SpAssembly;
+use App\Models\SpPart;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
@@ -25,29 +27,108 @@ class CartService
             return [];
         }
 
-        $ids = array_keys($raw);
-        $products = NgnProduct::whereIn('id', $ids)
+        $normalised = $this->normaliseRawCart($raw);
+        $productIds = [];
+        $spPartIds = [];
+        $spAssemblyIds = [];
+
+        foreach ($normalised as $row) {
+            if (($row['type'] ?? 'catalogue') === 'sparepart') {
+                if (! empty($row['sp_part_id'])) {
+                    $spPartIds[] = (int) $row['sp_part_id'];
+                }
+                if (! empty($row['sp_assembly_id'])) {
+                    $spAssemblyIds[] = (int) $row['sp_assembly_id'];
+                }
+            } elseif (! empty($row['product_id'])) {
+                $productIds[] = (int) $row['product_id'];
+            }
+        }
+
+        $products = NgnProduct::whereIn('id', $productIds)
             ->where('is_ecommerce', 1)
             ->where('dead', 0)
             ->get()
             ->keyBy('id');
 
+        $spParts = SpPart::query()
+            ->whereIn('id', array_values(array_unique($spPartIds)))
+            ->get()
+            ->keyBy('id');
+
+        $spAssemblies = SpAssembly::query()
+            ->whereIn('id', array_values(array_unique($spAssemblyIds)))
+            ->get()
+            ->keyBy('id');
+
         $items = [];
-        foreach ($raw as $productId => $row) {
-            $product = $products->get($productId);
-            if (!$product) {
+        foreach ($normalised as $rowId => $row) {
+            $type = (string) ($row['type'] ?? 'catalogue');
+            $quantity = (int) ($row['quantity'] ?? 1);
+            if ($quantity < 1) {
                 continue;
             }
+
+            if ($type === 'sparepart') {
+                $spPartId = (int) ($row['sp_part_id'] ?? 0);
+                $part = $spParts->get($spPartId);
+                if (! $part) {
+                    continue;
+                }
+
+                $assembly = $spAssemblies->get((int) ($row['sp_assembly_id'] ?? 0));
+                $fitment = is_array($row['fitment'] ?? null) ? $row['fitment'] : [];
+                $partNumber = (string) ($row['part_number'] ?? $part->part_number);
+                $lineUnitPrice = (float) ($row['unit_price'] ?? $part->price_gbp_inc_vat ?? 0);
+
+                $items[] = [
+                    'row_id' => $rowId,
+                    'item_type' => 'sparepart',
+                    'product_id' => null,
+                    'sp_part_id' => $spPartId,
+                    'sp_assembly_id' => $assembly?->id,
+                    'part_number' => $partNumber,
+                    'quantity' => $quantity,
+                    'product_name' => $part->name,
+                    'variation' => $assembly?->name ?: 'Spare part',
+                    'sku' => $partNumber,
+                    'image_url' => $assembly?->image_url ?: null,
+                    'slug' => null,
+                    'unit_price' => $lineUnitPrice,
+                    'line_total' => $lineUnitPrice * $quantity,
+                    'fitment' => $fitment,
+                    'source_meta' => $fitment,
+                    'sparepart_url' => '/spareparts/part/'.urlencode($partNumber),
+                ];
+
+                continue;
+            }
+
+            $productId = (int) ($row['product_id'] ?? 0);
+            $product = $products->get($productId);
+            if (! $product) {
+                continue;
+            }
+
+            $unitPrice = (float) $product->normal_price;
             $items[] = [
-                'product_id'   => $productId,
-                'quantity'     => $row['quantity'],
+                'row_id' => $rowId,
+                'item_type' => 'catalogue',
+                'product_id' => $productId,
+                'sp_part_id' => null,
+                'sp_assembly_id' => null,
+                'part_number' => null,
+                'quantity' => $quantity,
                 'product_name' => $product->name,
-                'variation'    => $product->variation,
-                'sku'          => $product->sku,
-                'image_url'    => $product->image_url,
-                'slug'         => $product->slug,
-                'unit_price'   => (float) $product->normal_price,
-                'line_total'   => (float) $product->normal_price * $row['quantity'],
+                'variation' => $product->variation,
+                'sku' => $product->sku,
+                'image_url' => $product->image_url,
+                'slug' => $product->slug,
+                'unit_price' => $unitPrice,
+                'line_total' => $unitPrice * $quantity,
+                'fitment' => null,
+                'source_meta' => null,
+                'sparepart_url' => null,
             ];
         }
 
@@ -59,25 +140,65 @@ class CartService
      */
     public function add(int $productId, int $quantity = 1): void
     {
+        $this->addProduct($productId, $quantity);
+    }
+
+    public function addProduct(int $productId, int $quantity = 1): void
+    {
         $cart = Session::get(self::SESSION_KEY, []);
-        if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] += $quantity;
+        $rowId = $this->catalogueRowId($productId);
+        if (isset($cart[$rowId])) {
+            $cart[$rowId]['quantity'] += $quantity;
         } else {
-            $cart[$productId] = ['quantity' => $quantity];
+            $cart[$rowId] = [
+                'type' => 'catalogue',
+                'product_id' => $productId,
+                'quantity' => max(1, $quantity),
+            ];
         }
+        Session::put(self::SESSION_KEY, $cart);
+    }
+
+    public function addSparePart(
+        int $spPartId,
+        int $spAssemblyId,
+        string $partNumber,
+        float $unitPrice,
+        int $quantity = 1,
+        array $fitment = []
+    ): void {
+        $cart = Session::get(self::SESSION_KEY, []);
+        $rowId = $this->sparepartRowId($spPartId, $spAssemblyId);
+
+        if (isset($cart[$rowId])) {
+            $cart[$rowId]['quantity'] += max(1, $quantity);
+        } else {
+            $cart[$rowId] = [
+                'type' => 'sparepart',
+                'sp_part_id' => $spPartId,
+                'sp_assembly_id' => $spAssemblyId,
+                'part_number' => strtoupper(str_replace(' ', '', trim($partNumber))),
+                'unit_price' => $unitPrice,
+                'quantity' => max(1, $quantity),
+                'fitment' => $fitment,
+            ];
+        }
+
         Session::put(self::SESSION_KEY, $cart);
     }
 
     /**
      * Set exact quantity for a product.
      */
-    public function update(int $productId, int $quantity): void
+    public function update(string $rowId, int $quantity): void
     {
         $cart = Session::get(self::SESSION_KEY, []);
         if ($quantity <= 0) {
-            unset($cart[$productId]);
+            unset($cart[$rowId]);
         } else {
-            $cart[$productId] = ['quantity' => min($quantity, 100)];
+            if (isset($cart[$rowId])) {
+                $cart[$rowId]['quantity'] = min($quantity, 100);
+            }
         }
         Session::put(self::SESSION_KEY, $cart);
     }
@@ -85,10 +206,10 @@ class CartService
     /**
      * Remove a product from cart.
      */
-    public function remove(int $productId): void
+    public function remove(string $rowId): void
     {
         $cart = Session::get(self::SESSION_KEY, []);
-        unset($cart[$productId]);
+        unset($cart[$rowId]);
         Session::put(self::SESSION_KEY, $cart);
     }
 
@@ -131,5 +252,46 @@ class CartService
     public function raw(): array
     {
         return Session::get(self::SESSION_KEY, []);
+    }
+
+    private function catalogueRowId(int $productId): string
+    {
+        return 'p:'.$productId;
+    }
+
+    private function sparepartRowId(int $spPartId, int $spAssemblyId): string
+    {
+        return 's:'.$spPartId.':'.$spAssemblyId;
+    }
+
+    /**
+     * @param  array<string, mixed>  $raw
+     * @return array<string, array<string, mixed>>
+     */
+    private function normaliseRawCart(array $raw): array
+    {
+        $normalised = [];
+
+        foreach ($raw as $key => $row) {
+            if (! is_array($row)) {
+                continue;
+            }
+
+            // Backward compatibility for old cart format: [productId => ['quantity' => n]]
+            if (! isset($row['type'])) {
+                $productId = (int) $key;
+                $rowId = $this->catalogueRowId($productId);
+                $normalised[$rowId] = [
+                    'type' => 'catalogue',
+                    'product_id' => $productId,
+                    'quantity' => (int) ($row['quantity'] ?? 1),
+                ];
+                continue;
+            }
+
+            $normalised[(string) $key] = $row;
+        }
+
+        return $normalised;
     }
 }

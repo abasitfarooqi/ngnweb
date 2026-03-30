@@ -11,7 +11,7 @@
         @foreach([
             ['title'=>'Accessories', 'href'=>'/shop/accessories', 'icon'=>'puzzle-piece', 'text'=>'Phone mounts, covers, heated grips & more'],
             ['title'=>'Helmets', 'href'=>'/helmets', 'icon'=>'shield-check', 'text'=>'MT, Simpson, HJC & more top brands'],
-            ['title'=>'Spare Parts', 'href'=>'/shop/spare-parts', 'icon'=>'wrench-screwdriver', 'text'=>'Honda & Yamaha genuine & aftermarket parts'],
+            ['title'=>'Spare Parts', 'href'=>'/spareparts', 'icon'=>'wrench-screwdriver', 'text'=>'Honda & Yamaha genuine & aftermarket parts'],
             ['title'=>'GPS Trackers', 'href'=>'/shop/gps-tracker', 'icon'=>'map-pin', 'text'=>'Track & protect your motorcycle'],
         ] as $cat)
             <a href="{{ $cat['href'] }}" class="group block">

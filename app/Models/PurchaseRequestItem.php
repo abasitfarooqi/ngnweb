@@ -15,15 +15,9 @@ class PurchaseRequestItem extends Model
 
     protected $fillable = [
         'pr_id',
-        'item_name',
-        'qty',
-        'note',
         'created_by',
-        'is_posted',
-        'is_approved',
         'brand_name_id',
         'bike_model_id',
-        'model',
         'color',
         'year',
         'chassis_no',
@@ -62,32 +56,5 @@ class PurchaseRequestItem extends Model
         return $this->belongsTo(User::class, 'created_by');
     }
 
-    public function approve()
-    {
-        $this->is_approved = true;
-        $this->save();
-    }
-
-    public function reject()
-    {
-        $this->is_approved = false;
-        $this->save();
-    }
-
-    public function post()
-    {
-        $this->is_posted = true;
-        $this->save();
-    }
-
-    public function unpost()
-    {
-        $this->is_posted = false;
-        $this->save();
-    }
-
-    public function isApproved()
-    {
-        return $this->is_approved;
-    }
+    // Posting/approval states are stored on parent purchase_requests (is_posted).
 }

@@ -2,90 +2,54 @@
 
 namespace App\Support\SpareParts;
 
+use App\Support\SpareParts\Providers\CatalogueProvider;
+use App\Support\SpareParts\Providers\ConfigCatalogueProvider;
+use App\Support\SpareParts\Providers\DbCatalogueProvider;
+use App\Support\SpareParts\Providers\ExternalCatalogueProvider;
+
 class SparePartsCatalogue
 {
+    /** @var list<CatalogueProvider> */
+    private array $providers;
+
+    public function __construct()
+    {
+        $mode = (string) config('spareparts.provider_mode', 'both_parallel');
+        $this->providers = match ($mode) {
+            'db' => [new DbCatalogueProvider(), new ConfigCatalogueProvider()],
+            'external' => [new ExternalCatalogueProvider(), new DbCatalogueProvider(), new ConfigCatalogueProvider()],
+            default => [new DbCatalogueProvider(), new ExternalCatalogueProvider(), new ConfigCatalogueProvider()],
+        };
+    }
+
     public function manufacturers(): array
     {
-        $catalogue = $this->catalogue();
-        $result = [];
-
-        foreach ($catalogue as $slug => $data) {
-            $result[] = [
-                'slug' => $slug,
-                'name' => (string) ($data['name'] ?? strtoupper($slug)),
-            ];
-        }
-
-        return $result;
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->manufacturers(), []);
     }
 
     public function models(string $manufacturer): array
     {
-        $models = $this->catalogue()[$manufacturer]['models'] ?? [];
-        $result = [];
-
-        foreach ($models as $slug => $data) {
-            $result[] = [
-                'slug' => $slug,
-                'name' => (string) ($data['name'] ?? strtoupper($slug)),
-            ];
-        }
-
-        return $result;
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->models($manufacturer), []);
     }
 
     public function years(string $manufacturer, string $model): array
     {
-        $years = array_keys($this->catalogue()[$manufacturer]['models'][$model]['years'] ?? []);
-        rsort($years);
-
-        return array_values($years);
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->years($manufacturer, $model), []);
     }
 
     public function countries(string $manufacturer, string $model, string $year): array
     {
-        $countries = $this->catalogue()[$manufacturer]['models'][$model]['years'][$year]['countries'] ?? [];
-        $result = [];
-
-        foreach ($countries as $slug => $data) {
-            $result[] = [
-                'slug' => $slug,
-                'name' => (string) ($data['name'] ?? strtoupper($slug)),
-            ];
-        }
-
-        return $result;
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->countries($manufacturer, $model, $year), []);
     }
 
     public function colours(string $manufacturer, string $model, string $year, string $country): array
     {
-        $colours = $this->catalogue()[$manufacturer]['models'][$model]['years'][$year]['countries'][$country]['colours'] ?? [];
-        $result = [];
-
-        foreach ($colours as $slug => $data) {
-            $result[] = [
-                'slug' => $slug,
-                'name' => (string) ($data['name'] ?? strtoupper($slug)),
-            ];
-        }
-
-        return $result;
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->colours($manufacturer, $model, $year, $country), []);
     }
 
     public function assemblies(string $manufacturer, string $model, string $year, string $country, string $colour): array
     {
-        $assemblies = $this->catalogue()[$manufacturer]['models'][$model]['years'][$year]['countries'][$country]['colours'][$colour]['assemblies'] ?? [];
-        $result = [];
-
-        foreach ($assemblies as $assembly) {
-            $result[] = [
-                'id' => (string) ($assembly['id'] ?? ''),
-                'slug' => (string) ($assembly['slug'] ?? ''),
-                'name' => (string) ($assembly['name'] ?? ''),
-            ];
-        }
-
-        return $result;
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->assemblies($manufacturer, $model, $year, $country, $colour), []);
     }
 
     public function parts(
@@ -96,29 +60,14 @@ class SparePartsCatalogue
         string $colour,
         string $assemblySlug
     ): array {
-        $assemblies = $this->catalogue()[$manufacturer]['models'][$model]['years'][$year]['countries'][$country]['colours'][$colour]['assemblies'] ?? [];
-
-        foreach ($assemblies as $assembly) {
-            if (($assembly['slug'] ?? null) !== $assemblySlug) {
-                continue;
-            }
-
-            $parts = [];
-            foreach (($assembly['parts'] ?? []) as $part) {
-                $parts[] = [
-                    'part_number' => $this->normalisePartNumber((string) ($part['part_number'] ?? '')),
-                    'name' => (string) ($part['name'] ?? ''),
-                    'note' => (string) ($part['note'] ?? ''),
-                    'stock' => (string) ($part['stock'] ?? 'NOT IN STOCK'),
-                    'price_gbp_inc_vat' => (float) ($part['price_gbp_inc_vat'] ?? 0),
-                    'qty_used' => (int) ($part['qty_used'] ?? 1),
-                ];
-            }
-
-            return $parts;
-        }
-
-        return [];
+        return $this->firstNonEmpty(fn (CatalogueProvider $provider) => $provider->parts(
+            $manufacturer,
+            $model,
+            $year,
+            $country,
+            $colour,
+            $assemblySlug
+        ), []);
     }
 
     public function findPart(string $partNumber): ?array
@@ -128,60 +77,14 @@ class SparePartsCatalogue
             return null;
         }
 
-        $fitments = [];
-        $partPayload = null;
-
-        foreach ($this->catalogue() as $manufacturerSlug => $manufacturer) {
-            foreach (($manufacturer['models'] ?? []) as $modelSlug => $model) {
-                foreach (($model['years'] ?? []) as $year => $yearData) {
-                    foreach (($yearData['countries'] ?? []) as $countrySlug => $countryData) {
-                        foreach (($countryData['colours'] ?? []) as $colourSlug => $colourData) {
-                            foreach (($colourData['assemblies'] ?? []) as $assembly) {
-                                foreach (($assembly['parts'] ?? []) as $part) {
-                                    $currentNumber = $this->normalisePartNumber((string) ($part['part_number'] ?? ''));
-                                    if ($currentNumber !== $needle) {
-                                        continue;
-                                    }
-
-                                    if ($partPayload === null) {
-                                        $partPayload = [
-                                            'part_number' => $currentNumber,
-                                            'name' => (string) ($part['name'] ?? ''),
-                                            'note' => (string) ($part['note'] ?? ''),
-                                            'stock' => (string) ($part['stock'] ?? 'NOT IN STOCK'),
-                                            'price_gbp_inc_vat' => (float) ($part['price_gbp_inc_vat'] ?? 0),
-                                            'qty_used' => (int) ($part['qty_used'] ?? 1),
-                                        ];
-                                    }
-
-                                    $fitments[] = [
-                                        'manufacturer' => (string) ($manufacturer['name'] ?? strtoupper($manufacturerSlug)),
-                                        'manufacturer_slug' => $manufacturerSlug,
-                                        'model' => (string) ($model['name'] ?? strtoupper($modelSlug)),
-                                        'model_slug' => $modelSlug,
-                                        'year' => (string) $year,
-                                        'country' => (string) ($countryData['name'] ?? strtoupper($countrySlug)),
-                                        'country_slug' => $countrySlug,
-                                        'colour' => (string) ($colourData['name'] ?? strtoupper($colourSlug)),
-                                        'colour_slug' => $colourSlug,
-                                        'assembly' => (string) ($assembly['name'] ?? ''),
-                                        'assembly_slug' => (string) ($assembly['slug'] ?? ''),
-                                    ];
-                                }
-                            }
-                        }
-                    }
-                }
+        foreach ($this->providers as $provider) {
+            $result = $provider->findPart($needle);
+            if ($result !== null) {
+                return $result;
             }
         }
 
-        if ($partPayload === null) {
-            return null;
-        }
-
-        $partPayload['fitments'] = $fitments;
-
-        return $partPayload;
+        return null;
     }
 
     public function normalisePartNumber(string $partNumber): string
@@ -189,8 +92,27 @@ class SparePartsCatalogue
         return strtoupper(str_replace(' ', '', trim($partNumber)));
     }
 
-    private function catalogue(): array
+    /**
+     * @template T
+     *
+     * @param  callable(CatalogueProvider):T  $resolver
+     * @param  T  $default
+     * @return T
+     */
+    private function firstNonEmpty(callable $resolver, mixed $default): mixed
     {
-        return config('spareparts.catalogue', []);
+        foreach ($this->providers as $provider) {
+            $result = $resolver($provider);
+
+            if (is_array($result) && $result !== []) {
+                return $result;
+            }
+
+            if ($result !== null && ! is_array($result)) {
+                return $result;
+            }
+        }
+
+        return $default;
     }
 }

@@ -22,21 +22,19 @@
             <flux:field>
                 <flux:label>Service Type *</flux:label>
                 <flux:select wire:model="serviceType" variant="listbox" placeholder="Select service...">
-                    <flux:select.option value="basic-service">Basic Service</flux:select.option>
-                    <flux:select.option value="full-service">Full Service</flux:select.option>
-                    <flux:select.option value="mot">MOT Test</flux:select.option>
-                    <flux:select.option value="repair">Repair</flux:select.option>
-                    <flux:select.option value="tyres">Tyres</flux:select.option>
-                    <flux:select.option value="brakes">Brakes</flux:select.option>
-                    <flux:select.option value="diagnostic">Diagnostic</flux:select.option>
-                    <flux:select.option value="other">Other</flux:select.option>
+                    <flux:select.option value="Accident Management Services Enquiry">Accident Management Services Enquiry</flux:select.option>
+                    <flux:select.option value="MOT Booking Enquiry">MOT Booking Enquiry</flux:select.option>
+                    <flux:select.option value="Motorcycle Repairs">Motorcycle Repairs</flux:select.option>
+                    <flux:select.option value="Motorcycle Full Service">Motorcycle Full Service</flux:select.option>
+                    <flux:select.option value="Motorcycle Basic Service">Motorcycle Basic Service</flux:select.option>
+                    <flux:select.option value="Other">Other</flux:select.option>
                 </flux:select>
                 <flux:error name="serviceType" />
             </flux:field>
 
             <flux:field>
-                <flux:label>Select Branch *</flux:label>
-                <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch...">
+                <flux:label>Select Branch</flux:label>
+                <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch if preferred...">
                     @foreach($branches as $branch)
                         <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                     @endforeach
@@ -73,38 +71,59 @@
             </div>
 
             <flux:field>
-                <flux:label>Email *</flux:label>
+                <flux:label>Email</flux:label>
                 <flux:input wire:model="email" type="email" />
                 <flux:error name="email" />
             </flux:field>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <flux:field>
-                    <flux:label>Preferred Date *</flux:label>
-                    <flux:date-picker wire:model="preferredDate" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
-                    <flux:error name="preferredDate" />
-                </flux:field>
-                <flux:field>
-                    <flux:label>Preferred Time *</flux:label>
-                    <flux:select wire:model="preferredTime" variant="listbox" placeholder="Select time...">
-                        <flux:select.option value="09:00">09:00 AM</flux:select.option>
-                        <flux:select.option value="10:00">10:00 AM</flux:select.option>
-                        <flux:select.option value="11:00">11:00 AM</flux:select.option>
-                        <flux:select.option value="12:00">12:00 PM</flux:select.option>
-                        <flux:select.option value="14:00">02:00 PM</flux:select.option>
-                        <flux:select.option value="15:00">03:00 PM</flux:select.option>
-                        <flux:select.option value="16:00">04:00 PM</flux:select.option>
-                    </flux:select>
-                    <flux:error name="preferredTime" />
-                </flux:field>
-            </div>
+            @if($this->requiresScheduleSelection)
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <flux:field>
+                        <flux:label>Preferred Date *</flux:label>
+                        <flux:date-picker wire:model="preferredDate" min="{{ date('Y-m-d') }}" />
+                        <flux:error name="preferredDate" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Preferred Time *</flux:label>
+                        <flux:select wire:model="preferredTime" variant="listbox" placeholder="Select time...">
+                            <flux:select.option value="10:00">10:00</flux:select.option>
+                            <flux:select.option value="10:30">10:30</flux:select.option>
+                            <flux:select.option value="11:00">11:00</flux:select.option>
+                            <flux:select.option value="11:30">11:30</flux:select.option>
+                            <flux:select.option value="12:00">12:00</flux:select.option>
+                            <flux:select.option value="12:30">12:30</flux:select.option>
+                            <flux:select.option value="13:00">13:00</flux:select.option>
+                            <flux:select.option value="13:30">13:30</flux:select.option>
+                            <flux:select.option value="14:00">14:00</flux:select.option>
+                            <flux:select.option value="14:30">14:30</flux:select.option>
+                            <flux:select.option value="15:00">15:00</flux:select.option>
+                            <flux:select.option value="15:30">15:30</flux:select.option>
+                            <flux:select.option value="16:00">16:00</flux:select.option>
+                            <flux:select.option value="16:30">16:30</flux:select.option>
+                            <flux:select.option value="17:00">17:00</flux:select.option>
+                        </flux:select>
+                        <flux:error name="preferredTime" />
+                    </flux:field>
+                </div>
+            @endif
 
             <flux:field>
                 <flux:label>Additional Notes</flux:label>
                 <flux:textarea wire:model="message" rows="3" placeholder="Any specific issues or requirements?" />
             </flux:field>
 
-            <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">Book Service</flux:button>
+            <div class="text-sm text-gray-700 dark:text-gray-300">
+                <label class="inline-flex items-start gap-2 cursor-pointer">
+                    <input type="checkbox" wire:model="cookiePolicy" class="mt-1 accent-brand-red">
+                    <span>I have read and agree to the Cookie and Privacy Policy.</span>
+                </label>
+                <flux:error name="cookiePolicy" />
+            </div>
+
+            <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled" wire:target="submitBooking">
+                <span wire:loading.remove wire:target="submitBooking">Book Service</span>
+                <span wire:loading wire:target="submitBooking">Submitting...</span>
+            </flux:button>
         </form>
     </flux:card>
 </div>

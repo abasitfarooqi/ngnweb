@@ -92,12 +92,13 @@
                          class="absolute left-0 top-full z-50 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
                         <a href="/shop" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">All Shop</a>
                         <a href="/shop/accessories" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accessories</a>
-                        <a href="/shop/spare-parts" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Spare Parts</a>
                         <a href="/shop/gps-tracker" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">GPS Trackers</a>
                         <a href="/helmets" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Helmets</a>
                         <a href="/ebikes" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">E-Bikes</a>
                     </div>
                 </div>
+
+                <a href="{{ route('spareparts.index') }}" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('spareparts*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">Spareparts</a>
 
                 <a href="/about" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('about*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">About</a>
                 <a href="/contact" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('contact*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">Contact</a>
@@ -108,6 +109,7 @@
 
             {{-- Desktop right: search, auth, basket, club --}}
             <div class="hidden lg:flex items-center gap-2">
+                @php $globalCartCount = app(\App\Services\CartService::class)->count(); @endphp
                 {{-- Search --}}
                 <div x-data="{ searchOpen: false }" class="relative">
                     <button @click="searchOpen = !searchOpen" class="p-2 text-gray-500 hover:text-brand-red transition" aria-label="Search">
@@ -126,6 +128,9 @@
                 {{-- Basket --}}
                 <a href="{{ route('shop.basket') }}" class="p-2 text-gray-500 hover:text-brand-red transition relative" aria-label="Basket">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    @if($globalCartCount > 0)
+                        <span class="absolute -top-1 -right-1 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none">{{ $globalCartCount }}</span>
+                    @endif
                 </a>
 
                 @auth('customer')
@@ -147,8 +152,11 @@
 
             {{-- Mobile right: basket + account icons --}}
             <div class="flex items-center gap-1 lg:hidden">
-                <a href="{{ route('shop.basket') }}" class="p-2 text-gray-600 dark:text-gray-400 hover:text-brand-red transition" aria-label="Basket">
+                <a href="{{ route('shop.basket') }}" class="p-2 text-gray-600 dark:text-gray-400 hover:text-brand-red transition relative" aria-label="Basket">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+                    @if($globalCartCount > 0)
+                        <span class="absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none">{{ $globalCartCount }}</span>
+                    @endif
                 </a>
                 <a href="{{ auth('customer')->check() ? route('account.dashboard') : route('login') }}"
                    class="p-2 text-gray-600 dark:text-gray-400 hover:text-brand-red transition" aria-label="Account">
@@ -248,11 +256,14 @@
                 <div x-show="expandedGroup === 'shop'" x-transition class="bg-gray-50 dark:bg-gray-800">
                     <a href="/shop" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">All Shop</a>
                     <a href="/shop/accessories" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accessories</a>
-                    <a href="/shop/spare-parts" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Spare Parts</a>
                     <a href="/shop/gps-tracker" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">GPS Trackers</a>
                     <a href="/helmets" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Helmets</a>
                     <a href="/ebikes" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">E-Bikes</a>
                 </div>
+
+                <a href="{{ route('spareparts.index') }}" @click="closeMobile()" class="flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
+                    Spareparts
+                </a>
 
                 <a href="/about" @click="closeMobile()" class="flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">About</a>
                 <a href="/contact" @click="closeMobile()" class="flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">Contact</a>

@@ -30,6 +30,7 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SendWeeklyBusiestDaysReport::class,
         \App\Console\Commands\SendQuarterlyVehicleVisitsReport::class,
         \App\Console\Commands\CustomerDocsSecurelyTransferSFTP::class,
+        \App\Console\Commands\ImportSparePartsCatalogue::class,
     ];
 
     protected function schedule(Schedule $schedule): void

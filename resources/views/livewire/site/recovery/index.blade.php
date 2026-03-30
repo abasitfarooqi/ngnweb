@@ -45,24 +45,50 @@
                         <flux:error name="name" />
                     </flux:field>
                     <flux:field>
+                        <flux:label>Email *</flux:label>
+                        <flux:input wire:model="email" type="email" />
+                        <flux:error name="email" />
+                    </flux:field>
+                    <flux:field>
                         <flux:label>Phone *</flux:label>
                         <flux:input wire:model="phone" type="tel" />
                         <flux:error name="phone" />
                     </flux:field>
+                    <flux:field>
+                        <flux:label>Bike Registration *</flux:label>
+                        <flux:input wire:model="bikeReg" placeholder="AB12 CDE" class="uppercase" />
+                        <flux:error name="bikeReg" />
+                    </flux:field>
                 </div>
                 <flux:field>
-                    <flux:label>Current Location *</flux:label>
-                    <flux:input wire:model="location" placeholder="Street, area or postcode" />
-                    <flux:error name="location" />
+                    <flux:label>Pickup Address *</flux:label>
+                    <flux:input wire:model="fromAddress" placeholder="Street, area or postcode" />
+                    <flux:error name="fromAddress" />
                 </flux:field>
-                <flux:field>
-                    <flux:label>Motorcycle (Make/Model/Reg)</flux:label>
-                    <flux:input wire:model="bikeDetails" placeholder="e.g. Honda PCX 125 – AB12 CDE" />
-                </flux:field>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <flux:field>
+                        <flux:label>Destination Branch *</flux:label>
+                        <flux:select wire:model.live="branchId" variant="listbox" searchable placeholder="Choose branch">
+                            @foreach($branches as $branch)
+                                <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Destination Address *</flux:label>
+                        <flux:input wire:model="toAddress" placeholder="Branch address" />
+                        <flux:error name="toAddress" />
+                    </flux:field>
+                </div>
                 <flux:field>
                     <flux:label>Describe the Problem</flux:label>
-                    <flux:textarea wire:model="problem" rows="3" />
+                    <flux:textarea wire:model="message" rows="3" />
                 </flux:field>
+                <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
+                    <input type="checkbox" wire:model="terms" class="mt-1">
+                    <span>I agree to the recovery terms and confirm I am authorised for this motorcycle.</span>
+                </label>
+                <flux:error name="terms" />
                 <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
                     Submit Recovery Request
                 </flux:button>

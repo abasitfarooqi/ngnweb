@@ -26,9 +26,14 @@
             <div class="lg:col-span-2 space-y-4">
                 @foreach($items as $item)
                     <div class="flex gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4"
-                         wire:key="item-{{ $item['product_id'] }}">
+                         wire:key="item-{{ $item['row_id'] }}">
                         {{-- Image --}}
-                        <a href="{{ route('shop.product', $item['slug']) }}" class="flex-shrink-0">
+                        @php
+                            $itemUrl = $item['item_type'] === 'sparepart'
+                                ? ($item['sparepart_url'] ?: route('spareparts.index'))
+                                : route('shop.product', $item['slug']);
+                        @endphp
+                        <a href="{{ $itemUrl }}" class="flex-shrink-0">
                             @if($item['image_url'])
                                 <img src="{{ $item['image_url'] }}" alt="{{ $item['product_name'] }}"
                                      class="w-20 h-20 object-contain bg-gray-50 dark:bg-gray-700 p-1">
@@ -41,7 +46,7 @@
 
                         {{-- Info --}}
                         <div class="flex-1 min-w-0">
-                            <a href="{{ route('shop.product', $item['slug']) }}"
+                            <a href="{{ $itemUrl }}"
                                class="text-sm font-semibold text-gray-900 dark:text-white hover:text-brand-red line-clamp-2">
                                 {{ $item['product_name'] }}
                             </a>
@@ -53,10 +58,10 @@
                             <div class="flex items-center justify-between mt-3 flex-wrap gap-2">
                                 {{-- Qty control --}}
                                 <div class="flex items-center border border-gray-300 dark:border-gray-600">
-                                    <button wire:click="updateQuantity({{ $item['product_id'] }}, {{ max(1, $item['quantity'] - 1) }})"
+                                    <button wire:click="updateQuantity('{{ $item['row_id'] }}', {{ max(1, $item['quantity'] - 1) }})"
                                             class="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-base transition">−</button>
                                     <span class="w-8 text-center text-sm font-medium">{{ $item['quantity'] }}</span>
-                                    <button wire:click="updateQuantity({{ $item['product_id'] }}, {{ min(100, $item['quantity'] + 1) }})"
+                                    <button wire:click="updateQuantity('{{ $item['row_id'] }}', {{ min(100, $item['quantity'] + 1) }})"
                                             class="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-base transition">+</button>
                                 </div>
 
@@ -64,7 +69,7 @@
                                     <span class="font-bold text-gray-900 dark:text-white">
                                         £{{ number_format($item['line_total'], 2) }}
                                     </span>
-                                    <button wire:click="remove({{ $item['product_id'] }})"
+                                    <button wire:click="remove('{{ $item['row_id'] }}')"
                                             wire:confirm="Remove this item?"
                                             class="text-xs text-red-500 hover:text-red-700 hover:underline">
                                         Remove

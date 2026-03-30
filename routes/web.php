@@ -168,8 +168,6 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/shop', \App\Livewire\Site\Shop\Index::class)->name('shop');
     Route::get('/ebikes', \App\Livewire\Site\Ebikes\Index::class)->name('ebikes');
     Route::get('/accessories', \App\Livewire\Site\Shop\Accessories::class)->name('accessories');
-    Route::get('/spareparts', \App\Livewire\Site\Shop\SpareParts::class)->name('spareparts');
-    Route::get('/spare-parts', \App\Livewire\Site\Shop\SpareParts::class)->name('spare-parts');
     Route::get('/gps-tracker', \App\Livewire\Site\Shop\GpsTracker::class)->name('gps-tracker');
 
     // Finance (public)
@@ -197,6 +195,7 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/contact', \App\Livewire\Site\Contact::class)->name('contact');
     Route::get('/contact/call-back', \App\Livewire\Site\Contact\CallBack::class)->name('contact.callback');
     Route::get('/contact/trade-account', \App\Livewire\Site\Contact\TradeAccount::class)->name('contact.trade');
+    Route::get('/contact/service-booking', \App\Livewire\Site\Contact\ServiceBooking::class)->name('contact.service-booking');
     Route::get('/service-enquiry-form', \App\Livewire\Site\Contact\ServiceBooking::class)->name('service.booking');
     Route::get('/about', \App\Livewire\Site\About::class)->name('about');
     Route::get('/reviews', \App\Livewire\Site\Reviews::class)->name('reviews');
@@ -247,6 +246,16 @@ Route::get('/road-traffic-accidents', fn () => redirect('/accident-management', 
 Route::get('/about-us', fn () => redirect('/about', 301))->name('about.page');
 Route::get('/get-in-touch', fn () => redirect('/contact', 301))->name('contact.me');
 Route::get('/motorcycle-shop', fn () => redirect('/shop', 301))->name('shop-motorcycle');
+Route::prefix('spareparts')->name('spareparts.')->group(function () {
+    Route::get('/', \App\Livewire\Site\SpareParts\Index::class)->name('index');
+    Route::get('/manufactures', \App\Livewire\Site\SpareParts\Manufactures::class)->name('manufactures');
+    Route::get('/categories', \App\Livewire\Site\SpareParts\Categories::class)->name('categories');
+    Route::get('/part/{partNumber}', \App\Livewire\Site\SpareParts\PartShow::class)->name('part');
+    Route::get('/cart', \App\Livewire\Site\SpareParts\Basket::class)->name('cart');
+    Route::get('/checkout', \App\Livewire\Site\SpareParts\Checkout::class)->name('checkout')->middleware('customer');
+    Route::get('/{manufacturer}/{model}/{year}/{country}/{colour}/{assembly}', \App\Livewire\Site\SpareParts\AssemblyShow::class)->name('assembly');
+});
+Route::permanentRedirect('/spare-parts', '/spareparts');
 // NGN Club — Livewire routes (must be BEFORE the legacy NgnClubController group below)
 Route::get('/ngn-club', \App\Livewire\Site\Club\Index::class)->name('ngnclub.home');
 Route::get('/ngn-club/register', \App\Livewire\Site\Club\Register::class)->name('ngnclub.register');
@@ -341,6 +350,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/recovery', fn () => redirect()->route('account.recovery.request'))->name('recovery');
     Route::get('/recovery/request', \App\Livewire\Portal\Recovery\Request::class)->name('recovery.request');
     Route::get('/recovery/my-requests', \App\Livewire\Portal\Recovery\MyRequests::class)->name('recovery.my-requests');
+    Route::get('/recovery/my-requests/{requestId}', \App\Livewire\Portal\Recovery\Show::class)->name('recovery.my-requests.show');
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
     Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
     Route::get('/addresses', \App\Livewire\Portal\Addresses::class)->name('addresses');
@@ -428,12 +438,12 @@ Route::get('/vrm/check-vehicle', [NgnManagerController::class, 'getVehicleDetail
 Route::get('/c/wm-contract', [MotorcycleDeliveryController::class, 'signatureContractNew']);
 
 // Motorcycle Delivery / Recovery (operational)
-Route::get('/motorcycle-delivery', [MotorcycleDeliveryController::class, 'index'])->name('motorcycle.delivery');
+Route::get('/motorcycle-delivery', \App\Livewire\Site\Recovery\Delivery::class)->name('motorcycle.delivery');
 Route::match(['get', 'post'], '/motorcycle-delivery/store', [MotorcycleDeliveryController::class, 'storeOrder'])->name('motorcycle.delivery.store');
 Route::post('/motorcycle-delivery/complete', [MotorcycleDeliveryController::class, 'completeOrder'])->name('motorcycle.delivery.complete');
-Route::get('/motorcycle-delivery/success', [MotorcycleDeliveryController::class, 'success'])->name('motorcycle.delivery.success');
+Route::get('/motorcycle-delivery/success', \App\Livewire\Site\Recovery\Delivery::class)->name('motorcycle.delivery.success');
 Route::get('/motorcycle-delivery/refresh-csrf', [MotorcycleDeliveryController::class, 'refreshCsrfToken'])->name('motorcycle.delivery.refresh-csrf');
-Route::get('/motorbike-recovery/order', [MotorcycleDeliveryController::class, 'showContactOrderForm'])->name('motorbike.recovery.order');
+Route::get('/motorbike-recovery/order', \App\Livewire\Site\Recovery\Index::class)->name('motorbike.recovery.order');
 Route::post('/motorbike-recovery/order', [MotorcycleDeliveryController::class, 'submitOrder'])->name('submit.order');
 Route::get('/motorbike-recovery/completed', [MotorcycleDeliveryController::class, 'successRecovery'])->name('motorbike.recovery.completed');
 
@@ -795,6 +805,6 @@ Route::permanentRedirect('/finance/apply', '/finance');
 Route::permanentRedirect('/finance/apply/complete', '/finance');
 
 // Service-enquiry legacy alias (GET served by Livewire site.service.booking, POST still handled by controller)
-Route::get('/service-enquiry-form', fn () => redirect('/service-enquiry-form', 301))->name('book-service');
+Route::get('/book-service', fn () => redirect('/service-enquiry-form', 301))->name('book-service');
 Route::post('/service-enquiry-form', [\App\Http\Controllers\Welcome\ContactController::class, 'handleBookingForm'])->name('handle-booking');
 Route::post('/service-enquiry-form-vue', [\App\Http\Controllers\Welcome\ContactController::class, 'handleEnquiryFormVue'])->name('handle-enquiry-form-vue');

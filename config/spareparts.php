@@ -3,6 +3,18 @@
 return [
     /*
     |--------------------------------------------------------------------------
+    | Provider Mode
+    |--------------------------------------------------------------------------
+    |
+    | both_parallel: DB first, then external adapter, then config fallback.
+    | db:            DB first, then config fallback.
+    | external:      External first, then DB, then config fallback.
+    |
+    */
+    'provider_mode' => env('SPAREPARTS_PROVIDER_MODE', 'both_parallel'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Spare Parts Catalogue Seed
     |--------------------------------------------------------------------------
     |

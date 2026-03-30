@@ -166,8 +166,12 @@ class Checkout extends Component
                 }
             }
 
-            $productIds = array_column($items, 'product_id');
-            $products   = NgnProduct::whereIn('id', $productIds)->get()->keyBy('id');
+            $productIds = collect($items)
+                ->filter(fn ($item) => ($item['item_type'] ?? 'catalogue') === 'catalogue' && ! empty($item['product_id']))
+                ->pluck('product_id')
+                ->values()
+                ->all();
+            $products = NgnProduct::whereIn('id', $productIds)->get()->keyBy('id');
 
             $totalAmount  = array_sum(array_column($items, 'line_total'));
             $shippingCost = (float) $shippingMethod->shipping_amount;
@@ -198,18 +202,24 @@ class Checkout extends Component
             ]);
 
             foreach ($items as $item) {
-                $product = $products->get($item['product_id']);
+                $isSparePart = ($item['item_type'] ?? 'catalogue') === 'sparepart';
+                $product = $isSparePart ? null : $products->get($item['product_id']);
                 EcOrderItem::create([
                     'order_id'     => $order->id,
-                    'product_id'   => $item['product_id'],
-                    'product_name' => $product?->name ?? $item['product_name'],
-                    'sku'          => $product?->sku ?? $item['sku'],
+                    'product_id'   => $isSparePart ? null : ($item['product_id'] ?? null),
+                    'item_type'    => $item['item_type'] ?? 'catalogue',
+                    'product_name' => $product?->name ?? $item['product_name'] ?? ($item['part_number'] ?? 'Spare Part'),
+                    'sku'          => $product?->sku ?? ($item['sku'] ?? ($item['part_number'] ?? '')),
+                    'part_number'  => $item['part_number'] ?? null,
+                    'sp_part_id'   => $item['sp_part_id'] ?? null,
+                    'sp_assembly_id' => $item['sp_assembly_id'] ?? null,
                     'quantity'     => $item['quantity'],
                     'unit_price'   => $item['unit_price'],
                     'total_price'  => $item['line_total'],
                     'tax'          => 0,
                     'discount'     => 0,
                     'line_total'   => $item['line_total'],
+                    'source_meta'  => $item['source_meta'] ?? null,
                 ]);
             }
 
@@ -250,13 +260,19 @@ class Checkout extends Component
             : null;
         $shippingCost = $shippingMethod ? (float) $shippingMethod->shipping_amount : 0.0;
         $grandTotal   = $subtotal + $shippingCost;
+        $isSparePartsCheckout = request()->is('spareparts/*');
+        $continueShoppingRoute = $isSparePartsCheckout ? 'spareparts.index' : 'shop.home';
+        $basketRoute = $isSparePartsCheckout ? 'spareparts.cart' : 'shop.basket';
 
         return view('livewire.shop.checkout', compact(
             'addresses', 'shippingMethods', 'paymentMethods',
-            'items', 'subtotal', 'shippingCost', 'grandTotal', 'shippingMethod'
+            'items', 'subtotal', 'shippingCost', 'grandTotal', 'shippingMethod',
+            'isSparePartsCheckout', 'continueShoppingRoute', 'basketRoute'
         ))->layout('components.layouts.public', [
-            'title'       => 'Checkout | NGN Shop',
-            'description' => 'Complete your order at NGN Motors.',
+            'title'       => $isSparePartsCheckout ? 'Spareparts Checkout | NGN Motors' : 'Checkout | NGN Shop',
+            'description' => $isSparePartsCheckout
+                ? 'Complete your spareparts order at NGN Motors.'
+                : 'Complete your order at NGN Motors.',
         ]);
     }
 }

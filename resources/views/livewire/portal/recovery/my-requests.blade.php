@@ -22,17 +22,10 @@
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-3">
                                 <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    {{ $request->urgency === 'urgent' ? 'Urgent' : 'Planned' }} Recovery
+                                    Recovery Request #{{ $request->id }}
                                 </h3>
-                                <flux:badge color="{{ match($request->status) {
-                                    'requested' => 'yellow',
-                                    'confirmed' => 'blue',
-                                    'dispatched' => 'purple',
-                                    'collected', 'delivered' => 'green',
-                                    'completed' => 'zinc',
-                                    default => 'zinc'
-                                } }}">
-                                    {{ ucfirst($request->status) }}
+                                <flux:badge color="{{ $request->is_dealt ? 'green' : 'yellow' }}">
+                                    {{ $request->is_dealt ? 'Dealt' : 'Pending' }}
                                 </flux:badge>
                             </div>
 
@@ -40,33 +33,29 @@
                                 <div>
                                     <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Pickup</p>
                                     <p class="font-medium text-gray-900 dark:text-white">{{ $request->pickup_postcode }}</p>
-                                    <p class="text-gray-500">{{ $request->pickup_address }}</p>
+                                    <p class="text-gray-500">{{ $request->pickup_address ?: '-' }}</p>
                                 </div>
-                                @if($request->reg_no)
+                                @if($request->vrm)
                                     <div>
                                         <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Bike</p>
-                                        <p class="font-medium text-gray-900 dark:text-white">{{ $request->reg_no }}</p>
-                                        @if($request->make || $request->model)
-                                            <p class="text-gray-500">{{ $request->make }} {{ $request->model }}</p>
-                                        @endif
+                                        <p class="font-medium text-gray-900 dark:text-white">{{ $request->vrm }}</p>
                                     </div>
                                 @endif
                                 <div>
-                                    <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Issue</p>
-                                    <p class="font-medium text-gray-900 dark:text-white">{{ str_replace('_', ' ', ucfirst($request->issue_type ?? 'Not specified')) }}</p>
-                                    @if($request->issue_description)
-                                        <p class="text-gray-500">{{ $request->issue_description }}</p>
-                                    @endif
+                                    <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Dropoff</p>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ $request->dropoff_postcode ?: '-' }}</p>
+                                    <p class="text-gray-500">{{ $request->dropoff_address ?: '-' }}</p>
                                 </div>
                                 <div>
-                                    <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Destination</p>
-                                    <p class="font-medium text-gray-900 dark:text-white">{{ ucfirst($request->destination_type) }}</p>
-                                    @if($request->branch)
-                                        <p class="text-gray-500">{{ $request->branch->name }}</p>
-                                    @elseif($request->destination_address)
-                                        <p class="text-gray-500">{{ $request->destination_address }}</p>
-                                    @endif
+                                    <p class="text-gray-500 text-xs uppercase tracking-wide mb-1">Distance / Cost</p>
+                                    <p class="font-medium text-gray-900 dark:text-white">{{ number_format((float) $request->distance, 2) }} miles</p>
+                                    <p class="text-gray-500">GBP {{ number_format((float) $request->total_cost, 2) }}</p>
                                 </div>
+                            </div>
+                            <div class="mt-4">
+                                <flux:button href="{{ route('account.recovery.my-requests.show', ['requestId' => $request->id]) }}" variant="outline">
+                                    Open Request
+                                </flux:button>
                             </div>
                         </div>
                         <p class="text-xs text-gray-500 flex-shrink-0">{{ $request->created_at->format('d M Y H:i') }}</p>

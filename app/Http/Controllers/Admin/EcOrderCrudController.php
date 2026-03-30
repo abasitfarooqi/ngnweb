@@ -56,6 +56,28 @@ class EcOrderCrudController extends BaseCrudController
             ->decimals(2)
             ->prefix('£');
 
+        CRUD::addColumn([
+            'name' => 'line_type_mix',
+            'label' => 'LINE TYPES',
+            'type' => 'closure',
+            'function' => function ($entry) {
+                $types = $entry->orderItems()
+                    ->select('item_type')
+                    ->distinct()
+                    ->pluck('item_type')
+                    ->filter()
+                    ->map(fn ($type) => strtoupper((string) $type))
+                    ->values()
+                    ->all();
+
+                if (empty($types)) {
+                    return 'CATALOGUE';
+                }
+
+                return implode(', ', $types);
+            },
+        ]);
+
         CRUD::column('shippingMethod')->type('relationship')
             ->label('SHIPPING METHOD')
             ->attribute('name');
@@ -98,6 +120,44 @@ class EcOrderCrudController extends BaseCrudController
             'Delivered' => 'Delivered',
             'Pending' => 'Pending',
         ]);
+
+        CRUD::addFilter([
+            'name' => 'line_type',
+            'type' => 'dropdown',
+            'label' => 'Line Type',
+        ], [
+            'catalogue' => 'Catalogue only',
+            'sparepart' => 'Spareparts only',
+            'mixed' => 'Mixed (catalogue + spareparts)',
+        ], function ($value) {
+            if ($value === 'catalogue') {
+                $this->crud->addClause('whereDoesntHave', 'orderItems', function ($query) {
+                    $query->where('item_type', 'sparepart');
+                });
+
+                return;
+            }
+
+            if ($value === 'sparepart') {
+                $this->crud->addClause('whereHas', 'orderItems', function ($query) {
+                    $query->where('item_type', 'sparepart');
+                });
+                $this->crud->addClause('whereDoesntHave', 'orderItems', function ($query) {
+                    $query->where('item_type', 'catalogue');
+                });
+
+                return;
+            }
+
+            if ($value === 'mixed') {
+                $this->crud->addClause('whereHas', 'orderItems', function ($query) {
+                    $query->where('item_type', 'sparepart');
+                });
+                $this->crud->addClause('whereHas', 'orderItems', function ($query) {
+                    $query->where('item_type', 'catalogue');
+                });
+            }
+        });
 
         // CRUD::filter('customer.customer.full_name')->type('text')->label('Customer Name');
 

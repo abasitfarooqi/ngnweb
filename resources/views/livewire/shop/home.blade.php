@@ -172,7 +172,7 @@
     <div class="flex gap-8">
 
         {{-- Desktop sidebar --}}
-        <aside class="hidden lg:block w-52 flex-shrink-0" x-data="{ openCat: true, openBrand: true }">
+        <aside class="hidden lg:block w-12 flex-shrink-0" x-data="{ openCat: true, openBrand: true }">
 
             {{-- Search --}}
             <div class="mb-5">
