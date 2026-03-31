@@ -22,7 +22,7 @@ class ActiveRentingWeaklyMailer extends Mailable
 
     public function build(): self
     {
-        return $this->view('emails.cron-jobs.active_renting_weakly_mailer')
+        return $this->view('olders.emails.cron-jobs.active_renting_weakly_mailer')
             ->subject('Active Renting Weekly Report')
             ->with([
                 'active_bookings' => $this->data['active_bookings'],

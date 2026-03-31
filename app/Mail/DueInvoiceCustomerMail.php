@@ -26,7 +26,7 @@ class DueInvoiceCustomerMail extends Mailable
     public function build()
     {
         return $this->subject('Motorbike Rental Payment Reminder')
-            ->view('emails.due_invoice_customer')
+            ->view('olders.emails.due_invoice_customer')
             ->with(['emailData' => $this->emailData]);
     }
 }

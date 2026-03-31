@@ -28,7 +28,7 @@ class PurchaseInvoiceReview extends Mailable
     public function build()
     {
         return $this->subject('Purchase Invoice Review')
-            ->view('emails.purchase-invoice-sign')
+            ->view('olders.emails.purchase-invoice-sign')
             ->with('mailData', $this->mailData);
     }
 }

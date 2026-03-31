@@ -13,7 +13,7 @@ class AuthenticatedSessionController extends Controller
 {
     public function create()
     {
-        return redirect('/accountinformation/login');
+        return redirect('/login');
     }
 
     public function store(LoginRequest $request): RedirectResponse
@@ -26,7 +26,7 @@ class AuthenticatedSessionController extends Controller
         if ($request->user()->is_admin === 1) {
             return redirect('/ngn-admin'); // Redirect to admin dashboard
         } else {
-            return redirect('/accountinformation/login'); // Redirect to account information login page
+            return redirect('/login'); // Redirect to account information login page
         }
     }
 

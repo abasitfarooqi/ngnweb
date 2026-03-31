@@ -38,14 +38,14 @@ class CustomerAppointmentNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.servicesandbooking.customer_appointment',
+            view: 'olders.emails.servicesandbooking.customer_appointment',
             with: $this->data
         );
     }
 
     public function build()
     {
-        return $this->view('emails.servicesandbooking.customer_appointment')
+        return $this->view('olders.emails.servicesandbooking.customer_appointment')
             ->with([
                 'appointment_date' => $this->data['appointment_date'],
                 'customer_name' => $this->data['customer_name'],

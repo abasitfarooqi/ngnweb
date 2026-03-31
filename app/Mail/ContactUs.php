@@ -51,7 +51,7 @@ class ContactUs extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.ContactUsView',
+            view: 'olders.emails.ContactUsView',
         );
     }
 

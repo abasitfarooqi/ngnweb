@@ -44,7 +44,7 @@ class PayPalWebhookAnomalyMailer extends Mailable
 
     public function build()
     {
-        return $this->view('emails.ecommerce.paypal-webhook-anomaly')
+        return $this->view('olders.emails.ecommerce.paypal-webhook-anomaly')
             ->subject("PayPal Webhook Anomaly: {$this->anomalyType}")
             ->with([
                 'anomalyType' => $this->anomalyType,

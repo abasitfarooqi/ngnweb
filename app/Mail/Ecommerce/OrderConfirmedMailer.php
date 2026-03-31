@@ -34,7 +34,7 @@ class OrderConfirmedMailer extends Mailable
 
     public function build()
     {
-        return $this->view('emails.ecommerce.order-confirmed')
+        return $this->view('olders.emails.ecommerce.order-confirmed')
             ->subject('ORDER #'.$this->order->id.' CONFIRMED')
             ->with([
                 'order' => $this->order,

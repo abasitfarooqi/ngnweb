@@ -38,15 +38,14 @@ class BillingChangeNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.judopay.billing_change_notification',
+            view: 'olders.emails.judopay.billing_change_notification',
             with: $this->data
         );
     }
 
     public function build()
     {
-        return $this->view('emails.judopay.billing_change_notification')
+        return $this->view('olders.emails.judopay.billing_change_notification')
             ->with($this->data);
     }
 }
-

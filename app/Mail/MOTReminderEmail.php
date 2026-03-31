@@ -38,7 +38,7 @@ class MOTReminderEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.mot_notifier_30_and_10_days',
+            view: 'olders.emails.mot_notifier_30_and_10_days',
         );
     }
 
@@ -54,7 +54,7 @@ class MOTReminderEmail extends Mailable
 
     public function build()
     {
-        return $this->view('emails.mot_notifier_30_and_10_days')
+        return $this->view('olders.emails.mot_notifier_30_and_10_days')
             ->subject('MOT Reminder Notification')
             ->with([
                 'customer_name' => $this->emailData['customer_name'],

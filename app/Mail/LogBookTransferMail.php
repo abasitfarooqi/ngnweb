@@ -29,7 +29,7 @@ class LogBookTransferMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.logbook-transfer',
+            view: 'olders.emails.logbook-transfer',
             with: $this->mailData
         );
     }

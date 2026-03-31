@@ -30,24 +30,24 @@ class CustomerVerificationController extends Controller
         $customer = CustomerAuth::find($request->route('id'));
 
         if (! $customer) {
-            return redirect('/account')->with('error', 'Invalid user');
+            return redirect()->route('login')->with('error', 'Invalid user');
         }
 
         if (! URL::hasValidSignature($request)) {
-            return redirect('/account')->with('error', 'Invalid verification link or link has expired');
+            return redirect()->route('account.security')->with('error', 'Invalid verification link or link has expired');
         }
 
         if (! hash_equals(
             (string) $request->route('hash'),
             sha1($customer->getEmailForVerification())
         )) {
-            return redirect('/account')->with('error', 'Invalid verification link');
+            return redirect()->route('account.security')->with('error', 'Invalid verification link');
         }
 
         if ($customer->hasVerifiedEmail()) {
             Auth::guard('customer')->login($customer);
 
-            return redirect('/account')->with('success', 'Email already verified');
+            return redirect()->route('account.security', ['verified' => 1])->with('success', 'Your email is already verified.');
         }
 
         if ($customer->markEmailAsVerified()) {
@@ -72,6 +72,6 @@ class CustomerVerificationController extends Controller
             }
         }
 
-        return redirect('/account')->with('success', 'Email has been verified successfully');
+        return redirect()->route('account.security', ['verified' => 1])->with('success', 'Your email has been verified successfully.');
     }
 }

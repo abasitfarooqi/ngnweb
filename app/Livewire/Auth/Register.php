@@ -2,9 +2,10 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\ClubMember;
 use App\Models\Customer;
-use App\Models\CustomerAuth;
 use App\Models\CustomerAddress;
+use App\Models\CustomerAuth;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -13,18 +14,39 @@ use Livewire\Component;
 
 class Register extends Component
 {
-    public int $currentStep = 1;
-    public int $totalSteps  = 3;
+    private function normaliseEmail(string $email): string
+    {
+        return strtolower(trim($email));
+    }
 
-    public string $email                = '';
-    public string $phone                = '';
-    public string $password             = '';
+    private function normalisePhone(string $phone): string
+    {
+        $normalised = preg_replace('/\s+/', '', trim($phone));
+
+        return (string) preg_replace('/^\+44/', '0', $normalised);
+    }
+
+    public int $currentStep = 1;
+
+    public int $totalSteps = 3;
+
+    public string $email = '';
+
+    public string $phone = '';
+
+    public string $password = '';
+
     public string $password_confirmation = '';
-    public bool   $terms               = false;
-    public string $first_name          = '';
-    public string $last_name           = '';
-    public string $postcode            = '';
-    public string $city                = '';
+
+    public bool $terms = false;
+
+    public string $first_name = '';
+
+    public string $last_name = '';
+
+    public string $postcode = '';
+
+    public string $city = '';
 
     public function mount(): void
     {
@@ -41,17 +63,19 @@ class Register extends Component
 
     public function previousStep(): void
     {
-        if ($this->currentStep > 1) $this->currentStep--;
+        if ($this->currentStep > 1) {
+            $this->currentStep--;
+        }
     }
 
     protected function validateCurrentStep(): void
     {
         if ($this->currentStep === 1) {
             $this->validate([
-                'email'    => 'required|email|unique:customer_auths,email',
-                'phone'    => 'required|string|min:10|max:20',
+                'email' => 'required|email|unique:customer_auths,email',
+                'phone' => 'required|string|min:10|max:20',
                 'password' => 'required|min:8|confirmed',
-                'terms'    => 'accepted',
+                'terms' => 'accepted',
             ]);
         }
 
@@ -65,57 +89,94 @@ class Register extends Component
     public function completeRegistration(): void
     {
         $this->validate([
-            'email'      => 'required|email|unique:customer_auths,email',
-            'phone'      => 'required|string|min:10|max:20',
-            'password'   => 'required|min:8|confirmed',
-            'terms'      => 'accepted',
+            'email' => 'required|email|unique:customer_auths,email',
+            'phone' => 'required|string|min:10|max:20',
+            'password' => 'required|min:8|confirmed',
+            'terms' => 'accepted',
             'first_name' => 'required|string|max:255',
-            'last_name'  => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
         ]);
 
         $customerAuth = null;
+        $email = $this->normaliseEmail($this->email);
+        $phone = $this->normalisePhone($this->phone);
 
-        DB::transaction(function () use (&$customerAuth) {
-            $customer = Customer::create([
-                'first_name'        => $this->first_name,
-                'last_name'         => $this->last_name,
-                'email'             => $this->email,
-                'phone'             => $this->phone,
-                'dob'               => '2000-01-01',
-                'address'           => 'Not Provided',
-                'postcode'          => $this->postcode ?: 'Not Provided',
-                'emergency_contact' => 'Not Provided',
-                'whatsapp'          => $this->phone,
-                'city'              => $this->city ?: 'Not Provided',
-                'country'           => 'Not Provided',
-                'nationality'       => 'Not Provided',
-                'license_number'    => 'Not Provided',
-                'license_expiry_date'       => now()->addYears(1),
-                'license_issuance_authority' => 'Not Provided',
-                'license_issuance_date'      => now()->subYears(1),
-                'is_register'       => true,
-            ]);
+        DB::transaction(function () use (&$customerAuth, $email, $phone) {
+            $byEmail = Customer::whereRaw('LOWER(TRIM(email)) = ?', [$email])->first();
+            $byPhone = Customer::whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])->first();
+
+            if ($byEmail && $byPhone && (int) $byEmail->id !== (int) $byPhone->id) {
+                throw new \RuntimeException('Email and phone must match the same customer record.');
+            }
+
+            $customer = $byEmail ?: $byPhone;
+            if ($customer) {
+                if ($customer->is_register) {
+                    throw new \RuntimeException('This customer is already registered. Please login.');
+                }
+                $customer->first_name = $this->first_name;
+                $customer->last_name = $this->last_name;
+                $customer->email = $email;
+                $customer->phone = $phone;
+                $customer->whatsapp = $phone;
+                $customer->postcode = $this->postcode ?: $customer->postcode;
+                $customer->city = $this->city ?: $customer->city;
+                $customer->is_register = true;
+                $customer->save();
+            } else {
+                $customer = Customer::create([
+                    'first_name' => $this->first_name,
+                    'last_name' => $this->last_name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'dob' => '2000-01-01',
+                    'address' => 'Not Provided',
+                    'postcode' => $this->postcode ?: 'Not Provided',
+                    'emergency_contact' => 'Not Provided',
+                    'whatsapp' => $phone,
+                    'city' => $this->city ?: 'Not Provided',
+                    'country' => 'Not Provided',
+                    'nationality' => 'Not Provided',
+                    'license_number' => 'Not Provided',
+                    'license_expiry_date' => now()->addYears(1),
+                    'license_issuance_authority' => 'Not Provided',
+                    'license_issuance_date' => now()->subYears(1),
+                    'is_register' => true,
+                    'is_club' => false,
+                ]);
+            }
 
             $customerAuth = CustomerAuth::create([
                 'customer_id' => $customer->id,
-                'email'       => $this->email,
-                'password'    => Hash::make($this->password),
+                'email' => $email,
+                'password' => Hash::make($this->password),
             ]);
 
             CustomerAddress::create([
-                'customer_id'        => $customer->id,
-                'first_name'         => $this->first_name,
-                'last_name'          => $this->last_name,
-                'company_name'       => '-',
-                'street_address'     => '-',
+                'customer_id' => $customer->id,
+                'first_name' => $this->first_name,
+                'last_name' => $this->last_name,
+                'company_name' => '-',
+                'street_address' => '-',
                 'street_address_plus' => '-',
-                'postcode'           => $this->postcode ?: '-',
-                'city'               => $this->city ?: '-',
-                'phone_number'       => $this->phone,
-                'is_default'         => true,
-                'type'               => 'shipping',
-                'country_id'         => 3,
+                'postcode' => $this->postcode ?: '-',
+                'city' => $this->city ?: '-',
+                'phone_number' => $phone,
+                'is_default' => true,
+                'type' => 'shipping',
+                'country_id' => 3,
             ]);
+
+            $clubMember = ClubMember::query()
+                ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+                ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])
+                ->first();
+            if ($clubMember) {
+                $clubMember->customer_id = $customer->id;
+                $clubMember->save();
+                $customer->is_club = true;
+                $customer->save();
+            }
         });
 
         event(new Registered($customerAuth));

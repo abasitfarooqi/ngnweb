@@ -19,7 +19,7 @@ class MotorbikeDeliveryOrderEnquiryInternal extends Mailable
 
     public function build()
     {
-        return $this->view('emails.motorbike_delivery_order_enquiry_internal')
+        return $this->view('olders.emails.motorbike_delivery_order_enquiry_internal')
             ->with('order', (object) $this->emailData);
     }
 }

@@ -19,6 +19,7 @@ class ClubMember extends Model
         'full_name',
         'email',
         'phone',
+        'customer_id',
         'is_active',
         'tc_agreed',
         'passkey',
@@ -40,6 +41,11 @@ class ClubMember extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
     public function purchases()
@@ -100,6 +106,7 @@ class ClubMember extends Model
                 ->sum(function ($purchase) {
                     $discount = (float) ($purchase->discount ?? 0);
                     $redeemed = (float) ($purchase->redeem_amount ?? 0);
+
                     return max($discount - $redeemed, 0);
                 }),
             2

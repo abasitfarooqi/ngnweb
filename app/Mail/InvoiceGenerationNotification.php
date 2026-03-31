@@ -20,7 +20,7 @@ class InvoiceGenerationNotification extends Mailable
     public function build()
     {
         return $this->subject('Automated Renting Invoice Generation')
-            ->view('emails.invoice-generation')
+            ->view('olders.emails.invoice-generation')
             ->with('data', $this->data);
     }
 }

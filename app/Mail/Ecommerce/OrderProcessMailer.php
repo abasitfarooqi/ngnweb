@@ -34,7 +34,7 @@ class OrderProcessMailer extends Mailable
 
     public function build()
     {
-        return $this->view('emails.ecommerce.order-process')
+        return $this->view('olders.emails.ecommerce.order-process')
             ->subject('Your Order #'.$this->order->id.' is Being Processed!')
             ->with([
                 'order' => $this->order,

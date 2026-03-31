@@ -40,7 +40,7 @@
                             <strong class="{{ $customerAuth ? 'text-success' : 'text-warning' }}">{{ $customerAuth ? 'Linked' : 'Missing' }}</strong>
                         </div>
                         <div class="small">
-                            Profile:
+                            Customer Record:
                             <strong class="{{ $customerProfile ? 'text-success' : 'text-warning' }}">{{ $customerProfile ? 'Ready' : 'Missing' }}</strong>
                         </div>
                         <div class="small">

@@ -29,7 +29,7 @@ class OtherChargesReceipt extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.othercharges-receipt',
+            view: 'olders.emails.othercharges-receipt',
             with: $this->mailData
         );
     }

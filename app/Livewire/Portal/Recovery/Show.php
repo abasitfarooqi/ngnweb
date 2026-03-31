@@ -10,6 +10,29 @@ class Show extends Component
 {
     public MotorbikeDeliveryOrderEnquiries $request;
 
+    private function normaliseEmail(?string $email): string
+    {
+        return mb_strtolower(trim((string) $email));
+    }
+
+    private function normaliseUkPhone(?string $phone): string
+    {
+        $digits = preg_replace('/\D+/', '', (string) $phone) ?? '';
+        if ($digits === '') {
+            return '';
+        }
+
+        if (str_starts_with($digits, '44')) {
+            $digits = '0'.substr($digits, 2);
+        }
+
+        if (! str_starts_with($digits, '0') && strlen($digits) >= 10) {
+            $digits = '0'.$digits;
+        }
+
+        return $digits;
+    }
+
     public function mount(int $requestId): void
     {
         $record = MotorbikeDeliveryOrderEnquiries::query()
@@ -17,13 +40,16 @@ class Show extends Component
             ->findOrFail($requestId);
 
         $customerAuth = auth('customer')->user();
-        $email = trim((string) ($customerAuth?->email ?? ''));
-        $phone = trim((string) ($customerAuth?->customer?->phone ?? ''));
-        $isOwner = ($email !== '' && strcasecmp((string) $record->email, $email) === 0)
-            || ($phone !== '' && trim((string) $record->phone) === $phone);
+        $email = $this->normaliseEmail($customerAuth?->email);
+        $phone = $this->normaliseUkPhone($customerAuth?->customer?->phone);
+        $recordEmail = $this->normaliseEmail((string) $record->email);
+        $recordPhone = $this->normaliseUkPhone((string) $record->phone);
+
+        // Strict access: email must match exactly + phone must match after UK normalisation.
+        $isOwner = $email !== '' && $phone !== '' && $recordEmail === $email && $recordPhone === $phone;
 
         if (! $isOwner) {
-            throw (new ModelNotFoundException())->setModel(MotorbikeDeliveryOrderEnquiries::class);
+            throw (new ModelNotFoundException)->setModel(MotorbikeDeliveryOrderEnquiries::class);
         }
 
         $this->request = $record;

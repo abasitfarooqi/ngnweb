@@ -15,8 +15,11 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
     use Queueable;
 
     protected $citSession;
+
     protected $refundOutcome;
+
     protected $originalOutcome;
+
     protected $refundedByUser;
 
     /**
@@ -50,7 +53,7 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $subscription = $this->citSession->subscription;
-        
+
         // Standardised customer resolution
         $customer = $subscription->subscribable?->customer ?? $subscription->customer;
         $serviceData = $subscription->subscribable;
@@ -58,7 +61,7 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
         // Get contract details
         $contractId = $serviceData->id ?? 'N/A';
         $vrm = 'N/A';
-        
+
         if ($subscription->subscribable_type === 'App\Models\RentingBooking') {
             $vrm = $serviceData->rentingBookingItems->first()->motorbike->reg_no ?? 'N/A';
         } elseif ($subscription->subscribable_type === 'App\Models\FinanceApplication') {
@@ -66,7 +69,7 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
         }
 
         // Customer details
-        $customerName = $customer ? trim(($customer->first_name ?? '') . ' ' . ($customer->last_name ?? '')) : 'Unknown Customer';
+        $customerName = $customer ? trim(($customer->first_name ?? '').' '.($customer->last_name ?? '')) : 'Unknown Customer';
         $customerEmail = $customer->email ?? 'N/A';
         $customerPhone = $customer->phone ?? 'N/A';
 
@@ -75,14 +78,14 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
         $originalAmount = $this->originalOutcome->amount;
         $refundReceiptId = $this->refundOutcome->judopay_receipt_id ?? 'N/A';
         $originalReceiptId = $this->originalOutcome->judopay_receipt_id ?? 'N/A';
-        
+
         // Get refunded by user info
         $refundedByName = 'System (Automatic)';
         $refundedByEmail = 'N/A';
         $refundedById = null;
-        
+
         if ($this->refundedByUser) {
-            $refundedByName = trim(($this->refundedByUser->first_name ?? '') . ' ' . ($this->refundedByUser->last_name ?? ''));
+            $refundedByName = trim(($this->refundedByUser->first_name ?? '').' '.($this->refundedByUser->last_name ?? ''));
             $refundedByEmail = $this->refundedByUser->email ?? 'N/A';
             $refundedById = $this->refundedByUser->id;
         } else {
@@ -92,7 +95,7 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
             if ($refundedById) {
                 $refundedByUser = User::find($refundedById);
                 if ($refundedByUser) {
-                    $refundedByName = trim(($refundedByUser->first_name ?? '') . ' ' . ($refundedByUser->last_name ?? ''));
+                    $refundedByName = trim(($refundedByUser->first_name ?? '').' '.($refundedByUser->last_name ?? ''));
                     $refundedByEmail = $refundedByUser->email ?? 'N/A';
                 }
             }
@@ -101,7 +104,7 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
         // CRITICAL DETAILS - Only for admin (Thiago), not shared with staff/customer
         $originalPayload = $this->originalOutcome->payload ?? [];
         $refundPayload = $this->refundOutcome->payload ?? [];
-        
+
         // Extract sensitive payment details from original outcome
         $cardLastFour = $this->originalOutcome->card_last_four ?? data_get($originalPayload, 'cardDetails.cardLastfour', 'N/A');
         $cardFunding = $this->originalOutcome->card_funding ?? data_get($originalPayload, 'cardDetails.cardFunding', 'N/A');
@@ -123,22 +126,22 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
         // Get recipient email to determine if critical details should be shown
         $recipientEmail = $notifiable->email ?? (is_string($notifiable) ? $notifiable : '');
         $isAdmin = $recipientEmail === 'thiago@neguinhomotors.co.uk';
-        
+
         // Determine subject based on recipient
-        $subject = $isAdmin 
-            ? '⚠️ CRITICAL: CIT Payment Refunded - ' . $customerName
+        $subject = $isAdmin
+            ? '⚠️ CRITICAL: CIT Payment Refunded - '.$customerName
             : 'Payment Refund Processed - Customer Service Notification';
 
         return (new MailMessage)
             ->subject($subject)
-            ->view('emails.judopay.cit-refund-internal', [
+            ->view('olders.emails.judopay.cit-refund-internal', [
                 'recipient_email' => $recipientEmail,
                 'is_admin' => $isAdmin,
                 'refund_amount' => $refundAmount,
                 'original_amount' => $originalAmount,
                 'refund_receipt_id' => $refundReceiptId,
                 'original_receipt_id' => $originalReceiptId,
-                'refunded_at' => $isAdmin 
+                'refunded_at' => $isAdmin
                     ? $this->refundOutcome->occurred_at->format('d/m/Y H:i:s')
                     : $this->refundOutcome->occurred_at->format('d F Y H:i'),
                 'refunded_by_name' => $refundedByName,

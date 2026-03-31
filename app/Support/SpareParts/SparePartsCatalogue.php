@@ -16,9 +16,9 @@ class SparePartsCatalogue
     {
         $mode = (string) config('spareparts.provider_mode', 'both_parallel');
         $this->providers = match ($mode) {
-            'db' => [new DbCatalogueProvider(), new ConfigCatalogueProvider()],
-            'external' => [new ExternalCatalogueProvider(), new DbCatalogueProvider(), new ConfigCatalogueProvider()],
-            default => [new DbCatalogueProvider(), new ExternalCatalogueProvider(), new ConfigCatalogueProvider()],
+            'db' => [new DbCatalogueProvider, new ConfigCatalogueProvider],
+            'external' => [new ExternalCatalogueProvider, new DbCatalogueProvider, new ConfigCatalogueProvider],
+            default => [new DbCatalogueProvider, new ExternalCatalogueProvider, new ConfigCatalogueProvider],
         };
     }
 

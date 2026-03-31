@@ -29,7 +29,7 @@ class NgnClubBatchUserCredentialsNotification extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.club_batch_user_credentials')
+        return $this->view('olders.emails.club_batch_user_credentials')
             ->subject('Your NGN Club Login Credentials')
             ->with(['user' => $this->user]);
     }

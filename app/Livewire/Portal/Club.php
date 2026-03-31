@@ -2,8 +2,9 @@
 
 namespace App\Livewire\Portal;
 
+use App\Models\ClubMember;
+use App\Services\Club\ClubMemberDashboardData;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
 class Club extends Component
@@ -12,16 +13,20 @@ class Club extends Component
     {
         $customerAuth = Auth::guard('customer')->user();
         $clubMember = null;
+        $dash = null;
 
-        try {
-            $clubMember = DB::table('club_members')
-                ->where('email', $customerAuth->email)
-                ->first();
-        } catch (\Exception $e) {
-            // table may not be accessible
+        if ($customerAuth) {
+            $clubMember = $customerAuth->customer?->clubMember;
+            if (! $clubMember && $customerAuth->email) {
+                $clubMember = ClubMember::where('email', $customerAuth->email)->first();
+            }
+            if ($clubMember) {
+                session(['club_member_id' => $clubMember->id]);
+                $dash = ClubMemberDashboardData::forMember($clubMember);
+            }
         }
 
-        return view('livewire.portal.club', compact('clubMember'))
+        return view('livewire.portal.club', compact('clubMember', 'dash'))
             ->layout('components.layouts.portal', ['title' => 'NGN Club | My Account']);
     }
 }

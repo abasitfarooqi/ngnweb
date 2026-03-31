@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
-use App\Models\RentingBooking;
 use App\Models\BookingInvoice;
-use App\Models\JudopaySubscription;
-use App\Models\JudopayOnboarding;
 use App\Models\JudopayCitPaymentSession;
-use App\Helpers\JudopayCit;
-use App\Helpers\JudopayPayload;
+use App\Models\JudopayOnboarding;
+use App\Models\JudopaySubscription;
+use App\Models\RentingBooking;
 use App\Services\JudopayService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,10 +22,14 @@ class RentalPaymentController extends Controller
     {
         try {
             $booking = RentingBooking::with(['customer', 'rentingBookingItems.motorbike'])->findOrFail($bookingId);
-            $profile = Auth::guard('customer')->user()->profile;
+            $customer = Auth::guard('customer')->user()->customer;
+
+            if (! $customer) {
+                return redirect()->route('account.rentals')->with('error', 'Customer profile is missing. Please contact support.');
+            }
 
             // Verify this booking belongs to logged-in customer
-            if ($booking->customer_id !== $profile->id) {
+            if ($booking->customer_id !== $customer->id) {
                 return redirect()->route('account.rentals')->with('error', 'Unauthorized access to booking.');
             }
 
@@ -36,12 +38,12 @@ class RentalPaymentController extends Controller
                 ->where('is_paid', false)
                 ->first();
 
-            if (!$invoice) {
+            if (! $invoice) {
                 return redirect()->route('account.rentals')->with('error', 'No pending invoice found.');
             }
 
             // Generate unique consumer reference
-            $consumerReference = 'CUST-' . $profile->id . '-' . time();
+            $consumerReference = 'CUST-'.$customer->id.'-'.time();
 
             // Create or get Judopay subscription
             $subscription = JudopaySubscription::firstOrCreate(
@@ -56,7 +58,7 @@ class RentalPaymentController extends Controller
 
             // Create Judopay onboarding if not exists
             JudopayOnboarding::firstOrCreate(
-                ['onboardable_id' => $profile->id, 'onboardable_type' => get_class($profile)],
+                ['onboardable_id' => $customer->id, 'onboardable_type' => get_class($customer)],
                 [
                     'consumer_reference' => $consumerReference,
                     'onboarding_status' => 'pending',
@@ -76,7 +78,7 @@ class RentalPaymentController extends Controller
                 'metadata' => [
                     'booking_id' => $booking->id,
                     'invoice_id' => $invoice->id,
-                    'customer_id' => $profile->id,
+                    'customer_id' => $customer->id,
                     'type' => 'rental_booking_payment',
                 ],
             ];
@@ -86,7 +88,7 @@ class RentalPaymentController extends Controller
                 ->timeout(config('judopay.timeout', 30))
                 ->post(JudopayService::getApiUrl(config('judopay.endpoints.webpayments')), $payload);
 
-            if (!$response->successful()) {
+            if (! $response->successful()) {
                 Log::error('Judopay CIT creation failed', [
                     'booking_id' => $bookingId,
                     'response' => $response->json(),
@@ -126,7 +128,7 @@ class RentalPaymentController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->back()->with('error', 'Payment initialization failed: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Payment initialization failed: '.$e->getMessage());
         }
     }
 
@@ -147,8 +149,9 @@ class RentalPaymentController extends Controller
                 ->orWhere('judopay_reference', $reference)
                 ->first();
 
-            if (!$citSession) {
+            if (! $citSession) {
                 Log::warning('CIT session not found for success callback', ['reference' => $reference]);
+
                 return redirect()->route('account.rentals')->with('warning', 'Payment received but session not found. Please contact support.');
             }
 

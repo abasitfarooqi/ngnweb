@@ -8,7 +8,6 @@ use App\Models\BookingIssuanceItem;
 use App\Models\CustomerAddress;
 use App\Models\CustomerAuth;
 use App\Models\CustomerDocument;
-use App\Models\CustomerProfile;
 use App\Models\DocumentType;
 use App\Models\PaymentMethod;
 use App\Models\RentingBooking;
@@ -160,34 +159,6 @@ class RentalOperationsController extends Controller
             ->where('customer_id', $customer->id)
             ->first();
 
-        $customerProfile = null;
-
-        if ($customerAuth) {
-            $customerProfile = CustomerProfile::query()->firstOrCreate(
-                ['customer_auth_id' => $customerAuth->id],
-                [
-                    'first_name' => $customer->first_name,
-                    'last_name' => $customer->last_name,
-                    'phone' => $customer->phone,
-                    'whatsapp' => $customer->whatsapp,
-                    'dob' => $customer->dob,
-                    'nationality' => $customer->nationality,
-                    'license_number' => $customer->license_number,
-                    'license_expiry_date' => $customer->license_expiry_date,
-                    'license_issuance_authority' => $customer->license_issuance_authority,
-                    'license_issuance_date' => $customer->license_issuance_date,
-                    'address' => $customer->address,
-                    'postcode' => $customer->postcode,
-                    'city' => $customer->city,
-                    'country' => $customer->country,
-                    'reputation_note' => $customer->reputation_note,
-                    'rating' => $customer->rating ?? 0,
-                    'is_register' => (bool) $customer->is_register,
-                    'verification_status' => 'draft',
-                ]
-            );
-        }
-
         $addresses = CustomerAddress::query()
             ->where('customer_id', $customer->id)
             ->orderByDesc('is_default')
@@ -217,7 +188,7 @@ class RentalOperationsController extends Controller
 
         return [
             'auth' => $customerAuth,
-            'profile' => $customerProfile,
+            'profile' => $customer,
             'addresses' => $addresses,
         ];
     }

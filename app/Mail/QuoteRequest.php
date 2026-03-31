@@ -30,7 +30,7 @@ class QuoteRequest extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.quote-request',
+            view: 'olders.emails.quote-request',
             with: $this->mailData
         );
     }

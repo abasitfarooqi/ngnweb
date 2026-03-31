@@ -14,6 +14,10 @@ return [
 
     'home' => env('FORTIFY_HOME', '/account'),
 
+    'redirects' => [
+        'email-verification' => env('FORTIFY_EMAIL_VERIFICATION_REDIRECT', '/account/security'),
+    ],
+
     'prefix' => '',
     'domain' => null,
 

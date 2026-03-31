@@ -29,7 +29,7 @@ class FinanceContractReview extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.rental-agreement-sign',
+            view: 'olders.emails.rental-agreement-sign',
             with: $this->mailData
         );
     }

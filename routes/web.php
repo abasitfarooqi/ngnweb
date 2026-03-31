@@ -80,6 +80,15 @@ Route::middleware('web')->group(function () {
 
         return back()->with('status', 'verification-link-sent');
     })->middleware(['auth:customer', 'throttle:6,1'])->name('customer.verification.send');
+
+    Route::post('/customer/logout', function (\Illuminate\Http\Request $request) {
+        auth('customer')->logout();
+        // Do not invalidate whole session, otherwise admin web session is also dropped.
+        $request->session()->forget('password_hash_customer');
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
+    })->middleware('auth:customer')->name('customer.logout');
 });
 
 // ============================================================
@@ -161,8 +170,8 @@ Route::prefix('/')->name('site.')->group(function () {
     // Bikes
     Route::get('/bikes', \App\Livewire\Site\Bikes\Index::class)->name('bikes');
     Route::get('/bikes/{type}/{id}', \App\Livewire\Site\Bikes\Show::class)->name('bikes.show');
-    Route::get('/bikes/used', fn () => redirect('/bikes'))->name('bikes.used');
-    Route::get('/bikes/new', fn () => redirect('/bikes'))->name('bikes.new');
+    Route::get('/bikes/used', \App\Livewire\Site\Bikes\UsedIndex::class)->name('bikes.used');
+    Route::get('/bikes/new', \App\Livewire\Site\Bikes\SalesIndex::class)->name('bikes.new');
 
     // Shop & E-Bikes
     Route::get('/shop', \App\Livewire\Site\Shop\Index::class)->name('shop');
@@ -224,9 +233,9 @@ Route::permanentRedirect('/all-services', '/repairs');
 Route::permanentRedirect('/services', '/repairs');
 Route::permanentRedirect('/motorbike-recovery', '/recovery');
 Route::permanentRedirect('/motorcycle-rental-hire', '/rentals');
-Route::permanentRedirect('/motorcycle-sales', '/bikes');
+// Route::permanentRedirect('/motorcycle-sales', '/bikes'); // disabled: now served by Livewire SalesIndex
 Route::permanentRedirect('/motorcycle-sales-london', '/bikes');
-Route::permanentRedirect('/used-motorcycles', '/bikes');
+// Route::permanentRedirect('/used-motorcycles', '/bikes'); // disabled: now served by Livewire UsedIndex
 Route::permanentRedirect('/motorcycles-new', '/bikes');
 Route::permanentRedirect('/repairs/basic', '/motorbike-basic-service-london');
 Route::permanentRedirect('/repairs/full', '/motorbike-full-service-london');
@@ -236,10 +245,14 @@ Route::get('/legals/{slug}', fn ($slug) => redirect("/legal/{$slug}", 301));
 
 // Route aliases used by Flux header/footer
 Route::get('/rental-hire', fn () => redirect('/rentals', 301))->name('rental-hire');
+Route::get('/motorcycle-sales', \App\Livewire\Site\Bikes\SalesIndex::class)->name('sale-motorcycles');
+Route::get('/used-motorcycles', \App\Livewire\Site\Bikes\UsedIndex::class)->name('used-motorcycles.page');
+Route::get('/new-motorcycle/{id}', \App\Livewire\Site\Bikes\Show::class)->defaults('type', 'new')->name('new-motorcycle.detail');
+Route::get('/used-motorcycle/{id}', \App\Livewire\Site\Bikes\Show::class)->defaults('type', 'used')->name('detail.used-motorcycle');
 Route::get('/services', fn () => redirect('/repairs', 301))->name('services');
 Route::get('/motorcycles-for-sale', fn () => redirect('/bikes', 301))->name('motorcycles');
-Route::get('/motorcycles/new', fn () => redirect('/bikes?filter=new', 301))->name('motorcycles.new');
-Route::get('/motorcycles/used', fn () => redirect('/bikes?filter=used', 301))->name('motorcycles.used');
+Route::get('/motorcycles/new', fn () => redirect('/motorcycle-sales', 301))->name('motorcycles.new');
+Route::get('/motorcycles/used', fn () => redirect('/used-motorcycles', 301))->name('motorcycles.used');
 Route::get('/faqs', \App\Livewire\Site\Faq::class)->name('faqs');
 Route::get('/accident-management', \App\Livewire\Site\AccidentManagement::class)->name('accident-management');
 Route::get('/road-traffic-accidents', fn () => redirect('/accident-management', 301))->name('road-traffic-accidents');
@@ -262,6 +275,7 @@ Route::get('/ngn-club/register', \App\Livewire\Site\Club\Register::class)->name(
 Route::get('/ngn-club/subscribe', \App\Livewire\Site\Club\Register::class)->name('ngnclub.subscribe');
 Route::get('/ngn-club/login', \App\Livewire\Site\Club\Login::class)->name('ngnclub.login');
 Route::get('/ngn-club/dashboard', \App\Livewire\Site\Club\Dashboard::class)->name('ngnclub.dashboard');
+Route::get('/ngn-club/referral/{id}', \App\Livewire\Site\Club\Referral::class)->name('ngnclub.referral');
 Route::get('/ngn-club/terms-and-conditions', \App\Livewire\Site\Club\Terms::class)->name('ngnclub.terms');
 Route::get('/search', fn () => redirect('/shop?q='.urlencode(request()->get('query'))))->name('ngn_search_results');
 Route::redirect('/account/dashboard', '/account');
@@ -353,6 +367,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/recovery/my-requests/{requestId}', \App\Livewire\Portal\Recovery\Show::class)->name('recovery.my-requests.show');
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
     Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
+    Route::get('/enquiries', \App\Livewire\Portal\Enquiries\Index::class)->name('enquiries');
     Route::get('/addresses', \App\Livewire\Portal\Addresses::class)->name('addresses');
     Route::get('/payment-methods', \App\Livewire\Portal\PaymentMethods::class)->name('payment-methods');
 });
@@ -372,15 +387,12 @@ Route::prefix('ngn-club')->group(function () {
     Route::post('/subscribe', [NgnClubController::class, 'subscribe'])->name('ngnclub.subscribe.submit');
     Route::post('/send-verification-code', [NgnClubController::class, 'sendVerificationCode'])->name('ngnclub.send-verification-code');
     Route::post('/resend-verification-code', [NgnClubController::class, 'resendVerificationCode'])->name('ngnclub.resend-verification-code');
-    Route::get('/terms-and-conditions', [NgnClubController::class, 'showTermsPage'])->name('ngnclub.terms');
-    // Route::get('/dashboard', [NgnClubController::class, 'showDashboard'])->name('ngnclub.dashboard');
+    // GET /terms, /dashboard, /referral — Livewire routes registered above
     Route::post('/login', [NgnClubController::class, 'login'])->name('ngnclub.login.post');
     Route::post('/logout', [NgnClubController::class, 'logout'])->name('ngnclub.logout');
     Route::get('/forgot', [NgnClubController::class, 'showForgotPage'])->name('ngnclub.forgot');
     Route::post('/forgot/send-verification-code', [NgnClubController::class, 'sendForgotVerificationCode'])->name('ngnclub.forgot.sendVerificationCode');
     Route::post('/forgot/reset-passkey', [NgnClubController::class, 'resetPasskey'])->name('ngnclub.forgot.resetPasskey');
-    Route::get('/referral/{id}', [NgnClubController::class, 'showReferralPage'])->name('ngnclub.referral');
-    Route::post('/referral/{id}', [NgnClubController::class, 'submitReferral'])->name('ngnclub.referral.submit');
     Route::post('/feedback', [NgnClubController::class, 'storeFeedback'])->name('ngnclub.feedback');
     Route::post('/profile/update', [NgnClubController::class, 'updateProfile'])->name('ngnclub.profile.update');
 });
@@ -402,17 +414,18 @@ Route::get('/shop/{any?}', fn () => view('olders.frontend.vue_store.app'))
     ->where('any', '.*')->name('shop-motorcycle')->middleware('ecommerce.view');
 Route::get('/legals/{any?}', fn () => view('olders.frontend.vue_store.app'))
     ->where('any', '.*')->name('legals')->middleware('ecommerce.view');
-Route::get('/accountinformation/login', fn () => view('olders.frontend.vue_store.app'))
-    ->where('any', '.*')->name('customer.login')->middleware('ecommerce.view');
-Route::post('/accountinformation/logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])
-    ->name('customer.logout')->middleware('auth:customer');
-Route::get('/accountinformation/register', fn () => view('olders.frontend.vue_store.app'))
-    ->where('any', '.*')->name('customer.register')->middleware('ecommerce.view');
-Route::get('/accountinformation/reset-password/{token}', function (string $token) {
-    $query = request()->only('email');
-
-    return redirect()->route('password.reset', array_merge(['token' => $token], $query));
-})->middleware('guest:customer');
+// Route::get('/login', \App\Livewire\Auth\Login::class)->name('customer.login')->middleware('auth:customer');
+// The legacy Vue login/register/reset-password routes for /accountinformation/* are now disabled in favor of /login (Livewire + Fortify)
+// Route::get('/accountinformation/login', fn () => view('olders.frontend.vue_store.app'))
+//     ->where('any', '.*')->name('customer.login')->middleware('ecommerce.view');
+// Route::post('/accountinformation/logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])
+//     ->name('customer.logout')->middleware('auth:customer');
+// Route::get('/accountinformation/register', fn () => view('olders.frontend.vue_store.app'))
+//     ->where('any', '.*')->name('customer.register')->middleware('ecommerce.view');
+// Route::get('/accountinformation/reset-password/{token}', function (string $token) {
+//     $query = request()->only('email');
+//     return redirect()->route('password.reset', array_merge(['token' => $token], $query));
+// })->middleware('guest:customer');
 Route::get('/accountinformation/{any?}', fn () => view('olders.frontend.vue_store.app'))
     ->where('any', '.*')->name('accountinformation')->middleware(['ecommerce.view', 'auth.customer']);
 
@@ -628,7 +641,7 @@ Route::get('/ebikes', function () {
 
 // Welcome Routes GET
 Route::controller(WelcomeController::class)->group(function () {
-    Route::get('/motorcycle-sales', 'BikesForSale')->name('sale-motorcycles');
+    // Route::get('/motorcycle-sales', 'BikesForSale')->name('sale-motorcycles'); // disabled: Livewire SalesIndex route is active
     Route::get('/rentals-information', 'RentInformation')->name('rental-information');
     Route::get('/services', 'GetServices')->name('services');
     Route::get('/all-services', 'AllGetServices')->name('all-services');
@@ -762,6 +775,7 @@ Route::get('/client-upload-files/{id}', [DashboardController::class, 'createForm
 Route::post('/client-upload-file/{id}', [DashboardController::class, 'fileUpload'])->name('client.fileUpload');
 
 Route::post('/mail', [MailController::class, 'sendMail']);
+Route::post('/store/message', [MailController::class, 'storeMessage'])->name('store.message');
 Route::get('/users', [UserController::class, 'index'])->name('users');
 Route::get('/users/{id}', [UserController::class, 'show'])->name('show.user');
 Route::get('/users-create', [UserController::class, 'create'])->name('create.user');

@@ -17,38 +17,50 @@ class Index extends Component
     public function render()
     {
         $customer = Auth::guard('customer')->user();
-        $profile = $customer->profile;
+        $customerId = $customer?->customer_id;
 
         $motBookings = \App\Models\MOTBooking::where('customer_email', $customer->email)
             ->orderBy('date_of_appointment', 'desc')
             ->get();
 
-        $rentals = $profile
-            ? $profile->rentingBookings()->with(['activeItems.motorbike'])->orderBy('created_at', 'desc')->take(10)->get()
+        $rentals = $customerId
+            ? \App\Models\RentingBooking::where('customer_id', $customerId)->with(['rentingBookingItems.motorbike'])->orderBy('created_at', 'desc')->take(10)->get()
             : collect();
 
-        // Merge MOT + rental into one unified bookings collection for the tab view
-        $allBookings = $motBookings->map(fn ($m) => (object) [
+        // Merge MOT + rental into one unified bookings collection for the tab view.
+        // Use plain collections to avoid Eloquent collection model-key behaviour.
+        $motItems = collect($motBookings->all())->map(fn ($m) => (object) [
             'id' => 'mot-'.$m->id,
             'type' => 'MOT',
             'date' => $m->date_of_appointment,
             'status' => $m->status ?? 'Pending',
             'label' => 'MOT Appointment',
             'source' => $m,
-        ])->merge(
-            $rentals->map(fn ($r) => (object) [
+        ]);
+
+        $rentalItems = collect($rentals->all())->map(function ($r) {
+            $items = $r->rentingBookingItems ?? collect();
+            $hasActiveItem = $items->contains(fn ($item) => empty($item->end_date));
+            $latestEndDate = $items->whereNotNull('end_date')->sortByDesc('end_date')->first()?->end_date;
+
+            return (object) [
                 'id' => 'rental-'.$r->id,
                 'type' => 'Rental',
-                'date' => $r->start_date ?? $r->created_at,
-                'status' => $r->status ?? 'Active',
+                'date' => $hasActiveItem ? ($r->start_date ?? $r->created_at) : ($latestEndDate ?? $r->created_at),
+                'status' => $hasActiveItem ? ($r->state ?? 'ACTIVE') : 'ENDED',
                 'label' => 'Rental Booking',
                 'source' => $r,
-            ])
-        )->sortByDesc('date')->values();
+            ];
+        });
+
+        $allBookings = $motItems
+            ->merge($rentalItems)
+            ->sortByDesc('date')
+            ->values();
 
         $bookings = match ($this->activeTab) {
             'upcoming' => $allBookings->filter(fn ($b) => $b->date && $b->date >= now()->toDateString()),
-            'completed' => $allBookings->filter(fn ($b) => in_array(strtolower($b->status), ['completed', 'done', 'expired'])),
+            'completed' => $allBookings->filter(fn ($b) => in_array(strtolower((string) $b->status), ['completed', 'done', 'expired', 'ended'])),
             default => $allBookings,
         };
 

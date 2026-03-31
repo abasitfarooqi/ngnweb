@@ -62,7 +62,7 @@ class Request extends Component
 
     public function mount()
     {
-        $profile = Auth::guard('customer')->user()->profile;
+        $profile = Auth::guard('customer')->user()->customer;
         if ($profile && $profile->preferred_branch_id) {
             $this->branch_id = (string) $profile->preferred_branch_id;
         }

@@ -20,7 +20,7 @@ class MotorbikeTransportDeliveryOrderCancelled extends Mailable
     // Template Directory: emails, Template Name: motorbike_transport_delivery_order_cancelled
     public function build()
     {
-        return $this->view('emails.motorbike_transport_delivery_order_cancelled')
+        return $this->view('olders.emails.motorbike_transport_delivery_order_cancelled')
             ->with(['order' => $this->order]);
     }
 }

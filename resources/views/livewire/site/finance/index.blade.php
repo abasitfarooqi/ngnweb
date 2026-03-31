@@ -53,7 +53,7 @@
                 </flux:field>
                 <flux:field>
                     <flux:label>Interest Rate (% APR)</flux:label>
-                    <flux:input wire:model.live="rate" type="number" step="0.1" />
+                    <flux:input wire:model.live="rate" type="number" step="0.1" min="0" />
                 </flux:field>
             </div>
 
@@ -82,30 +82,30 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <flux:field>
                 <flux:label>First Name *</flux:label>
-                <flux:input wire:model="firstName" />
+                <flux:input wire:model.defer="firstName" />
                 <flux:error name="firstName" />
             </flux:field>
             <flux:field>
                 <flux:label>Last Name *</flux:label>
-                <flux:input wire:model="lastName" />
+                <flux:input wire:model.defer="lastName" />
                 <flux:error name="lastName" />
             </flux:field>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <flux:field>
                 <flux:label>Email *</flux:label>
-                <flux:input wire:model="email" type="email" />
+                <flux:input wire:model.defer="email" type="email" />
                 <flux:error name="email" />
             </flux:field>
             <flux:field>
                 <flux:label>Phone *</flux:label>
-                <flux:input wire:model="phone" type="tel" />
+                <flux:input wire:model.defer="phone" type="tel" />
                 <flux:error name="phone" />
             </flux:field>
         </div>
         <flux:field>
             <flux:label>Employment Status</flux:label>
-            <flux:select wire:model="employmentStatus" variant="listbox" placeholder="Select…">
+            <flux:select wire:model.defer="employmentStatus" variant="listbox" placeholder="Select…">
                 @foreach(['employed'=>'Employed', 'self_employed'=>'Self-Employed', 'retired'=>'Retired', 'student'=>'Student', 'other'=>'Other'] as $val => $label)
                     <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
                 @endforeach
@@ -113,14 +113,14 @@
         </flux:field>
         <flux:field>
             <flux:label>Bike You're Interested In</flux:label>
-            <flux:input wire:model="bikeInterest" placeholder="e.g. Honda CB500F 2023" />
+            <flux:input wire:model.defer="bikeInterest" placeholder="e.g. Honda CB500F 2023" />
         </flux:field>
         <flux:field>
             <flux:label>Additional Information</flux:label>
-            <flux:textarea wire:model="notes" rows="3" />
+            <flux:textarea wire:model.defer="notes" rows="3" />
         </flux:field>
         <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input type="checkbox" wire:model="consent" class="mt-0.5 accent-brand-red" />
+            <input type="checkbox" wire:model.defer="consent" class="mt-0.5 accent-brand-red" />
             <span>I consent to NGN Motors contacting me about this application *</span>
         </label>
         <flux:error name="consent" />

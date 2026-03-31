@@ -26,8 +26,7 @@ class QuarterlyVehicleVisitsReportMail extends Mailable
     public function build()
     {
         return $this->subject('Quarterly Vehicle Visits Report')
-            ->view('emails.quarterly_vehicle_visits_report')
+            ->view('olders.emails.quarterly_vehicle_visits_report')
             ->with(['emailData' => $this->emailData]);
     }
 }
-

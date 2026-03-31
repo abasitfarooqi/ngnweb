@@ -74,6 +74,8 @@
                 Book This Motorcycle
             </flux:button>
 
+            @include('livewire.site.partials.sales.enquiry-form', ['submitAction' => 'submitEnquiry'])
+
             @if($motorbike->branch)
                 <flux:callout variant="info" icon="map-pin" class="mb-4">
                     <flux:callout.heading>Available at {{ $motorbike->branch->name }}</flux:callout.heading>

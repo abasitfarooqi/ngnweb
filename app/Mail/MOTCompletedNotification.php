@@ -29,14 +29,14 @@ class MOTCompletedNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.mot_completed',
+            view: 'olders.emails.mot_completed',
             with: $this->mailData
         );
     }
 
     public function build()
     {
-        return $this->view('emails.mot_completed')
+        return $this->view('olders.emails.mot_completed')
             ->with([
                 'customer_name' => $this->mailData['customer_name'],
                 'vehicle_registration' => $this->mailData['vehicle_registration'],

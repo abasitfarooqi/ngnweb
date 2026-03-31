@@ -61,10 +61,10 @@ class AuthController extends Controller
             $request->session()->regenerateToken();
 
             // Redirect to the login page after successful logout
-            return redirect()->route('customer.login')->with('message', 'Logout successful');
+            return redirect()->route('login')->with('message', 'Logout successful');
         }
 
-        return redirect()->route('customer.login')->with('error', 'User not authenticated');
+        return redirect()->route('login')->with('error', 'User not authenticated');
     }
     // public function logout(Request $request)
     // {

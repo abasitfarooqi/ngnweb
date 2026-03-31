@@ -16,19 +16,19 @@
         {{-- Images --}}
         <div>
             @if(!$isNew && $bike->images && $bike->images->count() > 0)
-                <img src="{{ $bike->images->first()->url ?? ($saleInfo->image_one ?? asset('images/placeholder-bike.jpg')) }}"
+                <img src="{{ $this->resolveImageUrl($bike->images->first()->url ?? ($saleInfo->image_one ?? '')) }}"
                      alt="{{ $bike->make }} {{ $bike->model }}"
                      class="w-full h-96 object-cover border border-gray-200 dark:border-gray-700 mb-3">
                 @if($bike->images->count() > 1)
                     <div class="grid grid-cols-4 gap-2">
                         @foreach($bike->images->take(4) as $image)
-                            <img src="{{ $image->url }}" alt="{{ $bike->make }} {{ $bike->model }}"
+                            <img src="{{ $this->resolveImageUrl($image->url ?? '') }}" alt="{{ $bike->make }} {{ $bike->model }}"
                                  class="w-full h-20 object-cover cursor-pointer hover:opacity-75 transition border border-gray-200 dark:border-gray-700">
                         @endforeach
                     </div>
                 @endif
             @elseif(!$isNew && $saleInfo && $saleInfo->image_one)
-                <img src="{{ $saleInfo->image_one }}" alt="{{ $bike->make }} {{ $bike->model }}" class="w-full h-96 object-cover border border-gray-200 dark:border-gray-700">
+                <img src="{{ $this->resolveImageUrl($saleInfo->image_one) }}" alt="{{ $bike->make }} {{ $bike->model }}" class="w-full h-96 object-cover border border-gray-200 dark:border-gray-700">
             @else
                 <div class="w-full h-96 bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400">
                     No images available
@@ -71,21 +71,20 @@
 
             {{-- Actions --}}
             <div class="space-y-3 mb-6">
-                <flux:button
-                    x-data @click="$flux.modal('quick-book').show()"
-                    variant="filled"
-                    size="base"
-                    class="w-full bg-brand-red text-white hover:bg-brand-red-dark"
-                >
-                    Enquire About This Bike
-                </flux:button>
-                <flux:button href="/finance" variant="outline" size="base" class="w-full">
+                @php
+                    $financePrice = $isNew
+                        ? (float) ($bike->sale_new_price ?? $bike->price ?? 0)
+                        : (float) ($saleInfo->price ?? 0);
+                @endphp
+                <flux:button href="/finance?source={{ $isNew ? 'new-bike' : 'used-bike' }}&bike_id={{ $bike->id }}&bike_type={{ $isNew ? 'new' : 'used' }}&price={{ $financePrice }}" variant="outline" size="base" class="w-full">
                     Check Finance Options
                 </flux:button>
                 <flux:button href="tel:{{ config('site.phone') }}" variant="ghost" class="w-full">
                     Call Us: {{ config('site.phone') }}
                 </flux:button>
             </div>
+
+            @include('livewire.site.partials.sales.enquiry-form', ['submitAction' => 'submitEnquiry'])
 
             @if(!$isNew && $bike->branch)
                 <flux:callout variant="info" icon="map-pin">

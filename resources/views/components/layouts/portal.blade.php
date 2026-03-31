@@ -62,7 +62,7 @@
                     </svg>
                 </button>
 
-                <form method="POST" action="{{ route('logout') }}" class="inline">
+                <form method="POST" action="{{ route('customer.logout') }}" class="inline">
                     @csrf
                     <button type="submit" class="text-sm text-brand-red hover:text-red-700 font-medium transition">
                         Sign out
@@ -195,9 +195,11 @@
 
                 @php $icon_map = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>'; @endphp
                 @php $icon_cc  = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>'; @endphp
+                @php $icon_chat = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8m-8 4h6m6 5l-3-3H6a2 2 0 01-2-2V7a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2h-1z"/>'; @endphp
 
                 @foreach ([
                     ['route'=>'account.orders',         'label'=>'My Orders',          'icon'=>$icon_bag],
+                    ['route'=>'account.enquiries',      'label'=>'My Enquiries',       'icon'=>$icon_chat],
                     ['route'=>'account.addresses',      'label'=>'Addresses',           'icon'=>$icon_map],
                     ['route'=>'account.payment-methods','label'=>'Payment Methods',     'icon'=>$icon_cc],
                     ['route'=>'account.club',           'label'=>'NGN Club',            'icon'=>$icon_star],
@@ -229,6 +231,7 @@
 </div>
 
 <flux:toast />
+@stack('scripts')
 @fluxScripts
 @livewireScripts
 </body>

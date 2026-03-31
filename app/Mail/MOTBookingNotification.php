@@ -29,7 +29,7 @@ class MOTBookingNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.mot_booking_confirmation',
+            view: 'olders.emails.mot_booking_confirmation',
             with: $this->mailData
         );
     }
@@ -41,7 +41,7 @@ class MOTBookingNotification extends Mailable
 
     public function build()
     {
-        return $this->view('emails.mot_booking_confirmation')
+        return $this->view('olders.emails.mot_booking_confirmation')
             ->with([
                 'customer_name' => $this->mailData['customer_name'],
                 'vehicle_registration' => $this->mailData['vehicle_registration'],

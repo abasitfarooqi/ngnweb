@@ -2,51 +2,90 @@
 
 namespace App\Livewire\Site\Finance;
 
+use App\Http\Controllers\MailController;
+use App\Models\Motorbike;
+use App\Models\Motorcycle;
+use App\Models\ServiceBooking;
 use Livewire\Component;
 
 class Index extends Component
 {
     public $loanAmount = 3000;
+
     public $deposit = 500;
+
     public $term = 36;
+
+    public $rate = 9.9;
+
     public $monthlyPayment = 0;
 
-    public $name = '';
-    public $email = '';
-    public $phone = '';
-    public $address = '';
-    public $employmentStatus = '';
-    public $monthlyIncome = '';
-    public $bikeInterest = '';
-    public $agreedTerms = false;
+    public string $firstName = '';
+
+    public string $lastName = '';
+
+    public string $email = '';
+
+    public string $phone = '';
+
+    public ?string $employmentStatus = null;
+
+    public ?string $bikeInterest = null;
+
+    public ?string $notes = null;
+
+    public bool $consent = false;
+
+    // Optional context when coming from a bike card (used/new)
+    public ?int $bikeId = null;
+
+    public ?string $bikeType = null;
+
+    public ?string $bikeSource = null;
+
+    public ?float $bikePrice = null;
 
     protected $rules = [
-        'name'             => 'required|string|min:2',
-        'email'            => 'required|email',
-        'phone'            => 'required|string|min:10',
-        'address'          => 'required|string|min:10',
+        'firstName' => 'required|string|min:2',
+        'lastName' => 'required|string|min:2',
+        'email' => 'required|email',
+        'phone' => 'required|string|min:10',
         'employmentStatus' => 'required|string',
-        'monthlyIncome'    => 'required|numeric|min:800',
-        'bikeInterest'     => 'nullable|string',
-        'agreedTerms'      => 'accepted',
+        'bikeInterest' => 'nullable|string',
+        'notes' => 'nullable|string',
+        'consent' => 'accepted',
     ];
 
-    public function mount()
+    public function mount(): void
     {
+        // Populate from query string when coming from /bikes pages
+        $this->bikeId = request()->integer('bike_id') ?: null;
+        $this->bikeType = request()->string('bike_type')->lower()->value() ?: null;
+        $this->bikeSource = request()->string('source')->value() ?: null;
+        $this->bikePrice = request()->has('price') ? (float) request('price') : null;
+
+        if ($this->bikePrice !== null) {
+            $this->loanAmount = max(0, (float) $this->bikePrice);
+        }
+
+        if ($this->bikeId && $this->bikeType) {
+            $this->prefillBikeInterest();
+        }
+
         $this->calculatePayment();
     }
 
-    public function updated($field)
+    public function updated($field): void
     {
-        if (in_array($field, ['loanAmount', 'deposit', 'term'])) {
+        if (in_array($field, ['loanAmount', 'deposit', 'term', 'rate'], true)) {
             $this->calculatePayment();
         }
     }
 
-    public function calculatePayment()
+    public function calculatePayment(): void
     {
-        $principal   = max(0, $this->loanAmount - $this->deposit);
-        $apr         = 9.9;
+        $principal = max(0, $this->loanAmount - $this->deposit);
+        $apr = max(0, (float) $this->rate);
         $monthlyRate = ($apr / 100) / 12;
 
         if ($monthlyRate > 0 && $this->term > 0) {
@@ -60,11 +99,107 @@ class Index extends Component
         }
     }
 
-    public function submitApplication()
+    protected function prefillBikeInterest(): void
+    {
+        $summary = null;
+
+        if ($this->bikeType === 'used') {
+            $bike = Motorbike::find($this->bikeId);
+
+            if ($bike) {
+                $maskedReg = $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : null;
+                $parts = array_filter([
+                    trim(($bike->make ?? '').' '.($bike->model ?? '')),
+                    $maskedReg,
+                    $bike->year,
+                ]);
+
+                if ($parts !== []) {
+                    $summary = implode(' · ', $parts);
+                }
+            }
+        } elseif ($this->bikeType === 'new') {
+            $bike = Motorcycle::find($this->bikeId);
+
+            if ($bike) {
+                $parts = array_filter([
+                    trim(($bike->make ?? '').' '.($bike->model ?? '')),
+                    $bike->year,
+                ]);
+
+                if ($parts !== []) {
+                    $summary = implode(' · ', $parts);
+                }
+            }
+        }
+
+        if ($summary) {
+            $this->bikeInterest = $summary;
+        }
+    }
+
+    public function submitApplication(): void
     {
         $this->validate();
-        session()->flash('success', 'Finance application received! We will contact you within 24 hours.');
-        $this->reset(['name', 'email', 'phone', 'address', 'employmentStatus', 'monthlyIncome', 'bikeInterest', 'agreedTerms']);
+
+        $fullName = trim($this->firstName.' '.$this->lastName);
+        $amount = (float) $this->loanAmount;
+        $deposit = (float) $this->deposit;
+        $bikeLabel = trim((string) ($this->bikeInterest ?? ''));
+        $bikeType = (string) ($this->bikeType ?? 'unknown');
+        $source = (string) ($this->bikeSource ?? 'finance-page');
+
+        $description = implode(' | ', array_filter([
+            'Source: '.$source,
+            $bikeLabel !== '' ? 'Bike: '.$bikeLabel : null,
+            $this->bikeId ? 'Bike ID: '.$this->bikeId : null,
+            'Bike type: '.$bikeType,
+            'Finance amount GBP: '.number_format($amount, 2, '.', ''),
+            'Deposit GBP: '.number_format($deposit, 2, '.', ''),
+            'Term months: '.(int) $this->term,
+            'APR: '.number_format((float) $this->rate, 1, '.', '').'%',
+            'Employment: '.(string) $this->employmentStatus,
+            $this->notes ? 'Notes: '.trim((string) $this->notes) : null,
+        ]));
+
+        $customerAuth = auth('customer')->user();
+
+        $booking = ServiceBooking::query()->create([
+            'customer_id' => $customerAuth?->customer_id,
+            'customer_auth_id' => $customerAuth?->id,
+            'submission_context' => $customerAuth ? 'authenticated_customer' : 'guest',
+            'enquiry_type' => 'finance',
+            'service_type' => 'Finance enquiry',
+            'subject' => $bikeLabel !== '' ? 'Finance enquiry - '.$bikeLabel : 'Finance enquiry',
+            'description' => $description,
+            'requires_schedule' => false,
+            'booking_date' => null,
+            'booking_time' => null,
+            'status' => 'Pending',
+            'fullname' => $fullName,
+            'phone' => trim($this->phone),
+            'reg_no' => $this->bikeId ? 'Finance bike #'.$this->bikeId : 'Finance enquiry',
+            'email' => trim($this->email),
+        ]);
+
+        app(MailController::class)->sendBookingConfirmation($booking);
+
+        session()->flash('success', 'Finance enquiry received. We will contact you within 24 hours.');
+
+        $this->resetValidation();
+        $this->reset([
+            'firstName',
+            'lastName',
+            'email',
+            'phone',
+            'employmentStatus',
+            'bikeInterest',
+            'notes',
+            'consent',
+        ]);
+
+        // Keep calculator + bike context so the page still reflects the bike
+        $this->calculatePayment();
     }
 
     public function render()

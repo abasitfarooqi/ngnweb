@@ -34,7 +34,7 @@ class NewOrderProcessMailer extends Mailable
 
     public function build()
     {
-        return $this->view('emails.ecommerce.new-order-process')
+        return $this->view('olders.emails.ecommerce.new-order-process')
             ->subject('PREPAIR ORDER #'.$this->order->id.' ')
             ->with([
                 'order' => $this->order,

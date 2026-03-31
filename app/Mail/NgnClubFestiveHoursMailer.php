@@ -13,8 +13,6 @@ class NgnClubFestiveHoursMailer extends Mailable
 
     /**
      * The NGN Club member instance.
-     *
-     * @var \App\Models\ClubMember
      */
     public ClubMember $member;
 
@@ -33,12 +31,10 @@ class NgnClubFestiveHoursMailer extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.club.festive-hours')
+        return $this->view('olders.emails.club.festive-hours')
             ->subject('Festive opening hours – NGN')
             ->with([
                 'member' => $this->member,
             ]);
     }
 }
-
-

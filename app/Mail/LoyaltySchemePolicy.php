@@ -30,7 +30,7 @@ class LoyaltySchemePolicy extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.loyalty-scheme-policy',
+            view: 'olders.emails.loyalty-scheme-policy',
             with: $this->mailData
         );
     }
@@ -49,4 +49,3 @@ class LoyaltySchemePolicy extends Mailable
         return $attachments;
     }
 }
-

@@ -20,7 +20,7 @@ class InstalmentNotificationMail extends Mailable
     public function build()
     {
         return $this->subject('Instalment Notification for '.$this->customer->regno)
-            ->view('emails.instalment_notification')
+            ->view('olders.emails.instalment_notification')
             ->with([
                 'fullname' => $this->customer->fullname,
                 'regno' => $this->customer->regno,

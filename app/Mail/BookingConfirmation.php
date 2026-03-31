@@ -21,7 +21,7 @@ class BookingConfirmation extends Mailable
     public function build()
     {
         return $this->subject('Service Enquiry Received')
-            ->view('emails.service-booking-confirmation')
+            ->view('olders.emails.service-booking-confirmation')
             ->with([
                 'booking' => $this->booking,
             ]);

@@ -276,7 +276,7 @@ Route::prefix('v1/customer')->group(function () {
 Route::middleware(['auth:customer'])->group(function () {
     Route::post('/email/verification-notification',
         [CustomerVerificationController::class, 'sendVerificationEmail'])
-        ->name('customer.verification.send');
+        ->name('api.customer.email.verification.send');
 });
 
 Route::get('/email/verify/{id}/{hash}',

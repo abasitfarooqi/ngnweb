@@ -28,7 +28,7 @@ class JobCompletionNotification extends Mailable
     public function build()
     {
         return $this->subject('DVLA Check Job Completed')
-            ->view('emails.job-completion')
+            ->view('olders.emails.job-completion')
             ->with('mailData', $this->mailData);
     }
 

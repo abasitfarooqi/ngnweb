@@ -68,10 +68,10 @@ class Documents extends Component
         ]);
 
         $customerAuth = Auth::guard('customer')->user();
-        $profile = $customerAuth->profile;
+        $profile = $customerAuth->customer;
 
         if (! $profile) {
-            session()->flash('error', 'Please complete your profile first.');
+            session()->flash('error', 'Your account is not linked to a customer record yet.');
 
             return;
         }
@@ -106,7 +106,7 @@ class Documents extends Component
     public function render()
     {
         $customerAuth = Auth::guard('customer')->user();
-        $profile = $customerAuth?->profile;
+        $profile = $customerAuth?->customer;
         $customerId = $this->getPortalCustomerId();
 
         $rentalDocs = DocumentType::query()->forRental()->orderBy('sort_order')->get();

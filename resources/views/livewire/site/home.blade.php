@@ -99,37 +99,127 @@
     </div>
 </div>
 
-{{-- Featured Rentals --}}
-@if(count($featuredRentals) > 0)
-<div class="py-16 border-t border-gray-100 dark:border-gray-800">
+{{-- Motorcycle rentals: scroll-snap slider (touch + Flux controls), 3 cards per slide --}}
+@php $rentalSlides = collect($homeRentalModels)->chunk(3); @endphp
+<section
+    id="motorcycle-rentals"
+    class="relative py-16 md:py-20 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-gray-100 via-gray-50 to-white dark:from-gray-950 dark:via-gray-900 dark:to-gray-950"
+    aria-roledescription="carousel"
+    aria-label="Rental motorcycle models"
+>
+    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Popular Rentals</h2>
-            <a href="/rentals" class="text-brand-red hover:text-red-700 text-sm font-medium">View all →</a>
+        <div class="text-center max-w-2xl mx-auto mb-10 md:mb-12">
+            <flux:badge color="red" class="mb-3 uppercase tracking-widest text-[10px]">Hire fleet</flux:badge>
+            <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Motorcycle rentals</h2>
+            <p class="mt-3 text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
+                Short-term and long-term hire across our London branches. Swipe on mobile or use the arrows.
+                <a href="{{ route('site.rentals') }}" class="text-brand-red font-semibold hover:underline underline-offset-2">Browse the full rental range</a>
+            </p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            @foreach($featuredRentals as $rental)
-                <flux:card class="overflow-hidden p-0">
-                    <div class="bg-gray-100 dark:bg-gray-800 h-44">
-                        @if($rental->images && $rental->images->count() > 0)
-                            <img src="{{ $rental->images->first()->url ?? asset('images/placeholder-bike.jpg') }}"
-                                 alt="{{ $rental->make }} {{ $rental->model }}"
-                                 class="w-full h-full object-cover">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">No image</div>
-                        @endif
+
+        <div
+            x-data="homeRentalCarousel({{ $rentalSlides->count() }})"
+            class="relative"
+        >
+            <div
+                x-ref="viewport"
+                class="flex w-full overflow-x-auto scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+                role="region"
+                aria-live="polite"
+                @scroll.passive="onScroll()"
+                @keydown.left.prevent="step(-1)"
+                @keydown.right.prevent="step(1)"
+                tabindex="0"
+            >
+                @foreach($rentalSlides as $si => $chunk)
+                    <div
+                        class="box-border w-full max-w-full shrink-0 grow-0 snap-start snap-always flex-[0_0_100%] min-w-0 px-0 ml-4"
+                        id="rental-slide-{{ $si }}"
+                        role="group"
+                        aria-roledescription="slide"
+                        aria-label="Slide {{ $si + 1 }} of {{ $rentalSlides->count() }}"
+                    >
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 w-full max-w-full min-w-0">
+                            @foreach($chunk as $item)
+                                <flux:card class="group flex h-full w-full max-w-full min-w-0 flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/80 dark:ring-gray-700 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-red/35 transition-all duration-300 bg-white dark:bg-gray-900">
+                                    <a href="{{ $item['href'] }}" class="relative block w-full max-w-full h-56 sm:h-36 md:h-32 lg:h-36 overflow-hidden bg-gray-100 dark:bg-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-inset [max-height:9.5rem] md:[max-height:8.5rem] lg:[max-height:9.5rem]">
+                                        <img
+                                            loading="lazy"
+                                            src="{{ asset($item['img']) }}"
+                                            alt="{{ $item['alt'] }}"
+                                            width="400"
+                                            height="250"
+                                            decoding="async"
+                                            class="absolute inset-0 h-full w-full max-w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+                                        >
+                                        <span class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/75 to-transparent pt-12 pb-3 px-4">
+                                            <span class="text-white text-xs font-semibold uppercase tracking-wide opacity-95">From £{{ $item['weekly'] }} / week</span>
+                                        </span>
+                                    </a>
+                                    <div class="flex flex-1 flex-col p-4 md:p-5">
+                                        <h3 class="text-center font-bold text-gray-900 dark:text-white text-sm sm:text-base leading-snug mb-1">{{ $item['title'] }}</h3>
+                                        <p class="text-center text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">Typical weekly rate for this or a similar model.</p>
+                                        <div class="mt-auto flex flex-col gap-2">
+                                            <flux:button href="{{ $item['href'] }}" variant="outline" size="sm" class="w-full justify-center ring-1 ring-gray-300 dark:ring-gray-600">More information</flux:button>
+                                            <flux:button href="tel:02083141498" variant="filled" size="sm" class="w-full justify-center bg-brand-red text-white hover:bg-brand-red-dark">Call now</flux:button>
+                                        </div>
+                                    </div>
+                                </flux:card>
+                            @endforeach
+                        </div>
                     </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-1">{{ $rental->make }} {{ $rental->model }}</h3>
-                        <p class="text-brand-red font-bold mb-3">From £{{ number_format($rental->currentRentingPricing->weekly_price ?? 80, 0) }}/week</p>
-                        <flux:button href="/rentals/{{ $rental->id }}" variant="outline" size="sm" class="w-full">View Details</flux:button>
-                    </div>
-                </flux:card>
-            @endforeach
+                @endforeach
+            </div>
+
+            {{-- Side arrows (desktop) --}}
+            <div class="pointer-events-none absolute inset-y-0 inset-x-0 z-[5] hidden md:block">
+                <div class="relative h-full w-full">
+                    <flux:button
+                        type="button"
+                        variant="filled"
+                        class="pointer-events-auto absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 h-11 w-11 min-w-11 p-0 bg-white/95 text-gray-900 ring-1 ring-gray-200 shadow-lg hover:bg-white dark:bg-gray-800 dark:text-white dark:ring-gray-600 opacity-90 hover:opacity-100 disabled:opacity-40 disabled:pointer-events-none"
+                        x-bind:disabled="atStart"
+                        @click="step(-1)"
+                        aria-label="Previous rental models"
+                    >
+                        <flux:icon name="chevron-left" class="size-5 mx-auto" />
+                    </flux:button>
+                    <flux:button
+                        type="button"
+                        variant="filled"
+                        class="pointer-events-auto absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 h-11 w-11 min-w-11 p-0 bg-white/95 text-gray-900 ring-1 ring-gray-200 shadow-lg hover:bg-white dark:bg-gray-800 dark:text-white dark:ring-gray-600 opacity-90 hover:opacity-100 disabled:opacity-40 disabled:pointer-events-none"
+                        x-bind:disabled="atEnd"
+                        @click="step(1)"
+                        aria-label="Next rental models"
+                    >
+                        <flux:icon name="chevron-right" class="size-5 mx-auto" />
+                    </flux:button>
+                </div>
+            </div>
+
+            <div class="mt-8 flex flex-col items-center gap-4">
+                <div class="flex items-center justify-center gap-2" role="tablist" aria-label="Slide">
+                    @foreach($rentalSlides as $si => $_)
+                        <button
+                            type="button"
+                            role="tab"
+                            :aria-selected="index === {{ $si }}"
+                            :class="index === {{ $si }} ? 'bg-brand-red w-8' : 'bg-gray-300 dark:bg-gray-600 w-6 hover:bg-gray-400 dark:hover:bg-gray-500'"
+                            class="h-1 max-w-8 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                            aria-label="Go to slide {{ $si + 1 }}"
+                            @click="goTo({{ $si }})"
+                        ></button>
+                    @endforeach
+                </div>
+                <div class="flex md:hidden items-center justify-center gap-3">
+                    <flux:button type="button" variant="outline" size="sm" class="min-w-[7rem] disabled:opacity-40" x-bind:disabled="atStart" @click="step(-1)">Previous</flux:button>
+                    <flux:button type="button" variant="outline" size="sm" class="min-w-[7rem] disabled:opacity-40" x-bind:disabled="atEnd" @click="step(1)">Next</flux:button>
+                </div>
+            </div>
         </div>
     </div>
-</div>
-@endif
+</section>
 
 {{-- Bikes For Sale --}}
 @if(count($newBikesForSale) > 0 || count($usedBikesForSale) > 0)
@@ -176,6 +266,65 @@
     </div>
 </div>
 @endif
+
+{{-- Legacy parity block: keep current home and add old-style sales/news/contact --}}
+<div class="py-16 border-t border-gray-100 dark:border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between mb-6">
+            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Used Bikes For Sale</h2>
+            <a href="{{ route('motorcycles.used') }}" class="text-brand-red hover:text-red-700 text-sm font-medium">See all used bikes →</a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            @foreach($usedBikesForSale as $bike)
+                <article class="border border-gray-200 dark:border-gray-700 overflow-hidden">
+                    <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="block">
+                        @php $img = $bike->image_one ? 'https://neguinhomotors.co.uk/storage/motorbikes/'.$bike->image_one : 'https://neguinhomotors.co.uk/assets/img/no-image.png'; @endphp
+                        <img src="{{ $img }}" alt="{{ $bike->make }} {{ $bike->model }}" class="w-full h-48 object-cover">
+                    </a>
+                    <div class="p-4">
+                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $bike->make }} {{ $bike->model }}</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">****{{ substr((string) $bike->reg_no, -3) }}</p>
+                        <p class="text-brand-red font-bold mt-1">GBP {{ number_format((float) $bike->price, 2) }}</p>
+                    </div>
+                </article>
+            @endforeach
+        </div>
+    </div>
+</div>
+
+<div class="bg-gray-50 dark:bg-gray-900 py-16 border-t border-gray-100 dark:border-gray-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <section>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Latest News</h2>
+                <div class="space-y-3">
+                    @foreach($blogPosts as $post)
+                        <a href="/shop/blog/{{ $post->slug }}" class="block border border-gray-200 dark:border-gray-700 hover:border-brand-red transition">
+                            <div class="flex">
+                                @php $blogImage = $post->images->isNotEmpty() ? 'https://neguinhomotors.co.uk/storage/'.$post->images->first()->path : 'https://neguinhomotors.co.uk/assets/img/no-image.png'; @endphp
+                                <img src="{{ $blogImage }}" alt="{{ $post->title }}" class="w-24 h-24 object-cover">
+                                <div class="p-3">
+                                    <p class="font-semibold text-gray-900 dark:text-white">{{ $post->title }}</p>
+                                    <p class="text-sm text-gray-600 dark:text-gray-300">{{ \Illuminate\Support\Str::limit(strip_tags((string) $post->content), 95) }}</p>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </section>
+            <section>
+                <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Contact Us</h2>
+                <div class="border border-gray-200 dark:border-gray-700 p-5">
+                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">For sales, rentals, repairs, MOT, e-bikes and finance enquiries.</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <flux:button href="{{ route('site.contact') }}" variant="outline" class="w-full">General contact</flux:button>
+                        <flux:button href="{{ route('site.service.booking') }}" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">Order / enquiry form</flux:button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
 
 {{-- About strip --}}
 <div class="bg-gray-900 text-white py-16">

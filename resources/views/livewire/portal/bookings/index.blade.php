@@ -35,43 +35,49 @@
                     <div class="flex justify-between items-start gap-4 flex-wrap">
                         <div class="flex-1">
                             <div class="flex items-center gap-3 mb-3 flex-wrap">
-                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $booking->vehicle_registration ?? 'N/A' }}</h3>
-                                <flux:badge color="{{ match($booking->status) {
-                                    'confirmed' => 'green',
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-white">{{ $booking->label }}</h3>
+                                <flux:badge color="{{ match(strtolower((string) $booking->status)) {
+                                    'confirmed', 'active' => 'green',
                                     'pending' => 'yellow',
-                                    'completed' => 'blue',
+                                    'completed', 'done', 'expired' => 'blue',
                                     'cancelled' => 'red',
                                     default => 'zinc'
                                 } }}">
-                                    {{ ucfirst($booking->status) }}
+                                    {{ ucfirst((string) $booking->status) }}
                                 </flux:badge>
+                                <flux:badge>{{ $booking->type }}</flux:badge>
                             </div>
                             <div class="text-sm space-y-1 text-gray-600 dark:text-gray-400">
-                                <p>Customer: <strong class="text-gray-900 dark:text-white">{{ $booking->customer_name }}</strong></p>
-                                <p>
-                                    Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->date_of_appointment)->format('d M Y') }}</strong>
-                                    at <strong class="text-gray-900 dark:text-white">{{ $booking->time_slot }}</strong>
-                                </p>
-                                <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->branch->name ?? 'N/A' }}</strong></p>
+                                @if($booking->type === 'MOT')
+                                    <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->vehicle_registration ?? 'N/A' }}</strong></p>
+                                    <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ $booking->source->time_slot ?? 'N/A' }}</strong></p>
+                                    <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch->name ?? 'N/A' }}</strong></p>
+                                @else
+                                    <p>Booking ID: <strong class="text-gray-900 dark:text-white">#{{ $booking->source->id }}</strong></p>
+                                    <p>Start: <strong class="text-gray-900 dark:text-white">{{ $booking->source->start_date ? \Carbon\Carbon::parse($booking->source->start_date)->format('d M Y') : 'N/A' }}</strong></p>
+                                    @php $activeItem = $booking->source->activeItems->first(); @endphp
+                                    @if($activeItem && $activeItem->motorbike)
+                                        <p>Bike: <strong class="text-gray-900 dark:text-white">{{ $activeItem->motorbike->make }} {{ $activeItem->motorbike->model }} ({{ $activeItem->motorbike->reg_no }})</strong></p>
+                                    @endif
+                                @endif
                             </div>
-                            @if($booking->notes)
+                            @if(!empty($booking->source->notes))
                                 <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700">
-                                    <p class="text-sm text-gray-700 dark:text-gray-300"><strong>Notes:</strong> {{ $booking->notes }}</p>
+                                    <p class="text-sm text-gray-700 dark:text-gray-300"><strong>Notes:</strong> {{ $booking->source->notes }}</p>
                                 </div>
                             @endif
-                            @if($booking->test_result)
+                            @if(!empty($booking->source->test_result))
                                 <flux:callout
-                                    variant="{{ $booking->test_result === 'pass' ? 'success' : 'danger' }}"
+                                    variant="{{ $booking->source->test_result === 'pass' ? 'success' : 'danger' }}"
                                     class="mt-3">
-                                    <flux:callout.text>Result: {{ strtoupper($booking->test_result) }}</flux:callout.text>
+                                    <flux:callout.text>Result: {{ strtoupper($booking->source->test_result) }}</flux:callout.text>
                                 </flux:callout>
                             @endif
                         </div>
-                        <p class="text-xs text-gray-500 flex-shrink-0">Booked: {{ $booking->created_at->format('d M Y') }}</p>
+                        <p class="text-xs text-gray-500 flex-shrink-0">Booked: {{ \Carbon\Carbon::parse($booking->source->created_at)->format('d M Y') }}</p>
                     </div>
                 </flux:card>
             @endforeach
         </div>
-        <div class="mt-4">{{ $bookings->links() }}</div>
     @endif
 </div>

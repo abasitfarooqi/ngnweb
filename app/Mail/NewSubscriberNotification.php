@@ -34,7 +34,7 @@ class NewSubscriberNotification extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.ngnclub_new_subscriber_email')
+        return $this->view('olders.emails.ngnclub_new_subscriber_email')
             ->subject('Welcome to NGN Club!')
             ->with([
                 'clubMember' => $this->clubMember,

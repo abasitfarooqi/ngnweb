@@ -15,7 +15,7 @@ class WeeklyRentingReportMailer extends Mailable
     /**
      * Create a new message instance.
      *
-     * @param \Illuminate\Support\Collection $rows
+     * @param  \Illuminate\Support\Collection  $rows
      */
     public function __construct($rows)
     {
@@ -25,7 +25,7 @@ class WeeklyRentingReportMailer extends Mailable
     public function build()
     {
         return $this->subject('Weekly Rental Profit Report')
-                    ->view('emails.cron-jobs.weekly-renting-report')
-                    ->with('rows', $this->rows);
+            ->view('olders.emails.cron-jobs.weekly-renting-report')
+            ->with('rows', $this->rows);
     }
 }

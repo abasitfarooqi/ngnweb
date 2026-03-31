@@ -49,7 +49,7 @@ class RentalDue extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.RentalDueView',
+            view: 'olders.emails.RentalDueView',
         );
     }
 

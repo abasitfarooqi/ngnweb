@@ -22,7 +22,7 @@ class BookingInternal extends Mailable
     public function build()
     {
         return $this->subject('Service Enquiry Received')
-            ->view('emails.service-booking-internal')
+            ->view('olders.emails.service-booking-internal')
             ->with([
                 'booking' => $this->booking,
             ]);

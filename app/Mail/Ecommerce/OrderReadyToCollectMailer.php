@@ -33,7 +33,7 @@ class OrderReadyToCollectMailer extends Mailable
 
     public function build()
     {
-        return $this->view('emails.ecommerce.order-ready-to-collect')
+        return $this->view('olders.emails.ecommerce.order-ready-to-collect')
             ->subject('ORDER #'.$this->order->id.' READY TO COLLECT')
             ->with([
                 'order' => $this->order,

@@ -20,7 +20,7 @@ class PaymentReminderNotification extends Mailable
     public function build()
     {
         return $this->subject('Payment Reminder for MOT Booking')
-            ->view('emails.payment_reminder')
+            ->view('olders.emails.payment_reminder')
             ->with('data', $this->data);
     }
 }

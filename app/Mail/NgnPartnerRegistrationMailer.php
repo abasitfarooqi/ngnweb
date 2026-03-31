@@ -31,7 +31,7 @@ class NgnPartnerRegistrationMailer extends Mailable
     public function build()
     {
         return $this->subject('New Partner Registration')
-            ->view('emails.ngn-partner.partner_registration')
+            ->view('olders.emails.ngn-partner.partner_registration')
             ->with('partnerData', $this->partnerData);
     }
 }

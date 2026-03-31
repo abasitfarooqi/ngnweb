@@ -27,6 +27,26 @@ use Illuminate\Support\Facades\Validator;
 
 class NgnClubController extends Controller
 {
+    private function normaliseEmail(?string $email): string
+    {
+        return strtolower(trim((string) $email));
+    }
+
+    private function normalisePhone(?string $phone): string
+    {
+        $normalised = preg_replace('/\s+/', '', trim((string) $phone));
+
+        return (string) preg_replace('/^\+44/', '0', $normalised);
+    }
+
+    private function findStrictCustomerMatch(string $email, string $phone): ?\App\Models\Customer
+    {
+        return \App\Models\Customer::query()
+            ->whereRaw('LOWER(TRIM(email)) = ?', [$this->normaliseEmail($email)])
+            ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$this->normalisePhone($phone)])
+            ->first();
+    }
+
     /**
      * Route: POST /api/club-member-purchases (auth: sanctum)
      */
@@ -257,7 +277,7 @@ class NgnClubController extends Controller
     public function listCustomerSpending(Request $request)
     {
         \Log::info('API:listCustomerSpending called with payload: '.json_encode($request->all()));
-        
+
         $validator = Validator::make($request->all(), [
             'phone' => 'nullable|string',
             'vrm' => 'nullable|string',
@@ -282,7 +302,7 @@ class NgnClubController extends Controller
         }
 
         // Must provide either phone or vrm
-        if (!$request->phone && !$request->vrm) {
+        if (! $request->phone && ! $request->vrm) {
             return response()->json([
                 'success' => false,
                 'message' => 'Either phone or vrm (reg number) must be provided.',
@@ -297,7 +317,7 @@ class NgnClubController extends Controller
             $clubMember = ClubMember::where('vrm', $request->vrm)->first();
         }
 
-        if (!$clubMember) {
+        if (! $clubMember) {
             return response()->json([
                 'success' => false,
                 'message' => 'Club member not found.',
@@ -329,6 +349,7 @@ class NgnClubController extends Controller
         $records = $spendings->map(function ($spending) {
             $paidAmount = $spending->paid_amount ?? 0;
             $unpaidAmount = round($spending->total - $paidAmount, 2);
+
             return [
                 'id' => $spending->id,
                 'date' => $spending->date ? $spending->date->format('Y-m-d H:i:s') : null,
@@ -364,7 +385,7 @@ class NgnClubController extends Controller
     public function deleteCustomerSpending(Request $request)
     {
         \Log::info('API:deleteCustomerSpending called with payload: '.json_encode($request->all()));
-        
+
         $validator = Validator::make($request->all(), [
             'id' => 'nullable|integer|exists:club_member_spendings,id',
             'pos_invoice' => 'nullable|string',
@@ -389,7 +410,7 @@ class NgnClubController extends Controller
         }
 
         // Must provide either id or pos_invoice
-        if (!$request->id && !$request->pos_invoice) {
+        if (! $request->id && ! $request->pos_invoice) {
             return response()->json([
                 'success' => false,
                 'message' => 'Either id or pos_invoice must be provided.',
@@ -404,7 +425,7 @@ class NgnClubController extends Controller
             $spending = ClubMemberSpending::where('pos_invoice', $request->pos_invoice)->first();
         }
 
-        if (!$spending) {
+        if (! $spending) {
             return response()->json([
                 'success' => false,
                 'message' => 'Spending record not found.',
@@ -440,7 +461,7 @@ class NgnClubController extends Controller
     public function recordSpendingPayment(Request $request)
     {
         \Log::info('API:recordSpendingPayment called with payload: '.json_encode($request->all()));
-        
+
         $validator = Validator::make($request->all(), [
             'phone' => 'nullable|string',
             'club_member_id' => 'nullable|integer|exists:club_members,id',
@@ -468,7 +489,7 @@ class NgnClubController extends Controller
         }
 
         // Must provide either phone or club_member_id
-        if (!$request->phone && !$request->club_member_id) {
+        if (! $request->phone && ! $request->club_member_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Either phone or club_member_id must be provided.',
@@ -483,7 +504,7 @@ class NgnClubController extends Controller
             $clubMember = ClubMember::find($request->club_member_id);
         }
 
-        if (!$clubMember) {
+        if (! $clubMember) {
             return response()->json([
                 'success' => false,
                 'message' => 'Club member not found.',
@@ -561,7 +582,7 @@ class NgnClubController extends Controller
                     'pos_invoice' => $request->invoice,
                     'user_id' => $request->user_id ?? null,
                     'branch_id' => $request->branch_id,
-                    'note' => "Received £".number_format($appliedAmount, 2, '.', '')." from spending ID {$spending->id}",
+                    'note' => 'Received £'.number_format($appliedAmount, 2, '.', '')." from spending ID {$spending->id}",
                 ]);
 
                 $paymentRecords[] = $paymentRecord;
@@ -609,7 +630,7 @@ class NgnClubController extends Controller
     public function getSpendingPaymentHistory(Request $request)
     {
         \Log::info('API:getSpendingPaymentHistory called with payload: '.json_encode($request->all()));
-        
+
         $validator = Validator::make($request->all(), [
             'phone' => 'nullable|string',
             'club_member_id' => 'nullable|integer|exists:club_members,id',
@@ -634,7 +655,7 @@ class NgnClubController extends Controller
         }
 
         // Must provide either phone or club_member_id
-        if (!$request->phone && !$request->club_member_id) {
+        if (! $request->phone && ! $request->club_member_id) {
             return response()->json([
                 'success' => false,
                 'message' => 'Either phone or club_member_id must be provided.',
@@ -649,7 +670,7 @@ class NgnClubController extends Controller
             $clubMember = ClubMember::find($request->club_member_id);
         }
 
-        if (!$clubMember) {
+        if (! $clubMember) {
             return response()->json([
                 'success' => false,
                 'message' => 'Club member not found.',
@@ -1121,8 +1142,9 @@ class NgnClubController extends Controller
 
         $clubMember = ClubMember::where('phone', $request->phone)->first();
 
-        if (!$clubMember) {
+        if (! $clubMember) {
             \Log::info('Not Club member');
+
             return response()->json([
                 'success' => false,
                 'message' => 'Club member not found.',
@@ -1151,7 +1173,7 @@ class NgnClubController extends Controller
             $discount = round($purchase->discount, 2);
             $redeemed = round($purchase->redeem_amount ?? 0, 2);
             $available = round($discount - $redeemed, 2);
-            
+
             // Add to total (all credits, regardless of time)
             $total_credit = round($total_credit + $available, 2);
 
@@ -1162,7 +1184,7 @@ class NgnClubController extends Controller
             } else {
                 // Calculate DISPLAY time (19 hours) for safety margin
                 $purchaseRedeemableTime = Carbon::parse($purchase->date)->addHours(24);
-                
+
                 // Store all pending purchases with their unlock times
                 $pendingPurchases[] = [
                     'amount' => $available,
@@ -1175,15 +1197,15 @@ class NgnClubController extends Controller
 
         // Calculate time left message (uses 19-hour display for safety)
         if ($redeemable_credit > 0) {
-            if (!empty($pendingPurchases)) {
+            if (! empty($pendingPurchases)) {
                 // Sort pending purchases by unlock time
-                usort($pendingPurchases, function($a, $b) {
+                usort($pendingPurchases, function ($a, $b) {
                     return $a['unlock_time']->timestamp - $b['unlock_time']->timestamp;
                 });
-                
+
                 // Show time until the NEXT batch of credits unlocks
                 $nextUnlockTime = $pendingPurchases[0]['unlock_time'];
-                
+
                 // Group purchases that unlock at the same time (within 1 minute tolerance)
                 $nextBatchAmount = 0;
                 foreach ($pendingPurchases as $pending) {
@@ -1193,33 +1215,33 @@ class NgnClubController extends Controller
                     }
                 }
                 $nextBatchAmount = round($nextBatchAmount, 2);
-                
+
                 if ($nextUnlockTime->gt($now)) {
                     $diffInHours = abs($now->diffInHours($nextUnlockTime, false));
                     $diffInMinutes = abs($now->diffInMinutes($nextUnlockTime, false) % 60);
-                    $timeLeft = 'Redeemable now. £' . number_format($nextBatchAmount, 2, '.', '') . ' more in ' . $diffInHours . 'h ' . $diffInMinutes . 'm';
+                    $timeLeft = 'Redeemable now. £'.number_format($nextBatchAmount, 2, '.', '').' more in '.$diffInHours.'h '.$diffInMinutes.'m';
                 } else {
-                    $timeLeft = 'Redeemable £' . number_format($redeemable_credit, 2, '.', '');
+                    $timeLeft = 'Redeemable £'.number_format($redeemable_credit, 2, '.', '');
                 }
             } else {
                 // All credits are redeemable, show total amount
-                $timeLeft = 'Redeemable £' . number_format($redeemable_credit, 2, '.', '');
+                $timeLeft = 'Redeemable £'.number_format($redeemable_credit, 2, '.', '');
             }
         } else {
-            if (!empty($pendingPurchases)) {
+            if (! empty($pendingPurchases)) {
                 // Sort by unlock time to find the earliest
-                usort($pendingPurchases, function($a, $b) {
+                usort($pendingPurchases, function ($a, $b) {
                     return $a['unlock_time']->timestamp - $b['unlock_time']->timestamp;
                 });
-                
+
                 $earliestUnlockTime = $pendingPurchases[0]['unlock_time'];
-                
+
                 if ($earliestUnlockTime->gt($now)) {
                     $diffInHours = abs($now->diffInHours($earliestUnlockTime, false));
                     $diffInMinutes = abs($now->diffInMinutes($earliestUnlockTime, false) % 60);
-                    $timeLeft = 'Available in ' . $diffInHours . ' hours and ' . $diffInMinutes . ' minutes';
+                    $timeLeft = 'Available in '.$diffInHours.' hours and '.$diffInMinutes.' minutes';
                 } else {
-                    $timeLeft = 'Redeemable £' . number_format($redeemable_credit, 2, '.', '');
+                    $timeLeft = 'Redeemable £'.number_format($redeemable_credit, 2, '.', '');
                 }
             } else {
                 $timeLeft = 'No credits available';
@@ -1231,7 +1253,7 @@ class NgnClubController extends Controller
             ->orderBy('date', 'desc')
             ->first();
 
-        if (!$lastVisit) {
+        if (! $lastVisit) {
             $lastVisitStatus = 'No visits yet';
             Log::info('No visit history found');
         } else {
@@ -1263,7 +1285,7 @@ class NgnClubController extends Controller
             Log::info('Last visit status: '.$lastVisitStatus);
         }
 
-        \Log::info("Credit calculation - Total: {$total_credit}, Redeemable: {$redeemable_credit}, Display uses 19h margin, Pending purchases: " . count($pendingPurchases));
+        \Log::info("Credit calculation - Total: {$total_credit}, Redeemable: {$redeemable_credit}, Display uses 19h margin, Pending purchases: ".count($pendingPurchases));
 
         return response()->json([
             'success' => true,
@@ -1754,9 +1776,9 @@ class NgnClubController extends Controller
         }
 
         try {
-            // 2. Normalize phone number
-            $phone = preg_replace('/^\+44/', '0', $request->phone);
-            $phone = preg_replace('/\s+/', '', $phone);
+            // 2. Normalize identity values
+            $phone = $this->normalisePhone($request->phone);
+            $email = $this->normaliseEmail($request->email);
 
             // 3. Check if phone number exists
             if (ClubMember::where('phone', $phone)->exists()) {
@@ -1767,11 +1789,30 @@ class NgnClubController extends Controller
             }
 
             // 4. Check if email exists
-            if (ClubMember::where('email', $request->email)->exists()) {
+            if (ClubMember::whereRaw('LOWER(TRIM(email)) = ?', [$email])->exists()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Email is already registered',
                 ], 400);
+            }
+
+            $customerByEmail = \App\Models\Customer::query()
+                ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+                ->first();
+            $customerByPhone = \App\Models\Customer::query()
+                ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])
+                ->first();
+            if (($customerByEmail && ! $customerByPhone) || (! $customerByEmail && $customerByPhone)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'For existing customers, email and phone must both match before club signup.',
+                ], 422);
+            }
+            if ($customerByEmail && $customerByPhone && (int) $customerByEmail->id !== (int) $customerByPhone->id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email and phone belong to different customer records.',
+                ], 422);
             }
 
             // 5. Generate OTP
@@ -1781,7 +1822,7 @@ class NgnClubController extends Controller
             $registrationData = [
                 'user_id' => $user->id,
                 'full_name' => $request->full_name,
-                'email' => $request->email,
+                'email' => $email,
                 'phone' => $phone,
                 'tc_agreed' => $request->tc_agreed,
                 'otp' => Hash::make($otpCode),
@@ -1926,7 +1967,12 @@ class NgnClubController extends Controller
                 'passkey' => $passcode,
                 'is_verified' => true,
                 'user_id' => $user->id,
+                'customer_id' => $this->findStrictCustomerMatch($registrationData['email'], $phone)?->id,
             ]);
+
+            if ($clubMember->customer_id) {
+                \App\Models\Customer::where('id', $clubMember->customer_id)->update(['is_club' => true]);
+            }
 
             // 8. Send login credentials via SMS
             $smsController = new SMSController;
@@ -2065,10 +2111,29 @@ class NgnClubController extends Controller
 
         // Normalize and validate the phone number
         $phone = $request->input('phone');
-        $phone = preg_replace('/^\+44/', '0', $phone); // Replace +44 with 0
-        $phone = preg_replace('/\s+/', '', $phone); // Remove spaces
+        $phone = $this->normalisePhone($phone);
+        $email = $this->normaliseEmail($request->email);
 
         Log::info('Normalized Phone: '.$phone);
+
+        $customerByEmail = \App\Models\Customer::query()
+            ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+            ->first();
+        $customerByPhone = \App\Models\Customer::query()
+            ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])
+            ->first();
+        if (($customerByEmail && ! $customerByPhone) || (! $customerByEmail && $customerByPhone)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'For existing customers, email and phone must both match before club signup.',
+            ], 422);
+        }
+        if ($customerByEmail && $customerByPhone && (int) $customerByEmail->id !== (int) $customerByPhone->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Email and phone belong to different customer records.',
+            ], 422);
+        }
 
         // Verification Checks
         Log::info('Starting verification checks.');
@@ -2180,18 +2245,25 @@ class NgnClubController extends Controller
             Log::info('Creating ClubMember...');
 
             // Create the new club member
+            $customer = $this->findStrictCustomerMatch($email, $phone);
             $clubMember = ClubMember::create([
                 'full_name' => $request->full_name,
-                'email' => $request->email,
+                'email' => $email,
                 'phone' => $phone,
                 'tc_agreed' => 1,
                 'passkey' => $passcode,
+                'customer_id' => $customer?->id,
                 // Add vehicle details
                 'make' => $request->filled('make') ? strtoupper($request->make) : null,
                 'model' => $request->filled('model') ? strtoupper($request->model) : null,
                 'year' => $request->filled('year') ? $request->year : null,
                 'vrm' => $request->filled('vrm') ? strtoupper($request->vrm) : null,
             ]);
+
+            if ($customer) {
+                $customer->is_club = true;
+                $customer->save();
+            }
 
             Log::info('ClubMember created with ID: '.$clubMember->id);
 
@@ -2351,6 +2423,7 @@ class NgnClubController extends Controller
 
         if ($validator->fails()) {
             Log::info('Validation failed: '.json_encode($validator->errors()->all()));
+
             return response()->json([
                 'success' => false,
                 'message' => $validator->errors()->all(),
@@ -2361,8 +2434,9 @@ class NgnClubController extends Controller
         $clubMember = ClubMember::where('phone', $request->phone)->first();
         Log::info('Club member retrieved: '.($clubMember ? $clubMember->full_name : 'Not found'));
 
-        if (!$clubMember) {
+        if (! $clubMember) {
             Log::info('Club member not found for phone: '.$request->phone);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Club member not found.',
@@ -2395,10 +2469,11 @@ class NgnClubController extends Controller
 
         // CRITICAL: Round request amount and use tolerance
         $requestedAmount = round($request->amount, 2);
-        
+
         // Use 0.03 tolerance for floating point comparison
         if ($requestedAmount > ($totalAvailableCredit + 0.03)) {
             Log::info("Requested: {$requestedAmount}, Available: {$totalAvailableCredit} - Amount exceeds credit");
+
             return response()->json([
                 'success' => false,
                 'message' => 'Requested redeem amount exceeds available credit.',
@@ -2425,8 +2500,9 @@ class NgnClubController extends Controller
         $smsMessage = "Your OTP for redeeming credits at NGN Club is: {$otpCode}. It expires in 24 hours.";
         $smsResponse = $smsController->sendSms($clubMember->phone, $smsMessage);
 
-        if (!isset($smsResponse['success']) || !$smsResponse['success']) {
+        if (! isset($smsResponse['success']) || ! $smsResponse['success']) {
             Log::error('Failed to send OTP via SMS: '.($smsResponse['message'] ?? 'No message provided.'));
+
             return response()->json([
                 'success' => false,
                 'message' => $smsResponse['message'] ?? 'Failed to send OTP. Please try again.',
@@ -2462,6 +2538,7 @@ class NgnClubController extends Controller
 
         if ($validator->fails()) {
             Log::info('Validation failed: '.json_encode($validator->errors()->all()));
+
             return response()->json([
                 'success' => false,
                 'message' => $validator->errors()->all(),
@@ -2472,8 +2549,9 @@ class NgnClubController extends Controller
         $clubMember = ClubMember::where('phone', $request->phone)->first();
         Log::info('Club member retrieved: '.($clubMember ? $clubMember->full_name : 'Not found'));
 
-        if (!$clubMember) {
+        if (! $clubMember) {
             Log::info('Club member not found for phone: '.$request->phone);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Club member not found.',
@@ -2489,8 +2567,9 @@ class NgnClubController extends Controller
             ->latest('created_at')
             ->first();
 
-        if (!$otpVerification) {
+        if (! $otpVerification) {
             Log::info('No valid OTP found for club member ID: '.$clubMember->id);
+
             return response()->json([
                 'success' => false,
                 'message' => 'No valid OTP found. Please initiate redemption again.',
@@ -2500,8 +2579,9 @@ class NgnClubController extends Controller
         Log::info("Retrieved OTP verification record ID: {$otpVerification->id}, expires_at: {$otpVerification->expires_at}");
 
         // Step 6: Verify the OTP
-        if (!Hash::check($request->otp_code, $otpVerification->otp_code)) {
+        if (! Hash::check($request->otp_code, $otpVerification->otp_code)) {
             Log::info('Invalid OTP provided by club member ID: '.$clubMember->id);
+
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid OTP. Please try again.',
@@ -2542,6 +2622,7 @@ class NgnClubController extends Controller
         // CRITICAL: Same tolerance check as initiateRedeem
         if ($requestedRedeemAmount > ($totalAvailableCredit + 0.03)) {
             Log::info("Requested: {$requestedRedeemAmount}, Available: {$totalAvailableCredit} - Amount exceeds credit");
+
             return response()->json([
                 'success' => false,
                 'message' => 'Requested redeem amount exceeds available credit.',
@@ -2566,11 +2647,12 @@ class NgnClubController extends Controller
                 $discount = round($purchase->discount, 2);
                 $redeemed = round($purchase->redeem_amount ?? 0, 2);
                 $availableCredit = round($discount - $redeemed, 2);
-                
+
                 Log::info("Processing purchase ID {$purchase->id}, available credit: {$availableCredit}");
 
                 if ($availableCredit <= 0.005) {
                     Log::info("No available credit in purchase ID {$purchase->id}, skipping.");
+
                     continue;
                 }
 
@@ -2612,7 +2694,7 @@ class NgnClubController extends Controller
             }
 
             // Step 11: Insert redeem records
-            if (!empty($redeemRecords)) {
+            if (! empty($redeemRecords)) {
                 Log::info('Inserting redeem records: '.json_encode($redeemRecords));
                 foreach ($redeemRecords as $redeemRecord) {
                     $insertedIds[] = DB::table('club_member_redeem')->insertGetId($redeemRecord);
@@ -2641,6 +2723,7 @@ class NgnClubController extends Controller
             DB::rollBack();
             Log::error('Redeem processing error: '.$e->getMessage());
             Log::error('Redeem processing stack: '.$e->getTraceAsString());
+
             return response()->json([
                 'success' => false,
                 'message' => 'An error occurred while processing the redeem.',
@@ -3383,77 +3466,80 @@ class NgnClubController extends Controller
             return redirect()->back()->with('error', 'An error occurred while updating your profile. Please try again.');
         }
     }
+
     public function referralStatus(Request $request)
     {
         $request->validate([
             'search' => 'required|string',
         ]);
-    
+
         $search = $request->input('search');
-    
+
         // Try to find club member by ID, phone, or name
         $clubMember = null;
-    
+
         if (is_numeric($search)) {
             $clubMember = ClubMember::find($search);
         }
-    
-        if (!$clubMember) {
+
+        if (! $clubMember) {
             $clubMember = ClubMember::where('phone', $search)
                 ->orWhere('full_name', 'like', "%{$search}%")
                 ->first();
         }
-    
+
         // If not found, check referral table directly
-        if (!$clubMember) {
+        if (! $clubMember) {
             $referral = \DB::table('ngn_campaign_referrals')
                 ->where('referred_phone', $search)
                 ->orWhere('referrer_phone', $search)
                 ->orderBy('created_at', 'asc')
                 ->first();
-    
+
             if ($referral) {
                 $clubMember = ClubMember::where('phone', $referral->referred_phone)->first();
-                if (!$clubMember && isset($referral->referrer_club_member_id)) {
+                if (! $clubMember && isset($referral->referrer_club_member_id)) {
                     $clubMember = ClubMember::find($referral->referrer_club_member_id);
                 }
             }
         }
-    
-        if (!$clubMember) {
+
+        if (! $clubMember) {
             return response()->json(['success' => false, 'message' => 'Club member not found.'], 404);
         }
-    
+
         // Fetch referrals where member is referrer
         $referrals = \DB::table('ngn_campaign_referrals')
             ->where('referrer_club_member_id', $clubMember->id)
             ->orderBy('created_at', 'asc')
             ->get();
-    
+
         // Also fetch referrals where member is referred
         $referredBy = \DB::table('ngn_campaign_referrals')
             ->where('referred_phone', $clubMember->phone)
             ->orderBy('created_at', 'asc')
             ->get();
-    
+
         $allReferrals = $referrals->merge($referredBy);
-    
+
         $referredList = [];
         $allEligible = true;
-    
+
         foreach ($allReferrals as $ref) {
             $referrer = ClubMember::find($ref->referrer_club_member_id);
             $referred = ClubMember::where('phone', $ref->referred_phone)->first();
-            if (!$referrer || !$referred) continue;
-    
+            if (! $referrer || ! $referred) {
+                continue;
+            }
+
             // Purchases after referral date
             $purchases = $referred->purchases()
                 ->where('created_at', '>=', $ref->created_at)
                 ->get();
-    
+
             $totalPurchases = $purchases->sum('total');
             $eligible = $totalPurchases >= 30;
-    
+
             $referredList[] = [
                 'referrer' => [
                     'id' => $referrer->id,
@@ -3470,20 +3556,20 @@ class NgnClubController extends Controller
                 ],
                 'referral' => [
                     'referral_code' => $ref->referral_code ?? null,
-                    'validated' => isset($ref->validated) ? (bool)$ref->validated : false,
+                    'validated' => isset($ref->validated) ? (bool) $ref->validated : false,
                     'created_at' => $ref->created_at,
                 ],
             ];
-    
-            if (!$eligible) {
+
+            if (! $eligible) {
                 $allEligible = false;
             }
         }
-    
+
         $reason = $allEligible
             ? 'All referred members have met the £30 minimum purchase requirement.'
             : 'Some referred members have not reached the £30 minimum.';
-    
+
         return response()->json([
             'referrer' => [
                 'id' => $clubMember->id,
@@ -3496,6 +3582,4 @@ class NgnClubController extends Controller
             'reason' => $reason,
         ]);
     }
-    
-
 }

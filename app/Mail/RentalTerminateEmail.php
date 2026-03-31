@@ -33,7 +33,7 @@ class RentalTerminateEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.rental-terminate-v1',
+            view: 'olders.emails.rental-terminate-v1',
             with: $this->mailData
 
         );

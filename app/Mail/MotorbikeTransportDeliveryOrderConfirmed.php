@@ -20,7 +20,7 @@ class MotorbikeTransportDeliveryOrderConfirmed extends Mailable
     // Template Directory: emails, Template Name: motorbike_transport_delivery_order_confirmd
     public function build()
     {
-        return $this->view('emails.motorbike_transport_delivery_order_confirmed')
+        return $this->view('olders.emails.motorbike_transport_delivery_order_confirmed')
             ->with(['order' => $this->order]);
     }
 }

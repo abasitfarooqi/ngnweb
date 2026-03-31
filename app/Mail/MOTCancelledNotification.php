@@ -29,14 +29,14 @@ class MOTCancelledNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.mot_cancelled',
+            view: 'olders.emails.mot_cancelled',
             with: $this->mailData
         );
     }
 
     public function build()
     {
-        return $this->view('emails.mot_cancelled')
+        return $this->view('olders.emails.mot_cancelled')
             ->with([
                 'customer_name' => $this->mailData['customer_name'],
                 'vehicle_registration' => $this->mailData['vehicle_registration'],

@@ -32,7 +32,7 @@ class ContactSubmission extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.contact-submission',
+            view: 'olders.emails.contact-submission',
         );
     }
 }

@@ -56,6 +56,8 @@ Route::group([
     Route::crud('finance-application', 'FinanceApplicationCrudController');
     Route::crud('application-item', 'ApplicationItemCrudController');
     Route::crud('customer', 'CustomerCrudController');
+    Route::post('customer/{customerId}/send-portal-credentials', [\App\Http\Controllers\Auth\CustomerAuthController::class, 'sendPortalCredentials'])
+        ->name('backpack.customer.send-portal-credentials');
     // Route::delete('customer/contract/{id}', [\App\Http\Controllers\Admin\CustomerCrudController::class, 'deleteContract'])->name('customer.contract.delete');
     Route::delete('/customer/contract/{id}', [\App\Http\Controllers\Admin\CustomerCrudController::class, 'destroyContract'])
         ->name('customer.contract.destroy');

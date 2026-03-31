@@ -46,7 +46,7 @@ class OrderConfirmedAlertMailer extends Mailable
             return $item;
         });
 
-        return $this->view('emails.ecommerce.order-confirmed-alert')
+        return $this->view('olders.emails.ecommerce.order-confirmed-alert')
             ->subject('ORDER #'.$this->order->id.' CONFIRMED')
             ->with([
                 'order' => $this->order,

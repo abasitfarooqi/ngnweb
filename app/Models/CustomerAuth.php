@@ -42,7 +42,8 @@ class CustomerAuth extends Authenticatable implements CanResetPassword, MustVeri
 
     public function profile()
     {
-        return $this->hasOne(CustomerProfile::class, 'customer_auth_id');
+        // Backward-compatible accessor: profile data now lives on customers.
+        return $this->belongsTo(Customer::class, 'customer_id');
     }
 
     public function sendPasswordResetNotification($token)

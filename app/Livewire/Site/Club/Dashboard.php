@@ -3,8 +3,7 @@
 namespace App\Livewire\Site\Club;
 
 use App\Models\ClubMember;
-use App\Models\ClubMemberPurchase;
-use App\Models\ClubMemberRedeem;
+use App\Services\Club\ClubMemberDashboardData;
 use Livewire\Component;
 
 class Dashboard extends Component
@@ -33,19 +32,12 @@ class Dashboard extends Component
             return $this->redirectRoute('ngnclub.register');
         }
 
-        $purchases = ClubMemberPurchase::where('club_member_id', $member->id)->orderBy('id', 'desc')->get();
-        $redemptions = ClubMemberRedeem::where('club_member_id', $member->id)->orderBy('id', 'desc')->get();
+        $dash = ClubMemberDashboardData::forMember($member);
 
-        $totalSpend = $purchases->sum('total');
-        $totalDiscount = $purchases->sum('discount');
-        $totalRedeemed = $redemptions->sum('redeem_total');
-        $availableCredit = max(0, $totalDiscount - $totalRedeemed);
-        $qualifiedReferral = $purchases->count() > 0;
-
-        return view('livewire.site.club.dashboard', compact(
-            'member', 'purchases', 'redemptions',
-            'totalSpend', 'totalDiscount', 'totalRedeemed', 'availableCredit', 'qualifiedReferral'
-        ))->layout('components.layouts.public', [
+        return view('livewire.site.club.dashboard', [
+            'member' => $member,
+            'dash' => $dash,
+        ])->layout('components.layouts.public', [
             'title' => 'NGN Club Dashboard | NGN Motors',
         ]);
     }

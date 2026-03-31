@@ -38,13 +38,13 @@ class NgnSurveySystemCampaignMailer extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.ngn_survey_system_campaign',
+            view: 'olders.emails.ngn_survey_system_campaign',
         );
     }
 
     public function build()
     {
-        return $this->view('emails.ngn_survey_system_campaign')
+        return $this->view('olders.emails.ngn_survey_system_campaign')
             ->subject('Participate in our Motorbike Preference Survey')
             ->with([
                 'name' => $this->emailData['name'],

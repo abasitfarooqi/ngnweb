@@ -39,13 +39,22 @@ class CustomerVerifyEmailNotification extends Notification
     {
         $verificationUrl = $this->verificationUrl($notifiable);
         Log::info('Verification URL generated', ['url' => $verificationUrl]);
+        $customer = $notifiable->customer;
+        if (! $customer) {
+            $customer = (object) [
+                'first_name' => 'Customer',
+                'last_name' => '',
+                'email' => $notifiable->email ?? '',
+            ];
+        }
 
         try {
             return (new MailMessage)
                 ->subject('Verify Your Email Address - NGN Store')
-                ->view('emails.ecommerce.verify-email', [
+                ->view('olders.emails.ecommerce.verify-email', [
+                    'url' => $verificationUrl,
                     'verificationUrl' => $verificationUrl,
-                    'customer' => $notifiable->customer,
+                    'customer' => $customer,
                 ]);
         } catch (\Exception $e) {
             Log::error('Error in toMail method', [

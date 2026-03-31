@@ -23,7 +23,7 @@ class NgnProfileController extends Controller
         $customerAuth = Auth::guard('customer')->user();
 
         if (! $customerAuth) {
-            return redirect()->route('customer.login')->with('error', 'You must be logged in to view your profile.');
+            return redirect()->route('login')->with('error', 'You must be logged in to view your profile.');
         }
 
         // Fetch the customer details based on the customer_auth record
@@ -38,7 +38,7 @@ class NgnProfileController extends Controller
         $customerAuth = Auth::guard('customer')->user();
 
         if (! $customerAuth) {
-            return redirect()->route('customer.login')->with('error', 'Unauthorized access.');
+            return redirect()->route('login')->with('error', 'Unauthorized access.');
         }
 
         // Validate the incoming request
@@ -76,7 +76,7 @@ class NgnProfileController extends Controller
         $customerAuth = Auth::guard('customer')->user();
 
         if (! $customerAuth) {
-            return redirect()->route('customer.login')->with('error', 'Unauthorized access.');
+            return redirect()->route('login')->with('error', 'Unauthorized access.');
         }
 
         // Validate the incoming request

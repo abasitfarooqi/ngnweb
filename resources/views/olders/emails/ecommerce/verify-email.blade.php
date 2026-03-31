@@ -124,12 +124,15 @@
             <p>Thank you for creating an account with NGN Store. To ensure the security of your account and activate all
                 features, please verify your email address by clicking the button below:</p>
             <br>
+            @php
+                $verifyUrl = $url ?? $verificationUrl ?? '';
+            @endphp
             <div style="text-align: center;">
-                <a href="{{ $url }}" class="verify-button">Verify Email Address</a>
+                <a href="{{ $verifyUrl }}" class="verify-button">Verify Email Address</a>
             </div>
             <br>
             <p>If you're having trouble clicking the button, you can copy and paste this link into your browser:</p>
-            <p style="word-break: break-all; margin-top: 10px; font-size: 12px;">{{ $url }}</p>
+            <p style="word-break: break-all; margin-top: 10px; font-size: 12px;">{{ $verifyUrl }}</p>
             <br>
             <p>If you did not create an account, no further action is required.</p>
         </div>

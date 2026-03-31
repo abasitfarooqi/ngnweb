@@ -20,7 +20,7 @@ class MOT10DaysReminder extends Mailable
     public function build()
     {
         return $this->subject('MOT Expiry Reminder - 10 Days')
-            ->view('emails.mot-10days')
+            ->view('olders.emails.mot-10days')
             ->with(['subscriber' => $this->subscriber]);
     }
 }

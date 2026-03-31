@@ -97,11 +97,11 @@
 
 
 
-                    <!-- <a class="navbar-sm-brand text-light text-decoration-none font-two" href="/accountinformation/login">
+                    <!-- <a class="navbar-sm-brand text-light text-decoration-none font-two" href="/login">
                  <i class="fa fa-sign-in mx-1"></i> LOGIN
              </a>
              |
-             <a class="navbar-sm-brand text-light text-decoration-none font-two ml-2" href="/accountinformation/register">
+             <a class="navbar-sm-brand text-light text-decoration-none font-two ml-2" href="/register">
                  <i class="fa fa-user-plus mx-1"></i> REGISTER
              </a> -->
 

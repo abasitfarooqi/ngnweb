@@ -10,6 +10,32 @@
     </div>
 </div>
 
+{{-- Legacy static rental highlights (kept with current dynamic listing) --}}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Prices Start From GBP 70/Week</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        @foreach([
+            ['slug' => 'honda-forza-125', 'name' => 'Honda Forza 125cc', 'price' => 100, 'img' => '/img/rentals/honda-forza-125.jpg'],
+            ['slug' => 'honda-pcx-125', 'name' => 'Honda PCX 125cc', 'price' => 75, 'img' => '/img/rentals/honda-pcx-125.jpg'],
+            ['slug' => 'honda-sh-125', 'name' => 'Honda SH 125cc', 'price' => 75, 'img' => '/img/rentals/honda-sh-125.jpg'],
+            ['slug' => 'honda-vision-125', 'name' => 'Honda Vision 125cc', 'price' => 70, 'img' => '/img/rentals/honda-vision-125.jpg'],
+            ['slug' => 'yamaha-nmax-125', 'name' => 'Yamaha NMAX 125cc', 'price' => 75, 'img' => '/img/rentals/yamaha-nmax-125.jpg'],
+            ['slug' => 'yamaha-xmax-125', 'name' => 'Yamaha XMAX 125cc', 'price' => 100, 'img' => '/img/rentals/yamaha-xmax-125.jpg'],
+        ] as $item)
+            <article class="border border-gray-200 dark:border-gray-700 overflow-hidden">
+                <a href="/{{ $item['slug'] }}" class="block">
+                    <img src="{{ url($item['img']) }}" alt="{{ $item['name'] }}" class="w-full h-52 object-cover">
+                </a>
+                <div class="p-4">
+                    <h3 class="font-semibold text-gray-900 dark:text-white">{{ $item['name'] }}</h3>
+                    <p class="text-brand-red font-bold mt-1">From GBP {{ number_format((float) $item['price'], 2) }} per week</p>
+                    <flux:button href="/{{ $item['slug'] }}" variant="outline" size="sm" class="w-full mt-3">More information</flux:button>
+                </div>
+            </article>
+        @endforeach
+    </div>
+</div>
+
 {{-- Rental Grid --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Available Motorcycles</h2>

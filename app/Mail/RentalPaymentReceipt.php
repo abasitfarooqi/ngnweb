@@ -29,7 +29,7 @@ class RentalPaymentReceipt extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.rental-payment-receipt',
+            view: 'olders.emails.rental-payment-receipt',
             with: $this->mailData
         );
     }

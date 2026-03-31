@@ -20,7 +20,7 @@ class ReferralCampaignNotification extends Mailable
 
     public function build()
     {
-        return $this->view('emails.referral_campaign')
+        return $this->view('olders.emails.referral_campaign')
             ->subject('Hurry up! Earn £5 Credit')
             ->with(['user' => $this->user]);
     }

@@ -14,7 +14,9 @@ class CitRefundCustomerNotification extends Notification implements ShouldQueue
     use Queueable;
 
     protected $citSession;
+
     protected $refundOutcome;
+
     protected $originalOutcome;
 
     /**
@@ -46,7 +48,7 @@ class CitRefundCustomerNotification extends Notification implements ShouldQueue
     public function toMail(object $notifiable): MailMessage
     {
         $subscription = $this->citSession->subscription;
-        
+
         // Standardised customer resolution
         $customer = $subscription->subscribable?->customer ?? $subscription->customer;
         $serviceData = $subscription->subscribable;
@@ -54,7 +56,7 @@ class CitRefundCustomerNotification extends Notification implements ShouldQueue
         // Get contract details
         $contractId = $serviceData->id ?? 'N/A';
         $vrm = 'N/A';
-        
+
         if ($subscription->subscribable_type === 'App\Models\RentingBooking') {
             $vrm = $serviceData->rentingBookingItems->first()->motorbike->reg_no ?? 'N/A';
         } elseif ($subscription->subscribable_type === 'App\Models\FinanceApplication') {
@@ -66,7 +68,7 @@ class CitRefundCustomerNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Payment Refund Processed - NGN Motors')
-            ->view('emails.judopay.cit-refund-customer', [
+            ->view('olders.emails.judopay.cit-refund-customer', [
                 'customer_name' => $customer->first_name ?? 'Customer',
                 'refund_amount' => $refundAmount,
                 'refund_receipt_id' => $refundReceiptId,

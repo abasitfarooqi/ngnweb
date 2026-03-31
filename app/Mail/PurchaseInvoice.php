@@ -30,7 +30,7 @@ class PurchaseInvoice extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.purchase-invoice',
+            view: 'olders.emails.purchase-invoice',
             with: $this->mailData
 
         );

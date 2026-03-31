@@ -4,13 +4,11 @@
 
 namespace App\Console;
 
-use Illuminate\Console\Scheduling\Schedule;
-use App\Jobs\ProduceNgnMitQueueJob;
-use App\Jobs\ProcessMitQueueJob;
 use App\Jobs\ProcessMitRetryJob;
-use App\Jobs\SendWeeklyMitOpeningReportJob;
+use App\Jobs\ProduceNgnMitQueueJob;
 use App\Jobs\SendWeeklyMitClosingReportJob;
-use App\Helpers\JudopayMit;
+use App\Jobs\SendWeeklyMitOpeningReportJob;
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 
 class Kernel extends ConsoleKernel
@@ -36,7 +34,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         // MIT Queue Generation - Mondays at 04:00
-        $schedule->job(new ProduceNgnMitQueueJob())
+        $schedule->job(new ProduceNgnMitQueueJob)
             ->weeklyOn(1, config('judopay.mit.queue_produce_time'))
             ->description('Produces the NGN MIT Queue using config-driven timing');
 
@@ -46,7 +44,7 @@ class Kernel extends ConsoleKernel
             ->description('Automatically adds current week NGN MIT Queue items to Judopay MIT Queue');
 
         // MIT Weekly Opening Report - Mondays at 08:45 (after queue generation)
-        $schedule->job(new SendWeeklyMitOpeningReportJob())
+        $schedule->job(new SendWeeklyMitOpeningReportJob)
             ->weeklyOn(1, '08:45')
             ->description('Send weekly MIT opening report - expected collections for the week');
 
@@ -62,7 +60,7 @@ class Kernel extends ConsoleKernel
         $retryConfig = config('judopay.mit.retry_system');
         if ($retryConfig['enabled']) {
             $retryTime = $retryConfig['retry_time'];
-            $schedule->job(new ProcessMitRetryJob())
+            $schedule->job(new ProcessMitRetryJob)
                 ->dailyAt($retryTime)
                 ->description('Process MIT retries for failed payments');
         }

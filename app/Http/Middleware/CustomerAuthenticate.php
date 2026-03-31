@@ -14,12 +14,7 @@ class CustomerAuthenticate
                 return response()->json(['message' => 'Unauthenticated.'], 401);
             }
 
-            // Store intended URL for redirect after login
-            if ($request->is('accountinformation/*') && ! $request->is('accountinformation/login')) {
-                session()->put('url.intended', $request->url());
-            }
-
-            return redirect()->route('customer.login');
+            return redirect()->route('login');
         }
 
         return $next($request);

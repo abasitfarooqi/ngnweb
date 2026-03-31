@@ -130,18 +130,10 @@
         {{-- Emergency Contact --}}
         <flux:card class="p-6">
             <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Emergency Contact</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="grid grid-cols-1 gap-4">
                 <flux:field>
                     <flux:label>Name</flux:label>
                     <flux:input wire:model="emergency_contact_name" />
-                </flux:field>
-                <flux:field>
-                    <flux:label>Phone</flux:label>
-                    <flux:input wire:model="emergency_contact_phone" type="tel" />
-                </flux:field>
-                <flux:field>
-                    <flux:label>Relationship</flux:label>
-                    <flux:input wire:model="emergency_contact_relationship" />
                 </flux:field>
             </div>
         </flux:card>

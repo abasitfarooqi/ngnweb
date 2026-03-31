@@ -38,7 +38,7 @@ class MotorcycleRecoveryMail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Motorcycle Recovery Request - NGN')
-            ->view('emails.motorcycle_recovery')
+            ->view('olders.emails.motorcycle_recovery')
             ->priority(1); // High priority for recovery requests
     }
 }

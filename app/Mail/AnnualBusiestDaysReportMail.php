@@ -26,7 +26,7 @@ class AnnualBusiestDaysReportMail extends Mailable
     public function build()
     {
         return $this->subject('Annual Busiest Days Report')
-            ->view('emails.annual_busiest_days_report')
+            ->view('olders.emails.annual_busiest_days_report')
             ->with(['emailData' => $this->emailData]);
     }
 }

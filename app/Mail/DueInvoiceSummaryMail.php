@@ -26,7 +26,7 @@ class DueInvoiceSummaryMail extends Mailable
     public function build()
     {
         return $this->subject('Daily Summary of Invoices Due Tomorrow')
-            ->view('emails.due_invoice_summary')
+            ->view('olders.emails.due_invoice_summary')
             ->with(['emailDataList' => $this->emailDataList]);
     }
 }

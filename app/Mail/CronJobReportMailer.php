@@ -21,7 +21,7 @@ class CronJobReportMailer extends Mailable
 
     public function build(): self
     {
-        return $this->view('emails.cron-jobs.cron-job-global-stock-report')
+        return $this->view('olders.emails.cron-jobs.cron-job-global-stock-report')
             ->subject('Global Stock Update - '.$this->data['title'])
             ->with([
                 'total_products' => $this->data['data']['total_products'],

@@ -38,7 +38,7 @@ class CustomerDocumentRequest extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.upload-documents',
+            view: 'olders.emails.upload-documents',
             with: $this->mailData
         );
     }

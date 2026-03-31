@@ -71,7 +71,7 @@ class MyRentals extends Component
 
     public function render()
     {
-        $profile = Auth::guard('customer')->user()->profile;
+        $profile = Auth::guard('customer')->user()->customer;
         $bookings = $profile
             ? $profile->rentingBookings()
                 ->with(['rentingBookingItems.motorbike', 'bookingInvoices'])

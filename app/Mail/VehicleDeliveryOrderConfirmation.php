@@ -34,7 +34,7 @@ class VehicleDeliveryOrderConfirmation extends Mailable
      */
     public function build()
     {
-        return $this->view('emails.vehicle_delivery_order_confirmation')
+        return $this->view('olders.emails.vehicle_delivery_order_confirmation')
             ->subject('Pickup Estimate');
     }
 }

@@ -2,21 +2,23 @@
 
 namespace App\Livewire\Portal\Rentals;
 
-use Livewire\Component;
-use Illuminate\Support\Facades\Auth;
 use App\Models\Branch;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Livewire\Component;
 
 class Browse extends Component
 {
     public $selectedBranch = null;
+
     public $searchQuery = '';
+
     public $filterType = 'all';
 
     public function mount()
     {
-        $profile = Auth::guard('customer')->user()->profile;
+        $profile = Auth::guard('customer')->user()->customer;
         if ($profile && $profile->preferred_branch_id) {
             $this->selectedBranch = $profile->preferred_branch_id;
         }
@@ -78,15 +80,16 @@ class Browse extends Component
             if ($this->searchQuery) {
                 $search = $this->searchQuery;
                 $motorbikes->where(function ($q) use ($search) {
-                    $q->where('MB.make', 'like', '%' . $search . '%')
-                        ->orWhere('MB.model', 'like', '%' . $search . '%')
-                        ->orWhere('MR.registration_number', 'like', '%' . $search . '%');
+                    $q->where('MB.make', 'like', '%'.$search.'%')
+                        ->orWhere('MB.model', 'like', '%'.$search.'%')
+                        ->orWhere('MR.registration_number', 'like', '%'.$search.'%');
                 });
             }
 
             return $motorbikes->orderBy('MB.make')->orderBy('MB.model')->get();
         } catch (\Exception $e) {
-            Log::error('Browse: Error fetching available motorbikes: ' . $e->getMessage());
+            Log::error('Browse: Error fetching available motorbikes: '.$e->getMessage());
+
             return collect();
         }
     }
@@ -94,7 +97,7 @@ class Browse extends Component
     public function render()
     {
         return view('livewire.portal.rentals.browse', [
-            'branches'   => Branch::all(),
+            'branches' => Branch::all(),
             'motorbikes' => $this->getAvailableMotorbikes(),
         ])->layout('components.layouts.portal');
     }

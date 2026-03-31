@@ -21,7 +21,7 @@ class PCNNotify extends Mailable
     public function build()
     {
         return $this->subject('Payment Reminder for PCN')
-            ->view('emails.pcn-notify')
+            ->view('olders.emails.pcn-notify')
             ->with('data', $this->data);
     }
 }

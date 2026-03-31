@@ -31,11 +31,13 @@
             @foreach ($bookings as $booking)
                 @php
                     $activeItem = $booking->rentingBookingItems->whereNull('end_date')->first();
-                    $isActive = $activeItem && $booking->state !== 'COMPLETED';
-                    $statusClass = match($booking->state) {
+                    $isEnded = $booking->rentingBookingItems->isNotEmpty() && $booking->rentingBookingItems->every(fn ($i) => !empty($i->end_date));
+                    $displayState = $isEnded ? 'ENDED' : (string) ($booking->state ?? 'ACTIVE');
+                    $isActive = !$isEnded && (bool) $activeItem;
+                    $statusClass = match($displayState) {
                         'ACTIVE' => 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200',
                         'PENDING_RETURN' => 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200',
-                        'COMPLETED' => 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
+                        'COMPLETED', 'ENDED' => 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-300',
                         'CANCELLED' => 'bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200',
                         default => 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200',
                     };
@@ -49,7 +51,7 @@
                                     Booking #{{ $booking->id }}
                                 </h3>
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium {{ $statusClass }}">
-                                    {{ $booking->state }}
+                                    {{ $displayState }}
                                 </span>
                             </div>
                             @if ($activeItem && $activeItem->motorbike)
@@ -66,6 +68,19 @@
                                 <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                                     Weekly Rent: £{{ number_format($activeItem->weekly_rent, 2) }}
                                 </p>
+                            @endif
+                            @php
+                                $historicalItems = $booking->rentingBookingItems->whereNotNull('end_date');
+                            @endphp
+                            @if($historicalItems->isNotEmpty())
+                                <div class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                    Previous bikes in this booking:
+                                    @foreach($historicalItems as $item)
+                                        @if($item->motorbike)
+                                            <span class="inline-block mr-2">{{ $item->motorbike->reg_no }} ({{ $item->start_date ? \Carbon\Carbon::parse($item->start_date)->format('d/m/Y') : 'N/A' }} - {{ $item->end_date ? \Carbon\Carbon::parse($item->end_date)->format('d/m/Y') : 'N/A' }})</span>
+                                        @endif
+                                    @endforeach
+                                </div>
                             @endif
                         </div>
 

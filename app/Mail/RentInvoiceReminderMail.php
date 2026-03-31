@@ -20,7 +20,7 @@ class RentInvoiceReminderMail extends Mailable
     public function build()
     {
         return $this->subject('Weekly Rent Notification for '.$this->customer->reg_no)
-            ->view('emails.rent_notification')
+            ->view('olders.emails.rent_notification')
             ->with(['customer' => $this->customer]);
     }
 }

@@ -4,18 +4,15 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\CustomerRequest;
 use App\Models\Customer;
-use App\Models\FinanceApplication;
-use App\Models\RentingBooking;
-use App\Models\CustomerContract;
 use App\Models\CustomerAgreement;
+use App\Models\CustomerContract;
 use App\Models\CustomerDocument;
 use App\Services\MotorbikeService;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 // -- added thisX
 use PhpParser\Node\Stmt\Label;
 
@@ -47,6 +44,7 @@ class CustomerCrudController extends BaseCrudController
     protected function setupListOperation()
     {
         CRUD::enableExportButtons();
+        CRUD::addButtonFromView('line', 'send_portal_credentials', 'send_portal_credentials', 'beginning');
         CRUD::addColumn(['name' => 'id', 'type' => 'number', 'label' => 'ID', 'width' => '80px']);
 
         CRUD::column('full_name')->label('Full Name');
@@ -56,6 +54,11 @@ class CustomerCrudController extends BaseCrudController
         CRUD::column('phone');
         // CRUD::column('city'); // CRUD::column('country'); // CRUD::column('nationality');
         CRUD::column('email');
+        CRUD::addColumn([
+            'name' => 'is_register',
+            'label' => 'Portal Active',
+            'type' => 'boolean',
+        ]);
         CRUD::column('reputation_note');
         // CRUD::column('age')->label('Age');
         CRUD::column('rating')->type('number')->label('Rating');
@@ -211,6 +214,15 @@ class CustomerCrudController extends BaseCrudController
     protected function setupUpdateOperation()
     {
         $this->setupCreateOperation();
+        $entry = $this->crud->getCurrentEntry();
+        $isActive = (bool) ($entry->is_register ?? false);
+        CRUD::addField([
+            'name' => 'portal_status_info',
+            'type' => 'custom_html',
+            'value' => '<div class="alert '.($isActive ? 'alert-success' : 'alert-warning').' mb-3">Portal is '
+                .($isActive ? 'active' : 'not active')
+                .' for this customer.</div>',
+        ])->beforeField('first_name');
     }
 
     public function storeInline()
@@ -238,7 +250,6 @@ class CustomerCrudController extends BaseCrudController
     // -- added thisX Updated this
     public function notifyMotTax(Request $request)
     {
-
 
         $vehicleData = $this->motorbikeService->checkVehiclex($request->input('reg_no'));
 
@@ -275,13 +286,13 @@ class CustomerCrudController extends BaseCrudController
         if ($result) {
             return response()->json([
                 'success' => true,
-                'message' => 'Contract moved to private.'
+                'message' => 'Contract moved to private.',
             ]);
         }
 
         return response()->json([
             'success' => false,
-            'message' => 'Contract could not be moved.'
+            'message' => 'Contract could not be moved.',
         ]);
     }
 
@@ -289,20 +300,21 @@ class CustomerCrudController extends BaseCrudController
     {
         $agreement = CustomerAgreement::find($id);
 
-        if (!$agreement || empty($agreement->file_path)) {
+        if (! $agreement || empty($agreement->file_path)) {
             Log::warning("No agreement file found for ID {$id}");
+
             return response()->json([
                 'success' => false,
-                'message' => 'Agreement file not found.'
+                'message' => 'Agreement file not found.',
             ]);
         }
 
         // Normalize stored path (remove leading slashes)
         $sourcePath = ltrim($agreement->file_path, '/');
 
-        $diskPublic  = Storage::disk('public');
+        $diskPublic = Storage::disk('public');
         $diskPrivate = Storage::disk('private');
-        $diskLocal   = Storage::disk('local'); // storage/app
+        $diskLocal = Storage::disk('local'); // storage/app
 
         $fromDisk = null;
         $diskName = null;
@@ -322,13 +334,14 @@ class CustomerCrudController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Agreement already private.'
+                'message' => 'Agreement already private.',
             ]);
         } else {
             Log::warning("Agreement file not found in any disk: {$sourcePath}");
+
             return response()->json([
                 'success' => false,
-                'message' => 'Agreement file not found.'
+                'message' => 'Agreement file not found.',
             ]);
         }
 
@@ -350,27 +363,28 @@ class CustomerCrudController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Agreement moved to private.'
+                'message' => 'Agreement moved to private.',
             ]);
         } catch (\Throwable $e) {
             Log::error("Failed moving agreement file {$sourcePath}: {$e->getMessage()}");
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to move agreement file.'
+                'message' => 'Failed to move agreement file.',
             ]);
         }
     }
-
 
     public function deleteDocument($id)
     {
         $document = CustomerDocument::find($id);
 
-        if (!$document || empty($document->file_path)) {
+        if (! $document || empty($document->file_path)) {
             Log::warning("No document file found for ID {$id}");
+
             return response()->json([
                 'success' => false,
-                'message' => 'Document file not found.'
+                'message' => 'Document file not found.',
             ]);
         }
 
@@ -397,13 +411,14 @@ class CustomerCrudController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Document already private.'
+                'message' => 'Document already private.',
             ]);
         } else {
             Log::warning("Document file not found in any disk: {$sourcePath}");
+
             return response()->json([
                 'success' => false,
-                'message' => "Document file not found in storage disks."
+                'message' => 'Document file not found in storage disks.',
             ]);
         }
 
@@ -423,16 +438,15 @@ class CustomerCrudController extends BaseCrudController
 
             return response()->json([
                 'success' => true,
-                'message' => 'Document moved to private.'
+                'message' => 'Document moved to private.',
             ]);
         } catch (\Throwable $e) {
             Log::error("Failed moving document file {$sourcePath}: {$e->getMessage()}");
+
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to move document file.'
+                'message' => 'Failed to move document file.',
             ]);
         }
     }
-
-
 }

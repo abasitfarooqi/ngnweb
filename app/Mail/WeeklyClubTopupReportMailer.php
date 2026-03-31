@@ -20,8 +20,7 @@ class WeeklyClubTopupReportMailer extends Mailable
     public function build()
     {
         return $this->subject('Weekly Club Topup Report')
-            ->view('emails.cron-jobs.cron-job-weekly-ngn-club-report')
+            ->view('olders.emails.cron-jobs.cron-job-weekly-ngn-club-report')
             ->with('data', $this->data);
     }
 }
-

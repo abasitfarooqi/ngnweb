@@ -17,6 +17,7 @@ class Customer extends Model
     use Notifiable;
 
     protected $fillable = [
+        'username',
         'first_name',
         'last_name',
         'dob',
@@ -36,6 +37,13 @@ class Customer extends Model
         'license_issuance_authority',
         'license_issuance_date',
         'is_register',
+        'is_club',
+        'preferred_branch_id',
+        'verification_status',
+        'verified_at',
+        'verification_expires_at',
+        'locked_fields',
+        'current_terms_version_id',
     ];
 
     protected $casts = [
@@ -44,6 +52,10 @@ class Customer extends Model
         'license_expiry_date' => 'date',
         'license_issuance_date' => 'date',
         'is_register' => 'boolean',
+        'is_club' => 'boolean',
+        'verified_at' => 'datetime',
+        'verification_expires_at' => 'datetime',
+        'locked_fields' => 'array',
     ];
 
     public function judopayOnboarding(): MorphOne
@@ -95,16 +107,9 @@ class Customer extends Model
         return $this->hasOne(CustomerAuth::class, 'customer_id');
     }
 
-    public function customerProfile()
+    public function clubMember()
     {
-        return $this->hasOneThrough(
-            CustomerProfile::class,
-            CustomerAuth::class,
-            'customer_id',
-            'customer_auth_id',
-            'id',
-            'id'
-        );
+        return $this->hasOne(ClubMember::class, 'customer_id');
     }
 
     public function customerAddresses()
@@ -115,5 +120,20 @@ class Customer extends Model
     public function customerDocuments()
     {
         return $this->hasMany(CustomerDocument::class, 'customer_id');
+    }
+
+    public function isFieldLocked(string $field): bool
+    {
+        $locked = $this->locked_fields ?? [];
+        if (! is_array($locked)) {
+            return false;
+        }
+
+        return in_array($field, $locked, true);
+    }
+
+    public function rentingBookings()
+    {
+        return RentingBooking::where('customer_id', $this->id);
     }
 }

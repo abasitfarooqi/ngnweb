@@ -2,8 +2,8 @@
 
 namespace App\Livewire\Portal;
 
-use Livewire\Component;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class Dashboard extends Component
 {
@@ -11,13 +11,14 @@ class Dashboard extends Component
     {
         $customerAuth = Auth::guard('customer')->user();
         $profile = $customerAuth->profile ?? null;
+        $customerId = $customerAuth?->customer_id;
 
-        $activeRental    = null;
-        $upcomingMOT     = null;
+        $activeRental = null;
+        $upcomingMOT = null;
         $upcomingDelivery = null;
 
-        if ($profile) {
-            $activeRental = $profile->rentingBookings()
+        if ($customerId) {
+            $activeRental = \App\Models\RentingBooking::where('customer_id', $customerId)
                 ->active()
                 ->with(['activeItems.motorbike'])
                 ->first();

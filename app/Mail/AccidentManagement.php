@@ -49,7 +49,7 @@ class AccidentManagement extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.AccidentManagementView',
+            view: 'olders.emails.AccidentManagementView',
         );
     }
 

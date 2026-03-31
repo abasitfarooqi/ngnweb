@@ -3,7 +3,7 @@
 namespace App\Livewire\Portal;
 
 use App\Models\Branch;
-use App\Models\CustomerProfile;
+use App\Models\Customer;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -41,25 +41,37 @@ class Profile extends Component
 
     public string $emergency_contact_name = '';
 
-    public string $emergency_contact_phone = '';
-
-    public string $emergency_contact_relationship = '';
-
     public function mount(): void
     {
-        $user = Auth::guard('customer')->user();
-        $profile = CustomerProfile::firstOrCreate(
-            ['customer_auth_id' => $user->id],
-            [
-                'verification_status' => 'draft',
-                'country' => 'United Kingdom',
-            ]
-        );
+        $profile = $this->resolvePortalCustomer();
 
         $this->hydrateFromProfile($profile);
     }
 
-    protected function hydrateFromProfile(CustomerProfile $profile): void
+    protected function resolvePortalCustomer(): Customer
+    {
+        $authUser = Auth::guard('customer')->user();
+
+        if ($authUser->customer) {
+            return $authUser->customer;
+        }
+
+        $customer = Customer::query()->create([
+            'first_name' => 'Customer',
+            'last_name' => (string) ($authUser->email ?? 'Account'),
+            'username' => 'customer_'.$authUser->id,
+            'email' => (string) ($authUser->email ?? ''),
+            'country' => 'United Kingdom',
+            'verification_status' => 'draft',
+        ]);
+
+        $authUser->customer_id = $customer->id;
+        $authUser->save();
+
+        return $customer;
+    }
+
+    protected function hydrateFromProfile(Customer $profile): void
     {
         $this->first_name = (string) ($profile->first_name ?? '');
         $this->last_name = (string) ($profile->last_name ?? '');
@@ -80,8 +92,6 @@ class Profile extends Component
         $ec = $profile->emergency_contact;
         if (is_array($ec)) {
             $this->emergency_contact_name = (string) ($ec['name'] ?? '');
-            $this->emergency_contact_phone = (string) ($ec['phone'] ?? '');
-            $this->emergency_contact_relationship = (string) ($ec['relationship'] ?? '');
         } elseif (is_string($ec) && $ec !== '') {
             $this->emergency_contact_name = $ec;
         }
@@ -89,13 +99,7 @@ class Profile extends Component
 
     public function save(): void
     {
-        $user = Auth::guard('customer')->user();
-        $profile = CustomerProfile::where('customer_auth_id', $user->id)->first();
-        if (! $profile) {
-            session()->flash('error', 'Profile not found. Please refresh the page.');
-
-            return;
-        }
+        $profile = $this->resolvePortalCustomer();
 
         $rules = [
             'first_name' => 'required|string|max:255',
@@ -114,8 +118,6 @@ class Profile extends Component
             'license_issuance_date' => 'required|date',
             'license_expiry_date' => 'required|date|after:license_issuance_date',
             'emergency_contact_name' => 'nullable|string|max:255',
-            'emergency_contact_phone' => 'nullable|string|max:30',
-            'emergency_contact_relationship' => 'nullable|string|max:100',
         ];
 
         foreach (['first_name', 'last_name', 'dob', 'address', 'license_number', 'license_issuance_date', 'license_expiry_date'] as $field) {
@@ -137,11 +139,7 @@ class Profile extends Component
             'country' => $this->country ?: 'United Kingdom',
             'preferred_branch_id' => $this->preferred_branch_id ? (int) $this->preferred_branch_id : null,
             'nationality' => $this->nationality,
-            'emergency_contact' => array_filter([
-                'name' => $this->emergency_contact_name,
-                'phone' => $this->emergency_contact_phone,
-                'relationship' => $this->emergency_contact_relationship,
-            ]),
+            'emergency_contact' => $this->emergency_contact_name,
         ];
 
         if (! $profile->isFieldLocked('first_name')) {
@@ -171,11 +169,7 @@ class Profile extends Component
 
     public function render()
     {
-        $user = Auth::guard('customer')->user();
-        $profile = CustomerProfile::firstOrCreate(
-            ['customer_auth_id' => $user->id],
-            ['verification_status' => 'draft', 'country' => 'United Kingdom']
-        );
+        $profile = $this->resolvePortalCustomer();
         $branches = Branch::orderBy('name')->get();
 
         return view('livewire.portal.profile', compact('branches', 'profile'))
