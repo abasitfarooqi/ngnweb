@@ -193,16 +193,22 @@
 
                         {{-- Payment method --}}
                         <div class="border-t border-gray-200 dark:border-gray-700 pt-4 mb-4">
-                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment Method</p>
-                            <div class="space-y-2">
-                                @foreach($paymentMethods as $method)
-                                    <label class="flex items-center gap-3 text-sm cursor-pointer">
-                                        <input type="radio" wire:model="paymentMethodId" value="{{ $method->id }}"
-                                               class="accent-brand-red">
-                                        <span class="text-gray-700 dark:text-gray-300">{{ $method->title }}</span>
-                                    </label>
-                                @endforeach
-                            </div>
+                            <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Payment method</p>
+                            @if($paymentMethods->isEmpty())
+                                <p class="text-sm text-amber-700 dark:text-amber-300">No payment methods are available. Please contact us.</p>
+                            @else
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Pay with PayPal online, or choose cash when you collect at a branch.</p>
+                                <div class="space-y-2">
+                                    @foreach($paymentMethods as $method)
+                                        <label class="flex items-center gap-3 text-sm cursor-pointer p-3 border-2 transition
+                                            {{ (int) $paymentMethodId === (int) $method->id ? 'border-brand-red bg-red-50/60 dark:bg-red-950/20' : 'border-gray-200 dark:border-gray-600' }}">
+                                            <input type="radio" wire:model.live="paymentMethodId" value="{{ $method->id }}"
+                                                   class="accent-brand-red">
+                                            <span class="text-gray-700 dark:text-gray-300">{{ $method->title }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
 
                         {{-- Shipping selected --}}

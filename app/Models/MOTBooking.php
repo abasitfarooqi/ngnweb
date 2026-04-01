@@ -43,6 +43,15 @@ class MOTBooking extends Model
 
     protected $table = 'mot_bookings';
 
+    protected $casts = [
+        'date_of_appointment' => 'datetime',
+        'start' => 'datetime',
+        'end' => 'datetime',
+        'all_day' => 'boolean',
+        'is_paid' => 'boolean',
+        'is_validate' => 'boolean',
+    ];
+
     public function branch()
     {
         return $this->belongsTo(Branch::class);

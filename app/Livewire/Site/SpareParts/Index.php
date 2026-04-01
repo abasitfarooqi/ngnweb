@@ -11,17 +11,29 @@ use Livewire\Component;
 class Index extends Component
 {
     public string $partNumberSearch = '';
+
     public string $selectedManufacturer = '';
+
     public string $selectedModel = '';
+
     public string $selectedYear = '';
+
     public string $selectedCountry = '';
+
     public string $selectedColour = '';
+
     public string $selectedAssembly = '';
+
     public string $assemblySearch = '';
+
     public string $catalogueSearch = '';
+
     public string $catalogueManufacturer = '';
+
     public string $catalogueModel = '';
+
     public string $catalogueCategory = '';
+
     public int $catalogueLimit = 24;
 
     /** @var array<string, mixed>|null */
@@ -113,7 +125,7 @@ class Index extends Component
             1,
             $fitment
         );
-        $this->dispatch('cart-updated', count: $this->cart->count());
+        $this->dispatch('cart-updated', count: $this->cart->count())->to('site.header');
     }
 
     public function addCataloguePartToBasket(int $spPartId): void
@@ -147,7 +159,7 @@ class Index extends Component
             ]
         );
 
-        $this->dispatch('cart-updated', count: $this->cart->count());
+        $this->dispatch('cart-updated', count: $this->cart->count())->to('site.header');
     }
 
     public function loadMoreCatalogue(): void

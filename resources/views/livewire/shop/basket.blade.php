@@ -24,9 +24,9 @@
 
             {{-- Items list --}}
             <div class="lg:col-span-2 space-y-4">
-                @foreach($items as $item)
+                @foreach($items as $index => $item)
                     <div class="flex gap-4 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4"
-                         wire:key="item-{{ $item['row_id'] }}">
+                         wire:key="item-{{ $item['row_id'] }}-{{ $index }}">
                         {{-- Image --}}
                         @php
                             $itemUrl = $item['item_type'] === 'sparepart'
@@ -58,10 +58,12 @@
                             <div class="flex items-center justify-between mt-3 flex-wrap gap-2">
                                 {{-- Qty control --}}
                                 <div class="flex items-center border border-gray-300 dark:border-gray-600">
-                                    <button wire:click="updateQuantity('{{ $item['row_id'] }}', {{ max(1, $item['quantity'] - 1) }})"
+                                    <button type="button"
+                                            wire:click="decrementQuantityAt({{ $index }})"
                                             class="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-base transition">−</button>
                                     <span class="w-8 text-center text-sm font-medium">{{ $item['quantity'] }}</span>
-                                    <button wire:click="updateQuantity('{{ $item['row_id'] }}', {{ min(100, $item['quantity'] + 1) }})"
+                                    <button type="button"
+                                            wire:click="incrementQuantityAt({{ $index }})"
                                             class="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 text-base transition">+</button>
                                 </div>
 
@@ -69,8 +71,8 @@
                                     <span class="font-bold text-gray-900 dark:text-white">
                                         £{{ number_format($item['line_total'], 2) }}
                                     </span>
-                                    <button wire:click="remove('{{ $item['row_id'] }}')"
-                                            wire:confirm="Remove this item?"
+                                    <button type="button"
+                                            wire:click="requestRemove({{ $index }})"
                                             class="text-xs text-red-500 hover:text-red-700 hover:underline">
                                         Remove
                                     </button>
@@ -81,7 +83,8 @@
                 @endforeach
 
                 <div class="flex justify-end pt-2">
-                    <button wire:click="clear" wire:confirm="Clear your entire basket?"
+                    <button type="button"
+                            wire:click="requestClearBasket"
                             class="text-xs text-gray-400 hover:text-red-500 hover:underline">
                         Clear basket
                     </button>
@@ -147,4 +150,33 @@
         </div>
     @endif
 </div>
+
+@if($pendingRemoveIndex !== null || $pendingClearAll)
+    <div class="fixed inset-0 z-[80] flex items-center justify-center px-4" role="dialog" aria-modal="true">
+        <button type="button"
+                wire:click="cancelPendingRemoval"
+                class="absolute inset-0 bg-black/50 border-0 cursor-default w-full h-full"
+                aria-label="Dismiss"></button>
+        <div class="relative z-10 w-full max-w-md bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-5 shadow-xl">
+            <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Confirm removal</h3>
+            <p class="mt-2 text-sm text-gray-600 dark:text-gray-300">
+                @if($pendingClearAll)
+                    Clear your entire basket?
+                @else
+                    Remove this item from your basket?
+                @endif
+            </p>
+            <div class="mt-5 flex justify-end gap-2">
+                <button type="button" wire:click="cancelPendingRemoval"
+                        class="px-4 py-2 border border-gray-300 dark:border-gray-600 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    Cancel
+                </button>
+                <button type="button" wire:click="confirmPendingRemoval"
+                        class="px-4 py-2 bg-brand-red text-white text-sm font-semibold hover:bg-red-700">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+@endif
 </div>

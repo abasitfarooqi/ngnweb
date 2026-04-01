@@ -4,6 +4,24 @@
         <flux:button href="/" variant="outline">Back to site</flux:button>
     </div>
 
+    <div class="flex flex-wrap gap-2">
+        @foreach([
+            'all' => 'All',
+            'mot' => 'MOT',
+            'rentals' => 'Rentals',
+            'finance' => 'Finance',
+            'shop' => 'Shop',
+            'recovery' => 'Recovery',
+            'ebike' => 'E-bike',
+        ] as $key => $label)
+            <button
+                wire:click="setFilter('{{ $key }}')"
+                class="px-3 py-1.5 text-xs border transition {{ $activeFilter === $key ? 'border-brand-red text-brand-red bg-red-50 dark:bg-red-900/10' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:text-brand-red' }}">
+                {{ $label }}
+            </button>
+        @endforeach
+    </div>
+
     @if($enquiries->isEmpty())
         <flux:card class="p-12 text-center">
             <flux:icon name="inbox" class="h-12 w-12 text-gray-400 mx-auto mb-3" />

@@ -20,18 +20,28 @@ class Checkout extends Component
 
     // Step 1: Address
     public int $selectedAddressId = 0;
+
     public bool $newAddress = false;
+
     public string $first_name = '';
+
     public string $last_name = '';
+
     public string $company_name = '';
+
     public string $street_address = '';
+
     public string $street_address_plus = '';
+
     public string $postcode = '';
+
     public string $city = '';
+
     public string $phone_number = '';
 
     // Step 2: Shipping
     public int $shippingMethodId = 0;
+
     public int $branchId = 0;
 
     // Step 3: Review / Payment
@@ -39,6 +49,7 @@ class Checkout extends Component
 
     // Result
     public ?int $orderId = null;
+
     public string $errorMessage = '';
 
     protected CartService $cart;
@@ -50,15 +61,19 @@ class Checkout extends Component
 
     public function mount(): void
     {
-        if (!Auth::guard('customer')->check()) {
+        if (! Auth::guard('customer')->check()) {
             $this->redirectRoute('login');
+
             return;
         }
 
         if ($this->cart->isEmpty()) {
             $this->redirectRoute('shop.basket');
+
             return;
         }
+
+        $this->ensureDefaultPaymentMethodsExist();
 
         $customer = Auth::guard('customer')->user();
         $defaultAddress = CustomerAddress::where('customer_id', $customer->customer_id)
@@ -74,7 +89,13 @@ class Checkout extends Component
             $this->shippingMethodId = $defaultShipping->id;
         }
 
-        $defaultPayment = EcPaymentMethod::active()->first();
+        $defaultPayment = EcPaymentMethod::active()
+            ->where(function ($query): void {
+                $query->whereIn('slug', ['paypal', 'cash', 'cash-on-branch', 'cash_on_branch'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
+            })
+            ->first();
         if ($defaultPayment) {
             $this->paymentMethodId = $defaultPayment->id;
         }
@@ -101,12 +122,12 @@ class Checkout extends Component
     {
         if ($this->newAddress) {
             $this->validate([
-                'first_name'    => 'required|string|max:100',
-                'last_name'     => 'required|string|max:100',
-                'street_address'=> 'required|string|max:255',
-                'postcode'      => 'required|string|max:20',
-                'city'          => 'required|string|max:100',
-                'phone_number'  => 'required|string|max:30',
+                'first_name' => 'required|string|max:100',
+                'last_name' => 'required|string|max:100',
+                'street_address' => 'required|string|max:255',
+                'postcode' => 'required|string|max:20',
+                'city' => 'required|string|max:100',
+                'phone_number' => 'required|string|max:30',
             ]);
         } else {
             $this->validate(['selectedAddressId' => 'required|integer|min:1']);
@@ -123,21 +144,55 @@ class Checkout extends Component
         $this->errorMessage = '';
 
         $customer = Auth::guard('customer')->user();
-        if (!$customer) {
+        if (! $customer) {
             $this->errorMessage = 'Please sign in to place an order.';
+
             return;
         }
 
         $items = $this->cart->getItems();
         if (empty($items)) {
             $this->errorMessage = 'Your basket is empty.';
+
             return;
         }
 
         $shippingMethod = EcShippingMethod::find($this->shippingMethodId);
-        if (!$shippingMethod) {
+        if (! $shippingMethod) {
             $this->errorMessage = 'Please select a shipping method.';
+
             return;
+        }
+
+        $paymentMethod = EcPaymentMethod::active()
+            ->where('id', $this->paymentMethodId)
+            ->where(function ($query): void {
+                $query->whereIn('slug', ['paypal', 'cash', 'cash-on-branch', 'cash_on_branch'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
+            })
+            ->first();
+        if (! $paymentMethod) {
+            $this->errorMessage = 'Please select a valid payment method (PayPal or cash on branch).';
+
+            return;
+        }
+
+        foreach ($items as $item) {
+            if (($item['item_type'] ?? 'catalogue') !== 'catalogue') {
+                continue;
+            }
+            $available = (int) ($item['available_stock'] ?? 0);
+            if ($available <= 0) {
+                $this->errorMessage = 'One or more items are out of stock. Please remove them before checkout.';
+
+                return;
+            }
+            if ((int) ($item['quantity'] ?? 0) > $available) {
+                $this->errorMessage = 'One or more item quantities exceed available stock. Please update your basket.';
+
+                return;
+            }
         }
 
         try {
@@ -146,22 +201,22 @@ class Checkout extends Component
             // Resolve or create address
             if ($this->newAddress) {
                 $address = CustomerAddress::create([
-                    'customer_id'         => $customer->customer_id,
-                    'first_name'          => $this->first_name,
-                    'last_name'           => $this->last_name,
-                    'company_name'        => $this->company_name ?: '-',
-                    'street_address'      => $this->street_address,
+                    'customer_id' => $customer->customer_id,
+                    'first_name' => $this->first_name,
+                    'last_name' => $this->last_name,
+                    'company_name' => $this->company_name ?: '-',
+                    'street_address' => $this->street_address,
                     'street_address_plus' => $this->street_address_plus ?: '-',
-                    'postcode'            => $this->postcode,
-                    'city'                => $this->city,
-                    'phone_number'        => $this->phone_number,
-                    'is_default'          => false,
-                    'type'                => 'shipping',
-                    'country_id'          => 3,
+                    'postcode' => $this->postcode,
+                    'city' => $this->city,
+                    'phone_number' => $this->phone_number,
+                    'is_default' => false,
+                    'type' => 'shipping',
+                    'country_id' => 3,
                 ]);
             } else {
                 $address = CustomerAddress::find($this->selectedAddressId);
-                if (!$address || $address->customer_id !== $customer->customer_id) {
+                if (! $address || $address->customer_id !== $customer->customer_id) {
                     throw new \RuntimeException('Invalid delivery address.');
                 }
             }
@@ -173,70 +228,86 @@ class Checkout extends Component
                 ->all();
             $products = NgnProduct::whereIn('id', $productIds)->get()->keyBy('id');
 
-            $totalAmount  = array_sum(array_column($items, 'line_total'));
+            $totalAmount = array_sum(array_column($items, 'line_total'));
             $shippingCost = (float) $shippingMethod->shipping_amount;
-            $grandTotal   = $totalAmount + $shippingCost;
+            $grandTotal = $totalAmount + $shippingCost;
 
-            // Remove any stale pending order
-            EcOrder::where('customer_id', $customer->id)
+            // Remove any stale pending order (delete children first — FK on ec_order_items)
+            $staleOrderIds = EcOrder::query()
+                ->where('customer_id', $customer->id)
                 ->where('order_status', 'pending')
                 ->where('payment_status', 'pending')
-                ->delete();
+                ->pluck('id');
+            if ($staleOrderIds->isNotEmpty()) {
+                EcOrderItem::query()->whereIn('order_id', $staleOrderIds)->delete();
+                EcOrderShipping::query()->whereIn('order_id', $staleOrderIds)->delete();
+                EcOrder::query()->whereIn('id', $staleOrderIds)->delete();
+            }
+
+            $isPayPal = str_contains(strtolower((string) $paymentMethod->slug), 'paypal')
+                || str_contains(strtolower((string) $paymentMethod->title), 'paypal');
 
             $order = EcOrder::create([
-                'customer_id'         => $customer->id,
-                'shipping_method_id'  => $this->shippingMethodId,
-                'payment_method_id'   => $this->paymentMethodId ?: 3,
+                'customer_id' => $customer->id,
+                'shipping_method_id' => $this->shippingMethodId,
+                'payment_method_id' => $paymentMethod->id,
                 'customer_address_id' => $address->id,
-                'branch_id'           => $shippingMethod->in_store_pickup ? ($this->branchId ?: null) : null,
-                'order_status'        => 'Confirmed',
-                'shipping_status'     => 'pending',
-                'payment_status'      => 'pending',
-                'shipping_cost'       => $shippingCost,
-                'total_amount'        => $totalAmount,
-                'tax'                 => 0,
-                'discount'            => 0,
-                'grand_total'         => $grandTotal,
-                'currency'            => 'GBP',
-                'order_date'          => now(),
+                'branch_id' => $shippingMethod->in_store_pickup ? ($this->branchId ?: null) : null,
+                'order_status' => $isPayPal ? 'pending' : 'Confirmed',
+                'shipping_status' => 'pending',
+                'payment_status' => 'pending',
+                'shipping_cost' => $shippingCost,
+                'total_amount' => $totalAmount,
+                'tax' => 0,
+                'discount' => 0,
+                'grand_total' => $grandTotal,
+                'currency' => 'GBP',
+                'order_date' => now(),
             ]);
 
             foreach ($items as $item) {
                 $isSparePart = ($item['item_type'] ?? 'catalogue') === 'sparepart';
                 $product = $isSparePart ? null : $products->get($item['product_id']);
                 EcOrderItem::create([
-                    'order_id'     => $order->id,
-                    'product_id'   => $isSparePart ? null : ($item['product_id'] ?? null),
-                    'item_type'    => $item['item_type'] ?? 'catalogue',
+                    'order_id' => $order->id,
+                    'product_id' => $isSparePart ? null : ($item['product_id'] ?? null),
+                    'item_type' => $item['item_type'] ?? 'catalogue',
                     'product_name' => $product?->name ?? $item['product_name'] ?? ($item['part_number'] ?? 'Spare Part'),
-                    'sku'          => $product?->sku ?? ($item['sku'] ?? ($item['part_number'] ?? '')),
-                    'part_number'  => $item['part_number'] ?? null,
-                    'sp_part_id'   => $item['sp_part_id'] ?? null,
+                    'sku' => $product?->sku ?? ($item['sku'] ?? ($item['part_number'] ?? '')),
+                    'part_number' => $item['part_number'] ?? null,
+                    'sp_part_id' => $item['sp_part_id'] ?? null,
                     'sp_assembly_id' => $item['sp_assembly_id'] ?? null,
-                    'quantity'     => $item['quantity'],
-                    'unit_price'   => $item['unit_price'],
-                    'total_price'  => $item['line_total'],
-                    'tax'          => 0,
-                    'discount'     => 0,
-                    'line_total'   => $item['line_total'],
-                    'source_meta'  => $item['source_meta'] ?? null,
+                    'quantity' => $item['quantity'],
+                    'unit_price' => $item['unit_price'],
+                    'total_price' => $item['line_total'],
+                    'tax' => 0,
+                    'discount' => 0,
+                    'line_total' => $item['line_total'],
+                    'source_meta' => $item['source_meta'] ?? null,
                 ]);
             }
 
             EcOrderShipping::create([
-                'order_id'          => $order->id,
-                'fulfillment_method'=> $shippingMethod->in_store_pickup ? 'pickup' : 'carrier',
-                'status'            => 'processing',
-                'notes'             => null,
-                'processing_at'     => now(),
+                'order_id' => $order->id,
+                'fulfillment_method' => $shippingMethod->in_store_pickup ? 'pickup' : 'carrier',
+                'status' => 'processing',
+                'notes' => null,
+                'processing_at' => now(),
             ]);
 
             DB::commit();
 
             $this->cart->clear();
             $this->orderId = $order->id;
-            $this->step    = 4;
-            $this->dispatch('cart-updated', count: 0);
+            $this->dispatch('cart-updated', count: 0)->to('site.header');
+
+            if ($isPayPal) {
+                $this->redirectRoute('paypal.directPayment', navigate: false);
+
+                return;
+            }
+
+            $this->step = 4;
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -247,19 +318,25 @@ class Checkout extends Component
 
     public function render()
     {
-        $customer       = Auth::guard('customer')->user();
-        $addresses      = $customer
+        $customer = Auth::guard('customer')->user();
+        $addresses = $customer
             ? CustomerAddress::where('customer_id', $customer->customer_id)->get()
             : collect();
         $shippingMethods = EcShippingMethod::active()->get();
-        $paymentMethods  = EcPaymentMethod::active()->get();
-        $items           = $this->cart->getItems();
-        $subtotal        = $this->cart->subtotal();
-        $shippingMethod  = $this->shippingMethodId
+        $paymentMethods = EcPaymentMethod::active()
+            ->where(function ($query): void {
+                $query->whereIn('slug', ['paypal', 'cash', 'cash-on-branch', 'cash_on_branch'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
+            })
+            ->get();
+        $items = $this->cart->getItems();
+        $subtotal = $this->cart->subtotal();
+        $shippingMethod = $this->shippingMethodId
             ? EcShippingMethod::find($this->shippingMethodId)
             : null;
         $shippingCost = $shippingMethod ? (float) $shippingMethod->shipping_amount : 0.0;
-        $grandTotal   = $subtotal + $shippingCost;
+        $grandTotal = $subtotal + $shippingCost;
         $isSparePartsCheckout = request()->is('spareparts/*');
         $continueShoppingRoute = $isSparePartsCheckout ? 'spareparts.index' : 'shop.home';
         $basketRoute = $isSparePartsCheckout ? 'spareparts.cart' : 'shop.basket';
@@ -269,10 +346,35 @@ class Checkout extends Component
             'items', 'subtotal', 'shippingCost', 'grandTotal', 'shippingMethod',
             'isSparePartsCheckout', 'continueShoppingRoute', 'basketRoute'
         ))->layout('components.layouts.public', [
-            'title'       => $isSparePartsCheckout ? 'Spareparts Checkout | NGN Motors' : 'Checkout | NGN Shop',
+            'title' => $isSparePartsCheckout ? 'Spareparts Checkout | NGN Motors' : 'Checkout | NGN Shop',
             'description' => $isSparePartsCheckout
                 ? 'Complete your spareparts order at NGN Motors.'
                 : 'Complete your order at NGN Motors.',
         ]);
+    }
+
+    /**
+     * Ensure PayPal and cash-on-branch options exist so checkout always offers a choice.
+     */
+    protected function ensureDefaultPaymentMethodsExist(): void
+    {
+        EcPaymentMethod::query()->firstOrCreate(
+            ['slug' => 'paypal'],
+            [
+                'title' => 'PayPal',
+                'logo' => '-',
+                'link_url' => '-',
+                'is_enabled' => true,
+            ]
+        );
+        EcPaymentMethod::query()->firstOrCreate(
+            ['slug' => 'cash-on-branch'],
+            [
+                'title' => 'Cash (pay at branch)',
+                'logo' => '-',
+                'link_url' => '-',
+                'is_enabled' => true,
+            ]
+        );
     }
 }

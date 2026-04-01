@@ -1,5 +1,15 @@
 <div wire:key="finance-my-applications">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">My Finance Applications</h1>
+    <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Finance Applications</h1>
+        <div class="flex items-center gap-2 flex-wrap">
+            <a href="{{ route('account.documents', ['tab' => 'finance']) }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-brand-red hover:text-brand-red">
+                View Documents
+            </a>
+            <a href="{{ route('account.payments.recurring') }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-brand-red hover:text-brand-red">
+                View Recurring Payments
+            </a>
+        </div>
+    </div>
 
     @if (session('success'))
         <div class="mb-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200 px-4 py-3 rounded">

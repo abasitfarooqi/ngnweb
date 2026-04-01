@@ -9,11 +9,17 @@ use Livewire\Component;
 class AssemblyShow extends Component
 {
     public string $manufacturer = '';
+
     public string $model = '';
+
     public string $year = '';
+
     public string $country = '';
+
     public string $colour = '';
+
     public string $assembly = '';
+
     public string $assemblySearch = '';
 
     protected CartService $cart;
@@ -63,7 +69,7 @@ class AssemblyShow extends Component
             1,
             $fitment
         );
-        $this->dispatch('cart-updated', count: $this->cart->count());
+        $this->dispatch('cart-updated', count: $this->cart->count())->to('site.header');
     }
 
     public function getAssembliesProperty(): array

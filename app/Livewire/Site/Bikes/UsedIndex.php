@@ -30,6 +30,7 @@ class UsedIndex extends Component
                 'motorbikes.*',
                 'motorbikes_sale.price',
                 'motorbikes_sale.image_one',
+                'motorbikes_sale.mileage as sale_mileage',
                 'motorbikes_sale.is_sold',
             );
 

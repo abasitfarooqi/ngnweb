@@ -3,7 +3,10 @@
 namespace App\Livewire\Portal\Repairs;
 
 use App\Models\Branch;
+use App\Models\MotorbikeRepair;
+use App\Models\ServiceBooking;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class Request extends Component
@@ -52,10 +55,6 @@ class Request extends Component
             'time_slot' => 'required',
             'branch_id' => 'required|exists:branches,id',
         ];
-        if ($this->needs_collection) {
-            $rules['collection_postcode'] = 'required|string|min:5';
-            $rules['collection_address'] = 'required|string|min:5';
-        }
 
         return $rules;
     }
@@ -71,12 +70,83 @@ class Request extends Component
     public function submit()
     {
         $this->validate();
+
+        $customerAuth = Auth::guard('customer')->user();
+        $customerProfile = $customerAuth?->customer;
+        $customerName = trim((string) ($customerProfile?->first_name.' '.$customerProfile?->last_name));
+        $customerName = $customerName !== '' ? $customerName : (string) ($customerAuth?->name ?? 'Portal customer');
+        $customerPhone = trim((string) ($customerProfile?->phone ?? $customerAuth?->phone ?? ''));
+        $customerEmail = trim((string) ($customerAuth?->email ?? ''));
+
+        MotorbikeRepair::query()->create([
+            'arrival_date' => trim($this->date_requested.' '.$this->time_slot),
+            'motorbike_id' => null,
+            'notes' => implode("\n", array_filter([
+                'Service type: '.trim($this->service_type),
+                'Registration: '.strtoupper(trim($this->bike_reg_no)),
+                $this->bike_make ? 'Make: '.trim($this->bike_make) : null,
+                $this->bike_model ? 'Model: '.trim($this->bike_model) : null,
+                $this->mileage ? 'Mileage: '.trim($this->mileage) : null,
+                $this->issue_description ? 'Issue: '.trim($this->issue_description) : null,
+                'Authorisation limit: '.trim($this->repair_authorisation_limit),
+                'Source: portal.repairs.request',
+            ])),
+            'is_repaired' => false,
+            'is_returned' => false,
+            'fullname' => $customerName,
+            'email' => $customerEmail ?: null,
+            'phone' => $customerPhone ?: null,
+            'branch_id' => (int) $this->branch_id,
+            'user_id' => null,
+        ]);
+
+        ServiceBooking::query()->create([
+            'customer_id' => $customerAuth?->customer_id,
+            'customer_auth_id' => $customerAuth?->id,
+            'submission_context' => 'authenticated_customer',
+            'enquiry_type' => 'service',
+            'service_type' => 'Repairs portal booking',
+            'subject' => 'Repair booking request',
+            'description' => implode(' | ', array_filter([
+                'Service type: '.trim($this->service_type),
+                'Reg: '.strtoupper(trim($this->bike_reg_no)),
+                $this->bike_make ? 'Make: '.trim($this->bike_make) : null,
+                $this->bike_model ? 'Model: '.trim($this->bike_model) : null,
+                $this->mileage ? 'Mileage: '.trim($this->mileage) : null,
+                $this->issue_description ? 'Issue: '.trim($this->issue_description) : null,
+                'Date: '.$this->date_requested,
+                'Time: '.$this->time_slot,
+                'Authorisation limit: '.trim($this->repair_authorisation_limit),
+                'Source: portal.repairs.request',
+            ])),
+            'requires_schedule' => true,
+            'booking_date' => $this->date_requested,
+            'booking_time' => $this->time_slot,
+            'status' => 'Pending',
+            'fullname' => $customerName,
+            'phone' => $customerPhone,
+            'reg_no' => strtoupper(trim($this->bike_reg_no)),
+            'email' => $customerEmail ?: null,
+        ]);
+
+        if ($customerEmail !== '') {
+            Mail::raw(
+                "Your repairs booking request has been received.\n\nRegistration: ".strtoupper(trim($this->bike_reg_no))."\nDate: {$this->date_requested}\nTime: {$this->time_slot}\n\nWe will confirm your booking shortly.",
+                function ($message) use ($customerEmail): void {
+                    $message
+                        ->to($customerEmail)
+                        ->subject('Repairs booking request received');
+                }
+            );
+        }
+
         session()->flash('success', 'Repair booking submitted. We will confirm your appointment shortly.');
         $this->reset([
             'service_type', 'bike_reg_no', 'bike_make', 'bike_model', 'mileage',
             'issue_description', 'needs_collection', 'collection_postcode', 'collection_address',
             'date_requested', 'time_slot',
         ]);
+        $this->needs_collection = false;
     }
 
     public function render()

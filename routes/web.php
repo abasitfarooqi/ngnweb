@@ -371,6 +371,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/enquiries', \App\Livewire\Portal\Enquiries\Index::class)->name('enquiries');
     Route::get('/addresses', \App\Livewire\Portal\Addresses::class)->name('addresses');
     Route::get('/payment-methods', \App\Livewire\Portal\PaymentMethods::class)->name('payment-methods');
+    Route::get('/payments/recurring', \App\Livewire\Portal\Payments\Recurring::class)->name('payments.recurring');
 });
 
 // Judopay portal callbacks

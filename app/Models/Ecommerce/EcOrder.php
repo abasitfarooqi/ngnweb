@@ -142,8 +142,15 @@ class EcOrder extends Model
 
                                     break;
                                 case 'Cancelled':
-                                    // Mail::to($recipients)
-                                    //     ->send(new OrderCancelledMail($order));
+                                    Mail::raw(
+                                        "Your order #{$order->id} has been cancelled.\n\nIf you did not request this change, please contact support@neguinhomotors.co.uk.",
+                                        function ($message) use ($recipients, $order): void {
+                                            $message
+                                                ->to($recipients)
+                                                ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
+                                                ->subject('Order #'.$order->id.' Cancelled');
+                                        }
+                                    );
                                     break;
 
                                 case 'Pending':

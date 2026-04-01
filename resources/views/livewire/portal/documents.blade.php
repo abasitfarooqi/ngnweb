@@ -1,7 +1,7 @@
 <div wire:key="documents-page">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Documents</h1>
-        <p class="text-sm text-gray-500 mt-1">Upload and manage your documents for rentals, finance, and other services.</p>
+        <p class="text-sm text-gray-500 mt-1">Upload and manage rental, finance, and general documents from one place.</p>
     </div>
 
     @if(session('success'))
@@ -15,23 +15,42 @@
         </flux:callout>
     @endif
 
-    <flux:tabs wire:model="activeTab">
-        <flux:tab name="rental">Rental Documents</flux:tab>
-        <flux:tab name="finance">Finance Documents</flux:tab>
-        <flux:tab name="other">Other</flux:tab>
+    <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
+        <div class="flex items-center gap-2">
+            <button type="button" wire:click="switchTab('rental')"
+                class="px-3 py-2 text-sm border-b-2 {{ $activeTab === 'rental' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
+                Rental Documents
+            </button>
+            <button type="button" wire:click="switchTab('finance')"
+                class="px-3 py-2 text-sm border-b-2 {{ $activeTab === 'finance' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
+                Finance Documents
+            </button>
+            <button type="button" wire:click="switchTab('other')"
+                class="px-3 py-2 text-sm border-b-2 {{ $activeTab === 'other' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
+                Other
+            </button>
+        </div>
+    </div>
 
-        {{-- Rental tab panel --}}
-        <flux:tab.panel name="rental">
-            <flux:card class="p-6">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Rental Requirements</h3>
+    @if($activeTab === 'rental')
+        <div class="space-y-4">
+            <flux:card class="p-6 mb-4">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Rental Required Documents</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Upload these documents before starting your rental agreement.</p>
+                @if($missingRentalMandatory->isNotEmpty())
+                    <flux:callout variant="warning" icon="exclamation-triangle" class="mb-4">
+                        <flux:callout.text>
+                            {{ $missingRentalMandatory->count() }} mandatory rental document{{ $missingRentalMandatory->count() > 1 ? 's are' : ' is' }} still missing.
+                        </flux:callout.text>
+                    </flux:callout>
+                @endif
                 @if($rentalDocs->isEmpty())
                     <p class="text-sm text-gray-400">No rental document types defined yet. Please contact us.</p>
                 @else
                     <div class="space-y-3">
                         @foreach($rentalDocs as $docType)
                             @php
-                                $uploaded = $uploadedDocs[$docType->id] ?? null;
+                                $uploaded = $uploadedByType[$docType->id] ?? null;
                                 $status   = $uploaded ? ($uploaded->status ?? 'pending_review') : 'missing';
                                 $badgeColor = match($status) {
                                     'approved'       => 'green',
@@ -66,8 +85,8 @@
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <flux:badge color="{{ $badgeColor }}" size="sm">{{ $statusLabel }}</flux:badge>
-                                    @if($uploaded?->file_url)
-                                        <flux:button href="{{ $uploaded->file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
+                                    @if($uploaded?->portal_file_url)
+                                        <flux:button href="{{ $uploaded->portal_file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
                                     @endif
                                     <flux:button
                                         wire:key="upload-btn-rental-{{ $docType->id }}"
@@ -82,20 +101,80 @@
                     </div>
                 @endif
             </flux:card>
-        </flux:tab.panel>
 
-        {{-- Finance tab panel --}}
-        <flux:tab.panel name="finance">
+            <flux:card class="p-6 mb-4">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Uploaded Rental Files</h3>
+                @if($rentalUploadedDocuments->isEmpty())
+                    <p class="text-sm text-gray-500">No rental files uploaded yet.</p>
+                @else
+                    <div class="space-y-2">
+                        @foreach($rentalUploadedDocuments as $doc)
+                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $doc->documentType?->name ?? 'Rental document' }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $doc->file_name ?: 'Unnamed file' }} · {{ optional($doc->created_at)->format('d M Y H:i') }}
+                                    </p>
+                                </div>
+                                @if($doc->portal_file_url)
+                                    <flux:button href="{{ $doc->portal_file_url }}" target="_blank" variant="outline" size="sm">Open</flux:button>
+                                @else
+                                    <span class="text-xs text-gray-400">Stored privately</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </flux:card>
+
             <flux:card class="p-6">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Finance Requirements</h3>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Signed Rental Agreements</h3>
+                @if($rentalAgreements->isEmpty())
+                    <p class="text-sm text-gray-500">No signed rental agreement found yet.</p>
+                @else
+                    <div class="space-y-2">
+                        @foreach($rentalAgreements as $agreement)
+                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        Rental Agreement @if($agreement->booking_id) #{{ $agreement->booking_id }} @endif
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $agreement->file_name ?: 'Agreement file' }} · {{ optional($agreement->created_at)->format('d M Y H:i') }}
+                                    </p>
+                                </div>
+                                @if($agreement->portal_file_url)
+                                    <flux:button href="{{ $agreement->portal_file_url }}" target="_blank" variant="outline" size="sm">Open</flux:button>
+                                @else
+                                    <span class="text-xs text-gray-400">Stored privately</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </flux:card>
+        </div>
+    @endif
+
+    @if($activeTab === 'finance')
+        <div class="space-y-4">
+            <flux:card class="p-6 mb-4">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Finance Required Documents</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Upload these documents as part of your finance application.</p>
+                @if($missingFinanceMandatory->isNotEmpty())
+                    <flux:callout variant="warning" icon="exclamation-triangle" class="mb-4">
+                        <flux:callout.text>
+                            {{ $missingFinanceMandatory->count() }} mandatory finance document{{ $missingFinanceMandatory->count() > 1 ? 's are' : ' is' }} still missing.
+                        </flux:callout.text>
+                    </flux:callout>
+                @endif
                 @if($financeDocs->isEmpty())
                     <p class="text-sm text-gray-400">No finance document types defined yet. Please contact us.</p>
                 @else
                     <div class="space-y-3">
                         @foreach($financeDocs as $docType)
                             @php
-                                $uploaded = $uploadedDocs[$docType->id] ?? null;
+                                $uploaded = $uploadedByType[$docType->id] ?? null;
                                 $status   = $uploaded ? ($uploaded->status ?? 'pending_review') : 'missing';
                                 $badgeColor = match($status) {
                                     'approved'       => 'green',
@@ -130,8 +209,8 @@
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">
                                     <flux:badge color="{{ $badgeColor }}" size="sm">{{ $statusLabel }}</flux:badge>
-                                    @if($uploaded?->file_url)
-                                        <flux:button href="{{ $uploaded->file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
+                                    @if($uploaded?->portal_file_url)
+                                        <flux:button href="{{ $uploaded->portal_file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
                                     @endif
                                     <flux:button
                                         wire:key="upload-btn-finance-{{ $docType->id }}"
@@ -146,18 +225,121 @@
                     </div>
                 @endif
             </flux:card>
-        </flux:tab.panel>
 
-        {{-- Other tab panel --}}
-        <flux:tab.panel name="other">
-            <flux:card class="p-6">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Other Documents</h3>
-                <p class="text-sm text-gray-500">Contact us to request additional document uploads.</p>
+            <flux:card class="p-6 mb-4">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Uploaded Finance Files</h3>
+                @if($financeUploadedDocuments->isEmpty())
+                    <p class="text-sm text-gray-500">No finance files uploaded yet.</p>
+                @else
+                    <div class="space-y-2">
+                        @foreach($financeUploadedDocuments as $doc)
+                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $doc->documentType?->name ?? 'Finance document' }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $doc->file_name ?: 'Unnamed file' }} · {{ optional($doc->created_at)->format('d M Y H:i') }}
+                                    </p>
+                                </div>
+                                @if($doc->portal_file_url)
+                                    <flux:button href="{{ $doc->portal_file_url }}" target="_blank" variant="outline" size="sm">Open</flux:button>
+                                @else
+                                    <span class="text-xs text-gray-400">Stored privately</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
             </flux:card>
-        </flux:tab.panel>
-    </flux:tabs>
 
-    {{-- Upload modal --}}
+            <flux:card class="p-6">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Signed Finance Contracts</h3>
+                @if($financeContracts->isEmpty())
+                    <p class="text-sm text-gray-500">No signed finance contract found yet.</p>
+                @else
+                    <div class="space-y-2">
+                        @foreach($financeContracts as $contract)
+                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">
+                                        Finance Contract @if($contract->application_id) #{{ $contract->application_id }} @endif
+                                    </p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $contract->file_name ?: 'Contract file' }} · {{ optional($contract->created_at)->format('d M Y H:i') }}
+                                    </p>
+                                </div>
+                                @if($contract->portal_file_url)
+                                    <flux:button href="{{ $contract->portal_file_url }}" target="_blank" variant="outline" size="sm">Open</flux:button>
+                                @else
+                                    <span class="text-xs text-gray-400">Stored privately</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </flux:card>
+        </div>
+    @endif
+
+    @if($activeTab === 'other')
+        <div class="space-y-4">
+            <flux:card class="p-6 mb-4">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Other Document Types</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">General documents not specifically marked as rental or finance.</p>
+                @if($otherDocs->isEmpty())
+                    <p class="text-sm text-gray-500">No additional document types configured yet.</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($otherDocs as $docType)
+                            @php
+                                $uploaded = $uploadedByType[$docType->id] ?? null;
+                                $statusLabel = $uploaded ? 'Uploaded' : 'Missing';
+                            @endphp
+                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
+                                <div>
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $docType->name }}</p>
+                                    <p class="text-xs text-gray-500">{{ $statusLabel }}</p>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    @if($uploaded?->portal_file_url)
+                                        <flux:button href="{{ $uploaded->portal_file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
+                                    @endif
+                                    <flux:button wire:click="startUpload({{ $docType->id }})" variant="filled" size="sm" class="bg-brand-red text-white">
+                                        {{ $uploaded ? 'Replace' : 'Upload' }}
+                                    </flux:button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </flux:card>
+
+            <flux:card class="p-6">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">All Uploaded Files</h3>
+                @if($uploadedDocuments->isEmpty())
+                    <p class="text-sm text-gray-500">No documents uploaded yet.</p>
+                @else
+                    <div class="space-y-2">
+                        @foreach($uploadedDocuments as $doc)
+                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
+                                <div class="min-w-0">
+                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $doc->documentType?->name ?? 'Document' }}</p>
+                                    <p class="text-xs text-gray-500">
+                                        {{ $doc->file_name ?: 'Unnamed file' }} · {{ optional($doc->created_at)->format('d M Y H:i') }}
+                                    </p>
+                                </div>
+                                @if($doc->portal_file_url)
+                                    <flux:button href="{{ $doc->portal_file_url }}" target="_blank" variant="outline" size="sm">Open</flux:button>
+                                @else
+                                    <span class="text-xs text-gray-400">Stored privately</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </flux:card>
+        </div>
+    @endif
+
     @if($uploadingFor)
         <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" wire:key="doc-upload-modal">
             <div class="bg-white dark:bg-gray-800 w-full max-w-lg shadow-2xl">

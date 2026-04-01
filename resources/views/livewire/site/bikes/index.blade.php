@@ -45,9 +45,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         @foreach($usedBikes as $bike)
             @php
-                $img = $bike->image_one
-                    ? 'https://neguinhomotors.co.uk/storage/motorbikes/'.$bike->image_one
-                    : 'https://neguinhomotors.co.uk/assets/img/no-image.png';
+                $img = \App\Support\NgnMotorcycleImage::urlForUsedSale($bike->image_one ?? null);
                 $maskedReg = $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : '';
             @endphp
             <article
@@ -153,22 +151,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         @foreach($newBikes as $bike)
             @php
-                $imagePath = $bike->file_path ?? null;
-                $fullPath = '';
-
-                if ($imagePath) {
-                    if (is_string($imagePath)) {
-                        if (str_starts_with($imagePath, '/storage/uploads/') || str_starts_with($imagePath, '/storage/motorbikes/')) {
-                            $fullPath = 'https://neguinhomotors.co.uk'.$imagePath;
-                        } else {
-                            $fullPath = 'https://neguinhomotors.co.uk/storage/motorbikes/'.$imagePath;
-                        }
-                    }
-                }
-
-                if (empty($fullPath)) {
-                    $fullPath = 'https://neguinhomotors.co.uk/assets/img/no-image.png';
-                }
+                $fullPath = \App\Support\NgnMotorcycleImage::urlForNewStock($bike->file_path ?: ($bike->image ?? null));
             @endphp
             <article class="border border-gray-200 dark:border-gray-700 overflow-hidden bg-white dark:bg-gray-900">
                 <a href="{{ route('new-motorcycle.detail', ['id' => $bike->id]) }}" class="block">

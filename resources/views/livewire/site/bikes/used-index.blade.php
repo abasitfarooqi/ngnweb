@@ -84,13 +84,11 @@
             <ul class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8 list-none p-0 m-0 w-full max-w-full" role="list">
                 @foreach($motorbikes as $bike)
                     @php
-                        $image = $bike->image_one
-                            ? 'https://neguinhomotors.co.uk/storage/motorbikes/'.$bike->image_one
-                            : 'https://neguinhomotors.co.uk/assets/img/no-image.png';
+                        $image = \App\Support\NgnMotorcycleImage::urlForUsedSale($bike->image_one ?? null);
                         $isSold = (int) $bike->is_sold === 1;
                         $regHint = $bike->reg_no ? '••••'.substr((string) $bike->reg_no, -3) : '';
                     @endphp
-                    <li class="min-w-0 w-full max-w-full">
+                    <li class="min-w-0 w-full max-w-full" x-data="{ open: false }">
                         <flux:card class="group flex h-full w-full max-w-full flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/80 dark:ring-gray-700 bg-white dark:bg-gray-900 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-red/40 transition-all duration-300">
                             <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="relative block w-full max-w-full overflow-hidden aspect-[5/3] min-h-[11rem] bg-gray-100 dark:bg-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-inset">
                                 <img
@@ -121,6 +119,44 @@
                                     £{{ number_format((float) $bike->price, 0) }}
                                 </p>
                                 <p class="text-[11px] text-gray-400 dark:text-gray-500 mt-0.5">Guide price — confirm on enquiry</p>
+                                <div class="mt-2">
+                                    <button type="button" @click="open = !open" class="text-xs font-semibold tracking-wide uppercase text-gray-600 dark:text-gray-300">
+                                        <span x-show="!open">Show details</span>
+                                        <span x-show="open" x-cloak>Hide details</span>
+                                    </button>
+                                </div>
+                                <dl
+                                    x-show="open"
+                                    x-cloak
+                                    class="mt-2 grid grid-cols-2 gap-x-3 gap-y-1 text-[11px] text-gray-600 dark:text-gray-300"
+                                >
+                                    <div>
+                                        <dt class="font-semibold">Reg No.</dt>
+                                        <dd class="font-mono tabular-nums">{{ $regHint ?: '—' }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="font-semibold">Year</dt>
+                                        <dd>{{ $bike->year ?? '—' }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="font-semibold">Engine</dt>
+                                        <dd>{{ $bike->engine ?? '—' }}</dd>
+                                    </div>
+                                    <div>
+                                        <dt class="font-semibold">Colour</dt>
+                                        <dd>{{ $bike->color ?? '—' }}</dd>
+                                    </div>
+                                    <div class="col-span-2">
+                                        <dt class="font-semibold">Mileage</dt>
+                                        <dd>
+                                            @if(isset($bike->sale_mileage) && $bike->sale_mileage !== null && $bike->sale_mileage !== '')
+                                                {{ number_format((float) $bike->sale_mileage) }}
+                                            @else
+                                                —
+                                            @endif
+                                        </dd>
+                                    </div>
+                                </dl>
                                 <div class="mt-auto pt-4 flex flex-col sm:flex-row gap-2">
                                     <flux:button href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" variant="outline" size="sm" class="flex-1 justify-center ring-1 ring-gray-300 dark:ring-gray-600">
                                         Details
@@ -150,9 +186,7 @@
                 <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 md:gap-6 list-none p-0 m-0 w-full max-w-full" role="list">
                     @foreach($latestMotorcycles as $motorcycle)
                         @php
-                            $nmImage = $motorcycle->file_path
-                                ? 'https://neguinhomotors.co.uk'.$motorcycle->file_path
-                                : 'https://neguinhomotors.co.uk/assets/img/no-image.png';
+                            $nmImage = \App\Support\NgnMotorcycleImage::urlForNewStock($motorcycle->file_path ?: ($motorcycle->image ?? null));
                         @endphp
                         <li class="min-w-0 w-full max-w-full">
                             <flux:card class="overflow-hidden p-0 border-0 ring-1 ring-gray-200 dark:ring-gray-700 bg-white dark:bg-gray-900 h-full w-full max-w-full flex flex-col">
@@ -169,7 +203,13 @@
                                 </a>
                                 <div class="p-4 flex flex-col flex-1">
                                     <h3 class="font-semibold text-gray-900 dark:text-white">{{ $motorcycle->make }} {{ $motorcycle->model }}</h3>
-                                    <p class="text-brand-red font-bold text-lg mt-2">£{{ number_format((float) $motorcycle->sale_new_price, 0) }}</p>
+                                    <p class="text-brand-red font-bold text-lg mt-2">
+                                        @if($motorcycle->sale_new_price)
+                                            £{{ number_format((float) $motorcycle->sale_new_price, 0) }}
+                                        @else
+                                            <span class="text-sm text-gray-500 font-normal">Call for price</span>
+                                        @endif
+                                    </p>
                                     <flux:button href="{{ route('new-motorcycle.detail', ['id' => $motorcycle->id]) }}" variant="outline" size="sm" class="w-full mt-auto justify-center">Enquire</flux:button>
                                 </div>
                             </flux:card>

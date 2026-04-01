@@ -61,7 +61,7 @@ class PartShow extends Component
             1,
             $fitment
         );
-        $this->dispatch('cart-updated', count: $this->cart->count());
+        $this->dispatch('cart-updated', count: $this->cart->count())->to('site.header');
     }
 
     public function render()

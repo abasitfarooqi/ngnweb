@@ -19,8 +19,26 @@
                 default => 'yellow',
             };
         @endphp
-        <flux:badge color="{{ $statusColour }}" size="lg">{{ $order->order_status }}</flux:badge>
+        <div class="flex items-center gap-2">
+            <flux:badge color="{{ $statusColour }}" size="lg">{{ $order->order_status }}</flux:badge>
+            @if(!in_array(strtolower((string) $order->order_status), ['cancelled', 'delivered'], true))
+                <flux:button
+                    wire:click="cancelOrder"
+                    wire:confirm="Cancel this order?"
+                    variant="ghost"
+                    size="sm"
+                    class="text-red-600">
+                    Cancel order
+                </flux:button>
+            @endif
+        </div>
     </div>
+
+    @if($statusMessage)
+        <flux:callout variant="{{ str_contains(strtolower($statusMessage), 'success') ? 'success' : 'warning' }}" icon="information-circle">
+            <flux:callout.text>{{ $statusMessage }}</flux:callout.text>
+        </flux:callout>
+    @endif
 
     {{-- Items --}}
     <flux:card class="p-6">

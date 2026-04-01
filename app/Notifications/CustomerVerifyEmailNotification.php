@@ -50,8 +50,8 @@ class CustomerVerifyEmailNotification extends Notification
 
         try {
             return (new MailMessage)
-                ->subject('Verify Your Email Address - NGN Store')
-                ->view('olders.emails.ecommerce.verify-email', [
+                ->subject('Verify your email address - NGN Motors')
+                ->view('emails.ecommerce.verify-email', [
                     'url' => $verificationUrl,
                     'verificationUrl' => $verificationUrl,
                     'customer' => $customer,

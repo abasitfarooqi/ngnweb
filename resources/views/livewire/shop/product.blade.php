@@ -99,9 +99,11 @@
                 <p class="text-sm font-medium text-gray-700 dark:text-gray-300">Qty:</p>
                 <div class="flex items-center border border-gray-300 dark:border-gray-600">
                     <button wire:click="decrementQuantity"
+                            @disabled($availability['total_balance'] <= 0)
                             class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-lg transition">−</button>
                     <span class="w-10 text-center font-medium text-gray-900 dark:text-white">{{ $quantity }}</span>
                     <button wire:click="incrementQuantity"
+                            @disabled($availability['total_balance'] <= 0)
                             class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-lg transition">+</button>
                 </div>
             </div>
@@ -117,10 +119,11 @@
             <div class="flex gap-3">
                 <button wire:click="addToCart"
                         wire:loading.attr="disabled"
+                        @disabled($availability['total_balance'] <= 0)
                         class="flex-1 bg-brand-red hover:bg-red-700 text-white font-semibold px-6 py-3 transition flex items-center justify-center gap-2">
                     <span wire:loading.remove wire:target="addToCart">
                         <flux:icon name="shopping-bag" class="h-5 w-5 inline mr-1" />
-                        Add to Basket
+                        {{ $availability['total_balance'] > 0 ? 'Add to Basket' : 'Out of Stock' }}
                     </span>
                     <span wire:loading wire:target="addToCart">Adding…</span>
                 </button>
@@ -129,6 +132,18 @@
                     View Basket
                 </a>
             </div>
+
+            @if($availability['total_balance'] <= 0)
+                <div id="stock-enquiry" class="mt-6">
+                    @include('livewire.site.partials.sales.enquiry-form', [
+                        'submitAction' => 'submitEnquiry',
+                        'heading' => 'Stock Enquiry',
+                        'enquiryTypeLabel' => 'Shop',
+                        'showRegNo' => false,
+                        'submitButtonLabel' => 'Send stock enquiry',
+                    ])
+                </div>
+            @endif
 
             {{-- Trust badges --}}
             <div class="mt-6 grid grid-cols-2 gap-3">

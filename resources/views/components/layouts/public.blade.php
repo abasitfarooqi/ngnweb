@@ -29,6 +29,7 @@
     @fluxAppearance
     @include('components.partials.theme-api')
     @livewireStyles
+    <style>[x-cloak]{display:none!important}</style>
 
     @stack('head')
 </head>

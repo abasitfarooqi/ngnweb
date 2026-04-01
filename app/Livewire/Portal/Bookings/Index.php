@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Portal\Bookings;
 
+use App\Models\MotorbikeRepair;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -14,6 +15,35 @@ class Index extends Component
         $this->activeTab = $tab;
     }
 
+    public function downloadRepairReport(int $repairId)
+    {
+        $customerAuth = Auth::guard('customer')->user();
+        $customerEmail = trim((string) ($customerAuth?->email ?? ''));
+        if ($customerEmail === '') {
+            abort(403);
+        }
+
+        $repair = MotorbikeRepair::query()
+            ->with(['motorbike', 'branch', 'updates.services', 'observations'])
+            ->where('id', $repairId)
+            ->whereRaw('LOWER(email) = ?', [strtolower($customerEmail)])
+            ->firstOrFail();
+
+        $pdf = \PDF::loadView('olders.pdf.repair_invoice', compact('repair'))
+            ->setPaper('a4', 'portrait')
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+            ]);
+
+        $regNo = $repair->motorbike?->reg_no ?: 'report';
+
+        return response()->streamDownload(
+            fn () => print ($pdf->output()),
+            'repair-report-'.$regNo.'-'.$repair->id.'.pdf'
+        );
+    }
+
     public function render()
     {
         $customer = Auth::guard('customer')->user();
@@ -21,6 +51,11 @@ class Index extends Component
 
         $motBookings = \App\Models\MOTBooking::where('customer_email', $customer->email)
             ->orderBy('date_of_appointment', 'desc')
+            ->get();
+
+        $repairs = \App\Models\MotorbikeRepair::where('email', $customer->email)
+            ->with(['branch', 'motorbike'])
+            ->orderByDesc('arrival_date')
             ->get();
 
         $rentals = $customerId
@@ -55,6 +90,14 @@ class Index extends Component
 
         $allBookings = $motItems
             ->merge($rentalItems)
+            ->merge(collect($repairs->all())->map(fn ($repair) => (object) [
+                'id' => 'repair-'.$repair->id,
+                'type' => 'Repair',
+                'date' => $repair->arrival_date?->toDateString(),
+                'status' => $repair->is_returned ? 'completed' : ($repair->is_repaired ? 'in progress' : 'pending'),
+                'label' => 'Repair Booking',
+                'source' => $repair,
+            ]))
             ->sortByDesc('date')
             ->values();
 

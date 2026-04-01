@@ -3,7 +3,10 @@
 namespace App\Livewire\Portal\MOT;
 
 use App\Models\Branch;
+use App\Models\MOTBooking;
+use App\Models\ServiceBooking;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class Book extends Component
@@ -43,8 +46,11 @@ class Book extends Component
     protected $rules = [
         'branch_id' => 'required|exists:branches,id',
         'motorbike_reg_no' => 'required|string|min:2|max:10',
+        'motorbike_make' => 'required|string|min:2|max:50',
+        'motorbike_model' => 'required|string|min:2|max:50',
         'date_of_appointment' => 'required|date|after:today',
         'time_slot' => 'required',
+        'notes' => 'nullable|string|max:2000',
     ];
 
     public function mount()
@@ -58,6 +64,80 @@ class Book extends Component
     public function submit()
     {
         $this->validate();
+
+        $customerAuth = Auth::guard('customer')->user();
+        $customerProfile = $customerAuth?->customer;
+        $customerName = trim((string) ($customerProfile?->first_name.' '.$customerProfile?->last_name));
+        $customerName = $customerName !== '' ? $customerName : (string) ($customerAuth?->name ?? 'Portal customer');
+        $customerPhone = trim((string) ($customerProfile?->phone ?? $customerAuth?->phone ?? ''));
+        $customerEmail = trim((string) ($customerAuth?->email ?? ''));
+        $appointmentStart = trim($this->date_of_appointment.' '.$this->time_slot);
+
+        MOTBooking::withoutEvents(function () use ($appointmentStart, $customerEmail, $customerName, $customerPhone): void {
+            MOTBooking::query()->create([
+                'branch_id' => (int) $this->branch_id,
+                'vehicle_registration' => strtoupper(trim($this->motorbike_reg_no)),
+                'vehicle_chassis' => null,
+                'vehicle_color' => null,
+                'date_of_appointment' => $this->date_of_appointment,
+                'start' => $appointmentStart,
+                'end' => $appointmentStart,
+                'customer_name' => $customerName,
+                'customer_contact' => $customerPhone,
+                'customer_email' => $customerEmail ?: null,
+                'status' => 'pending',
+                'title' => 'pending MOT '.strtoupper(trim($this->motorbike_reg_no)).' '.$customerName,
+                'notes' => implode("\n", array_filter([
+                    'Make: '.trim($this->motorbike_make),
+                    'Model: '.trim($this->motorbike_model),
+                    $this->notes ? 'Notes: '.trim($this->notes) : null,
+                    'Source: portal.mot.book',
+                ])),
+                'all_day' => false,
+                'is_validate' => true,
+                'payment_method' => null,
+                'payment_notes' => null,
+                'user_id' => null,
+            ]);
+        });
+
+        ServiceBooking::query()->create([
+            'customer_id' => $customerAuth?->customer_id,
+            'customer_auth_id' => $customerAuth?->id,
+            'submission_context' => 'authenticated_customer',
+            'enquiry_type' => 'mot',
+            'service_type' => 'MOT portal booking',
+            'subject' => 'MOT booking request',
+            'description' => implode(' | ', array_filter([
+                'Reg: '.strtoupper(trim($this->motorbike_reg_no)),
+                'Make: '.trim($this->motorbike_make),
+                'Model: '.trim($this->motorbike_model),
+                'Date: '.$this->date_of_appointment,
+                'Time: '.$this->time_slot,
+                $this->notes ? 'Notes: '.trim($this->notes) : null,
+                'Source: portal.mot.book',
+            ])),
+            'requires_schedule' => true,
+            'booking_date' => $this->date_of_appointment,
+            'booking_time' => $this->time_slot,
+            'status' => 'Pending',
+            'fullname' => $customerName,
+            'phone' => $customerPhone,
+            'reg_no' => strtoupper(trim($this->motorbike_reg_no)),
+            'email' => $customerEmail ?: null,
+        ]);
+
+        if ($customerEmail !== '') {
+            Mail::raw(
+                "Your MOT booking request has been received.\n\nRegistration: ".strtoupper(trim($this->motorbike_reg_no))."\nDate: {$this->date_of_appointment}\nTime: {$this->time_slot}\n\nWe will confirm your appointment shortly.",
+                function ($message) use ($customerEmail): void {
+                    $message
+                        ->to($customerEmail)
+                        ->subject('MOT booking request received');
+                }
+            );
+        }
+
         session()->flash('success', 'MOT booking submitted. We will confirm your appointment shortly.');
         $this->reset(['motorbike_reg_no', 'motorbike_make', 'motorbike_model', 'date_of_appointment', 'time_slot', 'notes']);
     }

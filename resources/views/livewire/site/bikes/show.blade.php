@@ -15,7 +15,14 @@
 
         {{-- Images --}}
         <div>
-            @if(!$isNew && $bike->images && $bike->images->count() > 0)
+            @if($isNew)
+                @php
+                    $newHero = \App\Support\NgnMotorcycleImage::urlForNewStock($bike->file_path ?: ($bike->image ?? null));
+                @endphp
+                <img src="{{ $newHero }}"
+                     alt="{{ $bike->make }} {{ $bike->model }}"
+                     class="w-full h-96 object-cover border border-gray-200 dark:border-gray-700">
+            @elseif(!$isNew && $bike->images && $bike->images->count() > 0)
                 <img src="{{ $this->resolveImageUrl($bike->images->first()->url ?? ($saleInfo->image_one ?? '')) }}"
                      alt="{{ $bike->make }} {{ $bike->model }}"
                      class="w-full h-96 object-cover border border-gray-200 dark:border-gray-700 mb-3">
@@ -51,8 +58,10 @@
             </h1>
 
             <div class="mb-6">
-                @if($isNew && $bike->price)
-                    <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format($bike->price, 0) }}</div>
+                @if($isNew && ($bike->sale_new_price ?? null))
+                    <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format((float) $bike->sale_new_price, 0) }}</div>
+                @elseif($isNew)
+                    <div class="text-2xl font-bold text-gray-500 mb-1">Call for price</div>
                 @elseif(!$isNew && $saleInfo)
                     <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format($saleInfo->price ?? 0, 0) }}</div>
                 @else
@@ -65,7 +74,14 @@
             <div class="bg-gray-50 dark:bg-gray-800 p-5 mb-6 grid grid-cols-2 gap-4">
                 @if($bike->year)   <div><p class="text-xs text-gray-500 mb-0.5">Year</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->year }}</p></div> @endif
                 @if($bike->engine ?? $bike->engine_capacity) <div><p class="text-xs text-gray-500 mb-0.5">Engine</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->engine ?? $bike->engine_capacity }}</p></div> @endif
-                @if($bike->color)  <div><p class="text-xs text-gray-500 mb-0.5">Colour</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->color }}</p></div> @endif
+                @if($isNew)
+                    @if($bike->type)<div><p class="text-xs text-gray-500 mb-0.5">Type</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->type }}</p></div>@endif
+                    @if($bike->category)<div><p class="text-xs text-gray-500 mb-0.5">Category</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->category }}</p></div>@endif
+                    @if($bike->colour)<div><p class="text-xs text-gray-500 mb-0.5">Colour</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->colour }}</p></div>@endif
+                    @if($bike->registration)<div><p class="text-xs text-gray-500 mb-0.5">Registration</p><p class="font-semibold text-gray-900 dark:text-white font-mono tabular-nums">{{ $bike->registration }}</p></div>@endif
+                @else
+                    @if($bike->color)  <div><p class="text-xs text-gray-500 mb-0.5">Colour</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->color }}</p></div> @endif
+                @endif
                 @if($bike->fuel_type) <div><p class="text-xs text-gray-500 mb-0.5">Fuel</p><p class="font-semibold text-gray-900 dark:text-white">{{ $bike->fuel_type }}</p></div> @endif
             </div>
 
@@ -101,19 +117,48 @@
     {{-- Full specs --}}
     <div class="mt-12 border-t border-gray-200 dark:border-gray-700 pt-10">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Full Specifications</h2>
+        @if($isNew && trim((string) ($bike->description ?? '')) !== '' && strcasecmp(trim((string) $bike->description), 'null') !== 0)
+            <div class="mb-8 bg-gray-50 dark:bg-gray-800 p-5 border border-gray-200 dark:border-gray-700">
+                <p class="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-2">Overview</p>
+                <p class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-line">{{ $bike->description }}</p>
+            </div>
+        @endif
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            @foreach([
-                ['Make', $bike->make], ['Model', $bike->model], ['Reg', $bike->reg_no],
-                ['Year', $bike->year], ['Engine', $bike->engine ?? $bike->engine_capacity],
-                ['Colour', $bike->color], ['Fuel', $bike->fuel_type],
-            ] as [$label, $value])
-                @if($value)
-                    <div class="bg-gray-50 dark:bg-gray-800 p-4">
-                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $label }}</p>
-                        <p class="font-semibold text-gray-900 dark:text-white">{{ $value }}</p>
-                    </div>
-                @endif
-            @endforeach
+            @if($isNew)
+                @foreach([
+                    ['Make', $bike->make], ['Model', $bike->model], ['Registration', $bike->registration],
+                    ['Year', $bike->year], ['Type', $bike->type], ['Category', $bike->category],
+                    ['Colour', $bike->colour], ['Engine', $bike->engine], ['Engine details', $bike->engine_details],
+                    ['Power', $bike->power], ['Torque', $bike->torque], ['Fuel', $bike->fuel_type],
+                    ['Fuel system', $bike->fuel_system], ['Cooling', $bike->cooling_system],
+                    ['Gearbox', $bike->gear_box], ['Dry weight', $bike->dry_weight],
+                    ['Seat height', $bike->seat_height], ['Fuel capacity', $bike->fuel_capacity],
+                    ['Front brakes', $bike->front_brakes], ['Rear brakes', $bike->rear_brakes],
+                    ['Front suspension', $bike->front_suspension], ['Rear suspension', $bike->rear_suspension],
+                    ['Front tyre', $bike->front_tyre], ['Rear tyre', $bike->rear_tyre],
+                    ['Frame', $bike->frame_type], ['Exhaust', $bike->exhaust_system],
+                ] as [$label, $value])
+                    @if($value !== null && trim((string) $value) !== '')
+                        <div class="bg-gray-50 dark:bg-gray-800 p-4">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $label }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">{{ $value }}</p>
+                        </div>
+                    @endif
+                @endforeach
+            @else
+                @foreach([
+                    ['Make', $bike->make], ['Model', $bike->model], ['Reg', $bike->reg_no],
+                    ['Year', $bike->year], ['Engine', $bike->engine ?? $bike->engine_capacity],
+                    ['Colour', $bike->color], ['Fuel', $bike->fuel_type],
+                ] as [$label, $value])
+                    @if($value)
+                        <div class="bg-gray-50 dark:bg-gray-800 p-4">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mb-1">{{ $label }}</p>
+                            <p class="font-semibold text-gray-900 dark:text-white">{{ $value }}</p>
+                        </div>
+                    @endif
+                @endforeach
+            @endif
         </div>
     </div>
 </div>

@@ -29,6 +29,7 @@ class Home extends Component
     public string $cartMessage = '';
 
     protected ShopService $shop;
+
     protected CartService $cart;
 
     public function boot(ShopService $shop, CartService $cart): void
@@ -59,9 +60,16 @@ class Home extends Component
 
     public function addToCart(int $productId): void
     {
+        $availability = $this->shop->getProductAvailability($productId);
+        if (($availability['total_balance'] ?? 0) <= 0) {
+            $this->cartMessage = 'This item is currently out of stock. Please send an enquiry.';
+
+            return;
+        }
+
         $this->cart->add($productId, 1);
         $this->cartMessage = 'Added to basket!';
-        $this->dispatch('cart-updated', count: $this->cart->count());
+        $this->dispatch('cart-updated', count: $this->cart->count())->to('site.header');
     }
 
     public function clearFilters(): void
@@ -76,10 +84,10 @@ class Home extends Component
     public function render()
     {
         $categories = $this->shop->getCategories();
-        $brands     = $this->shop->getBrands();
+        $brands = $this->shop->getBrands();
 
         $categorySlugs = $this->categorySlug ? [$this->categorySlug] : [];
-        $brandSlugs    = $this->brandSlug ? [$this->brandSlug] : [];
+        $brandSlugs = $this->brandSlug ? [$this->brandSlug] : [];
 
         $products = $this->shop->getProducts(
             perPage: $this->perPage,
@@ -101,7 +109,7 @@ class Home extends Component
         return view('livewire.shop.home', compact(
             'products', 'categories', 'brands', 'categoryName', 'brandName'
         ))->layout('components.layouts.public', [
-            'title'       => ($categoryName ?? 'Motorcycle Parts & Accessories') . ' | NGN Shop',
+            'title' => ($categoryName ?? 'Motorcycle Parts & Accessories').' | NGN Shop',
             'description' => 'Shop motorcycle accessories, helmets, spare parts & GPS trackers at NGN Motors London.',
         ]);
     }

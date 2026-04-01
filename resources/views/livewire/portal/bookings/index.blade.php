@@ -52,13 +52,25 @@
                                     <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->vehicle_registration ?? 'N/A' }}</strong></p>
                                     <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ $booking->source->time_slot ?? 'N/A' }}</strong></p>
                                     <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch->name ?? 'N/A' }}</strong></p>
-                                @else
+                                @elseif($booking->type === 'Rental')
                                     <p>Booking ID: <strong class="text-gray-900 dark:text-white">#{{ $booking->source->id }}</strong></p>
                                     <p>Start: <strong class="text-gray-900 dark:text-white">{{ $booking->source->start_date ? \Carbon\Carbon::parse($booking->source->start_date)->format('d M Y') : 'N/A' }}</strong></p>
                                     @php $activeItem = $booking->source->activeItems->first(); @endphp
                                     @if($activeItem && $activeItem->motorbike)
                                         <p>Bike: <strong class="text-gray-900 dark:text-white">{{ $activeItem->motorbike->make }} {{ $activeItem->motorbike->model }} ({{ $activeItem->motorbike->reg_no }})</strong></p>
                                     @endif
+                                @else
+                                    <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->motorbike?->reg_no ?? 'N/A' }}</strong></p>
+                                    <p>Arrival: <strong class="text-gray-900 dark:text-white">{{ $booking->source->arrival_date ? \Carbon\Carbon::parse($booking->source->arrival_date)->format('d M Y H:i') : 'N/A' }}</strong></p>
+                                    <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch?->name ?? 'N/A' }}</strong></p>
+                                    <div class="mt-2">
+                                        <button
+                                            type="button"
+                                            wire:click="downloadRepairReport({{ $booking->source->id }})"
+                                            class="text-sm text-brand-red hover:text-red-700 font-medium">
+                                            Download workshop report (PDF)
+                                        </button>
+                                    </div>
                                 @endif
                             </div>
                             @if(!empty($booking->source->notes))

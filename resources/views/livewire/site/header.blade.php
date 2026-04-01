@@ -30,8 +30,8 @@
 </div>
 @endif
 
-{{-- Main sticky header --}}
-<header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-50">
+{{-- Main sticky header (below mobile drawer so menu overlay wins) --}}
+<header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center h-14 sm:h-16 gap-3">
 
@@ -109,7 +109,6 @@
 
             {{-- Desktop right: search, auth, basket, club --}}
             <div class="hidden lg:flex items-center gap-2">
-                @php $globalCartCount = app(\App\Services\CartService::class)->count(); @endphp
                 <x-theme-toggle-icon />
                 {{-- Search --}}
                 <div x-data="{ searchOpen: false }" class="relative">
@@ -129,8 +128,8 @@
                 {{-- Basket --}}
                 <a href="{{ route('shop.basket') }}" class="p-2 text-gray-500 hover:text-brand-red transition relative" aria-label="Basket">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                    @if($globalCartCount > 0)
-                        <span class="absolute -top-1 -right-1 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none">{{ $globalCartCount }}</span>
+                    @if($cartCount > 0)
+                        <span class="absolute -top-1 -right-1 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none">{{ $cartCount }}</span>
                     @endif
                 </a>
 
@@ -156,8 +155,8 @@
                 <x-theme-toggle-icon />
                 <a href="{{ route('shop.basket') }}" class="p-2 text-gray-600 dark:text-gray-400 hover:text-brand-red transition relative" aria-label="Basket">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-                    @if($globalCartCount > 0)
-                        <span class="absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none">{{ $globalCartCount }}</span>
+                    @if($cartCount > 0)
+                        <span class="absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none">{{ $cartCount }}</span>
                     @endif
                 </a>
                 <a href="{{ auth('customer')->check() ? route('account.dashboard') : route('login') }}"
@@ -179,11 +178,11 @@
      x-transition:leave-start="opacity-100"
      x-transition:leave-end="opacity-0"
      x-cloak
-     class="lg:hidden fixed inset-0 z-40 flex"
+     class="lg:hidden fixed inset-0 z-[60] flex"
      style="display:none;">
 
     {{-- Overlay --}}
-    <div @click="closeMobile()" class="absolute inset-0 bg-black/50"></div>
+    <div @click="closeMobile()" class="absolute inset-0 z-[60] bg-black/50"></div>
 
     {{-- Drawer panel --}}
     <div x-transition:enter="transition ease-out duration-200"
@@ -192,7 +191,7 @@
          x-transition:leave="transition ease-in duration-150"
          x-transition:leave-start="translate-x-0"
          x-transition:leave-end="-translate-x-full"
-         class="relative z-50 w-80 max-w-[90vw] bg-white dark:bg-gray-900 h-full max-h-full flex flex-col shadow-2xl overflow-hidden">
+         class="relative z-[70] w-80 max-w-[90vw] bg-white dark:bg-gray-900 h-full max-h-full flex flex-col shadow-2xl overflow-hidden">
 
         {{-- Drawer header --}}
         <div class="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">

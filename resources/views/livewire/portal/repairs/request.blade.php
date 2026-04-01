@@ -8,8 +8,8 @@
     @endif
 
     <flux:callout variant="info" icon="information-circle" class="mb-6">
-        <flux:callout.heading>Free collection with repairs</flux:callout.heading>
-        <flux:callout.text>We offer free collection when you book repairs. Select the collection option below.</flux:callout.text>
+        <flux:callout.heading>Repair booking</flux:callout.heading>
+        <flux:callout.text>Submit your repair request and our team will confirm all logistics with you.</flux:callout.text>
     </flux:callout>
 
     <form wire:submit.prevent="submit" class="space-y-6">
@@ -66,30 +66,6 @@
                 <flux:textarea wire:model="issue_description" rows="4" placeholder="Describe the problem, when it happens, what you've tried..." />
                 <flux:error name="issue_description" />
             </flux:field>
-
-            <flux:separator />
-
-            <div>
-                <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-3">Collection (free with repairs)</h3>
-                <label class="flex items-center gap-2 cursor-pointer mb-4">
-                    <input type="checkbox" wire:model="needs_collection" class="text-brand-red">
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">I need free collection from my location</span>
-                </label>
-                @if($needs_collection)
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <flux:field>
-                            <flux:label>Collection Postcode *</flux:label>
-                            <flux:input wire:model="collection_postcode" type="text" placeholder="SE6 4NU" class="uppercase" />
-                            <flux:error name="collection_postcode" />
-                        </flux:field>
-                        <flux:field>
-                            <flux:label>Full Address *</flux:label>
-                            <flux:input wire:model="collection_address" type="text" placeholder="Street name, building number" />
-                            <flux:error name="collection_address" />
-                        </flux:field>
-                    </div>
-                @endif
-            </div>
 
             <flux:separator />
 

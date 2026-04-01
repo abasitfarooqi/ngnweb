@@ -55,6 +55,11 @@ class BookingInvoice extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function transactions()
+    {
+        return $this->hasMany(RentingTransaction::class, 'invoice_id');
+    }
+
     public function getBookingSummary($bookingId)
     {
         $booking = \App\Models\RentingBooking::with(['rentingBookingItems', 'bookingInvoices'])->findOrFail($bookingId);

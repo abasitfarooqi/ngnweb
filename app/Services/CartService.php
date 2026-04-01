@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\NgnProduct;
 use App\Models\SpAssembly;
 use App\Models\SpPart;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
 /**
@@ -111,6 +111,7 @@ class CartService
             }
 
             $unitPrice = (float) $product->normal_price;
+            $availableStock = $this->getAvailableStockForCatalogueProduct($productId);
             $items[] = [
                 'row_id' => $rowId,
                 'item_type' => 'catalogue',
@@ -126,6 +127,8 @@ class CartService
                 'slug' => $product->slug,
                 'unit_price' => $unitPrice,
                 'line_total' => $unitPrice * $quantity,
+                'available_stock' => $availableStock,
+                'in_stock' => $availableStock > 0,
                 'fitment' => null,
                 'source_meta' => null,
                 'sparepart_url' => null,
@@ -145,15 +148,22 @@ class CartService
 
     public function addProduct(int $productId, int $quantity = 1): void
     {
+        $availableStock = $this->getAvailableStockForCatalogueProduct($productId);
+        if ($availableStock <= 0) {
+            return;
+        }
+
         $cart = Session::get(self::SESSION_KEY, []);
         $rowId = $this->catalogueRowId($productId);
+        $targetQuantity = max(1, $quantity);
         if (isset($cart[$rowId])) {
-            $cart[$rowId]['quantity'] += $quantity;
+            $targetQuantity = (int) ($cart[$rowId]['quantity'] ?? 0) + max(1, $quantity);
+            $cart[$rowId]['quantity'] = min($targetQuantity, $availableStock, 100);
         } else {
             $cart[$rowId] = [
                 'type' => 'catalogue',
                 'product_id' => $productId,
-                'quantity' => max(1, $quantity),
+                'quantity' => min($targetQuantity, $availableStock, 100),
             ];
         }
         Session::put(self::SESSION_KEY, $cart);
@@ -197,7 +207,17 @@ class CartService
             unset($cart[$rowId]);
         } else {
             if (isset($cart[$rowId])) {
-                $cart[$rowId]['quantity'] = min($quantity, 100);
+                if (($cart[$rowId]['type'] ?? 'catalogue') === 'catalogue') {
+                    $productId = (int) ($cart[$rowId]['product_id'] ?? 0);
+                    $availableStock = $this->getAvailableStockForCatalogueProduct($productId);
+                    if ($availableStock <= 0) {
+                        unset($cart[$rowId]);
+                    } else {
+                        $cart[$rowId]['quantity'] = min($quantity, $availableStock, 100);
+                    }
+                } else {
+                    $cart[$rowId]['quantity'] = min($quantity, 100);
+                }
             }
         }
         Session::put(self::SESSION_KEY, $cart);
@@ -227,6 +247,7 @@ class CartService
     public function count(): int
     {
         $raw = Session::get(self::SESSION_KEY, []);
+
         return array_sum(array_column($raw, 'quantity'));
     }
 
@@ -286,6 +307,7 @@ class CartService
                     'product_id' => $productId,
                     'quantity' => (int) ($row['quantity'] ?? 1),
                 ];
+
                 continue;
             }
 
@@ -293,5 +315,19 @@ class CartService
         }
 
         return $normalised;
+    }
+
+    private function getAvailableStockForCatalogueProduct(int $productId): int
+    {
+        if ($productId <= 0) {
+            return 0;
+        }
+
+        $sum = DB::table('ngn_stock_movements')
+            ->where('product_id', $productId)
+            ->selectRaw('COALESCE(SUM(`in`) - SUM(`out`), 0) AS stock_balance')
+            ->value('stock_balance');
+
+        return max(0, (int) round((float) $sum));
     }
 }

@@ -172,7 +172,7 @@
     <div class="flex gap-8">
 
         {{-- Desktop sidebar --}}
-        <aside class="hidden lg:block w-12 flex-shrink-0" x-data="{ openCat: true, openBrand: true }">
+        <aside class="hidden lg:block w-64 flex-shrink-0" x-data="{ openCat: true, openBrand: true }">
 
             {{-- Search --}}
             <div class="mb-5">
@@ -271,10 +271,17 @@
                                         <span class="text-xs text-red-500 font-medium">Out of stock</span>
                                     @endif
                                 </div>
-                                <a href="{{ route('shop.product', $product->slug) }}"
-                                   class="mt-3 w-full inline-flex items-center justify-center gap-2 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs font-semibold hover:bg-brand-red transition">
-                                    View Product
-                                </a>
+                                @if($product->global_stock > 0)
+                                    <a href="{{ route('shop.product', $product->slug) }}"
+                                       class="mt-3 w-full inline-flex items-center justify-center gap-2 py-2 bg-gray-900 dark:bg-gray-700 text-white text-xs font-semibold hover:bg-brand-red transition">
+                                        View Product
+                                    </a>
+                                @else
+                                    <a href="{{ route('shop.product', $product->slug) }}#stock-enquiry"
+                                       class="mt-3 w-full inline-flex items-center justify-center gap-2 py-2 border border-brand-red text-brand-red text-xs font-semibold hover:bg-red-50 dark:hover:bg-red-900/20 transition">
+                                        Enquire Now
+                                    </a>
+                                @endif
                             </div>
                         </div>
                     @endforeach

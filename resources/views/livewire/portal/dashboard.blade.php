@@ -87,6 +87,7 @@
             ['icon'=>'calendar',      'title'=>'Book MOT',            'sub'=>'Schedule your MOT test',    'route'=>route('account.bookings')],
             ['icon'=>'clock',         'title'=>'Start Rental Booking','sub'=>'Browse available bikes',    'route'=>route('account.rentals')],
             ['icon'=>'banknotes',     'title'=>'Apply for Finance',   'sub'=>'Finance applications',      'route'=>route('account.finance')],
+            ['icon'=>'arrow-path',    'title'=>'Recurring Payments',  'sub'=>'Rental and finance history', 'route'=>route('account.payments.recurring')],
             ['icon'=>'bolt',          'title'=>'Request Recovery',    'sub'=>'Breakdown assistance',      'route'=>route('account.recovery')],
             ['icon'=>'star',          'title'=>'NGN Club',            'sub'=>'Membership & credits',      'route'=>route('account.club')],
         ] as $action)
