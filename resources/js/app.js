@@ -37,4 +37,20 @@ Alpine.data('homeRentalCarousel', (slideCount) => ({
 }));
 
 window.Alpine = Alpine;
+
+// ngnSetColourMode: see resources/views/components/partials/theme-api.blade.php (loaded after @fluxAppearance).
+
+document.addEventListener('livewire:navigated', function () {
+    var ngn = localStorage.getItem('ngn-theme');
+    var fa = localStorage.getItem('flux.appearance');
+    var mode = ngn === 'dark' || ngn === 'light' ? ngn : (fa === 'dark' || fa === 'light' ? fa : null);
+    if (mode && window.Flux && typeof window.Flux.applyAppearance === 'function') {
+        window.Flux.applyAppearance(mode);
+    } else if (mode) {
+        document.documentElement.classList.toggle('dark', mode === 'dark');
+    } else if (window.Flux && typeof window.Flux.applyAppearance === 'function') {
+        window.Flux.applyAppearance('system');
+    }
+});
+
 Alpine.start();

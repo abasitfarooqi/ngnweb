@@ -12,6 +12,14 @@ class Login extends Component
 
     public string $passkey = '';
 
+    public function mount(): void
+    {
+        $q = request()->query('phone');
+        if (is_string($q) && $q !== '') {
+            $this->phone = $q;
+        }
+    }
+
     protected $rules = [
         'phone' => 'required|string|min:10|max:15',
         'passkey' => 'required|string|min:4|max:10',

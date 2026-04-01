@@ -274,6 +274,7 @@ Route::get('/ngn-club', \App\Livewire\Site\Club\Index::class)->name('ngnclub.hom
 Route::get('/ngn-club/register', \App\Livewire\Site\Club\Register::class)->name('ngnclub.register');
 Route::get('/ngn-club/subscribe', \App\Livewire\Site\Club\Register::class)->name('ngnclub.subscribe');
 Route::get('/ngn-club/login', \App\Livewire\Site\Club\Login::class)->name('ngnclub.login');
+Route::get('/ngn-club/forgot', \App\Livewire\Site\Club\ForgotPasskey::class)->name('ngnclub.forgot');
 Route::get('/ngn-club/dashboard', \App\Livewire\Site\Club\Dashboard::class)->name('ngnclub.dashboard');
 Route::get('/ngn-club/referral/{id}', \App\Livewire\Site\Club\Referral::class)->name('ngnclub.referral');
 Route::get('/ngn-club/terms-and-conditions', \App\Livewire\Site\Club\Terms::class)->name('ngnclub.terms');
@@ -390,7 +391,6 @@ Route::prefix('ngn-club')->group(function () {
     // GET /terms, /dashboard, /referral — Livewire routes registered above
     Route::post('/login', [NgnClubController::class, 'login'])->name('ngnclub.login.post');
     Route::post('/logout', [NgnClubController::class, 'logout'])->name('ngnclub.logout');
-    Route::get('/forgot', [NgnClubController::class, 'showForgotPage'])->name('ngnclub.forgot');
     Route::post('/forgot/send-verification-code', [NgnClubController::class, 'sendForgotVerificationCode'])->name('ngnclub.forgot.sendVerificationCode');
     Route::post('/forgot/reset-passkey', [NgnClubController::class, 'resetPasskey'])->name('ngnclub.forgot.resetPasskey');
     Route::post('/feedback', [NgnClubController::class, 'storeFeedback'])->name('ngnclub.feedback');
@@ -634,10 +634,6 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
     Route::get('/rotas-view', [AdminController::class, 'rotas'])->name('admin.rotas');
     Route::get('/bookings/invoices/{invoice}/print', [InvoicePdfController::class, 'print'])->name('invoices.print');
 });
-
-Route::get('/ebikes', function () {
-    return view('frontend.ebike-landing');
-})->name('ebike.landing');
 
 // Welcome Routes GET
 Route::controller(WelcomeController::class)->group(function () {

@@ -74,7 +74,10 @@
                 Book This Motorcycle
             </flux:button>
 
-            @include('livewire.site.partials.sales.enquiry-form', ['submitAction' => 'submitEnquiry'])
+            @include('livewire.site.partials.sales.enquiry-form', [
+                'submitAction' => 'submitEnquiry',
+                'enquiryTypeLabel' => 'Motorcycle rental',
+            ])
 
             @if($motorbike->branch)
                 <flux:callout variant="info" icon="map-pin" class="mb-4">

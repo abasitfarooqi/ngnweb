@@ -60,7 +60,10 @@
 
             <a href="tel:02083141498" class="inline-block font-semibold text-brand-red hover:underline">Please call 0208 314 1498</a>
 
-            @include('livewire.site.partials.sales.enquiry-form', ['submitAction' => 'submitEnquiry'])
+            @include('livewire.site.partials.sales.enquiry-form', [
+                'submitAction' => 'submitEnquiry',
+                'enquiryTypeLabel' => 'Motorcycle rental (model)',
+            ])
         </div>
     </div>
 </div>

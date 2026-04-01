@@ -109,7 +109,7 @@ class SparePartsController extends Controller
             // \Log::info($purchaseRequest);
             // \Log::info($items);
 
-            $pdf = PDF::loadView('pdf.quote_request', [
+            $pdf = PDF::loadView('olders.pdf.quote_request', [
                 'purchaseRequest' => $purchaseRequest,
                 'items' => $items,
                 'dateTime' => now()->format('Y-m-d H:i:s'),

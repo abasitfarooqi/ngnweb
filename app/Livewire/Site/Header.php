@@ -8,6 +8,7 @@ use Livewire\Component;
 class Header extends Component
 {
     public $branches;
+
     public $selectedBranch;
 
     public function mount()
@@ -19,6 +20,11 @@ class Header extends Component
                 'id' => $key,
                 'name' => $b['name'] ?? ucfirst($key),
                 'phone' => $b['phone'] ?? '',
+                'whatsapp' => $b['whatsapp'] ?? '',
+                'address' => $b['address'] ?? '',
+                'email' => $b['email'] ?? '',
+                'map' => $b['map'] ?? '',
+                'whatsapp_link' => $b['whatsapp_link'] ?? '',
             ]);
         }
 

@@ -21,7 +21,7 @@ class PdfController extends Controller
         // $name = 'Emmanuel Nwokedi';
         // $email = 'emmanuel.nwokedi@gmail.com';
 
-        // $pdf = Pdf::loadView('pdf.rental-agreement', ['name' => $name, 'email' => $email])
+        // $pdf = Pdf::loadView('olders.pdf.rental-agreement', ['name' => $name, 'email' => $email])
         //     ->setPaper('a4', 'portrait')
         //     ->save(public_path('rental-agreement-' . time() . rand(1, 99999) . 'pdf'));
 

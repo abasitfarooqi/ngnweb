@@ -201,7 +201,7 @@
                         <a href="{{ route('services') }}#mot-booking-section">MOT</a>
                     </li>
                     <li>
-                        <a href="{{ route('ebike.landing') }}">E-BIKES</a>
+                        <a href="{{ route('site.ebikes') }}">E-BIKES</a>
                     </li>
                     <li>
                         <a href="{{ route('sale-motorcycles') }}">SALES</a>

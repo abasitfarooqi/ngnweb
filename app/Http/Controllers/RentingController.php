@@ -1359,7 +1359,7 @@ class RentingController extends Controller
                     $data['amount'] = $amountReceived;
 
                     // IF PDF IS NEEDED
-                    // $pdf = Pdf::loadView('pdf.test',[
+                    // $pdf = Pdf::loadView('olders.pdf.test',[
                     //     'today' => $toDay,
                     //     'SIGFILE'=>$fileName,
                     //     'booking' => $Booking,
@@ -2022,7 +2022,7 @@ class RentingController extends Controller
     //     $data["title"] = "Rental Agreement";
     //     $data["body"] = "Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!";
 
-    //     $pdf = Pdf::loadView('pdf.test', [
+    //     $pdf = Pdf::loadView('olders.pdf.test', [
     //         'today' => $toDay,
     //         'SIGFILE' => $fileName,
     //         'booking' => $Booking,

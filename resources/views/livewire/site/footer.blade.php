@@ -31,7 +31,7 @@
                     <li><a href="{{ route('rental-hire') }}" class="hover:text-white transition">Motorcycle Rentals</a></li>
                     <li><a href="/bikes" class="hover:text-white transition">Bikes For Sale</a></li>
                     <li><a href="/finance" class="hover:text-white transition">Finance</a></li>
-                    <li><a href="/recovery" class="hover:text-white transition">Recovery & Delivery</a></li>
+                    <li><a href="/motorcycle-delivery" class="hover:text-white transition">Recovery & Delivery</a></li>
                     <li><a href="/shop" class="hover:text-white transition">Shop</a></li>
                     <li><a href="/ebikes" class="hover:text-white transition">E-Bikes</a></li>
                 </ul>
@@ -110,6 +110,9 @@
     {{-- Bottom bar --}}
     <div class="border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 text-center text-xs text-gray-500">
+            <div class="mb-3 flex justify-center">
+                <x-theme-toggle-icon variant="footer" />
+            </div>
             <p class="mb-1">&copy; {{ date('Y') }} Neguinho Motors Limited – All Rights Reserved</p>
             <p>Registered Company: NEGUINHO MOTORS LTD | Company No: 11600635 | Registered: 9–13 Catford Hill, London SE6 4NU</p>
             <p class="mt-1">Customer Service: <a href="mailto:enquiries@neguinhomotors.co.uk" class="hover:text-gray-300">enquiries@neguinhomotors.co.uk</a> | 0208 314 1498</p>

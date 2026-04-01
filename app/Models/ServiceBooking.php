@@ -33,6 +33,7 @@ class ServiceBooking extends Model
         $haystack = Str::lower(trim((string) $serviceType.' '.(string) $description));
 
         return match (true) {
+            Str::contains($haystack, ['e-bike', 'ebike', 'e bike', 'pedal-assist', 'pedal assist', 'electric bicycle']) => 'e_bike',
             Str::contains($haystack, ['rental', 'rent']) => 'rental',
             Str::contains($haystack, ['used bike']) => 'used_bike',
             Str::contains($haystack, ['new bike']) => 'new_bike',

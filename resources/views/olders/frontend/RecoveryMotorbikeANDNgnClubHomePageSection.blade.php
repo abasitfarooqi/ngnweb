@@ -123,7 +123,7 @@
                                         <div class="col-md-12">
                                             <div class=" align-items-center mb-3 text-center">
 
-                                                <a href="{{ route('motorbike.recovery') }}"
+                                                <a href="{{ route('motorbike.delivery') }}"
                                                     class="text-decoration-none text-center">
                                                     <span class="display-6 parallax-recovery-title text-white"
                                                         style="    font-size: 22px;">FREE MOTORCYCLE

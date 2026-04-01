@@ -198,7 +198,7 @@
                 </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400">Expert motorcycle repairs in our South London workshops.</p>
             </a>
-            <a href="/recovery" class="block p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-brand-red transition group">
+            <a href="/motorcycle-delivery" class="block p-5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 hover:border-brand-red transition group">
                 <div class="flex items-center gap-3 mb-2">
                     <flux:icon name="bolt" class="h-5 w-5 text-brand-red" />
                     <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-red">Recovery & Delivery</h3>

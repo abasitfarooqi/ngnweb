@@ -161,6 +161,7 @@ class BikeModel extends Component
         ]);
 
         $booking = ServiceBooking::query()->create([
+            'enquiry_type' => 'rental',
             'service_type' => 'Motorcycle rental enquiry',
             'description' => implode(' | ', array_filter([
                 'Source: livewire.site.rentals.bike-model',

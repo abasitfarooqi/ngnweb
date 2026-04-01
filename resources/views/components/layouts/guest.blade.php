@@ -8,15 +8,10 @@
     <meta name="robots" content="noindex">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
-    {{-- Set dark class before paint to prevent flash --}}
-    <script>
-        (function(){
-            var t = localStorage.getItem('ngn-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            if (t === 'dark') document.documentElement.classList.add('dark');
-        })();
-    </script>
+    @include('components.partials.theme-boot')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
+    @include('components.partials.theme-api')
     @livewireStyles
 </head>
 <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
@@ -25,10 +20,7 @@
     <div class="fixed top-4 right-4 z-50">
         <button type="button"
             x-data
-            @click="
-                let d = document.documentElement.classList.toggle('dark');
-                localStorage.setItem('ngn-theme', d ? 'dark' : 'light');
-            "
+            @click="window.ngnSetColourMode && window.ngnSetColourMode(document.documentElement.classList.contains('dark') ? 'light' : 'dark')"
             class="p-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition"
             aria-label="Toggle colour mode"
         >

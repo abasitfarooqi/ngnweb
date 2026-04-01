@@ -23,16 +23,11 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
-    {{-- Dark mode: set class before paint --}}
-    <script>
-        (function(){
-            var t = localStorage.getItem('ngn-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-            if (t === 'dark') document.documentElement.classList.add('dark');
-        })();
-    </script>
+    @include('components.partials.theme-boot')
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
+    @include('components.partials.theme-api')
     @livewireStyles
 
     @stack('head')

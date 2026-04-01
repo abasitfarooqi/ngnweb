@@ -55,7 +55,7 @@
 
         @foreach([
             ['url'=>'/rentals',  'img'=>'rentals.jpg',    'title'=>'RENTALS',       'sub'=>'From £80/week · 125cc · CBT friendly'],
-            ['url'=>'/recovery', 'img'=>'recovery.jpg',   'title'=>'FREE RECOVERY', 'sub'=>'24/7 breakdown assistance'],
+            ['url'=>'/motorcycle-delivery', 'img'=>'recovery.jpg',   'title'=>'FREE RECOVERY', 'sub'=>'24/7 breakdown assistance'],
             ['url'=>'/shop',     'img'=>'spare-parts.jpg','title'=>'SPARE PARTS',   'sub'=>'Honda & Yamaha parts'],
             ['url'=>'/repairs',  'img'=>'services.jpg',   'title'=>'ALL SERVICES',  'sub'=>'Repairs, servicing & more'],
             ['url'=>'/mot',      'img'=>'mot.jpg',        'title'=>'MOT TESTING',   'sub'=>'From £29.65'],

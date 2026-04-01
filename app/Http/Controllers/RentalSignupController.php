@@ -231,7 +231,7 @@ class RentalSignupController extends Controller
         $agreement = json_decode($agree);
 
         // Save PDF to file
-        $pdf = Pdf::loadView('pdf.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay])
+        $pdf = Pdf::loadView('olders.pdf.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay])
             ->setPaper('a4', 'portrait')
             ->save(public_path('rental-agreement-'.time().rand(1, 99999).'.pdf'));
 
@@ -240,7 +240,7 @@ class RentalSignupController extends Controller
         $data['title'] = 'Rental Agreement';
         $data['body'] = 'Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!';
 
-        $pdf = PDF::loadView('pdf.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay]);
+        $pdf = PDF::loadView('olders.pdf.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay]);
         $data['pdf'] = $pdf;
 
         Mail::to($data['email'])->send(new RentalAgreement($data));

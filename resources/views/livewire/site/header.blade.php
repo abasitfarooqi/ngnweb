@@ -78,7 +78,7 @@
                          class="absolute left-0 top-full z-50 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
                         <a href="/mot" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">MOT Testing</a>
                         <a href="/repairs" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Repairs &amp; Servicing</a>
-                        <a href="/recovery" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Recovery &amp; Delivery</a>
+                        <a href="/motorcycle-delivery" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Recovery &amp; Delivery</a>
                         <a href="{{ url('/accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
                     </div>
                 </div>
@@ -110,6 +110,7 @@
             {{-- Desktop right: search, auth, basket, club --}}
             <div class="hidden lg:flex items-center gap-2">
                 @php $globalCartCount = app(\App\Services\CartService::class)->count(); @endphp
+                <x-theme-toggle-icon />
                 {{-- Search --}}
                 <div x-data="{ searchOpen: false }" class="relative">
                     <button @click="searchOpen = !searchOpen" class="p-2 text-gray-500 hover:text-brand-red transition" aria-label="Search">
@@ -150,8 +151,9 @@
                 </a>
             </div>
 
-            {{-- Mobile right: basket + account icons --}}
+            {{-- Mobile right: theme, basket, account --}}
             <div class="flex items-center gap-1 lg:hidden">
+                <x-theme-toggle-icon />
                 <a href="{{ route('shop.basket') }}" class="p-2 text-gray-600 dark:text-gray-400 hover:text-brand-red transition relative" aria-label="Basket">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
                     @if($globalCartCount > 0)
@@ -243,7 +245,7 @@
                 <div x-show="expandedGroup === 'services'" x-transition class="bg-gray-50 dark:bg-gray-800">
                     <a href="/mot" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">MOT Testing</a>
                     <a href="/repairs" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Repairs &amp; Servicing</a>
-                    <a href="/recovery" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Recovery &amp; Delivery</a>
+                    <a href="/motorcycle-delivery" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Recovery &amp; Delivery</a>
                     <a href="{{ url('/accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>
                 </div>
 

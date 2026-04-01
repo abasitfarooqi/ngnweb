@@ -2333,76 +2333,24 @@ class NgnClubController extends Controller
     {
         \Log::info('resetPasskey called: ', [$request->all()]);
 
-        // Validate phone and verification code (passkey is not yet required at this step)
         $request->validate([
-            'phone' => 'required|string|max:15',
+            'phone' => 'required|string|max:25',
             'verification_code' => 'required|digits:6',
         ]);
 
-        $phone = $request->input('phone');
+        $result = app(\App\Services\Club\ClubPasskeyResetService::class)
+            ->resetPasskeyWithCode((string) $request->input('verification_code'), (string) $request->input('phone'));
 
-        $phone = preg_replace('/^\+44/', '0', $phone);
-
-        $phone = preg_replace('/\s+/', '', $phone);
-
-        // Check if session has verification data
-        if (! session()->has('verification_code') || ! session()->has('verification_code_expires_at') || ! session()->has('verification_phone')) {
-            return redirect()->back()->withErrors(['error' => 'Verification code not found. Please request a new code.']);
-        }
-
-        // Check if verification code expired
-        if (Carbon::now()->greaterThan(session('verification_code_expires_at'))) {
-            session()->forget(['verification_code', 'verification_code_expires_at', 'verification_phone']);
-
-            return redirect()->back()->withErrors(['error' => 'Verification code has expired. Please request a new code.']);
-        }
-
-        // Ensure the phone number matches the one used for the verification code
-        if ($phone !== session('verification_phone')) {
-            return redirect()->back()->withErrors(['error' => 'Phone number does not match the one used to receive the verification code.']);
-        }
-
-        // Check if the verification code matches the one in the session
-        if (! Hash::check($request->verification_code, session('verification_code'))) {
-            // Instead of asking for phone number again, we pass it back to the view
-            return redirect()->back()->withInput()->withErrors(['error' => 'Invalid verification code. Please try again.']);
-        }
-
-        // Clear the verification session data after a successful verification
-        session()->forget(['verification_code', 'verification_code_expires_at', 'verification_phone']);
-
-        $newPasskey = rand(100000, 999999);
-
-        $clubMember = ClubMember::where('phone', $phone)->first();
-
-        if ($clubMember) {
-            $clubMember->update(['passkey' => $newPasskey]);
-            \Log::info('ClubMember updated with new passkey: ', [$clubMember]);
-
-            try {
-                $smsController = new SMSController;
-                $smsMessage = "Your NGN Club Login Details:\n\n"
-                    ."Phone: \n".$phone."\n"
-                    ."Password: \n".$newPasskey."\n\n"
-                    .'Login Link: https://neguinhomotors.co.uk/ngn-club/subscribe?phone='.$phone;
-
-                \Log::info('SMS Message: '.$smsMessage);
-
-                $smsResponse = $smsController->sendSms($phone, $smsMessage);
-
-                if (isset($smsResponse['success']) && $smsResponse['success']) {
-                    return redirect()->route('ngnclub.subscribe')->with('success', 'Passkey reset successfully. New Login details sent on phone and email.');
-                } else {
-                    return redirect()->back()->withErrors(['error' => $smsResponse['message'] ?? 'Failed to send the new passkey. Please try again.']);
-                }
-            } catch (\Exception $e) {
-                Log::error('SMS Sending Error: '.$e->getMessage());
-
-                return redirect()->back()->withErrors(['error' => 'An error occurred while sending the new passkey.']);
+        if ($result['success']) {
+            $phone = $result['phone'] ?? null;
+            if (is_string($phone) && $phone !== '') {
+                return redirect()->route('ngnclub.login', ['phone' => $phone])->with('success', $result['message']);
             }
-        } else {
-            return redirect()->back()->withErrors(['error' => 'Member not found.']);
+
+            return redirect()->route('ngnclub.login')->with('success', $result['message']);
         }
+
+        return redirect()->back()->withInput()->withErrors(['error' => $result['message']]);
     }
 
     /**
@@ -3328,13 +3276,8 @@ class NgnClubController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function showForgotPage()
-    {
-        return view('olders.frontend.ngnclub.forgot');
-    }
-
     /**
-     * Send the forgot verification code
+     * Send the forgot verification code (JSON; supports legacy `phone` or `identifier` for phone/email).
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -3342,53 +3285,20 @@ class NgnClubController extends Controller
     {
         Log::info('sendForgotVerificationCode called: ', [$request->all()]);
 
-        $request->validate([
-            'phone' => 'required|string|max:15',
-        ]);
-
-        $phone = $request->input('phone');
-
-        $phone = preg_replace('/^\+44/', '0', $phone);
-
-        $phone = preg_replace('/\s+/', '', $phone);
-
-        Log::info('Normalized Phone: '.$phone);
-
-        if (! ClubMember::where('phone', $phone)->exists()) {
+        $identifier = trim((string) $request->input('identifier', $request->input('phone', '')));
+        if ($identifier === '') {
             return response()->json([
                 'success' => false,
-                'message' => 'This phone number is not registered.',
+                'message' => 'Please enter your phone number or email address.',
             ]);
         }
 
-        $verificationCode = rand(100000, 999999);
+        $result = app(\App\Services\Club\ClubPasskeyResetService::class)->sendVerificationCodeForIdentifier($identifier);
 
-        session([
-            'verification_code' => Hash::make($verificationCode),
-            'verification_code_expires_at' => Carbon::now()->addMinutes(10),
-            'verification_phone' => $phone,
+        return response()->json([
+            'success' => $result['success'],
+            'message' => $result['message'] ?? '',
         ]);
-
-        try {
-            $smsController = new SMSController;
-            $smsResponse = $smsController->sendSms($phone, 'Your NGN Club reset code is: '.$verificationCode);
-
-            if (isset($smsResponse['success']) && $smsResponse['success']) {
-                return response()->json(['success' => true]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => $smsResponse['message'] ?? 'Failed to send verification code. Please try again.',
-                ]);
-            }
-        } catch (\Exception $e) {
-            Log::error('SMS Sending Error: '.$e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'An error occurred while sending the verification code.',
-            ]);
-        }
     }
 
     /**

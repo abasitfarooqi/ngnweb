@@ -84,7 +84,10 @@
                 </flux:button>
             </div>
 
-            @include('livewire.site.partials.sales.enquiry-form', ['submitAction' => 'submitEnquiry'])
+            @include('livewire.site.partials.sales.enquiry-form', [
+                'submitAction' => 'submitEnquiry',
+                'enquiryTypeLabel' => $isNew ? 'New motorcycle' : 'Used motorcycle',
+            ])
 
             @if(!$isNew && $bike->branch)
                 <flux:callout variant="info" icon="map-pin">

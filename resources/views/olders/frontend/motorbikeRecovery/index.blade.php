@@ -13,7 +13,7 @@
                     <div class="breadcrumbs">
                         <ul>
                             <li><a href="/">Home Page</a></li>
-                            <li><a href="{{ route('motorbike.recovery') }}">Motorcycle Recovery</a></li>
+                            <li><a href="{{ route('motorcycle.delivery') }}">Motorcycle Recovery</a></li>
                         </ul>
                     </div><!-- /.breadcrumbs -->
                 </div><!-- /.col-md-12 -->

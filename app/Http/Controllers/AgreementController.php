@@ -565,7 +565,7 @@ class AgreementController extends Controller
         $rand_no = rand(1, 99999);
         $tm = time();
 
-        $pdf = Pdf::loadView('pdf.rental-termination-v1', [
+        $pdf = Pdf::loadView('olders.pdf.rental-termination-v1', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -1124,7 +1124,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1358,7 +1358,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1582,7 +1582,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1753,7 +1753,7 @@ class AgreementController extends Controller
 
             // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -2086,7 +2086,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-SUB-".str_pad($subscriptionAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $subscriptionPdf = Pdf::loadView('pdf.contract-v6-subscription', [
+        $subscriptionPdf = Pdf::loadView('olders.pdf.contract-v6-subscription', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2167,7 +2167,7 @@ class AgreementController extends Controller
 
         // 4. Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -2309,7 +2309,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-SUB-".str_pad($subscriptionAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $subscriptionPdf = Pdf::loadView('pdf.contract-v6-subscription', [
+        $subscriptionPdf = Pdf::loadView('olders.pdf.contract-v6-subscription', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2389,7 +2389,7 @@ class AgreementController extends Controller
 
         // 5. Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -2562,7 +2562,7 @@ class AgreementController extends Controller
             File::makeDirectory($pdfPath, 0777, true, true);
         }
 
-        $pdf = Pdf::loadView('pdf.employee-sign', [
+        $pdf = Pdf::loadView('olders.pdf.employee-sign', [
             'today' => $toDay,
             'date' => $request->date,
             'customer' => $request->employeeName,
@@ -2679,10 +2679,10 @@ class AgreementController extends Controller
         // $dompdf->set_option("isPhpEnabled", true);
 
         // OLD VERSION - Before 22-JULY-2024
-        // $pdf = Pdf::loadView('pdf.contract', [
+        // $pdf = Pdf::loadView('olders.pdf.contract', [
 
         // NEW VERSION - After X-SEP-2024
-        // $pdf = Pdf::loadView('pdf.contract-v3', [
+        // $pdf = Pdf::loadView('olders.pdf.contract-v3', [
 
         // 12-20-2024 12-dec-2024 Added Watermark
 
@@ -2790,7 +2790,7 @@ class AgreementController extends Controller
         $today = Carbon::parse($toDay)->format('d/m/Y');
         $toDay = Carbon::parse($toDay)->format('d/m/Y');
 
-        $pdf = Pdf::loadView('pdf.purchase-invoice-pdf', [
+        $pdf = Pdf::loadView('olders.pdf.purchase-invoice-pdf', [
             'SIGFILE' => $fileName,
             'today' => $toDay,
             'req' => $request,
@@ -2888,7 +2888,7 @@ class AgreementController extends Controller
         }
 
         // OLD VERSION - Before 22-JULY-2024
-        // $pdf = Pdf::loadView('pdf.contract', [
+        // $pdf = Pdf::loadView('olders.pdf.contract', [
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
@@ -3020,10 +3020,10 @@ class AgreementController extends Controller
         // $dompdf->set_option("isPhpEnabled", true);
 
         // OLD VERSION - Before 22-JULY-2024
-        // $pdf = Pdf::loadView('pdf.contract', [
+        // $pdf = Pdf::loadView('olders.pdf.contract', [
 
         // NEW VERSION - After X-SEP-2024
-        // $pdf = Pdf::loadView('pdf.contract-v3', [
+        // $pdf = Pdf::loadView('olders.pdf.contract-v3', [
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
@@ -3159,7 +3159,7 @@ class AgreementController extends Controller
         }
 
         // OLD VERSION - Before 22-JULY-2024
-        // $pdf = Pdf::loadView('pdf.contract', [
+        // $pdf = Pdf::loadView('olders.pdf.contract', [
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
@@ -3295,7 +3295,7 @@ class AgreementController extends Controller
         }
 
         // OLD VERSION - Before 22-JULY-2024
-        // $pdf = Pdf::loadView('pdf.contract', [
+        // $pdf = Pdf::loadView('olders.pdf.contract', [
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
@@ -3668,7 +3668,7 @@ class AgreementController extends Controller
         // $dompdf->set_option("isPhpEnabled", true);
 
         // OLD VERSION - Before 22-JULY-2024
-        // $pdf = Pdf::loadView('pdf.contract', [
+        // $pdf = Pdf::loadView('olders.pdf.contract', [
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
@@ -3691,7 +3691,7 @@ class AgreementController extends Controller
         ]);
 
         // NEW VERSION - After -SEP-2024
-        $pdf = Pdf::loadView('pdf.contract-v4-ins-m', [
+        $pdf = Pdf::loadView('olders.pdf.contract-v4-ins-m', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -3876,10 +3876,10 @@ class AgreementController extends Controller
 
 
         // V1
-        // $pdf = Pdf::loadView('pdf.agreement', [
+        // $pdf = Pdf::loadView('olders.pdf.agreement', [
 
         // V3
-        $pdf = Pdf::loadView('pdf.agreement-v3', [
+        $pdf = Pdf::loadView('olders.pdf.agreement-v3', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -4159,10 +4159,10 @@ class AgreementController extends Controller
 
 
         // V1
-        // $pdf = Pdf::loadView('pdf.agreement', [
+        // $pdf = Pdf::loadView('olders.pdf.agreement', [
 
         // V6 // for five year v6 simple
-        $pdf = Pdf::loadView('pdf.agreement-v6', [
+        $pdf = Pdf::loadView('olders.pdf.agreement-v6', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -4294,7 +4294,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -4415,7 +4415,7 @@ class AgreementController extends Controller
         ]);
 
         // V3
-        $pdf = Pdf::loadView('pdf.agreement-v3-ins', [
+        $pdf = Pdf::loadView('olders.pdf.agreement-v3-ins', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -4538,7 +4538,7 @@ class AgreementController extends Controller
         ]);
 
         // V6
-        $pdf = Pdf::loadView('pdf.agreement-v6-ins', [
+        $pdf = Pdf::loadView('olders.pdf.agreement-v6-ins', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -4579,7 +4579,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -4700,7 +4700,7 @@ class AgreementController extends Controller
         ]);
 
         // V3
-        $pdf = Pdf::loadView('pdf.agreement-v3-ins-6m', [
+        $pdf = Pdf::loadView('olders.pdf.agreement-v3-ins-6m', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -5116,7 +5116,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $pdf = Pdf::loadView('pdf.loyalty-scheme', [
+        $pdf = Pdf::loadView('olders.pdf.loyalty-scheme', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,

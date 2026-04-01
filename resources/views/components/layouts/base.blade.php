@@ -32,8 +32,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    @include('components.partials.theme-boot')
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @fluxAppearance
+    @include('components.partials.theme-api')
     @livewireStyles
 
     {{ $head ?? '' }}
