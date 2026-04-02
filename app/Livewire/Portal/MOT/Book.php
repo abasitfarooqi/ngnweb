@@ -128,14 +128,40 @@ class Book extends Component
         ]);
 
         if ($customerEmail !== '') {
-            Mail::raw(
-                "Your MOT booking request has been received.\n\nRegistration: ".strtoupper(trim($this->motorbike_reg_no))."\nDate: {$this->date_of_appointment}\nTime: {$this->time_slot}\n\nWe will confirm your appointment shortly.",
-                function ($message) use ($customerEmail): void {
+            $branchName = optional(Branch::query()->find((int) $this->branch_id))->name ?? 'Selected branch';
+            $timeLabel = $this->timeSlots[$this->time_slot] ?? $this->time_slot;
+            $mailPayload = [
+                'subject' => 'MOT booking request received - NGN Motors',
+                'heading' => 'MOT booking request received',
+                'greetingName' => $customerName,
+                'introLines' => [
+                    'We have received your MOT booking request from your NGN account.',
+                    'A member of our team will contact you shortly to confirm your appointment.',
+                ],
+                'details' => [
+                    'Branch' => $branchName,
+                    'Registration' => strtoupper(trim($this->motorbike_reg_no)),
+                    'Vehicle' => trim($this->motorbike_make.' '.$this->motorbike_model),
+                    'Preferred Date' => $this->date_of_appointment,
+                    'Preferred Time' => $timeLabel,
+                    'Phone' => $customerPhone ?: 'N/A',
+                    'Email' => $customerEmail,
+                    'Notes' => trim($this->notes) !== '' ? trim($this->notes) : 'N/A',
+                ],
+                'outroLines' => [
+                    'Please reply to this email if you need to amend your preferred date or time.',
+                ],
+            ];
+
+            try {
+                Mail::send('emails.templates.universal', $mailPayload, function ($message) use ($customerEmail, $customerName): void {
                     $message
-                        ->to($customerEmail)
-                        ->subject('MOT booking request received');
-                }
-            );
+                        ->to($customerEmail, $customerName)
+                        ->subject('MOT booking request received - NGN Motors');
+                });
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         session()->flash('success', 'MOT booking submitted. We will confirm your appointment shortly.');

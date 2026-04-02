@@ -37,10 +37,10 @@
         <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb; margin: 0 0 24px;">
             @foreach ($detailsMap as $label => $value)
                 <tr>
-                    <td style="padding:10px 12px; font-size:12px; font-weight:700; color:#374151; border-bottom:1px solid #e5e7eb; width:35%; vertical-align:top; text-transform:uppercase; letter-spacing:0.04em;">
+                    <td style="padding:10px 12px; font-size:12px; font-weight:700; color:#fff; border-bottom:1px solid #e5e7eb; width:35%; vertical-align:top; text-transform:uppercase; letter-spacing:0.04em;">
                         {{ $label }}
                     </td>
-                    <td style="padding:10px 12px; font-size:13px; color:#111827; border-bottom:1px solid #e5e7eb; vertical-align:top;">
+                    <td style="padding:10px 12px; font-size:13px; color:#fff; border-bottom:1px solid #e5e7eb; vertical-align:top;">
                         {{ $value }}
                     </td>
                 </tr>
@@ -72,21 +72,21 @@
     </p>
     <table width="100%" border="0" cellpadding="0" cellspacing="0" style="margin:0 0 6px;">
         <tr>
-            <td style="padding:0 0 10px; font-size:12px; color:#111827; line-height:1.5;">
+            <td style="padding:0 0 10px; font-size:12px; color:#fff; line-height:1.5;">
                 <strong>Catford</strong><br>
                 9-13 Unit 1179 Catford Hill, London, SE6 4NU<br>
                 0208 314 1498 | +44 7951 790568
             </td>
         </tr>
         <tr>
-            <td style="padding:0 0 10px; font-size:12px; color:#111827; line-height:1.5;">
+            <td style="padding:0 0 10px; font-size:12px; color:#fff; line-height:1.5;">
                 <strong>Tooting</strong><br>
                 4A Penwortham Road, London, SW16 6RE<br>
                 0203 409 5478 | +44 7951 790565
             </td>
         </tr>
         <tr>
-            <td style="padding:0; font-size:12px; color:#111827; line-height:1.5;">
+            <td style="padding:0; font-size:12px; color:#fff; line-height:1.5;">
                 <strong>Sutton</strong><br>
                 329 High St, Sutton, London, SM1 1LW<br>
                 0208 412 9275 | +44 7946 295530

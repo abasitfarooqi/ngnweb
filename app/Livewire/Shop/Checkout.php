@@ -10,6 +10,7 @@ use App\Models\Ecommerce\EcPaymentMethod;
 use App\Models\Ecommerce\EcShippingMethod;
 use App\Models\NgnProduct;
 use App\Services\CartService;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -73,8 +74,6 @@ class Checkout extends Component
             return;
         }
 
-        $this->ensureDefaultPaymentMethodsExist();
-
         $customer = Auth::guard('customer')->user();
         $defaultAddress = CustomerAddress::where('customer_id', $customer->customer_id)
             ->where('is_default', true)
@@ -89,13 +88,7 @@ class Checkout extends Component
             $this->shippingMethodId = $defaultShipping->id;
         }
 
-        $defaultPayment = EcPaymentMethod::active()
-            ->where(function ($query): void {
-                $query->whereIn('slug', ['paypal', 'cash', 'cash-on-branch', 'cash_on_branch'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
-            })
-            ->first();
+        $defaultPayment = $this->checkoutPaymentMethodsQuery()->first();
         if ($defaultPayment) {
             $this->paymentMethodId = $defaultPayment->id;
         }
@@ -164,16 +157,11 @@ class Checkout extends Component
             return;
         }
 
-        $paymentMethod = EcPaymentMethod::active()
+        $paymentMethod = $this->checkoutPaymentMethodsQuery()
             ->where('id', $this->paymentMethodId)
-            ->where(function ($query): void {
-                $query->whereIn('slug', ['paypal', 'cash', 'cash-on-branch', 'cash_on_branch'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
-            })
             ->first();
         if (! $paymentMethod) {
-            $this->errorMessage = 'Please select a valid payment method (PayPal or cash on branch).';
+            $this->errorMessage = 'Please select a valid payment method (PayPal or pay in store).';
 
             return;
         }
@@ -323,13 +311,7 @@ class Checkout extends Component
             ? CustomerAddress::where('customer_id', $customer->customer_id)->get()
             : collect();
         $shippingMethods = EcShippingMethod::active()->get();
-        $paymentMethods = EcPaymentMethod::active()
-            ->where(function ($query): void {
-                $query->whereIn('slug', ['paypal', 'cash', 'cash-on-branch', 'cash_on_branch'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
-            })
-            ->get();
+        $paymentMethods = $this->checkoutPaymentMethodsQuery()->get();
         $items = $this->cart->getItems();
         $subtotal = $this->cart->subtotal();
         $shippingMethod = $this->shippingMethodId
@@ -354,27 +336,24 @@ class Checkout extends Component
     }
 
     /**
-     * Ensure PayPal and cash-on-branch options exist so checkout always offers a choice.
+     * Payment methods customers may use on this checkout (matches live DB slugs such as paypal, pay-on-store).
      */
-    protected function ensureDefaultPaymentMethodsExist(): void
+    protected function checkoutPaymentMethodsQuery(): Builder
     {
-        EcPaymentMethod::query()->firstOrCreate(
-            ['slug' => 'paypal'],
-            [
-                'title' => 'PayPal',
-                'logo' => '-',
-                'link_url' => '-',
-                'is_enabled' => true,
-            ]
-        );
-        EcPaymentMethod::query()->firstOrCreate(
-            ['slug' => 'cash-on-branch'],
-            [
-                'title' => 'Cash (pay at branch)',
-                'logo' => '-',
-                'link_url' => '-',
-                'is_enabled' => true,
-            ]
-        );
+        return EcPaymentMethod::active()
+            ->where(function ($query): void {
+                $query->whereIn('slug', [
+                    'paypal',
+                    'pay-on-store',
+                    'pay_on_store',
+                    'cash',
+                    'cash-on-branch',
+                    'cash_on_branch',
+                ])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%pay on store%'])
+                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
+            })
+            ->orderBy('id');
     }
 }
