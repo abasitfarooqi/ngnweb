@@ -53,7 +53,7 @@ class ActiveRentingController extends Controller
                 ->pluck('booking_id'),
         ];
 
-        return view('olders.admin.active_renting', [
+        return view('livewire.agreements.migrated.admin.active_renting', [
             'title' => 'Active Rentals',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

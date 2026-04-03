@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class RentalAgreementReview extends Mailable
 {
@@ -38,8 +39,23 @@ class RentalAgreementReview extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.rental-agreement-sign',
-            with: $this->mailData
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.rental-agreement-sign',
+
+                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+
+                    ['title' => 'Rental Contract Review'],
+
+                ),
+
+            ],
+
         );
     }
 

@@ -10,12 +10,12 @@ class FinanceController extends Controller
 {
     public function finance_dashboard()
     {
-        return view('olders.admin.finance.dashboard');
+        return view('livewire.agreements.legacy-host', ['legacyView' => 'livewire.agreements.migrated.admin.finance.dashboard']);
     }
 
     public function finance_applications()
     {
-        return view('olders.admin.finance.applications');
+        return view('livewire.agreements.legacy-host', ['legacyView' => 'livewire.agreements.migrated.admin.finance.applications']);
     }
 
     public function finance_application_new()

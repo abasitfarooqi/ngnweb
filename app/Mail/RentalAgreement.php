@@ -30,8 +30,8 @@ class RentalAgreement extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.rental-agreement',
-            with: $this->mailData
+            view: 'emails.templates.agreement-controller-universal',
+            with: ['mailData' => $this->mailData],
         );
     }
 

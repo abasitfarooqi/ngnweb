@@ -3,6 +3,7 @@
 namespace App\Mail\Ecommerce;
 
 use App\Models\Ecommerce\EcOrder;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -46,17 +47,23 @@ class OrderConfirmedAlertMailer extends Mailable
             return $item;
         });
 
-        return $this->view('olders.emails.ecommerce.order-confirmed-alert')
-            ->subject('ORDER #'.$this->order->id.' CONFIRMED')
-            ->with([
-                'order' => $this->order,
-                'customer' => $this->customer,
-                'items' => $items,
-                'shipping' => $this->order->shipping,
-                'address' => $this->order->customerAddress,
-                'shippingMethod' => $this->order->shippingMethod,
-                'branch' => $this->order->branch,
-                'status' => $this->order->order_status,
-            ]);
+        $title = 'ORDER #'.$this->order->id.' CONFIRMED';
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.order-confirmed-alert',
+                [
+                    'order' => $this->order,
+                    'customer' => $this->customer,
+                    'items' => $items,
+                    'shipping' => $this->order->shipping,
+                    'address' => $this->order->customerAddress,
+                    'shippingMethod' => $this->order->shippingMethod,
+                    'branch' => $this->order->branch,
+                    'status' => $this->order->order_status,
+                ],
+                $title,
+            ));
     }
 }

@@ -29,7 +29,7 @@ class NgnProfileController extends Controller
         // Fetch the customer details based on the customer_auth record
         $customer = $customerAuth->customer; // Assuming CustomerAuth has a 'customer' relationship
 
-        return view('olders.frontend.ngnstore.user_panel.profile.index', compact('customerAuth', 'customer'));
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.profile.index', compact('customerAuth', 'customer'));
     }
 
     public function update(Request $request)
@@ -67,7 +67,7 @@ class NgnProfileController extends Controller
 
     public function changePassword()
     {
-        return view('olders.frontend.ngnstore.user_panel.profile.change_password');
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.profile.change_password');
     }
 
     public function updatePassword(Request $request)

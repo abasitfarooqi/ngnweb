@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -29,7 +30,16 @@ class MOTTaxNotificationMail extends Mailable
     public function build()
     {
         return $this->subject($this->subjectLine)
-            ->view($this->template)
-            ->with(['subscriber' => $this->subscriber], ['used_motorbike' => $this->used_motorbike]);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with([
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    $this->template,
+                    [
+                        'subscriber' => $this->subscriber,
+                        'used_motorbike' => $this->used_motorbike,
+                    ],
+                    ['title' => $this->subjectLine],
+                ),
+            ]);
     }
 }

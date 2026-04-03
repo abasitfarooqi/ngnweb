@@ -3,7 +3,7 @@
 @push('after_styles')
     <link href="{{ asset('assets/css/custom-css.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
-    @include('olders.admin.renting.partials.booking-new-styles')
+    @include('livewire.agreements.migrated.admin.renting.partials.booking-new-styles')
     <style>
         .rental-booking-new-legacy .btn-soft-success,
         .rental-booking-new-legacy .btn-soft-info {
@@ -54,7 +54,7 @@
 
         <div class="card mb-0">
             <div class="card-body p-0 p-md-2 rental-booking-new-legacy">
-                @include('olders.admin.renting.partials.booking-new-body')
+                @include('livewire.agreements.migrated.admin.renting.partials.booking-new-body')
             </div>
         </div>
     </section>
@@ -62,5 +62,5 @@
 
 @push('after_scripts')
     <script src="{{ asset('assets/js/sign-pad.min.js') }}"></script>
-    @include('olders.admin.renting.partials.booking-new-scripts')
+    @include('livewire.agreements.migrated.admin.renting.partials.booking-new-scripts')
 @endpush

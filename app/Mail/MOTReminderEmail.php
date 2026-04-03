@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -38,7 +39,14 @@ class MOTReminderEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'olders.emails.mot_notifier_30_and_10_days',
+            view: 'emails.templates.agreement-controller-universal',
+            with: [
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    'livewire.agreements.migrated.emails.mot_notifier_30_and_10_days',
+                    is_array($this->emailData) ? $this->emailData : [],
+                    ['title' => 'MOT Reminder Notification'],
+                ),
+            ],
         );
     }
 
@@ -52,20 +60,4 @@ class MOTReminderEmail extends Mailable
         return [];
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.mot_notifier_30_and_10_days')
-            ->subject('MOT Reminder Notification')
-            ->with([
-                'customer_name' => $this->emailData['customer_name'],
-                'mot_due_date' => $this->emailData['mot_due_date'],
-                'tax_due_date' => $this->emailData['tax_due_date'],
-                'insurance_due_date' => $this->emailData['insurance_due_date'],
-                'motorbike_reg' => $this->emailData['motorbike_reg'],
-                'motorbike_model' => $this->emailData['motorbike_model'],
-                'motorbike_make' => $this->emailData['motorbike_make'],
-                'motorbike_year' => $this->emailData['motorbike_year'],
-                'motorbike_id' => $this->emailData['motorbike_id'],
-            ]);
-    }
 }

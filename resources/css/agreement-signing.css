@@ -1,0 +1,93 @@
+/* Standalone agreement / contract signing pages (signed links). Matches site light/dark via prefers-color-scheme. No large corner radii. */
+
+.agreement-signing-page {
+    min-height: 100vh;
+    margin: 0;
+    box-sizing: border-box;
+    --agreement-bg: #f3f3f3;
+    --agreement-fg: #111111;
+    --agreement-panel: #ececec;
+    --agreement-border: #000000;
+    --agreement-banner-bg: #b91c1c;
+    --agreement-banner-fg: #ffffff;
+    background-color: var(--agreement-bg);
+    color: var(--agreement-fg);
+}
+
+@media (prefers-color-scheme: dark) {
+    .agreement-signing-page {
+        --agreement-bg: #111827;
+        --agreement-fg: #f3f4f6;
+        --agreement-panel: #1f2937;
+        --agreement-border: #374151;
+        --agreement-banner-bg: #7f1d1d;
+        --agreement-banner-fg: #fef2f2;
+    }
+}
+
+.agreement-signing-page .container,
+.agreement-signing-page .container-fluid {
+    max-width: 100%;
+}
+
+@media (max-width: 767px) {
+    .agreement-signing-page .table-con,
+    .agreement-signing-page .fee-table {
+        font-size: 11px;
+    }
+
+    .agreement-signing-page .header .title {
+        font-size: 14px;
+    }
+}
+
+.agreement-signing-page .header,
+.agreement-signing-page .table-con {
+    background-color: var(--agreement-bg);
+    color: var(--agreement-fg);
+}
+
+.agreement-signing-page .signature-area,
+.agreement-signing-page .agreement-signing-panel {
+    background: var(--agreement-panel);
+    border: 1px solid var(--agreement-border);
+    border-radius: 0;
+}
+
+.agreement-signing-page .agreement-expiry-banner {
+    background: var(--agreement-banner-bg);
+    color: var(--agreement-banner-fg);
+    border-radius: 0;
+}
+
+.agreement-brand-logo-wrap {
+    display: block;
+    max-width: 150px;
+}
+
+.agreement-brand-logo-wrap img {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+
+/* Full-screen signature modal (Bootstrap): fill viewport, match theme */
+.modal.agreement-signature-modal-root .modal-dialog.modal-fullscreen {
+    margin: 0;
+    max-width: 100%;
+    width: 100%;
+    height: 100%;
+}
+
+.modal.agreement-signature-modal-root .modal-content {
+    min-height: 100vh;
+    border-radius: 0;
+    border: none;
+    background: var(--agreement-bg);
+    color: var(--agreement-fg);
+}
+
+.agreement-signing-page .modal.agreement-signature-modal-root .modal-content {
+    background: var(--agreement-bg);
+    color: var(--agreement-fg);
+}

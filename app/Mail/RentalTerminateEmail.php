@@ -33,9 +33,8 @@ class RentalTerminateEmail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'olders.emails.rental-terminate-v1',
-            with: $this->mailData
-
+            view: 'emails.templates.agreement-controller-universal',
+            with: ['mailData' => $this->mailData],
         );
     }
 

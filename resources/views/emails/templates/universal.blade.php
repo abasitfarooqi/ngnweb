@@ -13,6 +13,12 @@
         Dear <strong style="color:#c31924;">{{ $safeGreeting }}</strong>,
     </p>
 
+    @if (!empty($bodyHtml ?? null))
+        <div class="email-legacy-html email-text" style="margin:0 0 20px; font-size:14px; color:#111827; line-height:1.7;">
+            {!! $bodyHtml !!}
+        </div>
+    @endif
+
     @foreach ($intro as $line)
         <p class="email-text" style="margin:0 0 12px; font-size:14px; color:#111827; line-height:1.7;">
             {{ $line }}
@@ -37,10 +43,10 @@
         <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border:1px solid #e5e7eb; margin: 0 0 24px;">
             @foreach ($detailsMap as $label => $value)
                 <tr>
-                    <td style="padding:10px 12px; font-size:12px; font-weight:700; color:#fff; border-bottom:1px solid #e5e7eb; width:35%; vertical-align:top; text-transform:uppercase; letter-spacing:0.04em;">
+                    <td style="padding:10px 12px; font-size:12px; font-weight:700; color:#111827; background-color:#f3f4f6; border-bottom:1px solid #e5e7eb; width:35%; vertical-align:top; text-transform:uppercase; letter-spacing:0.04em;">
                         {{ $label }}
                     </td>
-                    <td style="padding:10px 12px; font-size:13px; color:#fff; border-bottom:1px solid #e5e7eb; vertical-align:top;">
+                    <td style="padding:10px 12px; font-size:13px; color:#111827; border-bottom:1px solid #e5e7eb; vertical-align:top;">
                         {{ $value }}
                     </td>
                 </tr>

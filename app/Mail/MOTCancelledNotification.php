@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class MOTCancelledNotification extends Mailable
 {
@@ -29,24 +30,24 @@ class MOTCancelledNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.mot_cancelled',
-            with: $this->mailData
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.mot_cancelled',
+
+                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+
+                    ['title' => 'MOT Appointment Cancelled'],
+
+                ),
+
+            ],
+
         );
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.mot_cancelled')
-            ->with([
-                'customer_name' => $this->mailData['customer_name'],
-                'vehicle_registration' => $this->mailData['vehicle_registration'],
-                'vehicle_chassis' => $this->mailData['vehicle_chassis'],
-                'vehicle_color' => $this->mailData['vehicle_color'],
-                'date_of_appointment' => $this->mailData['date_of_appointment'],
-                'start' => $this->mailData['start'],
-                'end' => $this->mailData['end'],
-                'notes' => $this->mailData['notes'],
-                'address' => $this->mailData['address'], // Branch address
-            ]);
-    }
 }

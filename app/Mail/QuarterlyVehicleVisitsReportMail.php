@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -26,7 +27,11 @@ class QuarterlyVehicleVisitsReportMail extends Mailable
     public function build()
     {
         return $this->subject('Quarterly Vehicle Visits Report')
-            ->view('olders.emails.quarterly_vehicle_visits_report')
-            ->with(['emailData' => $this->emailData]);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.quarterly_vehicle_visits_report',
+                ['emailData' => $this->emailData],
+                'Quarterly Vehicle Visits Report',
+            ));
     }
 }

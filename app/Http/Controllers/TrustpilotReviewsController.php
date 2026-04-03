@@ -14,6 +14,6 @@ class TrustpilotReviewsController extends Controller
 
         $reviews = $response->json();
 
-        return view('olders.frontend.home', ['reviews' => $reviews]);
+        return view('livewire.agreements.migrated.frontend.home', ['reviews' => $reviews]);
     }
 }

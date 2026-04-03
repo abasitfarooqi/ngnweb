@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -34,7 +35,15 @@ class VehicleDeliveryOrderConfirmation extends Mailable
      */
     public function build()
     {
-        return $this->view('olders.emails.vehicle_delivery_order_confirmation')
-            ->subject('Pickup Estimate');
+        return $this->subject('Pickup Estimate')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.vehicle_delivery_order_confirmation',
+                [
+                    'user' => $this->user,
+                    'order' => $this->order,
+                ],
+                'Pickup Estimate',
+            ));
     }
 }

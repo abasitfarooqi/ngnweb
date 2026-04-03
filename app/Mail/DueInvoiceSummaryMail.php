@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -26,7 +27,11 @@ class DueInvoiceSummaryMail extends Mailable
     public function build()
     {
         return $this->subject('Daily Summary of Invoices Due Tomorrow')
-            ->view('olders.emails.due_invoice_summary')
-            ->with(['emailDataList' => $this->emailDataList]);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.due_invoice_summary',
+                ['emailDataList' => $this->emailDataList],
+                'Daily Summary of Invoices Due Tomorrow',
+            ));
     }
 }

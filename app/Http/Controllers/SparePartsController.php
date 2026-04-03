@@ -17,7 +17,7 @@ class SparePartsController extends Controller
 {
     public function spareparts_dashboard()
     {
-        return view('olders.admin.spareparts.index');
+        return view('livewire.agreements.migrated.admin.spareparts.index');
     }
 
     public function viewPurchaseRequests()
@@ -85,7 +85,7 @@ class SparePartsController extends Controller
             ];
         });
 
-        return view('olders.admin.spareparts.view-all-prs', compact('formattedData'));
+        return view('livewire.agreements.migrated.admin.spareparts.view-all-prs', compact('formattedData'));
     }
 
     // GENERATE PDF
@@ -109,7 +109,7 @@ class SparePartsController extends Controller
             // \Log::info($purchaseRequest);
             // \Log::info($items);
 
-            $pdf = PDF::loadView('olders.pdf.quote_request', [
+            $pdf = PDF::loadView('livewire.agreements.pdf.templates.quote_request', [
                 'purchaseRequest' => $purchaseRequest,
                 'items' => $items,
                 'dateTime' => now()->format('Y-m-d H:i:s'),
@@ -310,7 +310,7 @@ class SparePartsController extends Controller
     {
         $brands = Make::query()->orderBy('name')->get();
 
-        return view('olders.admin.spareparts.create-pr', compact('brands'));
+        return view('livewire.agreements.migrated.admin.spareparts.create-pr', compact('brands'));
     }
 
     //        Route::get('/fetch-pr-items', [SparePartsController::class, 'fetch_pr_items'])->name('admin.spareparts.fetch-pr-items');

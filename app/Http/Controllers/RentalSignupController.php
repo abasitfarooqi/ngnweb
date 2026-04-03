@@ -118,7 +118,7 @@ class RentalSignupController extends Controller
         $deposit = 300;
         $toDay = new DateTime;
 
-        return view('olders.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
+        return view('livewire.agreements.migrated.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
     }
 
     public function customerBikeLink($motorcycle_id, $user_id)
@@ -178,7 +178,7 @@ class RentalSignupController extends Controller
 
         $deposit = $request->deposit;
 
-        return view('olders.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
+        return view('livewire.agreements.migrated.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
     }
 
     // Process rental agreement - Save new client signature function
@@ -231,7 +231,7 @@ class RentalSignupController extends Controller
         $agreement = json_decode($agree);
 
         // Save PDF to file
-        $pdf = Pdf::loadView('olders.pdf.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay])
+        $pdf = Pdf::loadView('livewire.agreements.pdf.templates.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay])
             ->setPaper('a4', 'portrait')
             ->save(public_path('rental-agreement-'.time().rand(1, 99999).'.pdf'));
 
@@ -240,7 +240,7 @@ class RentalSignupController extends Controller
         $data['title'] = 'Rental Agreement';
         $data['body'] = 'Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!';
 
-        $pdf = PDF::loadView('olders.pdf.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay]);
+        $pdf = PDF::loadView('livewire.agreements.pdf.templates.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay]);
         $data['pdf'] = $pdf;
 
         Mail::to($data['email'])->send(new RentalAgreement($data));

@@ -22,14 +22,14 @@ class CustomerController extends Controller
     {
         $customers = Customer::all();
 
-        return view('olders.admin.customers.customers', compact('customers'));
+        return view('livewire.agreements.migrated.admin.customers.customers', compact('customers'));
     }
 
     public function create()
     {
         $customers = Customer::all();
 
-        return view('olders.admin.customers.create', compact('customers'));
+        return view('livewire.agreements.migrated.admin.customers.create', compact('customers'));
     }
 
     // deleteDocument

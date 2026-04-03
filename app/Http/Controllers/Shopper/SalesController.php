@@ -16,7 +16,7 @@ class SalesController extends Controller
         $motorcycles = Motorcycle::all()
             ->where('availability', '=', 'for sale');
 
-        return view('olders.frontend.motorcycles-new', compact('motorcycles'));
+        return view('livewire.agreements.migrated.frontend.motorcycles-new', compact('motorcycles'));
     }
 
     // Show details of a particular used bike
@@ -51,7 +51,7 @@ class SalesController extends Controller
             return redirect()->route('thank-you')->with($notification);
         }
 
-        return view('olders.frontend.motorcycle-new', compact('motorcycle'));
+        return view('livewire.agreements.migrated.frontend.motorcycle-new', compact('motorcycle'));
     }
 
     // Display all used bikes
@@ -68,7 +68,7 @@ class SalesController extends Controller
 
         $count = $motorbikes->count();
 
-        return view('olders.frontend.motorcycles-used', compact('motorbikes', 'LatestMotorcycles'));
+        return view('livewire.agreements.migrated.frontend.motorcycles-used', compact('motorbikes', 'LatestMotorcycles'));
     }
 
     // for api
@@ -222,7 +222,7 @@ class SalesController extends Controller
         // Get the branch name
         $branchName = $motorcycle->branch ? $motorcycle->branch->name : 'N/A';
 
-        return view('olders.frontend.motorcycle-used', compact('motorcycle', 'branchName'));
+        return view('livewire.agreements.migrated.frontend.motorcycle-used', compact('motorcycle', 'branchName'));
     }
 
     // Display all rental bikes
@@ -233,7 +233,7 @@ class SalesController extends Controller
 
         $count = $motorcycles->count();
 
-        return view('olders.frontend.motorcycle-rentals', compact('motorcycles'));
+        return view('livewire.agreements.migrated.frontend.motorcycle-rentals', compact('motorcycles'));
     }
 
     // Display all rental bikes
@@ -244,43 +244,43 @@ class SalesController extends Controller
 
         $count = $motorcycles->count();
 
-        return view('olders.frontend.motorcycle-rental-hire', compact('motorcycles'));
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-hire', compact('motorcycles'));
     }
 
     // Show details of a particular rental bike - frontend
     public function Forza125()
     {
-        return view('olders.frontend.motorcycle-rental-forza-125');
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-forza-125');
     }
 
     // Show details of a particular rental bike - frontend
     public function Pcx125()
     {
-        return view('olders.frontend.motorcycle-rental-pcx-125');
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-pcx-125');
     }
 
     // Show details of a particular rental bike - frontend
     public function Sh125()
     {
-        return view('olders.frontend.motorcycle-rental-sh-125');
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-sh-125');
     }
 
     // Show details of a particular rental bike - frontend
     public function Vision125()
     {
-        return view('olders.frontend.motorcycle-rental-vision-125');
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-vision-125');
     }
 
     // Show details of a particular rental bike - frontend
     public function Nmax125()
     {
-        return view('olders.frontend.motorcycle-rental-nmax-125');
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-nmax-125');
     }
 
     // Show details of a particular rental bike - frontend
     public function Xmax125()
     {
-        return view('olders.frontend.motorcycle-rental-xmax-125');
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental-xmax-125');
     }
 
     // Show details of a particular rental bike
@@ -288,6 +288,6 @@ class SalesController extends Controller
     {
         $motorcycle = Motorcycle::findOrFail($id);
 
-        return view('olders.frontend.motorcycle-rental', compact('motorcycle'));
+        return view('livewire.agreements.migrated.frontend.motorcycle-rental', compact('motorcycle'));
     }
 }

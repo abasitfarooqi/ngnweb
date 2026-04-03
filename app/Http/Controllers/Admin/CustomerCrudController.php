@@ -244,7 +244,7 @@ class CustomerCrudController extends BaseCrudController
 
     public function freenotify()
     {
-        return view('taxnotification');
+        return view('livewire.agreements.migrated.taxnotification');
     }
 
     // -- added thisX Updated this

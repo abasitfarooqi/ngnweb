@@ -5,6 +5,7 @@
 /* All @import rules MUST precede @tailwind in Tailwind v3 */
 @import './v2.css';
 @import './style.css';
+@import './agreement-signing.css';
 
 @tailwind base;
 @tailwind components;

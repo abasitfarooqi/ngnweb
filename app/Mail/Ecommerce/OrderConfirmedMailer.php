@@ -3,6 +3,7 @@
 namespace App\Mail\Ecommerce;
 
 use App\Models\Ecommerce\EcOrder;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -34,17 +35,23 @@ class OrderConfirmedMailer extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.ecommerce.order-confirmed')
-            ->subject('ORDER #'.$this->order->id.' CONFIRMED')
-            ->with([
-                'order' => $this->order,
-                'customer' => $this->customer,
-                'items' => $this->order->items()->with('product')->get(),
-                'shipping' => $this->order->shipping,
-                'address' => $this->order->customerAddress,
-                'shippingMethod' => $this->order->shippingMethod,
-                'branch' => $this->order->branch,
-                'status' => $this->order->order_status,
-            ]);
+        $title = 'ORDER #'.$this->order->id.' CONFIRMED';
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.order-confirmed',
+                [
+                    'order' => $this->order,
+                    'customer' => $this->customer,
+                    'items' => $this->order->items()->with('product')->get(),
+                    'shipping' => $this->order->shipping,
+                    'address' => $this->order->customerAddress,
+                    'shippingMethod' => $this->order->shippingMethod,
+                    'branch' => $this->order->branch,
+                    'status' => $this->order->order_status,
+                ],
+                $title,
+            ));
     }
 }

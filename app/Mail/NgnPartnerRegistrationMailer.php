@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -31,7 +32,11 @@ class NgnPartnerRegistrationMailer extends Mailable
     public function build()
     {
         return $this->subject('New Partner Registration')
-            ->view('olders.emails.ngn-partner.partner_registration')
-            ->with('partnerData', $this->partnerData);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ngn-partner.partner_registration',
+                ['partnerData' => $this->partnerData],
+                'New Partner Registration',
+            ));
     }
 }

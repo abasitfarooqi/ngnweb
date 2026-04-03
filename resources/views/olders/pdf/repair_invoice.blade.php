@@ -8,15 +8,14 @@
 
         body {
             font-family: 'Poppins', Arial, sans-serif;
-            margin: 0; /* Removed padding to prevent issues with page overflow */
-            padding: 5px; /* Added padding to the body for consistent spacing */
+            margin: 0;
+            padding: 0;
         }
         .watermark-area {
-            background-image: url('https://neguinhomotors.co.uk/img/watermark.png');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
-            border-radius: 10px;
-            background-size: 500px;
-            background-position: top;
+            background-position: 0 0;
+            min-height: 100%;
         }
 
         h1 {
@@ -77,6 +76,7 @@
         }
 
     </style>
+    @include('livewire.agreements.pdf.partials.pdf-print-theme')
 </head>
 
 <body>

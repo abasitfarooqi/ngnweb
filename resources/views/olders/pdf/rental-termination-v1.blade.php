@@ -24,12 +24,10 @@
             width: 100%;
             padding: 0px;
             margin: 0px;
-            max-width: 800px;
-            margin: 0 auto;
             font-size: 11px;
-            background: url('{{ secure_asset('https://neguinhomotors.co.uk/img/watermark.png') }}');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
-            background-size: 1100px;
+            background-position: 0 0;
         }
 
         .section-title {
@@ -167,11 +165,12 @@
             margin: 0px !important;
         }
     </style>
+    @include('livewire.agreements.pdf.partials.pdf-print-theme')
 </head>
 
 <body>
 
-    <div class="watermark" style="padding-bottom:20px; margin-top:20px; letter-spacing: 1.9px">
+    <div class="watermark" style="letter-spacing: 1.9px">
         {{ $motorbike->reg_no }} {{ $customer->first_name }}
         {{ $customer->last_name }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }}
         {{ $motorbike->reg_no }}

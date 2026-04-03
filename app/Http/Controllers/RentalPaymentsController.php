@@ -32,7 +32,7 @@ class RentalPaymentsController extends Controller
         $count = $rentalpayments->count();
         $paymentType = 'Rental';
 
-        return view('olders.admin.payments-index', compact('rentalpayments', 'count', 'paymentType'));
+        return view('livewire.agreements.migrated.admin.payments-index', compact('rentalpayments', 'count', 'paymentType'));
     }
 
     // View deposit payment types
@@ -47,7 +47,7 @@ class RentalPaymentsController extends Controller
         $count = $dp->count();
         $paymentType = 'Deposit';
 
-        return view('olders.admin.payments-index', compact('rentalpayments', 'count', 'paymentType'));
+        return view('livewire.agreements.migrated.admin.payments-index', compact('rentalpayments', 'count', 'paymentType'));
     }
 
     /**

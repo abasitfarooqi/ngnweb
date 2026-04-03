@@ -173,7 +173,7 @@ class NgnClubController extends Controller
             }
         }
 
-        return view('olders.admin.ngn_club', [
+        return view('livewire.agreements.migrated.admin.ngn_club', [
             'title' => 'Ngn Club',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

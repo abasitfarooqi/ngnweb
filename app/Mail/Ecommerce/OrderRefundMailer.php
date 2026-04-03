@@ -3,6 +3,7 @@
 namespace App\Mail\Ecommerce;
 
 use App\Models\Ecommerce\EcOrder;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -30,12 +31,18 @@ class OrderRefundMailer extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.ecommerce.order-refund')
-            ->subject('ORDER #'.$this->order->id.' REFUNDED')
-            ->with([
-                'order' => $this->order,
-                'customer' => $this->customerAuth->customer,
-                'items' => $this->order->items,
-            ]);
+        $title = 'ORDER #'.$this->order->id.' REFUNDED';
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.order-refund',
+                [
+                    'order' => $this->order,
+                    'customer' => $this->customerAuth->customer,
+                    'items' => $this->order->items,
+                ],
+                $title,
+            ));
     }
 }

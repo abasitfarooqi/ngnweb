@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -38,22 +39,17 @@ class NgnSurveySystemCampaignMailer extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'olders.emails.ngn_survey_system_campaign',
+            view: 'emails.templates.agreement-controller-universal',
+            with: [
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    'livewire.agreements.migrated.emails.ngn_survey_system_campaign',
+                    is_array($this->emailData) ? $this->emailData : [],
+                    ['title' => 'Participate in our Motorbike Preference Survey'],
+                ),
+            ],
         );
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.ngn_survey_system_campaign')
-            ->subject('Participate in our Motorbike Preference Survey')
-            ->with([
-                'name' => $this->emailData['name'],
-                'surveyLink' => $this->emailData['surveyLink'],
-                'email' => $this->emailData['email'],
-                'phone' => $this->emailData['phone'],
-                'ngn_survey_id' => $this->emailData['ngn_survey_id'],
-            ]);
-    }
 
     /**
      * Get the attachments for the message.

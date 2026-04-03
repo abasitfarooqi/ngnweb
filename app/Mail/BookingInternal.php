@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\ServiceBooking;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -22,9 +23,11 @@ class BookingInternal extends Mailable
     public function build()
     {
         return $this->subject('Service Enquiry Received')
-            ->view('olders.emails.service-booking-internal')
-            ->with([
-                'booking' => $this->booking,
-            ]);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.service-booking-internal',
+                ['booking' => $this->booking],
+                'Service Enquiry Received',
+            ));
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -20,8 +21,12 @@ class ReferralCampaignNotification extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.referral_campaign')
-            ->subject('Hurry up! Earn £5 Credit')
-            ->with(['user' => $this->user]);
+        return $this->subject('Hurry up! Earn £5 Credit')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.referral_campaign',
+                ['user' => $this->user],
+                'Hurry up! Earn £5 Credit',
+            ));
     }
 }

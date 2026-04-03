@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -25,7 +26,11 @@ class WeeklyRentingReportMailer extends Mailable
     public function build()
     {
         return $this->subject('Weekly Rental Profit Report')
-            ->view('olders.emails.cron-jobs.weekly-renting-report')
-            ->with('rows', $this->rows);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.cron-jobs.weekly-renting-report',
+                ['rows' => $this->rows],
+                'Weekly Rental Profit Report',
+            ));
     }
 }

@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class BillingChangeNotification extends Mailable
 {
@@ -38,14 +39,24 @@ class BillingChangeNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'olders.emails.judopay.billing_change_notification',
-            with: $this->data
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.judopay.billing_change_notification',
+
+                    is_array($this->data) ? $this->data : (array) $this->data,
+
+                    ['title' => 'Billing Settings Changed - Subscription #'],
+
+                ),
+
+            ],
+
         );
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.judopay.billing_change_notification')
-            ->with($this->data);
-    }
 }

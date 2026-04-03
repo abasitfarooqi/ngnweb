@@ -11,7 +11,7 @@ class AdminController extends Controller
 {
     public function index()
     {
-        return view('olders.admin.index');
+        return view('livewire.agreements.migrated.admin.index');
     }
 
     // /rotas-view
@@ -34,8 +34,8 @@ class AdminController extends Controller
                 return $schedule;
             });
 
-        return view('olders.admin.rotas-view', ['employeeSchedules' => $employeeSchedules]);
+        return view('livewire.agreements.migrated.admin.rotas-view', ['employeeSchedules' => $employeeSchedules]);
 
-        // return view('olders.admin.rotas-view', compact('employeeSchedules'));
+        // return view('livewire.agreements.migrated.admin.rotas-view', compact('employeeSchedules'));
     }
 }

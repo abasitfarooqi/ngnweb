@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class MOTBookingNotification extends Mailable
 {
@@ -29,8 +30,23 @@ class MOTBookingNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.mot_booking_confirmation',
-            with: $this->mailData
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.mot_booking_confirmation',
+
+                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+
+                    ['title' => 'MOT Appointment Confirmation'],
+
+                ),
+
+            ],
+
         );
     }
 
@@ -39,23 +55,4 @@ class MOTBookingNotification extends Mailable
         return [];
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.mot_booking_confirmation')
-            ->with([
-                'customer_name' => $this->mailData['customer_name'],
-                'vehicle_registration' => $this->mailData['vehicle_registration'],
-                'vehicle_chassis' => $this->mailData['vehicle_chassis'],
-                'vehicle_color' => $this->mailData['vehicle_color'],
-                'payment_link' => $this->mailData['payment_link'],
-                'date_of_appointment' => $this->mailData['date_of_appointment'],
-                'start' => $this->mailData['start'],
-                'end' => $this->mailData['end'],
-                'notes' => $this->mailData['notes'],
-                'address' => $this->mailData['address'],
-                'payment_method' => $this->mailData['payment_method'],
-                'payment_notes' => $this->mailData['payment_notes'],
-                'is_paid' => $this->mailData['is_paid'],
-            ]);
-    }
 }

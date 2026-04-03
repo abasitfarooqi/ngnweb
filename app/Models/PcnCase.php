@@ -48,7 +48,7 @@ class PcnCase extends Model
     {
         $pcnCase = PcnCase::with('updates')->findOrFail($id);
 
-        return view('olders.admin.pcn_case_updates.show', compact('pcnCase'));
+        return view('livewire.agreements.migrated.admin.pcn_case_updates.show', compact('pcnCase'));
     }
 
     public function getUpdatesLink()

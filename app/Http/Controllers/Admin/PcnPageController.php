@@ -162,14 +162,14 @@ class PcnPageController extends Controller
 
         // ✅ If this is an AJAX request, return only the table body HTML
         if ($request->ajax()) {
-            $html = view('olders.admin.partials.pcn_list_body', [
+            $html = view('livewire.agreements.migrated.admin.partials.pcn_list_body', [
                 'pcnList' => $pcnList,
             ])->render();
 
             return response()->json(['html' => $html]);
         }
 
-        return view('olders.admin.pcn_page', [
+        return view('livewire.agreements.migrated.admin.pcn_page', [
             'title' => 'PCN Statistics',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

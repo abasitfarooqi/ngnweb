@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class RentalPaymentReceipt extends Mailable
 {
@@ -29,8 +30,23 @@ class RentalPaymentReceipt extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.rental-payment-receipt',
-            with: $this->mailData
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.rental-payment-receipt',
+
+                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+
+                    ['title' => 'Hire Payment Receipt'],
+
+                ),
+
+            ],
+
         );
     }
 

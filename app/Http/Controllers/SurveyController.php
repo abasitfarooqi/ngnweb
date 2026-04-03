@@ -20,7 +20,7 @@ class SurveyController extends Controller
     {
         $survey = NgnSurvey::with('questions.options')->findOrFail($surveyId);
 
-        return view('olders.frontend.ngnsurvey.survey', compact('survey'));
+        return view('livewire.agreements.migrated.frontend.ngnsurvey.survey', compact('survey'));
     }
 
     /**
@@ -33,7 +33,7 @@ class SurveyController extends Controller
     {
         $survey = NgnSurvey::with('questions.options')->where('slug', $slug)->firstOrFail();
 
-        return view('olders.frontend.ngnsurvey.survey', compact('survey'));
+        return view('livewire.agreements.migrated.frontend.ngnsurvey.survey', compact('survey'));
     }
 
     /**
@@ -90,7 +90,7 @@ class SurveyController extends Controller
 
     public function thankyou()
     {
-        return view('olders.frontend.ngnsurvey.thankyou');
+        return view('livewire.agreements.migrated.frontend.ngnsurvey.thankyou');
     }
 
     // IT WILL BE DELETED ---- no use of this function
@@ -118,7 +118,7 @@ class SurveyController extends Controller
         $surveyEmailCampaigns = SurveyEmailCampaign::count();
         $surveys = NgnSurvey::orderBy('id')->get();
 
-        return view('olders.admin.survey_index', compact('surveyEmailCampaigns', 'surveys'));
+        return view('livewire.agreements.migrated.admin.survey_index', compact('surveyEmailCampaigns', 'surveys'));
     }
 
     public function getResponses($surveyId)
@@ -127,7 +127,7 @@ class SurveyController extends Controller
             ->where('survey_id', $surveyId) // Adjust the survey ID as needed
             ->get();
 
-        return view('olders.admin.survey_responses', compact('responses'));
+        return view('livewire.agreements.migrated.admin.survey_responses', compact('responses'));
     }
 
     /**

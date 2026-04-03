@@ -59,7 +59,7 @@ class NgnSurveyCampaignController extends Controller
             ];
         }
 
-        return view('olders.admin.ngn_survey_campaign', [
+        return view('livewire.agreements.migrated.admin.ngn_survey_campaign', [
             'title' => 'Ngn Survey Campaign',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

@@ -33,6 +33,9 @@
             padding: 0px;
             margin: 0px;
             font-size: 11px;
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
+            background-repeat: repeat;
+            background-position: 0 0;
         }
 
         .header {
@@ -109,11 +112,12 @@
             border-top: 0.4px dotted black;
         }
     </style>
+    @include('livewire.agreements.pdf.partials.pdf-print-theme')
 </head>
 
 <body>
 
-    <div class="watermark" style="padding-bottom:20px; margin-top:20px; letter-spacing: 1.9px">
+    <div class="watermark" style="letter-spacing: 1.9px">
         {{ $motorbike->reg_no }} {{ $customer->first_name }}
         {{ $customer->last_name }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }}
         {{ $motorbike->reg_no }}

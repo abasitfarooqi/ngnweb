@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -29,8 +30,12 @@ class NgnClubBatchUserCredentialsNotification extends Mailable
      */
     public function build()
     {
-        return $this->view('olders.emails.club_batch_user_credentials')
-            ->subject('Your NGN Club Login Credentials')
-            ->with(['user' => $this->user]);
+        return $this->subject('Your NGN Club Login Credentials')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.club_batch_user_credentials',
+                ['user' => $this->user],
+                'Your NGN Club Login Credentials',
+            ));
     }
 }

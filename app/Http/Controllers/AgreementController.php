@@ -39,6 +39,7 @@ use Illuminate\Support\Str;
 use Mail;
 use PDF;
 use App\Support\QrCodeGenerator;
+use App\Support\BrowsershotPdfAdapter;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
 class AgreementController extends Controller
@@ -55,7 +56,7 @@ class AgreementController extends Controller
                 return $access;
             });
 
-        return view('olders.admin.customers.upload-links', compact('access'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('access'), ['legacyView' => 'livewire.agreements.migrated.admin.customers.upload-links']));
     }
 
     public function agreement_Logs()
@@ -71,7 +72,7 @@ class AgreementController extends Controller
             });
 
         // admin/customers/agreement-links
-        return view('olders.admin.customers.agreement-links', compact('access'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('access'), ['legacyView' => 'livewire.agreements.migrated.admin.customers.agreement-links']));
     }
 
     public function generateAgreementAccess($customer_id)
@@ -233,7 +234,7 @@ class AgreementController extends Controller
         // return view('signature', compact(
 
         // V6
-        return view('signature-v6', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -244,7 +245,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-v6']));
     }
 
 
@@ -275,7 +276,7 @@ class AgreementController extends Controller
         // return view('signature', compact(
 
         // V3
-        return view('signature-v6-ins', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -286,7 +287,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-v6-ins']));
     }
 
 
@@ -319,7 +320,7 @@ class AgreementController extends Controller
 
             // Collect Booking Issuance Details.
 
-            return view('rental-termination-v1', [
+            return view('livewire.agreements.legacy-host', array_merge([
                 'customer_id' => $customer_id,
                 'booking_id' => $booking_id,
                 'booking' => $Booking,
@@ -329,7 +330,7 @@ class AgreementController extends Controller
                 'bookingItem' => $bookingItem,
                 'user_name' => '$Booking->user_id',
                 'motorbike' => $motorbike,
-            ]);
+            ], ['legacyView' => 'livewire.agreements.migrated.rental-termination-v1']));
         } else {
 
             return response()->view('errors.404', $validated, 404); // Return 404 view with response
@@ -406,7 +407,7 @@ class AgreementController extends Controller
         $rand_no = rand(1, 99999);
         $tm = time();
 
-        $pdf = Pdf::loadView('olders.pdf.rental-termination-v1', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.rental-termination-v1', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -521,7 +522,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $pdf = Pdf::loadView($pdf_name, [
+        $pdf = $this->pdfLoadView($pdf_name, [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -555,7 +556,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -615,7 +616,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return view('signature-contract-v6-ins-latest', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -626,7 +627,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-ins-latest']));
     }
 
     // 2025 12-SEP-2025 - Latest Contract
@@ -696,7 +697,7 @@ class AgreementController extends Controller
         ]);
 
         // Customer And Us Single PDF
-        $pdf = Pdf::loadView($pdf_name, [
+        $pdf = $this->pdfLoadView($pdf_name, [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -744,7 +745,7 @@ class AgreementController extends Controller
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
             $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
-            $less_terms_pdf = Pdf::loadView($less_terms_pdf_name, [
+            $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'], // Carbon instance
                 'SIGFILE' => $fileName,
                 'booking' => $Booking,
@@ -789,7 +790,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -850,7 +851,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return view('signature-contract-v6-ins-used-latest', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -861,7 +862,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-ins-used-latest']));
     }
 
     // 2025 12-SEP-2025 - Create Latest Insurance Contract (Used Vehicle)
@@ -926,7 +927,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $pdf = Pdf::loadView($pdf_name, [
+        $pdf = $this->pdfLoadView($pdf_name, [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -969,7 +970,7 @@ class AgreementController extends Controller
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
             $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
-            $less_terms_pdf = Pdf::loadView($less_terms_pdf_name, [
+            $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'], // Carbon instance
                 'SIGFILE' => $fileName,
                 'booking' => $Booking,
@@ -1013,7 +1014,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1074,7 +1075,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return view('signature-contract-v6-used-latest', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -1085,7 +1086,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-used-latest']));
     }
 
     // 2025 12-SEP-2025 - Create Latest Contract (Used Vehicle)
@@ -1150,7 +1151,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $pdf = Pdf::loadView($pdf_name, [
+        $pdf = $this->pdfLoadView($pdf_name, [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -1184,7 +1185,7 @@ class AgreementController extends Controller
 
             // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1272,7 +1273,7 @@ class AgreementController extends Controller
         // Get subscription option details
         $subscriptionOption = $this->getSubscriptionOptionDetails($booking->subscription_option);
 
-        return view('signature-contract-v6-merged-new', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -1284,7 +1285,7 @@ class AgreementController extends Controller
             'passcode',
             'access',
             'subscriptionOption'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-merged-new']));
     }
 
     /**
@@ -1314,7 +1315,7 @@ class AgreementController extends Controller
         // Get subscription option details
         $subscriptionOption = $this->getSubscriptionOptionDetails($booking->subscription_option);
 
-        return view('signature-contract-v6-merged-used', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -1326,7 +1327,7 @@ class AgreementController extends Controller
             'passcode',
             'access',
             'subscriptionOption'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-merged-used']));
     }
 
     /**
@@ -1356,7 +1357,7 @@ class AgreementController extends Controller
         // Get subscription option details
         $subscriptionOption = $this->getSubscriptionOptionDetails($booking->subscription_option);
 
-        return view('signature-contract-v6-merged-new-ins', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -1368,7 +1369,7 @@ class AgreementController extends Controller
             'passcode',
             'access',
             'subscriptionOption'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-merged-new-ins']));
     }
 
     /**
@@ -1398,7 +1399,7 @@ class AgreementController extends Controller
         // Get subscription option details
         $subscriptionOption = $this->getSubscriptionOptionDetails($booking->subscription_option);
 
-        return view('signature-contract-v6-merged-used-ins', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -1410,7 +1411,7 @@ class AgreementController extends Controller
             'passcode',
             'access',
             'subscriptionOption'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-merged-used-ins']));
     }
 
     /**
@@ -1480,7 +1481,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($saleAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $salePdf = Pdf::loadView($salePdfName, [
+        $salePdf = $this->pdfLoadView($salePdfName, [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -1517,7 +1518,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-SUB-".str_pad($subscriptionAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $subscriptionPdf = Pdf::loadView('olders.pdf.contract-v6-subscription', [
+        $subscriptionPdf = $this->pdfLoadView('livewire.agreements.pdf.templates.contract-v6-subscription', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -1556,7 +1557,7 @@ class AgreementController extends Controller
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
             $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
-            $less_terms_pdf = Pdf::loadView($less_terms_pdf_name, [
+            $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
                 'booking' => $Booking,
@@ -1598,7 +1599,7 @@ class AgreementController extends Controller
 
         // 4. Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1704,7 +1705,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($saleAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $salePdf = Pdf::loadView($salePdfName, [
+        $salePdf = $this->pdfLoadView($salePdfName, [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -1740,7 +1741,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-SUB-".str_pad($subscriptionAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $subscriptionPdf = Pdf::loadView('olders.pdf.contract-v6-subscription', [
+        $subscriptionPdf = $this->pdfLoadView('livewire.agreements.pdf.templates.contract-v6-subscription', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -1778,7 +1779,7 @@ class AgreementController extends Controller
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
             $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
-            $less_terms_pdf = Pdf::loadView($less_terms_pdf_name, [
+            $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
                 'booking' => $Booking,
@@ -1820,7 +1821,7 @@ class AgreementController extends Controller
 
         // 5. Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -1878,7 +1879,7 @@ class AgreementController extends Controller
             abort(404, 'Sale information not found.');
         }
 
-        return view('purchase-invoice-review', compact('sell', 'access', 'purchase_id'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('sell', 'access', 'purchase_id'), ['legacyView' => 'livewire.agreements.migrated.purchase-invoice-review']));
     }
 
     public function showUploadDocPage(Request $request, $customer_id, $passcode)
@@ -1903,7 +1904,7 @@ class AgreementController extends Controller
         
         $user_name = $booking->user->first_name.' '.$booking->user->last_name;
 
-        return view('upload_documents', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -1914,7 +1915,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.upload_documents']));
     }
 
     public function employeeNda(Request $request)
@@ -1955,7 +1956,7 @@ class AgreementController extends Controller
             File::makeDirectory($pdfPath, 0777, true, true);
         }
 
-        $pdf = Pdf::loadView('olders.pdf.employee-sign', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.employee-sign', [
             'today' => $toDay,
             'date' => $request->date,
             'customer' => $request->employeeName,
@@ -2019,7 +2020,7 @@ class AgreementController extends Controller
         $today = Carbon::parse($toDay)->format('d/m/Y');
         $toDay = Carbon::parse($toDay)->format('d/m/Y');
 
-        $pdf = Pdf::loadView('olders.pdf.purchase-invoice-pdf', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.purchase-invoice-pdf', [
             'SIGFILE' => $fileName,
             'today' => $toDay,
             'req' => $request,
@@ -2193,10 +2194,10 @@ class AgreementController extends Controller
 
 
         // V1
-        // $pdf = Pdf::loadView('olders.pdf.agreement', [
+        // $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement', [
 
         // V3
-        $pdf = Pdf::loadView('olders.pdf.agreement-v3', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v3', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2224,7 +2225,7 @@ class AgreementController extends Controller
 
         // 5m
         // Generate PDFs with document_number passed to views
-        $pdf1 = Pdf::loadView($pdf_name, [
+        $pdf1 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementStartDate->format('d/m/Y H:i'),
             'agreementEndDate' => $agreementEndDate1->format('d/m/Y H:i'),
             'today' => $agreementStartDate->format('d/m/Y'),
@@ -2251,7 +2252,7 @@ class AgreementController extends Controller
             \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
         }
 
-        $pdf2 = Pdf::loadView($pdf_name, [
+        $pdf2 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
             'agreementEndDate' => $agreementEndDate2->format('d/m/Y H:i'),
             'today' => $agreementEndDate1->format('d/m/Y'),
@@ -2278,7 +2279,7 @@ class AgreementController extends Controller
             \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
         }
 
-        $pdf3 = Pdf::loadView($pdf_name, [
+        $pdf3 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
             'agreementEndDate' => $agreementEndDate3->format('d/m/Y H:i'),
             'today' => $agreementEndDate2->format('d/m/Y'),
@@ -2476,10 +2477,10 @@ class AgreementController extends Controller
 
 
         // V1
-        // $pdf = Pdf::loadView('olders.pdf.agreement', [
+        // $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement', [
 
         // V6 // for five year v6 simple
-        $pdf = Pdf::loadView('olders.pdf.agreement-v6', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2507,7 +2508,7 @@ class AgreementController extends Controller
 
         // 5mnth copies
         // Generate PDFs with document_number passed to views
-        $pdf1 = Pdf::loadView($pdf_name, [
+        $pdf1 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementStartDate->format('d/m/Y H:i'),
             'agreementEndDate' => $agreementEndDate1->format('d/m/Y H:i'),
             'today' => $agreementStartDate->format('d/m/Y'),
@@ -2534,7 +2535,7 @@ class AgreementController extends Controller
             \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
         }
 
-        $pdf2 = Pdf::loadView($pdf_name, [
+        $pdf2 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
             'agreementEndDate' => $agreementEndDate2->format('d/m/Y H:i'),
             'today' => $agreementEndDate1->format('d/m/Y'),
@@ -2561,7 +2562,7 @@ class AgreementController extends Controller
             \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
         }
 
-        $pdf3 = Pdf::loadView($pdf_name, [
+        $pdf3 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
             'agreementEndDate' => $agreementEndDate3->format('d/m/Y H:i'),
             'today' => $agreementEndDate2->format('d/m/Y'),
@@ -2611,7 +2612,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -2732,7 +2733,7 @@ class AgreementController extends Controller
         ]);
 
         // V6
-        $pdf = Pdf::loadView('olders.pdf.agreement-v6-ins', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6-ins', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2773,7 +2774,7 @@ class AgreementController extends Controller
 
         // Generate Battery Safety Leaflet PDF (only for e-bikes)
         if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = Pdf::loadView('olders.pdf.battery-safety-leaflet', [
+            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
                 'today' => $toDay,
                 'booking' => $Booking,
                 'customer' => $Customer,
@@ -2847,7 +2848,7 @@ class AgreementController extends Controller
         \Log::info('Motorbike Obj: ', [$motorbike]);
         $user_name = $booking->user->first_name.' '.$booking->user->last_name;
 
-        return view('signature-loyalty-scheme', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -2858,7 +2859,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-loyalty-scheme']));
     }
 
     public function createLoyaltyScheme(Request $request)
@@ -2930,7 +2931,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        $pdf = Pdf::loadView('olders.pdf.loyalty-scheme', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.loyalty-scheme', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2974,4 +2975,27 @@ class AgreementController extends Controller
             'message' => 'Loyalty Scheme Policy signed successfully. You can close this window. We will send you a copy to your email.',
         ]);
     }
+    private function pdfLoadView(string $view, array $data = []): mixed
+    {
+        $templatesPrefix = 'livewire.agreements.pdf.templates.';
+        $resolvedView = str_starts_with($view, 'pdf.')
+            ? $templatesPrefix.substr($view, 4)
+            : $view;
+        $resolvedData = $data;
+
+        // Safety fallback for any PDF view not yet migrated.
+        if (! view()->exists($resolvedView)) {
+            $resolvedView = 'livewire.agreements.pdf.legacy-pdf-host';
+            $resolvedData = array_merge($data, ['legacyPdfView' => str_starts_with($view, 'pdf.')
+                ? $templatesPrefix.substr($view, 4)
+                : $view]);
+        }
+
+        if (config('agreement.pdf_engine', 'dompdf') === 'browsershot') {
+            return new BrowsershotPdfAdapter($resolvedView, $resolvedData);
+        }
+
+        return Pdf::loadView($resolvedView, $resolvedData);
+    }
+
 }

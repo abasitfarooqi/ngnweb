@@ -14,7 +14,7 @@ class NgnPartnerController extends Controller
 {
     public function showSubscribePage()
     {
-        return view('olders.frontend.ngnpartner.subscribe');
+        return view('livewire.agreements.migrated.frontend.ngnpartner.subscribe');
     }
 
     public function subscribe(Request $request)
@@ -77,11 +77,11 @@ class NgnPartnerController extends Controller
 
     public function showThankYouPage()
     {
-        return view('olders.frontend.ngnpartner.thankyou');
+        return view('livewire.agreements.migrated.frontend.ngnpartner.thankyou');
     }
 
     public function showTermsPage()
     {
-        return view('olders.frontend.ngnpartner.terms');
+        return view('livewire.agreements.migrated.frontend.ngnpartner.terms');
     }
 }

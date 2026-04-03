@@ -30,9 +30,9 @@
             padding: 0px;
             margin: 0px;
             font-size: 11px;
-            background: url('{{ secure_asset('https://neguinhomotors.co.uk/img/watermark.png') }}');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
-            background-size: 1100px;
+            background-position: 0 0;
         }
 
         .header {
@@ -101,11 +101,12 @@
             margin: 0px !important;
         }
     </style>
+    @include('livewire.agreements.pdf.partials.pdf-print-theme')
 </head>
 
 <body>
 
-    <div class="watermark" style="padding-bottom:20px; margin-top:20px; letter-spacing: 1.9px">
+    <div class="watermark" style="letter-spacing: 1.9px">
         {{ $customer->first_name }}
         {{ $customer->last_name }} {{ $customer->first_name }}
         {{ $customer->last_name }} {{ $customer->first_name }}

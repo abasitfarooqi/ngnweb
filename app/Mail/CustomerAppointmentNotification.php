@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class CustomerAppointmentNotification extends Mailable
 {
@@ -38,22 +39,24 @@ class CustomerAppointmentNotification extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'olders.emails.servicesandbooking.customer_appointment',
-            with: $this->data
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.servicesandbooking.customer_appointment',
+
+                    is_array($this->data) ? $this->data : (array) $this->data,
+
+                    ['title' => 'Customer Appointment Notification'],
+
+                ),
+
+            ],
+
         );
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.servicesandbooking.customer_appointment')
-            ->with([
-                'appointment_date' => $this->data['appointment_date'],
-                'customer_name' => $this->data['customer_name'],
-                'registration_number' => $this->data['registration_number'],
-                'contact_number' => $this->data['contact_number'],
-                'is_resolved' => $this->data['is_resolved'],
-                'email' => $this->data['email'],
-                'booking_reason' => $this->data['booking_reason'],
-            ]);
-    }
 }

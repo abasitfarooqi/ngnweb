@@ -25,14 +25,14 @@
     data-topbar-color="light" data-leftbar-position="fixed" data-leftbar-color="light" data-leftbar-size="default"
     data-sidebar-user="true">
     <div id="wrapper">
-        @include('olders.partials.topbar')
-        @include('olders.partials.leftbar')
+        @include('livewire.agreements.migrated.partials.topbar')
+        @include('livewire.agreements.migrated.partials.leftbar')
 
         <div class="main-content">
             @yield('content')
         </div>
 
-        @include('olders.partials.rightbar')
+        @include('livewire.agreements.migrated.partials.rightbar')
     </div>
     <script src="{{ asset('assets/libs/jquery/jquery.min.js') }}"></script>
     <script src="{{ asset('assets/libs/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

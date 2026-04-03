@@ -27,7 +27,7 @@ class MotorbikeController extends Controller
     // USED MOTORBIES PAGE FOR DISPLAY IN ADMIN PANEL //
     public function addForSale(Request $request)
     {
-        return view('olders.admin.motorbikes.add_forsale');
+        return view('livewire.agreements.migrated.admin.motorbikes.add_forsale');
     }
 
     public function store_used(Request $request)
@@ -82,7 +82,7 @@ class MotorbikeController extends Controller
             )->where('MS.is_sold', 0)
             ->get();
 
-        return view('olders.admin.motorbikes.used-for-sale', compact('motorbikes'));
+        return view('livewire.agreements.migrated.admin.motorbikes.used-for-sale', compact('motorbikes'));
     }
 
     // Universal Method //
@@ -472,7 +472,7 @@ class MotorbikeController extends Controller
             )
             ->get();
 
-        return view('olders.admin.motorbikes.add_used', compact('motorbikes', 'motorbikes_sale'));
+        return view('livewire.agreements.migrated.admin.motorbikes.add_used', compact('motorbikes', 'motorbikes_sale'));
     }
 
     public function showReport()
@@ -497,7 +497,7 @@ class MotorbikeController extends Controller
             // ->paginate(10);
             ->get(); // Use ->get() for fetching all at once or ->paginate() for paginated results
 
-        return view('olders.admin.motorbikes.motorbikes', compact('motorbikes'));
+        return view('livewire.agreements.migrated.admin.motorbikes.motorbikes', compact('motorbikes'));
     }
 
     // Motorbike Dashboard
@@ -511,7 +511,7 @@ class MotorbikeController extends Controller
     {
         $motorbikes = Motorbike::all();
 
-        return view('olders.admin.motorbikes.motorbikes', compact('motorbikes'));
+        return view('livewire.agreements.migrated.admin.motorbikes.motorbikes', compact('motorbikes'));
     }
 
     public function vehicleCheck(Request $request)
@@ -547,17 +547,17 @@ class MotorbikeController extends Controller
     {
         $motorbikes = Motorbike::all();
 
-        return view('olders.admin.renting.index', compact('motorbikes'));
+        return view('livewire.agreements.migrated.admin.renting.index', compact('motorbikes'));
     }
 
     public function renting_agreement()
     {
-        return view('olders.admin.renting.agreement');
+        return view('livewire.agreements.migrated.admin.renting.agreement');
     }
 
     public function create()
     {
-        return view('olders.admin.motorbikes.create');
+        return view('livewire.agreements.migrated.admin.motorbikes.create');
     }
 
     public function checkRegNo(Request $request)
@@ -642,7 +642,7 @@ class MotorbikeController extends Controller
 
     public function edit(Motorbike $motorbike)
     {
-        return view('olders.admin.motorbikes.edit', compact('motorbike'));
+        return view('livewire.agreements.migrated.admin.motorbikes.edit', compact('motorbike'));
     }
 
     public function update(Request $request, Motorbike $motorbike)
@@ -689,7 +689,7 @@ class MotorbikeController extends Controller
      */
     public function createRentalBike()
     {
-        return view('olders.admin.motorbikes.create');
+        return view('livewire.agreements.migrated.admin.motorbikes.create');
     }
 
     /**
@@ -706,7 +706,7 @@ class MotorbikeController extends Controller
     public function showRentalBike($motorbike)
     {
         $motorbike = Motorbike::findOrFail($motorbike);
-        return view('olders.admin.motorbikes.show', compact('motorbike'));
+        return view('livewire.agreements.migrated.admin.motorbikes.show', compact('motorbike'));
     }
 
     /**
@@ -715,7 +715,7 @@ class MotorbikeController extends Controller
     public function editRentalBike($motorbike)
     {
         $motorbike = Motorbike::findOrFail($motorbike);
-        return view('olders.admin.motorbikes.create', ['motorbike' => $motorbike]);
+        return view('livewire.agreements.migrated.admin.motorbikes.create', ['motorbike' => $motorbike]);
     }
 
     /**

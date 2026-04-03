@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -20,7 +21,11 @@ class PaymentReminderNotification extends Mailable
     public function build()
     {
         return $this->subject('Payment Reminder for MOT Booking')
-            ->view('olders.emails.payment_reminder')
-            ->with('data', $this->data);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.payment_reminder',
+                ['data' => $this->data],
+                'Payment Reminder for MOT Booking',
+            ));
     }
 }

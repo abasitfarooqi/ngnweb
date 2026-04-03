@@ -68,7 +68,7 @@ class CitRefundCustomerNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Payment Refund Processed - NGN Motors')
-            ->view('olders.emails.judopay.cit-refund-customer', [
+            ->view('livewire.agreements.migrated.emails.judopay.cit-refund-customer', [
                 'customer_name' => $customer->first_name ?? 'Customer',
                 'refund_amount' => $refundAmount,
                 'refund_receipt_id' => $refundReceiptId,

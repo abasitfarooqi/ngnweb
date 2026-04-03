@@ -3,6 +3,7 @@
 namespace App\Mail\Ecommerce;
 
 use App\Models\Ecommerce\EcOrder;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -34,16 +35,22 @@ class OrderProcessMailer extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.ecommerce.order-process')
-            ->subject('Your Order #'.$this->order->id.' is Being Processed!')
-            ->with([
-                'order' => $this->order,
-                'customer' => $this->customer,
-                'items' => $this->order->items()->with('product')->get(),
-                'shipping' => $this->order->shipping,
-                'address' => $this->order->customerAddress,
-                'shippingMethod' => $this->order->shippingMethod,
-                'branch' => $this->order->branch,
-            ]);
+        $title = 'Your Order #'.$this->order->id.' is Being Processed!';
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.order-process',
+                [
+                    'order' => $this->order,
+                    'customer' => $this->customer,
+                    'items' => $this->order->items()->with('product')->get(),
+                    'shipping' => $this->order->shipping,
+                    'address' => $this->order->customerAddress,
+                    'shippingMethod' => $this->order->shippingMethod,
+                    'branch' => $this->order->branch,
+                ],
+                $title,
+            ));
     }
 }

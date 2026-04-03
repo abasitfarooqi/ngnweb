@@ -30,8 +30,8 @@ class LoyaltySchemePolicy extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.loyalty-scheme-policy',
-            with: $this->mailData
+            view: 'emails.templates.agreement-controller-universal',
+            with: ['mailData' => $this->mailData],
         );
     }
 

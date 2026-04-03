@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 // Import the model for creating an entry in the database.
 
@@ -26,10 +27,6 @@ class ContactUs extends Mailable
         $this->request = $request;
     }
 
-    public function build()
-    {
-        return $this->from('customerservice@neguinhomotors.co.uk')->markdown('emails.ContactUsView');
-    }
 
     /**
      * Get the message envelope.
@@ -51,7 +48,23 @@ class ContactUs extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.ContactUsView',
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.ContactUsView',
+
+                    ['request' => $this->request],
+
+                    ['title' => 'Contact Me'],
+
+                ),
+
+            ],
+
         );
     }
 

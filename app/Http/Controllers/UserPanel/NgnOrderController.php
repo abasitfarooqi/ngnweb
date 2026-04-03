@@ -22,7 +22,7 @@ class NgnOrderController extends Controller
         // Fetch orders related to the authenticated customer
         $orders = Order::where('customer_id', $customer->customer_id)->get();
 
-        return view('olders.frontend.ngnstore.user_panel.orders.index', compact('orders'));
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.orders.index', compact('orders'));
     }
 
     public function show($id)
@@ -35,7 +35,7 @@ class NgnOrderController extends Controller
             ->where('customer_id', $customer->customer_id)
             ->firstOrFail();
 
-        return view('olders.frontend.ngnstore.user_panel.orders.details', compact('order'));
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.orders.details', compact('order'));
     }
 
     public function tracking($id)
@@ -48,7 +48,7 @@ class NgnOrderController extends Controller
             ->where('customer_id', $customer->customer_id)
             ->firstOrFail();
 
-        return view('olders.frontend.ngnstore.user_panel.orders.tracking', compact('order'));
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.orders.tracking', compact('order'));
     }
 
     // New method to display the confirmation page
@@ -62,7 +62,7 @@ class NgnOrderController extends Controller
             ->where('customer_id', $customer->customer_id)
             ->firstOrFail();
 
-        return view('olders.frontend.ngnstore.user_panel.orders.confirm', compact('order'));
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.orders.confirm', compact('order'));
     }
 
     public function confirmOrder($orderId)

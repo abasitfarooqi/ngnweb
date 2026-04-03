@@ -261,7 +261,7 @@ class QueueMonitorController
         // Log debug info for troubleshooting
         Log::info('Queue monitor debug', $debugInfo);
 
-        return view('olders.admin.queue-monitor', [
+        return view('livewire.agreements.migrated.admin.queue-monitor', [
             'jobs' => $jobs,
             'queueName' => $queueName,
             'redisKey' => $debugInfo['key_with_prefix'] ?? $redisKeyWithPrefix,

@@ -1606,7 +1606,7 @@ class NgnClubController extends Controller
         }
 
         // Step 4: Return the subscribe view with referral data
-        return view('olders.frontend.ngnclub.subscribe', [
+        return view('livewire.agreements.migrated.frontend.ngnclub.subscribe', [
             'referralAccepted' => $referralAccepted,
             'referrerId' => $referrerId,
             'referralCode' => $referralCode,
@@ -2818,7 +2818,7 @@ class NgnClubController extends Controller
      */
     public function showTermsPage()
     {
-        return view('olders.frontend.ngnclub.terms');
+        return view('livewire.agreements.migrated.frontend.ngnclub.terms');
     }
 
     /**
@@ -2905,7 +2905,7 @@ class NgnClubController extends Controller
         });
         $transactions = $purchaseRows->concat($redemptionRows)->sortByDesc('date')->values();
 
-        return view('olders.frontend.ngnclub.dashboard', compact('clubMember', 'purchases', 'redemptions', 'spendings', 'total_reward', 'total_redeemed', 'total_not_redeemed', 'qualified_referal', 'referrals', 'transactions'));
+        return view('livewire.agreements.migrated.frontend.ngnclub.dashboard', compact('clubMember', 'purchases', 'redemptions', 'spendings', 'total_reward', 'total_redeemed', 'total_not_redeemed', 'qualified_referal', 'referrals', 'transactions'));
     }
 
     public function estimate(Request $request)
@@ -3096,7 +3096,7 @@ class NgnClubController extends Controller
             $qualified_referal = false;
         }
 
-        return view('olders.frontend.ngnclub.referral', compact('clubMember', 'purchases', 'qualified_referal'));
+        return view('livewire.agreements.migrated.frontend.ngnclub.referral', compact('clubMember', 'purchases', 'qualified_referal'));
     }
 
     /**

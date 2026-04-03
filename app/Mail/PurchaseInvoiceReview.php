@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Envelope;
@@ -28,7 +29,11 @@ class PurchaseInvoiceReview extends Mailable
     public function build()
     {
         return $this->subject('Purchase Invoice Review')
-            ->view('olders.emails.purchase-invoice-sign')
-            ->with('mailData', $this->mailData);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.purchase-invoice-sign',
+                ['mailData' => $this->mailData],
+                'Purchase Invoice Review',
+            ));
     }
 }

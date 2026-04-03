@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
@@ -38,7 +39,17 @@ class MotorcycleRecoveryMail extends Mailable implements ShouldQueue
     public function build()
     {
         return $this->subject('Motorcycle Recovery Request - NGN')
-            ->view('olders.emails.motorcycle_recovery')
-            ->priority(1); // High priority for recovery requests
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.motorcycle_recovery',
+                [
+                    'distance' => $this->distance,
+                    'fromAddress' => $this->fromAddress,
+                    'toAddress' => $this->toAddress,
+                    'userDetails' => $this->userDetails,
+                ],
+                'Motorcycle Recovery Request - NGN',
+            ))
+            ->priority(1);
     }
 }

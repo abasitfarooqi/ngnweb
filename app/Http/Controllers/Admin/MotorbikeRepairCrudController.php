@@ -376,7 +376,7 @@ class MotorbikeRepairCrudController extends BaseCrudController
             'observations',
         ])->findOrFail($id);
 
-        $pdf = \PDF::loadView('olders.pdf.repair_invoice', compact('repair'))
+        $pdf = \PDF::loadView('livewire.agreements.pdf.templates.repair_invoice', compact('repair'))
             ->setPaper('a4', 'portrait')
             ->setOptions([
                 'watermark' => 'Your Watermark',

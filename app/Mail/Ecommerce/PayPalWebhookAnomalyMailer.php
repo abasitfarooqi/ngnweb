@@ -2,6 +2,7 @@
 
 namespace App\Mail\Ecommerce;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -44,16 +45,22 @@ class PayPalWebhookAnomalyMailer extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.ecommerce.paypal-webhook-anomaly')
-            ->subject("PayPal Webhook Anomaly: {$this->anomalyType}")
-            ->with([
-                'anomalyType' => $this->anomalyType,
-                'eventType' => $this->eventType,
-                'resource' => $this->resource,
-                'payment' => $this->payment,
-                'webhookEvent' => $this->webhookEvent,
-                'additionalData' => $this->additionalData,
-                'errorMessage' => $this->errorMessage,
-            ]);
+        $title = "PayPal Webhook Anomaly: {$this->anomalyType}";
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.paypal-webhook-anomaly',
+                [
+                    'anomalyType' => $this->anomalyType,
+                    'eventType' => $this->eventType,
+                    'resource' => $this->resource,
+                    'payment' => $this->payment,
+                    'webhookEvent' => $this->webhookEvent,
+                    'additionalData' => $this->additionalData,
+                    'errorMessage' => $this->errorMessage,
+                ],
+                $title,
+            ));
     }
 }

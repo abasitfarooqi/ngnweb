@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Envelope;
@@ -28,8 +29,12 @@ class JobCompletionNotification extends Mailable
     public function build()
     {
         return $this->subject('DVLA Check Job Completed')
-            ->view('olders.emails.job-completion')
-            ->with('mailData', $this->mailData);
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.job-completion',
+                ['mailData' => $this->mailData],
+                'DVLA Check Job Completed',
+            ));
     }
 
     public function attachments(): array

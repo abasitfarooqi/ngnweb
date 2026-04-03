@@ -343,6 +343,6 @@ class CustomContractController extends Controller
     // Method to show the custom contract form
     public function showCustomContractForm()
     {
-        return view('olders.frontend.custom-contract-generator');
+        return view('livewire.agreements.migrated.frontend.custom-contract-generator');
     }
 }

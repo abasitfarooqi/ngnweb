@@ -4,6 +4,7 @@
 
 namespace App\Mail\Ecommerce;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -30,13 +31,17 @@ class InvalidPayPalWebhookSignatureMailer extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.ecommerce.invalid-paypal-webhook-signature')
-            ->subject('Invalid PayPal Webhook Signature Notification')
-            ->with([
-                'eventType' => $this->eventType,
-                'resource' => $this->resource,
-                'payment' => $this->payment,
-                'webhookEvent' => $this->webhookEvent,
-            ]);
+        return $this->subject('Invalid PayPal Webhook Signature Notification')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.invalid-paypal-webhook-signature',
+                [
+                    'eventType' => $this->eventType,
+                    'resource' => $this->resource,
+                    'payment' => $this->payment,
+                    'webhookEvent' => $this->webhookEvent,
+                ],
+                'Invalid PayPal Webhook Signature Notification',
+            ));
     }
 }

@@ -47,9 +47,9 @@
             padding: 0px;
             margin: 0px;
             font-size: 11px;
-            background: url('{{ secure_asset('https://neguinhomotors.co.uk/img/watermark.png') }}');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
-            background-size: 1100px;
+            background-position: 0 0;
         }
 
         .header {
@@ -121,6 +121,7 @@
         }
     </style>
 
+    @include('livewire.agreements.pdf.partials.pdf-print-theme')
 </head>
 
 <body>

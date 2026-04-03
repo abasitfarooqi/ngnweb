@@ -420,7 +420,7 @@ class NgnProductManagementCrudController extends BaseCrudController
             'name' => 'stock_movements_display',
             'label' => 'Existing Stock Movements',
             'type' => 'custom_html',
-            'value' => view('olders.admin.stock_movements_table', compact('stockMovements', 'branchStocks', 'totalAvailableStock'))->render(),
+            'value' => view('livewire.agreements.migrated.admin.stock_movements_table', compact('stockMovements', 'branchStocks', 'totalAvailableStock'))->render(),
         ]);
 
     }

@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class MOTCompletedNotification extends Mailable
 {
@@ -29,28 +30,24 @@ class MOTCompletedNotification extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.mot_completed',
-            with: $this->mailData
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.mot_completed',
+
+                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+
+                    ['title' => 'MOT Completed'],
+
+                ),
+
+            ],
+
         );
     }
 
-    public function build()
-    {
-        return $this->view('olders.emails.mot_completed')
-            ->with([
-                'customer_name' => $this->mailData['customer_name'],
-                'vehicle_registration' => $this->mailData['vehicle_registration'],
-                'vehicle_chassis' => $this->mailData['vehicle_chassis'],
-                'vehicle_color' => $this->mailData['vehicle_color'],
-                'payment_link' => $this->mailData['payment_link'],
-                'date_of_appointment' => $this->mailData['date_of_appointment'],
-                'start' => $this->mailData['start'],
-                'end' => $this->mailData['end'],
-                'notes' => $this->mailData['notes'],
-                'payment_method' => $this->mailData['payment_method'],
-                'payment_notes' => $this->mailData['payment_notes'],
-                'is_paid' => $this->mailData['is_paid'],
-
-            ]);
-    }
 }

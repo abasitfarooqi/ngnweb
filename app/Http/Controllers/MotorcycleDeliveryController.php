@@ -26,13 +26,13 @@ class MotorcycleDeliveryController extends Controller
     // seprate story of /motorbike-recovery (recovery)
     public function showMotorbikeRecoveryPage()
     {
-        return view('olders.frontend.motorbikeRecovery.index'); // Return the motorbike recovery view
+        return view('livewire.agreements.migrated.frontend.motorbikeRecovery.index'); // Return the motorbike recovery view
     }
 
     // Show the contact order form page
     public function showContactOrderForm()
     {
-        return view('olders.frontend.motorbikeRecovery.order'); // Return the contact order form view
+        return view('livewire.agreements.migrated.frontend.motorbikeRecovery.order'); // Return the contact order form view
     }
 
     // Handle the order submission
@@ -104,7 +104,7 @@ class MotorcycleDeliveryController extends Controller
     // Success page after order completion
     public function successRecovery()
     {
-        return view('olders.frontend.motorbikeRecovery.completed');
+        return view('livewire.agreements.migrated.frontend.motorbikeRecovery.completed');
     }
 
     // ----------------------- Seprate Story of /motorcycle-delivery ----------------------- (delivery)
@@ -117,7 +117,7 @@ class MotorcycleDeliveryController extends Controller
             $request->session()->regenerate(true); // Regenerate session ID and clear old data
         }
         
-        return view('olders.frontend.ngnstore.motorcycle_delivery');
+        return view('livewire.agreements.migrated.frontend.ngnstore.motorcycle_delivery');
     }
 
     public function getCoordinates($postcode)
@@ -275,7 +275,7 @@ class MotorcycleDeliveryController extends Controller
                     
                     $vehicleTypes = DeliveryVehicleType::all();
                     
-                    return view('olders.frontend.ngnstore.motorcycle_delivery_store', [
+                    return view('livewire.agreements.migrated.frontend.ngnstore.motorcycle_delivery_store', [
                         'pickup_postcode' => $pickupCoords['address'] ?? '',
                         'dropoff_postcode' => $dropoffCoords['address'] ?? '',
                         'distance' => $distanceData['distance'] ?? 0,
@@ -398,7 +398,7 @@ class MotorcycleDeliveryController extends Controller
 
         $vehicleTypes = DeliveryVehicleType::all();
 
-        return view('olders.frontend.ngnstore.motorcycle_delivery_store', [
+        return view('livewire.agreements.migrated.frontend.ngnstore.motorcycle_delivery_store', [
             'pickup_postcode' => $validatedData['pickup_postcode'],
             'dropoff_postcode' => $validatedData['dropoff_postcode'],
             'distance' => $distanceInMiles,
@@ -660,7 +660,7 @@ class MotorcycleDeliveryController extends Controller
     // Success page after order completion
     public function success()
     {
-        return view('olders.frontend.ngnstore.motorcycle_delivery_success');
+        return view('livewire.agreements.migrated.frontend.ngnstore.motorcycle_delivery_success');
     }
 
     public function signatureContractNew()

@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class LogBookTransferMail extends Mailable
 {
@@ -29,8 +30,23 @@ class LogBookTransferMail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.logbook-transfer',
-            with: $this->mailData
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.logbook-transfer',
+
+                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+
+                    ['title' => 'Log Book Transfer Mail'],
+
+                ),
+
+            ],
+
         );
     }
 

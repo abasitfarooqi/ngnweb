@@ -42,7 +42,13 @@ class OrderShipped extends Mailable
     public function content()
     {
         return new Content(
-            view: 'view.name',
+            view: 'emails.templates.agreement-controller-universal',
+            with: [
+                'mailData' => [
+                    'title' => 'Order Shipped',
+                    'body' => 'Your order has been shipped. If you have questions, contact customerservice@neguinhomotors.co.uk.',
+                ],
+            ],
         );
     }
 

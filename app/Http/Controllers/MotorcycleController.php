@@ -28,12 +28,12 @@ class MotorcycleController extends Controller
 
         $count = $motorcycles->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function create()
     {
-        return view('olders.admin.motorcycle-create');
+        return view('livewire.agreements.migrated.admin.motorcycle-create');
     }
 
     public function createNewMotorcycle()
@@ -208,7 +208,7 @@ class MotorcycleController extends Controller
             $motorcycles = json_decode($m);
         }
 
-        return view('olders.admin.motorcycles-rental', compact('motorcycles', 'user_id'));
+        return view('livewire.agreements.migrated.admin.motorcycles-rental', compact('motorcycles', 'user_id'));
     }
 
     // Assign motorcycle to client for rental
@@ -289,7 +289,7 @@ class MotorcycleController extends Controller
         $toDay = new DateTime;
         $deposit = $motorcycle->rental_deposit;
 
-        return view('olders.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
+        return view('livewire.agreements.migrated.frontend.legals.rental-agreement', compact('toDay', 'user', 'motorcycle', 'deposit'));
     }
 
     // Remove the rental motorcycle from the client
@@ -317,7 +317,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function missing()
@@ -329,7 +329,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function accident()
@@ -341,7 +341,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function impounded()
@@ -353,7 +353,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function isForRent()
@@ -365,7 +365,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function isRented()
@@ -377,7 +377,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function isForSale()
@@ -388,7 +388,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function inForRepairs()
@@ -399,7 +399,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function catB()
@@ -410,7 +410,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function claimInProgress()
@@ -421,7 +421,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function isSold()
@@ -432,7 +432,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function motDue()
@@ -443,7 +443,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function taxDue()
@@ -454,7 +454,7 @@ class MotorcycleController extends Controller
 
         $count = $m->count();
 
-        return view('olders.admin.motorcycles-index', compact('motorcycles', 'count'));
+        return view('livewire.agreements.migrated.admin.motorcycles-index', compact('motorcycles', 'count'));
     }
 
     public function show($motorcycle_id)
@@ -527,7 +527,7 @@ class MotorcycleController extends Controller
             ->where('payment_type', '=', 'rental')
             ->sortByDesc('id');
 
-        return view('olders.admin.motorcycle', compact('motorcycle', 'depositpayments', 'rentalpayments', 'newpayments', 'notes', 'user'));
+        return view('livewire.agreements.migrated.admin.motorcycle', compact('motorcycle', 'depositpayments', 'rentalpayments', 'newpayments', 'notes', 'user'));
     }
 
     public function edit($id)
@@ -535,7 +535,7 @@ class MotorcycleController extends Controller
         $motorcycle = Motorcycle::find($id);
         // $motorcycle = json_decode($m);
 
-        return view('olders.admin.motorcycle-edit', compact('motorcycle'));
+        return view('livewire.agreements.migrated.admin.motorcycle-edit', compact('motorcycle'));
     }
 
     public function update(Request $request, $id)
@@ -600,7 +600,7 @@ class MotorcycleController extends Controller
 
     public function findMotorcycle()
     {
-        return view('olders.admin.find-bike');
+        return view('livewire.agreements.migrated.admin.find-bike');
     }
 
     public function registrationNumber(Request $request)
@@ -645,7 +645,7 @@ class MotorcycleController extends Controller
 
     public function vehicleCheckForm()
     {
-        return view('olders.admin.check-reg');
+        return view('livewire.agreements.migrated.admin.check-reg');
     }
 
     public function vehicleCheck(Request $request)
@@ -659,7 +659,7 @@ class MotorcycleController extends Controller
 
         $motorcycle = json_decode($response->body());
 
-        return view('olders.admin.check-show', compact('motorcycle'))
+        return view('livewire.agreements.migrated.admin.check-show', compact('motorcycle'))
             ->with('success', 'Vehicle information retrieved successfully.');
     }
 }

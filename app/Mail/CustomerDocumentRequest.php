@@ -38,8 +38,8 @@ class CustomerDocumentRequest extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.upload-documents',
-            with: $this->mailData
+            view: 'emails.templates.agreement-controller-universal',
+            with: ['mailData' => $this->mailData],
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -24,10 +25,6 @@ class AccidentManagement extends Mailable
         $this->request = $request;
     }
 
-    public function build()
-    {
-        return $this->from('customerservice@neguinhomotors.co.uk')->markdown('emails.AccidentManagementView');
-    }
 
     /**
      * Get the message envelope.
@@ -49,7 +46,14 @@ class AccidentManagement extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.AccidentManagementView',
+            view: 'emails.templates.agreement-controller-universal',
+            with: [
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    'livewire.agreements.migrated.emails.AccidentManagementView',
+                    ['request' => $this->request],
+                    ['title' => 'Accident Management'],
+                ),
+            ],
         );
     }
 

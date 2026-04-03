@@ -3,6 +3,7 @@
 namespace App\Mail;
 
 use App\Models\ClubMember;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -31,10 +32,12 @@ class NgnClubFestiveHoursMailer extends Mailable
      */
     public function build()
     {
-        return $this->view('olders.emails.club.festive-hours')
-            ->subject('Festive opening hours – NGN')
-            ->with([
-                'member' => $this->member,
-            ]);
+        return $this->subject('Festive opening hours – NGN')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.club.festive-hours',
+                ['member' => $this->member],
+                'Festive opening hours – NGN',
+            ));
     }
 }

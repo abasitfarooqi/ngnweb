@@ -30,9 +30,8 @@ class EmployeeNDA extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'olders.emails.employee-nda-signed',
-            with: $this->mailData
-
+            view: 'emails.templates.agreement-controller-universal',
+            with: ['mailData' => $this->mailData],
         );
     }
 

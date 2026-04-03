@@ -67,12 +67,12 @@ class NgnStorePageController extends Controller
 
         if ($request->ajax()) {
             return response()->json([
-                'products' => view('olders.admin.partials.product_list', compact('products'))->render(),
+                'products' => view('livewire.agreements.migrated.admin.partials.product_list', compact('products'))->render(),
                 'pagination' => (string) $products->appends($request->query())->links(),
             ]);
         }
 
-        return view('olders.admin.ngn_store_page', [
+        return view('livewire.agreements.migrated.admin.ngn_store_page', [
             'title' => 'Ngn Store Page',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

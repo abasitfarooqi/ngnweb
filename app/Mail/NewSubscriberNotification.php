@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -34,12 +35,15 @@ class NewSubscriberNotification extends Mailable
      */
     public function build()
     {
-        return $this->view('olders.emails.ngnclub_new_subscriber_email')
-            ->subject('Welcome to NGN Club!')
-            ->with([
-                'clubMember' => $this->clubMember,
-                'passcode' => $this->passcode,
-                // 'terms' => $this->terms,
-            ]);
+        return $this->subject('Welcome to NGN Club!')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ngnclub_new_subscriber_email',
+                [
+                    'clubMember' => $this->clubMember,
+                    'passcode' => $this->passcode,
+                ],
+                'Welcome to NGN Club!',
+            ));
     }
 }

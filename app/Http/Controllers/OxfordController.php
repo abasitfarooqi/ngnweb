@@ -25,7 +25,7 @@ class OxfordController extends Controller
         $category_id = 1;
         $category = 'helmets';
 
-        return view('olders.frontend.products', compact('products', 'category', 'category_id'));
+        return view('livewire.agreements.migrated.frontend.products', compact('products', 'category', 'category_id'));
     }
 
     // Helmets
@@ -46,7 +46,7 @@ class OxfordController extends Controller
         $category_id = 1;
         $category = 'MT Helmets';
 
-        return view('olders.frontend.products', compact('products', 'category', 'category_id'));
+        return view('livewire.agreements.migrated.frontend.products', compact('products', 'category', 'category_id'));
     }
 
     public function getProductCategory($category_id)
@@ -70,7 +70,7 @@ class OxfordController extends Controller
 
         $category = strtolower($cat->category);
 
-        return view('olders.frontend.products', compact('products', 'category', 'category_id'));
+        return view('livewire.agreements.migrated.frontend.products', compact('products', 'category', 'category_id'));
     }
 
     public function getOxfordProduct($id)
@@ -83,7 +83,7 @@ class OxfordController extends Controller
         $cookie = strtolower($item->description);
         $title = $item->description;
 
-        return view('olders.frontend.product', [
+        return view('livewire.agreements.migrated.frontend.product', [
             'item' => $item,
             'title' => $title,
             'category_id' => $category_id,
@@ -95,7 +95,7 @@ class OxfordController extends Controller
 
     public function oxfordCart()
     {
-        return view('olders.frontend.cart');
+        return view('livewire.agreements.migrated.frontend.cart');
     }
 
     public function addProductCart($id)

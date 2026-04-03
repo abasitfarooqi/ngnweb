@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class RentalDue extends Mailable
 {
@@ -24,10 +25,6 @@ class RentalDue extends Mailable
         $this->user = $user;
     }
 
-    public function build()
-    {
-        return $this->from('customerservice@neguinhomotors.co.uk')->markdown('emails.RentalDueView');
-    }
 
     /**
      * Get the message envelope.
@@ -49,7 +46,23 @@ class RentalDue extends Mailable
     public function content()
     {
         return new Content(
-            view: 'olders.emails.RentalDueView',
+
+            view: 'emails.templates.agreement-controller-universal',
+
+            with: [
+
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+
+                    'livewire.agreements.migrated.emails.RentalDueView',
+
+                    ['user' => $this->user],
+
+                    ['title' => 'Weekly Rental Due'],
+
+                ),
+
+            ],
+
         );
     }
 

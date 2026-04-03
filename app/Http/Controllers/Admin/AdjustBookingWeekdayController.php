@@ -35,7 +35,7 @@ class AdjustBookingWeekdayController extends Controller
                 ];
             });
 
-        return view('olders.admin.adjust_booking_weekday', [
+        return view('livewire.agreements.migrated.admin.adjust_booking_weekday', [
             'title' => 'Adjust Booking Weekday',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),
@@ -67,7 +67,7 @@ class AdjustBookingWeekdayController extends Controller
                 ];
             });
 
-        return view('olders.admin.active_renting_summary', [
+        return view('livewire.agreements.migrated.admin.active_renting_summary', [
             'title' => 'Active Bookings Summary',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

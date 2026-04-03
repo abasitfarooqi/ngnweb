@@ -831,7 +831,7 @@ class RentingController extends Controller
             ->whereNull('RBI.end_date')
             ->get();
 
-        return view('olders.admin.renting.bookings', compact('bookingDetails'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('bookingDetails'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.bookings']));
     }
 
     /**
@@ -884,7 +884,7 @@ class RentingController extends Controller
             ->whereNotNull('RBI.end_date')
             ->get();
 
-        return view('olders.admin.renting.inactive-bookings', compact('bookingDetails'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('bookingDetails'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.inactive-bookings']));
     }
 
     public function all_renting_bookings(Request $request)
@@ -962,14 +962,14 @@ class RentingController extends Controller
         $customers = DB::table('customers')->select('id', 'first_name', 'last_name')->get();
         $motorbikes = DB::table('motorbikes')->select('id', 'reg_no')->get();
 
-        return view('olders.admin.renting.bookings_history', compact('bookingHistory', 'customers', 'motorbikes'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('bookingHistory', 'customers', 'motorbikes'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.bookings_history']));
     }
 
     public function renting_index()
     {
         $motorbikes = Motorbike::all();
 
-        return view('olders.admin.renting.index', compact('motorbikes'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('motorbikes'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.index']));
     }
 
     // Single Motorbike ONLY
@@ -1359,7 +1359,7 @@ class RentingController extends Controller
                     $data['amount'] = $amountReceived;
 
                     // IF PDF IS NEEDED
-                    // $pdf = Pdf::loadView('olders.pdf.test',[
+                    // $pdf = Pdf::loadView('livewire.agreements.pdf.templates.test',[
                     //     'today' => $toDay,
                     //     'SIGFILE'=>$fileName,
                     //     'booking' => $Booking,
@@ -1691,7 +1691,7 @@ class RentingController extends Controller
         Log::info('New Booking Page Requested.');
 
         try {
-            return view('olders.admin.renting.booking-new', $this->bookingNewPageData());
+            return view('livewire.agreements.legacy-host', array_merge($this->bookingNewPageData(), ['legacyView' => 'livewire.agreements.migrated.admin.renting.booking-new']));
         } catch (\Exception $e) {
             Log::error('Error: '.$e->getMessage());
 
@@ -1749,7 +1749,7 @@ class RentingController extends Controller
 
     //     $documentTypes = DocumentType::all();
 
-    //     return view('olders.admin.renting.booking-new', [
+    //     return view('livewire.agreements.migrated.admin.renting.booking-new', [
     //         'motorbikes' => $motorbikes,
     //         'customers' => $customers,
     //         'documentTypes' => $documentTypes,
@@ -1911,7 +1911,7 @@ class RentingController extends Controller
 
         // 'id', 'make', 'model', 'year', 'engine', 'color', 'fuel_type', 'reg_no'
 
-        return view('olders.admin.motorbikes.pricing', ['pricing' => $pricing, 'motorbikes_not_priced' => $instance->motorbikeNotPriced()]);
+        return view('livewire.agreements.legacy-host', array_merge(['pricing' => $pricing, 'motorbikes_not_priced' => $instance->motorbikeNotPriced()], ['legacyView' => 'livewire.agreements.migrated.admin.motorbikes.pricing']));
     }
 
     // SET MOTORBIKE PRICE
@@ -2022,7 +2022,7 @@ class RentingController extends Controller
     //     $data["title"] = "Rental Agreement";
     //     $data["body"] = "Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!";
 
-    //     $pdf = Pdf::loadView('olders.pdf.test', [
+    //     $pdf = Pdf::loadView('livewire.agreements.pdf.templates.test', [
     //         'today' => $toDay,
     //         'SIGFILE' => $fileName,
     //         'booking' => $Booking,
@@ -2044,12 +2044,12 @@ class RentingController extends Controller
 
     public function finance_agreement_template()
     {
-        return view('olders.admin.finance.agreement');
+        return view('livewire.agreements.legacy-host', ['legacyView' => 'livewire.agreements.migrated.admin.finance.agreement']);
     }
 
     public function renting_agreement_template()
     {
-        return view('olders.admin.renting.agreement');
+        return view('livewire.agreements.legacy-host', ['legacyView' => 'livewire.agreements.migrated.admin.renting.agreement']);
     }
 
     public function updateInvoiceDate(Request $request)
@@ -2111,7 +2111,7 @@ class RentingController extends Controller
         // For dropdowns if you want to keep them for future
         $bookingIds = $invoices->pluck('booking_id')->unique();
 
-        return view('olders.admin.renting.invoice-dates-all', compact('invoices', 'bookingIds', 'search'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('invoices', 'bookingIds', 'search'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.invoice-dates-all']));
     }
 
     public function updateStartDate(Request $request)
@@ -2136,7 +2136,7 @@ class RentingController extends Controller
     {
         $bookings = RentingBooking::with('customer')->get();
 
-        return view('olders.admin.renting.update-start-date', compact('bookings'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('bookings'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.update-start-date']));
     }
 
     public function uploadServiceVideo(Request $request, $bookingId)
@@ -2349,7 +2349,7 @@ class RentingController extends Controller
         $pricePeriods = isset($pricePeriods) ? $pricePeriods : [];
         $paidInvoiceCount = isset($paidInvoiceCount) ? $paidInvoiceCount : 0;
 
-        return view('olders.admin.renting.summary-view', compact('booking'));
+        return view('livewire.agreements.legacy-host', array_merge(compact('booking'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.summary-view']));
     }
 
     // Delete a maintenance log by its ID

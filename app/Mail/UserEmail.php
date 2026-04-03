@@ -7,6 +7,7 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Support\UniversalMailPayload;
 
 class UserEmail extends Mailable
 {
@@ -44,7 +45,14 @@ class UserEmail extends Mailable
     public function content()
     {
         return new Content(
-            view: 'view.RentalDue',
+            view: 'emails.templates.agreement-controller-universal',
+            with: [
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    'livewire.agreements.migrated.emails.RentalDueView',
+                    ['user' => $this->user],
+                    ['title' => 'User Email'],
+                ),
+            ],
         );
     }
 

@@ -411,23 +411,23 @@ Route::prefix('ngn-partner')->group(function () {
 // ============================================================
 // ECOMMERCE / STORE (Vue SPA) — kept as-is
 // ============================================================
-Route::get('/shop/{any?}', fn () => view('olders.frontend.vue_store.app'))
+Route::get('/shop/{any?}', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
     ->where('any', '.*')->name('shop-motorcycle')->middleware('ecommerce.view');
-Route::get('/legals/{any?}', fn () => view('olders.frontend.vue_store.app'))
+Route::get('/legals/{any?}', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
     ->where('any', '.*')->name('legals')->middleware('ecommerce.view');
 // Route::get('/login', \App\Livewire\Auth\Login::class)->name('customer.login')->middleware('auth:customer');
 // The legacy Vue login/register/reset-password routes for /accountinformation/* are now disabled in favor of /login (Livewire + Fortify)
-// Route::get('/accountinformation/login', fn () => view('olders.frontend.vue_store.app'))
+// Route::get('/accountinformation/login', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
 //     ->where('any', '.*')->name('customer.login')->middleware('ecommerce.view');
 // Route::post('/accountinformation/logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])
 //     ->name('customer.logout')->middleware('auth:customer');
-// Route::get('/accountinformation/register', fn () => view('olders.frontend.vue_store.app'))
+// Route::get('/accountinformation/register', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
 //     ->where('any', '.*')->name('customer.register')->middleware('ecommerce.view');
 // Route::get('/accountinformation/reset-password/{token}', function (string $token) {
 //     $query = request()->only('email');
 //     return redirect()->route('password.reset', array_merge(['token' => $token], $query));
 // })->middleware('guest:customer');
-Route::get('/accountinformation/{any?}', fn () => view('olders.frontend.vue_store.app'))
+Route::get('/accountinformation/{any?}', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
     ->where('any', '.*')->name('accountinformation')->middleware(['ecommerce.view', 'auth.customer']);
 
 // Store product details
@@ -500,7 +500,7 @@ Route::post('/survey/submit', [\App\Http\Controllers\SurveyController::class, 's
 Route::get('/thank-you-for-survey', [\App\Http\Controllers\SurveyController::class, 'thankyou'])->name('survey.thankyou');
 
 // Festival note (kept for now)
-Route::get('/festival-note', fn () => view('olders.frontend.festival-note'))->name('festival.note');
+Route::get('/festival-note', fn () => view('livewire.agreements.migrated.frontend.festival-note'))->name('festival.note');
 
 // ============================================================
 // ADMIN — /admin prefix, auth + admin middleware

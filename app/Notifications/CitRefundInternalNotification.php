@@ -134,7 +134,7 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject($subject)
-            ->view('olders.emails.judopay.cit-refund-internal', [
+            ->view('livewire.agreements.migrated.emails.judopay.cit-refund-internal', [
                 'recipient_email' => $recipientEmail,
                 'is_admin' => $isAdmin,
                 'refund_amount' => $refundAmount,

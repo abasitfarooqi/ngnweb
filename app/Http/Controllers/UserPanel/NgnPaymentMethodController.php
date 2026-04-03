@@ -23,7 +23,7 @@ class NgnPaymentMethodController extends Controller
         // Fetch payment methods related to the authenticated customer
         $paymentMethods = PaymentMethod::where('customer_id', $customer->customer_id)->get();
 
-        return view('olders.frontend.ngnstore.user_panel.payment_methods.index', compact('paymentMethods'));
+        return view('livewire.agreements.migrated.frontend.ngnstore.user_panel.payment_methods.index', compact('paymentMethods'));
     }
 
     public function manage(Request $request, $id = null)

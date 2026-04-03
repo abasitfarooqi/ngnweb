@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -22,12 +23,16 @@ class ActiveRentingWeaklyMailer extends Mailable
 
     public function build(): self
     {
-        return $this->view('olders.emails.cron-jobs.active_renting_weakly_mailer')
-            ->subject('Active Renting Weekly Report')
-            ->with([
-                'active_bookings' => $this->data['active_bookings'],
-                'stats' => $this->data['stats'] ?? null,
-            ]);
+        return $this->subject('Active Renting Weekly Report')
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.cron-jobs.active_renting_weakly_mailer',
+                [
+                    'active_bookings' => $this->data['active_bookings'],
+                    'stats' => $this->data['stats'] ?? null,
+                ],
+                'Active Renting Weekly Report',
+            ));
     }
 
     // public function attachments(): array

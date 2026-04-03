@@ -32,7 +32,7 @@ class AgentSettingsController extends Controller
             return [$setting->key => $value];
         });
 
-        return view('olders.admin.agent_settings', [
+        return view('livewire.agreements.migrated.admin.agent_settings', [
             'endpointUrl' => $settings['digitalocean_agent_endpoint_url'] ?? '',
             'accessKey' => $settings['digitalocean_agent_access_key'] ?? '',
             'maxTokens' => $settings['digitalocean_agent_max_tokens'] ?? '2001',

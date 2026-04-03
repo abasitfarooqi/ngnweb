@@ -44,7 +44,7 @@ class EbikeManagerController extends Controller
 
         $ebikes = $q->orderByDesc('id')->get();
 
-        return view('olders.admin.ebike_manager', [
+        return view('livewire.agreements.migrated.admin.ebike_manager', [
             'title' => 'Ebike Manager',
             'breadcrumbs' => [
                 trans('backpack::crud.admin') => backpack_url('dashboard'),

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\CustomerAuth;
+use App\Support\AgreementPdfViewAssets;
 use App\Models\JudopayCitPaymentSession;
 use App\Models\JudopayEnquiryRecord;
 use App\Models\JudopayMitPaymentSession;
@@ -56,6 +57,15 @@ class AppServiceProvider extends ServiceProvider
                     'hash' => sha1($notifiable->getEmailForVerification()),
                 ]
             );
+        });
+
+        View::composer('*', function (\Illuminate\View\View $view): void {
+            $name = $view->name();
+            if (! str_starts_with($name, 'livewire.agreements.pdf.templates.')
+                && $name !== 'livewire.agreements.pdf.legacy-pdf-host') {
+                return;
+            }
+            $view->with(AgreementPdfViewAssets::composerVariables());
         });
 
         // Ensure default view paths are included

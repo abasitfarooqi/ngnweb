@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -21,14 +22,20 @@ class CronJobReportMailer extends Mailable
 
     public function build(): self
     {
-        return $this->view('olders.emails.cron-jobs.cron-job-global-stock-report')
-            ->subject('Global Stock Update - '.$this->data['title'])
-            ->with([
-                'total_products' => $this->data['data']['total_products'],
-                'positive_stock' => $this->data['data']['positive_stock'],
-                'zero_stock' => $this->data['data']['zero_stock'],
-                'negative_stock' => $this->data['data']['negative_stock'],
-                'total_stock' => $this->data['data']['total_stock'],
-            ]);
+        $title = 'Global Stock Update - '.$this->data['title'];
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.cron-jobs.cron-job-global-stock-report',
+                [
+                    'total_products' => $this->data['data']['total_products'],
+                    'positive_stock' => $this->data['data']['positive_stock'],
+                    'zero_stock' => $this->data['data']['zero_stock'],
+                    'negative_stock' => $this->data['data']['negative_stock'],
+                    'total_stock' => $this->data['data']['total_stock'],
+                ],
+                $title,
+            ));
     }
 }

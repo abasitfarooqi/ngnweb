@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -31,8 +32,24 @@ class ContactSubmission extends Mailable
 
     public function content(): Content
     {
+        $subject = '[NGN Contact] '.$this->topic.' — '.$this->senderName;
+
         return new Content(
-            view: 'olders.emails.contact-submission',
+            view: 'emails.templates.agreement-controller-universal',
+            with: [
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    'emails.contact-submission',
+                    [
+                        'senderName' => $this->senderName,
+                        'senderEmail' => $this->senderEmail,
+                        'phone' => $this->phone,
+                        'topic' => $this->topic,
+                        'messageBody' => $this->messageBody,
+                        'branchName' => $this->branchName,
+                    ],
+                    ['title' => $subject],
+                ),
+            ],
         );
     }
 }

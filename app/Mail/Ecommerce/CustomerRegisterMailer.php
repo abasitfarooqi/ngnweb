@@ -4,6 +4,7 @@
 
 namespace App\Mail\Ecommerce;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -22,10 +23,14 @@ class CustomerRegisterMailer extends Mailable
 
     public function build()
     {
-        return $this->view('olders.emails.ecommerce.register')
-            ->subject('Welcome to NGN Store - Your One-Stop Shop for Motorcycles Rentals, Repairs, and Accessories!')
-            ->with([
-                'customer' => (object) $this->mailData['customer'],
-            ]);
+        $title = 'Welcome to NGN Store - Your One-Stop Shop for Motorcycles Rentals, Repairs, and Accessories!';
+
+        return $this->subject($title)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with(UniversalMailPayload::wrap(
+                'livewire.agreements.migrated.emails.ecommerce.register',
+                ['customer' => (object) $this->mailData['customer']],
+                $title,
+            ));
     }
 }

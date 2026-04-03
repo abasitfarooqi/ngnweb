@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -31,9 +32,16 @@ class PcnJobEmailFail extends Mailable
         // $t7 = 'emails.pcn.t7';
 
         $t_template = 'emails.pcn.failed-'.$this->template;
+        $subject = 'To NGN: Action Required...! Unsettled PCNs';
 
-        return $this->subject('To NGN: Action Required...! Unsettled PCNs')
-            ->view($t_template)
-            ->with('data', $this->data);
+        return $this->subject($subject)
+            ->view('emails.templates.agreement-controller-universal')
+            ->with([
+                'mailData' => UniversalMailPayload::fromLegacyEmailView(
+                    $t_template,
+                    ['data' => $this->data],
+                    ['title' => $subject],
+                ),
+            ]);
     }
 }

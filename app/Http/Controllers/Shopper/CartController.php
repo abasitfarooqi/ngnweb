@@ -30,7 +30,7 @@ class CartController extends Controller
         // $cartTax = $cartSubtotal * $tax;
         $newTotal = Cart::instance('default')->total();
 
-        return view('olders.frontend.cart', [
+        return view('livewire.agreements.migrated.frontend.cart', [
             'cartCount' => $cartCount,
             'cartItems' => $cartItems,
             // 'cartTaxRate' => $cartTaxRate,
@@ -44,7 +44,7 @@ class CartController extends Controller
     // Needs to be shown in users dashboard
     public function wishList()
     {
-        return view('olders.frontend.cart', [
+        return view('livewire.agreements.migrated.frontend.cart', [
             'cartItems' => Cart::instance('wishlist')->content(),
         ]);
     }
@@ -109,7 +109,7 @@ class CartController extends Controller
     {
         Cart::count();
 
-        return view('olders.frontend.checkout');
+        return view('livewire.agreements.migrated.frontend.checkout');
     }
 
     public function delete(Request $request, $rowId)
