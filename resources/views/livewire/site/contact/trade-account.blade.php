@@ -35,7 +35,7 @@
     <flux:card class="p-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Trade Account Application Form</h2>
 
-        <form wire:submit="submitEnquiry" class="space-y-5">
+        <form wire:submit.prevent="submitEnquiry" class="space-y-5">
             <flux:field>
                 <flux:label>Company Name *</flux:label>
                 <flux:input wire:model="companyName" type="text" placeholder="Your company name" />

@@ -90,6 +90,19 @@ body {
 
 <body>
     
+    <div class="watermark" style="letter-spacing: 1.9px">
+        {{ $customer->first_name }}
+        {{ $customer->last_name }} {{ $customer->first_name }}
+        {{ $customer->last_name }} {{ $customer->first_name }}
+        {{ $customer->last_name }}
+        {{ $customer->first_name }}
+        {{ $customer->last_name }} {{ $customer->first_name }}
+        {{ $customer->last_name }}
+    </div>
+
+    <div class="watermark" style="letter-spacing: 1.7px">{{ $customer->first_name }}
+        {{ $customer->last_name }} | Loyalty Scheme | {{ $document_number }}
+    </div>
     <div class="header" style="padding:1px;margin:0px">
         <table style="padding:0px !important;width: 100%;">
             <tr>

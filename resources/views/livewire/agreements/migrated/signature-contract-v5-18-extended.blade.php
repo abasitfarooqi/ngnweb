@@ -52,7 +52,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px;
+         padding: 20px;
+        color: #111827;
             background-color: #f3f3f3;
         }
 

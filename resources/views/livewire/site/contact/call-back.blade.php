@@ -18,7 +18,7 @@
     <flux:card class="p-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Call Back Request Form</h2>
 
-        <form wire:submit="submitRequest" class="space-y-5">
+        <form wire:submit.prevent="submitRequest" class="space-y-5">
             <flux:field>
                 <flux:label>Full Name *</flux:label>
                 <flux:input wire:model="name" type="text" />

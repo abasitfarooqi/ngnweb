@@ -1,57 +1,35 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>New Contact Submission</title>
-    <style>
-        body { font-family: Arial, sans-serif; background: #f9f9f9; margin: 0; padding: 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #fff; border: 1px solid #e2e8f0; padding: 32px; }
-        h2 { color: #c0392b; margin-top: 0; }
-        table { width: 100%; border-collapse: collapse; }
-        td { padding: 10px 0; border-bottom: 1px solid #f0f0f0; vertical-align: top; }
-        td:first-child { width: 140px; font-weight: bold; color: #555; }
-        .message-body { background: #f7f7f7; padding: 16px; margin-top: 20px; white-space: pre-wrap; }
-        .footer { margin-top: 24px; font-size: 12px; color: #999; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h2>New Contact Form Submission</h2>
-
-    <table>
+{{-- Fragment for UniversalMailPayload: outer shell is emails.templates.universal + x-emails.base --}}
+<div style="font-size:14px;color:#111827;line-height:1.6;">
+    <table width="100%" border="0" cellpadding="0" cellspacing="0" style="border-collapse:collapse;margin:0 0 16px;">
         <tr>
-            <td>From</td>
-            <td>{{ $senderName }}</td>
+            <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;width:140px;font-weight:700;color:#fff;vertical-align:top;">From</td>
+            <td style="color:#fff;padding:10px 0;border-bottom:1px solid #e5e7eb;vertical-align:top;">{{ $senderName }}</td>
         </tr>
         <tr>
-            <td>Email</td>
-            <td><a href="mailto:{{ $senderEmail }}">{{ $senderEmail }}</a></td>
+            <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:700;color:#fff;vertical-align:top;">Email</td>
+            <td style="color:#fff;padding:10px 0;border-bottom:1px solid #e5e7eb;vertical-align:top;"><a href="mailto:{{ $senderEmail }}" style="color:#c31924;">{{ $senderEmail }}</a></td>
         </tr>
         <tr>
-            <td>Phone</td>
-            <td>{{ $phone }}</td>
+            <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:700;color:#fff;vertical-align:top;">Phone</td>
+            <td style="color:#fff;padding:10px 0;border-bottom:1px solid #e5e7eb;vertical-align:top;">{{ $phone }}</td>
         </tr>
         <tr>
-            <td>Topic</td>
-            <td>{{ $topic }}</td>
+            <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:700;color:#fff;vertical-align:top;">Topic</td>
+            <td style="color:#fff;padding:10px 0;border-bottom:1px solid #e5e7eb;vertical-align:top;">{{ $topic }}</td>
         </tr>
-        @if($branchName)
-        <tr>
-            <td>Preferred Branch</td>
-            <td>{{ $branchName }}</td>
-        </tr>
+        @if ($branchName)
+            <tr>
+                <td style="padding:10px 0;border-bottom:1px solid #e5e7eb;font-weight:700;color:#fff;vertical-align:top;">Preferred branch</td>
+                <td style="color:#fff;padding:10px 0;border-bottom:1px solid #e5e7eb;vertical-align:top;">{{ $branchName }}</td>
+            </tr>
         @endif
         <tr>
-            <td>Submitted</td>
-            <td>{{ now()->format('d M Y, H:i') }}</td>
+            <td style="padding:10px 0;font-weight:700;color:#fff;vertical-align:top;">Submitted</td>
+            <td style="color:#fff;padding:10px 0;vertical-align:top;">{{ now()->format('d M Y, H:i') }}</td>
         </tr>
     </table>
 
-    <div class="message-body">{{ $messageBody }}</div>
+    <div style="background:#f3f4f6;padding:16px;border:1px solid #e5e7eb;white-space:pre-wrap;font-size:14px;color:#111827;">{{ $messageBody }}</div>
 
-    <div class="footer">
-        This message was sent via the NGN Motors contact form at {{ config('app.url') }}.
-    </div>
+    <p style="margin:16px 0 0;font-size:12px;color:#6b7280;">This message was sent via the NGN Motors contact form at {{ config('app.url') }}.</p>
 </div>
-</body>
-</html>

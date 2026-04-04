@@ -46,6 +46,17 @@ return [
             'local_domain' => env('MAIL_EHLO_DOMAIN'),
         ],
 
+        'mailpit' => [
+            'transport' => 'smtp',
+            'host' => env('MAIL_PIT_HOST', '127.0.0.1'),
+            'port' => (int) env('MAIL_PIT_PORT', 1025),
+            'encryption' => env('MAIL_PIT_ENCRYPTION'),
+            'username' => env('MAIL_PIT_USERNAME'),
+            'password' => env('MAIL_PIT_PASSWORD'),
+            'timeout' => null,
+            'local_domain' => env('MAIL_EHLO_DOMAIN'),
+        ],
+
         'bulk' => [
             'transport' => 'smtp',
             'host' => env('MAIL_BULK_HOST', 'bulk.smtp.mailtrap.io'),

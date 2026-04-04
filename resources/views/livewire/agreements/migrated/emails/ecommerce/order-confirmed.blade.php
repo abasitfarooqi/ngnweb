@@ -189,20 +189,23 @@
             <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p>Thank you for your order</p>
-                @switch($status)
-                    @case('Confirmed')
+                @php
+                    $orderStatusNorm = strtolower(trim((string) $status));
+                @endphp
+                @switch($orderStatusNorm)
+                    @case('confirmed')
                         <div class="status-badge status-confirmed">
                             <strong style="font-size: 24px;">Order Confirmed</strong>
                         </div>
                     @break
 
-                    @case('Pending')
+                    @case('pending')
                         <div class="status-badge status-pending">
                             <strong style="font-size: 24px;">Order Pending</strong>
                         </div>
                     @break
 
-                    @case('Cancelled')
+                    @case('cancelled')
                         <div class="status-badge status-cancelled">
                             <strong style="font-size: 24px;">Order Cancelled</strong>
                         </div>
@@ -264,7 +267,7 @@
                 <p>{{ $branch->address }}</p>
                 <p>{{ $branch->city }}, {{ $branch->postal_code }}</p>
                 <p><strong>Status: </strong>
-                    @switch($branch->name)
+                    @switch(strtoupper((string) ($branch->name ?? '')))
                         @case('CATFORD')
                         <p>We are preparing your order for collection. We will notify you once it's ready.</p>
                         <a href="tel:02083141498">0208 314 1498</a>
@@ -289,12 +292,15 @@
                 <p><strong>Delivery Method:</strong> {{ $shippingMethod->name ?? 'Standard Delivery' }}</p>
                 @if ($address)
                     <p><strong>Delivery Address:</strong></p>
-                    <p>{{ $address->address_line1 }}</p>
-                    @if ($address->address_line2)
-                        <p>{{ $address->address_line2 }}</p>
+                    <p>{{ $address->street_address }}</p>
+                    @php
+                        $addrLine2 = trim((string) ($address->street_address_plus ?? ''));
+                    @endphp
+                    @if ($addrLine2 !== '' && $addrLine2 !== '-')
+                        <p>{{ $addrLine2 }}</p>
                     @endif
-                    <p>{{ $address->city }}, {{ $address->postal_code }}</p>
-                    <p>{{ $address->country }}</p>
+                    <p>{{ $address->city }}, {{ $address->postcode }}</p>
+                    <p>United Kingdom</p>
                 @endif
                 <p class="note" style="font-size: 12px; color: #666; margin-top: 10px;">
                     We will notify you once your order is dispatched.

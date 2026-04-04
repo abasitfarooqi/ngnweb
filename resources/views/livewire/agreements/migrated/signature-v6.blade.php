@@ -152,7 +152,7 @@
         }
 
         .fee-table th {
-            background-color: #f5f5f5;
+            background-color: #111827;
             font-weight: bold;
         }
         p{

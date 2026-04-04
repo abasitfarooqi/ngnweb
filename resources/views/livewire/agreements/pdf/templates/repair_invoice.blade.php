@@ -10,10 +10,10 @@
             font-family: 'Poppins', Arial, sans-serif;
             margin: 0;
             padding: 0;
+        }
+
+        .watermark-area {
             background-image: url("{{ $agreementPdfWatermarkSrc }}");
-            background-repeat: repeat;
-            background-position: 0 0;
-            background-size: auto;
         }
 
         h1 {
@@ -154,6 +154,7 @@
             <li>{{ $observation->observation_description }}</li>
             @endforeach
         </ul>
+    </div>
     </div>
 </body>
 

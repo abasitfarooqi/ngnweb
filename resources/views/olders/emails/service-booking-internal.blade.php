@@ -81,7 +81,7 @@
 
         li {
             margin: 5px 0;
-            color: #333333;
+            color:rgb(255, 255, 255);
         }
 
         .footer {

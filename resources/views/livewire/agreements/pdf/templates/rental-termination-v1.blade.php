@@ -151,6 +151,13 @@
 
 <body>
 
+    <div class="watermark" style="letter-spacing: 1.9px">
+        {{ $motorbike->reg_no }} {{ $customer->first_name }}
+        {{ $customer->last_name }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }}
+        {{ $motorbike->reg_no }}
+        {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }}
+        {{ $motorbike->reg_no }} {{ $customer->first_name }}
+        {{ $customer->last_name }} </div>
     <div class="container">
         <div class="header" style="padding:1px;margin:1px">
             <span style="font-size:7px">V1 Rev#0</span>

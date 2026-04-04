@@ -36,9 +36,24 @@ class ServiceBooking extends Component
 
     public bool $cookiePolicy = false;
 
+    /** Incremented after a successful submit so the form remounts and Flux widgets reset cleanly. */
+    public int $formNonce = 0;
+
     public function mount(): void
     {
         $this->branches = Branch::orderBy('name')->get();
+    }
+
+    public function updatedServiceType(?string $value): void
+    {
+        if (! in_array((string) $value, [
+            'MOT Booking Enquiry',
+            'Accident Management Services Enquiry',
+        ], true)) {
+            $this->preferredDate = '';
+            $this->preferredTime = '';
+            $this->resetValidation(['preferredDate', 'preferredTime']);
+        }
     }
 
     public function submitBooking(): void
@@ -72,6 +87,7 @@ class ServiceBooking extends Component
 
         session()->flash('success', 'Service booking request received. We will confirm your appointment shortly.');
 
+        $this->resetValidation();
         $this->reset([
             'name',
             'email',
@@ -86,6 +102,7 @@ class ServiceBooking extends Component
             'message',
             'cookiePolicy',
         ]);
+        $this->formNonce++;
     }
 
     public function getRequiresScheduleSelectionProperty(): bool

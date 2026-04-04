@@ -300,12 +300,15 @@
                 <p><strong>Delivery Method:</strong> {{ $shippingMethod->name ?? 'Standard Delivery' }}</p>
                 @if ($address)
                     <p><strong>Delivery Address:</strong></p>
-                    <p>{{ $address->address_line1 }}</p>
-                    @if ($address->address_line2)
-                        <p>{{ $address->address_line2 }}</p>
+                    <p>{{ $address->street_address }}</p>
+                    @php
+                        $addrLine2 = trim((string) ($address->street_address_plus ?? ''));
+                    @endphp
+                    @if ($addrLine2 !== '' && $addrLine2 !== '-')
+                        <p>{{ $addrLine2 }}</p>
                     @endif
-                    <p>{{ $address->city }}, {{ $address->postal_code }}</p>
-                    <p>{{ $address->country }}</p>
+                    <p>{{ $address->city }}, {{ $address->postcode }}</p>
+                    <p>United Kingdom</p>
                 @endif
             @endif
         </div>

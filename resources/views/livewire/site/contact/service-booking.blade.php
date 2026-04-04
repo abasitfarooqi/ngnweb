@@ -18,10 +18,10 @@
     <flux:card class="p-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Service Booking Form</h2>
 
-        <form wire:submit="submitBooking" class="space-y-5">
+        <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="space-y-5">
             <flux:field>
                 <flux:label>Service Type *</flux:label>
-                <flux:select wire:model="serviceType" variant="listbox" placeholder="Select service...">
+                <flux:select wire:model.live="serviceType" variant="listbox" placeholder="Select service...">
                     <flux:select.option value="Accident Management Services Enquiry">Accident Management Services Enquiry</flux:select.option>
                     <flux:select.option value="MOT Booking Enquiry">MOT Booking Enquiry</flux:select.option>
                     <flux:select.option value="Motorcycle Repairs">Motorcycle Repairs</flux:select.option>
@@ -115,7 +115,9 @@
             <div class="text-sm text-gray-700 dark:text-gray-300">
                 <label class="inline-flex items-start gap-2 cursor-pointer">
                     <input type="checkbox" wire:model="cookiePolicy" class="mt-1 accent-brand-red">
-                    <span>I have read and agree to the Cookie and Privacy Policy.</span>
+                    <span>I have read and agree to the
+                        <a href="{{ route('site.privacy') }}" class="text-brand-red font-medium underline decoration-brand-red/80 hover:text-brand-red-dark hover:decoration-brand-red-dark">Cookie and Privacy Policy</a>.
+                    </span>
                 </label>
                 <flux:error name="cookiePolicy" />
             </div>

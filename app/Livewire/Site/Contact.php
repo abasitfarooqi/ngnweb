@@ -28,7 +28,15 @@ class Contact extends Component
         $this->branches = Branch::orderBy('name')->get();
     }
 
-    public function submit()
+    /**
+     * Alias for older Blade / Flux forms that still call submitRequest.
+     */
+    public function submitRequest(): void
+    {
+        $this->submit();
+    }
+
+    public function submit(): void
     {
         $validated = $this->validate([
             'name' => 'required|min:2',

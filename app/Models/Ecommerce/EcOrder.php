@@ -8,7 +8,6 @@ use App\Mail\Ecommerce\OrderConfirmedAlertMailer;
 use App\Mail\Ecommerce\OrderConfirmedMailer;
 use App\Mail\Ecommerce\OrderReadyToCollectMailer;
 use App\Models\Branch;
-use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\CustomerAuth;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
@@ -17,6 +16,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Spatie\Permission\Traits\HasRoles;
@@ -102,104 +102,108 @@ class EcOrder extends Model
         return $this->hasMany(EcOrderItem::class, 'order_id');
     }
 
-    protected static function booted()
+    protected static function booted(): void
     {
-        static::saving(function ($order) {
+        static::created(function (EcOrder $order): void {
+            $id = $order->id;
+            DB::afterCommit(function () use ($id): void {
+                $fresh = EcOrder::query()->find($id);
+                if ($fresh) {
+                    static::dispatchOrderStatusEmails($fresh);
+                }
+            });
+        });
 
-            if ($order->exists) {
-                $originalStatus = $order->getOriginal('order_status');
-                $newStatus = $order->order_status;
+        static::updated(function (EcOrder $order): void {
+            if (! $order->wasChanged('order_status')) {
+                return;
+            }
+            $id = $order->id;
+            DB::afterCommit(function () use ($id): void {
+                $fresh = EcOrder::query()->find($id);
+                if ($fresh) {
+                    static::dispatchOrderStatusEmails($fresh);
+                }
+            });
+        });
+    }
 
-                // Only proceed if status has changed
-                if ($originalStatus !== $newStatus) {
-                    Log::info('Order status changing', [
-                        'order_id' => $order->id,
-                        'from' => $originalStatus,
-                        'to' => $newStatus,
-                    ]);
+    /**
+     * Customer-facing emails for the current order_status. Runs after DB commit so line items exist on create.
+     * PayPal "In Progress" / process emails are sent from PayPalWebhookController; do not duplicate here.
+     */
+    protected static function dispatchOrderStatusEmails(EcOrder $order): void
+    {
+        $newStatus = (string) $order->order_status;
+        $norm = strtolower(trim($newStatus));
 
+        Log::info('EcOrder status email hook', [
+            'order_id' => $order->id,
+            'status' => $newStatus,
+            'normalized' => $norm,
+        ]);
+
+        try {
+            $order->loadMissing(['customer', 'items.product', 'customerAddress', 'shippingMethod', 'branch']);
+
+            if (! $order->customer || ! $order->customer->email) {
+                Log::warning('No customer email found for order', ['order_id' => $order->id]);
+
+                return;
+            }
+
+            $recipients = [$order->customer->email];
+
+            switch ($norm) {
+                case 'confirmed':
+                    Mail::to($recipients)
+                        ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
+                        ->send(new OrderConfirmedMailer($order));
+
+                    Mail::to('customerservice@neguinhomotors.co.uk')
+                        ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
+                        ->send(new OrderConfirmedAlertMailer($order));
+                    break;
+
+                case 'cancelled':
+                    if (strtolower(trim((string) $order->payment_status)) === 'refunded') {
+                        break;
+                    }
+                    Mail::raw(
+                        "Your order #{$order->id} has been cancelled.\n\nIf you did not request this change, please contact support@neguinhomotors.co.uk.",
+                        function ($message) use ($recipients, $order): void {
+                            $message
+                                ->to($recipients)
+                                ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
+                                ->subject('Order #'.$order->id.' Cancelled');
+                        }
+                    );
+                    break;
+
+                case 'ready to collect':
                     try {
-                        // Make sure all relations are loaded
-                        if (! $order->relationLoaded('customer')) {
-                            $order->load(['customer', 'items.product', 'customerAddress', 'shippingMethod', 'branch']);
-                        }
-
-                        if ($order->customer && $order->customer->email) {
-                            $recipients = [$order->customer->email];
-
-                            switch ($newStatus) {
-                                case 'Confirmed':
-
-                                    // Email to customer
-                                    Mail::to($recipients)
-                                        ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
-                                        ->send(new OrderConfirmedMailer($order));
-
-                                    // Email to customer service
-                                    Mail::to('customerservice@neguinhomotors.co.uk')
-                                        ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
-                                        ->send(new OrderConfirmedAlertMailer($order));
-
-                                    break;
-                                case 'Cancelled':
-                                    Mail::raw(
-                                        "Your order #{$order->id} has been cancelled.\n\nIf you did not request this change, please contact support@neguinhomotors.co.uk.",
-                                        function ($message) use ($recipients, $order): void {
-                                            $message
-                                                ->to($recipients)
-                                                ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
-                                                ->subject('Order #'.$order->id.' Cancelled');
-                                        }
-                                    );
-                                    break;
-
-                                case 'Pending':
-                                    // Mail::to($recipients)
-                                    //     ->send(new OrderPendingMail($order));
-
-                                    break;
-
-                                case 'In Progress':
-
-                                    // Manual Item processing
-
-                                    break;
-
-                                case 'Ready to collect':
-
-                                    try {
-                                        Mail::to($recipients)
-                                            ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
-                                            ->send(new OrderReadyToCollectMailer($order));
-
-                                    } catch (\Exception $e) {
-                                        Log::error('Failed to send order ready to collect email', [
-                                            'order_id' => $order->id,
-                                            'error' => $e->getMessage(),
-                                            'trace' => $e->getTraceAsString(),
-                                        ]);
-                                    }
-
-                                    break;
-
-                                case 'Delivered':
-
-                                    // Assuming Customer has received the order by Store Pickup Method while otherwise we rely on Royal Mail Response
-                                    break;
-                            }
-                        } else {
-                            Log::warning('No customer email found for order', ['order_id' => $order->id]);
-                        }
+                        Mail::to($recipients)
+                            ->bcc(['admin@neguinhomotors.co.uk', 'support@neguinhomotors.co.uk'])
+                            ->send(new OrderReadyToCollectMailer($order));
                     } catch (\Exception $e) {
-                        Log::error('Failed to send order notification email', [
+                        Log::error('Failed to send order ready to collect email', [
                             'order_id' => $order->id,
-                            'status' => $newStatus,
                             'error' => $e->getMessage(),
                             'trace' => $e->getTraceAsString(),
                         ]);
                     }
-                }
+                    break;
+
+                default:
+                    break;
             }
-        });
+        } catch (\Exception $e) {
+            Log::error('Failed to send order notification email', [
+                'order_id' => $order->id,
+                'status' => $newStatus,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
+        }
     }
 }

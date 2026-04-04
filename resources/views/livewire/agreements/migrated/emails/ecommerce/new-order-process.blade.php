@@ -251,12 +251,15 @@
                 <p><strong>Delivery Method:</strong> {{ $shippingMethod->name ?? 'Standard Delivery' }}</p>
                 @if ($address)
                     <p><strong>Shipping Address:</strong></p>
-                    <p>{{ $address->address_line1 }}</p>
-                    @if ($address->address_line2)
-                        <p>{{ $address->address_line2 }}</p>
+                    <p>{{ $address->street_address }}</p>
+                    @php
+                        $addrLine2 = trim((string) ($address->street_address_plus ?? ''));
+                    @endphp
+                    @if ($addrLine2 !== '' && $addrLine2 !== '-')
+                        <p>{{ $addrLine2 }}</p>
                     @endif
-                    <p>{{ $address->city }}, {{ $address->postal_code }}</p>
-                    <p>{{ $address->country }}</p>
+                    <p>{{ $address->city }}, {{ $address->postcode }}</p>
+                    <p>United Kingdom</p>
                 @endif
                 <p class="note" style="font-size: 12px; color: #666; margin-top: 10px;">
                     <strong>Important:</strong> Please update the system once the order has been dispatched.

@@ -97,6 +97,19 @@
 
 <body>
     
+    <div class="watermark" style="letter-spacing: 1.9px">
+        {{ $motorbike->reg_no ?? '' }} {{ $customer->first_name ?? '' }}
+        {{ $customer->last_name ?? '' }} {{ $motorbike->reg_no ?? '' }} {{ $motorbike->reg_no ?? '' }} {{ $motorbike->reg_no ?? '' }}
+        {{ $motorbike->reg_no ?? '' }}
+        {{ $motorbike->reg_no ?? '' }} {{ $motorbike->reg_no ?? '' }} {{ $motorbike->reg_no ?? '' }} {{ $motorbike->reg_no ?? '' }}
+        {{ $motorbike->reg_no ?? '' }} {{ $customer->first_name ?? '' }}
+        {{ $customer->last_name ?? '' }}
+    </div>
+
+    <div class="watermark" style="letter-spacing: 1.7px">{{ $motorbike->reg_no ?? '' }}
+        {{ $customer->first_name ?? '' }}
+        {{ $customer->last_name ?? '' }} | Battery Safety Leaflet
+    </div>
     <div class="header" style="padding:1px;margin:0px">
         <table style="padding:0px !important;width: 100%;">
             <tr>

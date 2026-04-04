@@ -1,3 +1,9 @@
+@php
+    $__wmLocal = (string) config('agreement.brand.pdf_watermark_local', '');
+    $__wmCssUrl = $__wmLocal !== ''
+        ? asset($__wmLocal)
+        : (string) config('agreement.brand.pdf_watermark_remote', '');
+@endphp
 <style>
     /* Shared agreement signing: centred column, header row, signature modal (aligned with signature-contract-v6-merged; no rounded corners). */
     /*
@@ -28,6 +34,10 @@
     }
 
     @@media print {
+        @@page {
+            margin: 14px;
+        }
+
         .agreement-signing-page .d-md-none {
             display: none !important;
         }
@@ -37,6 +47,19 @@
             display: block !important;
         }
     }
+
+    @if ($__wmCssUrl !== '')
+        .agreement-signing-page {
+            background-image: url("{{ e($__wmCssUrl) }}");
+            background-repeat: no-repeat;
+            background-position: center center;
+            background-size: cover;
+            background-origin: padding-box;
+            background-clip: padding-box;
+            padding: 16px;
+            box-sizing: border-box;
+        }
+    @endif
 
     .agreement-signing-page .container {
         max-width: 58rem;
@@ -64,6 +87,7 @@
         gap: 12px;
         border: 1px solid #000;
         padding: 8px 12px;
+        color: #111827;
         background-color: #f3f3f3;
         box-sizing: border-box;
     }
@@ -108,7 +132,7 @@
         .agreement-brand-header__logo,
         .agreement-brand-header__address,
         .agreement-brand-header__title {
-            flex: 1 1 100%;
+            /* flex: 1 1 100%; */
             max-width: 100%;
             text-align: center;
         }
@@ -197,7 +221,7 @@
     }
 
     label a {
-        color: #000 !important;
+        color: #dc3545 !important;
         text-decoration: none;
     }
 </style>
