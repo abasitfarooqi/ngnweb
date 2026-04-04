@@ -129,7 +129,7 @@
             color: #333333;
             text-align: center;
             padding: 20px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             border-top: 1px solid #e7e7e7;
         }
 

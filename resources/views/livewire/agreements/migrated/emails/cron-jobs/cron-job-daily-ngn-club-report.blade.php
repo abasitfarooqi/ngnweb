@@ -26,7 +26,7 @@
             max-width: 600px;
             margin: 10px auto;
             padding: 15px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 4px;
         }

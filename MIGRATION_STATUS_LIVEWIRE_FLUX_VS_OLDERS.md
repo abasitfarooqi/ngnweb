@@ -49,8 +49,8 @@ Routes still hit `Shopper\*`, `OxfordController`, `NgnClubController`, `NgnPartn
 
 ### Mail
 
-- Outer shell: `emails.templates.agreement-controller-universal` → `emails.templates.universal`.
-- Inner bodies: **`livewire.agreements.migrated.emails.*`** (not `olders.emails.*`).
+- **Single entry point for HTML mail:** `emails.templates.agreement-controller-universal` → `emails.templates.universal` → `x-emails.base`. Edit that chain (especially `universal` + `base`) to change branding for **all** mails.
+- **Content:** pass `mailData` with either structured fields (`introLines`, `details`, `url` / `actionUrl`, `body_html`, etc.) or render legacy blades through `App\Support\UniversalMailPayload::wrap()` / `fromLegacyEmailView()` so inner HTML is **`livewire.agreements.migrated.emails.*`** (not `olders.emails.*`). Notifications must use the same `agreement-controller-universal` view, not `@include('emails.templates.universal')` directly.
 
 ---
 

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use DOMDocument;
+use DOMElement;
 use DOMXPath;
 use Illuminate\Support\Facades\View;
 
@@ -10,16 +11,16 @@ use Illuminate\Support\Facades\View;
  * Builds the mailData array for emails.templates.agreement-controller-universal
  * by rendering a Blade email and extracting its body inner HTML.
  *
- * Legacy full-page blades: extractHeadStyles() prepends head style tags so CSS is kept.
- * stripLegacyEmailChrome() removes .footer blocks and logo images inside .header to avoid
- * duplicating x-emails.base and the universal branch footer. Pass strip_legacy_chrome => false
- * to skip. Prefer fragment-only blades for new mail.
+ * Legacy full-page blades: extractHeadStyles() prepends head style tags.
+ * stripLegacyEmailChrome() removes duplicate chrome: .footer blocks, imgs inside .header,
+ * NGN logo / footer-logo images, and unwraps lone outer .container divs so content matches
+ * fragment-style mails. Pass strip_legacy_chrome => false to skip.
  */
 final class UniversalMailPayload
 {
     /**
      * @param  array<string, mixed>  $viewData
-     * @param  array<string, mixed>  $overrides  title, subject, url, customer, greetingName, strip_legacy_chrome, etc.
+     * @param  array<string, mixed>  $overrides  title, subject, greetingName, strip_legacy_chrome, etc.
      * @return array<string, mixed>
      */
     public static function fromLegacyEmailView(string $view, array $viewData, array $overrides = []): array
@@ -42,8 +43,6 @@ final class UniversalMailPayload
     }
 
     /**
-     * For Mailable::build() — returns the with[] array for agreement-controller-universal.
-     *
      * @param  array<string, mixed>  $viewData
      * @return array{mailData: array<string, mixed>}
      */
@@ -67,9 +66,6 @@ final class UniversalMailPayload
         return $html;
     }
 
-    /**
-     * Pull {@code <style>} blocks from the full document so legacy templates keep CSS when only the body is injected.
-     */
     public static function extractHeadStyles(string $html): string
     {
         if (! preg_match_all('/<style[^>]*>([\s\S]*?)<\/style>/i', $html, $matches)) {
@@ -83,9 +79,6 @@ final class UniversalMailPayload
         return $out;
     }
 
-    /**
-     * Remove .footer (duplicate branch/legal blocks) and logo images inside .header; keep headings in .header.
-     */
     public static function stripLegacyEmailChrome(string $html): string
     {
         $html = trim($html);
@@ -113,7 +106,23 @@ final class UniversalMailPayload
             }
         }
 
+        foreach ($xpath->query('//img') as $img) {
+            $src = strtolower((string) $img->getAttribute('src'));
+            $class = ' '.strtolower((string) $img->getAttribute('class')).' ';
+            $remove = str_contains($class, ' footer-logo ')
+                || str_contains($class, ' header-logo ')
+                || str_contains($src, 'ngn-motor-logo')
+                || str_contains($src, 'ngn_motor_logo');
+            if ($remove) {
+                $img->parentNode?->removeChild($img);
+            }
+        }
+
         $root = $dom->getElementById('email-fragment-root');
+        if ($root) {
+            self::unwrapLoneOuterContainers($root);
+        }
+
         if (! $root) {
             libxml_clear_errors();
             libxml_use_internal_errors($prev);
@@ -129,5 +138,41 @@ final class UniversalMailPayload
         libxml_use_internal_errors($prev);
 
         return trim($out);
+    }
+
+    /**
+     * Unwrap direct child div.container even when <style> siblings exist (head styles prepended).
+     */
+    private static function unwrapLoneOuterContainers(DOMElement $root): void
+    {
+        for ($i = 0; $i < 8; $i++) {
+            $container = null;
+            foreach ($root->childNodes as $n) {
+                if (! $n instanceof DOMElement) {
+                    continue;
+                }
+                if (strtolower($n->tagName) === 'style') {
+                    continue;
+                }
+                if (strtolower($n->tagName) !== 'div') {
+                    return;
+                }
+                $classes = preg_split('/\s+/', trim((string) $n->getAttribute('class'))) ?: [];
+                if (! in_array('container', $classes, true)) {
+                    return;
+                }
+                if ($container !== null) {
+                    return;
+                }
+                $container = $n;
+            }
+            if ($container === null) {
+                return;
+            }
+            while ($container->firstChild) {
+                $root->insertBefore($container->firstChild, $container);
+            }
+            $root->removeChild($container);
+        }
     }
 }

@@ -28,7 +28,7 @@
             margin: 10px auto;
             padding: 15px;
             margin-bottom: 0px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
@@ -61,7 +61,7 @@
         }
 
         .order-info {
-            background: #efeeee;
+            background-color: #c31924;
             padding: 10px;
             margin-bottom: 10px;
             border-radius: 0px;
@@ -87,7 +87,7 @@
         }
 
         .items-table th {
-            background-color: #f7f7f7;
+            background-color: #c31924;
             font-weight: 600;
         }
 
@@ -100,13 +100,13 @@
         .shipping-info {
             margin-top: 20px;
             padding: 15px;
-            background: #f7f7f7;
+            background: #c31924;
             border-radius: 0px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .footer {
-            background-color: #f8f8f8;
+            background-color: #c31924;
             padding: 20px;
             margin-top: 30px;
             border-top: 1px solid #e7e7e7;

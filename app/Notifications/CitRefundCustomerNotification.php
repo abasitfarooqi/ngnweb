@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\JudopayCitPaymentSession;
 use App\Models\JudopayPaymentSessionOutcome;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -68,16 +69,19 @@ class CitRefundCustomerNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject('Payment Refund Processed - NGN Motors')
-            ->view('livewire.agreements.migrated.emails.judopay.cit-refund-customer', [
-                'customer_name' => $customer->first_name ?? 'Customer',
-                'refund_amount' => $refundAmount,
-                'refund_receipt_id' => $refundReceiptId,
-                'refunded_at' => $this->refundOutcome->occurred_at->format('d F Y H:i'),
-                'contract_id' => $contractId,
-                'vrm' => $vrm,
-                'subscription_id' => $subscription->id,
-                'original_payment_date' => $this->originalOutcome->occurred_at->format('d F Y H:i'),
-            ]);
+            ->view(
+                'emails.templates.agreement-controller-universal',
+                UniversalMailPayload::wrap('livewire.agreements.migrated.emails.judopay.cit-refund-customer', [
+                    'customer_name' => $customer->first_name ?? 'Customer',
+                    'refund_amount' => $refundAmount,
+                    'refund_receipt_id' => $refundReceiptId,
+                    'refunded_at' => $this->refundOutcome->occurred_at->format('d F Y H:i'),
+                    'contract_id' => $contractId,
+                    'vrm' => $vrm,
+                    'subscription_id' => $subscription->id,
+                    'original_payment_date' => $this->originalOutcome->occurred_at->format('d F Y H:i'),
+                ], 'Payment Refund Processed - NGN Motors')
+            );
     }
 
     /**

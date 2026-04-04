@@ -27,7 +27,7 @@
             max-width: 600px;
             margin: 10px auto;
             padding: 15px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
@@ -48,7 +48,7 @@
         }
 
         .footer {
-            background-color: #f8f8f8;
+            background-color: #c31924;
             padding: 20px;
             margin-top: 30px;
             border-top: 1px solid #e7e7e7;

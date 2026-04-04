@@ -51,10 +51,25 @@ class CustomerVerifyEmailNotification extends Notification
         try {
             return (new MailMessage)
                 ->subject('Verify your email address - NGN Motors')
-                ->view('emails.ecommerce.verify-email', [
-                    'url' => $verificationUrl,
-                    'verificationUrl' => $verificationUrl,
-                    'customer' => $customer,
+                ->view('emails.templates.agreement-controller-universal', [
+                    'mailData' => [
+                        'title' => 'Verify your email address',
+                        'subject' => 'Verify your email address - NGN Motors',
+                        'greetingName' => trim((string) ($customer->first_name ?? 'there')),
+                        'introLines' => [
+                            'Thank you for creating your NGN Motors account.',
+                            'Please confirm your email address to activate your account and continue using all portal and store features.',
+                        ],
+                        'url' => $verificationUrl,
+                        'actionLabel' => 'Verify email address',
+                        'details' => [
+                            'Account Email' => (string) ($customer->email ?? ''),
+                            'Verification Link Expiry' => '60 minutes',
+                        ],
+                        'outroLines' => [
+                            'If you did not create this account, you can safely ignore this email.',
+                        ],
+                    ],
                 ]);
         } catch (\Exception $e) {
             Log::error('Error in toMail method', [

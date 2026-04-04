@@ -47,7 +47,10 @@ class ContactSubmission extends Mailable
                         'messageBody' => $this->messageBody,
                         'branchName' => $this->branchName,
                     ],
-                    ['title' => $subject],
+                    [
+                        'title' => $subject,
+                        'greetingName' => 'team',
+                    ],
                 ),
             ],
         );

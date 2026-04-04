@@ -28,7 +28,7 @@
             margin: 10px auto;
             padding: 15px;
             margin-bottom: 0px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
@@ -156,7 +156,7 @@
         <p>• <strong>Email:</strong> <a href="mailto:customerservice@neguinhomotors.co.uk">customerservice@neguinhomotors.co.uk</a></p>
         <p>• <strong>Website:</strong> <a href="https://neguinhomotors.co.uk">neguinhomotors.co.uk</a></p>
     </div>
-    <div class="footer" style="background-color: #f8f8f8; padding: 20px; margin-top: 30px; border-top: 1px solid  #e7e7e7;">
+    <div class="footer" style="background-color: #c31924; padding: 20px; margin-top: 30px; border-top: 1px solid  #e7e7e7;">
         <div class="footer-content" style="max-width: 600px; margin: 0 auto; text-align: center;">
             <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motor Logo" class="footer-logo" style="width: 120px; margin-bottom: 15px;">
             <p>Kind regards,</p>

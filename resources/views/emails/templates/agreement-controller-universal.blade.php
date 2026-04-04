@@ -2,7 +2,7 @@
     $mailData = is_array($mailData ?? null) ? $mailData : [];
     $rawTitle = trim((string) ($mailData['title'] ?? $mailData['subject'] ?? 'NGN Motors Update'));
     $rawBody = trim((string) ($mailData['body'] ?? ''));
-    $rawUrl = trim((string) ($mailData['url'] ?? ''));
+    $rawUrl = trim((string) ($mailData['url'] ?? $mailData['actionUrl'] ?? ''));
     $bodyHtml = trim((string) ($mailData['body_html'] ?? ''));
 
     if ($bodyHtml === '' && $rawBody !== '' && preg_match('/<[a-z][\s\S]*>/i', $rawBody)) {
@@ -20,7 +20,10 @@
     }
 
     $introLines = [];
-    if ($bodyHtml === '' && $rawBody !== '') {
+    if (isset($mailData['introLines']) && is_array($mailData['introLines'])) {
+        $introLines = array_values(array_filter(array_map('trim', $mailData['introLines']), fn ($line) => $line !== ''));
+    }
+    if ($bodyHtml === '' && $rawBody !== '' && $introLines === []) {
         $introLines = preg_split('/\r\n|\r|\n/', $rawBody) ?: [];
         $introLines = array_values(array_filter(array_map('trim', $introLines), fn ($line) => $line !== ''));
     }

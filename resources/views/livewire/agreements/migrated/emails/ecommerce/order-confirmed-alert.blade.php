@@ -28,7 +28,7 @@
             margin: 10px auto;
             padding: 15px;
             margin-bottom: 0px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
@@ -61,7 +61,7 @@
         }
 
         .order-info {
-            background: #efeeee;
+            background-color: #c31924;
             padding: 15px;
             margin-bottom: 15px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);

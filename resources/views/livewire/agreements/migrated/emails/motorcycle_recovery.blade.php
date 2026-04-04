@@ -62,7 +62,7 @@
 
         .detail-value {
             color: #333;
-            background: #fff;
+            background: #c31924;
             padding: 8px;
             border-radius: 4px;
             border: 1px solid #ddd;

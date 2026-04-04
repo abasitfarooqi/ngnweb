@@ -5,6 +5,7 @@ namespace App\Notifications;
 use App\Models\JudopayCitPaymentSession;
 use App\Models\JudopayPaymentSessionOutcome;
 use App\Models\User;
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -134,50 +135,52 @@ class CitRefundInternalNotification extends Notification implements ShouldQueue
 
         return (new MailMessage)
             ->subject($subject)
-            ->view('livewire.agreements.migrated.emails.judopay.cit-refund-internal', [
-                'recipient_email' => $recipientEmail,
-                'is_admin' => $isAdmin,
-                'refund_amount' => $refundAmount,
-                'original_amount' => $originalAmount,
-                'refund_receipt_id' => $refundReceiptId,
-                'original_receipt_id' => $originalReceiptId,
-                'refunded_at' => $isAdmin
-                    ? $this->refundOutcome->occurred_at->format('d/m/Y H:i:s')
-                    : $this->refundOutcome->occurred_at->format('d F Y H:i'),
-                'refunded_by_name' => $refundedByName,
-                'refunded_by_email' => $refundedByEmail,
-                'refunded_by_user_id' => $refundedById,
-                'customer_id' => $customer->id ?? 'N/A',
-                'customer_name' => $customerName,
-                'customer_email' => $customerEmail,
-                'customer_phone' => $customerPhone,
-                'contract_id' => $contractId,
-                'vrm' => $vrm,
-                'subscription_id' => $subscription->id,
-                'cit_session_id' => $this->citSession->id,
-                'service_type' => $subscription->subscribable_type === 'App\Models\RentingBooking' ? 'Rental' : 'Finance',
-                'original_payment_date' => $isAdmin
-                    ? $this->originalOutcome->occurred_at->format('d/m/Y H:i:s')
-                    : $this->originalOutcome->occurred_at->format('d F Y H:i'),
-                'subscription_url' => route('page.judopay.subscribe', $subscription->id),
-                // CRITICAL DETAILS - Only for admin
-                'card_last_four' => $cardLastFour,
-                'card_funding' => $cardFunding,
-                'card_category' => $cardCategory,
-                'card_country' => $cardCountry,
-                'issuing_bank' => $issuingBank,
-                'acquirer_transaction_id' => $acquirerTransactionId,
-                'payment_network_transaction_id' => $paymentNetworkTransactionId,
-                'risk_score' => $riskScore,
-                'external_bank_response_code' => $externalBankResponseCode,
-                'bank_response_category' => $bankResponseCategory,
-                'net_amount' => $netAmount,
-                'amount_collected' => $amountCollected,
-                'merchant_name' => $merchantName,
-                'judo_id' => $judoId,
-                'payment_reference' => $paymentReference,
-                'consumer_reference' => $consumerReference,
-            ]);
+            ->view(
+                'emails.templates.agreement-controller-universal',
+                UniversalMailPayload::wrap('livewire.agreements.migrated.emails.judopay.cit-refund-internal', [
+                    'recipient_email' => $recipientEmail,
+                    'is_admin' => $isAdmin,
+                    'refund_amount' => $refundAmount,
+                    'original_amount' => $originalAmount,
+                    'refund_receipt_id' => $refundReceiptId,
+                    'original_receipt_id' => $originalReceiptId,
+                    'refunded_at' => $isAdmin
+                        ? $this->refundOutcome->occurred_at->format('d/m/Y H:i:s')
+                        : $this->refundOutcome->occurred_at->format('d F Y H:i'),
+                    'refunded_by_name' => $refundedByName,
+                    'refunded_by_email' => $refundedByEmail,
+                    'refunded_by_user_id' => $refundedById,
+                    'customer_id' => $customer->id ?? 'N/A',
+                    'customer_name' => $customerName,
+                    'customer_email' => $customerEmail,
+                    'customer_phone' => $customerPhone,
+                    'contract_id' => $contractId,
+                    'vrm' => $vrm,
+                    'subscription_id' => $subscription->id,
+                    'cit_session_id' => $this->citSession->id,
+                    'service_type' => $subscription->subscribable_type === 'App\Models\RentingBooking' ? 'Rental' : 'Finance',
+                    'original_payment_date' => $isAdmin
+                        ? $this->originalOutcome->occurred_at->format('d/m/Y H:i:s')
+                        : $this->originalOutcome->occurred_at->format('d F Y H:i'),
+                    'subscription_url' => route('page.judopay.subscribe', $subscription->id),
+                    'card_last_four' => $cardLastFour,
+                    'card_funding' => $cardFunding,
+                    'card_category' => $cardCategory,
+                    'card_country' => $cardCountry,
+                    'issuing_bank' => $issuingBank,
+                    'acquirer_transaction_id' => $acquirerTransactionId,
+                    'payment_network_transaction_id' => $paymentNetworkTransactionId,
+                    'risk_score' => $riskScore,
+                    'external_bank_response_code' => $externalBankResponseCode,
+                    'bank_response_category' => $bankResponseCategory,
+                    'net_amount' => $netAmount,
+                    'amount_collected' => $amountCollected,
+                    'merchant_name' => $merchantName,
+                    'judo_id' => $judoId,
+                    'payment_reference' => $paymentReference,
+                    'consumer_reference' => $consumerReference,
+                ], $subject)
+            );
     }
 
     /**

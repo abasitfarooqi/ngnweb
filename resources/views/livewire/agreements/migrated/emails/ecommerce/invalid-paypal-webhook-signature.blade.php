@@ -34,7 +34,7 @@
             margin: 10px auto;
             padding: 15px;
             margin-bottom: 0px;
-            background-color: #f8f8f8;
+            background-color: #c31924;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-bottom-left-radius: 0px;
             border-bottom-right-radius: 0px;
