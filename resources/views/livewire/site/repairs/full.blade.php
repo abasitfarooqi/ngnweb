@@ -1,56 +1,85 @@
 <div>
-{{-- Hero --}}
-<div class="bg-gray-900 text-white py-16 relative overflow-hidden">
-    <img src="{{ asset('images/full-service.jpg') }}" alt="Full Service" class="absolute inset-0 w-full h-full object-cover opacity-20">
+<div class="relative bg-gray-900 text-white py-14 md:py-20 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-red/25"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-lg">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">Full Service</h1>
-            <p class="text-xl text-gray-300 mb-4">Comprehensive care package</p>
-            <div class="text-5xl font-bold text-brand-red mb-6">From £150</div>
-            <flux:button href="/contact/service-booking" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Book Now</flux:button>
-        </div>
+        <h1 class="text-3xl md:text-5xl font-bold mb-4">Full (Major) Motorcycle Service</h1>
+        <nav class="text-sm text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap gap-2 list-none p-0 m-0">
+                <li><a href="{{ route('site.home') }}" class="hover:text-white font-semibold underline-offset-2">Home Page</a></li>
+                <li aria-hidden="true">/</li>
+                <li><a href="{{ route('site.repairs.comparison') }}" class="hover:text-white font-semibold underline-offset-2">Compare Services</a></li>
+                <li aria-hidden="true">/</li>
+                <li><span class="text-gray-300 font-semibold">Full Motorcycle Service</span></li>
+            </ol>
+        </nav>
     </div>
 </div>
 
-{{-- What's Included --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-    <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-12 text-center">What's Included</h2>
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
+    <flux:callout variant="info" icon="information-circle" class="mb-10">
+        <flux:callout.text>Our Major Service package provides comprehensive maintenance and inspection of all critical motorcycle systems for optimal performance and safety.</flux:callout.text>
+    </flux:callout>
+
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         @foreach([
-            ['title' => 'Full Engine Service',       'items' => ['Engine oil change (premium grade)', 'Oil filter replacement', 'Air filter replacement', 'Spark plug inspection/replacement', 'Fuel system cleaning']],
-            ['title' => 'Transmission & Drive',      'items' => ['Chain clean, adjust & lubricate', 'Sprocket inspection', 'Clutch adjustment', 'Gearbox oil check', 'Drive system inspection']],
-            ['title' => 'Braking System',            'items' => ['Brake fluid check/top-up', 'Brake pad inspection', 'Disc condition check', 'Calliper operation test', 'Brake line inspection']],
-            ['title' => 'Suspension & Steering',     'items' => ['Fork seal inspection', 'Shock absorber check', 'Steering head bearings', 'Wheel bearings check', 'Suspension settings']],
-            ['title' => 'Electrical System',         'items' => ['Battery test & charge check', 'All lights & indicators', 'Horn operation', 'Wiring inspection', 'Charging system test']],
-            ['title' => 'Safety & Extras',           'items' => ['Full safety inspection', 'Tyre pressure & condition', 'Coolant level check', 'Throttle cable adjustment', 'Complete road test']],
-        ] as $section)
-            <flux:card class="p-6">
-                <h3 class="font-bold text-gray-900 dark:text-white mb-3 flex items-center gap-2">
-                    <flux:icon name="check-badge" class="h-5 w-5 text-brand-red" />
-                    {{ $section['title'] }}
-                </h3>
-                <ul class="space-y-1.5 text-sm text-gray-700 dark:text-gray-300">
-                    @foreach($section['items'] as $item)
-                        <li class="flex items-center gap-2">
-                            <flux:icon name="check" class="h-3.5 w-3.5 text-green-500 flex-shrink-0" />
-                            {{ $item }}
+            ['title' => 'Engine', 'items' => ['Oil & Filter Change', 'Air Filter Check/Replacement', 'Spark Plug Inspection', 'Fuel System Check']],
+            ['title' => 'Transmission & Drive', 'items' => ['Chain/Belt Maintenance', 'Gearbox Oil Check', 'Clutch Adjustment']],
+            ['title' => 'Brakes', 'items' => ['Brake Pads/Discs Inspection', 'Brake Fluid Check/Replace', 'Brake Caliper Service']],
+            ['title' => 'Suspension & Steering', 'items' => ['Fork Oil Service', 'Steering Head Bearings', 'Shock Absorber Inspection']],
+            ['title' => 'Electrical System', 'items' => ['Battery Health Check', 'Lighting System Test', 'Charging System Check', 'Wiring Inspection']],
+            ['title' => 'Wheels & Tires', 'items' => ['Tire Condition Check', 'Wheel Bearing Inspection', 'Wheel Alignment & Balance']],
+        ] as $block)
+            <flux:card class="p-6 h-full border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow duration-300">
+                <h3 class="text-lg font-bold text-brand-red mb-4">{{ $block['title'] }}</h3>
+                <ul class="list-none p-0 m-0 text-sm text-gray-700 dark:text-gray-300 space-y-2.5">
+                    @foreach($block['items'] as $line)
+                        <li class="flex gap-2 items-start">
+                            <flux:icon name="check-circle" class="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
+                            <span class="font-semibold leading-snug">{{ $line }}</span>
                         </li>
                     @endforeach
                 </ul>
             </flux:card>
         @endforeach
     </div>
-</div>
 
-{{-- Compare Services CTA --}}
-<div class="bg-gray-50 dark:bg-gray-800 py-12">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Not sure which service you need?</h2>
-        <p class="text-lg text-gray-700 dark:text-gray-300 mb-6">Compare our service packages to find the right one for your bike</p>
-        <div class="flex flex-col sm:flex-row gap-3 justify-center">
-            <flux:button href="/motorbike-service-comparison" variant="outline">Compare Services</flux:button>
-            <flux:button href="/contact/service-booking" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Book Full Service</flux:button>
+    {{-- Additional Services (legacy copy) --}}
+    <flux:card class="mt-10 p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-800/80 text-center">
+        <h3 class="text-xl font-bold text-brand-red mb-6">Additional Services</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-left md:text-center">
+            <ul class="list-none p-0 m-0 font-semibold text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                <li>Valve Clearance Adjustment</li>
+                <li>Software Updates</li>
+            </ul>
+            <ul class="list-none p-0 m-0 font-semibold text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                <li>Cooling System Service</li>
+                <li>Fuel System Cleaning</li>
+            </ul>
+            <ul class="list-none p-0 m-0 font-semibold text-sm text-gray-700 dark:text-gray-300 space-y-2">
+                <li>Cable Adjustment</li>
+                <li>Test Ride</li>
+            </ul>
         </div>
+    </flux:card>
+
+    <div class="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
+        <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Full Service']) }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark justify-center">
+            Book your full service
+        </flux:button>
+        <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" class="justify-center border-slate-300 dark:border-gray-600">
+            Compare service packages
+        </flux:button>
+        <flux:button href="{{ route('site.repairs') }}" variant="outline" class="justify-center border-slate-300 dark:border-gray-600">
+            Repairs hub
+        </flux:button>
+        <flux:button href="{{ route('all-services') }}" variant="outline" class="justify-center border-slate-300 dark:border-gray-600">
+            All services
+        </flux:button>
     </div>
+
+    <x-site.repairs.branches-cta-dark
+        heading="Book your full service today"
+        intro="Keep your motorcycle performing at its best with our comprehensive full (major) service package."
+    />
 </div>
 </div>

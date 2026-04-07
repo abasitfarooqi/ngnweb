@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\AccidentManagement;
 use App\Mail\BookingConfirmation;
 use App\Mail\BookingInternal;
+use App\Mail\ContactSubmission;
 use App\Mail\ContactUs;
 use App\Models\ServiceBooking;
 use Illuminate\Http\RedirectResponse;
@@ -44,7 +45,7 @@ class MailController extends Controller
             'email' => trim((string) ($data['email'] ?? '')) ?: null,
         ]);
 
-        $this->sendBookingConfirmation($booking);
+        $this->sendBookingConfirmation($booking, internalUseContactSubmission: true);
 
         return redirect()->back()->with('success', 'Your enquiry has been sent successfully.');
     }
@@ -78,18 +79,35 @@ class MailController extends Controller
     }
 
     // New method for sending booking confirmation emails
-    public function sendBookingConfirmation($booking): void
+    public function sendBookingConfirmation($booking, bool $internalUseContactSubmission = false): void
     {
-        // if (app()->environment('production')) {
-        // Send client-facing confirmation to the customer (if provided)
         if (! empty($booking->email)) {
             Mail::to($booking->email)
                 ->send(new BookingConfirmation($booking));
         }
 
-        // Send internal notification to NGN team
-        Mail::to('customerservice@neguinhomotors.co.uk')
-            ->send(new BookingInternal($booking));
-        // }
+        $inbox = config('mail.contact_inbox', 'customerservice@neguinhomotors.co.uk');
+
+        if ($internalUseContactSubmission) {
+            $topic = trim((string) $booking->subject);
+            $desc = (string) $booking->description;
+            $messageBody = str_starts_with($desc, $topic.' | ')
+                ? substr($desc, strlen($topic) + 3)
+                : $desc;
+            $replyEmail = trim((string) ($booking->email ?? '')) ?: (string) config('mail.from.address');
+
+            Mail::to($inbox)->send(new ContactSubmission(
+                senderName: trim((string) $booking->fullname),
+                senderEmail: $replyEmail,
+                phone: trim((string) $booking->phone),
+                topic: $topic !== '' ? $topic : 'Website enquiry',
+                messageBody: trim($messageBody) !== '' ? trim($messageBody) : $desc,
+                branchName: '',
+            ));
+
+            return;
+        }
+
+        Mail::to($inbox)->send(new BookingInternal($booking));
     }
 }

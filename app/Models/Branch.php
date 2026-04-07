@@ -24,6 +24,11 @@ class Branch extends Model
         return $this->hasMany(NgnStockMovement::class, 'branch_id');
     }
 
+    public function spStockMovements()
+    {
+        return $this->hasMany(SpStockMovement::class, 'branch_id');
+    }
+
     public function appointments()
     {
         return $this->hasMany(MOTBooking::class);

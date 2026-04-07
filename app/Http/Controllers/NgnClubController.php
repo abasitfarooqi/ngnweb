@@ -27,26 +27,6 @@ use Illuminate\Support\Facades\Validator;
 
 class NgnClubController extends Controller
 {
-    private function normaliseEmail(?string $email): string
-    {
-        return strtolower(trim((string) $email));
-    }
-
-    private function normalisePhone(?string $phone): string
-    {
-        $normalised = preg_replace('/\s+/', '', trim((string) $phone));
-
-        return (string) preg_replace('/^\+44/', '0', $normalised);
-    }
-
-    private function findStrictCustomerMatch(string $email, string $phone): ?\App\Models\Customer
-    {
-        return \App\Models\Customer::query()
-            ->whereRaw('LOWER(TRIM(email)) = ?', [$this->normaliseEmail($email)])
-            ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$this->normalisePhone($phone)])
-            ->first();
-    }
-
     /**
      * Route: POST /api/club-member-purchases (auth: sanctum)
      */
@@ -1178,11 +1158,11 @@ class NgnClubController extends Controller
             $total_credit = round($total_credit + $available, 2);
 
             // Backend check: 16 hours (actual redemption eligibility)
-            if ($purchase->date <= $now->copy()->subHours(24)) {
+            if ($purchase->date <= $now->copy()->subHours(20)) {
                 // This purchase IS eligible for redemption NOW
                 $redeemable_credit = round($redeemable_credit + $available, 2);
             } else {
-                // Calculate DISPLAY time (19 hours) for safety margin
+                // Calculate DISPLAY time (20 hours) for safety margin
                 $purchaseRedeemableTime = Carbon::parse($purchase->date)->addHours(24);
 
                 // Store all pending purchases with their unlock times
@@ -1195,7 +1175,7 @@ class NgnClubController extends Controller
             }
         }
 
-        // Calculate time left message (uses 19-hour display for safety)
+        // Calculate time left message (uses 20-hour display for safety)
         if ($redeemable_credit > 0) {
             if (! empty($pendingPurchases)) {
                 // Sort pending purchases by unlock time
@@ -1346,7 +1326,7 @@ class NgnClubController extends Controller
         $eligiblePurchases = ClubMemberPurchase::where('club_member_id', $clubMember->id)
             ->where('is_redeemed', false)
             ->where('date', '>=', $expiryCutoff)
-            ->where('date', '<=', $now->copy()->subHours(22))
+            ->where('date', '<=', $now->copy()->subHours(20))
             ->orderBy('date', 'asc')
             ->get();
 
@@ -1606,7 +1586,7 @@ class NgnClubController extends Controller
         }
 
         // Step 4: Return the subscribe view with referral data
-        return view('livewire.agreements.migrated.frontend.ngnclub.subscribe', [
+        return view('frontend.ngnclub.subscribe', [
             'referralAccepted' => $referralAccepted,
             'referrerId' => $referrerId,
             'referralCode' => $referralCode,
@@ -1776,9 +1756,9 @@ class NgnClubController extends Controller
         }
 
         try {
-            // 2. Normalize identity values
-            $phone = $this->normalisePhone($request->phone);
-            $email = $this->normaliseEmail($request->email);
+            // 2. Normalize phone number
+            $phone = preg_replace('/^\+44/', '0', $request->phone);
+            $phone = preg_replace('/\s+/', '', $phone);
 
             // 3. Check if phone number exists
             if (ClubMember::where('phone', $phone)->exists()) {
@@ -1789,30 +1769,11 @@ class NgnClubController extends Controller
             }
 
             // 4. Check if email exists
-            if (ClubMember::whereRaw('LOWER(TRIM(email)) = ?', [$email])->exists()) {
+            if (ClubMember::where('email', $request->email)->exists()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Email is already registered',
                 ], 400);
-            }
-
-            $customerByEmail = \App\Models\Customer::query()
-                ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
-                ->first();
-            $customerByPhone = \App\Models\Customer::query()
-                ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])
-                ->first();
-            if (($customerByEmail && ! $customerByPhone) || (! $customerByEmail && $customerByPhone)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'For existing customers, email and phone must both match before club signup.',
-                ], 422);
-            }
-            if ($customerByEmail && $customerByPhone && (int) $customerByEmail->id !== (int) $customerByPhone->id) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Email and phone belong to different customer records.',
-                ], 422);
             }
 
             // 5. Generate OTP
@@ -1822,7 +1783,7 @@ class NgnClubController extends Controller
             $registrationData = [
                 'user_id' => $user->id,
                 'full_name' => $request->full_name,
-                'email' => $email,
+                'email' => $request->email,
                 'phone' => $phone,
                 'tc_agreed' => $request->tc_agreed,
                 'otp' => Hash::make($otpCode),
@@ -1967,12 +1928,7 @@ class NgnClubController extends Controller
                 'passkey' => $passcode,
                 'is_verified' => true,
                 'user_id' => $user->id,
-                'customer_id' => $this->findStrictCustomerMatch($registrationData['email'], $phone)?->id,
             ]);
-
-            if ($clubMember->customer_id) {
-                \App\Models\Customer::where('id', $clubMember->customer_id)->update(['is_club' => true]);
-            }
 
             // 8. Send login credentials via SMS
             $smsController = new SMSController;
@@ -2111,29 +2067,10 @@ class NgnClubController extends Controller
 
         // Normalize and validate the phone number
         $phone = $request->input('phone');
-        $phone = $this->normalisePhone($phone);
-        $email = $this->normaliseEmail($request->email);
+        $phone = preg_replace('/^\+44/', '0', $phone); // Replace +44 with 0
+        $phone = preg_replace('/\s+/', '', $phone); // Remove spaces
 
         Log::info('Normalized Phone: '.$phone);
-
-        $customerByEmail = \App\Models\Customer::query()
-            ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
-            ->first();
-        $customerByPhone = \App\Models\Customer::query()
-            ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])
-            ->first();
-        if (($customerByEmail && ! $customerByPhone) || (! $customerByEmail && $customerByPhone)) {
-            return response()->json([
-                'success' => false,
-                'message' => 'For existing customers, email and phone must both match before club signup.',
-            ], 422);
-        }
-        if ($customerByEmail && $customerByPhone && (int) $customerByEmail->id !== (int) $customerByPhone->id) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Email and phone belong to different customer records.',
-            ], 422);
-        }
 
         // Verification Checks
         Log::info('Starting verification checks.');
@@ -2245,25 +2182,18 @@ class NgnClubController extends Controller
             Log::info('Creating ClubMember...');
 
             // Create the new club member
-            $customer = $this->findStrictCustomerMatch($email, $phone);
             $clubMember = ClubMember::create([
                 'full_name' => $request->full_name,
-                'email' => $email,
+                'email' => $request->email,
                 'phone' => $phone,
                 'tc_agreed' => 1,
                 'passkey' => $passcode,
-                'customer_id' => $customer?->id,
                 // Add vehicle details
                 'make' => $request->filled('make') ? strtoupper($request->make) : null,
                 'model' => $request->filled('model') ? strtoupper($request->model) : null,
                 'year' => $request->filled('year') ? $request->year : null,
                 'vrm' => $request->filled('vrm') ? strtoupper($request->vrm) : null,
             ]);
-
-            if ($customer) {
-                $customer->is_club = true;
-                $customer->save();
-            }
 
             Log::info('ClubMember created with ID: '.$clubMember->id);
 
@@ -2333,24 +2263,76 @@ class NgnClubController extends Controller
     {
         \Log::info('resetPasskey called: ', [$request->all()]);
 
+        // Validate phone and verification code (passkey is not yet required at this step)
         $request->validate([
-            'phone' => 'required|string|max:25',
+            'phone' => 'required|string|max:15',
             'verification_code' => 'required|digits:6',
         ]);
 
-        $result = app(\App\Services\Club\ClubPasskeyResetService::class)
-            ->resetPasskeyWithCode((string) $request->input('verification_code'), (string) $request->input('phone'));
+        $phone = $request->input('phone');
 
-        if ($result['success']) {
-            $phone = $result['phone'] ?? null;
-            if (is_string($phone) && $phone !== '') {
-                return redirect()->route('ngnclub.login', ['phone' => $phone])->with('success', $result['message']);
-            }
+        $phone = preg_replace('/^\+44/', '0', $phone);
 
-            return redirect()->route('ngnclub.login')->with('success', $result['message']);
+        $phone = preg_replace('/\s+/', '', $phone);
+
+        // Check if session has verification data
+        if (! session()->has('verification_code') || ! session()->has('verification_code_expires_at') || ! session()->has('verification_phone')) {
+            return redirect()->back()->withErrors(['error' => 'Verification code not found. Please request a new code.']);
         }
 
-        return redirect()->back()->withInput()->withErrors(['error' => $result['message']]);
+        // Check if verification code expired
+        if (Carbon::now()->greaterThan(session('verification_code_expires_at'))) {
+            session()->forget(['verification_code', 'verification_code_expires_at', 'verification_phone']);
+
+            return redirect()->back()->withErrors(['error' => 'Verification code has expired. Please request a new code.']);
+        }
+
+        // Ensure the phone number matches the one used for the verification code
+        if ($phone !== session('verification_phone')) {
+            return redirect()->back()->withErrors(['error' => 'Phone number does not match the one used to receive the verification code.']);
+        }
+
+        // Check if the verification code matches the one in the session
+        if (! Hash::check($request->verification_code, session('verification_code'))) {
+            // Instead of asking for phone number again, we pass it back to the view
+            return redirect()->back()->withInput()->withErrors(['error' => 'Invalid verification code. Please try again.']);
+        }
+
+        // Clear the verification session data after a successful verification
+        session()->forget(['verification_code', 'verification_code_expires_at', 'verification_phone']);
+
+        $newPasskey = rand(100000, 999999);
+
+        $clubMember = ClubMember::where('phone', $phone)->first();
+
+        if ($clubMember) {
+            $clubMember->update(['passkey' => $newPasskey]);
+            \Log::info('ClubMember updated with new passkey: ', [$clubMember]);
+
+            try {
+                $smsController = new SMSController;
+                $smsMessage = "Your NGN Club Login Details:\n\n"
+                    ."Phone: \n".$phone."\n"
+                    ."Password: \n".$newPasskey."\n\n"
+                    .'Login Link: https://neguinhomotors.co.uk/ngn-club/subscribe?phone='.$phone;
+
+                \Log::info('SMS Message: '.$smsMessage);
+
+                $smsResponse = $smsController->sendSms($phone, $smsMessage);
+
+                if (isset($smsResponse['success']) && $smsResponse['success']) {
+                    return redirect()->route('ngnclub.subscribe')->with('success', 'Passkey reset successfully. New Login details sent on phone and email.');
+                } else {
+                    return redirect()->back()->withErrors(['error' => $smsResponse['message'] ?? 'Failed to send the new passkey. Please try again.']);
+                }
+            } catch (\Exception $e) {
+                Log::error('SMS Sending Error: '.$e->getMessage());
+
+                return redirect()->back()->withErrors(['error' => 'An error occurred while sending the new passkey.']);
+            }
+        } else {
+            return redirect()->back()->withErrors(['error' => 'Member not found.']);
+        }
     }
 
     /**
@@ -2400,7 +2382,7 @@ class NgnClubController extends Controller
         $eligiblePurchases = ClubMemberPurchase::where('club_member_id', $clubMember->id)
             ->where('is_redeemed', false)
             ->where('date', '>=', $expiryCutoff)
-            ->where('date', '<=', $now->copy()->subHours(22))
+            ->where('date', '<=', $now->copy()->subHours(20))
             ->orderBy('date', 'asc')
             ->get();
 
@@ -2818,7 +2800,7 @@ class NgnClubController extends Controller
      */
     public function showTermsPage()
     {
-        return view('livewire.agreements.migrated.frontend.ngnclub.terms');
+        return view('frontend.ngnclub.terms');
     }
 
     /**
@@ -2854,7 +2836,37 @@ class NgnClubController extends Controller
 
         $purchases = ClubMemberPurchase::where('club_member_id', $clubMember->id)->orderBy('id', 'desc')->get();
         $redemptions = ClubMemberRedeem::where('club_member_id', $clubMember->id)->orderBy('id', 'desc')->get(); // Fetch redemptions
-        $spendings = ClubMemberSpending::where('club_member_id', $clubMember->id)->orderBy('id', 'desc')->get(); // Fetch spendings
+        $spendings = ClubMemberSpending::query()
+            ->where('club_member_id', $clubMember->id)
+            ->with(['payments' => function ($q) {
+                $q->orderBy('date', 'asc');
+            }])
+            ->orderBy('id', 'desc')
+            ->get();
+
+        $spendingTotalAmount = (float) $spendings->sum('total');
+        $spendingTotalPaid = (float) $spendings->sum(fn ($s) => (float) ($s->paid_amount ?? 0));
+        $spendingTotalUnpaid = $spendings->sum(function ($s) {
+            $t = (float) $s->total;
+            $p = (float) ($s->paid_amount ?? 0);
+
+            return max(0, round($t - $p, 2));
+        });
+        $spendingFullyPaidCount = 0;
+        $spendingPartialCount = 0;
+        $spendingUnpaidCount = 0;
+        foreach ($spendings as $s) {
+            $t = (float) $s->total;
+            $p = (float) ($s->paid_amount ?? 0);
+            $unpaid = max(0, round($t - $p, 2));
+            if ($s->is_paid || $unpaid <= 0.01) {
+                $spendingFullyPaidCount++;
+            } elseif ($p > 0.01) {
+                $spendingPartialCount++;
+            } else {
+                $spendingUnpaidCount++;
+            }
+        }
 
         $qualified_referal = false;
 
@@ -2905,7 +2917,24 @@ class NgnClubController extends Controller
         });
         $transactions = $purchaseRows->concat($redemptionRows)->sortByDesc('date')->values();
 
-        return view('livewire.agreements.migrated.frontend.ngnclub.dashboard', compact('clubMember', 'purchases', 'redemptions', 'spendings', 'total_reward', 'total_redeemed', 'total_not_redeemed', 'qualified_referal', 'referrals', 'transactions'));
+        return view('frontend.ngnclub.dashboard', compact(
+            'clubMember',
+            'purchases',
+            'redemptions',
+            'spendings',
+            'spendingTotalAmount',
+            'spendingTotalPaid',
+            'spendingTotalUnpaid',
+            'spendingFullyPaidCount',
+            'spendingPartialCount',
+            'spendingUnpaidCount',
+            'total_reward',
+            'total_redeemed',
+            'total_not_redeemed',
+            'qualified_referal',
+            'referrals',
+            'transactions'
+        ));
     }
 
     public function estimate(Request $request)
@@ -3096,7 +3125,7 @@ class NgnClubController extends Controller
             $qualified_referal = false;
         }
 
-        return view('livewire.agreements.migrated.frontend.ngnclub.referral', compact('clubMember', 'purchases', 'qualified_referal'));
+        return view('frontend.ngnclub.referral', compact('clubMember', 'purchases', 'qualified_referal'));
     }
 
     /**
@@ -3276,8 +3305,13 @@ class NgnClubController extends Controller
      *
      * @return \Illuminate\View\View
      */
+    public function showForgotPage()
+    {
+        return view('frontend.ngnclub.forgot');
+    }
+
     /**
-     * Send the forgot verification code (JSON; supports legacy `phone` or `identifier` for phone/email).
+     * Send the forgot verification code
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -3285,20 +3319,53 @@ class NgnClubController extends Controller
     {
         Log::info('sendForgotVerificationCode called: ', [$request->all()]);
 
-        $identifier = trim((string) $request->input('identifier', $request->input('phone', '')));
-        if ($identifier === '') {
+        $request->validate([
+            'phone' => 'required|string|max:15',
+        ]);
+
+        $phone = $request->input('phone');
+
+        $phone = preg_replace('/^\+44/', '0', $phone);
+
+        $phone = preg_replace('/\s+/', '', $phone);
+
+        Log::info('Normalized Phone: '.$phone);
+
+        if (! ClubMember::where('phone', $phone)->exists()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please enter your phone number or email address.',
+                'message' => 'This phone number is not registered.',
             ]);
         }
 
-        $result = app(\App\Services\Club\ClubPasskeyResetService::class)->sendVerificationCodeForIdentifier($identifier);
+        $verificationCode = rand(100000, 999999);
 
-        return response()->json([
-            'success' => $result['success'],
-            'message' => $result['message'] ?? '',
+        session([
+            'verification_code' => Hash::make($verificationCode),
+            'verification_code_expires_at' => Carbon::now()->addMinutes(10),
+            'verification_phone' => $phone,
         ]);
+
+        try {
+            $smsController = new SMSController;
+            $smsResponse = $smsController->sendSms($phone, 'Your NGN Club reset code is: '.$verificationCode);
+
+            if (isset($smsResponse['success']) && $smsResponse['success']) {
+                return response()->json(['success' => true]);
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => $smsResponse['message'] ?? 'Failed to send verification code. Please try again.',
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('SMS Sending Error: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred while sending the verification code.',
+            ]);
+        }
     }
 
     /**

@@ -22,82 +22,46 @@
                 >
                     Book Now
                 </flux:button>
-                <flux:button href="/locations" variant="outline" size="base" class="border-white text-white hover:bg-white hover:text-gray-900">
-                    Find Your Branch
+                <flux:button href="#locations" variant="outline" size="base" class="border-white text-white hover:bg-white hover:text-gray-900">
+                    Find your branch
                 </flux:button>
             </div>
         </div>
     </div>
 </div>
 
-{{-- Main Services Grid --}}
+@include('livewire.site.home.partials.mot-recovery-club')
+@include('livewire.site.home.partials.ebikes-home')
+
+{{-- Quick links: avoids duplicating recovery / club / rentals / MOT tiles above --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-        <a href="/bikes" class="md:col-span-2 lg:col-span-2 relative group overflow-hidden h-80 block">
-            <img src="{{ asset('images/for-sale.jpg') }}" alt="Motorcycles For Sale" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-            <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-all"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-4">
-                <h2 class="text-3xl md:text-4xl font-bold mb-2">MOTORCYCLES FOR SALE</h2>
-                <p class="text-gray-200 text-sm">New & used | Finance available</p>
-            </div>
-        </a>
-
-        <a href="/club" class="relative group overflow-hidden h-80 block">
-            <img src="{{ asset('images/ngn-club.jpg') }}" alt="NGN Club" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
-            <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-all"></div>
-            <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-4">
-                <span class="text-amber-400 text-2xl mb-2">★</span>
-                <h2 class="text-2xl md:text-3xl font-bold">JOIN NGN CLUB</h2>
-                <p class="text-gray-200 text-sm mt-1">Exclusive rewards & discounts</p>
-            </div>
-        </a>
-
+    <a href="{{ route('site.bikes') }}" class="relative group block overflow-hidden h-64 md:h-72 mb-4">
+        <img src="{{ asset('images/for-sale.jpg') }}" alt="Motorcycles for sale" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
+        <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-all"></div>
+        <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-4">
+            <h2 class="text-3xl md:text-4xl font-bold mb-2">MOTORCYCLES FOR SALE</h2>
+            <p class="text-gray-200 text-sm">New & used · Finance available</p>
+        </div>
+    </a>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         @foreach([
-            ['url'=>'/rentals',  'img'=>'rentals.jpg',    'title'=>'RENTALS',       'sub'=>'From £80/week · 125cc · CBT friendly'],
-            ['url'=>'/motorcycle-delivery', 'img'=>'recovery.jpg',   'title'=>'FREE RECOVERY', 'sub'=>'24/7 breakdown assistance'],
-            ['url'=>'/shop',     'img'=>'spare-parts.jpg','title'=>'SPARE PARTS',   'sub'=>'Honda & Yamaha parts'],
-            ['url'=>'/repairs',  'img'=>'services.jpg',   'title'=>'ALL SERVICES',  'sub'=>'Repairs, servicing & more'],
-            ['url'=>'/mot',      'img'=>'mot.jpg',        'title'=>'MOT TESTING',   'sub'=>'From £29.65'],
-            ['url'=>'/finance',  'img'=>'finance.jpg',    'title'=>'FINANCE',       'sub'=>'Flexible payment plans'],
+            ['url' => route('shop.home'), 'img' => 'spare-parts.jpg', 'title' => 'SPARE PARTS', 'sub' => 'Honda & Yamaha parts'],
+            ['url' => route('site.repairs'), 'img' => 'services.jpg', 'title' => 'ALL SERVICES', 'sub' => 'Repairs, servicing & more'],
+            ['url' => route('site.finance'), 'img' => 'finance.jpg', 'title' => 'FINANCE', 'sub' => 'Flexible payment plans'],
         ] as $box)
-            <a href="{{ $box['url'] }}" class="relative group overflow-hidden h-56 block">
+            <a href="{{ $box['url'] }}" class="relative group overflow-hidden h-52 block">
                 <img src="{{ asset('images/' . $box['img']) }}" alt="{{ $box['title'] }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
                 <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-all"></div>
                 <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-4">
-                    <h2 class="text-xl md:text-2xl font-bold mb-1">{{ $box['title'] }}</h2>
+                    <h2 class="text-lg md:text-xl font-bold mb-1">{{ $box['title'] }}</h2>
                     <p class="text-gray-300 text-xs">{{ $box['sub'] }}</p>
                 </div>
             </a>
         @endforeach
-
     </div>
 </div>
 
-{{-- The NGN Advantage --}}
-<div class="bg-gray-50 dark:bg-gray-900 py-16 border-t border-gray-100 dark:border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center mb-10">
-            <h2 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white">The NGN Advantage</h2>
-            <p class="mt-2 text-gray-500 dark:text-gray-400 text-sm">Why thousands of London riders choose us</p>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            @foreach([
-                ['icon'=>'check-badge', 'title'=>'Unmatched Customer Support', 'text'=>'Exceptional service across all three London branches. Our team goes the extra mile for every rider.'],
-                ['icon'=>'wrench-screwdriver', 'title'=>'Quality Assurance', 'text'=>'Only the best parts and latest technology. Every motorcycle leaves in peak condition.'],
-                ['icon'=>'clock', 'title'=>'Convenience & Flexibility', 'text'=>'Flexible rental periods, on-site repairs and delivery options to fit your schedule.'],
-            ] as $item)
-                <div>
-                    <div class="w-14 h-14 bg-brand-red flex items-center justify-center mx-auto mb-4">
-                        <flux:icon name="{{ $item['icon'] }}" class="h-7 w-7 text-white" />
-                    </div>
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ $item['title'] }}</h3>
-                    <p class="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">{{ $item['text'] }}</p>
-                </div>
-            @endforeach
-        </div>
-    </div>
-</div>
+@include('livewire.site.home.partials.repairs-services-home-grid')
 
 {{-- Motorcycle rentals: scroll-snap slider (touch + Flux controls), 3 cards per slide --}}
 @php $rentalSlides = collect($homeRentalModels)->chunk(3); @endphp
@@ -221,83 +185,78 @@
     </div>
 </section>
 
-{{-- Bikes For Sale --}}
-@if(count($newBikesForSale) > 0 || count($usedBikesForSale) > 0)
-<div class="bg-gray-50 dark:bg-gray-900 py-16 border-t border-gray-100 dark:border-gray-800">
+{{-- Used motorcycles (same stock as /used-motorcycles; five on home) --}}
+@if($usedBikesForSale->isNotEmpty())
+<section class="relative py-16 md:py-20 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white via-gray-50 to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" aria-label="Used motorcycles for sale">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Motorcycles For Sale</h2>
-            <a href="/bikes" class="text-brand-red hover:text-red-700 text-sm font-medium">View all →</a>
+        <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+            <div>
+                <flux:badge color="red" class="mb-3 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
+                <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Used motorcycles</h2>
+                <p class="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
+                    A sample of our current used bikes. Same listings as our full used showroom.
+                </p>
+            </div>
+            <div class="flex flex-wrap gap-2 shrink-0">
+                <flux:button href="{{ route('used-motorcycles.page') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">
+                    See more
+                </flux:button>
+                <flux:button href="{{ route('site.bikes', ['filter' => 'used']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200">
+                    All used on /bikes
+                </flux:button>
+            </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            @foreach($newBikesForSale->take(2) as $bike)
-                <flux:card class="overflow-hidden p-0">
-                    <div class="relative bg-gray-100 dark:bg-gray-800 h-44">
-                        <flux:badge color="green" class="absolute top-2 right-2 text-xs">New</flux:badge>
-                        <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">{{ $bike->make }} {{ $bike->model }}</div>
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-1">{{ $bike->make }} {{ $bike->model }}</h3>
-                        <p class="text-xs text-gray-500 mb-2">{{ $bike->engine_capacity ?? 'N/A' }} · {{ $bike->year ?? 'Current' }}</p>
-                        <p class="text-brand-red font-bold text-lg mb-3">£{{ number_format($bike->price ?? 0, 0) }}</p>
-                        <flux:button href="/bikes/new/{{ $bike->id }}" variant="outline" size="sm" class="w-full">View Details</flux:button>
-                    </div>
-                </flux:card>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-5 list-none p-0 m-0" role="list">
+            @foreach($usedBikesForSale as $bike)
+                @php
+                    $img = \App\Support\NgnMotorcycleImage::urlForUsedSale($bike->image_one ?? null);
+                    $mileage = $bike->sale_mileage ?? $bike->mileage ?? null;
+                @endphp
+                <li class="min-w-0">
+                    <flux:card class="group flex h-full flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/90 dark:ring-gray-700 bg-white dark:bg-gray-900 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-red/40 transition-all duration-300">
+                        <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="relative block w-full aspect-[5/3] min-h-[10rem] bg-gray-100 dark:bg-gray-800 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-inset">
+                            <img
+                                src="{{ $img }}"
+                                alt="{{ $bike->make }} {{ $bike->model }}"
+                                width="400"
+                                height="240"
+                                loading="lazy"
+                                decoding="async"
+                                class="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                            >
+                            <span class="absolute top-2 left-2">
+                                <flux:badge color="zinc" class="text-[10px] uppercase tracking-wide bg-black/70 text-white border-0">Used</flux:badge>
+                            </span>
+                        </a>
+                        <div class="flex flex-1 flex-col p-4">
+                            <h3 class="font-bold text-gray-900 dark:text-white text-sm leading-snug line-clamp-2 min-h-[2.5rem]">{{ $bike->make }} {{ $bike->model }}</h3>
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                                @if($mileage !== null && $mileage !== ''){{ number_format((int) $mileage) }} miles · @endif{{ $bike->year ?? '—' }}
+                            </p>
+                            <p class="text-brand-red font-black text-lg mt-2">£{{ number_format((float) ($bike->price ?? 0), 0) }}</p>
+                            <div class="mt-auto pt-3">
+                                <flux:button href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" variant="outline" size="sm" class="w-full justify-center ring-1 ring-gray-300 dark:ring-gray-600">
+                                    View details
+                                </flux:button>
+                            </div>
+                        </div>
+                    </flux:card>
+                </li>
             @endforeach
-            @foreach($usedBikesForSale->take(2) as $bike)
-                <flux:card class="overflow-hidden p-0">
-                    <div class="relative bg-gray-100 dark:bg-gray-800 h-44">
-                        <flux:badge color="blue" class="absolute top-2 right-2 text-xs">Used</flux:badge>
-                        @if($bike->image_one)
-                            <img src="{{ $bike->image_one }}" alt="{{ $bike->make }} {{ $bike->model }}" class="w-full h-full object-cover">
-                        @else
-                            <div class="w-full h-full flex items-center justify-center text-gray-400 text-sm">{{ $bike->make }} {{ $bike->model }}</div>
-                        @endif
-                    </div>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-900 dark:text-white mb-1">{{ $bike->make }} {{ $bike->model }}</h3>
-                        <p class="text-xs text-gray-500 mb-2">{{ $bike->engine ?? 'N/A' }} · {{ $bike->year ?? 'N/A' }}</p>
-                        <p class="text-brand-red font-bold text-lg mb-3">£{{ number_format($bike->price ?? 0, 0) }}</p>
-                        <flux:button href="/bikes/used/{{ $bike->id }}" variant="outline" size="sm" class="w-full">View Details</flux:button>
-                    </div>
-                </flux:card>
-            @endforeach
-        </div>
+        </ul>
     </div>
-</div>
+</section>
 @endif
 
-{{-- Legacy parity block: keep current home and add old-style sales/news/contact --}}
-<div class="py-16 border-t border-gray-100 dark:border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center justify-between mb-6">
-            <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">Used Bikes For Sale</h2>
-            <a href="{{ route('motorcycles.used') }}" class="text-brand-red hover:text-red-700 text-sm font-medium">See all used bikes →</a>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-            @foreach($usedBikesForSale as $bike)
-                <article class="border border-gray-200 dark:border-gray-700 overflow-hidden">
-                    <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="block">
-                        @php $img = $bike->image_one ? 'https://neguinhomotors.co.uk/storage/motorbikes/'.$bike->image_one : 'https://neguinhomotors.co.uk/assets/img/no-image.png'; @endphp
-                        <img src="{{ $img }}" alt="{{ $bike->make }} {{ $bike->model }}" class="w-full h-48 object-cover">
-                    </a>
-                    <div class="p-4">
-                        <h3 class="font-semibold text-gray-900 dark:text-white">{{ $bike->make }} {{ $bike->model }}</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">****{{ substr((string) $bike->reg_no, -3) }}</p>
-                        <p class="text-brand-red font-bold mt-1">GBP {{ number_format((float) $bike->price, 2) }}</p>
-                    </div>
-                </article>
-            @endforeach
-        </div>
-    </div>
-</div>
+@include('livewire.site.home.partials.finance-installment-strip')
 
 <div class="bg-gray-50 dark:bg-gray-900 py-16 border-t border-gray-100 dark:border-gray-800">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <section>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Latest News</h2>
-                <div class="space-y-3">
+                <div class="space-y-3 mb-4">
                     @foreach($blogPosts as $post)
                         <a href="/shop/blog/{{ $post->slug }}" class="block border border-gray-200 dark:border-gray-700 hover:border-brand-red transition">
                             <div class="flex">
@@ -311,79 +270,83 @@
                         </a>
                     @endforeach
                 </div>
+                <div class="text-right">
+                    <a href="/shop/blog" class="text-sm font-semibold text-brand-red hover:underline">See all our latest updates</a>
+                </div>
             </section>
             <section>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Contact Us</h2>
-                <div class="border border-gray-200 dark:border-gray-700 p-5">
-                    <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">For sales, rentals, repairs, MOT, e-bikes and finance enquiries.</p>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <flux:button href="{{ route('site.contact') }}" variant="outline" class="w-full">General contact</flux:button>
-                        <flux:button href="{{ route('site.service.booking') }}" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">Order / enquiry form</flux:button>
-                    </div>
-                </div>
+                @if(session('success') && ! session('newsletter_ok'))
+                    <flux:callout variant="success" icon="check-circle" class="mb-4">
+                        <flux:callout.text>{{ session('success') }}</flux:callout.text>
+                    </flux:callout>
+                @endif
+                <flux:card class="p-5 md:p-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ring-1 ring-gray-200/80 dark:ring-gray-700/80 shadow-sm">
+                    <form wire:submit="submitContact" class="space-y-4">
+                        <flux:field>
+                            <flux:label>Name *</flux:label>
+                            <flux:input wire:model="contactName" autocomplete="name" />
+                            @error('contactName')
+                                <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                            @enderror
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>Email</flux:label>
+                            <flux:input wire:model="contactEmail" type="email" autocomplete="email" />
+                            @error('contactEmail')
+                                <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                            @enderror
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>Phone *</flux:label>
+                            <flux:input wire:model="contactPhone" type="tel" autocomplete="tel" />
+                            @error('contactPhone')
+                                <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                            @enderror
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>Subject *</flux:label>
+                            <flux:input wire:model="contactSubject" placeholder="What do you want to know?" />
+                            @error('contactSubject')
+                                <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                            @enderror
+                        </flux:field>
+                        <flux:field>
+                            <flux:label>Message *</flux:label>
+                            <flux:textarea wire:model="contactMessage" rows="5" />
+                            @error('contactMessage')
+                                <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
+                            @enderror
+                        </flux:field>
+                        <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled">
+                            <span wire:loading.remove wire:target="submitContact">Send</span>
+                            <span wire:loading wire:target="submitContact">Sending…</span>
+                        </flux:button>
+                    </form>
+                </flux:card>
             </section>
         </div>
     </div>
 </div>
 
-{{-- About strip --}}
-<div class="bg-gray-900 text-white py-16">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="max-w-3xl mx-auto text-center">
-            <h2 class="text-3xl font-bold mb-4">About NGN Motors</h2>
-            <p class="text-gray-300 mb-4">
-                Incorporated in October 2018, NGN specialises in <strong>motorcycle rentals</strong>, <strong>MOT services</strong>, sales, spare parts, maintenance and repairs across <strong>London</strong> – Catford, Tooting and Sutton.
+{{-- About (legacy: aboutHomeSection — full copy) --}}
+<div class="bg-[#1f1f1f] text-white py-14 md:py-16 border-t border-gray-800" id="about-us">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-semibold mb-6 tracking-tight">About NGN</h2>
+        <div class="text-sm md:text-base text-gray-300 leading-relaxed space-y-4 text-left md:text-center">
+            <p>
+                Incorporated in October 2018, NGN is specialise in <strong class="text-white">motorcycle rentals</strong>, <strong class="text-white">MOT services</strong>, sales, <strong class="text-white">spare parts</strong>, <strong class="text-white">maintenance</strong>, and <strong class="text-white">repair services</strong>, offering a wide range of motorcycle accessories in <strong class="text-white">London</strong>, <strong class="text-white">Catford</strong>, <strong class="text-white">Tooting</strong>, and <strong class="text-white">Sutton</strong>. Our mission is to keep your motorcycle roadworthy and performing at its best.
             </p>
-            <p class="text-gray-400 text-sm mb-8">
-                Our mission is to keep your motorcycle roadworthy and performing at its best with top-notch service and exceptional customer support.
+            <p>
+                Whether you need quality motorcycle rentals or expert repairs, we are here to provide top-notch motorcycling solutions and exceptional customer support. Our commitment to excellence ensures that every rider receives the best possible service, making NGN the go-to destination for all your motorcycle needs.
             </p>
-            <flux:button href="/about" variant="outline" class="border-white text-white hover:bg-white hover:text-gray-900">
-                Learn More About Us
-            </flux:button>
         </div>
+        <flux:button href="{{ route('site.about') }}" variant="outline" class="mt-8 border-white text-white hover:bg-white hover:text-gray-900">
+            Learn more about us
+        </flux:button>
     </div>
 </div>
 
-{{-- Branches --}}
-<div class="py-16 border-t border-gray-100 dark:border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-8 text-center">Our London Branches</h2>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            @foreach($branches as $branch)
-                @php
-                    $phone   = $branch->phone    ?? config('site.branches.' . strtolower($branch->name) . '.phone');
-                    $address = $branch->address  ?? config('site.branches.' . strtolower($branch->name) . '.address');
-                @endphp
-                <flux:card class="p-6">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ $branch->name }}</h3>
-                    <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">{{ $address }}</p>
-                    <a href="tel:{{ $phone }}" class="text-brand-red font-medium text-sm hover:underline">{{ $phone }}</a>
-                </flux:card>
-            @endforeach
-        </div>
-    </div>
-</div>
-
-{{-- CTA Strip --}}
-<div class="bg-brand-red text-white py-10">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div>
-            <h2 class="text-2xl font-bold mb-1">Ready to ride with NGN?</h2>
-            <p class="text-red-100 text-sm">Get in touch or visit one of our branches today.</p>
-        </div>
-        <div class="flex gap-3 flex-wrap">
-            <flux:button
-                x-data
-                @click="$flux.modal('quick-book').show()"
-                variant="filled"
-                class="bg-white text-brand-red hover:bg-gray-100 font-semibold"
-            >
-                Book Now
-            </flux:button>
-            <flux:button href="/contact" variant="outline" class="border-white text-white hover:bg-white hover:text-brand-red">
-                Contact Us
-            </flux:button>
-        </div>
-    </div>
-</div>
+@include('livewire.site.home.partials.locations-stores-gallery')
+@include('livewire.site.home.partials.newsletter-social')
 </div>

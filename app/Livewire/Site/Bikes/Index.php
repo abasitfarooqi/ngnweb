@@ -19,6 +19,14 @@ class Index extends Component
 
     public $maxPrice = '';
 
+    public function mount(): void
+    {
+        $f = strtolower((string) request()->query('filter', ''));
+        if (in_array($f, ['used', 'new', 'all'], true)) {
+            $this->filterType = $f;
+        }
+    }
+
     public function setFilter($type)
     {
         $this->filterType = $type;

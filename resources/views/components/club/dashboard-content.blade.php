@@ -15,6 +15,12 @@
     $total_not_redeemed = $dash['total_not_redeemed'];
     $qualified_referal = $dash['qualified_referal'];
     $currentYear = (int) date('Y');
+    $spendingTotalAmount = (float) ($dash['spending_total_amount'] ?? $spendings->sum('total'));
+    $spendingTotalPaid = (float) ($dash['spending_total_paid'] ?? $spendings->sum(fn ($s) => (float) ($s->paid_amount ?? 0)));
+    $spendingTotalUnpaid = (float) ($dash['spending_total_unpaid'] ?? $spendings->sum(fn ($s) => max(0, round((float) $s->total - (float) ($s->paid_amount ?? 0), 2))));
+    $spendingFullyPaidCount = (int) ($dash['spending_fully_paid_count'] ?? 0);
+    $spendingPartialCount = (int) ($dash['spending_partial_count'] ?? 0);
+    $spendingUnpaidCount = (int) ($dash['spending_unpaid_count'] ?? 0);
 @endphp
 
 <style>
@@ -169,30 +175,88 @@
             @endif
         </div>
 
-        {{-- Spendings --}}
+        {{-- Spendings (parity with legacy club dashboard: paid / partial / unpaid + payment lines) --}}
         <div x-show="tab === 'spendings'" x-cloak class="space-y-4">
             <h2 class="text-base font-bold text-brand-red border-l-4 border-brand-red pl-3">Your spending record</h2>
-            <p class="text-sm"><strong>Total spending:</strong> £{{ number_format($spendings->sum('total'), 2) }}</p>
             @if ($spendings->isEmpty())
                 <p class="text-gray-600 dark:text-gray-400 text-sm">You have no spending records yet.</p>
             @else
+                <div class="p-3 border border-gray-300 dark:border-gray-600 bg-gray-100 dark:bg-gray-900/50 text-sm space-y-1">
+                    <p class="mb-0"><strong>Total spending (all invoices):</strong> £{{ number_format($spendingTotalAmount, 2) }}</p>
+                    <p class="mb-0"><strong>Total you have paid:</strong> £{{ number_format($spendingTotalPaid, 2) }}</p>
+                    <p class="mb-0"><strong>Total still to pay:</strong> £{{ number_format($spendingTotalUnpaid, 2) }}</p>
+                    <p class="mb-0 text-gray-600 dark:text-gray-400 text-xs sm:text-sm">
+                        Invoices: <strong>{{ $spendingFullyPaidCount }}</strong> paid in full,
+                        <strong>{{ $spendingPartialCount }}</strong> partly paid,
+                        <strong>{{ $spendingUnpaidCount }}</strong> unpaid.
+                    </p>
+                </div>
                 @foreach ($spendings as $spending)
-                    <div class="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/40">
-                        <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">
-                            {{ $spending->date ? \Carbon\Carbon::parse($spending->date)->format('jS F Y, h:i A') : '—' }}
-                        </p>
-                        <div class="flex flex-wrap justify-between gap-4">
-                            <div>
-                                <p class="text-xs text-gray-500 uppercase">POS invoice</p>
-                                <p class="font-bold">{{ $spending->pos_invoice }}</p>
+                    @php
+                        $paidAmt = (float) ($spending->paid_amount ?? 0);
+                        $totalAmt = (float) $spending->total;
+                        $unpaidAmt = max(0, round($totalAmt - $paidAmt, 2));
+                        $isRowPaid = $spending->is_paid || $unpaidAmt <= 0.01;
+                        if ($isRowPaid) {
+                            $rowStatus = 'Paid';
+                            $rowStatusClass = 'bg-[#4CAF50]';
+                        } elseif ($paidAmt > 0.01) {
+                            $rowStatus = 'Partially paid';
+                            $rowStatusClass = 'bg-[#FF9800]';
+                        } else {
+                            $rowStatus = 'Unpaid';
+                            $rowStatusClass = 'bg-[#f44336]';
+                        }
+                    @endphp
+                    <div class="mb-5 space-y-0">
+                        <div class="flex flex-col gap-2 mb-2 pl-1">
+                            <span class="text-sm font-medium text-gray-900 dark:text-white break-words">
+                                {{ $spending->date ? \Carbon\Carbon::parse($spending->date)->format('jS F Y, h:i A') : '—' }}
+                            </span>
+                            <span class="inline-block self-start px-3 py-1 text-xs font-bold text-white {{ $rowStatusClass }}">{{ $rowStatus }}</span>
+                        </div>
+                        <div class="border border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-50 dark:bg-gray-900/40">
+                            <div class="flex flex-wrap justify-between gap-4 p-3 sm:p-4">
+                                <div class="min-w-0 flex-1">
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">POS invoice</p>
+                                    <p class="font-bold text-gray-900 dark:text-white break-words text-lg leading-tight">{{ $spending->pos_invoice ?: '—' }}</p>
+                                </div>
+                                <div class="text-end min-w-0 flex-1 sm:max-w-[50%]">
+                                    <p class="text-xs text-gray-500 uppercase tracking-wide mb-1">Invoice total</p>
+                                    <p class="font-bold text-gray-900 dark:text-white text-lg leading-tight">£{{ number_format($totalAmt, 2) }}</p>
+                                    <div class="mt-2 space-y-0.5 text-sm text-gray-800 dark:text-gray-200">
+                                        <p><strong>Paid so far:</strong> £{{ number_format($paidAmt, 2) }}</p>
+                                        <p><strong>Left to pay:</strong> £{{ number_format($unpaidAmt, 2) }}</p>
+                                    </div>
+                                    @if ($spending->branch_id)
+                                        <p class="text-xs text-gray-500 mt-2">Branch: {{ $spending->branch_id }}</p>
+                                    @endif
+                                </div>
                             </div>
-                            <div class="text-end">
-                                <p class="text-xs text-gray-500 uppercase">Total amount</p>
-                                <p class="font-bold">£{{ number_format($spending->total, 2) }}</p>
-                                @if ($spending->branch_id)
-                                    <p class="text-xs text-gray-500 mt-1">Branch: {{ $spending->branch_id }}</p>
-                                @endif
-                            </div>
+                            @if ($spending->payments->isNotEmpty())
+                                <div class="border-t border-gray-200 dark:border-gray-700 bg-gray-100 dark:bg-gray-950/40 px-3 py-3 sm:px-4 sm:py-3.5">
+                                    <p class="text-xs font-semibold text-gray-800 dark:text-gray-200 mb-2">Payments recorded for this invoice</p>
+                                    <ul class="list-none m-0 p-0 text-xs sm:text-sm space-y-2">
+                                        @foreach ($spending->payments as $payment)
+                                            <li class="pb-2 border-b border-gray-200 dark:border-gray-700 last:border-0 last:pb-0 break-words">
+                                                <strong>£{{ number_format((float) $payment->received_total, 2) }}</strong>
+                                                @if ($payment->date)
+                                                    — {{ \Carbon\Carbon::parse($payment->date)->format('j M Y, H:i') }}
+                                                @endif
+                                                @if ($payment->branch_id)
+                                                    <span class="text-gray-500"> — {{ $payment->branch_id }}</span>
+                                                @endif
+                                                @if ($payment->pos_invoice)
+                                                    <span class="text-gray-500"> — ref {{ $payment->pos_invoice }}</span>
+                                                @endif
+                                                @if ($payment->note)
+                                                    <span class="block text-gray-600 dark:text-gray-400 mt-1">{{ $payment->note }}</span>
+                                                @endif
+                                            </li>
+                                        @endforeach
+                                    </ul>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 @endforeach

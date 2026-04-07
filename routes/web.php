@@ -8,6 +8,7 @@
 use App\Http\Controllers\Admin\CustomerCrudController;
 use App\Http\Controllers\Admin\MotorbikesCrudController;
 use App\Http\Controllers\Admin\NgnStockHandlerCrudController;
+use App\Http\Controllers\Admin\SpStockHandlerCrudController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\ChatAgentController;
@@ -229,7 +230,7 @@ Route::prefix('/')->name('site.')->group(function () {
 
 // Legacy SEO redirects
 Route::permanentRedirect('/home', '/');
-Route::permanentRedirect('/all-services', '/repairs');
+Route::get('/all-services', \App\Livewire\Site\Services\AllServices::class)->name('all-services');
 Route::permanentRedirect('/services', '/repairs');
 Route::permanentRedirect('/motorbike-recovery', '/recovery');
 Route::permanentRedirect('/motorcycle-rental-hire', '/rentals');
@@ -239,6 +240,7 @@ Route::permanentRedirect('/motorcycle-sales-london', '/bikes');
 Route::permanentRedirect('/motorcycles-new', '/bikes');
 Route::permanentRedirect('/repairs/basic', '/motorbike-basic-service-london');
 Route::permanentRedirect('/repairs/full', '/motorbike-full-service-london');
+Route::permanentRedirect('/major-services', '/motorbike-full-service-london')->name('repairs.major');
 Route::permanentRedirect('/terms-of-use', '/terms-and-conditions');
 Route::permanentRedirect('/cookie-and-privacy-policy', '/cookie-policy');
 Route::get('/legals/{slug}', fn ($slug) => redirect("/legal/{$slug}", 301));
@@ -322,7 +324,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
         }
         $file = request()->file('file');
         $path = 'customer-documents/'.\Illuminate\Support\Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-        \Illuminate\Support\Facades\Storage::disk('spaces')->put($path, $file->get());
+        \App\Support\CustomerDocumentStorage::put($path, $file->get());
         $doc = \App\Models\CustomerDocument::updateOrCreate([
             'customer_id' => $customerId,
             'document_type_id' => $valid['document_type_id'],
@@ -493,6 +495,9 @@ Route::get('/send-batch-emails', function () {
 Route::get('ngn-admin/ngn-stock-handler/fetch-product-data', [NgnStockHandlerCrudController::class, 'fetchProductData']);
 Route::post('/admin/ngn-stock-handler/{id}/update-stock', [NgnStockHandlerCrudController::class, 'updateStock']);
 
+Route::get('ngn-admin/sp-stock-handler/fetch-part-data', [SpStockHandlerCrudController::class, 'fetchPartData']);
+Route::post('/admin/sp-stock-handler/{id}/update-stock', [SpStockHandlerCrudController::class, 'updateStock']);
+
 // Survey
 Route::get('/survey/{surveyId}', [\App\Http\Controllers\SurveyController::class, 'show'])->where('surveyId', '[0-9]+')->name('survey.show');
 Route::get('/survey/{slug}', [\App\Http\Controllers\SurveyController::class, 'showBySlug'])->where('slug', '[a-zA-Z0-9-]+')->name('survey.showBySlug');
@@ -641,7 +646,7 @@ Route::controller(WelcomeController::class)->group(function () {
     // Route::get('/motorcycle-sales', 'BikesForSale')->name('sale-motorcycles'); // disabled: Livewire SalesIndex route is active
     Route::get('/rentals-information', 'RentInformation')->name('rental-information');
     Route::get('/services', 'GetServices')->name('services');
-    Route::get('/all-services', 'AllGetServices')->name('all-services');
+    // /all-services is served by Livewire Site\Services\AllServices (see route above).
     Route::get('/service-repairs', 'Repairs')->name('service-repairs');
     Route::get('/service-motorcycle', 'ServiceBike')->name('service-motorcycle');
     Route::get('/service-mot', 'ServiceMot')->name('service-mot');

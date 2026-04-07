@@ -6,8 +6,10 @@ use App\Models\CustomerAgreement;
 use App\Models\CustomerContract;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
+use App\Support\CustomerDocumentStorage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -57,19 +59,21 @@ class Documents extends Component
             return null;
         }
 
-        foreach (['spaces', 'public'] as $disk) {
-            try {
-                if (Storage::disk($disk)->exists($normalised)) {
-                    return Storage::disk($disk)->url($normalised);
-                }
-            } catch (\Throwable) {
-                // Ignore invalid/missing disk state and continue fallback checks.
+        try {
+            if (str_starts_with($normalised, 'customer-documents/')) {
+                return CustomerDocumentStorage::urlForPath($path) ?? url('/storage/'.$normalised);
             }
-        }
 
-        return str_starts_with($path, '/storage/')
-            ? url($path)
-            : url('/storage/'.$normalised);
+            if (str_starts_with($normalised, 'customers/')) {
+                return Storage::disk('public')->url($normalised);
+            }
+
+            return Storage::disk('public')->url($normalised);
+        } catch (\Throwable) {
+            return str_starts_with($path, '/storage/')
+                ? url($path)
+                : url('/storage/'.$normalised);
+        }
     }
 
     public function switchTab($tab)
@@ -95,7 +99,7 @@ class Documents extends Component
 
     public function onDocumentUploadCommitted(): void
     {
-        session()->flash('success', 'Document uploaded to DO Spaces.');
+        session()->flash('success', 'Document uploaded successfully.');
         $this->cancelUpload();
     }
 
@@ -124,7 +128,8 @@ class Documents extends Component
             return;
         }
 
-        $path = $this->file->store('customer-documents', 'spaces');
+        $path = 'customer-documents/'.Str::uuid()->toString().'.'.$this->file->getClientOriginalExtension();
+        CustomerDocumentStorage::put($path, $this->file->get());
 
         CustomerDocument::updateOrCreate([
             'customer_id' => $customerId,

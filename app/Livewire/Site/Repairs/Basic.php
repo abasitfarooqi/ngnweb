@@ -11,7 +11,7 @@ class Basic extends Component
         return view('livewire.site.repairs.basic')
             ->layout('components.layouts.public', [
                 'title' => 'Basic Motorcycle Service London | From £80 | NGN Motors',
-                'description' => 'Professional basic motorcycle servicing in London from £80.',
+                'description' => 'Discover NGN, your premier destination in the UK for motorcycle repairs, rentals, and accessories. Located in Catford, Sutton and Tooting, we offer a wide range of services to meet all your motorcycling needs.',
             ]);
     }
 }

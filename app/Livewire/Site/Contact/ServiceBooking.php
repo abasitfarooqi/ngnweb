@@ -42,6 +42,20 @@ class ServiceBooking extends Component
     public function mount(): void
     {
         $this->branches = Branch::orderBy('name')->get();
+
+        $preset = request()->query('service');
+        $allowed = [
+            'Accident Management Services Enquiry',
+            'MOT Booking Enquiry',
+            'Motorcycle Repairs',
+            'Motorcycle Full Service',
+            'Motorcycle Basic Service',
+            'Motorcycle Rental Enquiry',
+            'Other',
+        ];
+        if (is_string($preset) && in_array($preset, $allowed, true)) {
+            $this->serviceType = $preset;
+        }
     }
 
     public function updatedServiceType(?string $value): void

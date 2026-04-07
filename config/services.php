@@ -30,4 +30,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'dvla' => [
+        'api_key' => env('DVLA_VEH_API'),
+    ],
+
 ];

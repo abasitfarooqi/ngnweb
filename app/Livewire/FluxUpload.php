@@ -2,8 +2,8 @@
 
 namespace App\Livewire;
 
+use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -13,7 +13,7 @@ use Livewire\WithFileUploads;
  * Use for rental, finance, document upload, or any media collection.
  *
  * Media mode:    modelType, modelId, collection
- * Document mode: documentTypeId, customerId (stores to DO Spaces + CustomerDocument)
+ * Document mode: documentTypeId, customerId (Spaces when available, else public disk)
  */
 class FluxUpload extends Component
 {
@@ -22,21 +22,31 @@ class FluxUpload extends Component
     public array $files = [];
 
     public ?string $modelType = null;
+
     public $modelId = null;
+
     public string $collection = 'uploads';
 
     public ?int $documentTypeId = null;
+
     public ?int $customerId = null;
+
     public ?string $documentNumber = null;
+
     public ?string $validUntil = null;
 
     public bool $multiple = true;
+
     public int $maxFiles = 10;
+
     public int $maxSizeKb = 51200;
+
     public string $accept = '';
 
     public ?string $label = null;
+
     public ?string $description = null;
+
     public bool $compact = false;
 
     public ?string $commitError = null;
@@ -57,24 +67,24 @@ class FluxUpload extends Component
         string $accept = '',
         bool $compact = false,
     ): void {
-        $this->modelType     = $modelType;
-        $this->modelId       = $modelId;
-        $this->collection    = $collection;
+        $this->modelType = $modelType;
+        $this->modelId = $modelId;
+        $this->collection = $collection;
         $this->documentTypeId = $documentTypeId;
-        $this->customerId    = $customerId;
+        $this->customerId = $customerId;
         $this->documentNumber = $documentNumber ?? '';
-        $this->validUntil    = $validUntil ?? '';
-        $this->label         = $label;
-        $this->description   = $description;
-        $this->multiple      = $multiple;
-        $this->maxFiles      = $maxFiles;
-        $this->maxSizeKb     = $maxSizeKb;
-        $this->accept        = $accept;
-        $this->compact       = $compact;
+        $this->validUntil = $validUntil ?? '';
+        $this->label = $label;
+        $this->description = $description;
+        $this->multiple = $multiple;
+        $this->maxFiles = $maxFiles;
+        $this->maxSizeKb = $maxSizeKb;
+        $this->accept = $accept;
+        $this->compact = $compact;
 
         if ($this->documentTypeId && $this->customerId) {
-            $this->multiple  = false;
-            $this->maxFiles  = 1;
+            $this->multiple = false;
+            $this->maxFiles = 1;
             $this->maxSizeKb = 10240;
         }
     }
@@ -85,8 +95,8 @@ class FluxUpload extends Component
             return;
         }
         $this->validate([
-            'files'   => ['array', 'max:' . $this->maxFiles],
-            'files.*' => ['file', 'max:' . $this->maxSizeKb],
+            'files' => ['array', 'max:'.$this->maxFiles],
+            'files.*' => ['file', 'max:'.$this->maxSizeKb],
         ]);
     }
 
@@ -104,12 +114,13 @@ class FluxUpload extends Component
 
         if (count($this->files) < 1) {
             $this->commitError = 'No files to save. Select a file above.';
+
             return;
         }
 
         $this->validate([
-            'files'   => ['required', 'array', 'min:1', 'max:' . $this->maxFiles],
-            'files.*' => ['max:' . $this->maxSizeKb],
+            'files' => ['required', 'array', 'min:1', 'max:'.$this->maxFiles],
+            'files.*' => ['max:'.$this->maxSizeKb],
         ], ['files.required' => 'Select at least one file to save.']);
 
         try {
@@ -136,18 +147,18 @@ class FluxUpload extends Component
         if (! $file) {
             throw new \RuntimeException('No file to upload.');
         }
-        $path = 'customer-documents/' . Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-        Storage::disk('spaces')->put($path, $file->get());
+        $path = 'customer-documents/'.Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
+        CustomerDocumentStorage::put($path, $file->get());
 
         \App\Models\CustomerDocument::create([
-            'customer_id'       => $this->customerId,
-            'document_type_id'  => $this->documentTypeId,
-            'file_name'         => $file->getClientOriginalName(),
-            'file_path'         => $path,
-            'file_format'       => $file->getClientOriginalExtension(),
-            'document_number'   => $this->documentNumber ?: '',
-            'valid_until'       => $this->validUntil ?: null,
-            'status'            => 'pending_review',
+            'customer_id' => $this->customerId,
+            'document_type_id' => $this->documentTypeId,
+            'file_name' => $file->getClientOriginalName(),
+            'file_path' => $path,
+            'file_format' => $file->getClientOriginalExtension(),
+            'document_number' => $this->documentNumber ?: '',
+            'valid_until' => $this->validUntil ?: null,
+            'status' => 'pending_review',
         ]);
     }
 
@@ -157,7 +168,7 @@ class FluxUpload extends Component
         $model = ($this->modelType)::query()->findOrFail($this->modelId);
 
         foreach ($this->files as $file) {
-            $safeName  = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+            $safeName = Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
             $mediaName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
             $model
                 ->addMedia($file->getRealPath())

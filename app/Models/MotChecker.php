@@ -21,4 +21,8 @@ class MotChecker extends Model
         'mot_due_date',
         'email',
     ];
+
+    protected $casts = [
+        'mot_due_date' => 'date',
+    ];
 }

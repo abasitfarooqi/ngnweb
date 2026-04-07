@@ -15,10 +15,10 @@
         </flux:callout>
     @endif
 
-    <flux:card class="p-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-6">MOT Booking Form</h2>
+    <flux:card class="p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">MOT booking form</h2>
 
-        <form wire:submit="submitBooking" class="space-y-5">
+        <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="space-y-5">
 
             <flux:field>
                 <flux:label>Select Branch *</flux:label>
@@ -47,8 +47,8 @@
                 <flux:input wire:model="model" placeholder="e.g. CBR500R" />
             </flux:field>
 
-            <flux:separator class="my-2" />
-            <h3 class="text-sm font-bold uppercase tracking-wide text-gray-700 dark:text-gray-300">Your Details</h3>
+            <flux:separator class="my-2 border-slate-200 dark:border-gray-600" />
+            <h3 class="text-sm font-bold uppercase tracking-wide text-slate-700 dark:text-gray-300">Your details</h3>
 
             <flux:field>
                 <flux:label>Full Name *</flux:label>

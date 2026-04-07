@@ -30,6 +30,9 @@ class Book extends Component
 
     public $notes = '';
 
+    /** Bumped after submit so Flux date-picker and selects remount empty. */
+    public int $formNonce = 0;
+
     protected $rules = [
         'selectedBranch' => 'required|exists:branches,id',
         'regNo' => 'required|string|min:2|max:10',
@@ -84,7 +87,20 @@ class Book extends Component
         }
 
         session()->flash('success', 'MOT booking request received! We will contact you shortly to confirm.');
-        $this->reset(['regNo', 'make', 'model', 'name', 'email', 'phone', 'preferredDate', 'preferredTime', 'notes']);
+        $this->resetValidation();
+        $this->reset([
+            'selectedBranch',
+            'regNo',
+            'make',
+            'model',
+            'name',
+            'email',
+            'phone',
+            'preferredDate',
+            'preferredTime',
+            'notes',
+        ]);
+        $this->formNonce++;
     }
 
     public function render()

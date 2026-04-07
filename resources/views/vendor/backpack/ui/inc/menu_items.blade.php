@@ -80,6 +80,17 @@
 <x-backpack::menu-dropdown title="INVENTORY" icon="las la-chevron-circle-down">
     <x-backpack::menu-dropdown-item title="Add / Edit" icon="la la-box-open" :link="backpack_url('ngn-product-management')" />
     <x-backpack::menu-dropdown-item title="Stock Management" icon="la la-boxes" :link="backpack_url('ngn-inventory-management')" />
+
+    <x-backpack::menu-dropdown title="Spare parts" icon="la la-cogs">
+        <x-backpack::menu-dropdown-item title="Makes" icon="la la-industry" :link="backpack_url('sp-make')" />
+        <x-backpack::menu-dropdown-item title="Models" icon="la la-motorcycle" :link="backpack_url('sp-model')" />
+        <x-backpack::menu-dropdown-item title="Fitments" icon="la la-wrench" :link="backpack_url('sp-fitment')" />
+        <x-backpack::menu-dropdown-item title="Assemblies" icon="la la-puzzle-piece" :link="backpack_url('sp-assembly')" />
+        <x-backpack::menu-dropdown-item title="Parts" icon="la la-cog" :link="backpack_url('sp-part')" />
+        <x-backpack::menu-dropdown-item title="Assembly parts" icon="la la-list" :link="backpack_url('sp-assembly-part')" />
+        <x-backpack::menu-dropdown-item title="Stock movements" icon="la la-exchange-alt" :link="backpack_url('sp-stock-movement')" />
+        <x-backpack::menu-dropdown-item title="Stock handler" icon="la la-boxes" :link="backpack_url('sp-stock-handler')" />
+    </x-backpack::menu-dropdown>
     
     <!-- additional -->
     <!-- <x-backpack::menu-dropdown-item title="Add / Edit" icon="la la-box" :link="backpack_url('ngn-product')" /> -->

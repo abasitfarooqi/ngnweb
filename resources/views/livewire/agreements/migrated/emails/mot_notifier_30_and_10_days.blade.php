@@ -50,7 +50,7 @@
         <p>In order to maintain the roadworthiness and compliance of your vehicle, we strongly recommend scheduling your MOT with us as soon as possible.</p>
         <p>Secure your MOT appointment with us by clicking <a href="https://neguinhomotors.co.uk/all-services?service=MOT">here</a>.</p>
         <p>Tax Due Date: <strong>{{ \Carbon\Carbon::parse($tax_due_date)->format('d F Y') }}</strong></p>
-        <!-- <p>Insurance Due Date: <strong>{{ \Carbon\Carbon::parse($insurance_due_date)->format('d F Y') }}</strong></p> -->
+        {{-- Optional: Insurance Due Date: {{ \Carbon\Carbon::parse($insurance_due_date)->format('d F Y') }} --}}
         <div class="motorbike-details">
             <h4>Motorbike Details</h4>
             <ul>

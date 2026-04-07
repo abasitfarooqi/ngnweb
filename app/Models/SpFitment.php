@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SpFitment extends Model
 {
+    use CrudTrait;
     use HasFactory;
 
     protected $table = 'sp_fitments';
@@ -35,5 +37,12 @@ class SpFitment extends Model
     public function assemblies(): HasMany
     {
         return $this->hasMany(SpAssembly::class, 'fitment_id');
+    }
+
+    public function getAdminLabelAttribute(): string
+    {
+        $modelName = $this->model?->name ?? '—';
+
+        return $modelName.' · '.$this->year.' · '.$this->colour_name;
     }
 }

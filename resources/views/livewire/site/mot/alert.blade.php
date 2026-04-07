@@ -1,9 +1,9 @@
-<div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-6">
+<div class="bg-white dark:bg-gray-800 border border-slate-200 dark:border-gray-700 p-6 shadow-sm">
     <div class="flex items-center gap-3 mb-5">
         <div class="w-12 h-12 bg-amber-100 dark:bg-amber-900/30 flex items-center justify-center text-2xl">🔔</div>
         <div>
-            <h3 class="text-xl font-bold text-gray-900 dark:text-white">MOT / Tax Alert</h3>
-            <p class="text-xs text-gray-500 dark:text-gray-400">Never miss your MOT or tax renewal</p>
+            <h3 class="text-xl font-bold text-slate-900 dark:text-white">MOT / Tax alert</h3>
+            <p class="text-xs text-slate-600 dark:text-gray-400">Never miss your MOT or tax renewal</p>
         </div>
     </div>
 
@@ -65,7 +65,7 @@
             Subscribe to MOT/Tax Alerts
         </flux:button>
 
-        <p class="text-xs text-gray-500 text-center">
+        <p class="text-xs text-slate-600 dark:text-gray-500 text-center">
             Unsubscribe anytime by emailing your reg & "unsubscribe" to
             <a href="mailto:customerservice@neguinhomotors.co.uk" class="text-brand-red hover:underline">customerservice@neguinhomotors.co.uk</a>
         </p>

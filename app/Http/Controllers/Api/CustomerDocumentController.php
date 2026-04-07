@@ -5,10 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
+use App\Support\CustomerDocumentStorage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class CustomerDocumentController extends Controller
@@ -91,7 +91,7 @@ class CustomerDocumentController extends Controller
 
         $file = $validated['file'];
         $path = 'customer-documents/'.Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-        Storage::disk('spaces')->put($path, $file->get());
+        CustomerDocumentStorage::put($path, $file->get());
 
         $document = CustomerDocument::updateOrCreate([
             'customer_id' => $customerId,

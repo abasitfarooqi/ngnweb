@@ -50,7 +50,7 @@
             <div class="bg-gray-50 dark:bg-gray-800 p-5 mb-5">
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Select rental period:</p>
                 <div class="grid grid-cols-3 gap-2 mb-4">
-                    @foreach(['daily'=>'Daily', 'weekly'=>'Weekly', 'monthly'=>'Monthly'] as $val => $label)
+                    @foreach(['weekly'=>'Weekly'] as $val => $label)
                         <button
                             wire:click="setPeriod('{{ $val }}')"
                             class="py-2.5 px-3 border-2 text-sm font-medium transition {{ $selectedPeriod === $val ? 'border-brand-red bg-brand-red text-white' : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-brand-red' }}"

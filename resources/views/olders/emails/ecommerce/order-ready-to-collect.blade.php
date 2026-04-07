@@ -311,7 +311,7 @@
         </div>
 
         <div style="text-align: center;">
-            <a href="{{ url('/accountinformation/orders/' . $order->id) }}" class="btn">View Order Details</a>
+            <a href="{{ url('/account/orders/' . $order->id) }}" class="btn">View Order Details</a>
         </div>
 
         <div class="footer">

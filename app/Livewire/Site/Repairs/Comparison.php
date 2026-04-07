@@ -11,7 +11,7 @@ class Comparison extends Component
         return view('livewire.site.repairs.comparison')
             ->layout('components.layouts.public', [
                 'title' => 'Service Comparison | Basic vs Full Service | NGN Motors',
-                'description' => 'Compare our motorcycle service packages at NGN Motors London.',
+                'description' => "Compare NGN's basic and full motorcycle service packages (included vs not included) to pick the right maintenance for your bike. Catford, Sutton and Tooting.",
             ]);
     }
 }

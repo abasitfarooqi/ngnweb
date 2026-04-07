@@ -10,8 +10,8 @@ class Full extends Component
     {
         return view('livewire.site.repairs.full')
             ->layout('components.layouts.public', [
-                'title' => 'Full Motorcycle Service London | From £150 | NGN Motors',
-                'description' => 'Comprehensive full motorcycle servicing in London from £150.',
+                'title' => 'Full (Major) Motorcycle Service London | NGN Motors',
+                'description' => 'Full major service: engine, transmission, brakes, suspension, electrical, wheels and optional extras. Workshops in Catford, Tooting and Sutton.',
             ]);
     }
 }

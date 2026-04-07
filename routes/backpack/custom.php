@@ -19,10 +19,11 @@ use App\Http\Controllers\Admin\PermissionCrudController;
 use App\Http\Controllers\Admin\QueueMonitorController;
 use App\Http\Controllers\Admin\RecurringController;
 use App\Http\Controllers\Admin\RentalOperationsController;
+use App\Http\Controllers\Admin\RoleCrudController;
 // use App\Http\Controllers\Admin\ClubMemberStaffCrudController;
 // use App\Http\Controllers\Admin\NgnDigitalInvoiceCrudController;
 // use App\Http\Controllers\Admin\NgnDigitalInvoiceItemCrudController;
-use App\Http\Controllers\Admin\RoleCrudController;
+use App\Http\Controllers\Admin\SpStockHandlerCrudController;
 use App\Http\Controllers\Admin\UserCrudController;
 use App\Http\Controllers\Admin\VehicleDeliveryOrderCrudController;
 use Backpack\CRUD\app\Http\Controllers\CrudController as CRUD;
@@ -147,6 +148,15 @@ Route::group([
     Route::crud('ngn-product-management', NgnProductManagementCrudController::class);
     Route::crud('ngn-stock-handler', NgnStockHandlerCrudController::class);
     Route::post('ngn-stock-handler/import', action: [NgnStockHandlerCrudController::class, 'import'])->name('ngn-stock-handler.import');
+
+    Route::crud('sp-make', 'SpMakeCrudController');
+    Route::crud('sp-model', 'SpModelCrudController');
+    Route::crud('sp-fitment', 'SpFitmentCrudController');
+    Route::crud('sp-assembly', 'SpAssemblyCrudController');
+    Route::crud('sp-part', 'SpPartCrudController');
+    Route::crud('sp-assembly-part', 'SpAssemblyPartCrudController');
+    Route::crud('sp-stock-movement', 'SpStockMovementCrudController');
+    Route::crud('sp-stock-handler', SpStockHandlerCrudController::class);
 
     // Route::get('ngn-admin/ngn-brand/fetch', [NgnBrandCrudController::class, 'fetch'])->name('ngn-brand.fetch');
     // Route::get('ngn-brand/fetch', [NgnBrandCrudController::class, 'fetch'])->name('ngn-brand.fetch');

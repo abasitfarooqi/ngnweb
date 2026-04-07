@@ -3,8 +3,8 @@
 namespace App\Livewire;
 
 use App\Models\CustomerDocument;
+use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -27,7 +27,7 @@ class UniversalUploader extends Component
 
     public string $collection = 'uploads';
 
-    /** Document mode: when set, commit stores to DO Spaces and creates CustomerDocument */
+    /** Document mode: when set, commit stores file (Spaces if available, else public) and creates CustomerDocument */
     public ?int $documentTypeId = null;
 
     public ?int $customerId = null;
@@ -159,8 +159,8 @@ class UniversalUploader extends Component
             throw new \RuntimeException('No file to upload.');
         }
         $path = 'customer-documents/'.Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-        Storage::disk('spaces')->put($path, $file->get());
-        \Log::info('UniversalUploader: file stored on Spaces', ['path' => $path]);
+        CustomerDocumentStorage::put($path, $file->get());
+        \Log::info('UniversalUploader: customer document stored', ['path' => $path]);
 
         CustomerDocument::updateOrCreate([
             'customer_id' => $this->customerId,

@@ -27,6 +27,7 @@
                     <flux:select.option value="Motorcycle Repairs">Motorcycle Repairs</flux:select.option>
                     <flux:select.option value="Motorcycle Full Service">Motorcycle Full Service</flux:select.option>
                     <flux:select.option value="Motorcycle Basic Service">Motorcycle Basic Service</flux:select.option>
+                    <flux:select.option value="Motorcycle Rental Enquiry">Motorcycle Rental Enquiry</flux:select.option>
                     <flux:select.option value="Other">Other</flux:select.option>
                 </flux:select>
                 <flux:error name="serviceType" />

@@ -120,8 +120,7 @@ class TestMailpitCommand extends Command
 
         foreach ($views as $i => $relative) {
             $n = $i + 1;
-            $fullView = MailpitMigratedPreviewData::fullViewName($relative);
-            if (! View::exists($fullView)) {
+            if (UniversalMailPayload::migratedEmailsPhysicalBladePath($relative) === null && ! View::exists(MailpitMigratedPreviewData::fullViewName($relative))) {
                 $failed[$relative] = 'view not registered';
                 $this->warn("[{$n}/{$total}] skip (missing view): {$relative}");
                 if ($stopOnFailure) {
@@ -167,14 +166,13 @@ class TestMailpitCommand extends Command
 
     private function sendOneMigratedPreview(string $relative, string $to, string $mailerName, string $subject): void
     {
-        $fullView = MailpitMigratedPreviewData::fullViewName($relative);
-        if (! View::exists($fullView)) {
-            throw new InvalidArgumentException("View not found: {$fullView}");
+        if (UniversalMailPayload::migratedEmailsPhysicalBladePath($relative) === null && ! View::exists(MailpitMigratedPreviewData::fullViewName($relative))) {
+            throw new InvalidArgumentException("View not found for relative key: {$relative}");
         }
 
         $viewData = MailpitMigratedPreviewData::viewDataFor($relative);
-        $mailData = UniversalMailPayload::fromLegacyEmailView(
-            $fullView,
+        $mailData = UniversalMailPayload::fromMigratedEmailRelative(
+            $relative,
             $viewData,
             [
                 'title' => $subject,

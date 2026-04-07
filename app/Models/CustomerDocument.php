@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\CustomerDocumentStorage;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -49,6 +50,24 @@ class CustomerDocument extends Model
             return $this->file_path;
         }
 
-        return Storage::disk('spaces')->url($this->file_path);
+        $fromSpacesOrLocal = CustomerDocumentStorage::urlForPath($this->file_path);
+        if ($fromSpacesOrLocal !== null) {
+            return $fromSpacesOrLocal;
+        }
+
+        $normalised = ltrim(str_replace(['storage/', 'public/'], '', $this->file_path), '/');
+        if (str_starts_with($normalised, 'customers/')) {
+            try {
+                return Storage::disk('public')->url($normalised);
+            } catch (\Throwable) {
+                return url('/storage/'.$normalised);
+            }
+        }
+
+        try {
+            return Storage::disk('spaces')->url($normalised);
+        } catch (\Throwable) {
+            return url('/storage/'.$normalised);
+        }
     }
 }

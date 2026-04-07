@@ -125,6 +125,8 @@ return [
         'name' => env('MAIL_FROM_NAME', 'NGN'),
     ],
 
+    'contact_inbox' => env('MAIL_CONTACT_INBOX', 'customerservice@neguinhomotors.co.uk'),
+
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings

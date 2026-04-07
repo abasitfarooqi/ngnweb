@@ -25,7 +25,7 @@
             <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4">
                 <p class="text-sm text-gray-600 dark:text-gray-400 mb-3">Select rental period:</p>
                 <div class="grid grid-cols-3 gap-2 mb-2">
-                    @foreach(['daily'=>'Daily', 'weekly'=>'Weekly', 'monthly'=>'Monthly'] as $val => $label)
+                    @foreach(['weekly'=>'Weekly', ] as $val => $label)
                         <button
                             type="button"
                             wire:click="setPeriod('{{ $val }}')"

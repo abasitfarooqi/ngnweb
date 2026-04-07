@@ -62,22 +62,22 @@ final class MailpitMigratedPreviewData
      */
     private static function coreStubs(): array
     {
-        $visitRow = (object) [
-            'week_number' => 1,
-            'visit_date' => '2026-04-01',
-            'day_name' => 'Tuesday',
-            'total_visits' => 12,
-            'rank_in_week' => 1,
-        ];
-
         return [
             'user' => (object) [
                 'first_name' => 'preview',
                 'last_name' => 'user',
                 'full_name' => 'Preview User',
+                'phone' => '07900 000000',
+                'passkey' => 'preview-pass-0000',
             ],
             'customer_name' => 'Preview Customer',
-            'customer' => (object) ['first_name' => 'Preview', 'last_name' => 'Customer', 'email' => 'preview@example.com'],
+            'customer' => (object) [
+                'first_name' => 'Preview',
+                'last_name' => 'Customer',
+                'fullname' => 'Preview Customer',
+                'email' => 'preview@example.com',
+                'reg_no' => 'AB12 CDE',
+            ],
             'customer_email' => 'preview@example.com',
             'customer_phone' => '020 0000 0000',
             'customer_id' => 1,
@@ -90,7 +90,7 @@ final class MailpitMigratedPreviewData
             'contact_number' => '0208 314 1498',
             'staff_name' => 'Preview Staff',
             'staff_user_id' => 1,
-            'passcode' => 'preview-pass',
+            'passcode' => 'preview-club-pass',
             'contract_id' => 'CNT-1',
             'booking_id' => 1001,
             'booking_reason' => 'Preview reason',
@@ -113,25 +113,48 @@ final class MailpitMigratedPreviewData
             'motorbike_model' => 'CBR',
             'motorbike_year' => '2020',
             'motorbike_id' => 501,
-            'motDetails' => (object) ['registration' => 'AB12 CDE'],
+            'motDetails' => [
+                'customer_name' => 'Preview Rider',
+                'mot_due_date' => Carbon::now()->addMonth(),
+            ],
             'motorcycle' => (object) ['registration_number' => 'AB12 CDE'],
             'surveyLink' => 'https://example.com/survey',
             'subscription_url' => 'https://example.com/club',
             'subscription_id' => 'sub_preview',
             'partnerData' => [
                 'business_name' => 'Preview Partner',
+                'companyname' => 'Preview Partner Ltd',
+                'company_address' => '1 Partner Street, London',
+                'company_number' => '12345678',
+                'first_name' => 'Pat',
+                'last_name' => 'Partner',
                 'contact_name' => 'Partner Contact',
                 'email' => 'partner@example.com',
+                'phone' => '020 0000 0001',
+                'mobile' => '07900 000000',
+                'website' => 'https://example.com',
+                'fleet_size' => '10',
+                'operating_since' => '2020',
             ],
-            'clubMember' => (object) ['name' => 'Club Member'],
+            'clubMember' => (object) [
+                'name' => 'Club Member',
+                'full_name' => 'Preview Club Member',
+                'phone' => '020 0000 0002',
+            ],
             'member' => (object) ['email' => 'member@example.com'],
-            'subscriber' => (object) ['email' => 'subscriber@example.com'],
-            'emailData' => [
-                'topVisits' => [$visitRow],
-                'allVisits' => [$visitRow],
+            'subscriber' => (object) [
+                'email' => 'subscriber@example.com',
+                'full_name' => 'Preview Subscriber',
+                'first_name' => 'Preview',
+                'last_name' => 'Subscriber',
+                'reg_no' => 'AB12 CDE',
             ],
             'stats' => [
                 'count' => 3,
+                'active_rentals' => 2,
+                'weekly_revenue' => 450.5,
+                'due_payments' => 1,
+                'unpaid_invoices' => 120.0,
             ],
             'summary' => 'Preview summary line.',
             'month' => 'April',
@@ -166,7 +189,38 @@ final class MailpitMigratedPreviewData
                     'line_total' => 19.99,
                 ],
             ]),
-            'payment' => (object) ['amount' => 99.99],
+            'payment' => (object) [
+                'order_id' => 'EC-9001',
+                'transaction_id' => 'txn_preview',
+                'status' => 'completed',
+                'amount' => '99.99',
+                'payer_email' => null,
+            ],
+            'resource' => ['id' => 'preview'],
+            'additionalData' => [],
+            'webhookEvent' => (object) [
+                'transmission_id' => 'tr_preview',
+                'transmission_time' => Carbon::now()->toIso8601String(),
+                'auth_algo' => 'SHA256withRSA',
+            ],
+            'refund_amount' => 49.99,
+            'old_billing_frequency' => 'weekly',
+            'new_billing_frequency' => 'weekly',
+            'old_billing_day' => 1,
+            'new_billing_day' => 1,
+            'total_products' => 120,
+            'total_stock' => 4500.5,
+            'subscription_amount' => 89.99,
+            'original_amount' => 120.0,
+            'address' => '9-13 Unit 1179 Catford Hill, London, SE6 4NU',
+            'request' => (object) [
+                'name' => 'Preview Claimant',
+                'email' => 'claim@example.com',
+                'phone' => '020 0000 0000',
+                'reg_no' => 'AB12 CDE',
+                'vehicle_type' => 'Motorcycle',
+                'referal' => 'Web',
+            ],
             'payment_method' => 'card',
             'payment_notes' => 'Preview payment notes',
             'payment_reference' => 'REF-PREVIEW',
@@ -177,7 +231,6 @@ final class MailpitMigratedPreviewData
             'charges_description' => 'Preview charge',
             'fromAddress' => 'from@example.com',
             'toAddress' => 'to@example.com',
-            'request' => (object) ['id' => 1],
             'success' => true,
             'decline' => false,
             'notes' => 'Preview notes',
@@ -187,7 +240,12 @@ final class MailpitMigratedPreviewData
             'isNewMake' => false,
             'is_resolved' => false,
             'makeDisplay' => 'Preview Make',
-            'userDetails' => (object) ['name' => 'Staff User'],
+            'userDetails' => [
+                'name' => 'Preview Rider',
+                'bike_reg' => 'AB12 CDE',
+                'phone' => '020 0000 0000',
+                'message' => 'Preview recovery message',
+            ],
             'acquirer_transaction_id' => 'acq_1',
             'bank_response_category' => 'approved',
             'card_category' => 'credit',
@@ -205,8 +263,6 @@ final class MailpitMigratedPreviewData
             'merchant_name' => 'NGN Motors',
             'negative_stock' => 0,
             'positive_stock' => 5,
-            'new_billing_day' => 15,
-            'old_billing_day' => 1,
             'original_payment_date' => Carbon::now()->subDay()->format('Y-m-d'),
             'original_receipt_id' => 'RCP-1',
             'refund_receipt_id' => 'RR-1',
@@ -218,10 +274,9 @@ final class MailpitMigratedPreviewData
             'transaction_date' => Carbon::now()->format('Y-m-d'),
             'transaction_id' => 'txn_preview',
             'payment_network_transaction_id' => 'pnt_1',
-            'webhookEvent' => 'preview',
             'anomalyType' => 'test',
             'zero_stock' => collect([]),
-            'emailDataList' => [
+            'emailDataList' => collect([
                 [
                     'booking_no' => 'BK-1',
                     'customer_name' => 'Preview',
@@ -230,6 +285,13 @@ final class MailpitMigratedPreviewData
                     'weekly_rent' => '120.00',
                     'invoice_date' => Carbon::now()->format('Y-m-d'),
                 ],
+            ]),
+            'emailData' => [
+                'customer_name' => 'Preview Customer',
+                'weekly_rent' => '120.00',
+                'vin_number' => 'VIN123456',
+                'registration_number' => 'AB12 CDE',
+                'invoice_date' => Carbon::now()->format('Y-m-d'),
             ],
             'active_bookings' => collect([]),
             'allBranchIds' => [1, 2, 3],
@@ -327,8 +389,116 @@ final class MailpitMigratedPreviewData
                 ],
             ],
             str_starts_with($relativeDot, 'ecommerce.') => self::ecommerceStubs(),
+            in_array($relativeDot, ['weekly_busiest_days_report'], true) => [
+                'emailData' => [
+                    'topVisits' => [
+                        (object) [
+                            'week_number' => 1,
+                            'visit_date' => '2026-04-01',
+                            'day_name' => 'Tuesday',
+                            'total_visits' => 12,
+                            'rank_in_week' => 1,
+                        ],
+                    ],
+                    'allVisits' => [
+                        (object) [
+                            'week_number' => 1,
+                            'visit_date' => '2026-04-01',
+                            'day_name' => 'Tuesday',
+                            'total_visits' => 12,
+                            'rank_in_week' => 1,
+                        ],
+                    ],
+                ],
+            ],
+            in_array($relativeDot, ['annual_busiest_days_report'], true) => [
+                'emailData' => [
+                    'yearStart' => '2025-01-01',
+                    'yearEnd' => '2025-12-31',
+                    'allDaysReport' => collect([]),
+                    'allMonthsReport' => collect([]),
+                    'dayReportByBranch' => [],
+                    'monthReportByBranch' => [],
+                ],
+            ],
+            in_array($relativeDot, ['quarterly_vehicle_visits_report'], true) => [
+                'emailData' => [
+                    'periodStartFormatted' => '1 Jan 2026',
+                    'periodEndFormatted' => '31 Mar 2026',
+                    'mostVisited' => [],
+                    'leastVisited' => [],
+                    'mostRepeatedModelYear' => [],
+                    'leastRepeatedModelYear' => [],
+                ],
+            ],
+            in_array($relativeDot, ['mit-weekly-closing-report', 'mit-weekly-opening-report'], true) => [
+                'summary' => [
+                    'expected' => 1000,
+                    'received' => 800,
+                    'decline' => 200,
+                    'expectedItems' => collect([]),
+                    'receivedItems' => collect([]),
+                ],
+                'detailedDeclines' => [],
+                'successItems' => [],
+            ],
+            in_array($relativeDot, [
+                'motorbike_transport_delivery_order_enquiry',
+                'motorbike_transport_delivery_order_confirmed',
+                'motorbike_transport_delivery_order_cancelled',
+                'motorbike_delivery_order_enquiry_internal',
+            ], true) => [
+                'order' => self::mockMotorbikeTransportOrder(),
+            ],
+            in_array($relativeDot, ['vehicle_delivery_order_confirmation'], true) => [
+                'order' => self::mockVehicleDeliveryOrder(),
+            ],
             default => [],
         };
+    }
+
+    private static function mockMotorbikeTransportOrder(): object
+    {
+        return (object) [
+            'id' => 9001,
+            'full_name' => 'Preview Rider',
+            'order_id' => 'ORD-9001',
+            'email' => 'rider@example.com',
+            'phone' => '020 0000 0000',
+            'customer_address' => '1 Preview Street',
+            'customer_postcode' => 'SE6 4NU',
+            'vrm' => 'AB12 CDE',
+            'vehicle_type' => 'Motorcycle',
+            'moveable' => true,
+            'documents' => true,
+            'keys' => true,
+            'note' => 'Preview note',
+            'pick_up_datetime' => Carbon::now()->addDay()->toDateTimeString(),
+            'pickup_address' => 'Pickup address',
+            'dropoff_address' => 'Dropoff address',
+            'distance' => '15',
+            'total_cost' => 199.5,
+        ];
+    }
+
+    private static function mockVehicleDeliveryOrder(): object
+    {
+        return (object) [
+            'full_name' => 'Preview Customer',
+            'vehicle_type' => 'Motorcycle',
+            'vrm' => 'AB12 CDE',
+            'from_address' => '1 From Road, London',
+            'to_address' => '2 To Road, London',
+            'pickup_date' => Carbon::now()->addDay()->format('Y-m-d H:i:s'),
+            'total_distance' => 28,
+            'phone_number' => '020 8314 1498',
+            'delivery_charge' => 85.0,
+            'surcharge' => 0,
+            'bike_require_lift_fee' => 0,
+            'additional_fee' => 0,
+            'express_fee' => 0,
+            'notes' => '',
+        ];
     }
 
     /**

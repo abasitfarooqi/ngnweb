@@ -1,125 +1,209 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-14">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-3">Motorcycle Repairs & Servicing</h1>
-        <p class="text-gray-300 text-lg mb-6">Expert mechanics at Catford, Tooting & Sutton</p>
-        <flux:button x-data @click="$flux.modal('quick-book').show()" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
-            Book a Service
-        </flux:button>
+<div class="relative bg-gray-900 text-white py-14 md:py-20 overflow-hidden">
+    <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-red/30"></div>
+    <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h1 class="text-3xl md:text-5xl font-bold mb-4">Motorcycle Repair Services</h1>
+        <nav class="text-sm text-gray-400" aria-label="Breadcrumb">
+            <ol class="flex flex-wrap gap-2 list-none p-0 m-0 font-semibold">
+                <li><a href="{{ route('site.home') }}" class="hover:text-white underline-offset-2">Home Page</a></li>
+                <li aria-hidden="true">/</li>
+                <li><span class="text-gray-300">Motorcycle Repair Services</span></li>
+            </ol>
+        </nav>
+        <p class="mt-4 text-sm md:text-base text-gray-300 max-w-3xl">Workshop servicing, repairs and MOT across Catford, Tooting and Sutton — same detail as our legacy service pages, now in one place.</p>
+        <div class="mt-6 flex flex-wrap gap-2 justify-start">
+            <flux:button href="{{ route('all-services') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">All services overview</flux:button>
+            <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Compare basic &amp; full</flux:button>
+            <flux:button href="{{ route('site.repairs.repair-services') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Repair menu</flux:button>
+            <flux:button href="{{ route('site.mot') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">MOT</flux:button>
+        </div>
     </div>
 </div>
 
-{{-- Service packages --}}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">Our Service Packages</h2>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        @foreach([
-            ['title'=>'Basic Service', 'price'=>'From £79', 'href'=>'/repairs/basic', 'color'=>'border-gray-300', 'items'=>[
-                'Engine oil & filter change', 'Brake fluid check', 'Chain & sprocket inspection',
-                'Tyre pressure & condition', 'Battery check', 'Safety inspection report',
-            ]],
-            ['title'=>'Major Service', 'price'=>'From £149', 'href'=>'/repairs/full', 'color'=>'border-brand-red', 'featured'=>true, 'items'=>[
-                'Everything in Basic Service', 'Air filter replacement', 'Spark plug replacement',
-                'Coolant check/top-up', 'Full brake inspection', 'Fork oil check', 'Road test',
-            ]],
-            ['title'=>'Repairs & Diagnostics', 'price'=>'From £49', 'href'=>'/repairs/repair-services', 'color'=>'border-gray-300', 'items'=>[
-                'Engine diagnostics', 'Clutch repair/replacement', 'Brake pad replacement',
-                'Tyre fitting', 'Suspension service', 'Electrical diagnostics',
-            ]],
-        ] as $pkg)
-            <flux:card class="p-6 border-t-4 {{ $pkg['color'] }} relative">
-                @if(isset($pkg['featured']))
-                    <flux:badge color="red" class="absolute -top-3 right-4 text-xs font-bold">Most Popular</flux:badge>
-                @endif
-                <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">{{ $pkg['title'] }}</h3>
-                <p class="text-brand-red font-bold text-2xl mb-4">{{ $pkg['price'] }}</p>
-                <ul class="space-y-2 mb-6">
-                    @foreach($pkg['items'] as $item)
-                        <li class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-                            <flux:icon name="check-circle" class="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />{{ $item }}
-                        </li>
-                    @endforeach
-                </ul>
-                <flux:button href="{{ $pkg['href'] }}" variant="{{ isset($pkg['featured']) ? 'filled' : 'outline' }}" class="w-full {{ isset($pkg['featured']) ? 'bg-brand-red text-white' : '' }}">
-                    Learn More
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {{-- Basic Service summary (legacy copy) --}}
+        <flux:card class="p-6 md:p-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-6">Basic Service</h2>
+            <ul class="space-y-6 text-gray-700 dark:text-gray-300">
+                <li>
+                    <h3 class="font-bold text-brand-red mb-2">Engine Maintenance</h3>
+                    <ul class="list-none p-0 m-0 font-semibold text-sm space-y-1">
+                        <li>Oil Change</li>
+                        <li>Oil Filter Replacement</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 class="font-bold text-brand-red mb-2">Brakes</h3>
+                    <ul class="list-none p-0 m-0 font-semibold text-sm space-y-1">
+                        <li>Brake Check</li>
+                        <li>Brake Fluid Inspection</li>
+                        <li>Brake Operation Test</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 class="font-bold text-brand-red mb-2">Tires and Wheels</h3>
+                    <ul class="list-none p-0 m-0 font-semibold text-sm space-y-1">
+                        <li>Tire Pressure Check</li>
+                        <li>Tire Condition Inspection</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="mt-6">
+                <flux:button href="{{ route('site.repairs.basic') }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
+                    View Full Basic Service Details
                 </flux:button>
-            </flux:card>
-        @endforeach
-    </div>
-</div>
+            </div>
+        </flux:card>
 
-{{-- Why NGN --}}
-<div class="bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 py-14">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8 text-center">Why Choose NGN?</h2>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-center">
-            @foreach([
-                ['icon'=>'check-badge', 'title'=>'Experienced Mechanics', 'text'=>'Our team has years of experience with all makes and models.'],
-                ['icon'=>'clock', 'title'=>'Fast Turnaround', 'text'=>'Most services completed same day. No long waits.'],
-                ['icon'=>'banknotes', 'title'=>'Competitive Pricing', 'text'=>'Fair, transparent pricing. No hidden charges.'],
-                ['icon'=>'shield-check', 'title'=>'Quality Parts', 'text'=>'OEM or quality aftermarket parts only.'],
-            ] as $item)
-                <div class="flex flex-col items-center">
-                    <div class="w-12 h-12 bg-brand-red flex items-center justify-center mb-3">
-                        <flux:icon name="{{ $item['icon'] }}" class="h-6 w-6 text-white" />
-                    </div>
-                    <h3 class="font-bold text-gray-900 dark:text-white text-sm mb-1">{{ $item['title'] }}</h3>
-                    <p class="text-xs text-gray-600 dark:text-gray-400">{{ $item['text'] }}</p>
+        {{-- Major Service summary (legacy copy) --}}
+        <flux:card class="p-6 md:p-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+            <h2 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white mb-6">Major Service</h2>
+            <ul class="space-y-6 text-gray-700 dark:text-gray-300">
+                <li>
+                    <h3 class="font-bold text-brand-red mb-2">Complete Engine Service</h3>
+                    <ul class="list-none p-0 m-0 font-semibold text-sm space-y-1">
+                        <li>Oil & Filter Change</li>
+                        <li>Air Filter Check/Replacement</li>
+                        <li>Spark Plug Inspection</li>
+                        <li>Fuel System Check</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 class="font-bold text-brand-red mb-2">Transmission and Drive</h3>
+                    <ul class="list-none p-0 m-0 font-semibold text-sm space-y-1">
+                        <li>Chain/Belt Maintenance</li>
+                        <li>Gearbox Check</li>
+                        <li>Clutch Adjustment</li>
+                    </ul>
+                </li>
+                <li>
+                    <h3 class="font-bold text-brand-red mb-2">Electrical System</h3>
+                    <ul class="list-none p-0 m-0 font-semibold text-sm space-y-1">
+                        <li>Battery Check</li>
+                        <li>Lighting Inspection</li>
+                        <li>Charging System Test</li>
+                    </ul>
+                </li>
+            </ul>
+            <div class="mt-6">
+                <flux:button href="{{ route('site.repairs.full') }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
+                    View Full Major Service Details
+                </flux:button>
+            </div>
+        </flux:card>
+    </div>
+
+    {{-- Why Choose NGN --}}
+    <flux:card class="p-6 md:p-10 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 mb-12">
+        <h2 class="text-xl md:text-2xl font-bold text-center text-brand-red mb-8">Why Choose NGN for Your Motorcycle Service?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            <div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Expert Technicians</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Our certified mechanics have years of experience with all motorcycle brands</p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Quick Turnaround</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Most services completed within 24-48 hours</p>
+            </div>
+            <div>
+                <h3 class="font-bold text-gray-900 dark:text-white mb-2">Competitive Pricing</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400">Quality service at reasonable rates with no hidden costs</p>
+            </div>
+        </div>
+    </flux:card>
+
+    <flux:callout variant="info" icon="map-pin" class="mb-12">
+        <flux:callout.text><span class="font-semibold text-gray-900 dark:text-white">Full service (major) package</span> — For the complete checklist including suspension, cooling, exhaust and optional test ride, open <a href="{{ route('site.repairs.full') }}" class="text-brand-red font-semibold underline underline-offset-2">full service details</a> or the <a href="{{ route('site.repairs.comparison') }}" class="text-brand-red font-semibold underline underline-offset-2">side-by-side comparison</a>.</flux:callout.text>
+    </flux:callout>
+
+    <x-site.repairs.branches-cta-dark
+        heading="Book your service today"
+        intro="Keep your motorcycle in perfect running condition — call your nearest branch or use the enquiry form below."
+    />
+
+    {{-- Enquiry form --}}
+    <div class="mt-14 max-w-3xl mx-auto">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Book a Repair or Service</h2>
+
+        @if(session('success'))
+            <flux:callout variant="success" icon="check-circle" class="mb-6">
+                <flux:callout.text>{{ session('success') }}</flux:callout.text>
+            </flux:callout>
+        @endif
+
+        <flux:card class="p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+            <form wire:key="repairs-index-enquiry-{{ $formNonce }}" wire:submit="submitEnquiry" class="space-y-4">
+                <flux:field>
+                    <flux:label>Service type *</flux:label>
+                    <flux:select wire:model="selectedService" variant="listbox" placeholder="Select service…">
+                        <flux:select.option value="Basic Service">Basic Service</flux:select.option>
+                        <flux:select.option value="Major Service">Major Service</flux:select.option>
+                        <flux:select.option value="Repairs / diagnostics">Repairs / diagnostics</flux:select.option>
+                        <flux:select.option value="MOT">MOT</flux:select.option>
+                        <flux:select.option value="Other">Other</flux:select.option>
+                    </flux:select>
+                    <flux:error name="selectedService" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>Preferred branch *</flux:label>
+                    <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch…">
+                        @foreach($branches as $branch)
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="selectedBranch" />
+                </flux:field>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <flux:field>
+                        <flux:label>Full name *</flux:label>
+                        <flux:input wire:model="name" />
+                        <flux:error name="name" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Phone *</flux:label>
+                        <flux:input wire:model="phone" type="tel" />
+                        <flux:error name="phone" />
+                    </flux:field>
                 </div>
-            @endforeach
-        </div>
+
+                <flux:field>
+                    <flux:label>Email *</flux:label>
+                    <flux:input wire:model="email" type="email" />
+                    <flux:error name="email" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>Registration number</flux:label>
+                    <flux:input wire:model="regNo" class="uppercase tracking-wider font-semibold" placeholder="AB12 CDE" />
+                    <flux:error name="regNo" />
+                </flux:field>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <flux:field>
+                        <flux:label>Make</flux:label>
+                        <flux:input wire:model="make" placeholder="e.g. Honda" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Model</flux:label>
+                        <flux:input wire:model="model" placeholder="e.g. CB650R" />
+                    </flux:field>
+                </div>
+
+                <flux:field>
+                    <flux:label>Describe the work or issue *</flux:label>
+                    <flux:textarea wire:model="description" rows="4" placeholder="Please describe what you need…" />
+                    <flux:error name="description" />
+                </flux:field>
+
+                <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+                    Submit enquiry
+                </flux:button>
+            </form>
+        </flux:card>
     </div>
-</div>
-
-{{-- Service enquiry form --}}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Book a Repair or Service</h2>
-
-    @if(session('success'))
-        <flux:callout variant="success" icon="check-circle" class="mb-6">
-            <flux:callout.text>{{ session('success') }}</flux:callout.text>
-        </flux:callout>
-    @endif
-
-    <form wire:submit="submitEnquiry" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <flux:field>
-                <flux:label>Full Name *</flux:label>
-                <flux:input wire:model="name" />
-                <flux:error name="name" />
-            </flux:field>
-            <flux:field>
-                <flux:label>Phone *</flux:label>
-                <flux:input wire:model="phone" type="tel" />
-                <flux:error name="phone" />
-            </flux:field>
-        </div>
-        <flux:field>
-            <flux:label>Email *</flux:label>
-            <flux:input wire:model="email" type="email" />
-            <flux:error name="email" />
-        </flux:field>
-        <flux:field>
-            <flux:label>Service Type</flux:label>
-            <flux:select wire:model="serviceType" variant="listbox" placeholder="Select service…">
-                @foreach(['basic_service'=>'Basic Service','major_service'=>'Major Service','repair'=>'Repair/Diagnostic','mot'=>'MOT Test','other'=>'Other'] as $val => $label)
-                    <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
-                @endforeach
-            </flux:select>
-        </flux:field>
-        <flux:field>
-            <flux:label>Motorcycle Make & Model</flux:label>
-            <flux:input wire:model="bikeDetails" placeholder="e.g. Honda PCX 125 (2022)" />
-        </flux:field>
-        <flux:field>
-            <flux:label>Describe the Issue or Work Needed</flux:label>
-            <flux:textarea wire:model="notes" rows="4" />
-        </flux:field>
-        <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
-            Submit Enquiry
-        </flux:button>
-    </form>
 </div>
 </div>

@@ -4,7 +4,7 @@
 
     <form wire:submit="checkMOT" class="space-y-4">
         <flux:field>
-            <flux:label>Registration Number</flux:label>
+            <flux:label>Registration number</flux:label>
             <flux:input
                 wire:model="regNo"
                 placeholder="AB12 CDE"
@@ -13,15 +13,32 @@
             />
             <flux:error name="regNo" />
         </flux:field>
-        <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
-            Check MOT Status
+        <flux:field>
+            <flux:label>Email (optional)</flux:label>
+            <flux:input type="email" wire:model="notifyEmail" placeholder="Save this check to our records" autocomplete="email" />
+            <flux:error name="notifyEmail" />
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">If you enter an email, we store your registration and next MOT date after a successful DVLA lookup.</p>
+        </flux:field>
+        <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled">
+            <span wire:loading.remove wire:target="checkMOT">Check MOT status</span>
+            <span wire:loading wire:target="checkMOT">Checking…</span>
         </flux:button>
     </form>
 
     @if($motData)
         <flux:callout variant="info" icon="information-circle" class="mt-5">
-            <flux:callout.heading>MOT Status for {{ $motData['registration'] }}</flux:callout.heading>
-            <flux:callout.text>{{ $motData['mot_expiry'] }}</flux:callout.text>
+            <flux:callout.heading>MOT status for {{ $motData['registration'] }}</flux:callout.heading>
+            <flux:callout.text class="text-sm space-y-1">
+                @if(!empty($motData['make']))
+                    <p><span class="font-semibold">Make:</span> {{ $motData['make'] }}</p>
+                @endif
+                <p><span class="font-semibold">MOT status:</span> {{ $motData['mot_status'] }}</p>
+                <p><span class="font-semibold">MOT expires:</span> {{ $motData['mot_expiry'] }}</p>
+                <p><span class="font-semibold">Road tax status:</span> {{ $motData['tax_status'] }}</p>
+                @if(!empty($motData['tax_due']))
+                    <p><span class="font-semibold">Tax due:</span> {{ $motData['tax_due'] }}</p>
+                @endif
+            </flux:callout.text>
         </flux:callout>
     @endif
 

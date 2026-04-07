@@ -1,4 +1,4 @@
-@extends('olders.frontend.main_master_noheadfoot')
+@extends('frontend.main_master_noheadfoot')
 
 @section('title', 'Member Dashboard - NGN Club | NGN - Motorcycle Rentals, Repairs in UK')
 @section('meta_keywords')
@@ -283,42 +283,178 @@
 
             <!-- Spendings Tab -->
             <div class="tab-pane fade" id="spendings" role="tabpanel" aria-labelledby="spendings-tab">
+                <style>
+                    /* Undo global purchase-box negative margins in ngnstore.css so spending lines do not overlap */
+                    #spendings .spending-record-item {
+                        margin-bottom: 1.25rem;
+                    }
+                    #spendings .spending-card-header {
+                        display: flex;
+                        flex-direction: column;
+                        align-items: flex-start;
+                        gap: 0.5rem;
+                        margin-bottom: 0.65rem;
+                        padding-left: 0.5rem;
+                        line-height: 1.35;
+                    }
+                    #spendings .spending-card-date {
+                        display: block;
+                        max-width: 100%;
+                        word-wrap: break-word;
+                    }
+                    #spendings .spending-status-badge {
+                        display: inline-block;
+                        padding: 5px 12px;
+                        font-size: 12px;
+                        font-weight: bold;
+                        color: #fff;
+                        line-height: 1.2;
+                    }
+                    #spendings .purchase-box {
+                        overflow: hidden;
+                    }
+                    #spendings .spending-purchase-inner {
+                        display: flex;
+                        flex-wrap: wrap;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        gap: 1rem 1.5rem;
+                        padding: 12px 10px 10px;
+                    }
+                    #spendings .spending-purchase-inner .purchase-box-left,
+                    #spendings .spending-purchase-inner .purchase-box-right {
+                        flex: 1 1 220px;
+                        min-width: 0;
+                    }
+                    #spendings .spending-purchase-inner .purchase-box-right {
+                        text-align: right;
+                    }
+                    #spendings .purchase-invoice-label {
+                        margin-bottom: 0.35rem !important;
+                    }
+                    #spendings .purchase-invoice {
+                        margin: 0 0 0.25rem 0 !important;
+                        font-size: 1.35rem !important;
+                        line-height: 1.25 !important;
+                        word-break: break-word;
+                    }
+                    #spendings .credit-label {
+                        margin-bottom: 0.25rem !important;
+                    }
+                    #spendings h3.credit-amount {
+                        margin-top: 0 !important;
+                        margin-bottom: 0.4rem !important;
+                        font-size: 1.35rem !important;
+                        line-height: 1.25 !important;
+                    }
+                    #spendings .spending-amount-lines p {
+                        margin-top: 0.35rem !important;
+                        margin-bottom: 0 !important;
+                        line-height: 1.45 !important;
+                    }
+                    #spendings .spending-amount-lines p:first-of-type {
+                        margin-top: 0.5rem !important;
+                    }
+                    #spendings .redemption-info {
+                        margin-top: 0.5rem !important;
+                    }
+                    #spendings .spending-payments-block {
+                        border-top: 1px solid #e0e0e0;
+                        background: #fafafa;
+                        padding: 12px 14px 14px;
+                    }
+                    #spendings .spending-payments-block ul li {
+                        line-height: 1.45;
+                        word-break: break-word;
+                    }
+                </style>
                 <div id="spendingTable" style="">
                     <h2 class="mt-3 mb-1" style="color:#c31924;padding-left:10px;border-left:3px solid #c31924">Your
                         Spending Record</h2>
                     <br>
-                    <p class="mb-2"><strong>Total spending: £{{ number_format($spendings->sum('total'), 2) }}</strong></p>
                     @if ($spendings->isEmpty())
                         <p>You have no spending records yet.</p>
                     @else
+                        <div class="mb-3 p-3" style="background:#f8f9fa;border:1px solid #dee2e6;">
+                            <p class="mb-1"><strong>Total spending (all invoices):</strong> £{{ number_format($spendingTotalAmount, 2) }}</p>
+                            <p class="mb-1"><strong>Total you have paid:</strong> £{{ number_format($spendingTotalPaid, 2) }}</p>
+                            <p class="mb-1"><strong>Total still to pay:</strong> £{{ number_format($spendingTotalUnpaid, 2) }}</p>
+                            <p class="mb-0" style="font-size:14px;color:#444;">
+                                Invoices: <strong>{{ $spendingFullyPaidCount }}</strong> paid in full,
+                                <strong>{{ $spendingPartialCount }}</strong> partly paid,
+                                <strong>{{ $spendingUnpaidCount }}</strong> unpaid.
+                            </p>
+                        </div>
                         <div class="new-design-mb">
                             @foreach ($spendings as $spending)
-                                <div class="mt- mb-2">
-                                    <h4 class="m-0 pl-2 pb-1" style="font-weight: 500;">
-                                        {{ \Carbon\Carbon::parse($spending->date)->format('jS F Y, h:i A') }}</h4>
+                                @php
+                                    $paidAmt = (float) ($spending->paid_amount ?? 0);
+                                    $totalAmt = (float) $spending->total;
+                                    $unpaidAmt = max(0, round($totalAmt - $paidAmt, 2));
+                                    $isRowPaid = $spending->is_paid || $unpaidAmt <= 0.01;
+                                    if ($isRowPaid) {
+                                        $rowStatus = 'Paid';
+                                        $rowStatusBg = '#4CAF50';
+                                    } elseif ($paidAmt > 0.01) {
+                                        $rowStatus = 'Partially paid';
+                                        $rowStatusBg = '#FF9800';
+                                    } else {
+                                        $rowStatus = 'Unpaid';
+                                        $rowStatusBg = '#f44336';
+                                    }
+                                @endphp
+                                <div class="spending-record-item">
+                                    <div class="spending-card-header" style="font-weight: 500;">
+                                        <span class="spending-card-date">{{ $spending->date ? \Carbon\Carbon::parse($spending->date)->format('jS F Y, h:i A') : '—' }}</span>
+                                        <span class="spending-status-badge" style="background:{{ $rowStatusBg }};">{{ $rowStatus }}</span>
+                                    </div>
 
                                     <div class="purchase-box">
-                                        <div class="purchase-box-inner d-flex justify-content-between align-items-center">
+                                        <div class="purchase-box-inner spending-purchase-inner">
                                             <div class="purchase-box-left">
                                                 <p class="m-0 purchase-invoice-label">
                                                     <strong>POS INVOICE:</strong>
                                                 </p>
-                                                <h3 class="m-0 purchase-invoice">{{ $spending->pos_invoice }}</h3>
+                                                <h3 class="m-0 purchase-invoice">{{ $spending->pos_invoice ?: '—' }}</h3>
                                             </div>
                                             <div class="purchase-box-right text-end">
-                                                <p class="m-0 credit-label">
-                                                    <strong>Total Amount</strong>
-                                                </p>
-                                                <h3 class="m-0 credit-amount">
-                                                    £{{ number_format($spending->total, 2) }}</h3>
+                                                <p class="m-0 credit-label"><strong>Invoice total</strong></p>
+                                                <h3 class="m-0 credit-amount">£{{ number_format($totalAmt, 2) }}</h3>
+                                                <div class="spending-amount-lines">
+                                                    <p style="font-size:14px;color:#333;"><strong>Paid so far:</strong> £{{ number_format($paidAmt, 2) }}</p>
+                                                    <p style="font-size:14px;color:#333;"><strong>Left to pay:</strong> £{{ number_format($unpaidAmt, 2) }}</p>
+                                                </div>
                                                 @if ($spending->branch_id)
-                                                    <p class="m-0 redemption-info" style="color: #666;">
+                                                    <p class="m-0 redemption-info" style="color: #666; font-size: 14px;">
                                                         Branch: {{ $spending->branch_id }}
                                                     </p>
                                                 @endif
-                                                <div class="clearfix"></div>
                                             </div>
                                         </div>
+                                        @if ($spending->payments->isNotEmpty())
+                                            <div class="spending-payments-block">
+                                                <p class="mb-2" style="font-size:13px;font-weight:600;color:#333;">Payments recorded for this invoice</p>
+                                                <ul class="list-unstyled mb-0" style="font-size:13px;">
+                                                    @foreach ($spending->payments as $payment)
+                                                        <li class="mb-2 pb-2" style="border-bottom:1px solid #eee;">
+                                                            <strong>£{{ number_format((float) $payment->received_total, 2) }}</strong>
+                                                            @if ($payment->date)
+                                                                — {{ \Carbon\Carbon::parse($payment->date)->format('j M Y, H:i') }}
+                                                            @endif
+                                                            @if ($payment->branch_id)
+                                                                <span style="color:#666;"> — {{ $payment->branch_id }}</span>
+                                                            @endif
+                                                            @if ($payment->pos_invoice)
+                                                                <span style="color:#666;"> — ref {{ $payment->pos_invoice }}</span>
+                                                            @endif
+                                                            @if ($payment->note)
+                                                                <br><span style="color:#555;display:inline-block;margin-top:4px;">{{ $payment->note }}</span>
+                                                            @endif
+                                                        </li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </div>
                                 </div>
                             @endforeach
