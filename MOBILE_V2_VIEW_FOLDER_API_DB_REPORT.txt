@@ -1,0 +1,431 @@
+NGN MOTORS MOBILE V2 - VIEW -> FOLDER -> API -> DB REPORT
+Generated: 2026-04-10
+
+Purpose
+- This report maps Livewire website/portal presentation to mobile API contracts and direct DB-backed sources.
+- Scope includes site, shop, portal, auth, and V2 presentation routes.
+- Static-only sections are marked STATIC.
+
+Core API Prefix
+- Mobile V2: /api/v2/mobile/*
+- Customer support chat in V2 namespace: /api/v2/mobile/customer/support/*
+- Staff support chat in V2 namespace: /api/v2/mobile/staff/support/*
+
+============================================================
+1) WEBSITE (LIVEWIRE SITE)
+============================================================
+
+1.1 Bikes
+- Views folder: resources/views/livewire/site/bikes/*
+- Livewire folder: app/Livewire/Site/Bikes/*
+- APIs:
+  - GET /api/v2/mobile/bikes
+  - GET /api/v2/mobile/bikes/new/{id}
+  - GET /api/v2/mobile/bikes/used/{id}
+- DB:
+  - motorbikes
+  - motorbikes_sale
+  - motorbike_images
+  - service_bookings (enquiry bridge)
+
+1.2 E-bikes
+- Views folder: resources/views/livewire/site/ebikes/*
+- Livewire folder: app/Livewire/Site/Ebikes/*
+- APIs:
+  - GET /api/v2/mobile/ebikes/experience
+- DB:
+  - motorbikes
+  - motorbike_images
+  - service_bookings
+
+1.3 Rentals (public)
+- Views folder: resources/views/livewire/site/rentals/*
+- Livewire folder: app/Livewire/Site/Rentals/*
+- APIs:
+  - GET /api/v2/mobile/rentals
+  - GET /api/v2/mobile/rentals/{id}
+  - GET /api/v2/mobile/services/rentals
+- DB:
+  - motorbikes
+  - renting_pricings
+  - branches
+  - service_bookings
+
+1.4 MOT
+- Views folder: resources/views/livewire/site/mot/*
+- Livewire folder: app/Livewire/Site/Mot/*
+- APIs:
+  - GET /api/v2/mobile/services/mot
+  - POST /api/v2/mobile/mot/check
+  - POST /api/v2/mobile/mot/alerts
+- DB:
+  - mot_checkers
+  - mot_tax_alert_subscriptions
+  - branches
+
+1.5 Repairs
+- Views folder: resources/views/livewire/site/repairs/*
+- Livewire folder: app/Livewire/Site/Repairs/*
+- APIs:
+  - GET /api/v2/mobile/services/repairs/basic
+  - GET /api/v2/mobile/services/repairs/full
+  - GET /api/v2/mobile/services/repairs/comparison
+- DB:
+  - service_bookings
+  - customer_appointments
+  - branches
+
+1.6 Recovery / Delivery
+- Views folder: resources/views/livewire/site/recovery/*
+- Livewire folder: app/Livewire/Site/Recovery/*
+- APIs:
+  - GET /api/v2/mobile/services/recovery
+  - POST /api/v2/mobile/portal/recovery/quote (auth customer)
+  - POST /api/v2/mobile/portal/recovery/requests (auth customer)
+- DB:
+  - motorbike_delivery_order_enquiries
+  - delivery_vehicle_types
+  - ds_orders
+  - ds_order_items
+
+1.7 Services hub
+- Views folder: resources/views/livewire/site/services/*
+- Livewire folder: app/Livewire/Site/Services/*
+- APIs:
+  - GET /api/v2/mobile/services
+  - GET /api/v2/mobile/content/service-modules
+- DB:
+  - service_bookings (enquiry sink)
+  - STATIC content blocks where applicable
+
+1.8 Finance
+- Views folder: resources/views/livewire/site/finance/*
+- Livewire folder: app/Livewire/Site/Finance/*
+- APIs:
+  - GET /api/v2/mobile/finance/content
+  - POST /api/v2/mobile/finance/calculate
+  - POST /api/v2/mobile/finance/apply
+- DB:
+  - service_bookings
+  - motorbikes
+  - motorcycles
+
+1.9 Contact flows
+- Views folder: resources/views/livewire/site/contact/*
+- Livewire folder: app/Livewire/Site/Contact/*
+- APIs:
+  - POST /api/v2/mobile/contact/call-back
+  - POST /api/v2/mobile/contact/trade-account
+  - POST /api/v2/mobile/contact/service-booking
+- DB:
+  - service_bookings
+  - support_conversations (when linked)
+  - branches
+
+1.10 Club
+- Views folder: resources/views/livewire/site/club/*
+- Livewire folder: app/Livewire/Site/Club/*
+- APIs:
+  - GET /api/v2/mobile/club/content
+  - POST /api/v2/mobile/club/register
+  - POST /api/v2/mobile/club/login
+  - POST /api/v2/mobile/club/login-by-customer-match
+  - GET /api/v2/mobile/club/dashboard
+  - GET /api/v2/mobile/club/dashboard/parity
+  - PATCH /api/v2/mobile/club/profile
+  - POST /api/v2/mobile/club/estimator/quote
+  - POST /api/v2/mobile/club/estimator/feedback
+  - POST /api/v2/mobile/club/passkey/request-reset
+  - POST /api/v2/mobile/club/passkey/confirm-reset
+  - POST /api/v2/mobile/club/referral
+- DB:
+  - club_members
+  - club_member_purchases
+  - club_member_redeem
+  - club_member_spendings
+  - club_member_spending_payments
+  - ngn_campaign_referrals
+  - vehicle_estimators
+
+1.11 Club legacy direct DB (staff/legacy ops)
+- API folder:
+  - /api/v2/mobile/club/legacy/*
+- APIs:
+  - POST member-purchases
+  - POST member-purchases-mb
+  - POST customer-spending
+  - POST list-customer-spending
+  - POST delete-customer-spending
+  - POST record-spending-payment
+  - POST spending-payment-history
+  - POST credit-status
+  - POST credit-status-get-time
+  - POST initiate-redeem
+  - POST verify-otp-and-redeem
+  - POST update-redeem-invoice
+  - POST referral-status
+- DB:
+  - Directly backed by NgnClubController model queries and transactions
+  - Uses club_* tables listed above
+
+1.12 Shop (normal ecommerce)
+- Views folder: resources/views/livewire/site/shop/* and resources/views/livewire/shop/*
+- Livewire folder: app/Livewire/Site/Shop/* and app/Livewire/Shop/*
+- APIs:
+  - GET /api/v2/mobile/shop/products
+  - GET /api/v2/mobile/shop/products/{idOrSlug}
+  - GET /api/v2/mobile/shop/filters
+  - GET /api/v2/mobile/cart
+  - POST /api/v2/mobile/cart/items
+  - PATCH /api/v2/mobile/cart/items/{id}
+  - DELETE /api/v2/mobile/cart/items/{id}
+  - POST /api/v2/mobile/checkout/quote
+  - POST /api/v2/mobile/checkout/place-order
+- DB:
+  - ngn_products
+  - ec_orders
+  - ec_order_items
+  - ec_shipping_methods
+  - ec_payment_methods
+  - customer_addresses
+
+1.13 Spare parts ecommerce
+- Views folder: resources/views/livewire/site/spareparts/*
+- Livewire folder: app/Livewire/Site/SpareParts/*
+- APIs:
+  - GET /api/v2/mobile/spare-parts
+  - GET /api/v2/mobile/spare-parts/manufacturers
+  - GET /api/v2/mobile/spare-parts/models/{manufacturer}
+  - GET /api/v2/mobile/spare-parts/years/{manufacturer}/{model}
+  - GET /api/v2/mobile/spare-parts/countries/{manufacturer}/{model}/{year}
+  - GET /api/v2/mobile/spare-parts/colours/{manufacturer}/{model}/{year}/{country}
+  - GET /api/v2/mobile/spare-parts/assemblies/{manufacturer}/{model}/{year}/{country}/{colour}
+  - GET /api/v2/mobile/spare-parts/parts/{manufacturer}/{model}/{year}/{country}/{colour}/{assembly}
+  - GET /api/v2/mobile/spare-parts/part/{partNumber}
+  - GET /api/v2/mobile/spare-parts/part/{partNumber}/detail
+- DB:
+  - sp_makes
+  - sp_models
+  - sp_fitments
+  - sp_assemblies
+  - sp_assembly_parts
+  - sp_parts
+  - shared checkout uses ec_* tables
+
+1.14 Careers, legal, blog, reviews, locations, partner
+- Views folder:
+  - site/career, site/legal, shop/blog-*, site/reviews, site/locations, site/partner
+- APIs:
+  - GET /api/v2/mobile/careers
+  - GET /api/v2/mobile/careers/{id}
+  - GET /api/v2/mobile/legal/pages
+  - GET /api/v2/mobile/legal/pages/{slug}
+  - GET /api/v2/mobile/blog/posts
+  - GET /api/v2/mobile/blog/posts/{slug}
+  - GET /api/v2/mobile/reviews
+  - GET /api/v2/mobile/branches
+  - GET /api/v2/mobile/partners
+- DB:
+  - ngn_careers
+  - legals
+  - blog_posts (+ related)
+  - reviews
+  - branches
+  - ngn_partners
+
+============================================================
+2) PORTAL (LIVEWIRE PORTAL)
+============================================================
+
+2.1 Portal overview and full state
+- Views folder: resources/views/livewire/portal/*
+- Livewire folder: app/Livewire/Portal/*
+- APIs:
+  - GET /api/v2/mobile/portal/overview
+  - GET /api/v2/mobile/portal/full-state
+  - GET /api/v2/mobile/portal/bookings
+- DB:
+  - customer_auths
+  - customers
+  - renting_bookings (+ items)
+  - mot_bookings
+  - vehicle_delivery_orders
+  - service_bookings
+  - support_conversations
+  - ec_orders
+
+2.2 Orders
+- APIs:
+  - GET /api/v2/mobile/portal/orders
+  - GET /api/v2/mobile/portal/orders/{id}
+- DB:
+  - ec_orders
+  - ec_order_items
+
+2.3 Rentals (portal deep parity)
+- APIs:
+  - GET /api/v2/mobile/portal/rentals
+  - GET /api/v2/mobile/portal/rentals/{id}
+  - GET /api/v2/mobile/portal/rentals/browse/options
+  - GET /api/v2/mobile/portal/rentals/available
+  - GET /api/v2/mobile/portal/rentals/create/{motorbikeId}/blueprint
+  - POST /api/v2/mobile/portal/rentals/create/{motorbikeId}
+- DB:
+  - renting_bookings
+  - renting_booking_items
+  - booking_invoices
+  - renting_transactions
+  - customer_agreements
+  - booking_issuance_items
+  - booking_closing
+  - motorbike_maintenance_logs
+  - renting_other_charges
+  - pcn_cases (+ updates, via joins)
+
+2.4 MOT (portal)
+- APIs:
+  - GET /api/v2/mobile/portal/mot-bookings
+  - POST /api/v2/mobile/portal/mot-bookings
+- DB:
+  - mot_bookings
+  - service_bookings
+  - branches
+
+2.5 Recovery (portal)
+- APIs:
+  - GET /api/v2/mobile/portal/recovery-requests
+  - GET /api/v2/mobile/portal/recovery/options
+  - POST /api/v2/mobile/portal/recovery/quote
+  - POST /api/v2/mobile/portal/recovery/requests
+- DB:
+  - motorbike_delivery_order_enquiries
+  - delivery_vehicle_types
+  - ds_orders
+  - ds_order_items
+
+2.6 Enquiries
+- APIs:
+  - GET /api/v2/mobile/enquiries
+  - POST /api/v2/mobile/enquiries
+  - GET /api/v2/mobile/enquiries/{id}
+- DB:
+  - service_bookings
+
+2.7 Addresses
+- APIs:
+  - GET /api/v2/mobile/portal/addresses
+  - GET /api/v2/mobile/portal/addresses/countries
+  - POST /api/v2/mobile/portal/addresses
+  - PATCH /api/v2/mobile/portal/addresses/{id}
+  - DELETE /api/v2/mobile/portal/addresses/{id}
+  - POST /api/v2/mobile/portal/addresses/{id}/default
+- DB:
+  - customer_addresses
+  - system_countries
+
+2.8 Documents
+- APIs:
+  - GET /api/v2/mobile/portal/documents
+  - GET /api/v2/mobile/portal/documents/types
+  - POST /api/v2/mobile/portal/documents/upload
+- DB:
+  - customer_documents
+  - document_types
+  - customer_agreements
+  - customer_contracts
+
+2.9 Profile, security, payment methods
+- APIs:
+  - GET /api/v2/mobile/portal/profile
+  - PATCH /api/v2/mobile/portal/profile
+  - POST /api/v2/mobile/portal/security/change-password
+  - GET /api/v2/mobile/portal/payment-methods
+  - POST /api/v2/mobile/portal/payment-methods
+  - DELETE /api/v2/mobile/portal/payment-methods
+- DB:
+  - customers
+  - customer_auths
+  - ec_payment_methods
+
+2.10 Recurring payments
+- APIs:
+  - GET /api/v2/mobile/portal/payments/recurring
+- DB:
+  - finance_applications
+  - judopay_subscriptions
+  - ngn_mit_queues
+  - renting_bookings
+
+2.11 Support chat (customer + staff in app)
+- APIs customer:
+  - GET /api/v2/mobile/customer/support/conversations
+  - POST /api/v2/mobile/customer/support/conversations
+  - GET /api/v2/mobile/customer/support/conversations/{uuid}
+  - GET /api/v2/mobile/customer/support/conversations/{uuid}/messages
+  - GET /api/v2/mobile/customer/support/conversations/{uuid}/latest-message
+  - POST /api/v2/mobile/customer/support/conversations/{uuid}/messages
+  - GET /api/v2/mobile/customer/support/attachments/{attachmentId}
+  - POST /api/v2/mobile/customer/support/messages/{messageId}/attachments
+- APIs staff:
+  - POST /api/v2/mobile/auth/staff/login
+  - GET /api/v2/mobile/auth/staff/me
+  - POST /api/v2/mobile/auth/staff/logout
+  - GET /api/v2/mobile/staff/support/inbox
+  - GET /api/v2/mobile/staff/support/inbox/{conversationId}
+  - POST /api/v2/mobile/staff/support/inbox/{conversationId}/messages
+  - PATCH /api/v2/mobile/staff/support/inbox/{conversationId}
+  - GET /api/v2/mobile/staff/support/assignees
+  - GET /api/v2/mobile/staff/support/conversations
+  - GET /api/v2/mobile/staff/support/conversations/{conversationId}
+  - GET /api/v2/mobile/staff/support/conversations/{conversationId}/messages
+  - GET /api/v2/mobile/staff/support/conversations/{conversationId}/latest-message
+  - POST /api/v2/mobile/staff/support/conversations/{conversationId}/messages
+  - PATCH /api/v2/mobile/staff/support/conversations/{conversationId}
+  - GET /api/v2/mobile/staff/support/attachments/{attachmentId}
+- DB:
+  - support_conversations
+  - support_messages
+  - support_attachments
+
+============================================================
+3) PRESENTATION CONTRACT (LIVEWIRE -> MOBILE UI/UX)
+============================================================
+
+- Endpoint index:
+  - GET /api/v2/mobile/presentation/views
+- Endpoint payload:
+  - GET /api/v2/mobile/presentation/views/{segment}/{path}
+- Segments:
+  - site
+  - portal
+  - shop
+  - v2
+  - auth
+- Payload fields returned for mobile renderer:
+  - blade_source
+  - tailwind_tokens
+  - flux_components
+  - wire/alpine usage flags
+- DB:
+  - N/A (presentation contract from Blade templates)
+
+============================================================
+4) STATIC VS DIRECT DB RULE
+============================================================
+
+- Direct DB-backed:
+  - Catalogue, portal state, rentals, MOT bookings, orders, addresses, documents, enquiries, support chat, club/legacy.
+- Static/editorial:
+  - Navigation labels, hero copy, selected UX copy blocks, legal page descriptors.
+- Hybrid:
+  - Experience and parity maps combine DB endpoint contracts + static design metadata.
+
+============================================================
+5) DELIVERY STATUS
+============================================================
+
+- V2 mobile routes are active under /api/v2/mobile.
+- V2 wrappers now rewrite payload contract links to V2 namespace (not V1).
+- Club legacy direct DB endpoints are exposed under /api/v2/mobile/club/legacy/*.
+- Portal full-state and deep rental detail payload are available for app parity.
+

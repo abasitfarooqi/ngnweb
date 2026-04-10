@@ -380,6 +380,7 @@ Route::prefix('v1/mobile')->group(function () {
     Route::get('content/portal-navigation', [MobileContentController::class, 'portalNavigation']);
     Route::get('content/home-blocks', [MobileContentController::class, 'homeBlocks']);
     Route::get('content/service-modules', [MobileContentController::class, 'serviceModules']);
+    Route::get('content/view-folder-api-db-report', [MobileContentController::class, 'viewFolderApiDbReport']);
     Route::get('services/mot', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'mot');
     Route::get('services/repairs/basic', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/basic');
     Route::get('services/repairs/full', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/full');
@@ -508,6 +509,7 @@ Route::prefix('v2/mobile')->group(function () {
     Route::get('content/portal-navigation', [MobileV2ContentController::class, 'portalNavigation']);
     Route::get('content/home-blocks', [MobileV2ContentController::class, 'homeBlocks']);
     Route::get('content/service-modules', [MobileV2ContentController::class, 'serviceModules']);
+    Route::get('content/view-folder-api-db-report', [MobileV2ContentController::class, 'viewFolderApiDbReport']);
     Route::get('services/mot', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'mot');
     Route::get('services/repairs/basic', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/basic');
     Route::get('services/repairs/full', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/full');

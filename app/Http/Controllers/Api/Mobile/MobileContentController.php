@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Mobile;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\File;
 
 class MobileContentController extends Controller
 {
@@ -191,6 +192,18 @@ class MobileContentController extends Controller
                     'portal_routes' => ['/account/recovery/request', '/account/recovery/my-requests'],
                 ],
             ],
+        ]);
+    }
+
+    public function viewFolderApiDbReport(): JsonResponse
+    {
+        $reportPath = base_path('MOBILE_V2_VIEW_FOLDER_API_DB_REPORT.txt');
+        $reportText = File::exists($reportPath) ? File::get($reportPath) : '';
+
+        return response()->json([
+            'generated_file' => 'MOBILE_V2_VIEW_FOLDER_API_DB_REPORT.txt',
+            'available' => $reportText !== '',
+            'report_text' => $reportText,
         ]);
     }
 }

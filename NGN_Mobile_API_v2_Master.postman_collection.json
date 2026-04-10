@@ -77,6 +77,7 @@
       "item": [
         { "name": "Page Manifest", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/page-manifest" } },
         { "name": "Frontend Parity Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/frontend-parity-map" } },
+        { "name": "View Folder API DB Report", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/view-folder-api-db-report" } },
         { "name": "Website Navigation", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/website-navigation" } },
         { "name": "Portal Navigation", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/portal-navigation" } },
         { "name": "Bikes List", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/bikes" } },
@@ -217,6 +218,78 @@
             "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
             "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\",\n  \"user_id\": 1\n}" },
             "url": "{{base_url}}/api/v2/mobile/club/legacy/credit-status"
+          }
+        },
+        {
+          "name": "Legacy Credit Status With Time",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\",\n  \"user_id\": 1\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/credit-status-get-time"
+          }
+        },
+        {
+          "name": "Legacy List Customer Spending",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\"\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/list-customer-spending"
+          }
+        },
+        {
+          "name": "Legacy Record Spending Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\",\n  \"amount_paid\": 25,\n  \"branch_id\": \"CATFORD\",\n  \"invoice\": \"PAY-001\"\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/record-spending-payment"
+          }
+        },
+        {
+          "name": "Legacy Spending Payment History",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\"\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/spending-payment-history"
+          }
+        },
+        {
+          "name": "Legacy Initiate Redeem",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\",\n  \"amount\": 10,\n  \"user_id\": 1\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/initiate-redeem"
+          }
+        },
+        {
+          "name": "Legacy Verify OTP and Redeem",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\",\n  \"amount\": 10,\n  \"user_id\": 1,\n  \"otp_code\": \"1234\",\n  \"branch_id\": \"CATFORD\"\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/verify-otp-and-redeem"
+          }
+        },
+        {
+          "name": "Legacy Update Redeem Invoice",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"invoice_no\": \"INV-001\",\n  \"redeem_ids\": [1],\n  \"branch_id\": \"CATFORD\"\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/update-redeem-invoice"
+          }
+        },
+        {
+          "name": "Legacy Referral Status",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }, { "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"search\": \"07123456789\"\n}" },
+            "url": "{{base_url}}/api/v2/mobile/club/legacy/referral-status"
           }
         }
       ]
