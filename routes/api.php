@@ -1,6 +1,12 @@
 <?php
 
 use App\Http\Controllers\Api\CustomerDocumentController;
+use App\Http\Controllers\Api\Mobile\MobileBootstrapController;
+use App\Http\Controllers\Api\Mobile\MobileCatalogueController;
+use App\Http\Controllers\Api\Mobile\MobileContentController;
+use App\Http\Controllers\Api\Mobile\MobileEnquiryController;
+use App\Http\Controllers\Api\Mobile\MobilePortalController;
+use App\Http\Controllers\Api\StaffAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\CustomerVerificationController;
 use App\Http\Controllers\AuthController;
@@ -269,8 +275,69 @@ Route::prefix('v1/customer')->group(function () {
     Route::get('documents/requirements', [CustomerDocumentController::class, 'requirements'])->middleware('auth:customer,sanctum');
     Route::post('documents', [CustomerDocumentController::class, 'store'])->middleware('auth:customer,sanctum');
 
+    Route::prefix('support')->middleware('auth:customer,sanctum')->group(function () {
+        Route::get('conversations', [\App\Http\Controllers\Api\SupportConversationController::class, 'index']);
+        Route::post('conversations', [\App\Http\Controllers\Api\SupportConversationController::class, 'store']);
+        Route::get('conversations/{uuid}', [\App\Http\Controllers\Api\SupportConversationController::class, 'show']);
+        Route::get('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'messages']);
+        Route::get('conversations/{uuid}/latest-message', [\App\Http\Controllers\Api\SupportConversationController::class, 'latestMessage']);
+        Route::post('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'sendMessage']);
+        Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\SupportMessageController::class, 'showAttachment'])->name('api.customer.support.attachments.show');
+        Route::post('messages/{messageId}/attachments', [\App\Http\Controllers\Api\SupportMessageController::class, 'attachFiles']);
+    });
+
 });
 // ECOMMERCE Customer Auth Routes / V1 API / 28/12/2024 >> END
+
+Route::prefix('v1/staff')->middleware('auth:sanctum')->group(function () {
+    Route::get('me', [StaffAuthController::class, 'me']);
+    Route::post('logout', [StaffAuthController::class, 'logout']);
+
+    Route::prefix('support')->group(function () {
+        Route::get('inbox', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inbox']);
+        Route::get('inbox/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inboxThread']);
+        Route::post('inbox/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inboxSendMessage']);
+        Route::patch('inbox/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inboxUpdateMeta']);
+        Route::get('assignees', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'assignees']);
+        Route::get('conversations', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'index']);
+        Route::get('conversations/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'show']);
+        Route::get('conversations/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'messages']);
+        Route::get('conversations/{conversationId}/latest-message', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'latestMessage']);
+        Route::post('conversations/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'sendMessage']);
+        Route::patch('conversations/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'updateConversation']);
+        Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'showAttachment'])->name('api.staff.support.attachments.show');
+    });
+});
+
+Route::post('v1/staff/login', [StaffAuthController::class, 'login']);
+
+Route::prefix('v1/mobile')->group(function () {
+    Route::get('system-map', [MobileBootstrapController::class, 'systemMap']);
+    Route::get('forms-blueprint', [MobileBootstrapController::class, 'formsBlueprint']);
+
+    Route::get('home-feed', [MobileCatalogueController::class, 'homeFeed']);
+    Route::get('branches', [MobileCatalogueController::class, 'branches']);
+    Route::get('bikes', [MobileCatalogueController::class, 'bikes']);
+    Route::get('rentals', [MobileCatalogueController::class, 'rentals']);
+    Route::get('services', [MobileCatalogueController::class, 'services']);
+    Route::get('shop/products', [MobileCatalogueController::class, 'shopProducts']);
+    Route::get('spare-parts', [MobileCatalogueController::class, 'spareParts']);
+    Route::get('content/website-navigation', [MobileContentController::class, 'websiteNavigation']);
+    Route::get('content/portal-navigation', [MobileContentController::class, 'portalNavigation']);
+    Route::get('content/home-blocks', [MobileContentController::class, 'homeBlocks']);
+    Route::get('content/service-modules', [MobileContentController::class, 'serviceModules']);
+
+    Route::middleware('auth:customer,sanctum')->group(function () {
+        Route::get('portal/overview', [MobilePortalController::class, 'overview']);
+        Route::get('portal/orders', [MobilePortalController::class, 'myOrders']);
+        Route::get('portal/rentals', [MobilePortalController::class, 'myRentals']);
+        Route::get('portal/mot-bookings', [MobilePortalController::class, 'myMotBookings']);
+        Route::get('portal/recovery-requests', [MobilePortalController::class, 'myRecoveryRequests']);
+        Route::get('enquiries', [MobileEnquiryController::class, 'index']);
+        Route::post('enquiries', [MobileEnquiryController::class, 'store']);
+        Route::get('enquiries/{id}', [MobileEnquiryController::class, 'show']);
+    });
+});
 
 // Email Verification Routes for Customers
 Route::middleware(['auth:customer'])->group(function () {

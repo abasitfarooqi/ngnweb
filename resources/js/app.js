@@ -38,7 +38,151 @@ Alpine.data('homeRentalCarousel', (slideCount) => ({
 
 window.Alpine = Alpine;
 
+window.setupSupportConversationEcho = function setupSupportConversationEcho(conversationUuid, onIncoming) {
+    if (!window.supportEchoEnabled || !window.Echo || !conversationUuid) {
+        return () => {};
+    }
+    const channel = window.Echo.private(`support.conversation.${conversationUuid}`);
+    channel.listen('.message.sent', (payload) => {
+        if (typeof onIncoming === 'function') {
+            onIncoming(payload);
+        }
+    });
+
+    return () => {
+        window.Echo.leave(`private-support.conversation.${conversationUuid}`);
+    };
+};
+
+window.setupSupportStaffEcho = function setupSupportStaffEcho(onIncoming) {
+    if (!window.supportEchoEnabled || !window.Echo) {
+        return () => {};
+    }
+    const channel = window.Echo.private('support.staff');
+    channel.listen('.message.sent', (payload) => {
+        if (typeof onIncoming === 'function') {
+            onIncoming(payload);
+        }
+    });
+
+    return () => {
+        window.Echo.leave('private-support.staff');
+    };
+};
+
+window.setupSupportCustomerEcho = function setupSupportCustomerEcho(customerAuthId, onIncoming) {
+    if (!window.supportEchoEnabled || !window.Echo || !customerAuthId) {
+        return () => {};
+    }
+    const channel = window.Echo.private(`support.customer.${customerAuthId}`);
+    channel.listen('.message.sent', (payload) => {
+        if (typeof onIncoming === 'function') {
+            onIncoming(payload);
+        }
+    });
+
+    return () => {
+        window.Echo.leave(`private-support.customer.${customerAuthId}`);
+    };
+};
+
+function teardownSupportThreadRealtime() {
+    const s = window.__supportThreadRealtimeState;
+    if (!s) {
+        return;
+    }
+    if (s.pollTimer) {
+        window.clearInterval(s.pollTimer);
+    }
+    if (typeof s.detachConversation === 'function') {
+        s.detachConversation();
+    }
+    if (typeof s.detachCustomer === 'function') {
+        s.detachCustomer();
+    }
+    window.__supportThreadRealtimeState = null;
+    window.__supportThreadSync = null;
+}
+
+window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
+    teardownSupportThreadRealtime();
+    const root = document.getElementById('support-thread-live-root');
+    if (!root) {
+        return;
+    }
+
+    const latestUrl = root.getAttribute('data-latest-url');
+    const htmlUrl = root.getAttribute('data-messages-html-url');
+    let last = parseInt(root.getAttribute('data-last-message-id') || '0', 10);
+    const uuid = root.getAttribute('data-conversation-uuid');
+    const customerAuthId = parseInt(root.getAttribute('data-customer-auth-id') || '0', 10);
+
+    const state = {
+        pollTimer: null,
+        detachConversation: null,
+        detachCustomer: null,
+    };
+    window.__supportThreadRealtimeState = state;
+
+    async function syncFromServer() {
+        try {
+            const sep = latestUrl.includes('?') ? '&' : '?';
+            const r = await fetch(`${latestUrl}${sep}_cb=${Date.now()}`, {
+                cache: 'no-store',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+            if (!r.ok) {
+                return;
+            }
+            const j = await r.json();
+            const lid = parseInt(String(j.latest_message_id || 0), 10);
+            if (lid <= last) {
+                return;
+            }
+            last = lid;
+            const sep2 = htmlUrl.includes('?') ? '&' : '?';
+            const r2 = await fetch(`${htmlUrl}${sep2}_cb=${Date.now()}`, {
+                cache: 'no-store',
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!r2.ok) {
+                return;
+            }
+            const panel = document.getElementById('support-thread-messages-root');
+            if (!panel) {
+                return;
+            }
+            panel.innerHTML = await r2.text();
+            panel.scrollTop = panel.scrollHeight;
+        } catch (e) {
+            /* ignore */
+        }
+    }
+
+    state.pollTimer = window.setInterval(syncFromServer, 400);
+    syncFromServer();
+    window.__supportThreadSync = syncFromServer;
+
+    if (typeof window.setupSupportConversationEcho === 'function' && uuid) {
+        state.detachConversation = window.setupSupportConversationEcho(uuid, syncFromServer);
+    }
+    if (typeof window.setupSupportCustomerEcho === 'function' && customerAuthId) {
+        state.detachCustomer = window.setupSupportCustomerEcho(customerAuthId, syncFromServer);
+    }
+};
+
 // ngnSetColourMode: see resources/views/components/partials/theme-api.blade.php (loaded after @fluxAppearance).
+
+document.addEventListener('DOMContentLoaded', function () {
+    if (typeof window.bindSupportThreadRealtime === 'function') {
+        window.bindSupportThreadRealtime();
+    }
+});
 
 document.addEventListener('livewire:navigated', function () {
     var ngn = localStorage.getItem('ngn-theme');
@@ -50,6 +194,9 @@ document.addEventListener('livewire:navigated', function () {
         document.documentElement.classList.toggle('dark', mode === 'dark');
     } else if (window.Flux && typeof window.Flux.applyAppearance === 'function') {
         window.Flux.applyAppearance('system');
+    }
+    if (typeof window.bindSupportThreadRealtime === 'function') {
+        window.bindSupportThreadRealtime();
     }
 });
 

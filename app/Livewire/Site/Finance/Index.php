@@ -14,9 +14,10 @@ class Index extends Component
 
     public $deposit = 500;
 
-    public $term = 36;
+    public $term = 12;
 
-    public $rate = 9.9;
+    /** @var float Calculator interest rate (% APR) — fixed at 0; field hidden on public finance page */
+    public $rate = 0;
 
     public $monthlyPayment = 0;
 
@@ -77,6 +78,10 @@ class Index extends Component
 
     public function updated($field): void
     {
+        if ($field === 'term') {
+            $t = (int) $this->term;
+            $this->term = in_array($t, [6, 12], true) ? $t : 12;
+        }
         if (in_array($field, ['loanAmount', 'deposit', 'term', 'rate'], true)) {
             $this->calculatePayment();
         }
@@ -88,14 +93,20 @@ class Index extends Component
         $apr = max(0, (float) $this->rate);
         $monthlyRate = ($apr / 100) / 12;
 
-        if ($monthlyRate > 0 && $this->term > 0) {
+        if ($this->term < 1) {
+            $this->monthlyPayment = 0;
+
+            return;
+        }
+
+        if ($monthlyRate > 0) {
             $this->monthlyPayment = round(
                 $principal * ($monthlyRate * pow(1 + $monthlyRate, $this->term)) /
                 (pow(1 + $monthlyRate, $this->term) - 1),
                 2
             );
         } else {
-            $this->monthlyPayment = 0;
+            $this->monthlyPayment = round($principal / $this->term, 2);
         }
     }
 
@@ -157,7 +168,7 @@ class Index extends Component
             'Finance amount GBP: '.number_format($amount, 2, '.', ''),
             'Deposit GBP: '.number_format($deposit, 2, '.', ''),
             'Term months: '.(int) $this->term,
-            'APR: '.number_format((float) $this->rate, 1, '.', '').'%',
+            'Illustrative monthly from calculator: (bike price − deposit) ÷ term months; no interest on this calculator — not an offer of credit',
             'Employment: '.(string) $this->employmentStatus,
             $this->notes ? 'Notes: '.trim((string) $this->notes) : null,
         ]));

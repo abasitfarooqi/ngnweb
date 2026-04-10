@@ -24,7 +24,7 @@ class CustomerAppointments extends Model
     ];
 
     protected $casts = [
-        'appointment_date' => 'date',
+        'appointment_date' => 'datetime',
     ];
 
     protected $table = 'customer_appointments';

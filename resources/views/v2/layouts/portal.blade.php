@@ -65,7 +65,8 @@
         >
             <flux:navlist.item href="{{ route('account.bookings') }}" :current="request()->routeIs('account.bookings')">My Bookings</flux:navlist.item>
             <flux:navlist.item href="{{ route('account.mot.book') }}" :current="request()->routeIs('account.mot.book')">Book MOT</flux:navlist.item>
-            <flux:navlist.item href="{{ route('account.repairs.request') }}" :current="request()->routeIs('account.repairs.request')">Book Repair</flux:navlist.item>
+            <flux:navlist.item href="{{ route('account.repairs.request') }}" :current="request()->routeIs('account.repairs.request')">Repair enquiry</flux:navlist.item>
+            <flux:navlist.item href="{{ route('account.repairs.appointment') }}" :current="request()->routeIs('account.repairs.appointment')">Repairs appointment</flux:navlist.item>
         </flux:navlist.group>
 
         <flux:navlist.group

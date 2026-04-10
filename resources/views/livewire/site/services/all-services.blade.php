@@ -1,116 +1,230 @@
-<div>
+@php
+    $sections = [
+        [
+            'panel' => 'Repairs',
+            'slug' => 'repairs',
+            'icon' => 'wrench-screwdriver',
+            'title' => 'Motorcycle Repairs',
+            'image' => 'assets/images/services/repairs.jpg',
+            'alt' => 'Motorcycle repairs and workshop — NGN London',
+            'teaser' => 'Expert repairs, maintenance and MOT in South London for Japanese and European bikes — reliable workmanship and competitive pricing.',
+            'buttons' => [
+                ['href' => route('site.repairs.full'), 'label' => 'Full service details', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => 'tel:02083141498', 'label' => 'Call now', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+                ['href' => route('all-services', ['service' => 'Repairs']).'#service-enquiry', 'label' => 'Enquire', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'MOT',
+            'slug' => 'mot',
+            'icon' => 'shield-check',
+            'title' => 'MOT Services',
+            'image' => 'assets/images/services/MOT-BOOKING.jpg',
+            'alt' => 'Motorcycle MOT testing at NGN',
+            'teaser' => 'Qualified testers and mechanics at our South London workshop — your bike inspected to current standards with clear results.',
+            'buttons' => [
+                ['href' => route('site.mot'), 'label' => 'MOT information', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => 'tel:02083141498', 'label' => 'Call now', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+                ['href' => route('all-services', ['service' => 'MOT']).'#service-enquiry', 'label' => 'Enquire', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'BookService',
+            'slug' => 'servicing',
+            'icon' => 'cog-6-tooth',
+            'title' => 'Servicing & Maintenance',
+            'image' => 'assets/images/services/full-service.jpg',
+            'alt' => 'Motorcycle servicing and maintenance',
+            'teaser' => 'Basic and full packages covering brakes, steering, suspension, tyres and more — compare options and book with our technicians.',
+            'buttons' => [
+                ['href' => route('site.repairs.basic'), 'label' => 'Basic service', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => route('site.repairs.full'), 'label' => 'Full service', 'variant' => 'filled', 'class' => 'bg-gray-800 text-white hover:bg-gray-900 dark:bg-gray-700'],
+                ['href' => route('site.repairs.comparison'), 'label' => 'Compare packages', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+                ['href' => route('all-services', ['service' => 'BookService', 'booking' => 'Motorcycle Basic Service Enquiry']).'#service-enquiry', 'label' => 'Enquire — basic', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+                ['href' => route('all-services', ['service' => 'BookService', 'booking' => 'Motorcycle Full Service Enquiry']).'#service-enquiry', 'label' => 'Enquire — full', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'Delivery',
+            'slug' => 'delivery',
+            'icon' => 'truck',
+            'title' => 'Delivery & Recovery',
+            'image' => 'assets/images/wide-motorbike-recovery.jpg',
+            'alt' => 'Motorcycle delivery and recovery',
+            'teaser' => 'Secure transport for private and commercial customers. Free collection with our repair service. Nationwide delivery from £249.99 in England.',
+            'buttons' => [
+                ['href' => route('motorcycle.delivery'), 'label' => 'Delivery & recovery', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => 'tel:02083141498', 'label' => 'Call now', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'Sales',
+            'slug' => 'sales',
+            'icon' => 'shopping-bag',
+            'title' => 'Motorcycle Sales',
+            'image' => 'assets/images/services/new-and-used-motorcycles-for-sale-in-london.png',
+            'alt' => 'New and used motorcycles for sale in London',
+            'teaser' => 'New and used Honda, Yamaha and more — 2025 range, flexible finance on new stock, and practical used options for London riders.',
+            'buttons' => [
+                ['href' => route('motorcycles.new'), 'label' => 'New motorcycles', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => route('motorcycles.used'), 'label' => 'Used motorcycles', 'variant' => 'filled', 'class' => 'bg-gray-800 text-white hover:bg-gray-900 dark:bg-gray-700'],
+                ['href' => 'tel:02083141498', 'label' => 'Call now', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'Rental',
+            'slug' => 'rental',
+            'icon' => 'calendar-days',
+            'title' => 'Motorcycle Rental',
+            'image' => 'assets/images/services/motorcycle-rental-hire-london.jpg',
+            'alt' => 'Motorcycle rental in London',
+            'teaser' => 'Rent across London, Tooting, Sutton and Catford — from £70 per week. Ideal for commuters and delivery riders.',
+            'buttons' => [
+                ['href' => route('site.rentals'), 'label' => 'Rental fleet', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => 'tel:02083141498', 'label' => 'Call now', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+                ['href' => route('all-services', ['service' => 'Rental']).'#service-enquiry', 'label' => 'Enquire', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'Accident',
+            'slug' => 'accident',
+            'icon' => 'exclamation-triangle',
+            'title' => 'Accident Management',
+            'image' => 'assets/images/services/accident.jpg',
+            'alt' => 'Accident management and claims support',
+            'teaser' => 'Support after road traffic accidents — experienced team to guide you through the process.',
+            'buttons' => [
+                ['href' => route('accident-management'), 'label' => 'Make a claim', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => route('all-services', ['service' => 'Accident']).'#service-enquiry', 'label' => 'Enquire', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
+            'panel' => 'Finance',
+            'slug' => 'finance',
+            'icon' => 'banknotes',
+            'title' => 'Finance',
+            'image' => 'assets/images/services/finance.jpg',
+            'alt' => 'Motorcycle finance options',
+            'teaser' => 'Finance options to make your next motorcycle purchase straightforward — ask us what is available on new stock.',
+            'buttons' => [
+                ['href' => route('site.finance'), 'label' => 'Finance overview', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+            ],
+        ],
+    ];
+@endphp
+
+<div
+    x-data="{
+        map: @js(array_column($sections, 'slug', 'panel')),
+        scrollFromQuery() {
+            const q = new URLSearchParams(window.location.search).get('service');
+            if (!q || !this.map[q]) return;
+            this.$nextTick(() => {
+                document.getElementById('svc-' + this.map[q])?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+        }
+    }"
+    x-init="scrollFromQuery(); window.addEventListener('livewire:navigated', () => setTimeout(() => $data.scrollFromQuery(), 120))"
+>
+    {{-- Hero — same pattern as resources/views/livewire/site/repairs/index.blade.php --}}
     <div class="relative bg-gray-900 text-white py-14 md:py-20 overflow-hidden">
         <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-red/30"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
-            <h1 class="text-3xl md:text-5xl font-bold mb-3">Our Services</h1>
-            <p class="text-gray-300 text-sm md:text-base max-w-2xl">Repairs, MOT, servicing, delivery, sales, rental, accident support and finance — three London branches.</p>
-            <nav class="mt-4 text-sm text-gray-400" aria-label="Breadcrumb">
-                <ol class="flex flex-wrap gap-2 list-none p-0 m-0 justify-center md:justify-start font-semibold">
-                    <li><a href="{{ route('site.home') }}" class="hover:text-white underline-offset-2">Home</a></li>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h1 class="text-3xl md:text-5xl font-bold mb-4">Our Services</h1>
+            <nav class="text-sm text-gray-400" aria-label="Breadcrumb">
+                <ol class="flex flex-wrap gap-2 list-none p-0 m-0 font-semibold">
+                    <li><a href="{{ route('site.home') }}" class="hover:text-white underline-offset-2">Home Page</a></li>
                     <li aria-hidden="true">/</li>
                     <li><span class="text-gray-300">Our Services</span></li>
                 </ol>
             </nav>
+            <p class="mt-4 text-sm md:text-base text-gray-300 max-w-3xl leading-relaxed">Everything NGN offers in one place — repairs, MOT, servicing, delivery, sales, rental, accident support and finance. Use the cards below, then the universal enquiry form at the bottom.</p>
+            <div class="mt-6 flex flex-wrap gap-2 justify-start">
+                <flux:button href="{{ route('site.repairs') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Repairs hub</flux:button>
+                <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Compare servicing</flux:button>
+                <flux:button href="{{ route('site.mot') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">MOT</flux:button>
+                <flux:button href="{{ route('site.contact.service-booking') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Dedicated booking</flux:button>
+            </div>
         </div>
     </div>
 
+    {{-- Body — same shell as repairs/full.blade.php and repair-services.blade.php --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-            <div class="lg:col-span-8">
-                <flux:accordion class="border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800 [&_button[data-flux-accordion-heading]]:text-gray-900 [&_button[data-flux-accordion-heading]]:dark:text-gray-100 [&_[data-flux-accordion-content]>div]:!text-gray-600 [&_[data-flux-accordion-content]>div]:dark:!text-gray-300">
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="Motorcycle Repairs" :expanded="$openPanel === 'Repairs'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/repairs.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-3">NGN provides expert motorcycle repairs, maintenance, and MOT services in South London. Our skilled mechanics deliver top-quality service for Japanese and European bikes, with a reputation for reliability and competitive pricing.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <flux:button href="{{ route('site.repairs.full') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Full service details</flux:button>
-                            <flux:button href="tel:02083141498" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Call Catford</flux:button>
-                            <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Repairs']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Enquire</flux:button>
+        <flux:callout variant="info" icon="information-circle" class="mb-10">
+            <flux:callout.text class="text-sm leading-relaxed">Each card opens the right detail page or enquiry preset. Links with <span class="font-semibold">Enquire</span> set the form at the bottom of this page using your chosen service.</flux:callout.text>
+        </flux:callout>
+
+        {{-- Card grid — same as repair-services: md:2 cols, lg:3 cols --}}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            @foreach ($sections as $s)
+                <div id="svc-{{ $s['slug'] }}" class="scroll-mt-28 min-w-0">
+                    <flux:card class="flex h-full flex-col overflow-hidden border border-slate-200 bg-white p-0 shadow-sm transition-shadow duration-300 hover:shadow-md dark:border-gray-700 dark:bg-gray-800">
+                        <div class="relative aspect-[16/10] w-full shrink-0 overflow-hidden bg-gray-100 dark:bg-gray-900">
+                            <img
+                                src="{{ asset($s['image']) }}"
+                                alt="{{ $s['alt'] }}"
+                                class="h-full w-full object-cover object-center"
+                                loading="lazy"
+                                decoding="async"
+                            >
                         </div>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="MOT Services" :expanded="$openPanel === 'MOT'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/MOT-BOOKING.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-3">Fully qualified testers and mechanics ensure your bike meets current inspection standards. Book online or by phone for peace of mind on the road.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <flux:button href="{{ route('site.mot') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">MOT information</flux:button>
-                            <flux:button href="{{ route('site.contact.service-booking', ['service' => 'MOT Booking Enquiry']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Book MOT enquiry</flux:button>
-                            <flux:button href="tel:02083141498" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Call now</flux:button>
+                        <div class="flex flex-1 flex-col p-6">
+                            <div class="mb-3 flex items-start gap-3">
+                                <span class="flex h-10 w-10 shrink-0 items-center justify-center border border-brand-red/20 bg-brand-red/10 text-brand-red">
+                                    <flux:icon name="{{ $s['icon'] }}" class="h-6 w-6" />
+                                </span>
+                                <h2 class="pt-1 text-lg font-bold leading-snug text-gray-900 dark:text-white">{{ $s['title'] }}</h2>
+                            </div>
+                            <p class="flex-1 text-sm leading-relaxed text-gray-700 dark:text-gray-300">{{ $s['teaser'] }}</p>
+                            <div class="mt-5 flex flex-wrap gap-2">
+                                @foreach ($s['buttons'] as $btn)
+                                    <flux:button
+                                        href="{{ $btn['href'] }}"
+                                        variant="{{ $btn['variant'] ?? 'outline' }}"
+                                        size="sm"
+                                        class="{{ $btn['class'] ?? 'border-slate-300 dark:border-gray-600' }}"
+                                    >{{ $btn['label'] }}</flux:button>
+                                @endforeach
+                            </div>
                         </div>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="Motorcycle Servicing / Maintenance" :expanded="$openPanel === 'BookService'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/full-service.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-2">Regular servicing keeps your motorcycle safe, reliable, and holding its value. We cover brakes, steering, suspension, tyres and more.</p>
-                        <p class="leading-relaxed mb-3 text-sm">Compare packages on our <a href="{{ route('site.repairs.comparison') }}" class="text-brand-red font-semibold underline underline-offset-2">service comparison</a> page.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <flux:button href="{{ route('site.repairs.basic') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Basic service</flux:button>
-                            <flux:button href="{{ route('site.repairs.full') }}" variant="filled" size="sm" class="bg-gray-800 text-white hover:bg-gray-900 dark:bg-gray-700">Full service</flux:button>
-                            <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Basic Service']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Enquire — basic</flux:button>
-                            <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Full Service']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Enquire — full</flux:button>
-                        </div>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="Vehicle Delivery Service" :expanded="$openPanel === 'Delivery'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/wide-motorbike-recovery.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-2"><strong class="text-gray-900 dark:text-white">NGN specialises in secure, efficient motorcycle transport</strong> for private and commercial clients.</p>
-                        <p class="leading-relaxed mb-2"><strong class="text-gray-900 dark:text-white">Enjoy free collection</strong> when you choose our repair service.</p>
-                        <p class="leading-relaxed mb-3"><strong class="text-gray-900 dark:text-white">Nationwide transport from £249.99</strong> anywhere in England.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <flux:button href="{{ route('motorcycle.delivery') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Delivery &amp; recovery</flux:button>
-                            <flux:button href="tel:02083141498" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Call now</flux:button>
-                        </div>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="Motorcycle Sales" :expanded="$openPanel === 'Sales'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/new-and-used-motorcycles-for-sale-in-london.png') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-3">New and used motorcycles from leading brands — flexible finance on new stock, and practical used options ideal for London riders and delivery work.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <flux:button href="{{ route('motorcycles.new') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">New motorcycles</flux:button>
-                            <flux:button href="{{ route('motorcycles.used') }}" variant="filled" size="sm" class="bg-gray-800 text-white hover:bg-gray-900 dark:bg-gray-700">Used motorcycles</flux:button>
-                            <flux:button href="tel:02083141498" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Call now</flux:button>
-                        </div>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="Motorcycle Rental" :expanded="$openPanel === 'Rental'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/motorcycle-rental-hire-london.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-3">Rent motorcycles across London, Tooting, Sutton and Catford — prices from £70/week.</p>
-                        <div class="flex flex-wrap gap-2">
-                            <flux:button href="{{ route('site.rentals') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Rental fleet</flux:button>
-                            <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Rental Enquiry']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Rental enquiry</flux:button>
-                            <flux:button href="tel:02083141498" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600">Call now</flux:button>
-                        </div>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" heading="Accident Management Services" :expanded="$openPanel === 'Accident'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/accident.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-3"><strong class="text-gray-900 dark:text-white">We are experts in road traffic accidents.</strong></p>
-                        <flux:button href="{{ route('accident-management') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Accident management</flux:button>
-                    </flux:accordion.item>
-
-                    <flux:accordion.item class="px-3 !pb-5" heading="Finance Services" :expanded="$openPanel === 'Finance'" :transition="true">
-                        <img loading="lazy" src="{{ asset('assets/images/services/finance.jpg') }}" alt="" class="w-full max-h-48 object-cover mb-4 md:hidden border border-gray-200 dark:border-gray-600">
-                        <p class="leading-relaxed mb-3">Explore finance options to make your motorcycle purchase easier.</p>
-                        <flux:button href="{{ route('site.finance') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Finance overview</flux:button>
-                    </flux:accordion.item>
-                </flux:accordion>
-            </div>
-
-            <div class="hidden lg:block lg:col-span-4">
-                <div class="sticky top-28 space-y-6">
-                    <img loading="lazy" src="{{ asset('assets/images/services/repairs.jpg') }}" alt="NGN workshop and motorcycle services" class="w-full object-cover border border-gray-200 dark:border-gray-600 shadow-md">
-                    <flux:card class="p-5 border border-gray-200 dark:border-gray-700 bg-slate-50 dark:bg-gray-900">
-                        <h3 class="font-bold text-gray-900 dark:text-white text-sm mb-2">Quick links</h3>
-                        <ul class="text-sm space-y-2 list-none p-0 m-0">
-                            <li><a href="{{ route('site.repairs') }}" class="text-brand-red font-semibold underline underline-offset-2">Repairs hub</a></li>
-                            <li><a href="{{ route('site.repairs.comparison') }}" class="text-brand-red font-semibold underline underline-offset-2">Compare services</a></li>
-                            <li><a href="{{ route('site.repairs.repair-services') }}" class="text-brand-red font-semibold underline underline-offset-2">Repair menu</a></li>
-                            <li><a href="{{ route('site.mot') }}" class="text-brand-red font-semibold underline underline-offset-2">MOT</a></li>
-                        </ul>
                     </flux:card>
                 </div>
-            </div>
+            @endforeach
         </div>
 
-        <x-site.repairs.branches-cta-dark heading="Speak to a branch" intro="Catford, Tooting and Sutton — call or visit for bookings and advice on any service above." />
+        {{-- Wide links row — same idea as repairs index “why choose” / repair-services additional block --}}
+        <flux:card class="mt-12 border border-slate-200 bg-slate-50 p-6 md:p-8 dark:border-gray-700 dark:bg-gray-800/80">
+            <h3 class="mb-6 text-center text-xl font-bold text-brand-red">More on the site</h3>
+            <div class="grid grid-cols-1 gap-8 md:grid-cols-3 md:text-center">
+                <ul class="m-0 list-none space-y-2 p-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <li><a href="{{ route('site.repairs') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Repairs hub</a></li>
+                    <li><a href="{{ route('site.repairs.repair-services') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Repair menu</a></li>
+                </ul>
+                <ul class="m-0 list-none space-y-2 p-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <li><a href="{{ route('site.repairs.comparison') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Compare basic &amp; full</a></li>
+                    <li><a href="{{ route('site.mot') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">MOT testing</a></li>
+                </ul>
+                <ul class="m-0 list-none space-y-2 p-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                    <li><a href="{{ route('site.contact.service-booking') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Service booking page</a></li>
+                    <li><a href="{{ route('sale-motorcycles') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Motorcycle sales</a></li>
+                </ul>
+            </div>
+        </flux:card>
+
+        <x-site.repairs.branches-cta-dark
+            heading="Speak to a branch"
+            intro="Catford, Tooting and Sutton — call or visit for bookings and advice on any service above."
+        />
+
+        {{-- Enquiry — same width treatment as repairs/index enquiry block --}}
+        <div id="service-enquiry" class="mx-auto mt-14 max-w-3xl scroll-mt-28">
+            <h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Universal service enquiry</h2>
+            <p class="mb-6 text-sm leading-relaxed text-gray-600 dark:text-gray-400">Choose the service type in the form; it can be preset when you use an Enquire link from a card above.</p>
+            <livewire:site.contact.service-booking
+                :embedded="true"
+                :initial-service-type="$this->bookingPresetForChild()"
+                wire:key="all-services-booking-{{ $openPanel }}-{{ $bookingServiceType }}"
+            />
+        </div>
     </div>
 </div>

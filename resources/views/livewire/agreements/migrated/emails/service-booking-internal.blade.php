@@ -21,3 +21,7 @@
         <li style="margin:4px 0;"><strong>Notes / description:</strong> {{ $booking->description }}</li>
     @endif
 </ul>
+<p style="margin:0 0 14px;font-size:14px;color:#fff;line-height:1.65;">
+    <strong>Mark as dealt:</strong>
+    <a href="{{ url('ngn-admin/service-booking/' . ($booking->id ?? 'N/A') . '/edit') }}" style="color:#ffb3b3;">Open in admin</a>
+</p>

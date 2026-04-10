@@ -1,9 +1,10 @@
 <div class="space-y-6">
     <div class="flex justify-between items-center flex-wrap gap-3">
         <flux:heading size="xl">Bookings</flux:heading>
-        <div class="flex gap-3">
+        <div class="flex gap-3 flex-wrap">
             <flux:button href="{{ route('account.mot.book') }}" variant="outline">Book MOT</flux:button>
-            <flux:button href="{{ route('account.repairs.request') }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Book Repairs</flux:button>
+            <flux:button href="{{ route('account.repairs.request') }}" variant="outline">Repair enquiry</flux:button>
+            <flux:button href="{{ route('account.repairs.appointment') }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Repairs appointment</flux:button>
         </div>
     </div>
 
@@ -25,7 +26,8 @@
             <p class="text-gray-600 dark:text-gray-400 mb-4">You haven't made any bookings yet.</p>
             <div class="flex gap-3 justify-center flex-wrap">
                 <flux:button href="{{ route('account.mot.book') }}" variant="outline">Book MOT</flux:button>
-                <flux:button href="{{ route('account.repairs.request') }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Book Repairs</flux:button>
+                <flux:button href="{{ route('account.repairs.request') }}" variant="outline">Repair enquiry</flux:button>
+                <flux:button href="{{ route('account.repairs.appointment') }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Repairs appointment</flux:button>
             </div>
         </flux:card>
     @else

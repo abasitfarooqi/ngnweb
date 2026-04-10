@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Site\Services;
 
+use App\Livewire\Site\Contact\ServiceBooking;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -22,10 +23,18 @@ class AllServices extends Component
     #[Url(as: 'service', except: 'Repairs')]
     public string $openPanel = 'Repairs';
 
+    /** Pre-selects the embedded booking form (e.g. full vs basic service). */
+    #[Url(as: 'booking', except: '')]
+    public string $bookingServiceType = '';
+
     public function mount(): void
     {
         if (! in_array($this->openPanel, self::PANELS, true)) {
             $this->openPanel = 'Repairs';
+        }
+        $allowed = ServiceBooking::allowedServiceTypes();
+        if ($this->bookingServiceType !== '' && ! in_array($this->bookingServiceType, $allowed, true)) {
+            $this->bookingServiceType = '';
         }
     }
 
@@ -35,8 +44,19 @@ class AllServices extends Component
             'Repairs' => 'Motorcycle Repairs Enquiry',
             'MOT' => 'MOT Booking Enquiry',
             'Rental' => 'Motorcycle Rental Enquiry',
+            'Accident' => 'Accident Management Services Enquiry',
             default => null,
         };
+    }
+
+    public function bookingPresetForChild(): ?string
+    {
+        $allowed = ServiceBooking::allowedServiceTypes();
+        if ($this->bookingServiceType !== '' && in_array($this->bookingServiceType, $allowed, true)) {
+            return $this->bookingServiceType;
+        }
+
+        return $this->mapPanelToServiceType($this->openPanel);
     }
 
     public function render()

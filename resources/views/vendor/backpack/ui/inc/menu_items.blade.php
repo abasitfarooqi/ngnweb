@@ -81,7 +81,15 @@
     <x-backpack::menu-dropdown-item title="Add / Edit" icon="la la-box-open" :link="backpack_url('ngn-product-management')" />
     <x-backpack::menu-dropdown-item title="Stock Management" icon="la la-boxes" :link="backpack_url('ngn-inventory-management')" />
 
-    <x-backpack::menu-dropdown title="Spare parts" icon="la la-cogs">
+   
+    
+    <!-- additional -->
+    <!-- <x-backpack::menu-dropdown-item title="Add / Edit" icon="la la-box" :link="backpack_url('ngn-product')" /> -->
+    <!-- <x-backpack::menu-item title="Categories" icon="la la-tags" :link="backpack_url('ngn-category')" /> -->
+    <!-- <x-backpack::menu-item title="Brands" icon="la la-industry" :link="backpack_url('ngn-brand')" /> -->
+    <!-- <x-backpack::menu-item title="Products Stock Handlers" icon="la la-external-link-alt" :link="backpack_url('ngn-stock-handler')" />  -->
+</x-backpack::menu-dropdown>
+<x-backpack::menu-dropdown title="Spare parts" icon="la la-cogs">
         <x-backpack::menu-dropdown-item title="Makes" icon="la la-industry" :link="backpack_url('sp-make')" />
         <x-backpack::menu-dropdown-item title="Models" icon="la la-motorcycle" :link="backpack_url('sp-model')" />
         <x-backpack::menu-dropdown-item title="Fitments" icon="la la-wrench" :link="backpack_url('sp-fitment')" />
@@ -91,13 +99,6 @@
         <x-backpack::menu-dropdown-item title="Stock movements" icon="la la-exchange-alt" :link="backpack_url('sp-stock-movement')" />
         <x-backpack::menu-dropdown-item title="Stock handler" icon="la la-boxes" :link="backpack_url('sp-stock-handler')" />
     </x-backpack::menu-dropdown>
-    
-    <!-- additional -->
-    <!-- <x-backpack::menu-dropdown-item title="Add / Edit" icon="la la-box" :link="backpack_url('ngn-product')" /> -->
-    <!-- <x-backpack::menu-item title="Categories" icon="la la-tags" :link="backpack_url('ngn-category')" /> -->
-    <!-- <x-backpack::menu-item title="Brands" icon="la la-industry" :link="backpack_url('ngn-brand')" /> -->
-    <!-- <x-backpack::menu-item title="Products Stock Handlers" icon="la la-external-link-alt" :link="backpack_url('ngn-stock-handler')" />  -->
-</x-backpack::menu-dropdown>
 @endcan
 
 {{-- Vehicles --}}
@@ -139,6 +140,10 @@
 
 
 <x-backpack::menu-item title="Contact queries" icon="la la-question" :link="backpack_url('contact-query')" />
+<x-backpack::menu-item title="Service enquiries" icon="la la-calendar-check" :link="backpack_url('service-booking')" />
+<x-backpack::menu-item title="Conversations inbox" icon="la la-comments" :link="backpack_url('support-inbox')" />
+<x-backpack::menu-item title="Support conversations" icon="la la-comments" :link="backpack_url('support-conversation')" />
+<x-backpack::menu-item title="Support messages" icon="la la-comment-dots" :link="backpack_url('support-message')" />
 <x-backpack::menu-item title="M O T Stats Page" icon="la la-question" :link="backpack_url('mot_stats_page')" />
 <x-backpack::menu-item title="Motorbike delivery order enquiries" icon="la la-question" :link="backpack_url('motorbike-delivery-order-enquiries')" />
 
@@ -207,7 +212,7 @@
 
 
 
-{{-- MOTORBIKES AVAILABLE --}}
+<!-- {{-- MOTORBIKES AVAILABLE --}} -->
 <!-- @can('see-menu-motorbikes-available') -->
 <!-- <x-backpack::menu-dropdown title="MOTORBIKES AVAILABLE" icon="las la-chevron-circle-down"> -->
     <!-- <x-backpack::menu-item title="Add / Edit" icon="la la-motorcycle" :link="backpack_url('motorbike-available')" /> -->

@@ -1,4 +1,5 @@
 <div>
+@if(! $embedded)
 {{-- Hero --}}
 <div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
@@ -6,73 +7,116 @@
         <p class="text-xl text-red-100">Fast, convenient online service booking</p>
     </div>
 </div>
+@endif
 
 {{-- Form --}}
-<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 {{ $embedded ? 'py-0' : 'py-12' }}">
     @if(session('success'))
         <flux:callout variant="success" icon="check-circle" class="mb-6">
             <flux:callout.text>{{ session('success') }}</flux:callout.text>
         </flux:callout>
     @endif
 
-    <flux:card class="p-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Service Booking Form</h2>
+    <flux:card class="p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+            @if($embeddedHeading)
+                {{ $embeddedHeading }}
+            @elseif($embedded)
+                Service enquiry
+            @else
+                Service Booking Form
+            @endif
+        </h2>
 
         <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="space-y-5">
-            <flux:field>
-                <flux:label>Service Type *</flux:label>
-                <flux:select wire:model.live="serviceType" variant="listbox" placeholder="Select service...">
-                    <flux:select.option value="Accident Management Services Enquiry">Accident Management Services Enquiry</flux:select.option>
-                    <flux:select.option value="MOT Booking Enquiry">MOT Booking Enquiry</flux:select.option>
-                    <flux:select.option value="Motorcycle Repairs">Motorcycle Repairs</flux:select.option>
-                    <flux:select.option value="Motorcycle Full Service">Motorcycle Full Service</flux:select.option>
-                    <flux:select.option value="Motorcycle Basic Service">Motorcycle Basic Service</flux:select.option>
-                    <flux:select.option value="Motorcycle Rental Enquiry">Motorcycle Rental Enquiry</flux:select.option>
-                    <flux:select.option value="Other">Other</flux:select.option>
-                </flux:select>
-                <flux:error name="serviceType" />
-            </flux:field>
+            @if($portalRepairsEnquiry && $repairsEnquiryCompactMode)
+                <flux:field>
+                    <flux:label>Enquiry type *</flux:label>
+                    <flux:select wire:model.live="serviceType" variant="listbox" placeholder="Select…">
+                        @foreach (\App\Livewire\Site\Contact\ServiceBooking::portalRepairsServiceTypeOptions() as $svcValue => $svcLabel)
+                            <flux:select.option value="{{ $svcValue }}">{{ $svcLabel }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="serviceType" />
+                </flux:field>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <flux:field>
+                        <flux:label>Registration</flux:label>
+                        <flux:input wire:model="regNo" type="text" placeholder="AB12CDE" class="uppercase" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Make</flux:label>
+                        <flux:input wire:model="make" type="text" placeholder="e.g. Honda" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Model</flux:label>
+                        <flux:input wire:model="model" type="text" placeholder="e.g. CBR500R" />
+                    </flux:field>
+                </div>
+            @endif
+
+            @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
+                <flux:field>
+                    <flux:label>Service Type *</flux:label>
+                    <flux:select wire:model.live="serviceType" variant="listbox" placeholder="Select service...">
+                        <flux:select.option value="Motorcycle Repairs Enquiry">Motorcycle Repairs Enquiry</flux:select.option>
+                        <flux:select.option value="MOT Booking Enquiry">MOT Booking Enquiry</flux:select.option>
+                        <flux:select.option value="Motorcycle Full Service Enquiry">Motorcycle Full Service Enquiry</flux:select.option>
+                        <flux:select.option value="Motorcycle Basic Service Enquiry">Motorcycle Basic Service Enquiry</flux:select.option>
+                        <flux:select.option value="Motorcycle Rental Enquiry">Motorcycle Rental Enquiry</flux:select.option>
+                        <flux:select.option value="Accident Management Services Enquiry">Accident Management Services Enquiry</flux:select.option>
+                        <flux:select.option value="Other">Other</flux:select.option>
+                    </flux:select>
+                    <flux:error name="serviceType" />
+                </flux:field>
+            @endif
+
+            @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
+                <flux:field>
+                    <flux:label>Select Branch</flux:label>
+                    <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch if preferred...">
+                        @foreach($branches as $branch)
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    <flux:error name="selectedBranch" />
+                </flux:field>
+            @endif
+
+            @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <flux:field>
+                        <flux:label>Registration</flux:label>
+                        <flux:input wire:model="regNo" type="text" placeholder="AB12CDE" class="uppercase" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Make</flux:label>
+                        <flux:input wire:model="make" type="text" placeholder="e.g. Honda" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Model</flux:label>
+                        <flux:input wire:model="model" type="text" placeholder="e.g. CBR500R" />
+                    </flux:field>
+                </div>
+            @endif
+
+            @if (! ($portalRepairsEnquiry && $repairsEnquiryCompactMode))
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <flux:field>
+                        <flux:label>Full Name *</flux:label>
+                        <flux:input wire:model="name" type="text" />
+                        <flux:error name="name" />
+                    </flux:field>
+                    <flux:field>
+                        <flux:label>Phone *</flux:label>
+                        <flux:input wire:model="phone" type="tel" />
+                        <flux:error name="phone" />
+                    </flux:field>
+                </div>
+            @endif
 
             <flux:field>
-                <flux:label>Select Branch</flux:label>
-                <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch if preferred...">
-                    @foreach($branches as $branch)
-                        <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-                <flux:error name="selectedBranch" />
-            </flux:field>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <flux:field>
-                    <flux:label>Registration</flux:label>
-                    <flux:input wire:model="regNo" type="text" placeholder="AB12CDE" class="uppercase" />
-                </flux:field>
-                <flux:field>
-                    <flux:label>Make</flux:label>
-                    <flux:input wire:model="make" type="text" placeholder="e.g. Honda" />
-                </flux:field>
-                <flux:field>
-                    <flux:label>Model</flux:label>
-                    <flux:input wire:model="model" type="text" placeholder="e.g. CBR500R" />
-                </flux:field>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <flux:field>
-                    <flux:label>Full Name *</flux:label>
-                    <flux:input wire:model="name" type="text" />
-                    <flux:error name="name" />
-                </flux:field>
-                <flux:field>
-                    <flux:label>Phone *</flux:label>
-                    <flux:input wire:model="phone" type="tel" />
-                    <flux:error name="phone" />
-                </flux:field>
-            </div>
-
-            <flux:field>
-                <flux:label>Email</flux:label>
+                <flux:label>Email @if($portalRepairsEnquiry && $repairsEnquiryCompactMode) * @endif</flux:label>
                 <flux:input wire:model="email" type="email" />
                 <flux:error name="email" />
             </flux:field>
@@ -102,6 +146,7 @@
                             <flux:select.option value="16:00">16:00</flux:select.option>
                             <flux:select.option value="16:30">16:30</flux:select.option>
                             <flux:select.option value="17:00">17:00</flux:select.option>
+                            <flux:select.option value="17:30">17:30</flux:select.option>
                         </flux:select>
                         <flux:error name="preferredTime" />
                     </flux:field>
@@ -109,22 +154,24 @@
             @endif
 
             <flux:field>
-                <flux:label>Additional Notes</flux:label>
+                <flux:label>{{ $notesLabel }}</flux:label>
                 <flux:textarea wire:model="message" rows="3" placeholder="Any specific issues or requirements?" />
             </flux:field>
 
-            <div class="text-sm text-gray-700 dark:text-gray-300">
-                <label class="inline-flex items-start gap-2 cursor-pointer">
-                    <input type="checkbox" wire:model="cookiePolicy" class="mt-1 accent-brand-red">
-                    <span>I have read and agree to the
-                        <a href="{{ route('site.privacy') }}" class="text-brand-red font-medium underline decoration-brand-red/80 hover:text-brand-red-dark hover:decoration-brand-red-dark">Cookie and Privacy Policy</a>.
-                    </span>
-                </label>
-                <flux:error name="cookiePolicy" />
-            </div>
+            @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
+                <div class="text-sm text-gray-700 dark:text-gray-300">
+                    <label class="inline-flex items-start gap-2 cursor-pointer">
+                        <input type="checkbox" wire:model="cookiePolicy" class="mt-1 accent-brand-red">
+                        <span>I have read and agree to the
+                            <a href="{{ route('site.privacy') }}" class="text-brand-red font-medium underline decoration-brand-red/80 hover:text-brand-red-dark hover:decoration-brand-red-dark">Cookie and Privacy Policy</a>.
+                        </span>
+                    </label>
+                    <flux:error name="cookiePolicy" />
+                </div>
+            @endif
 
             <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled" wire:target="submitBooking">
-                <span wire:loading.remove wire:target="submitBooking">Book Service</span>
+                <span wire:loading.remove wire:target="submitBooking">{{ $submitLabel }}</span>
                 <span wire:loading wire:target="submitBooking">Submitting...</span>
             </flux:button>
         </form>

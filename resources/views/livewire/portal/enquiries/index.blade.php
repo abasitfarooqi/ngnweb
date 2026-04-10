@@ -56,6 +56,18 @@
                     @if($enquiry->description)
                         <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">{{ $enquiry->description }}</p>
                     @endif
+
+                    <div class="mt-4">
+                        @if($enquiry->conversation?->uuid)
+                            <flux:button href="{{ route('account.support.thread', $enquiry->conversation->uuid) }}" variant="outline" size="sm">
+                                Open chat
+                            </flux:button>
+                        @else
+                            <flux:button href="{{ route('account.support') }}" variant="outline" size="sm">
+                                Start chat about this enquiry
+                            </flux:button>
+                        @endif
+                    </div>
                 </flux:card>
             @endforeach
         </div>

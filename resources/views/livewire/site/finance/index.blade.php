@@ -44,24 +44,20 @@
                     <flux:input wire:model.live="deposit" type="number" min="0" />
                 </flux:field>
                 <flux:field>
-                    <flux:label>Term (months)</flux:label>
+                    <flux:label>Instalment term (months)</flux:label>
                     <flux:select wire:model.live="term" variant="listbox" placeholder="Select term">
-                        @foreach([12, 24, 36, 48, 60] as $t)
-                            <flux:select.option value="{{ $t }}">{{ $t }} months</flux:select.option>
-                        @endforeach
+                        <flux:select.option value="6">6 months</flux:select.option>
+                        <flux:select.option value="12">12 months</flux:select.option>
                     </flux:select>
                 </flux:field>
-                <flux:field>
-                    <flux:label>Interest Rate (% APR)</flux:label>
-                    <flux:input wire:model.live="rate" type="number" step="0.1" min="0" />
-                </flux:field>
+                {{-- APR not shown: rate is fixed at 0 on the Livewire component (interest-free split on this calculator). --}}
             </div>
 
             @if($monthlyPayment)
                 <div class="bg-gray-50 dark:bg-gray-800 p-6 text-center">
                     <p class="text-sm text-gray-500 mb-1">Estimated monthly payment</p>
                     <p class="text-4xl font-bold text-brand-red">£{{ number_format($monthlyPayment, 2) }}</p>
-                    <p class="text-xs text-gray-500 mt-2">Representative figure. Actual rate subject to status.</p>
+                    <!-- <p class="text-xs text-gray-500 mt-2">Illustrative only (no interest on this calculator). Final terms from our team; not an offer of credit.</p> -->
                 </div>
             @endif
         </flux:card>

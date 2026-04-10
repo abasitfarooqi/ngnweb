@@ -48,6 +48,8 @@ class Browse extends Component
                     'MB.id as id', 'MB.make as make', 'MB.model as model', 'MB.year as year',
                     'MB.engine as engine', 'MB.branch_id as branch_id', 'MB.color as color',
                     'MB.is_ebike as is_ebike', 'MR.registration_number as reg_no',
+                    'BR.name as branch_name',
+                    'RP.weekly_price as weekly_price',
                     DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as mot_status"),
                     DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as road_tax_status"),
                     'MC.road_tax_status as road_tax_status_flag', 'MC.insurance_status as insurance_status',
@@ -75,6 +77,15 @@ class Browse extends Component
 
             if ($this->selectedBranch) {
                 $motorbikes->where('MB.branch_id', $this->selectedBranch);
+            }
+
+            if ($this->filterType !== 'all') {
+                if ($this->filterType === 'scooter') {
+                    $motorbikes->where('MB.engine', '<=', 125);
+                }
+                if ($this->filterType === 'motorbike') {
+                    $motorbikes->where('MB.engine', '>', 125);
+                }
             }
 
             if ($this->searchQuery) {

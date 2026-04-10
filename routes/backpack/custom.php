@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\RoleCrudController;
 // use App\Http\Controllers\Admin\NgnDigitalInvoiceCrudController;
 // use App\Http\Controllers\Admin\NgnDigitalInvoiceItemCrudController;
 use App\Http\Controllers\Admin\SpStockHandlerCrudController;
+use App\Http\Controllers\Admin\SupportInboxController;
 use App\Http\Controllers\Admin\UserCrudController;
 use App\Http\Controllers\Admin\VehicleDeliveryOrderCrudController;
 use Backpack\CRUD\app\Http\Controllers\CrudController as CRUD;
@@ -244,6 +245,14 @@ Route::group([
     Route::post('survey/send-sms-reminder/{id}', 'NgnSurveyCampaignController@sendSmsReminder')->name('survey.send-sms-reminder');
 
     Route::crud('contact-query', 'ContactQueryCrudController');
+    Route::crud('service-booking', 'ServiceBookingCrudController');
+    Route::get('support-inbox', [SupportInboxController::class, 'index'])->name('page.support_inbox.index');
+    Route::get('support-inbox/conversations', [SupportInboxController::class, 'conversations'])->name('page.support_inbox.conversations');
+    Route::get('support-inbox/conversations/{conversationId}', [SupportInboxController::class, 'show'])->name('page.support_inbox.show');
+    Route::post('support-inbox/conversations/{conversationId}/messages', [SupportInboxController::class, 'sendMessage'])->name('page.support_inbox.send_message');
+    Route::patch('support-inbox/conversations/{conversationId}', [SupportInboxController::class, 'updateConversation'])->name('page.support_inbox.update');
+    Route::crud('support-conversation', 'SupportConversationCrudController');
+    Route::crud('support-message', 'SupportMessageCrudController');
 
     Route::get('mot_stats_page', 'MOTStatsPageController@index')->name('page.mot_stats_page.index');
     Route::post('mot-stats-page/send-reminder/{id}', 'MOTStatsPageController@sendReminder')->name('mot-stats-page.send-reminder');

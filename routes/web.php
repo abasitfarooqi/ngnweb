@@ -351,8 +351,10 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/bookings', \App\Livewire\Portal\Bookings\Index::class)->name('bookings');
     Route::get('/repairs', fn () => redirect()->route('account.repairs.request'))->name('repairs');
     Route::get('/repairs/request', \App\Livewire\Portal\Repairs\Request::class)->name('repairs.request');
+    Route::get('/repairs/appointment', \App\Livewire\Portal\Repairs\Appointment::class)->name('repairs.appointment');
     Route::get('/rentals', \App\Livewire\Portal\Rentals\Browse::class)->name('rentals');
     Route::get('/rentals/browse', \App\Livewire\Portal\Rentals\Browse::class)->name('rentals.browse');
+    Route::get('/rentals/my-enquiries', \App\Livewire\Portal\Rentals\MyEnquiries::class)->name('rentals.my-enquiries');
     Route::get('/rentals/my-rentals', \App\Livewire\Portal\Rentals\MyRentals::class)->name('rentals.my-rentals');
     Route::get('/rentals/create/{motorbikeId}', \App\Livewire\Portal\Rentals\Create::class)->name('rentals.create');
     Route::view('/rentals/payment/{bookingId}', 'portal.rentals.payment')->name('rentals.payment');
@@ -371,10 +373,21 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
     Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
     Route::get('/enquiries', \App\Livewire\Portal\Enquiries\Index::class)->name('enquiries');
+    Route::get('/support', \App\Livewire\Portal\Support\Inbox::class)->name('support');
+    Route::get('/support/start-general', [\App\Http\Controllers\Portal\SupportPortalController::class, 'startGeneral'])->name('support.start-general');
+    Route::get('/support/from-enquiry/{serviceBookingId}', [\App\Http\Controllers\Portal\SupportPortalController::class, 'startFromEnquiry'])->name('support.from-enquiry');
+    Route::get('/support/{conversationUuid}/latest-message', [\App\Http\Controllers\Portal\SupportPortalController::class, 'latestMessage'])->name('support.latest-message');
+    Route::get('/support/{conversationUuid}/messages-html', [\App\Http\Controllers\Portal\SupportPortalController::class, 'messagesHtml'])->name('support.messages-html');
+    Route::get('/support/{conversationUuid}', \App\Livewire\Portal\Support\Thread::class)->name('support.thread');
+    Route::post('/support/{conversationUuid}/message', [\App\Http\Controllers\Portal\SupportPortalController::class, 'sendMessage'])->name('support.send-message');
     Route::get('/addresses', \App\Livewire\Portal\Addresses::class)->name('addresses');
     Route::get('/payment-methods', \App\Livewire\Portal\PaymentMethods::class)->name('payment-methods');
     Route::get('/payments/recurring', \App\Livewire\Portal\Payments\Recurring::class)->name('payments.recurring');
 });
+
+Route::middleware(['web', 'auth:customer,backpack'])
+    ->get('/support/attachments/{attachment}', [\App\Http\Controllers\SupportAttachmentController::class, 'show'])
+    ->name('support.attachments.show');
 
 // Judopay portal callbacks
 Route::get('/judopay/success/{token}', [\App\Http\Controllers\Portal\RentalPaymentController::class, 'success'])->name('judopay.success');

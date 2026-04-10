@@ -35,8 +35,14 @@
         @endforeach
     </div>
 </div>
+{{-- 
+    Rental Grid 
 
-{{-- Rental Grid --}}
+    This section is intentionally commented out to safely hide it and avoid the "Multiple root elements detected for component" Livewire error.
+    To restore, uncomment it and ensure this file has only one root element (a single parent <div> wrapping the entire template).
+--}}
+
+{{--
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
     <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-8">Available Motorcycles</h2>
 
@@ -63,6 +69,7 @@
         </div>
     @endif
 </div>
+--}}
 
 {{-- Requirements --}}
 <div class="bg-gray-50 dark:bg-gray-900 border-t border-gray-100 dark:border-gray-800 py-14">

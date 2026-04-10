@@ -53,48 +53,76 @@
             {{-- Desktop nav --}}
             <nav class="hidden lg:flex items-center gap-0.5 ml-6 flex-1" x-data="{ open: null }" @mouseleave="open = null">
 
-                {{-- Sales --}}
+                {{-- Sales: label goes to sales hub; chevron toggles submenu (hover still opens via parent) --}}
                 <div class="relative" @mouseenter="open = 'sales'" @mouseleave="open = null">
-                    <button class="flex items-center gap-1 px-3 py-2 text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 hover:text-brand-red transition">
-                        Sales <svg class="w-3.5 h-3.5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
+                    <div class="flex items-stretch">
+                        <a href="{{ route('sale-motorcycles') }}"
+                           class="flex items-center px-3 py-2 text-sm font-semibold uppercase tracking-wide transition {{ request()->routeIs('sale-motorcycles', 'used-motorcycles.page', 'site.finance') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }}">
+                            Sales
+                        </a>
+                        <button type="button"
+                                class="flex items-center px-1.5 py-2 text-gray-500 dark:text-gray-400 border-l border-gray-200 dark:border-gray-700 hover:text-brand-red transition"
+                                aria-label="Open sales submenu"
+                                @click.prevent="open = open === 'sales' ? null : 'sales'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                    </div>
                     <div x-show="open === 'sales'" x-transition.opacity x-cloak
                          class="absolute left-0 top-full z-50 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
                         <a href="{{ route('motorcycles.new') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">New Motorcycles</a>
                         <a href="{{ route('motorcycles.used') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Used Motorcycles</a>
-                        <a href="/finance" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Finance</a>
-                        <a href="{{ url('/accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
+                        <a href="{{ route('site.finance') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Finance</a>
+                        <a href="{{ route('accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
                     </div>
                 </div>
 
                 <a href="{{ route('rental-hire') }}" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('rental*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">Rentals</a>
 
-                {{-- Services --}}
+                {{-- Services: label goes to all-services hub --}}
                 <div class="relative" @mouseenter="open = 'services'" @mouseleave="open = null">
-                    <button class="flex items-center gap-1 px-3 py-2 text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 hover:text-brand-red transition">
-                        Services <svg class="w-3.5 h-3.5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
+                    <div class="flex items-stretch">
+                        <a href="{{ route('all-services') }}"
+                           class="flex items-center px-3 py-2 text-sm font-semibold uppercase tracking-wide transition {{ request()->routeIs('all-services', 'site.mot', 'site.repairs', 'site.repairs.basic', 'site.repairs.full', 'site.repairs.repair-services', 'site.repairs.comparison', 'motorcycle.delivery', 'site.recovery', 'accident-management') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }}">
+                            Services
+                        </a>
+                        <button type="button"
+                                class="flex items-center px-1.5 py-2 text-gray-500 dark:text-gray-400 border-l border-gray-200 dark:border-gray-700 hover:text-brand-red transition"
+                                aria-label="Open services submenu"
+                                @click.prevent="open = open === 'services' ? null : 'services'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                    </div>
                     <div x-show="open === 'services'" x-transition.opacity x-cloak
-                         class="absolute left-0 top-full z-50 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
-                        <a href="/mot" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">MOT Testing</a>
-                        <a href="/repairs" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Repairs &amp; Servicing</a>
-                        <a href="/motorcycle-delivery" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Recovery &amp; Delivery</a>
-                        <a href="{{ url('/accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
+                         class="absolute left-0 top-full z-50 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
+                        <a href="{{ route('all-services') }}" class="block px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">All services</a>
+                        <a href="{{ route('site.mot') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">MOT Testing</a>
+                        <a href="{{ route('site.repairs') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Repairs &amp; Servicing</a>
+                        <a href="{{ route('motorcycle.delivery') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Recovery &amp; Delivery</a>
+                        <a href="{{ route('accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
                     </div>
                 </div>
 
-                {{-- Shop --}}
+                {{-- Shop: label goes to shop home --}}
                 <div class="relative" @mouseenter="open = 'shop'" @mouseleave="open = null">
-                    <button class="flex items-center gap-1 px-3 py-2 text-sm font-semibold uppercase tracking-wide text-gray-700 dark:text-gray-300 hover:text-brand-red transition">
-                        Shop <svg class="w-3.5 h-3.5 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
+                    <div class="flex items-stretch">
+                        <a href="{{ route('shop.home') }}"
+                           class="flex items-center px-3 py-2 text-sm font-semibold uppercase tracking-wide transition {{ request()->is('shop*', 'accessories', 'ebikes', 'gps-tracker', 'helmets') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }}">
+                            Shop
+                        </a>
+                        <button type="button"
+                                class="flex items-center px-1.5 py-2 text-gray-500 dark:text-gray-400 border-l border-gray-200 dark:border-gray-700 hover:text-brand-red transition"
+                                aria-label="Open shop submenu"
+                                @click.prevent="open = open === 'shop' ? null : 'shop'">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                    </div>
                     <div x-show="open === 'shop'" x-transition.opacity x-cloak
                          class="absolute left-0 top-full z-50 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
-                        <a href="/shop" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">All Shop</a>
-                        <a href="/shop/accessories" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accessories</a>
-                        <a href="/shop/gps-tracker" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">GPS Trackers</a>
-                        <a href="/helmets" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Helmets</a>
-                        <a href="/ebikes" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">E-Bikes</a>
+                        <a href="{{ route('shop.home') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">All Shop</a>
+                        <a href="{{ route('shop.accessories') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accessories</a>
+                        <a href="{{ route('shop.gps-tracker') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">GPS Trackers</a>
+                        <a href="{{ route('shop.helmets') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Helmets</a>
+                        <a href="{{ route('site.ebikes') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">E-Bikes</a>
                     </div>
                 </div>
 
@@ -217,17 +245,23 @@
             {{-- Nav groups --}}
             <nav class="py-2">
 
-                {{-- Sales --}}
-                <button @click="toggleGroup('sales')"
-                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
-                    <span>Sales</span>
-                    <svg :class="expandedGroup === 'sales' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
+                {{-- Sales: tap label for hub, chevron for submenu --}}
+                <div class="flex items-stretch border-b border-gray-100 dark:border-gray-800">
+                    <a href="{{ route('sale-motorcycles') }}" @click="closeMobile()"
+                       class="flex-1 flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
+                        Sales
+                    </a>
+                    <button type="button" @click="toggleGroup('sales')"
+                            class="flex items-center px-4 py-3 text-gray-500 dark:text-gray-400 border-l border-gray-100 dark:border-gray-800 hover:text-brand-red transition"
+                            aria-label="Expand sales submenu">
+                        <svg :class="expandedGroup === 'sales' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
                 <div x-show="expandedGroup === 'sales'" x-transition class="bg-gray-50 dark:bg-gray-800">
                     <a href="{{ route('motorcycles.new') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">New Motorcycles</a>
                     <a href="{{ route('motorcycles.used') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Used Motorcycles</a>
-                    <a href="/finance" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Finance</a>
-                    <a href="{{ url('/accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>
+                    <a href="{{ route('site.finance') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Finance</a>
+                    <a href="{{ route('accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>
                 </div>
 
                 <a href="{{ route('rental-hire') }}" @click="closeMobile()"
@@ -236,30 +270,43 @@
                 </a>
 
                 {{-- Services --}}
-                <button @click="toggleGroup('services')"
-                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
-                    <span>Services</span>
-                    <svg :class="expandedGroup === 'services' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
+                <div class="flex items-stretch border-b border-gray-100 dark:border-gray-800">
+                    <a href="{{ route('all-services') }}" @click="closeMobile()"
+                       class="flex-1 flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
+                        Services
+                    </a>
+                    <button type="button" @click="toggleGroup('services')"
+                            class="flex items-center px-4 py-3 text-gray-500 dark:text-gray-400 border-l border-gray-100 dark:border-gray-800 hover:text-brand-red transition"
+                            aria-label="Expand services submenu">
+                        <svg :class="expandedGroup === 'services' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
                 <div x-show="expandedGroup === 'services'" x-transition class="bg-gray-50 dark:bg-gray-800">
-                    <a href="/mot" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">MOT Testing</a>
-                    <a href="/repairs" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Repairs &amp; Servicing</a>
-                    <a href="/motorcycle-delivery" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Recovery &amp; Delivery</a>
-                    <a href="{{ url('/accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>
+                    <a href="{{ route('all-services') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:text-brand-red">All services</a>
+                    <a href="{{ route('site.mot') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">MOT Testing</a>
+                    <a href="{{ route('site.repairs') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Repairs &amp; Servicing</a>
+                    <a href="{{ route('motorcycle.delivery') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Recovery &amp; Delivery</a>
+                    <a href="{{ route('accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>
                 </div>
 
                 {{-- Shop --}}
-                <button @click="toggleGroup('shop')"
-                        class="w-full flex items-center justify-between px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
-                    <span>Shop</span>
-                    <svg :class="expandedGroup === 'shop' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
+                <div class="flex items-stretch border-b border-gray-100 dark:border-gray-800">
+                    <a href="{{ route('shop.home') }}" @click="closeMobile()"
+                       class="flex-1 flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">
+                        Shop
+                    </a>
+                    <button type="button" @click="toggleGroup('shop')"
+                            class="flex items-center px-4 py-3 text-gray-500 dark:text-gray-400 border-l border-gray-100 dark:border-gray-800 hover:text-brand-red transition"
+                            aria-label="Expand shop submenu">
+                        <svg :class="expandedGroup === 'shop' ? 'rotate-180' : ''" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+                    </button>
+                </div>
                 <div x-show="expandedGroup === 'shop'" x-transition class="bg-gray-50 dark:bg-gray-800">
-                    <a href="/shop" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">All Shop</a>
-                    <a href="/shop/accessories" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accessories</a>
-                    <a href="/shop/gps-tracker" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">GPS Trackers</a>
-                    <a href="/helmets" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Helmets</a>
-                    <a href="/ebikes" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">E-Bikes</a>
+                    <a href="{{ route('shop.home') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">All Shop</a>
+                    <a href="{{ route('shop.accessories') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accessories</a>
+                    <a href="{{ route('shop.gps-tracker') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">GPS Trackers</a>
+                    <a href="{{ route('shop.helmets') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Helmets</a>
+                    <a href="{{ route('site.ebikes') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">E-Bikes</a>
                 </div>
 
                 <a href="{{ route('spareparts.index') }}" @click="closeMobile()" class="flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">

@@ -27,17 +27,9 @@ class Index extends Component
             abort(403);
         }
 
-        $customerId = $customerAuth->customer_id;
-
         $enquiries = ServiceBooking::query()
-            ->where(function ($query) use ($customerAuth, $customerId): void {
-                if ($customerId) {
-                    $query->orWhere('customer_id', $customerId);
-                }
-                if ($customerAuth->id) {
-                    $query->orWhere('customer_auth_id', $customerAuth->id);
-                }
-            })
+            ->forPortalCustomer($customerAuth)
+            ->with('conversation')
             ->when($this->activeFilter !== 'all', function ($query): void {
                 $mapped = match ($this->activeFilter) {
                     'mot' => ['mot'],
@@ -50,7 +42,11 @@ class Index extends Component
                 };
 
                 if (! empty($mapped)) {
-                    $query->whereIn('enquiry_type', $mapped);
+                    if ($this->activeFilter === 'rentals') {
+                        $query->whereRentalEnquiry();
+                    } else {
+                        $query->whereIn('enquiry_type', $mapped);
+                    }
                 }
             })
             ->latest()
