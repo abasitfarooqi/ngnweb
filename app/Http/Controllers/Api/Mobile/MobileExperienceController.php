@@ -403,6 +403,103 @@ class MobileExperienceController extends Controller
         ]);
     }
 
+    public function frontendParityMap(): JsonResponse
+    {
+        return response()->json([
+            'website_livewire_modules' => [
+                ['module' => 'site.about', 'view' => 'livewire.site.about', 'api' => ['/api/v1/mobile/content/frontend-parity-map', '/api/v1/mobile/presentation/views/site/about'], 'tables' => []],
+                ['module' => 'site.bikes', 'view' => 'livewire.site.bikes.*', 'api' => ['/api/v1/mobile/bikes', '/api/v1/mobile/bikes/new/{id}', '/api/v1/mobile/bikes/used/{id}'], 'tables' => ['motorbikes', 'motorbikes_sale', 'motorbike_images']],
+                ['module' => 'site.club', 'view' => 'livewire.site.club.*', 'api' => ['/api/v1/mobile/club/content', '/api/v1/mobile/club/register', '/api/v1/mobile/club/login', '/api/v1/mobile/club/dashboard/parity'], 'tables' => ['club_members', 'club_member_purchases', 'club_member_spendings', 'club_member_spending_payments']],
+                ['module' => 'site.contact', 'view' => 'livewire.site.contact.*', 'api' => ['/api/v1/mobile/contact/call-back', '/api/v1/mobile/contact/trade-account', '/api/v1/mobile/contact/service-booking'], 'tables' => ['service_bookings', 'branches']],
+                ['module' => 'site.ebikes', 'view' => 'livewire.site.ebikes.*', 'api' => ['/api/v1/mobile/ebikes/experience'], 'tables' => ['motorbikes', 'motorbike_images']],
+                ['module' => 'site.finance', 'view' => 'livewire.site.finance.*', 'api' => ['/api/v1/mobile/finance/content', '/api/v1/mobile/finance/calculate', '/api/v1/mobile/finance/apply'], 'tables' => ['service_bookings', 'motorbikes', 'motorcycles']],
+                ['module' => 'site.legal', 'view' => 'livewire.site.legal.*', 'api' => ['/api/v1/mobile/legal/pages', '/api/v1/mobile/legal/pages/{slug}'], 'tables' => ['legals']],
+                ['module' => 'site.locations', 'view' => 'livewire.site.locations.*', 'api' => ['/api/v1/mobile/branches'], 'tables' => ['branches']],
+                ['module' => 'site.mot', 'view' => 'livewire.site.mot.*', 'api' => ['/api/v1/mobile/mot/check', '/api/v1/mobile/mot/alerts', '/api/v1/mobile/services/mot'], 'tables' => ['mot_checkers', 'mot_tax_alert_subscriptions', 'branches']],
+                ['module' => 'site.partner', 'view' => 'livewire.site.partner.*', 'api' => ['/api/v1/mobile/partners'], 'tables' => ['ngn_partners']],
+                ['module' => 'site.recovery', 'view' => 'livewire.site.recovery.*', 'api' => ['/api/v1/mobile/services/recovery', '/api/v1/mobile/portal/recovery/options', '/api/v1/mobile/portal/recovery/quote'], 'tables' => ['motorbike_delivery_order_enquiries', 'delivery_vehicle_types', 'ds_orders', 'ds_order_items']],
+                ['module' => 'site.rentals', 'view' => 'livewire.site.rentals.*', 'api' => ['/api/v1/mobile/rentals', '/api/v1/mobile/rentals/{id}'], 'tables' => ['motorbikes', 'renting_pricings']],
+                ['module' => 'site.repairs', 'view' => 'livewire.site.repairs.*', 'api' => ['/api/v1/mobile/services/repairs/basic', '/api/v1/mobile/services/repairs/full', '/api/v1/mobile/services/repairs/comparison'], 'tables' => ['customer_appointments', 'service_bookings', 'branches']],
+                ['module' => 'site.services', 'view' => 'livewire.site.services.*', 'api' => ['/api/v1/mobile/services', '/api/v1/mobile/content/service-modules'], 'tables' => ['service_bookings']],
+                ['module' => 'site.shop', 'view' => 'livewire.site.shop.*', 'api' => ['/api/v1/mobile/shop/products', '/api/v1/mobile/shop/products/{idOrSlug}', '/api/v1/mobile/cart', '/api/v1/mobile/checkout/quote'], 'tables' => ['ngn_products', 'ec_orders', 'ec_order_items', 'ec_shipping_methods', 'ec_payment_methods']],
+                ['module' => 'site.spareparts', 'view' => 'livewire.site.spareparts.*', 'api' => ['/api/v1/mobile/spare-parts/*'], 'tables' => ['sp_makes', 'sp_models', 'sp_fitments', 'sp_assemblies', 'sp_assembly_parts', 'sp_parts']],
+                ['module' => 'site.survey', 'view' => 'livewire.site.survey.*', 'api' => ['/api/v1/mobile/presentation/views/site/survey/show'], 'tables' => []],
+                ['module' => 'site.reviews', 'view' => 'livewire.site.reviews', 'api' => ['/api/v1/mobile/reviews'], 'tables' => ['reviews']],
+                ['module' => 'site.blog', 'view' => 'livewire.shop.blog-*', 'api' => ['/api/v1/mobile/blog/posts', '/api/v1/mobile/blog/posts/{slug}'], 'tables' => ['blog_posts', 'blog_categories', 'blog_images']],
+                ['module' => 'site.career', 'view' => 'livewire.site.career.*', 'api' => ['/api/v1/mobile/careers', '/api/v1/mobile/careers/{id}'], 'tables' => ['ngn_careers']],
+            ],
+            'portal_livewire_modules' => [
+                ['module' => 'portal.dashboard', 'view' => 'livewire.portal.dashboard', 'api' => ['/api/v1/mobile/portal/overview', '/api/v1/mobile/portal/bookings'], 'tables' => ['renting_bookings', 'mot_bookings', 'vehicle_delivery_orders']],
+                ['module' => 'portal.orders', 'view' => 'livewire.portal.orders.*', 'api' => ['/api/v1/mobile/portal/orders', '/api/v1/mobile/portal/orders/{id}'], 'tables' => ['ec_orders', 'ec_order_items']],
+                ['module' => 'portal.rentals', 'view' => 'livewire.portal.rentals.*', 'api' => ['/api/v1/mobile/portal/rentals', '/api/v1/mobile/portal/rentals/{id}', '/api/v1/mobile/portal/rentals/create/{motorbikeId}'], 'tables' => ['renting_bookings', 'renting_booking_items', 'booking_invoices', 'renting_transactions']],
+                ['module' => 'portal.mot', 'view' => 'livewire.portal.mot.*', 'api' => ['/api/v1/mobile/portal/mot-bookings'], 'tables' => ['mot_bookings', 'service_bookings']],
+                ['module' => 'portal.recovery', 'view' => 'livewire.portal.recovery.*', 'api' => ['/api/v1/mobile/portal/recovery-requests', '/api/v1/mobile/portal/recovery/requests'], 'tables' => ['motorbike_delivery_order_enquiries', 'ds_orders', 'ds_order_items']],
+                ['module' => 'portal.documents', 'view' => 'livewire.portal.documents', 'api' => ['/api/v1/mobile/portal/documents', '/api/v1/mobile/portal/documents/upload'], 'tables' => ['customer_documents', 'document_types', 'customer_agreements', 'customer_contracts']],
+                ['module' => 'portal.addresses', 'view' => 'livewire.portal.addresses', 'api' => ['/api/v1/mobile/portal/addresses*'], 'tables' => ['customer_addresses', 'system_countries']],
+                ['module' => 'portal.profile-security', 'view' => 'livewire.portal.profile + livewire.portal.security', 'api' => ['/api/v1/mobile/portal/profile', '/api/v1/mobile/portal/security/change-password'], 'tables' => ['customers', 'customer_auths']],
+                ['module' => 'portal.support', 'view' => 'livewire.portal.support.*', 'api' => ['/api/v1/customer/support/*', '/api/v1/staff/support/*'], 'tables' => ['support_conversations', 'support_messages', 'support_attachments']],
+                ['module' => 'portal.finance', 'view' => 'livewire.portal.finance.*', 'api' => ['/api/v1/mobile/finance/*', '/api/v1/mobile/portal/payments/recurring'], 'tables' => ['finance_applications', 'judopay_subscriptions', 'ngn_mit_queues']],
+            ],
+            'presentation_api' => [
+                'index' => '/api/v1/mobile/presentation/views',
+                'view_payload' => '/api/v1/mobile/presentation/views/{segment}/{path}',
+                'supported_segments' => ['site', 'portal', 'shop', 'v2', 'auth'],
+            ],
+        ]);
+    }
+
+    public function presentationViews(): JsonResponse
+    {
+        $segments = ['site', 'portal', 'shop', 'v2', 'auth'];
+        $payload = [];
+        foreach ($segments as $segment) {
+            $payload[$segment] = $this->collectTemplates(resource_path('views/livewire/'.$segment));
+        }
+
+        return response()->json([
+            'segments' => $payload,
+            'note' => 'Use presentation/views/{segment}/{path} for detailed UI payload from Blade source.',
+        ]);
+    }
+
+    public function presentationViewPayload(string $segment, string $path): JsonResponse
+    {
+        $allowed = ['site', 'portal', 'shop', 'v2', 'auth'];
+        if (! in_array($segment, $allowed, true)) {
+            return response()->json(['message' => 'Unsupported segment.'], 422);
+        }
+
+        $base = resource_path('views/livewire/'.$segment);
+        $normalised = trim(str_replace(['..', '\\'], ['', '/'], $path), '/');
+        $filePath = $base.'/'.$normalised.'.blade.php';
+        if (! File::exists($filePath)) {
+            return response()->json(['message' => 'View not found.'], 404);
+        }
+
+        $content = File::get($filePath);
+        preg_match_all('/class\\s*=\\s*"([^"]+)"/i', $content, $classMatches);
+        preg_match_all('/<\\s*flux:([a-zA-Z0-9\\-:_]+)/', $content, $fluxMatches);
+
+        $classTokens = collect($classMatches[1] ?? [])
+            ->flatMap(fn ($value) => preg_split('/\\s+/', trim((string) $value)) ?: [])
+            ->filter()
+            ->values();
+
+        return response()->json([
+            'segment' => $segment,
+            'relative_path' => $normalised.'.blade.php',
+            'sha1' => sha1($content),
+            'line_count' => substr_count($content, PHP_EOL) + 1,
+            'ui_contract' => [
+                'tailwind_tokens' => $classTokens->unique()->values()->take(250),
+                'flux_components' => collect($fluxMatches[1] ?? [])->unique()->values(),
+                'has_livewire_binding' => Str::contains($content, ['wire:model', 'wire:click', 'wire:submit', 'wire:navigate']),
+                'has_alpine_usage' => Str::contains($content, ['x-data', 'x-show', 'x-on:']),
+            ],
+            'blade_source' => $content,
+        ]);
+    }
+
     private function collectTemplates(string $directory): array
     {
         if (! File::isDirectory($directory)) {

@@ -1,0 +1,87 @@
+{
+  "info": {
+    "name": "NGN Mobile API V2 Modules",
+    "_postman_id": "65f0a2a5-d4a2-46c6-a027-1f6af2d4fa17",
+    "description": "Module-wise V2 collection for app team implementation by domain.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Module - Bootstrap and Maps",
+      "item": [
+        { "name": "System Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/system-map" } },
+        { "name": "Forms Blueprint", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/forms-blueprint" } },
+        { "name": "Experience Blueprint", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/experience-blueprint" } },
+        { "name": "Full App Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/full-app-map" } },
+        { "name": "DB Link Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/db-link-map" } },
+        { "name": "Frontend Parity Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/frontend-parity-map" } }
+      ]
+    },
+    {
+      "name": "Module - Frontend Public",
+      "item": [
+        { "name": "Home Feed", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/home-feed" } },
+        { "name": "Branches", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/branches" } },
+        { "name": "Bikes", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/bikes" } },
+        { "name": "Rentals", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/rentals" } },
+        { "name": "Services", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/services" } },
+        { "name": "Shop Products", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/shop/products" } },
+        { "name": "Spare Parts", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/spare-parts" } },
+        { "name": "Ebike Experience", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/ebikes/experience" } },
+        { "name": "Careers", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/careers" } },
+        { "name": "Partners", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/partners" } },
+        { "name": "Legal", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/legal/pages" } },
+        { "name": "Blog", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/blog/posts" } },
+        { "name": "Reviews", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/reviews" } }
+      ]
+    },
+    {
+      "name": "Module - Forms",
+      "item": [
+        { "name": "MOT Check", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"reg_no\": \"AB12CDE\"\n}" }, "url": "{{base_url}}/api/v2/mobile/mot/check" } },
+        { "name": "MOT Alerts", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"customer@example.com\",\n  \"phone\": \"07123456789\",\n  \"reg_no\": \"AB12CDE\",\n  \"notify_email\": true,\n  \"notify_phone\": false\n}" }, "url": "{{base_url}}/api/v2/mobile/mot/alerts" } },
+        { "name": "Finance Content", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/finance/content" } },
+        { "name": "Finance Calculate", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"loan_amount\": 3000,\n  \"deposit\": 500,\n  \"term\": 12\n}" }, "url": "{{base_url}}/api/v2/mobile/finance/calculate" } },
+        { "name": "Finance Apply", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"first_name\": \"John\",\n  \"last_name\": \"Smith\",\n  \"email\": \"customer@example.com\",\n  \"phone\": \"07123456789\",\n  \"consent\": true\n}" }, "url": "{{base_url}}/api/v2/mobile/finance/apply" } },
+        { "name": "Contact Call Back", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Smith\",\n  \"phone\": \"07123456789\"\n}" }, "url": "{{base_url}}/api/v2/mobile/contact/call-back" } },
+        { "name": "Contact Trade Account", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"company_name\": \"NGN Trade Ltd\",\n  \"contact_name\": \"John Smith\",\n  \"email\": \"trade@example.com\",\n  \"phone\": \"07123456789\"\n}" }, "url": "{{base_url}}/api/v2/mobile/contact/trade-account" } },
+        { "name": "Contact Service Booking", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"John Smith\",\n  \"email\": \"customer@example.com\",\n  \"phone\": \"07123456789\",\n  \"selected_branch\": 1,\n  \"service_type\": \"MOT Booking Enquiry\"\n}" }, "url": "{{base_url}}/api/v2/mobile/contact/service-booking" } }
+      ]
+    },
+    {
+      "name": "Module - Portal",
+      "item": [
+        { "name": "Portal Overview", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/overview" } },
+        { "name": "Portal Full State", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/full-state" } },
+        { "name": "Portal Bookings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/bookings" } },
+        { "name": "Portal Orders", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/orders" } },
+        { "name": "Portal Rentals", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/rentals" } },
+        { "name": "Portal MOT Bookings", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/mot-bookings" } },
+        { "name": "Portal Recovery Requests", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/recovery-requests" } },
+        { "name": "Portal Addresses", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/addresses" } },
+        { "name": "Portal Documents", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/documents" } },
+        { "name": "Portal Profile", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/profile" } },
+        { "name": "Portal Payment Methods", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/portal/payment-methods" } }
+      ]
+    },
+    {
+      "name": "Module - Club",
+      "item": [
+        { "name": "Club Content", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/club/content" } },
+        { "name": "Club Register", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"John Smith\",\n  \"email\": \"club@example.com\",\n  \"phone\": \"07123456789\",\n  \"tc_agreed\": true\n}" }, "url": "{{base_url}}/api/v2/mobile/club/register" } },
+        { "name": "Club Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"phone\": \"07123456789\",\n  \"passkey\": \"123456\"\n}" }, "url": "{{base_url}}/api/v2/mobile/club/login" } },
+        { "name": "Club Dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{club_token}}" }], "url": "{{base_url}}/api/v2/mobile/club/dashboard/parity" } },
+        { "name": "Club Estimator Quote", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{club_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"make\": \"Honda\",\n  \"model\": \"PCX\",\n  \"vehicle_year\": 2022,\n  \"engine_size\": 125,\n  \"mileage\": 12000,\n  \"base_price\": 2500,\n  \"condition\": 8,\n  \"vrm\": \"AB12CDE\"\n}" }, "url": "{{base_url}}/api/v2/mobile/club/estimator/quote" } },
+        { "name": "Club Referral", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{club_token}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"full_name\": \"Friend Rider\",\n  \"phone\": \"07111222333\",\n  \"reg_number\": \"XY12ABC\"\n}" }, "url": "{{base_url}}/api/v2/mobile/club/referral" } }
+      ]
+    },
+    {
+      "name": "Module - Staff and Support",
+      "item": [
+        { "name": "Staff Login", "request": { "method": "POST", "header": [{ "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"email\": \"staff@example.com\",\n  \"password\": \"Password123\"\n}" }, "url": "{{base_url}}/api/v2/mobile/auth/staff/login" } },
+        { "name": "Customer Support Conversations", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{customer_token}}" }], "url": "{{base_url}}/api/v2/mobile/customer/support/conversations" } },
+        { "name": "Staff Support Inbox", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staff_token}}" }], "url": "{{base_url}}/api/v2/mobile/staff/support/inbox" } }
+      ]
+    }
+  ]
+}

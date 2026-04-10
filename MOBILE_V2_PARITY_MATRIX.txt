@@ -1,0 +1,133 @@
+MOBILE V2 PARITY MATRIX (DB -> PAYLOAD -> UI)
+Date: 2026-04-10
+Scope: Full Website + Portal + Shop + Auth + Club + Staff Support
+Target namespace: /api/v2/mobile/*
+
+================================================================================
+1) PAYLOAD CONTRACT STANDARD (ALL V2 ENDPOINTS)
+================================================================================
+- meta:
+  - version: "v2"
+  - generated_at
+  - auth_context: public|customer|staff|club
+  - source: db-backed
+- data:
+  - canonical entities from DB-backed fields (Eloquent + joins allowed)
+- ui:
+  - sections[] (type, title, order, card/list/table hints)
+  - filters/sorts/pagination hints
+  - form schemas (field keys, labels, required, options)
+- actions:
+  - allowed actions and route links for next app operations
+
+================================================================================
+2) LIVEWIRE -> API DOMAIN PARITY
+================================================================================
+
+[PORTAL DOMAIN]
+Livewire: app/Livewire/Portal/*
+Views: resources/views/livewire/portal/*
+DB tables/models:
+- customers, customer_auths
+- service_bookings, support_conversations, support_messages, support_attachments
+- renting_bookings, renting_booking_items, booking_invoices, renting_transactions
+- mot_bookings, customer_appointments
+- vehicle_delivery_orders, motorbike_delivery_order_enquiries, delivery_vehicle_types
+- customer_addresses, system_countries
+- customer_documents, document_types, customer_agreements, customer_contracts
+- ec_orders, ec_order_items, ec_payment_methods
+- finance_applications, judopay_subscriptions, judopay_onboardings, ngn_mit_queue
+V2 endpoint groups:
+- /portal/overview, /portal/full-state, /portal/bookings
+- /portal/orders, /portal/orders/{id}
+- /portal/rentals, /portal/rentals/{id}
+- /portal/mot-bookings (list/create)
+- /portal/recovery-requests, /portal/recovery/options, /portal/recovery/quote, /portal/recovery/requests
+- /portal/addresses*, /portal/documents*, /portal/profile*, /portal/security/change-password
+- /portal/payment-methods*, /portal/payments/recurring
+- /support/* (customer support inbox/thread parity)
+
+[SITE CATALOGUE + EXPERIENCE DOMAIN]
+Livewire: app/Livewire/Site/*
+Views: resources/views/livewire/site/*
+DB tables/models:
+- motorbikes, motorcycles, motorbike_images, renting_pricings
+- branches
+- blogs, legal pages tables (through existing models/controllers)
+- service_bookings
+- mot_checkers, mot_tax_alert_subscriptions
+- partner/legal/reviews/career related tables through current controller mapping
+V2 endpoint groups:
+- /home-feed, /branches, /bikes, /bikes/new/{id}, /bikes/used/{id}
+- /rentals, /rentals/{id}
+- /services, /services/*
+- /ebikes/experience
+- /careers, /careers/{id}
+- /partners
+- /legal/pages, /legal/pages/{slug}
+- /blog/posts, /blog/posts/{slug}
+- /reviews
+- /content/*
+- /presentation/views, /presentation/views/{segment}/{path}
+- /mot/check, /mot/alerts
+- /contact/call-back, /contact/trade-account, /contact/service-booking
+- /finance/content, /finance/calculate, /finance/apply
+
+[SHOP + SPARE PARTS DOMAIN]
+Livewire: app/Livewire/Shop/*, app/Livewire/Site/SpareParts/*, app/Livewire/Site/Shop/*
+Views: resources/views/livewire/shop/*, resources/views/livewire/site/spareparts/*
+DB tables/models:
+- ngn_products, product_images, brands, categories
+- ec_orders, ec_order_items, ec_shipping_methods, ec_payment_methods, ec_order_shippings
+- customer_addresses, system_countries
+- sp_parts, sp_assemblies, sp_assembly_parts, sp_models, sp_makes, spare parts catalogue links
+V2 endpoint groups:
+- /shop/products, /shop/products/{idOrSlug}, /shop/filters
+- /spare-parts + hierarchy endpoints + /spare-parts/part/{partNumber}/detail
+- /cart, /cart/items*, /checkout/quote, /checkout/place-order
+
+[CLUB DOMAIN]
+Livewire: app/Livewire/Site/Club/*
+Views: resources/views/livewire/site/club/*
+Baseline logic source:
+- app/Http/Controllers/NgnClubController.php
+DB tables/models:
+- club_members, club_member_purchases, club_member_redeem
+- club_member_spendings, club_member_spending_payments
+- ngn_campaigns, ngn_campaign_referrals
+- vehicle_estimators, otp_verifications, delete_request_otps
+- user_sessions, user_feedback
+V2 endpoint groups:
+- /club/content, /club/register, /club/login, /club/login-by-customer-match
+- /club/dashboard, /club/dashboard/parity
+- /club/profile
+- /club/estimator/quote, /club/estimator/feedback
+- /club/referral
+- /club/passkey/request-reset, /club/passkey/confirm-reset
+- /club/legacy/* (direct mappings to POS/credit/redeem flows from NgnClubController)
+
+[AUTH + STAFF SUPPORT DOMAIN]
+Livewire/Auth + staff chat experience
+DB tables/models:
+- customer_auths, customers
+- users, roles/permissions
+- support_conversations, support_messages, support_attachments
+V2 endpoint groups:
+- /auth/customer/register|login|logout|user|forgot-password|confirm-reset-password
+- /auth/staff/login|me|logout
+- /staff/support/*
+- /customer/support/* (mobile-consumable aliases)
+
+================================================================================
+3) PHASE ACCEPTANCE (PARITY CHECK)
+================================================================================
+- Every Livewire screen has at least one V2 endpoint contract.
+- Every form/action in Livewire has corresponding V2 write endpoint.
+- Payload has DB-backed data + ui hints needed to rebuild equivalent mobile screens.
+- Postman has full run-order and module-level collections for app build team.
+
+================================================================================
+4) NOTES
+================================================================================
+- Existing /api/v1/mobile remains active during migration.
+- V2 is built for full app clone parity and stable handover to RN app team.

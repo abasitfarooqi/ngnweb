@@ -6,8 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
 use App\Models\BookingIssuanceItem;
+use App\Models\CustomerAddress;
 use App\Models\CustomerAgreement;
 use App\Models\CustomerAuth;
+use App\Models\CustomerContract;
+use App\Models\CustomerDocument;
 use App\Models\Ecommerce\EcOrder;
 use App\Models\MOTBooking;
 use App\Models\MotorbikeMaintenanceLog;
@@ -532,6 +535,147 @@ class MobilePortalController extends Controller
                     'status' => $repair->status ?? null,
                     'created_at' => optional($repair->created_at)->toDateTimeString(),
                 ])->values(),
+            ],
+        ]);
+    }
+
+    public function fullState(Request $request): JsonResponse
+    {
+        $customerAuth = $this->customerAuthFrom($request);
+        if (! $customerAuth) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $customerId = $customerAuth->customer_id;
+        $email = strtolower(trim((string) ($customerAuth->email ?? '')));
+
+        $orders = EcOrder::query()
+            ->where('customer_id', $customerAuth->id)
+            ->withCount('orderItems')
+            ->latest('id')
+            ->limit(10)
+            ->get();
+
+        $enquiries = ServiceBooking::query()
+            ->forPortalCustomer($customerAuth)
+            ->latest('id')
+            ->limit(10)
+            ->get();
+
+        $rentals = collect();
+        if ($customerId) {
+            $rentals = RentingBooking::query()
+                ->where('customer_id', $customerId)
+                ->with(['bookingItems.motorbike:id,make,model,reg_no'])
+                ->latest('id')
+                ->limit(10)
+                ->get();
+        }
+
+        $mot = collect();
+        $deliveries = collect();
+        if ($email !== '') {
+            $mot = MOTBooking::query()
+                ->whereRaw('LOWER(customer_email) = ?', [$email])
+                ->latest('date_of_appointment')
+                ->limit(10)
+                ->get();
+
+            $deliveries = VehicleDeliveryOrder::query()
+                ->whereRaw('LOWER(email) = ?', [$email])
+                ->latest('pickup_date')
+                ->limit(10)
+                ->get();
+        }
+
+        $addressesCount = $customerId
+            ? CustomerAddress::query()->where('customer_id', $customerId)->count()
+            : 0;
+        $documentsCount = $customerId
+            ? CustomerDocument::query()->where('customer_id', $customerId)->count()
+            : 0;
+        $agreementsCount = $customerId
+            ? CustomerAgreement::query()->where('customer_id', $customerId)->count()
+            : 0;
+        $contractsCount = $customerId
+            ? CustomerContract::query()->where('customer_id', $customerId)->count()
+            : 0;
+
+        $support = SupportConversation::query()
+            ->where('customer_auth_id', $customerAuth->id)
+            ->latest('id')
+            ->limit(20)
+            ->get(['id', 'uuid', 'subject', 'status', 'service_booking_id', 'assigned_backpack_user_id', 'updated_at']);
+
+        return response()->json([
+            'customer' => [
+                'customer_auth_id' => $customerAuth->id,
+                'customer_id' => $customerId,
+                'email' => $customerAuth->email,
+                'name' => $customerAuth->customer?->full_name ?? $customerAuth->name,
+                'phone' => $customerAuth->customer?->phone ?? null,
+            ],
+            'counts' => [
+                'orders' => $orders->count(),
+                'enquiries' => $enquiries->count(),
+                'rentals' => $rentals->count(),
+                'mot_bookings' => $mot->count(),
+                'recovery_requests' => $deliveries->count(),
+                'support_threads' => $support->count(),
+                'addresses' => $addressesCount,
+                'documents' => $documentsCount,
+                'agreements' => $agreementsCount,
+                'contracts' => $contractsCount,
+            ],
+            'orders' => $orders->map(fn (EcOrder $order) => [
+                'id' => $order->id,
+                'order_status' => $order->order_status,
+                'payment_status' => $order->payment_status,
+                'shipping_status' => $order->shipping_status,
+                'grand_total' => (float) ($order->grand_total ?? 0),
+                'currency' => $order->currency,
+                'items_count' => (int) ($order->order_items_count ?? 0),
+                'created_at' => optional($order->created_at)->toDateTimeString(),
+            ])->values(),
+            'enquiries' => $enquiries->map(fn (ServiceBooking $row) => [
+                'id' => $row->id,
+                'enquiry_type' => $row->enquiry_type,
+                'subject' => $row->subject,
+                'status' => $row->status,
+                'booking_date' => optional($row->booking_date)->toDateString(),
+                'created_at' => optional($row->created_at)->toDateTimeString(),
+            ])->values(),
+            'rentals' => $rentals->map(fn (RentingBooking $row) => [
+                'id' => $row->id,
+                'state' => $row->state,
+                'start_date' => optional($row->start_date)->toDateTimeString(),
+                'due_date' => optional($row->due_date)->toDateTimeString(),
+                'items' => $row->bookingItems->map(fn ($item) => [
+                    'motorbike_id' => $item->motorbike_id,
+                    'name' => trim((string) ($item->motorbike->make ?? '').' '.($item->motorbike->model ?? '')),
+                    'reg_no' => $item->motorbike->reg_no ?? null,
+                ])->values(),
+            ])->values(),
+            'mot_bookings' => $mot->map(fn (MOTBooking $row) => [
+                'id' => $row->id,
+                'vehicle_registration' => $row->vehicle_registration,
+                'date_of_appointment' => optional($row->date_of_appointment)->toDateTimeString(),
+                'status' => $row->status,
+                'branch_id' => $row->branch_id,
+            ])->values(),
+            'recovery_requests' => $deliveries->map(fn (VehicleDeliveryOrder $row) => [
+                'id' => $row->id,
+                'pickup_date' => optional($row->pickup_date)->toDateTimeString(),
+                'vrm' => $row->vrm,
+                'full_name' => $row->full_name,
+                'phone_number' => $row->phone_number,
+                'branch_id' => $row->branch_id,
+            ])->values(),
+            'support_threads' => $support,
+            'links' => [
+                'support_customer_api' => '/api/v1/customer/support/conversations',
+                'support_staff_api' => '/api/v1/staff/support/conversations',
+                'portal_page_blueprint' => '/api/v1/mobile/portal/page-blueprint',
             ],
         ]);
     }

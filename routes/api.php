@@ -14,6 +14,20 @@ use App\Http\Controllers\Api\Mobile\MobilePortalController;
 use App\Http\Controllers\Api\Mobile\MobilePortalExperienceController;
 use App\Http\Controllers\Api\Mobile\MobilePublicFormsController;
 use App\Http\Controllers\Api\Mobile\MobileSparePartsController;
+use App\Http\Controllers\Api\Mobile\V2\MobileBootstrapController as MobileV2BootstrapController;
+use App\Http\Controllers\Api\Mobile\V2\MobileCatalogueController as MobileV2CatalogueController;
+use App\Http\Controllers\Api\Mobile\V2\MobileCheckoutController as MobileV2CheckoutController;
+use App\Http\Controllers\Api\Mobile\V2\MobileClubController as MobileV2ClubController;
+use App\Http\Controllers\Api\Mobile\V2\MobileClubLegacyController as MobileV2ClubLegacyController;
+use App\Http\Controllers\Api\Mobile\V2\MobileClubParityController as MobileV2ClubParityController;
+use App\Http\Controllers\Api\Mobile\V2\MobileContentController as MobileV2ContentController;
+use App\Http\Controllers\Api\Mobile\V2\MobileEnquiryController as MobileV2EnquiryController;
+use App\Http\Controllers\Api\Mobile\V2\MobileExperienceController as MobileV2ExperienceController;
+use App\Http\Controllers\Api\Mobile\V2\MobilePortalAccountController as MobileV2PortalAccountController;
+use App\Http\Controllers\Api\Mobile\V2\MobilePortalController as MobileV2PortalController;
+use App\Http\Controllers\Api\Mobile\V2\MobilePortalExperienceController as MobileV2PortalExperienceController;
+use App\Http\Controllers\Api\Mobile\V2\MobilePublicFormsController as MobileV2PublicFormsController;
+use App\Http\Controllers\Api\Mobile\V2\MobileSparePartsController as MobileV2SparePartsController;
 use App\Http\Controllers\Api\StaffAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\CustomerVerificationController;
@@ -326,6 +340,10 @@ Route::prefix('v1/mobile')->group(function () {
     Route::get('content/experience-blueprint', [MobileExperienceController::class, 'experienceBlueprint']);
     Route::get('content/full-app-map', [MobileExperienceController::class, 'fullAppMap']);
     Route::get('content/db-link-map', [MobileExperienceController::class, 'dbLinkMap']);
+    Route::get('content/frontend-parity-map', [MobileExperienceController::class, 'frontendParityMap']);
+    Route::get('presentation/views', [MobileExperienceController::class, 'presentationViews']);
+    Route::get('presentation/views/{segment}/{path}', [MobileExperienceController::class, 'presentationViewPayload'])
+        ->where('path', '.*');
 
     Route::get('home-feed', [MobileCatalogueController::class, 'homeFeed']);
     Route::get('branches', [MobileCatalogueController::class, 'branches']);
@@ -391,6 +409,7 @@ Route::prefix('v1/mobile')->group(function () {
 
     Route::middleware('auth:customer,sanctum')->group(function () {
         Route::get('portal/overview', [MobilePortalController::class, 'overview']);
+        Route::get('portal/full-state', [MobilePortalController::class, 'fullState']);
         Route::get('portal/orders', [MobilePortalController::class, 'myOrders']);
         Route::get('portal/orders/{id}', [MobilePortalAccountController::class, 'orderDetail']);
         Route::get('portal/rentals', [MobilePortalController::class, 'myRentals']);
@@ -439,6 +458,187 @@ Route::prefix('v1/mobile')->group(function () {
         Route::get('enquiries', [MobileEnquiryController::class, 'index']);
         Route::post('enquiries', [MobileEnquiryController::class, 'store']);
         Route::get('enquiries/{id}', [MobileEnquiryController::class, 'show']);
+    });
+});
+
+Route::prefix('v2/mobile')->group(function () {
+    Route::get('system-map', [MobileV2BootstrapController::class, 'systemMap']);
+    Route::get('forms-blueprint', [MobileV2BootstrapController::class, 'formsBlueprint']);
+    Route::get('content/page-manifest', [MobileV2ExperienceController::class, 'pageManifest']);
+    Route::get('content/experience-blueprint', [MobileV2ExperienceController::class, 'experienceBlueprint']);
+    Route::get('content/full-app-map', [MobileV2ExperienceController::class, 'fullAppMap']);
+    Route::get('content/db-link-map', [MobileV2ExperienceController::class, 'dbLinkMap']);
+    Route::get('content/frontend-parity-map', [MobileV2ExperienceController::class, 'frontendParityMap']);
+    Route::get('presentation/views', [MobileV2ExperienceController::class, 'presentationViews']);
+    Route::get('presentation/views/{segment}/{path}', [MobileV2ExperienceController::class, 'presentationViewPayload'])
+        ->where('path', '.*');
+
+    Route::get('home-feed', [MobileV2CatalogueController::class, 'homeFeed']);
+    Route::get('branches', [MobileV2CatalogueController::class, 'branches']);
+    Route::get('bikes', [MobileV2CatalogueController::class, 'bikes']);
+    Route::get('bikes/new/{id}', [MobileV2CatalogueController::class, 'newBikeDetail']);
+    Route::get('bikes/used/{id}', [MobileV2CatalogueController::class, 'usedBikeDetail']);
+    Route::get('rentals', [MobileV2CatalogueController::class, 'rentals']);
+    Route::get('services', [MobileV2CatalogueController::class, 'services']);
+    Route::get('shop/products', [MobileV2CatalogueController::class, 'shopProducts']);
+    Route::get('shop/products/{idOrSlug}', [MobileV2CatalogueController::class, 'shopProductDetail']);
+    Route::get('shop/filters', [MobileV2CatalogueController::class, 'shopFilters']);
+    Route::get('spare-parts', [MobileV2CatalogueController::class, 'spareParts']);
+    Route::get('spare-parts/manufacturers', [MobileV2SparePartsController::class, 'manufacturers']);
+    Route::get('spare-parts/models/{manufacturer}', [MobileV2SparePartsController::class, 'models']);
+    Route::get('spare-parts/years/{manufacturer}/{model}', [MobileV2SparePartsController::class, 'years']);
+    Route::get('spare-parts/countries/{manufacturer}/{model}/{year}', [MobileV2SparePartsController::class, 'countries']);
+    Route::get('spare-parts/colours/{manufacturer}/{model}/{year}/{country}', [MobileV2SparePartsController::class, 'colours']);
+    Route::get('spare-parts/assemblies/{manufacturer}/{model}/{year}/{country}/{colour}', [MobileV2SparePartsController::class, 'assemblies']);
+    Route::get('spare-parts/parts/{manufacturer}/{model}/{year}/{country}/{colour}/{assembly}', [MobileV2SparePartsController::class, 'parts']);
+    Route::get('spare-parts/part/{partNumber}', [MobileV2SparePartsController::class, 'part']);
+    Route::get('spare-parts/part/{partNumber}/detail', [MobileV2SparePartsController::class, 'partDetail']);
+    Route::get('ebikes/experience', [MobileV2ExperienceController::class, 'ebikesExperience']);
+    Route::get('rentals/{id}', [MobileV2CatalogueController::class, 'rentalDetail']);
+    Route::get('careers', [MobileV2ExperienceController::class, 'careers']);
+    Route::get('careers/{id}', [MobileV2ExperienceController::class, 'careerDetail']);
+    Route::get('partners', [MobileV2ExperienceController::class, 'partners']);
+    Route::get('legal/pages', [MobileV2ExperienceController::class, 'legalPages']);
+    Route::get('legal/pages/{slug}', [MobileV2ExperienceController::class, 'legalPageDetail']);
+    Route::get('blog/posts', [MobileV2ExperienceController::class, 'blogPosts']);
+    Route::get('blog/posts/{slug}', [MobileV2ExperienceController::class, 'blogPostDetail']);
+    Route::get('reviews', [MobileV2ExperienceController::class, 'reviews']);
+    Route::get('auth/blueprint', [MobileV2ExperienceController::class, 'authBlueprint']);
+    Route::get('content/website-navigation', [MobileV2ContentController::class, 'websiteNavigation']);
+    Route::get('content/portal-navigation', [MobileV2ContentController::class, 'portalNavigation']);
+    Route::get('content/home-blocks', [MobileV2ContentController::class, 'homeBlocks']);
+    Route::get('content/service-modules', [MobileV2ContentController::class, 'serviceModules']);
+    Route::get('services/mot', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'mot');
+    Route::get('services/repairs/basic', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/basic');
+    Route::get('services/repairs/full', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/full');
+    Route::get('services/repairs/comparison', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/comparison');
+    Route::get('services/recovery', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'recovery');
+    Route::get('services/rentals', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'rentals');
+    Route::post('mot/check', [MobileV2PublicFormsController::class, 'motCheck']);
+    Route::post('mot/alerts', [MobileV2PublicFormsController::class, 'motAlerts']);
+    Route::get('finance/content', [MobileV2PublicFormsController::class, 'financeContent']);
+    Route::post('finance/calculate', [MobileV2PublicFormsController::class, 'financeCalculate']);
+    Route::post('finance/apply', [MobileV2PublicFormsController::class, 'financeApply']);
+    Route::post('contact/call-back', [MobileV2PublicFormsController::class, 'contactCallback']);
+    Route::post('contact/trade-account', [MobileV2PublicFormsController::class, 'contactTradeAccount']);
+    Route::post('contact/service-booking', [MobileV2PublicFormsController::class, 'contactServiceBooking']);
+    Route::get('club/content', [MobileV2ClubController::class, 'content']);
+    Route::post('club/register', [MobileV2ClubController::class, 'register']);
+    Route::post('club/login', [MobileV2ClubController::class, 'login']);
+    Route::post('club/login-by-customer-match', [MobileV2ClubParityController::class, 'loginByCustomerMatch']);
+    Route::post('club/passkey/request-reset', [MobileV2ClubParityController::class, 'requestPasskeyReset']);
+    Route::post('club/passkey/confirm-reset', [MobileV2ClubParityController::class, 'confirmPasskeyReset']);
+    Route::get('club/dashboard', [MobileV2ClubController::class, 'dashboard']);
+    Route::post('club/referral', [MobileV2ClubController::class, 'referral']);
+    Route::get('club/dashboard/parity', [MobileV2ClubParityController::class, 'dashboard']);
+    Route::patch('club/profile', [MobileV2ClubParityController::class, 'updateProfile']);
+    Route::post('club/estimator/quote', [MobileV2ClubParityController::class, 'estimateQuote']);
+    Route::post('club/estimator/feedback', [MobileV2ClubParityController::class, 'estimateFeedback']);
+
+    Route::prefix('auth/customer')->group(function () {
+        Route::post('register', [CustomerAuthController::class, 'register']);
+        Route::post('login', [CustomerAuthController::class, 'login']);
+        Route::post('forgot-password', [CustomerAuthController::class, 'resetPassword']);
+        Route::post('confirm-reset-password', [CustomerAuthController::class, 'confirmResetPassword']);
+    });
+
+    Route::post('auth/staff/login', [StaffAuthController::class, 'login']);
+
+    Route::middleware('auth:sanctum')->prefix('club/legacy')->group(function () {
+        Route::post('member-purchases', [MobileV2ClubLegacyController::class, 'storePurchase']);
+        Route::post('member-purchases-mb', [MobileV2ClubLegacyController::class, 'storePurchaseMb']);
+        Route::post('customer-spending', [MobileV2ClubLegacyController::class, 'storeSpending']);
+        Route::post('list-customer-spending', [MobileV2ClubLegacyController::class, 'listSpending']);
+        Route::post('delete-customer-spending', [MobileV2ClubLegacyController::class, 'deleteSpending']);
+        Route::post('record-spending-payment', [MobileV2ClubLegacyController::class, 'recordSpendingPayment']);
+        Route::post('spending-payment-history', [MobileV2ClubLegacyController::class, 'spendingPaymentHistory']);
+        Route::post('credit-status', [MobileV2ClubLegacyController::class, 'creditStatus']);
+        Route::post('credit-status-get-time', [MobileV2ClubLegacyController::class, 'creditStatusWithTime']);
+        Route::post('initiate-redeem', [MobileV2ClubLegacyController::class, 'initiateRedeem']);
+        Route::post('verify-otp-and-redeem', [MobileV2ClubLegacyController::class, 'verifyOtpAndRedeem']);
+        Route::post('update-redeem-invoice', [MobileV2ClubLegacyController::class, 'updateRedeemInvoice']);
+        Route::post('referral-status', [MobileV2ClubLegacyController::class, 'referralStatus']);
+    });
+
+    Route::middleware('auth:customer,sanctum')->group(function () {
+        Route::post('auth/customer/logout', [CustomerAuthController::class, 'logout']);
+        Route::get('auth/customer/user', [CustomerAuthController::class, 'getUser']);
+
+        Route::get('portal/overview', [MobileV2PortalController::class, 'overview']);
+        Route::get('portal/full-state', [MobileV2PortalController::class, 'fullState']);
+        Route::get('portal/orders', [MobileV2PortalController::class, 'myOrders']);
+        Route::get('portal/orders/{id}', [MobileV2PortalAccountController::class, 'orderDetail']);
+        Route::get('portal/rentals', [MobileV2PortalController::class, 'myRentals']);
+        Route::get('portal/rentals/{id}', [MobileV2PortalController::class, 'rentalDetail']);
+        Route::get('portal/mot-bookings', [MobileV2PortalController::class, 'myMotBookings']);
+        Route::post('portal/mot-bookings', [MobileV2PortalController::class, 'createMotBooking']);
+        Route::get('portal/bookings', [MobileV2PortalController::class, 'bookingsUnified']);
+        Route::get('portal/recovery-requests', [MobileV2PortalController::class, 'myRecoveryRequests']);
+        Route::get('portal/page-blueprint', [MobileV2PortalExperienceController::class, 'pageBlueprint']);
+        Route::get('portal/addresses', [MobileV2PortalExperienceController::class, 'addresses']);
+        Route::get('portal/addresses/countries', [MobileV2PortalExperienceController::class, 'addressCountries']);
+        Route::post('portal/addresses', [MobileV2PortalExperienceController::class, 'createAddress']);
+        Route::patch('portal/addresses/{id}', [MobileV2PortalExperienceController::class, 'updateAddress']);
+        Route::delete('portal/addresses/{id}', [MobileV2PortalExperienceController::class, 'deleteAddress']);
+        Route::post('portal/addresses/{id}/default', [MobileV2PortalExperienceController::class, 'setAddressDefault']);
+        Route::get('portal/documents', [MobileV2PortalExperienceController::class, 'documents']);
+        Route::get('portal/documents/types', [MobileV2PortalAccountController::class, 'documentTypes']);
+        Route::post('portal/documents/upload', [MobileV2PortalExperienceController::class, 'uploadDocument']);
+        Route::get('portal/payments/recurring', [MobileV2PortalExperienceController::class, 'recurringPayments']);
+        Route::get('portal/profile', [MobileV2PortalAccountController::class, 'profile']);
+        Route::patch('portal/profile', [MobileV2PortalAccountController::class, 'updateProfile']);
+        Route::post('portal/security/change-password', [MobileV2PortalAccountController::class, 'changePassword']);
+        Route::get('portal/payment-methods', [MobileV2PortalAccountController::class, 'paymentMethods']);
+        Route::post('portal/payment-methods', [MobileV2PortalAccountController::class, 'selectPaymentMethod']);
+        Route::delete('portal/payment-methods', [MobileV2PortalAccountController::class, 'clearPaymentMethod']);
+        Route::get('cart', [MobileV2CheckoutController::class, 'cart']);
+        Route::post('cart/items', [MobileV2CheckoutController::class, 'addItem']);
+        Route::patch('cart/items/{id}', [MobileV2CheckoutController::class, 'updateItem']);
+        Route::delete('cart/items/{id}', [MobileV2CheckoutController::class, 'removeItem']);
+        Route::post('checkout/quote', [MobileV2CheckoutController::class, 'quote']);
+        Route::post('checkout/place-order', [MobileV2CheckoutController::class, 'placeOrder']);
+        Route::get('portal/rentals/browse/options', [MobileV2PortalExperienceController::class, 'rentalBrowseOptions']);
+        Route::get('portal/rentals/available', [MobileV2PortalExperienceController::class, 'rentalAvailable']);
+        Route::get('portal/rentals/create/{motorbikeId}/blueprint', [MobileV2PortalExperienceController::class, 'rentalCreateBlueprint']);
+        Route::post('portal/rentals/create/{motorbikeId}', [MobileV2PortalExperienceController::class, 'rentalCreateRequest']);
+        Route::get('portal/repairs/appointment/options', [MobileV2PortalExperienceController::class, 'repairsAppointmentOptions']);
+        Route::post('portal/repairs/appointments', [MobileV2PortalExperienceController::class, 'createRepairsAppointment']);
+        Route::get('portal/recovery/options', [MobileV2PortalExperienceController::class, 'recoveryOptions']);
+        Route::post('portal/recovery/quote', [MobileV2PortalExperienceController::class, 'recoveryQuote']);
+        Route::post('portal/recovery/requests', [MobileV2PortalExperienceController::class, 'createRecoveryRequest']);
+        Route::get('enquiries', [MobileV2EnquiryController::class, 'index']);
+        Route::post('enquiries', [MobileV2EnquiryController::class, 'store']);
+        Route::get('enquiries/{id}', [MobileV2EnquiryController::class, 'show']);
+
+        Route::prefix('customer/support')->group(function () {
+            Route::get('conversations', [\App\Http\Controllers\Api\SupportConversationController::class, 'index']);
+            Route::post('conversations', [\App\Http\Controllers\Api\SupportConversationController::class, 'store']);
+            Route::get('conversations/{uuid}', [\App\Http\Controllers\Api\SupportConversationController::class, 'show']);
+            Route::get('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'messages']);
+            Route::get('conversations/{uuid}/latest-message', [\App\Http\Controllers\Api\SupportConversationController::class, 'latestMessage']);
+            Route::post('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'sendMessage']);
+            Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\SupportMessageController::class, 'showAttachment']);
+            Route::post('messages/{messageId}/attachments', [\App\Http\Controllers\Api\SupportMessageController::class, 'attachFiles']);
+        });
+    });
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('auth/staff/me', [StaffAuthController::class, 'me']);
+        Route::post('auth/staff/logout', [StaffAuthController::class, 'logout']);
+        Route::prefix('staff/support')->group(function () {
+            Route::get('inbox', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inbox']);
+            Route::get('inbox/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inboxThread']);
+            Route::post('inbox/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inboxSendMessage']);
+            Route::patch('inbox/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'inboxUpdateMeta']);
+            Route::get('assignees', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'assignees']);
+            Route::get('conversations', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'index']);
+            Route::get('conversations/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'show']);
+            Route::get('conversations/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'messages']);
+            Route::get('conversations/{conversationId}/latest-message', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'latestMessage']);
+            Route::post('conversations/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'sendMessage']);
+            Route::patch('conversations/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'updateConversation']);
+            Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'showAttachment']);
+        });
     });
 });
 

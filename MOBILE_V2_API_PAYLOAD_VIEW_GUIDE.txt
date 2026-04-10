@@ -1,0 +1,149 @@
+MOBILE V2 API + PAYLOAD + VIEW GUIDE
+Date: 2026-04-10
+Target: React Native app clone parity from web/portal
+API Base: /api/v2/mobile
+
+================================================================================
+A) CORE RULES FOR APP TEAM
+================================================================================
+1) Use V2 endpoints first. Keep V1 only as fallback during migration.
+2) Rebuild screens from:
+   - data: business entities
+   - ui: section metadata and rendering hints
+   - actions: next allowed operations
+3) Treat payload as DB-backed canonical state.
+4) Where both portal and public versions exist, keep separate app flows.
+
+================================================================================
+B) AUTH FLOWS
+================================================================================
+Customer:
+- POST /api/v2/mobile/auth/customer/login
+- POST /api/v2/mobile/auth/customer/register
+- POST /api/v2/mobile/auth/customer/forgot-password
+- POST /api/v2/mobile/auth/customer/confirm-reset-password
+- POST /api/v2/mobile/auth/customer/logout (auth)
+- GET  /api/v2/mobile/auth/customer/user (auth)
+
+Staff:
+- POST /api/v2/mobile/auth/staff/login
+- GET  /api/v2/mobile/auth/staff/me (auth:sanctum)
+- POST /api/v2/mobile/auth/staff/logout (auth:sanctum)
+
+Club:
+- POST /api/v2/mobile/club/login
+- GET  /api/v2/mobile/club/dashboard/parity
+- POST /api/v2/mobile/club/passkey/request-reset
+- POST /api/v2/mobile/club/passkey/confirm-reset
+
+================================================================================
+C) VIEW TO ENDPOINT MAP (HIGH PRIORITY)
+================================================================================
+
+Portal views (resources/views/livewire/portal/*):
+- dashboard.blade.php
+  -> GET /api/v2/mobile/portal/overview
+  -> GET /api/v2/mobile/portal/full-state
+- bookings/index.blade.php
+  -> GET /api/v2/mobile/portal/bookings
+- orders/index.blade.php, orders/show.blade.php
+  -> GET /api/v2/mobile/portal/orders
+  -> GET /api/v2/mobile/portal/orders/{id}
+- rentals/browse.blade.php, rentals/create.blade.php, rentals/my-rentals.blade.php
+  -> GET /api/v2/mobile/portal/rentals
+  -> GET /api/v2/mobile/portal/rentals/{id}
+  -> GET /api/v2/mobile/portal/rentals/browse/options
+  -> GET /api/v2/mobile/portal/rentals/available
+  -> GET /api/v2/mobile/portal/rentals/create/{motorbikeId}/blueprint
+  -> POST /api/v2/mobile/portal/rentals/create/{motorbikeId}
+- mot/book.blade.php, mot/my-bookings.blade.php
+  -> GET /api/v2/mobile/portal/mot-bookings
+  -> POST /api/v2/mobile/portal/mot-bookings
+- repairs/appointment.blade.php
+  -> GET /api/v2/mobile/portal/repairs/appointment/options
+  -> POST /api/v2/mobile/portal/repairs/appointments
+- recovery/request.blade.php, recovery/my-requests.blade.php
+  -> GET /api/v2/mobile/portal/recovery/options
+  -> POST /api/v2/mobile/portal/recovery/quote
+  -> POST /api/v2/mobile/portal/recovery/requests
+  -> GET /api/v2/mobile/portal/recovery-requests
+- addresses.blade.php
+  -> GET/POST/PATCH/DELETE /api/v2/mobile/portal/addresses*
+  -> POST /api/v2/mobile/portal/addresses/{id}/default
+- documents.blade.php
+  -> GET /api/v2/mobile/portal/documents
+  -> GET /api/v2/mobile/portal/documents/types
+  -> POST /api/v2/mobile/portal/documents/upload
+- profile.blade.php
+  -> GET/PATCH /api/v2/mobile/portal/profile
+- security.blade.php
+  -> POST /api/v2/mobile/portal/security/change-password
+- payment-methods.blade.php
+  -> GET/POST/DELETE /api/v2/mobile/portal/payment-methods
+- support/inbox.blade.php, support/thread.blade.php
+  -> GET/POST /api/v2/mobile/customer/support/conversations
+  -> GET /api/v2/mobile/customer/support/conversations/{uuid}
+  -> GET /api/v2/mobile/customer/support/conversations/{uuid}/messages
+  -> POST /api/v2/mobile/customer/support/conversations/{uuid}/messages
+  -> attachment endpoints under /api/v2/mobile/customer/support/*
+
+Site + shop views:
+- site/home.blade.php -> GET /api/v2/mobile/home-feed + /content/home-blocks
+- site/bikes/* -> GET /api/v2/mobile/bikes + details
+- site/ebikes/index.blade.php -> GET /api/v2/mobile/ebikes/experience
+- site/services/* + repairs/* + recovery/* + rentals/*
+  -> GET /api/v2/mobile/services + service detail endpoints
+- site/mot/* -> POST /api/v2/mobile/mot/check, POST /api/v2/mobile/mot/alerts
+- site/contact/* -> POST contact/* endpoints
+- site/finance/index.blade.php -> GET /finance/content + POST /finance/calculate + /finance/apply
+- shop/* and site/shop/* -> /shop/products, /shop/products/{idOrSlug}, /shop/filters
+- spareparts/* -> /spare-parts hierarchy and /part/{partNumber}/detail
+- legal/career/partner/reviews/blog
+  -> legal/pages, careers, partners, reviews, blog/posts
+
+V2 layouts and presentation:
+- resources/views/v2/layouts/*
+- resources/views/livewire/v2/*
+Use:
+- GET /api/v2/mobile/presentation/views
+- GET /api/v2/mobile/presentation/views/{segment}/{path}
+
+================================================================================
+D) CLUB LEGACY DIRECT-DB OPERATIONS (POS/Backoffice-style flows)
+================================================================================
+For NgnClubController-compatible flows under mobile namespace:
+- POST /api/v2/mobile/club/legacy/member-purchases
+- POST /api/v2/mobile/club/legacy/member-purchases-mb
+- POST /api/v2/mobile/club/legacy/customer-spending
+- POST /api/v2/mobile/club/legacy/list-customer-spending
+- POST /api/v2/mobile/club/legacy/delete-customer-spending
+- POST /api/v2/mobile/club/legacy/record-spending-payment
+- POST /api/v2/mobile/club/legacy/spending-payment-history
+- POST /api/v2/mobile/club/legacy/credit-status
+- POST /api/v2/mobile/club/legacy/credit-status-get-time
+- POST /api/v2/mobile/club/legacy/initiate-redeem
+- POST /api/v2/mobile/club/legacy/verify-otp-and-redeem
+- POST /api/v2/mobile/club/legacy/update-redeem-invoice
+- POST /api/v2/mobile/club/legacy/referral-status
+
+================================================================================
+E) POSTMAN FILES
+================================================================================
+Master:
+- NGN_Mobile_API_v2_Master.postman_collection.json
+
+Module split:
+- NGN_Mobile_API_v2_Modules.postman_collection.json
+
+Environment:
+- NGN_Mobile_API_v2.postman_environment.json
+
+================================================================================
+F) APP IMPLEMENTATION ORDER (RECOMMENDED)
+================================================================================
+1) auth + bootstrap + navigation
+2) homepage + catalogue + product/rental detail
+3) portal overview + orders + rentals + mot + addresses/documents/profile
+4) support chat (customer and staff)
+5) club dashboard + estimator + referral + legacy credit/redeem flows
+6) parity QA against livewire screens

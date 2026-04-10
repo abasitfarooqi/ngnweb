@@ -1,0 +1,34 @@
+MOBILE V2 CUTOVER CHECKLIST
+Date: 2026-04-10
+
+1) ROUTES
+- [ ] `php artisan route:list --path=api/v2/mobile` shows expected endpoints.
+- [ ] No collisions with existing `api/v1/mobile` names.
+- [ ] Customer and staff auth guards resolve correctly on V2 routes.
+
+2) PAYLOAD SHAPE
+- [ ] High-traffic endpoints return stable JSON object roots.
+- [ ] Portal endpoints include complete DB-backed state required by app screens.
+- [ ] Club parity endpoints match dashboard and estimator expectations.
+
+3) FUNCTIONAL TEST ORDER
+- [ ] Customer login/logout/user.
+- [ ] Public browse: home-feed, bikes, products, rentals, services, ebikes.
+- [ ] Cart/checkout flow end-to-end.
+- [ ] Portal flow: overview -> orders -> rentals -> mot -> documents -> profile.
+- [ ] Customer support conversation/message cycle.
+- [ ] Staff login + support inbox/thread reply.
+- [ ] Club login + dashboard/parity + profile + estimator + referral.
+- [ ] Club legacy operations (credit/redeem/spending) where applicable.
+
+4) POSTMAN
+- [ ] Import `NGN_Mobile_API_v2_Master.postman_collection.json`.
+- [ ] Import `NGN_Mobile_API_v2_Modules.postman_collection.json`.
+- [ ] Import `NGN_Mobile_API_v2.postman_environment.json`.
+- [ ] Confirm variables: `base_url`, `customer_token`, `staff_token`, `club_token`.
+
+5) MIGRATION STRATEGY
+- [ ] Keep V1 active during app integration.
+- [ ] Start app integration on V2 endpoint set.
+- [ ] Switch app traffic feature-by-feature after QA signoff.
+- [ ] Decommission V1 only after parity acceptance.
