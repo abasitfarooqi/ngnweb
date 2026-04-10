@@ -11,6 +11,12 @@ class Create extends Component
 
     public $motorbike;
 
+    public string $start_date = '';
+
+    public int $rental_period = 1;
+
+    public string $notes = '';
+
     public bool $agree_terms = false;
 
     public function mount($motorbikeId)
@@ -21,6 +27,8 @@ class Create extends Component
         if (! $this->motorbike) {
             abort(404);
         }
+
+        $this->start_date = now()->toDateString();
     }
 
     public function submit()
@@ -28,6 +36,11 @@ class Create extends Component
         $this->validate(['agree_terms' => 'accepted']);
         session()->flash('success', 'Rental booking request submitted. We will contact you to confirm.');
         $this->redirectRoute('account.rentals.my-rentals');
+    }
+
+    public function createBooking()
+    {
+        $this->submit();
     }
 
     public function render()

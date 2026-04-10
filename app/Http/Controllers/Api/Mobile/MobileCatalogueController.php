@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Branch;
 use App\Models\Motorbike;
 use App\Models\Motorcycle;
+use App\Models\NgnBrand;
+use App\Models\NgnCategory;
 use App\Models\NgnProduct;
+use App\Models\RentingPricing;
 use App\Models\SpPart;
 use App\Support\NgnMotorcycleImage;
 use Illuminate\Http\JsonResponse;
@@ -168,6 +171,68 @@ class MobileCatalogueController extends Controller
         return response()->json($payload);
     }
 
+    public function newBikeDetail(int $id): JsonResponse
+    {
+        $bike = Motorcycle::query()
+            ->where('availability', 'for sale')
+            ->findOrFail($id);
+
+        return response()->json([
+            'id' => $bike->id,
+            'type' => 'new',
+            'name' => trim((string) $bike->make.' '.$bike->model),
+            'make' => $bike->make,
+            'model' => $bike->model,
+            'year' => $bike->year,
+            'price' => (float) ($bike->sale_new_price ?? 0),
+            'description' => $bike->description,
+            'engine' => $bike->engine,
+            'category' => $bike->category,
+            'image_url' => NgnMotorcycleImage::urlForNewStock($bike->file_path),
+            'actions' => [
+                'finance_link_query' => [
+                    'source' => 'new-bike',
+                    'bike_id' => $bike->id,
+                    'bike_type' => 'new',
+                    'price' => (float) ($bike->sale_new_price ?? 0),
+                ],
+            ],
+        ]);
+    }
+
+    public function usedBikeDetail(int $id): JsonResponse
+    {
+        $bike = Motorbike::query()
+            ->join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
+            ->select('motorbikes.*', 'motorbikes_sale.price', 'motorbikes_sale.image_one', 'motorbikes_sale.mileage as sale_mileage')
+            ->where('motorbikes.id', $id)
+            ->where('motorbikes_sale.is_sold', 0)
+            ->firstOrFail();
+
+        return response()->json([
+            'id' => $bike->id,
+            'type' => (bool) ($bike->is_ebike ?? false) ? 'ebike' : 'used',
+            'name' => trim((string) $bike->make.' '.$bike->model),
+            'make' => $bike->make,
+            'model' => $bike->model,
+            'year' => $bike->year,
+            'engine' => $bike->engine,
+            'colour' => $bike->color,
+            'mileage' => $bike->sale_mileage,
+            'reg_hint' => $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : null,
+            'price' => (float) ($bike->price ?? 0),
+            'image_url' => NgnMotorcycleImage::urlForUsedSale($bike->image_one),
+            'actions' => [
+                'finance_link_query' => [
+                    'source' => (bool) ($bike->is_ebike ?? false) ? 'ebike' : 'used-bike',
+                    'bike_id' => $bike->id,
+                    'bike_type' => (bool) ($bike->is_ebike ?? false) ? 'ebike' : 'used',
+                    'price' => (float) ($bike->price ?? 0),
+                ],
+            ],
+        ]);
+    }
+
     public function rentals(Request $request): JsonResponse
     {
         $perPage = max(1, min(60, (int) $request->integer('per_page', 20)));
@@ -281,6 +346,30 @@ class MobileCatalogueController extends Controller
         ]);
     }
 
+    public function shopFilters(): JsonResponse
+    {
+        $brands = NgnBrand::query()
+            ->where('is_ecommerce', 1)
+            ->where(function ($q) {
+                $q->whereNull('is_active')->orWhere('is_active', 1);
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        $categories = NgnCategory::query()
+            ->where('is_ecommerce', 1)
+            ->where(function ($q) {
+                $q->whereNull('is_active')->orWhere('is_active', 1);
+            })
+            ->orderBy('name')
+            ->get(['id', 'name', 'slug']);
+
+        return response()->json([
+            'brands' => $brands,
+            'categories' => $categories,
+        ]);
+    }
+
     public function spareParts(Request $request): JsonResponse
     {
         $perPage = max(1, min(80, (int) $request->integer('per_page', 24)));
@@ -310,6 +399,113 @@ class MobileCatalogueController extends Controller
         return response()->json([
             'data' => $parts,
             'checkout_system' => 'shared_with_main_shop',
+        ]);
+    }
+
+    public function shopProductDetail(string $idOrSlug): JsonResponse
+    {
+        $product = NgnProduct::query()
+            ->with(['brand:id,name,slug', 'category:id,name,slug', 'productImages:id,product_id,image_url'])
+            ->where('is_ecommerce', 1)
+            ->where(function ($q) {
+                $q->whereNull('dead')->orWhere('dead', 0);
+            })
+            ->where(function ($q) use ($idOrSlug): void {
+                if (is_numeric($idOrSlug)) {
+                    $q->orWhere('id', (int) $idOrSlug);
+                }
+                $q->orWhere('slug', $idOrSlug);
+            })
+            ->firstOrFail();
+
+        $related = NgnProduct::query()
+            ->where('is_ecommerce', 1)
+            ->where('id', '!=', $product->id)
+            ->where('category_id', $product->category_id)
+            ->where(function ($q) {
+                $q->whereNull('dead')->orWhere('dead', 0);
+            })
+            ->latest('id')
+            ->limit(8)
+            ->get(['id', 'name', 'slug', 'normal_price', 'image_url']);
+
+        $gallery = collect([$product->image_url])
+            ->merge($product->productImages->pluck('image_url'))
+            ->filter(fn ($item) => is_string($item) && trim($item) !== '')
+            ->values();
+
+        return response()->json([
+            'data' => [
+                'id' => $product->id,
+                'name' => $product->name,
+                'slug' => $product->slug,
+                'sku' => $product->sku,
+                'ean' => $product->ean,
+                'price' => (float) ($product->normal_price ?? 0),
+                'stock' => (float) ($product->global_stock ?? 0),
+                'stock_message' => ((float) ($product->global_stock ?? 0) > 0) ? 'In stock' : 'Out of stock after this order',
+                'description' => $product->description,
+                'extended_description' => $product->extended_description,
+                'variation' => $product->variation,
+                'colour' => $product->colour,
+                'brand' => $product->brand ? ['id' => $product->brand->id, 'name' => $product->brand->name, 'slug' => $product->brand->slug] : null,
+                'category' => $product->category ? ['id' => $product->category->id, 'name' => $product->category->name, 'slug' => $product->category->slug] : null,
+                'gallery' => $gallery,
+                'attributes' => [
+                    'vatable' => (bool) ($product->vatable ?? false),
+                    'is_oxford' => (bool) ($product->is_oxford ?? false),
+                ],
+                'related_items' => $related->map(fn (NgnProduct $row) => [
+                    'id' => $row->id,
+                    'name' => $row->name,
+                    'slug' => $row->slug,
+                    'price' => (float) ($row->normal_price ?? 0),
+                    'image_url' => $row->image_url,
+                ])->values(),
+            ],
+        ]);
+    }
+
+    public function rentalDetail(int $id): JsonResponse
+    {
+        $bike = Motorbike::query()
+            ->with(['images:id,motorbike_id,image_path', 'branch:id,name,address,city'])
+            ->findOrFail($id);
+        $pricing = RentingPricing::query()->where('motorbike_id', $bike->id)->where('iscurrent', true)->latest('id')->first();
+
+        return response()->json([
+            'data' => [
+                'id' => $bike->id,
+                'name' => trim((string) $bike->make.' '.$bike->model),
+                'make' => $bike->make,
+                'model' => $bike->model,
+                'year' => $bike->year,
+                'engine' => $bike->engine,
+                'fuel_type' => $bike->fuel_type,
+                'colour' => $bike->color,
+                'reg_hint' => $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : null,
+                'branch' => $bike->branch ? [
+                    'id' => $bike->branch->id,
+                    'name' => $bike->branch->name,
+                    'address' => $bike->branch->address,
+                    'city' => $bike->branch->city,
+                ] : null,
+                'pricing' => [
+                    'weekly_price' => $pricing ? (float) ($pricing->weekly_price ?? 0) : null,
+                    'minimum_deposit' => $pricing ? (float) ($pricing->minimum_deposit ?? 0) : null,
+                    'initial_payment' => $pricing ? round((float) ($pricing->weekly_price ?? 0) + (float) ($pricing->minimum_deposit ?? 0), 2) : null,
+                ],
+                'requirements' => [
+                    'valid_licence' => true,
+                    'address_proof' => true,
+                    'deposit_required' => true,
+                ],
+                'terms' => [
+                    'enquiry_only' => true,
+                    'api_enquiry_endpoint' => '/api/v1/mobile/enquiries',
+                ],
+                'gallery' => $bike->images->pluck('image_path')->filter()->values(),
+            ],
         ]);
     }
 }

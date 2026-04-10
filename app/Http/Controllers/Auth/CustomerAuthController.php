@@ -243,10 +243,12 @@ class CustomerAuthController extends Controller
         ]);
 
         try {
-            if (Auth::guard('customer')->attempt($request->only('email', 'password'))) {
-                $user = Auth::guard('customer')->user();
-                $request->session()->regenerate();
-                // Broadcast the UserLoggedIn event
+            $email = $this->normaliseEmail($request->input('email'));
+            $user = CustomerAuth::query()
+                ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+                ->first();
+
+            if ($user && Hash::check((string) $request->input('password'), (string) $user->password)) {
                 event(new UserLoggedIn($user));
                 $token = $this->issueApiToken($user, $request);
 
@@ -255,7 +257,7 @@ class CustomerAuthController extends Controller
                     'token' => $token,
                     'token_type' => 'Bearer',
                     'message' => 'Login successful',
-                    'verified' => $user->hasVerifiedEmail(),
+                    'verified' => method_exists($user, 'hasVerifiedEmail') ? $user->hasVerifiedEmail() : false,
                     'redirect_url' => '/account',
                 ]);
             }
@@ -277,32 +279,28 @@ class CustomerAuthController extends Controller
 
     public function logout(Request $request)
     {
-        // Clear specific session data first
-        $request->session()->forget([
-            'cart',
-            'checkout_state',
-            'shipping_details',
-            'previous_product',
-            'cart_items',
-        ]);
-
-        // deliberate redudant code
-        session()->forget('cart');
-        session()->forget('checkout_state');
-        session()->forget('shipping_details');
-        session()->forget('previous_product');
-        session()->forget('cart_items');
-
-        // Perform standard logout operations
+        // API logout: token revocation first. Session access is optional.
         $customer = $request->user('sanctum') ?: Auth::guard('customer')->user();
         if ($customer?->currentAccessToken()) {
             $customer->currentAccessToken()->delete();
         }
 
-        Auth::guard('customer')->logout();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-        // Broadcast the UserLoggedOut event
+        if (Auth::guard('customer')->check()) {
+            Auth::guard('customer')->logout();
+        }
+
+        if (method_exists($request, 'hasSession') && $request->hasSession()) {
+            $request->session()->forget([
+                'cart',
+                'checkout_state',
+                'shipping_details',
+                'previous_product',
+                'cart_items',
+            ]);
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
+
         event(new UserLoggedOut);
 
         return response()->json([

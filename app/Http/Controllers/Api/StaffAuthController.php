@@ -104,9 +104,13 @@ class StaffAuthController extends Controller
                 return true;
             }
         } catch (\Throwable) {
-            // Fall through to permissive check below.
+            return false;
         }
 
-        return true;
+        if (property_exists($user, 'role_id') && (int) ($user->role_id ?? 0) > 0) {
+            return true;
+        }
+
+        return false;
     }
 }
