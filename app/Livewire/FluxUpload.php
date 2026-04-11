@@ -2,8 +2,10 @@
 
 namespace App\Livewire;
 
+use App\Jobs\MoveCustomerDocumentToSpacesJob;
 use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -150,7 +152,7 @@ class FluxUpload extends Component
         $path = 'customer-documents/'.Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
         CustomerDocumentStorage::put($path, $file->get());
 
-        \App\Models\CustomerDocument::create([
+        $attributes = [
             'customer_id' => $this->customerId,
             'document_type_id' => $this->documentTypeId,
             'file_name' => $file->getClientOriginalName(),
@@ -158,8 +160,14 @@ class FluxUpload extends Component
             'file_format' => $file->getClientOriginalExtension(),
             'document_number' => $this->documentNumber ?: '',
             'valid_until' => $this->validUntil ?: null,
-            'status' => 'pending_review',
-        ]);
+        ];
+        if (Schema::hasColumn('customer_documents', 'status')) {
+            $attributes['status'] = 'pending_review';
+        }
+
+        $document = \App\Models\CustomerDocument::create($attributes);
+        MoveCustomerDocumentToSpacesJob::dispatch($document->id, $path)
+            ->delay(now()->addMinutes(10));
     }
 
     protected function commitAsMedia(): void

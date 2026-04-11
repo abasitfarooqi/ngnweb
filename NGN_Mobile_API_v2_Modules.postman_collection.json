@@ -13,8 +13,10 @@
         { "name": "Forms Blueprint", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/forms-blueprint" } },
         { "name": "Experience Blueprint", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/experience-blueprint" } },
         { "name": "Full App Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/full-app-map" } },
+        { "name": "Site Full State", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/site-full-state" } },
         { "name": "DB Link Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/db-link-map" } },
         { "name": "View Folder API DB Report", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/view-folder-api-db-report" } },
+        { "name": "Page By Page Blueprint", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/page-by-page-blueprint" } },
         { "name": "Frontend Parity Map", "request": { "method": "GET", "url": "{{base_url}}/api/v2/mobile/content/frontend-parity-map" } }
       ]
     },

@@ -340,6 +340,7 @@ Route::prefix('v1/mobile')->group(function () {
     Route::get('content/experience-blueprint', [MobileExperienceController::class, 'experienceBlueprint']);
     Route::get('content/full-app-map', [MobileExperienceController::class, 'fullAppMap']);
     Route::get('content/db-link-map', [MobileExperienceController::class, 'dbLinkMap']);
+    Route::get('content/site-full-state', [MobileExperienceController::class, 'siteFullState']);
     Route::get('content/frontend-parity-map', [MobileExperienceController::class, 'frontendParityMap']);
     Route::get('presentation/views', [MobileExperienceController::class, 'presentationViews']);
     Route::get('presentation/views/{segment}/{path}', [MobileExperienceController::class, 'presentationViewPayload'])
@@ -381,6 +382,7 @@ Route::prefix('v1/mobile')->group(function () {
     Route::get('content/home-blocks', [MobileContentController::class, 'homeBlocks']);
     Route::get('content/service-modules', [MobileContentController::class, 'serviceModules']);
     Route::get('content/view-folder-api-db-report', [MobileContentController::class, 'viewFolderApiDbReport']);
+    Route::get('content/page-by-page-blueprint', [MobileContentController::class, 'pageByPageBlueprint']);
     Route::get('services/mot', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'mot');
     Route::get('services/repairs/basic', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/basic');
     Route::get('services/repairs/full', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/full');
@@ -469,6 +471,7 @@ Route::prefix('v2/mobile')->group(function () {
     Route::get('content/experience-blueprint', [MobileV2ExperienceController::class, 'experienceBlueprint']);
     Route::get('content/full-app-map', [MobileV2ExperienceController::class, 'fullAppMap']);
     Route::get('content/db-link-map', [MobileV2ExperienceController::class, 'dbLinkMap']);
+    Route::get('content/site-full-state', [MobileV2ExperienceController::class, 'siteFullState']);
     Route::get('content/frontend-parity-map', [MobileV2ExperienceController::class, 'frontendParityMap']);
     Route::get('presentation/views', [MobileV2ExperienceController::class, 'presentationViews']);
     Route::get('presentation/views/{segment}/{path}', [MobileV2ExperienceController::class, 'presentationViewPayload'])
@@ -510,6 +513,7 @@ Route::prefix('v2/mobile')->group(function () {
     Route::get('content/home-blocks', [MobileV2ContentController::class, 'homeBlocks']);
     Route::get('content/service-modules', [MobileV2ContentController::class, 'serviceModules']);
     Route::get('content/view-folder-api-db-report', [MobileV2ContentController::class, 'viewFolderApiDbReport']);
+    Route::get('content/page-by-page-blueprint', [MobileV2ContentController::class, 'pageByPageBlueprint']);
     Route::get('services/mot', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'mot');
     Route::get('services/repairs/basic', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/basic');
     Route::get('services/repairs/full', [MobileV2PublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/full');

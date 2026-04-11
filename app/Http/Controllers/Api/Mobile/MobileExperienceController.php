@@ -3,12 +3,17 @@
 namespace App\Http\Controllers\Api\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Livewire\Site\Faq as SiteFaq;
 use App\Models\BlogPost;
+use App\Models\Branch;
 use App\Models\Legal;
 use App\Models\Motorbike;
+use App\Models\Motorcycle;
 use App\Models\NgnCareer;
 use App\Models\NgnPartner;
+use App\Models\NgnProduct;
 use App\Models\Review;
+use App\Models\SpMake;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
@@ -372,6 +377,146 @@ class MobileExperienceController extends Controller
             ->get(['id', 'rating', 'title', 'content', 'is_recommended', 'created_at']);
 
         return response()->json(['data' => $rows]);
+    }
+
+    public function siteFullState(): JsonResponse
+    {
+        $newBikes = Motorcycle::query()
+            ->where('availability', 'for sale')
+            ->latest('id')
+            ->limit(20)
+            ->get(['id', 'make', 'model', 'year', 'sale_new_price', 'file_path']);
+
+        $usedBikes = Motorbike::query()
+            ->join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
+            ->select('motorbikes.id', 'motorbikes.make', 'motorbikes.model', 'motorbikes.year', 'motorbikes.reg_no', 'motorbikes_sale.price', 'motorbikes_sale.image_one')
+            ->where('motorbikes_sale.is_sold', 0)
+            ->where(function ($q): void {
+                $q->where('motorbikes.is_ebike', false)->orWhereNull('motorbikes.is_ebike');
+            })
+            ->latest('motorbikes.id')
+            ->limit(20)
+            ->get();
+
+        $ebikes = Motorbike::query()
+            ->with(['images' => fn ($q) => $q->orderByDesc('is_primary')->orderBy('id')])
+            ->where('is_ebike', true)
+            ->latest('id')
+            ->limit(20)
+            ->get();
+
+        $rentals = Motorbike::query()
+            ->where('is_renting', true)
+            ->latest('id')
+            ->limit(20)
+            ->get(['id', 'make', 'model', 'year', 'reg_no']);
+
+        $shopProducts = NgnProduct::query()
+            ->where('is_ecommerce', 1)
+            ->where(function ($q): void {
+                $q->whereNull('dead')->orWhere('dead', 0);
+            })
+            ->latest('id')
+            ->limit(24)
+            ->get(['id', 'name', 'slug', 'normal_price', 'image_url', 'description']);
+
+        $spareManufacturers = SpMake::query()
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $branches = Branch::query()
+            ->orderBy('name')
+            ->get(['id', 'name', 'address', 'city', 'postal_code', 'latitude', 'longitude', 'phone']);
+
+        $blogs = BlogPost::query()
+            ->where('is_published', true)
+            ->latest('id')
+            ->limit(12)
+            ->get(['id', 'title', 'slug', 'excerpt', 'featured_image', 'created_at']);
+
+        $legals = Legal::query()
+            ->where('is_active', true)
+            ->orderBy('title')
+            ->get(['id', 'title', 'slug', 'updated_at']);
+
+        $careers = NgnCareer::query()
+            ->where('is_active', true)
+            ->latest('id')
+            ->limit(20)
+            ->get(['id', 'title', 'slug', 'location', 'employment_type', 'salary', 'created_at']);
+
+        $reviews = Review::query()
+            ->where('approved', true)
+            ->latest('id')
+            ->limit(40)
+            ->get(['id', 'rating', 'title', 'content', 'is_recommended', 'created_at']);
+
+        $faqComponent = app(SiteFaq::class);
+        $faqRows = collect($faqComponent->faqs ?? [])->values();
+
+        return response()->json([
+            'catalogue' => [
+                'new_bikes' => $newBikes->map(fn (Motorcycle $bike) => [
+                    'id' => $bike->id,
+                    'name' => trim((string) $bike->make.' '.$bike->model),
+                    'make' => $bike->make,
+                    'model' => $bike->model,
+                    'year' => $bike->year,
+                    'price' => (float) ($bike->sale_new_price ?? 0),
+                ])->values(),
+                'used_bikes' => $usedBikes->map(fn ($bike) => [
+                    'id' => $bike->id,
+                    'name' => trim((string) $bike->make.' '.$bike->model),
+                    'year' => $bike->year,
+                    'price' => (float) ($bike->price ?? 0),
+                    'reg_hint' => $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : null,
+                ])->values(),
+                'ebikes' => $ebikes->map(function (Motorbike $bike) {
+                    $image = $bike->images->firstWhere('is_primary', true) ?: $bike->images->first();
+
+                    return [
+                        'id' => $bike->id,
+                        'name' => trim((string) $bike->make.' '.$bike->model),
+                        'year' => $bike->year,
+                        'price' => (float) ($bike->sale_price ?? 0),
+                        'image_url' => $image && $image->image_path ? Storage::url($image->image_path) : null,
+                    ];
+                })->values(),
+                'rentals' => $rentals->map(fn (Motorbike $bike) => [
+                    'id' => $bike->id,
+                    'name' => trim((string) $bike->make.' '.$bike->model),
+                    'year' => $bike->year,
+                    'reg_no' => $bike->reg_no,
+                ])->values(),
+                'shop_products' => $shopProducts->map(fn (NgnProduct $product) => [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'slug' => $product->slug,
+                    'price' => (float) ($product->normal_price ?? 0),
+                    'image_url' => $product->image_url,
+                ])->values(),
+                'spare_parts' => [
+                    'manufacturers' => $spareManufacturers,
+                ],
+            ],
+            'content' => [
+                'branches' => $branches,
+                'blogs' => $blogs,
+                'legals' => $legals,
+                'careers' => $careers,
+                'reviews' => $reviews,
+                'faq' => [
+                    'total' => $faqRows->count(),
+                    'categories' => $faqRows->pluck('category')->filter()->unique()->values(),
+                    'items' => $faqRows,
+                ],
+            ],
+            'presentation' => [
+                'views_index' => '/api/v1/mobile/presentation/views',
+                'site_example' => '/api/v1/mobile/presentation/views/site/home',
+                'portal_example' => '/api/v1/mobile/presentation/views/portal/dashboard',
+            ],
+        ]);
     }
 
     public function authBlueprint(): JsonResponse

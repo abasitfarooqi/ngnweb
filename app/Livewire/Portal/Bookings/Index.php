@@ -2,7 +2,9 @@
 
 namespace App\Livewire\Portal\Bookings;
 
-use App\Models\MotorbikeRepair;
+use App\Models\CustomerAppointments;
+use App\Models\MOTBooking;
+use App\Models\ServiceBooking;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -15,99 +17,83 @@ class Index extends Component
         $this->activeTab = $tab;
     }
 
-    public function downloadRepairReport(int $repairId)
+    public function render()
     {
         $customerAuth = Auth::guard('customer')->user();
-        $customerEmail = trim((string) ($customerAuth?->email ?? ''));
-        if ($customerEmail === '') {
+        if (! $customerAuth) {
             abort(403);
         }
 
-        $repair = MotorbikeRepair::query()
-            ->with(['motorbike', 'branch', 'updates.services', 'observations'])
-            ->where('id', $repairId)
-            ->whereRaw('LOWER(email) = ?', [strtolower($customerEmail)])
-            ->firstOrFail();
+        $email = strtolower(trim((string) ($customerAuth->email ?? '')));
 
-        $pdf = \PDF::loadView('livewire.agreements.pdf.templates.repair_invoice', compact('repair'))
-            ->setPaper('a4', 'portrait')
-            ->setOptions([
-                'isHtml5ParserEnabled' => true,
-                'isRemoteEnabled' => true,
-            ]);
-
-        $regNo = $repair->motorbike?->reg_no ?: 'report';
-
-        return response()->streamDownload(
-            fn () => print ($pdf->output()),
-            'repair-report-'.$regNo.'-'.$repair->id.'.pdf'
-        );
-    }
-
-    public function render()
-    {
-        $customer = Auth::guard('customer')->user();
-        $customerId = $customer?->customer_id;
-
-        $motBookings = \App\Models\MOTBooking::where('customer_email', $customer->email)
-            ->orderBy('date_of_appointment', 'desc')
+        $motBookings = MOTBooking::query()
+            ->whereRaw('LOWER(customer_email) = ?', [$email])
+            ->latest('date_of_appointment')
             ->get();
 
-        $repairs = \App\Models\MotorbikeRepair::where('email', $customer->email)
-            ->with(['branch', 'motorbike'])
-            ->orderByDesc('arrival_date')
+        $repairsAppointments = CustomerAppointments::query()
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->latest('appointment_date')
             ->get();
 
-        $rentals = $customerId
-            ? \App\Models\RentingBooking::where('customer_id', $customerId)->with(['rentingBookingItems.motorbike'])->orderBy('created_at', 'desc')->take(10)->get()
-            : collect();
+        $repairsEnquiries = ServiceBooking::query()
+            ->forPortalCustomer($customerAuth)
+            ->where(function ($query): void {
+                $query
+                    ->whereIn('enquiry_type', ['service', 'repairs'])
+                    ->orWhere('service_type', 'like', '%repair%')
+                    ->orWhere('subject', 'like', '%repair%')
+                    ->orWhere('description', 'like', '%repair%');
+            })
+            ->with('conversation')
+            ->latest('id')
+            ->get();
 
-        // Merge MOT + rental into one unified bookings collection for the tab view.
-        // Use plain collections to avoid Eloquent collection model-key behaviour.
         $motItems = collect($motBookings->all())->map(fn ($m) => (object) [
             'id' => 'mot-'.$m->id,
             'type' => 'MOT',
             'date' => $m->date_of_appointment,
             'status' => $m->status ?? 'Pending',
-            'label' => 'MOT Appointment',
+            'label' => 'MOT appointment',
             'source' => $m,
         ]);
 
-        $rentalItems = collect($rentals->all())->map(function ($r) {
-            $items = $r->rentingBookingItems ?? collect();
-            $hasActiveItem = $items->contains(fn ($item) => empty($item->end_date));
-            $latestEndDate = $items->whereNotNull('end_date')->sortByDesc('end_date')->first()?->end_date;
-
+        $repairsAppointmentItems = collect($repairsAppointments->all())->map(function ($appointment) {
             return (object) [
-                'id' => 'rental-'.$r->id,
-                'type' => 'Rental',
-                'date' => $hasActiveItem ? ($r->start_date ?? $r->created_at) : ($latestEndDate ?? $r->created_at),
-                'status' => $hasActiveItem ? ($r->state ?? 'ACTIVE') : 'ENDED',
-                'label' => 'Rental Booking',
-                'source' => $r,
+                'id' => 'repairs-appointment-'.$appointment->id,
+                'type' => 'REPAIRS_APPOINTMENT',
+                'date' => $appointment->appointment_date,
+                'status' => $appointment->is_resolved ? 'completed' : 'pending',
+                'label' => 'Repairs appointment',
+                'source' => $appointment,
+            ];
+        });
+
+        $repairsEnquiryItems = collect($repairsEnquiries->all())->map(function ($enquiry) {
+            return (object) [
+                'id' => 'repairs-enquiry-'.$enquiry->id,
+                'type' => 'REPAIRS_ENQUIRY',
+                'date' => $enquiry->created_at,
+                'status' => $enquiry->status ?: 'Pending',
+                'label' => 'Repair enquiry',
+                'source' => $enquiry,
             ];
         });
 
         $allBookings = $motItems
-            ->merge($rentalItems)
-            ->merge(collect($repairs->all())->map(fn ($repair) => (object) [
-                'id' => 'repair-'.$repair->id,
-                'type' => 'Repair',
-                'date' => $repair->arrival_date?->toDateString(),
-                'status' => $repair->is_returned ? 'completed' : ($repair->is_repaired ? 'in progress' : 'pending'),
-                'label' => 'Repair Booking',
-                'source' => $repair,
-            ]))
+            ->merge($repairsAppointmentItems)
+            ->merge($repairsEnquiryItems)
             ->sortByDesc('date')
             ->values();
 
         $bookings = match ($this->activeTab) {
-            'upcoming' => $allBookings->filter(fn ($b) => $b->date && $b->date >= now()->toDateString()),
-            'completed' => $allBookings->filter(fn ($b) => in_array(strtolower((string) $b->status), ['completed', 'done', 'expired', 'ended'])),
+            'mot' => $allBookings->where('type', 'MOT'),
+            'repairs_appointments' => $allBookings->where('type', 'REPAIRS_APPOINTMENT'),
+            'repairs_enquiries' => $allBookings->where('type', 'REPAIRS_ENQUIRY'),
             default => $allBookings,
         };
 
-        return view('livewire.portal.bookings.index', compact('bookings', 'motBookings', 'rentals'))
+        return view('livewire.portal.bookings.index', compact('bookings'))
             ->layout('components.layouts.portal', ['title' => 'My Bookings | My Account']);
     }
 }

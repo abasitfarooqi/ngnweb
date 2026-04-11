@@ -206,4 +206,16 @@ class MobileContentController extends Controller
             'report_text' => $reportText,
         ]);
     }
+
+    public function pageByPageBlueprint(): JsonResponse
+    {
+        $reportPath = base_path('MOBILE_V2_PAGE_BY_PAGE_BLUEPRINT.txt');
+        $reportText = File::exists($reportPath) ? File::get($reportPath) : '';
+
+        return response()->json([
+            'generated_file' => 'MOBILE_V2_PAGE_BY_PAGE_BLUEPRINT.txt',
+            'available' => $reportText !== '',
+            'report_text' => $reportText,
+        ]);
+    }
 }

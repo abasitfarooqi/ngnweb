@@ -24,6 +24,11 @@ class MobileExperienceController extends \App\Http\Controllers\Api\Mobile\Mobile
         return $this->rewriteApiPayload(parent::fullAppMap());
     }
 
+    public function siteFullState(): JsonResponse
+    {
+        return $this->rewriteApiPayload(parent::siteFullState());
+    }
+
     public function dbLinkMap(): JsonResponse
     {
         return $this->rewriteApiPayload(parent::dbLinkMap());

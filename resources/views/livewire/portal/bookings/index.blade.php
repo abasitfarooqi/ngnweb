@@ -8,10 +8,14 @@
         </div>
     </div>
 
-    {{-- Tabs --}}
     <div class="border-b border-gray-200 dark:border-gray-700">
         <nav class="-mb-px flex space-x-6">
-            @foreach(['all' => 'All Bookings', 'upcoming' => 'Upcoming', 'completed' => 'Completed'] as $tab => $label)
+            @foreach([
+                'all' => 'All',
+                'mot' => 'MOT appointments',
+                'repairs_appointments' => 'Repairs appointments',
+                'repairs_enquiries' => 'Repair enquiries'
+            ] as $tab => $label)
                 <button type="button" wire:click="switchTab('{{ $tab }}')"
                     class="whitespace-nowrap pb-4 px-1 border-b-2 font-medium text-sm transition {{ $activeTab === $tab ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300 dark:text-gray-400 dark:hover:text-gray-300' }}">
                     {{ $label }}
@@ -54,24 +58,27 @@
                                     <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->vehicle_registration ?? 'N/A' }}</strong></p>
                                     <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ $booking->source->time_slot ?? 'N/A' }}</strong></p>
                                     <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch->name ?? 'N/A' }}</strong></p>
-                                @elseif($booking->type === 'Rental')
-                                    <p>Booking ID: <strong class="text-gray-900 dark:text-white">#{{ $booking->source->id }}</strong></p>
-                                    <p>Start: <strong class="text-gray-900 dark:text-white">{{ $booking->source->start_date ? \Carbon\Carbon::parse($booking->source->start_date)->format('d M Y') : 'N/A' }}</strong></p>
-                                    @php $activeItem = $booking->source->activeItems->first(); @endphp
-                                    @if($activeItem && $activeItem->motorbike)
-                                        <p>Bike: <strong class="text-gray-900 dark:text-white">{{ $activeItem->motorbike->make }} {{ $activeItem->motorbike->model }} ({{ $activeItem->motorbike->reg_no }})</strong></p>
-                                    @endif
+                                @elseif($booking->type === 'REPAIRS_APPOINTMENT')
+                                    <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->registration_number ?? 'N/A' }}</strong></p>
+                                    <p>Appointment: <strong class="text-gray-900 dark:text-white">{{ $booking->source->appointment_date ? \Carbon\Carbon::parse($booking->source->appointment_date)->format('d M Y H:i') : 'N/A' }}</strong></p>
+                                    <p>Name: <strong class="text-gray-900 dark:text-white">{{ $booking->source->customer_name ?? 'N/A' }}</strong></p>
                                 @else
-                                    <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->motorbike?->reg_no ?? 'N/A' }}</strong></p>
-                                    <p>Arrival: <strong class="text-gray-900 dark:text-white">{{ $booking->source->arrival_date ? \Carbon\Carbon::parse($booking->source->arrival_date)->format('d M Y H:i') : 'N/A' }}</strong></p>
-                                    <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch?->name ?? 'N/A' }}</strong></p>
+                                    <p>Subject: <strong class="text-gray-900 dark:text-white">{{ $booking->source->subject ?: 'Repair enquiry' }}</strong></p>
+                                    <p>Service type: <strong class="text-gray-900 dark:text-white">{{ $booking->source->service_type ?: 'N/A' }}</strong></p>
+                                    <p>Submitted: <strong class="text-gray-900 dark:text-white">{{ $booking->source->created_at ? \Carbon\Carbon::parse($booking->source->created_at)->format('d M Y H:i') : 'N/A' }}</strong></p>
+                                    @if($booking->source->description)
+                                        <p class="whitespace-pre-line">{{ $booking->source->description }}</p>
+                                    @endif
                                     <div class="mt-2">
-                                        <button
-                                            type="button"
-                                            wire:click="downloadRepairReport({{ $booking->source->id }})"
-                                            class="text-sm text-brand-red hover:text-red-700 font-medium">
-                                            Download workshop report (PDF)
-                                        </button>
+                                        @if($booking->source->conversation?->uuid)
+                                            <flux:button href="{{ route('account.support.thread', $booking->source->conversation->uuid) }}" variant="outline" size="sm">
+                                                Open chat
+                                            </flux:button>
+                                        @else
+                                            <flux:button href="{{ route('account.support') }}" variant="outline" size="sm">
+                                                Start chat about this enquiry
+                                            </flux:button>
+                                        @endif
                                     </div>
                                 @endif
                             </div>

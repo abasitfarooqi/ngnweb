@@ -14,6 +14,15 @@
             <flux:callout.text>{{ session('error') }}</flux:callout.text>
         </flux:callout>
     @endif
+    @if($lastUploadReceipt)
+        <flux:callout variant="success" icon="check-badge" class="mb-5">
+            <flux:callout.text>
+                Upload confirmed: {{ $lastUploadReceipt['document_type'] }} saved as {{ $lastUploadReceipt['file_name'] }}
+                at {{ \Carbon\Carbon::parse($lastUploadReceipt['uploaded_at'])->format('d M Y H:i:s') }}
+                via {{ $lastUploadReceipt['storage_target'] }}.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
 
     <div class="border-b border-gray-200 dark:border-gray-700 mb-6">
         <div class="flex items-center gap-2">
@@ -351,11 +360,39 @@
                 </div>
                 <div class="p-6">
                     @if($customerId)
-                        <livewire:universal-uploader
-                            :document-type-id="$uploadingFor"
-                            :customer-id="$customerId"
-                            key="doc-uploader-{{ $uploadingFor }}-{{ $customerId }}"
-                        />
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select file</label>
+                                <input
+                                    type="file"
+                                    wire:model="file"
+                                    name="file"
+                                    class="mt-1 block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-300 dark:file:border-gray-600 file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-800 dark:file:text-gray-200 file:cursor-pointer"
+                                />
+                                <p wire:loading wire:target="file" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Preparing file…</p>
+                                @error('file')
+                                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Document number (optional)</label>
+                                <input type="text" wire:model="document_number" class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Valid until (optional)</label>
+                                <input type="date" wire:model="valid_until" class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                            </div>
+
+                            <div class="flex justify-end gap-2">
+                                <flux:button wire:click="cancelUpload" variant="outline">Cancel</flux:button>
+                                <flux:button wire:click="submitDocumentUpload" wire:loading.attr="disabled" wire:target="submitDocumentUpload,file" variant="filled" class="bg-brand-red text-white">
+                                    <span wire:loading.remove wire:target="submitDocumentUpload">Upload</span>
+                                    <span wire:loading wire:target="submitDocumentUpload">Uploading…</span>
+                                </flux:button>
+                            </div>
+                        </div>
                     @else
                         <flux:callout variant="warning" icon="exclamation-triangle">
                             <flux:callout.text>Please complete your profile before uploading documents.</flux:callout.text>
@@ -369,3 +406,12 @@
         </div>
     @endif
 </div>
+
+@script
+<script>
+    Livewire.on('portal-document-upload-popup', (payload) => {
+        const message = payload?.message || 'Upload completed.';
+        window.alert(message);
+    });
+</script>
+@endscript

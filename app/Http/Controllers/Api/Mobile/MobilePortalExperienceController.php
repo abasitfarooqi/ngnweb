@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Mobile;
 
 use App\Http\Controllers\Controller;
+use App\Jobs\MoveCustomerDocumentToSpacesJob;
 use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\CustomerAddress;
@@ -28,6 +29,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
@@ -373,25 +375,44 @@ class MobilePortalExperienceController extends Controller
         $path = 'customer-documents/'.Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
         CustomerDocumentStorage::put($path, $file->get());
 
-        $row = CustomerDocument::query()->updateOrCreate([
+        $existing = CustomerDocument::query()->where([
             'customer_id' => $customerId,
             'document_type_id' => (int) $payload['document_type_id'],
-        ], [
+        ])->first();
+
+        $oldPath = $existing?->file_path;
+
+        $attributes = [
             'file_name' => $file->getClientOriginalName(),
             'file_path' => $path,
             'file_format' => $file->getClientOriginalExtension(),
             'document_number' => (string) ($payload['document_number'] ?? ''),
             'valid_until' => $payload['valid_until'] ?? null,
-            'status' => 'pending_review',
-        ]);
+        ];
+        if (Schema::hasColumn('customer_documents', 'status')) {
+            $attributes['status'] = 'pending_review';
+        }
+
+        $row = CustomerDocument::query()->updateOrCreate([
+            'customer_id' => $customerId,
+            'document_type_id' => (int) $payload['document_type_id'],
+        ], $attributes);
+
+        if ($oldPath && $oldPath !== $path) {
+            CustomerDocumentStorage::delete($oldPath);
+        }
+
+        MoveCustomerDocumentToSpacesJob::dispatch($row->id, $path)
+            ->delay(now()->addMinutes(10));
 
         return response()->json([
-            'message' => 'Document uploaded successfully.',
+            'message' => 'Document uploaded successfully. File is staged on site storage and queued for DigitalOcean sync.',
             'data' => [
                 'id' => $row->id,
                 'file_name' => $row->file_name,
                 'status' => $row->status,
                 'file_url' => $this->resolveStoredFileUrl($row->file_path, false),
+                'sync_status' => CustomerDocumentStorage::spacesConfigured() ? 'queued_to_spaces' : 'spaces_not_configured',
             ],
         ], 201);
     }

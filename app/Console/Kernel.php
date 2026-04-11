@@ -10,6 +10,8 @@ use App\Jobs\SendWeeklyMitClosingReportJob;
 use App\Jobs\SendWeeklyMitOpeningReportJob;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class Kernel extends ConsoleKernel
 {
@@ -33,6 +35,30 @@ class Kernel extends ConsoleKernel
 
     protected function schedule(Schedule $schedule): void
     {
+        // Keep Livewire temporary uploads tidy so stale chunks don't block new uploads.
+        $schedule->call(function (): void {
+            $diskName = config('livewire.temporary_file_upload.disk') ?: config('filesystems.default');
+            $directory = trim((string) (config('livewire.temporary_file_upload.directory') ?: 'livewire-tmp'), '/');
+            $expirySeconds = 10 * 60;
+            $now = now()->timestamp;
+
+            try {
+                $disk = Storage::disk($diskName);
+                foreach ($disk->allFiles($directory) as $path) {
+                    $age = $now - (int) $disk->lastModified($path);
+                    if ($age > $expirySeconds) {
+                        $disk->delete($path);
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::warning('Livewire temp cleanup failed', [
+                    'disk' => $diskName,
+                    'directory' => $directory,
+                    'message' => $e->getMessage(),
+                ]);
+            }
+        })->everyMinute()->name('livewire-temp-cleanup');
+
         // // MIT Queue Generation - Mondays at 04:00
         // $schedule->job(new ProduceNgnMitQueueJob)
         //     ->weeklyOn(1, config('judopay.mit.queue_produce_time'))

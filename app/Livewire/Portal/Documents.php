@@ -2,14 +2,17 @@
 
 namespace App\Livewire\Portal;
 
+use App\Jobs\MoveCustomerDocumentToSpacesJob;
 use App\Models\CustomerAgreement;
 use App\Models\CustomerContract;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
 use App\Support\CustomerDocumentStorage;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -28,6 +31,8 @@ class Documents extends Component
     public $document_number;
 
     public $valid_until;
+
+    public ?array $lastUploadReceipt = null;
 
     public function mount(): void
     {
@@ -97,56 +102,158 @@ class Documents extends Component
         $this->resetValidation();
     }
 
-    public function onDocumentUploadCommitted(): void
-    {
-        session()->flash('success', 'Document uploaded successfully.');
+    public function onDocumentUploadCommitted(
+        ?int $documentTypeId = null,
+        ?string $fileName = null,
+        ?string $uploadedAt = null,
+        ?string $storageTarget = null
+    ): void {
+        $documentTypeName = null;
+        if ($documentTypeId) {
+            $documentTypeName = DocumentType::query()->whereKey($documentTypeId)->value('name');
+        }
+
+        $this->lastUploadReceipt = [
+            'document_type' => $documentTypeName ?: 'Document',
+            'file_name' => $fileName ?: 'Uploaded file',
+            'uploaded_at' => $uploadedAt ?: now()->toIso8601String(),
+            'storage_target' => $storageTarget ?: 'site-storage',
+        ];
+
+        session()->flash('success', 'Document uploaded successfully and saved.');
         $this->cancelUpload();
     }
 
-    public function upload()
+    public function submitDocumentUpload()
     {
-        $this->validate([
-            'file' => 'required|file|max:10240',
-        ], [
-            'file.required' => 'Please select a file first.',
-            'file.max' => 'File must be 10MB or smaller.',
+        \Log::info('Portal Documents::submitDocumentUpload called', [
+            'uploading_for' => $this->uploadingFor,
+            'has_file' => (bool) $this->file,
         ]);
 
+        try {
+            $this->validate([
+                'uploadingFor' => 'required|integer|exists:document_types,id',
+                'file' => 'required|file|max:10240',
+            ], [
+                'uploadingFor.required' => 'Please choose a document type first.',
+                'file.required' => 'Please select a file first.',
+                'file.max' => 'File must be 10MB or smaller.',
+            ]);
+        } catch (ValidationException $e) {
+            $firstError = $e->validator->errors()->first() ?: 'Validation failed.';
+            \Log::warning('Portal Documents::submitDocumentUpload validation failed', [
+                'uploading_for' => $this->uploadingFor,
+                'error' => $firstError,
+            ]);
+            $this->dispatch('portal-document-upload-popup', message: $firstError);
+            throw $e;
+        }
+
         $customerAuth = Auth::guard('customer')->user();
-        $profile = $customerAuth->customer;
+        $profile = $customerAuth?->customer;
+        \Log::info('Portal Documents::submitDocumentUpload customer guard resolved', [
+            'has_customer_auth' => (bool) $customerAuth,
+            'has_profile' => (bool) $profile,
+            'customer_auth_id' => $customerAuth?->id,
+        ]);
 
         if (! $profile) {
+            \Log::warning('Portal Documents::submitDocumentUpload blocked: no customer profile linked');
             session()->flash('error', 'Your account is not linked to a customer record yet.');
+            $this->dispatch('portal-document-upload-popup', message: 'Upload failed: account is not linked to customer profile.');
 
             return;
         }
 
         $customerId = $this->getPortalCustomerId();
+        \Log::info('Portal Documents::submitDocumentUpload customer id resolved', ['customer_id' => $customerId]);
         if (! $customerId) {
+            \Log::warning('Portal Documents::submitDocumentUpload blocked: empty customer id');
             session()->flash('error', 'Your account is not linked to a customer record yet.');
+            $this->dispatch('portal-document-upload-popup', message: 'Upload failed: customer id missing.');
 
             return;
         }
 
-        $path = 'customer-documents/'.Str::uuid()->toString().'.'.$this->file->getClientOriginalExtension();
-        CustomerDocumentStorage::put($path, $this->file->get());
+        try {
+            $path = 'customer-documents/'.Str::uuid()->toString().'.'.$this->file->getClientOriginalExtension();
+            \Log::info('Portal Documents::submitDocumentUpload storing file', ['path' => $path]);
+            CustomerDocumentStorage::put($path, $this->file->get());
+            \Log::info('Portal Documents::submitDocumentUpload file stored locally', ['path' => $path]);
 
-        CustomerDocument::updateOrCreate([
-            'customer_id' => $customerId,
-            'document_type_id' => $this->uploadingFor,
-        ], [
-            'customer_id' => $customerId,
-            'document_type_id' => $this->uploadingFor,
-            'file_name' => $this->file->getClientOriginalName(),
-            'file_path' => $path,
-            'file_format' => $this->file->getClientOriginalExtension(),
-            'document_number' => $this->document_number ?: '',
-            'valid_until' => $this->valid_until ?: null,
-            'status' => 'pending_review',
-        ]);
+            $existing = CustomerDocument::query()->where([
+                'customer_id' => $customerId,
+                'document_type_id' => $this->uploadingFor,
+            ])->first();
 
-        session()->flash('success', 'Document uploaded successfully!');
-        $this->cancelUpload();
+            $oldPath = $existing?->file_path;
+
+            $attributes = [
+                'customer_id' => $customerId,
+                'document_type_id' => $this->uploadingFor,
+                'file_name' => $this->file->getClientOriginalName(),
+                'file_path' => $path,
+                'file_format' => $this->file->getClientOriginalExtension(),
+                'document_number' => $this->document_number ?: '',
+                'valid_until' => $this->valid_until ?: null,
+            ];
+            if (Schema::hasColumn('customer_documents', 'status')) {
+                $attributes['status'] = 'pending_review';
+            }
+
+            \Log::info('Portal Documents::submitDocumentUpload saving db row', [
+                'customer_id' => $customerId,
+                'document_type_id' => $this->uploadingFor,
+            ]);
+            $row = CustomerDocument::updateOrCreate([
+                'customer_id' => $customerId,
+                'document_type_id' => $this->uploadingFor,
+            ], $attributes);
+            \Log::info('Portal Documents::submitDocumentUpload db row saved', ['document_id' => $row->id]);
+
+            if ($oldPath && $oldPath !== $path) {
+                \Log::info('Portal Documents::submitDocumentUpload deleting old file', ['old_path' => $oldPath]);
+                CustomerDocumentStorage::delete($oldPath);
+            }
+
+            MoveCustomerDocumentToSpacesJob::dispatch($row->id, $path)
+                ->delay(now()->addMinutes(10));
+            \Log::info('Portal Documents::submitDocumentUpload queued delayed spaces job', ['document_id' => $row->id]);
+
+            // Try immediate sync for quicker DO visibility; fallback remains safe.
+            $syncedNow = CustomerDocumentStorage::moveToSpacesAndDeleteLocalIfSynced($path);
+            \Log::info('Portal Documents::submitDocumentUpload immediate spaces sync result', [
+                'path' => $path,
+                'synced_now' => $syncedNow,
+            ]);
+
+            session()->flash('success', 'Document uploaded successfully!');
+            $this->lastUploadReceipt = [
+                'document_type' => optional(DocumentType::query()->find($this->uploadingFor))->name ?: 'Document',
+                'file_name' => $row->file_name ?: 'Uploaded file',
+                'uploaded_at' => now()->toIso8601String(),
+                'storage_target' => $syncedNow
+                    ? 'digitalocean-spaces (synced now)'
+                    : (CustomerDocumentStorage::spacesConfigured()
+                        ? 'site-storage (queued for digitalocean-spaces)'
+                        : 'site-storage'),
+            ];
+
+            $this->dispatch('portal-document-upload-popup', message: $syncedNow
+                ? 'Upload complete. Synced to DigitalOcean now.'
+                : 'Upload complete. Saved on site storage and queued for DigitalOcean sync.');
+            \Log::info('Portal Documents::submitDocumentUpload completed successfully', ['document_id' => $row->id]);
+            $this->cancelUpload();
+        } catch (\Throwable $e) {
+            \Log::error('Portal Documents::submitDocumentUpload failed', [
+                'message' => $e->getMessage(),
+                'uploading_for' => $this->uploadingFor,
+            ]);
+            session()->flash('error', 'Upload failed. '.$e->getMessage());
+            $this->dispatch('portal-document-upload-popup', message: 'Upload failed: '.$e->getMessage());
+            throw $e;
+        }
     }
 
     public function render()

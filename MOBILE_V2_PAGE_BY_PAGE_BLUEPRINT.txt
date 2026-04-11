@@ -1,0 +1,367 @@
+NGN MOBILE V2 - PAGE BY PAGE BLUEPRINT
+Date: 2026-04-10
+
+PHASE 1 - API FOUNDATION (DONE)
+- V2 API routes active under /api/v2/mobile (158 routes).
+- V2 wrappers normalise payload endpoint contracts to V2 namespace.
+- Direct DB-backed portal deep payloads are live (full-state, bookings, rental detail, MOT create).
+- Club legacy direct DB endpoints are live under /api/v2/mobile/club/legacy/*.
+
+PHASE 2 - PAGE BY PAGE PARITY CONTRACT (THIS FILE)
+- For every Livewire page, mobile app should use:
+  1) business data endpoint(s) from /api/v2/mobile/*
+  2) optional presentation contract endpoint:
+     GET /api/v2/mobile/presentation/views/{segment}/{path}
+- Segment mapping:
+  - resources/views/livewire/site/* => segment=site
+  - resources/views/livewire/portal/* => segment=portal
+  - resources/views/livewire/shop/* => segment=shop
+  - resources/views/livewire/v2/* => segment=v2
+  - resources/views/livewire/auth/* => segment=auth
+
+============================================================
+SITE LIVEWIRE CLASSES (app/Livewire/Site) - 64
+============================================================
+About.php
+AccidentManagement.php
+Bikes/Index.php
+Bikes/SalesIndex.php
+Bikes/Show.php
+Bikes/UsedIndex.php
+Career/Index.php
+Career/Show.php
+Club/Dashboard.php
+Club/ForgotPasskey.php
+Club/Index.php
+Club/Login.php
+Club/Referral.php
+Club/Register.php
+Club/Terms.php
+ComingSoon.php
+Contact.php
+Contact/CallBack.php
+Contact/ServiceBooking.php
+Contact/TradeAccount.php
+Ebikes/Index.php
+Faq.php
+Finance/Index.php
+Footer.php
+Header.php
+Home.php
+Legal/Index.php
+Legal/Privacy.php
+Legal/Refund.php
+Legal/Shipping.php
+Legal/Show.php
+Locations/Index.php
+Mot/Alert.php
+Mot/Book.php
+Mot/Checker.php
+Mot/Index.php
+Newsletter.php
+Partner/Index.php
+Recovery/Delivery.php
+Recovery/Index.php
+Rentals/BikeModel.php
+Rentals/Index.php
+Rentals/Show.php
+Repairs/Basic.php
+Repairs/Comparison.php
+Repairs/Full.php
+Repairs/Index.php
+Repairs/RepairServices.php
+Reviews.php
+Services/AllServices.php
+Services/NavixAiServiceLab.php
+Shop/Accessories.php
+Shop/GpsTracker.php
+Shop/Index.php
+Shop/SpareParts.php
+SpareParts/AssemblyShow.php
+SpareParts/Basket.php
+SpareParts/Categories.php
+SpareParts/Checkout.php
+SpareParts/Index.php
+SpareParts/Manufactures.php
+SpareParts/PartShow.php
+Survey/Show.php
+Survey/Thanks.php
+
+============================================================
+PORTAL LIVEWIRE CLASSES (app/Livewire/Portal) - 29
+============================================================
+Addresses.php
+Bookings/Index.php
+Club.php
+Dashboard.php
+Documents.php
+Enquiries/Index.php
+Finance/Apply.php
+Finance/Browse.php
+Finance/EnquiryPanel.php
+Finance/MyApplications.php
+MOT/Book.php
+MOT/MyBookings.php
+Orders/Index.php
+Orders/Show.php
+PaymentMethods.php
+Payments/Recurring.php
+Profile.php
+Recovery/MyRequests.php
+Recovery/Request.php
+Recovery/Show.php
+Rentals/Browse.php
+Rentals/Create.php
+Rentals/MyEnquiries.php
+Rentals/MyRentals.php
+Repairs/Appointment.php
+Repairs/Request.php
+Security.php
+Support/Inbox.php
+Support/Thread.php
+
+============================================================
+SHOP LIVEWIRE CLASSES (app/Livewire/Shop) - 6
+============================================================
+Basket.php
+BlogIndex.php
+BlogShow.php
+Checkout.php
+Home.php
+Product.php
+
+============================================================
+V2 LIVEWIRE CLASSES (app/Livewire/V2) - 20
+============================================================
+About.php
+BikeDetail.php
+BikesForSale.php
+Contact.php
+EBikes.php
+Footer.php
+Home.php
+LegalPage.php
+MotChecker.php
+Navbar.php
+Recovery.php
+RentalDetail.php
+RentalQrBooking.php
+Rentals.php
+ServiceBasic.php
+ServiceBookingForm.php
+ServiceComparison.php
+ServiceFull.php
+ServiceRepairs.php
+Services.php
+
+============================================================
+AUTH LIVEWIRE CLASSES (app/Livewire/Auth) - 4
+============================================================
+ForgotPassword.php
+Login.php
+Register.php
+ResetPassword.php
+
+============================================================
+SITE VIEWS (resources/views/livewire/site) - 74
+============================================================
+about.blade.php
+accident-management.blade.php
+bikes/index.blade.php
+bikes/sales-index.blade.php
+bikes/show.blade.php
+bikes/used-index.blade.php
+career/index.blade.php
+career/show.blade.php
+club/dashboard.blade.php
+club/forgot-passkey.blade.php
+club/index.blade.php
+club/login.blade.php
+club/referral.blade.php
+club/register.blade.php
+club/terms.blade.php
+coming-soon.blade.php
+contact.blade.php
+contact/call-back.blade.php
+contact/service-booking.blade.php
+contact/trade-account.blade.php
+ebikes/index.blade.php
+faq.blade.php
+finance/index.blade.php
+footer.blade.php
+header.blade.php
+home.blade.php
+home/partials/ebikes-home.blade.php
+home/partials/finance-installment-strip.blade.php
+home/partials/locations-stores-gallery.blade.php
+home/partials/mot-recovery-club.blade.php
+home/partials/newsletter-social.blade.php
+home/partials/repairs-services-home-grid.blade.php
+legal/index.blade.php
+legal/privacy.blade.php
+legal/refund.blade.php
+legal/shipping.blade.php
+legal/show.blade.php
+locations/index.blade.php
+mot/alert.blade.php
+mot/book.blade.php
+mot/checker.blade.php
+mot/index.blade.php
+newsletter.blade.php
+partials/ebikes/specifications-table.blade.php
+partials/sales/enquiry-form.blade.php
+partner/index.blade.php
+recovery/delivery.blade.php
+recovery/index.blade.php
+rentals/bike-model.blade.php
+rentals/index.blade.php
+rentals/show.blade.php
+repairs/basic.blade.php
+repairs/comparison.blade.php
+repairs/full.blade.php
+repairs/index.blade.php
+repairs/partials/comparison-basic-body.blade.php
+repairs/partials/comparison-major-body.blade.php
+repairs/repair-services.blade.php
+reviews.blade.php
+services/all-services.blade.php
+services/navix-ai-service-lab.blade.php
+services/partials/section-body.blade.php
+shop/accessories.blade.php
+shop/gps-tracker.blade.php
+shop/index.blade.php
+shop/spare-parts.blade.php
+spareparts/assembly-show.blade.php
+spareparts/basket.blade.php
+spareparts/categories.blade.php
+spareparts/index.blade.php
+spareparts/manufactures.blade.php
+spareparts/part-show.blade.php
+survey/show.blade.php
+survey/thanks.blade.php
+
+============================================================
+PORTAL VIEWS (resources/views/livewire/portal) - 30
+============================================================
+addresses.blade.php
+bookings/index.blade.php
+club.blade.php
+dashboard.blade.php
+documents.blade.php
+enquiries/index.blade.php
+finance/apply.blade.php
+finance/apply-legacy-inactive.blade.php
+finance/browse.blade.php
+finance/enquiry-panel.blade.php
+finance/my-applications.blade.php
+mot/book.blade.php
+mot/my-bookings.blade.php
+orders/index.blade.php
+orders/show.blade.php
+payment-methods.blade.php
+payments/recurring.blade.php
+profile.blade.php
+recovery/my-requests.blade.php
+recovery/request.blade.php
+recovery/show.blade.php
+rentals/browse.blade.php
+rentals/create.blade.php
+rentals/my-enquiries.blade.php
+rentals/my-rentals.blade.php
+repairs/appointment.blade.php
+repairs/request.blade.php
+security.blade.php
+support/inbox.blade.php
+support/thread.blade.php
+
+============================================================
+SHOP VIEWS (resources/views/livewire/shop) - 6
+============================================================
+basket.blade.php
+blog-index.blade.php
+blog-show.blade.php
+checkout.blade.php
+home.blade.php
+product.blade.php
+
+============================================================
+V2 VIEWS (resources/views/livewire/v2) - 20
+============================================================
+about.blade.php
+bike-detail.blade.php
+bikes-for-sale.blade.php
+contact.blade.php
+ebikes.blade.php
+footer.blade.php
+home.blade.php
+legal-page.blade.php
+mot-checker.blade.php
+navbar.blade.php
+recovery.blade.php
+rental-detail.blade.php
+rental-qr-booking.blade.php
+rentals.blade.php
+service-basic.blade.php
+service-booking-form.blade.php
+service-comparison.blade.php
+service-full.blade.php
+service-repairs.blade.php
+services.blade.php
+
+============================================================
+V2 LAYOUT VIEWS (resources/views/v2/layouts) - 3
+============================================================
+admin.blade.php
+app.blade.php
+portal.blade.php
+
+============================================================
+VIEW -> API -> DB EXECUTION RULES
+============================================================
+
+Rule A: For every UI screen load
+- Call business endpoint first (data model).
+- Then call presentation endpoint for same Blade path.
+- Merge as:
+  - content/data -> from business endpoint
+  - ui contract/tokens/components -> from presentation endpoint
+
+Rule B: Presentation endpoint template
+- /api/v2/mobile/presentation/views/{segment}/{path-without-.blade.php}
+Examples:
+- site faq view:
+  /api/v2/mobile/presentation/views/site/faq
+- portal support thread view:
+  /api/v2/mobile/presentation/views/portal/support/thread
+- shop product view:
+  /api/v2/mobile/presentation/views/shop/product
+- v2 rentals view:
+  /api/v2/mobile/presentation/views/v2/rentals
+
+Rule C: Primary business endpoints by module
+- Site bikes: /api/v2/mobile/bikes*
+- Site rentals: /api/v2/mobile/rentals*
+- Site shop: /api/v2/mobile/shop/products*
+- Site spareparts: /api/v2/mobile/spare-parts/*
+- Site forms: /api/v2/mobile/mot/*, /finance/*, /contact/*
+- Club: /api/v2/mobile/club/*
+- Portal: /api/v2/mobile/portal/*
+- Unified enquiries: /api/v2/mobile/enquiries*
+- Chat:
+  - customer /api/v2/mobile/customer/support/*
+  - staff /api/v2/mobile/staff/support/*
+
+Rule D: Direct DB requirement
+- Dynamic modules are DB-backed via models/services.
+- Static/editorial-only pages remain static payloads but still exposed via API for mobile rendering consistency.
+
+PHASE 3 - APP BUILD ORDER (READY)
+1) Auth (customer + staff)
+2) System/bootstrap maps
+3) Public catalogue/content
+4) Public forms
+5) Portal full-state and detail modules
+6) Club and club legacy
+7) Support chat (customer and staff)
+8) Screen-by-screen presentation contract calls
+

@@ -2,9 +2,11 @@
 
 namespace App\Livewire;
 
+use App\Jobs\MoveCustomerDocumentToSpacesJob;
 use App\Models\CustomerDocument;
 use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
@@ -13,6 +15,9 @@ use Livewire\WithFileUploads;
 class UniversalUploader extends Component
 {
     use WithFileUploads;
+
+    /** Single-file mode for document uploads */
+    public $file = null;
 
     /**
      * Livewire bound files (temporary uploads)
@@ -45,6 +50,8 @@ class UniversalUploader extends Component
     public string $accept = '';
 
     public ?string $commitError = null;
+
+    public ?string $commitSuccess = null;
 
     public function mount(
         ?string $modelType = null,
@@ -82,6 +89,19 @@ class UniversalUploader extends Component
         ]);
     }
 
+    public function updatedFile(): void
+    {
+        \Log::info('UniversalUploader updatedFile()', ['has_file' => $this->file instanceof TemporaryUploadedFile]);
+
+        if (! ($this->file instanceof TemporaryUploadedFile)) {
+            return;
+        }
+
+        $this->validate([
+            'file' => ['file', 'max:'.$this->maxSizeKb],
+        ]);
+    }
+
     public function removeTemp(int $index): void
     {
         if (! is_array($this->files)) {
@@ -113,33 +133,46 @@ class UniversalUploader extends Component
 
     public function commit(): void
     {
-        $count = is_array($this->files) ? count($this->files) : 0;
         \Log::info('UniversalUploader::commit()', [
-            'files_count' => $count,
+            'files_count' => is_array($this->files) ? count($this->files) : 0,
             'files_type' => gettype($this->files),
+            'has_file' => $this->file instanceof TemporaryUploadedFile,
             'documentMode' => (bool) ($this->documentTypeId && $this->customerId),
         ]);
 
         $this->commitError = null;
-
-        if ($count < 1) {
-            $this->commitError = 'No files to save. Select a file above and wait for it to appear in Staged files.';
-
-            return;
-        }
-
-        $this->validate([
-            'files' => ['required', 'array', 'min:1', 'max:'.$this->maxFiles],
-            'files.*' => ['max:'.$this->maxSizeKb],
-        ], ['files.required' => 'Select at least one file to save.']);
+        $this->commitSuccess = null;
 
         try {
             if ($this->documentTypeId && $this->customerId) {
-                $this->commitAsDocument();
+                if (! ($this->file instanceof TemporaryUploadedFile)) {
+                    $this->commitError = 'Please choose a file first.';
+                    $this->dispatch('document-upload-failed', message: $this->commitError);
+
+                    return;
+                }
+                $this->validate([
+                    'file' => ['required', 'file', 'max:'.$this->maxSizeKb],
+                ], ['file.required' => 'Please choose a file first.']);
+                $this->commitAsDocument($this->file);
+                $this->file = null;
+                $this->commitSuccess = 'Upload completed successfully.';
             } else {
+                $count = is_array($this->files) ? count($this->files) : 0;
+                if ($count < 1) {
+                    $this->commitError = 'No files to save. Select a file above and wait for it to appear in staged files.';
+                    $this->dispatch('document-upload-failed', message: $this->commitError);
+
+                    return;
+                }
+                $this->validate([
+                    'files' => ['required', 'array', 'min:1', 'max:'.$this->maxFiles],
+                    'files.*' => ['file', 'max:'.$this->maxSizeKb],
+                ], ['files.required' => 'Select at least one file to save.']);
                 $this->commitAsMedia();
+                $this->files = [];
+                $this->commitSuccess = 'Upload completed successfully.';
             }
-            $this->files = [];
             $this->dispatch(
                 ($this->documentTypeId && $this->customerId)
                     ? 'document-upload-committed'
@@ -148,24 +181,25 @@ class UniversalUploader extends Component
         } catch (\Throwable $e) {
             $this->commitError = $e->getMessage();
             \Log::error('UniversalUploader::commit failed', ['message' => $e->getMessage()]);
+            $this->dispatch('document-upload-failed', message: $e->getMessage());
             report($e);
         }
     }
 
-    protected function commitAsDocument(): void
+    protected function commitAsDocument(TemporaryUploadedFile $file): void
     {
-        $file = is_array($this->files) ? ($this->files[0] ?? null) : null;
-        if (! $file) {
-            throw new \RuntimeException('No file to upload.');
-        }
         $path = 'customer-documents/'.Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
         CustomerDocumentStorage::put($path, $file->get());
         \Log::info('UniversalUploader: customer document stored', ['path' => $path]);
 
-        CustomerDocument::updateOrCreate([
+        $existing = CustomerDocument::query()->where([
             'customer_id' => $this->customerId,
             'document_type_id' => $this->documentTypeId,
-        ], [
+        ])->first();
+
+        $oldPath = $existing?->file_path;
+
+        $attributes = [
             'customer_id' => $this->customerId,
             'document_type_id' => $this->documentTypeId,
             'file_name' => $file->getClientOriginalName(),
@@ -173,8 +207,29 @@ class UniversalUploader extends Component
             'file_format' => $file->getClientOriginalExtension(),
             'document_number' => $this->documentNumber ?: '',
             'valid_until' => $this->validUntil ?: null,
-            'status' => 'pending_review',
-        ]);
+        ];
+        if (Schema::hasColumn('customer_documents', 'status')) {
+            $attributes['status'] = 'pending_review';
+        }
+
+        $savedDocument = CustomerDocument::updateOrCreate([
+            'customer_id' => $this->customerId,
+            'document_type_id' => $this->documentTypeId,
+        ], $attributes);
+
+        if ($oldPath && $oldPath !== $path) {
+            CustomerDocumentStorage::delete($oldPath);
+        }
+
+        MoveCustomerDocumentToSpacesJob::dispatch($savedDocument->id, $path)
+            ->delay(now()->addMinutes(10));
+
+        $this->dispatch('document-upload-committed',
+            documentTypeId: $this->documentTypeId,
+            fileName: $savedDocument->file_name,
+            uploadedAt: now()->toIso8601String(),
+            storageTarget: CustomerDocumentStorage::spacesConfigured() ? 'site-storage -> queued to digitalocean-spaces' : 'site-storage'
+        );
     }
 
     protected function commitAsMedia(): void

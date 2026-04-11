@@ -129,18 +129,20 @@
         @else
             <form wire:submit.prevent="submit" class="space-y-5">
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <flux:field>
+                <div class="flex flex-col sm:flex-row gap-5">
+                    <flux:field class="flex-1">
                         <flux:label for="acc-name">Full Name *</flux:label>
                         <flux:input id="acc-name" wire:model="name" type="text" placeholder="John Smith" required />
                         <flux:error name="name" />
                     </flux:field>
-                    <flux:field>
+                    <flux:field class="flex-1">
                         <flux:label for="acc-phone">Phone Number *</flux:label>
                         <flux:input id="acc-phone" wire:model="phone" type="tel" placeholder="07700 900000" required />
                         <flux:error name="phone" />
                     </flux:field>
                 </div>
+                
+           
 
                 <flux:field>
                     <flux:label for="acc-email">Email Address *</flux:label>
@@ -165,7 +167,7 @@
                 </flux:field>
 
                 <flux:field>
-                    <div class="flex items-start gap-3">
+                    <div class="flex items-start gap-3 " style="">
                         <flux:checkbox id="acc-privacy" wire:model="privacy_policy" />
                         <label for="acc-privacy" class="text-sm text-gray-600 dark:text-gray-400 leading-snug cursor-pointer">
                             By submitting this form I agree to the
