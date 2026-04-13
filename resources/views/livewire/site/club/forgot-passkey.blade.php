@@ -2,7 +2,7 @@
 <div class="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-md w-full">
         <div class="text-center mb-8">
-            <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors" class="h-12 w-auto mx-auto mb-4">
+            <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-12 w-auto mx-auto mb-4">
             <div class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-4 py-1 mb-4 text-sm font-semibold tracking-wide">
                 ★ NGN CLUB
             </div>

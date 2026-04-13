@@ -13,7 +13,7 @@ class MOTReminderEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $emailData;
+    protected $emailData;
 
     /**
      * Create a new message instance.
@@ -59,5 +59,4 @@ class MOTReminderEmail extends Mailable
     {
         return [];
     }
-
 }

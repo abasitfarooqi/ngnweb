@@ -6,12 +6,12 @@
         $outro = is_array($outroLines ?? null) ? $outroLines : [];
     @endphp
 
-    <h1 class="email-text" style="margin:0 0 12px;font-size:22px;font-weight:700;color:#f9fafb!important;line-height:1.25;letter-spacing:-0.02em;">
+    <!-- <h1 class="email-text" style="margin:0 0 12px;font-size:22px;font-weight:700;color:#f9fafb!important;line-height:1.25;letter-spacing:-0.02em;">
         {{ $heading ?? 'Update from NGN Motors' }}
     </h1>
     <p class="email-muted" style="margin:0 0 20px;font-size:14px;color:#d1d5db!important;line-height:1.65;">
         Dear <strong style="color:#c31924!important;">{{ $safeGreeting }}</strong>,
-    </p>
+    </p> -->
 
     @if (!empty($bodyHtml ?? null))
         <div class="email-legacy-html email-text" style="margin:0 0 22px;font-size:14px;color:#e5e7eb!important;line-height:1.75;">

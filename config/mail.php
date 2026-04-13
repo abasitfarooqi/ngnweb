@@ -128,6 +128,12 @@ return [
     'contact_inbox' => env('MAIL_CONTACT_INBOX', 'customerservice@neguinhomotors.co.uk'),
 
     /*
+    | Optional mailer for finance contract review e-mails (Backpack save flow).
+    | Example: MAIL_FINANCE_CONTRACT_MAILER=log for local testing without SMTP.
+    */
+    'finance_contract_mailer' => env('MAIL_FINANCE_CONTRACT_MAILER'),
+
+    /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings
     |--------------------------------------------------------------------------

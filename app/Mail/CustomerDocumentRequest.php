@@ -12,7 +12,7 @@ class CustomerDocumentRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    protected $mailData;
 
     /**
      * Create a new message instance.

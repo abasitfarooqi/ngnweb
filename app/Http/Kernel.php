@@ -20,7 +20,6 @@ class Kernel extends HttpKernel
 
     protected $routeMiddleware = [
         'admin' => \App\Http\Middleware\AdminMiddleware::class,
-        'ecommerce.view' => \App\Http\Middleware\EcommerceViewResolver::class,
         'sync.auth' => \App\Http\Middleware\SyncAuth::class,
         'check.admin.access' => \App\Http\Middleware\CheckAdminAccessMiddleware::class,
     ];

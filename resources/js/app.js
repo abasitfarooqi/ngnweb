@@ -5,11 +5,16 @@ import focus from '@alpinejs/focus';
 import intersect from '@alpinejs/intersect';
 import persist from '@alpinejs/persist';
 
-Alpine.plugin(focus);
-Alpine.plugin(intersect);
-Alpine.plugin(persist);
+const hadAlpineAlready = !!window.Alpine;
+const AlpineRuntime = hadAlpineAlready ? window.Alpine : Alpine;
 
-Alpine.data('homeRentalCarousel', (slideCount) => ({
+if (!hadAlpineAlready) {
+    AlpineRuntime.plugin(focus);
+    AlpineRuntime.plugin(intersect);
+    AlpineRuntime.plugin(persist);
+}
+
+AlpineRuntime.data('homeRentalCarousel', (slideCount) => ({
     slideCount,
     index: 0,
     get atStart() {
@@ -36,7 +41,7 @@ Alpine.data('homeRentalCarousel', (slideCount) => ({
     },
 }));
 
-window.Alpine = Alpine;
+window.Alpine = AlpineRuntime;
 
 window.setupSupportConversationEcho = function setupSupportConversationEcho(conversationUuid, onIncoming) {
     if (!window.supportEchoEnabled || !window.Echo || !conversationUuid) {
@@ -200,4 +205,6 @@ document.addEventListener('livewire:navigated', function () {
     }
 });
 
-Alpine.start();
+if (!hadAlpineAlready) {
+    AlpineRuntime.start();
+}

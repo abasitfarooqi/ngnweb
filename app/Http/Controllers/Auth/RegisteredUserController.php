@@ -16,7 +16,7 @@ class RegisteredUserController extends Controller
 {
     public function create()
     {
-        return redirect('/accountinformation/register');
+        return redirect()->route('register');
     }
 
     /**

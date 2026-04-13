@@ -50,7 +50,6 @@ class NgnSurveySystemCampaignMailer extends Mailable
         );
     }
 
-
     /**
      * Get the attachments for the message.
      *

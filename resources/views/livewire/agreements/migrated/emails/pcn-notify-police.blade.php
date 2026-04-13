@@ -134,7 +134,7 @@
         </div>
         <p>Dear Customer,</p>
         <p>We have recently received a notice from the police indicating that there is an important matter concerning a vehicle <strong>{{ $data['reg_no'] }}</strong> that was under your use. This situation requires your immediate attention.</p>
-        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;">
+        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;color: #000000 !important;">
             Ref. Number: <strong>{{ $data['pcn_number'] }}</strong>
         </p>
         <p>As per legal requirements, we are obligated to provide your accurate and validated details to the police, including your full name, current address, proof of address, and a copy of your DVLA record.</p>
@@ -173,7 +173,7 @@
         </div>
         <p>Prezado Cliente,</p>
         <p>Recebemos recentemente um aviso da polícia indicando que há uma questão importante envolvendo o veículo <strong>{{ $data['reg_no'] }}</strong> que estava sob o seu uso. Esta situação requer sua atenção imediata.</p>
-        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;">
+        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;color: #000000 !important;">
             Número de Referência: <strong>{{ $data['pcn_number'] }}</strong>
         </p>
         <p>De acordo com os requisitos legais, somos obrigados a fornecer seus dados precisos e validados à polícia, incluindo seu nome completo, endereço actual, comprovante de endereço e uma cópia do seu registo DVLA.</p>

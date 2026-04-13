@@ -11,6 +11,7 @@ use App\Models\NgnCategory;
 use App\Models\NgnProduct;
 use App\Models\RentingPricing;
 use App\Models\SpPart;
+use App\Services\ShopService;
 use App\Support\NgnMotorcycleImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -311,6 +312,11 @@ class MobileCatalogueController extends Controller
     {
         $perPage = max(1, min(80, (int) $request->integer('per_page', 24)));
         $search = trim((string) $request->string('search', ''));
+        $catSlug = trim((string) $request->string('cat', ''));
+        if ($catSlug === '') {
+            $catSlug = trim((string) $request->string('category', ''));
+        }
+        $brandSlug = trim((string) $request->string('brand', ''));
 
         $query = NgnProduct::query()
             ->with(['brand:id,name', 'category:id,name'])
@@ -318,6 +324,26 @@ class MobileCatalogueController extends Controller
             ->where(function ($q) {
                 $q->whereNull('dead')->orWhere('dead', 0);
             });
+
+        $shop = app(ShopService::class);
+
+        if ($catSlug !== '') {
+            $catIds = $shop->resolveEcommerceCategoryIdsBySlugs([$catSlug]);
+            if ($catIds === []) {
+                $query->whereRaw('0 = 1');
+            } else {
+                $query->whereIn('category_id', $catIds);
+            }
+        }
+
+        if ($brandSlug !== '') {
+            $brandIds = $shop->resolveEcommerceBrandIdsBySlugs([$brandSlug]);
+            if ($brandIds === []) {
+                $query->whereRaw('0 = 1');
+            } else {
+                $query->whereIn('brand_id', $brandIds);
+            }
+        }
 
         if ($search !== '') {
             $query->where(function ($q) use ($search): void {

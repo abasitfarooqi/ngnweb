@@ -27,7 +27,7 @@
             margin: 20px auto;
             padding: 20px;
             background-color: #ffffff;
-            border-radius: 8px;
+            border-radius: 0;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
         }
 
@@ -80,7 +80,7 @@
             font-size: 1.5rem;
             padding: 5px 10px;
             border: 1px solid #000;
-            border-radius: 5px;
+            border-radius: 0;
             letter-spacing: 0.15rem;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
             text-align: center;
@@ -95,7 +95,7 @@
             font-size: 1rem;
             padding: 5px 10px;
             border: 1px solid #000;
-            border-radius: 5px;
+            border-radius: 0;
             letter-spacing: 0.15rem;
             box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
             text-align: center;
@@ -164,11 +164,11 @@
         <p>
             Vehicle registered under the number:
             <br>
-            <b class="number-plate" style="padding:9px;">{{ $data->reg_no }}</b>
+            <b class="number-plate" style="padding:9px;color:#111827!important;background-color:#f5d000!important;">{{ $data->reg_no }}</b>
         </p>
         <p class="notice-red"
-            style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;">
-            PCN Number: <b>{{ $data->pcn_number }}</b>.
+            style="text-align:center;padding:8px;background-color:#f5e6a0;letter-spacing:0.06em;color:#111827!important;">
+            PCN number: <b style="color:#111827!important;">{{ $data->pcn_number }}</b>.
         </p>
         <p>
             Please be advised that an additional administrative fee of £25 has now been added to the original PCN amount due to the delay in settlement.
@@ -201,7 +201,7 @@
     </div>
 
     <div class="container">
-        <h4 style="text-align: center; padding:4px; background-color:rgb(238, 130, 130);">DO NOT IGNORE THIS EMAIL</h4>
+        <h4 style="text-align:center;padding:10px;background-color:#f6a8a8;color:#111827!important;margin:0;">DO NOT IGNORE THIS EMAIL</h4>
     </div>
 
     <hr>
@@ -227,8 +227,8 @@
     , e permanece pendente após 48 horas.
 </p>
         <p class="notice-red"
-            style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;">
-            Número do PCN: <b>{{ $data->pcn_number }}</b>.
+            style="text-align:center;padding:8px;background-color:#f5e6a0;letter-spacing:0.06em;color:#111827!important;">
+            Número do PCN: <b style="color:#111827!important;">{{ $data->pcn_number }}</b>.
         </p>
         <p>
             Informamos que o atraso no pagamento desta multa resultou em uma taxa administrativa adicional de £25.
@@ -261,7 +261,7 @@
     </div>
 
     <div class="container">
-        <h4 style="text-align: center; padding:4px; background-color:rgb(238, 130, 130);">NÃO IGNORE ESTE E-MAIL</h4>
+        <h4 style="text-align:center;padding:10px;background-color:#f6a8a8;color:#111827!important;margin:0;">NÃO IGNORE ESTE E-MAIL</h4>
     </div>
 </body>
 

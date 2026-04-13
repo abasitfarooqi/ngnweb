@@ -157,7 +157,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p>Order Refund Confirmation</p>
                 <div class="status-badge">
@@ -215,11 +215,11 @@
         </div>
 
         <div style="text-align: center;">
-            <a href="{{ url('/accountinformation/orders/' . $order->id) }}" class="btn">View Order Details</a>
+            <a href="{{ url('/account/orders/' . $order->id) }}" class="btn">View Order Details</a>
         </div>
 
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motor Logo"
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo"
                 class="footer-logo" style="max-width: 120px; width: 50%; height: auto;">
 
             <div class="contact-info">

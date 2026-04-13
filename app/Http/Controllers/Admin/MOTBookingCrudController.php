@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\MOTBookingRequest;
 use App\Models\Branch;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Carbon\Carbon;
 use DateTime;
@@ -309,6 +308,7 @@ class MOTBookingCrudController extends BaseCrudController
             'payment_notes' => $booking->payment_notes ?? 'N/A',
             'is_paid' => $booking->is_paid ?? false,
             'address' => $branchAddress, // Branch address included here
+            'cancellation_reason' => $booking->cancellation_reason ?? null,
         ];
 
         try {

@@ -19,6 +19,9 @@
         .email-muted{color:#d1d5db!important}
         .email-divider{border-color:#4b5563!important}
         .email-legacy-html,.email-legacy-html td,.email-legacy-html th,.email-legacy-html p,.email-legacy-html li,.email-legacy-html span,.email-legacy-html div,.email-legacy-html h1,.email-legacy-html h2,.email-legacy-html h3,.email-legacy-html h4{color:#e5e7eb!important}
+        .email-legacy-html .number-plate,.email-legacy-html b.number-plate{color:#111827!important;background-color:#f5d000!important;-webkit-text-fill-color:#111827!important}
+        .email-legacy-html .notice-red{color:#111827!important;-webkit-text-fill-color:#111827!important}
+        .email-legacy-html p.notice-red{color:#111827!important;-webkit-text-fill-color:#111827!important}
         .email-legacy-html a{color:#fca5a5!important}
         .email-legacy-html table{border-collapse:collapse!important}
         .email-legacy-html th,.email-legacy-html td{border:1px solid #4b5563!important;padding:8px 10px!important;font-size:13px!important;vertical-align:top!important}
@@ -39,7 +42,7 @@
                 <tr>
                     <td align="center" style="padding-bottom:22px;">
                         <a href="{{ config('app.url') }}" style="text-decoration:none;display:inline-block;">
-                            <img src="{{ config('app.url') }}/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motors" width="140" height="auto" style="display:block;height:auto;max-width:140px;">
+                            <img src="{{ config('app.url') }}/img/ngn-motor-logo-fit-small.png" alt="NGN Motors" width="140" height="auto" style="display:block;height:auto;max-width:140px;">
                         </a>
                     </td>
                 </tr>

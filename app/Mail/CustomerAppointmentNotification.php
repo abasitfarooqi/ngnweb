@@ -2,12 +2,12 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Support\UniversalMailPayload;
 
 class CustomerAppointmentNotification extends Mailable
 {
@@ -58,5 +58,4 @@ class CustomerAppointmentNotification extends Mailable
 
         );
     }
-
 }

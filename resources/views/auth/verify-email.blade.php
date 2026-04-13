@@ -4,7 +4,7 @@
         {{-- Logo --}}
         <div class="text-center mb-8">
             <a href="/" class="inline-block">
-                <img class="h-12 w-auto mx-auto" src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors">
+                <img class="h-12 w-auto mx-auto" src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors">
             </a>
         </div>
 

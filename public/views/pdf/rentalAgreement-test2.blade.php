@@ -95,7 +95,7 @@
                                         <td align="left" valign="top"
                                             style="font-family: Open Sans, Helvetica, Arial, sans-serif; font-size: 36px; font-weight: 800; line-height: 48px;"
                                             class="mobile-center">
-                                            <img src="{{ url('img/ngn-motor-logo-fit-optimized.png') }}" alt="Neguinho Motors"
+                                            <img src="{{ url('img/ngn-motor-logo-fit-small.png') }}" alt="Neguinho Motors"
                                                 width="100%">
                                         </td>
                                     </tr>

@@ -2,12 +2,12 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Support\UniversalMailPayload;
 
 class RentalDue extends Mailable
 {
@@ -24,7 +24,6 @@ class RentalDue extends Mailable
     {
         $this->user = $user;
     }
-
 
     /**
      * Get the message envelope.

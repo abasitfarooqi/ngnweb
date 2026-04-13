@@ -23,7 +23,7 @@
             {{-- Logo + label --}}
             <div class="flex items-center gap-3">
                 <a href="/" class="flex-shrink-0" aria-label="NGN Motors Home">
-                    <img class="h-8 w-auto" src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors">
+                    <img class="h-8 w-auto" src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors">
                 </a>
                 <span class="hidden sm:block text-gray-300 dark:text-gray-600">|</span>
                 <span class="hidden sm:block text-sm font-medium text-gray-600 dark:text-gray-400">My Account</span>

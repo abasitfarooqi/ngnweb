@@ -131,7 +131,7 @@
     <div class="container">
         <div class="header text-center mb-4">
             <div class="logo">
-                <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="Neguinho Motors Logo">
+                <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="Neguinho Motors Logo">
             </div>
             <h1 class="h3 mt-2">Vehicle Purchase Invoice</h1>
             PurchaseInvoiceReview {{ now()->format('d M Y') }}

@@ -1,7 +1,7 @@
 <div class="w-full max-w-md mx-auto px-4">
     <div class="text-center mb-8">
         <a href="/" class="inline-block">
-            <img class="h-12 w-auto mx-auto" src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors">
+            <img class="h-12 w-auto mx-auto" src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors">
         </a>
         <h1 class="mt-5 text-2xl font-bold text-gray-900 dark:text-white">Forgot your password?</h1>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">

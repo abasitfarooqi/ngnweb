@@ -25,7 +25,6 @@ class AccidentManagement extends Mailable
         $this->request = $request;
     }
 
-
     /**
      * Get the message envelope.
      *

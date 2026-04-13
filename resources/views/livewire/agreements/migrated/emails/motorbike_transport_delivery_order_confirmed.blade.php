@@ -1,53 +1,33 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Confirmation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #c31924;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #c31924;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Order Confirmation</h1>
-        <p>Dear {{ $order->full_name }},</p>
-        <p>Thank you for your order. Here are the details:</p>
-        <ul>
-            <li>Pickup Address: {{ $order->pickup_address }}</li>
-            <li>Dropoff Address: {{ $order->dropoff_address }}</li>
-            <li>Vehicle Registration: {{ $order->vrm }}</li>
-            <li>Pickup Date: {{ $order->pick_up_datetime }}</li>
-            <li>Distance: {{ $order->distance }} miles</li>
-            <li>Note: {{ $order->note }}</li>
-        </ul>
-        <p>We will contact you shortly with further details.</p>
-        <p>Best regards,<br>Your Company Name</p>
-        <div class="footer">
-            <p>This email was sent by NGN.</p>
-            <p>© {{ date('Y') }} NGN. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>
+{{--
+  Fragment only: consumed via UniversalMailPayload inside emails.templates.agreement-controller-universal.
+  No outer html/head/body, logos, or branch footers — universal wrapper + x-emails.base supply those.
+--}}
+<p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#c31924;letter-spacing:0.06em;text-transform:uppercase;">
+    Order confirmation
+</p>
+<p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
+    Dear {{ $order->full_name ?? 'customer' }},
+</p>
+<p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
+    Thank you for your order. Here are the details:
+</p>
+<ul style="margin:0 0 16px;padding-left:20px;font-size:14px;color:#111827;line-height:1.65;">
+    <li style="margin:4px 0;"><strong>Pickup address:</strong> {{ $order->pickup_address ?? '' }}</li>
+    <li style="margin:4px 0;"><strong>Dropoff address:</strong> {{ $order->dropoff_address ?? '' }}</li>
+    <li style="margin:4px 0;"><strong>Vehicle registration:</strong> {{ $order->vrm ?? '' }}</li>
+    <li style="margin:4px 0;"><strong>Pickup date:</strong>
+        @if(! empty($order->pick_up_datetime))
+            {{ \Carbon\Carbon::parse($order->pick_up_datetime)->format('l, j F Y \a\t g:i A') }}
+        @else
+            N/A
+        @endif
+    </li>
+    <li style="margin:4px 0;"><strong>Distance:</strong> {{ $order->distance ?? '' }} miles</li>
+    <li style="margin:4px 0;"><strong>Note:</strong> {{ $order->note ?? '' }}</li>
+</ul>
+<p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
+    We will contact you shortly with further details.
+</p>
+<p style="margin:0;font-size:14px;color:#111827;line-height:1.65;">
+    Best regards,<br>NGN Motors
+</p>

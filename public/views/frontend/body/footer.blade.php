@@ -38,7 +38,7 @@
                 <div class="widget widget-brand">
                     <ul class="flat-contact">
                         <li class="area"><a href="/" title="logo">
-                                <img src="{{ url('/img/ngn-motor-logo-fit-optimized.png') }}" class="mb-2"
+                                <img src="{{ url('/img/ngn-motor-logo-fit-small.png') }}" class="mb-2"
                                     alt="image" width="50%"
                                     data-retina="{{ url('i/mg/neguinho-motors-logo-1.png') }}" data-width="50%">
                             </a></li>

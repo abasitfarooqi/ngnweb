@@ -10,9 +10,9 @@ class ShopPageTest extends DuskTestCase
     public function test_shop_page_loads_correctly(): void
     {
         $this->browse(function (Browser $browser) {
-            $browser->visit(route('shop-motorcycle'))
-                ->waitFor('#app', 4)
-                ->assertTitle('Ecommerce Application - Neguinho Motors Ltd');
+            $browser->visit(route('shop.home'))
+                ->waitFor('.shop-home-root', 8)
+                ->assertSee('NGN Shop');
         });
     }
 }

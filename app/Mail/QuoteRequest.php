@@ -2,19 +2,19 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Support\UniversalMailPayload;
 
 class QuoteRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    protected $mailData;
 
     public function __construct($mailData)
     {

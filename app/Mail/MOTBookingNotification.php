@@ -2,18 +2,18 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Support\UniversalMailPayload;
 
 class MOTBookingNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    protected $mailData;
 
     public function __construct($mailData)
     {
@@ -29,6 +29,12 @@ class MOTBookingNotification extends Mailable
 
     public function content()
     {
+        $data = is_array($this->mailData) ? $this->mailData : (array) $this->mailData;
+        $title = trim((string) ($data['title'] ?? ''));
+        $overrides = [
+            'title' => $title !== '' ? $title : 'MOT Appointment Confirmation',
+        ];
+
         return new Content(
 
             view: 'emails.templates.agreement-controller-universal',
@@ -36,13 +42,9 @@ class MOTBookingNotification extends Mailable
             with: [
 
                 'mailData' => UniversalMailPayload::fromLegacyEmailView(
-
                     'livewire.agreements.migrated.emails.mot_booking_confirmation',
-
-                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
-
-                    ['title' => 'MOT Appointment Confirmation'],
-
+                    $data,
+                    $overrides,
                 ),
 
             ],
@@ -54,5 +56,4 @@ class MOTBookingNotification extends Mailable
     {
         return [];
     }
-
 }

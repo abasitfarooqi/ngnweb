@@ -19,7 +19,7 @@
 
     {{-- Logo --}}
     <a href="/" class="flex items-center gap-3 px-4 py-4 border-b border-gray-200 dark:border-gray-800">
-        <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors" class="h-8 w-auto">
+        <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-8 w-auto">
         <span class="font-semibold text-sm text-gray-600 dark:text-gray-400">My Account</span>
     </a>
 
@@ -143,7 +143,7 @@
     {{-- Mobile header --}}
     <div class="lg:hidden flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
         <flux:sidebar.toggle icon="bars-2" />
-        <a href="/"><img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN" class="h-7 w-auto"></a>
+        <a href="/"><img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN" class="h-7 w-auto"></a>
         <a href="/" class="text-sm text-gray-600 dark:text-gray-400 hover:text-brand-red">← Site</a>
     </div>
 

@@ -12,12 +12,11 @@ use App\Models\Contract;
 use App\Models\ContractAccess;
 use App\Models\Customer;
 use App\Models\Motorbike;
-use App\Models\User;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 
@@ -324,7 +323,7 @@ class FinanceApplicationCrudController extends BaseCrudController
                 'inputmode' => 'decimal', // Show decimal keyboard on mobile
                 'step' => '0.01', // Suggests 2 decimal steps for number input fields; text field won't restrict step
                 // Note: Validation of value/format should still be enforced server-side
-            ]
+            ],
         ]);
 
         CRUD::addField(['name' => 'deposit', 'type' => 'number', 'label' => 'Deposit', 'wrapper' => [
@@ -504,9 +503,8 @@ class FinanceApplicationCrudController extends BaseCrudController
 
         CRUD::addField(['name' => 'user_id', 'type' => 'hidden', 'default' => backpack_user()->id]);
 
-        // Include the JavaScript file to handle the field visibility logic
+        // Include the JavaScript file to handle the field visibility logic (checkboxes.js already added in setupCreateOperation).
         Widget::add()->type('script')->content('assets/js/admin/forms/logbook-transfer.js');
-        Widget::add()->type('script')->content('assets/js/admin/forms/finance-application-checkboxes.js');
 
         $this->crud->addField([
             'name' => 'customer_id',
@@ -541,7 +539,6 @@ class FinanceApplicationCrudController extends BaseCrudController
             'class' => 'form-group col-md-4',
         ]]);
 
-
         CRUD::addField([
             'name' => 'weekly_instalment',
             'type' => 'text', // Supports integer and up to two decimals for instalment (e.g. 599, 599.00, 599.12)
@@ -555,10 +552,8 @@ class FinanceApplicationCrudController extends BaseCrudController
                 'inputmode' => 'decimal', // Show decimal keyboard on mobile
                 'step' => '0.01', // Suggests 2 decimal steps for number input fields; text field won't restrict step
                 // Note: Validation of value/format should still be enforced server-side
-            ]
+            ],
         ]);
-
-
 
         CRUD::addField(['name' => 'deposit', 'type' => 'number', 'label' => 'Deposit', 'wrapper' => [
             'class' => 'form-group col-md-4',
@@ -773,8 +768,6 @@ class FinanceApplicationCrudController extends BaseCrudController
 
                     Mail::to($data['email'])->send(new LogBookTransferMail($data));
                 }
-            } elseif ($financeApplication->log_book_sent == false && $financeApplication->log_book_sent == null) {
-                return;
             } else {
                 $customer = $financeApplication->customer;
                 if (! $customer) {
@@ -881,17 +874,31 @@ class FinanceApplicationCrudController extends BaseCrudController
                         ];
 
                         try {
-                            Mail::to($data['email'])->send(new FinanceContractReview($mailData));
-                        } catch (\Exception $e) {
-                            // Check for domain sending restriction error (550 5.7.1)
-                            if (strpos($e->getMessage(), '550 5.7.1') !== false) {
-                                throw new \Exception('Email sending failed: The email service is not properly configured. Please contact system administrator.');
+                            $financeMailer = config('mail.finance_contract_mailer');
+                            if (is_string($financeMailer) && $financeMailer !== '' && array_key_exists($financeMailer, config('mail.mailers'))) {
+                                Mail::mailer($financeMailer)->to($data['email'])->send(new FinanceContractReview($mailData));
+                            } else {
+                                Mail::to($data['email'])->send(new FinanceContractReview($mailData));
                             }
-                            // Check for other SMTP errors (5xx codes)
-                            if (preg_match('/^5\d{2}/', $e->getMessage())) {
-                                throw new \Exception('Email sending failed: SMTP server rejected the request. Please contact system administrator.');
+                        } catch (\Throwable $e) {
+                            $diagnostic = $e->getMessage();
+                            for ($prev = $e->getPrevious(); $prev !== null; $prev = $prev->getPrevious()) {
+                                $diagnostic .= ' | '.$prev->getMessage();
                             }
-                            throw new \Exception('Email sending failed. Please try again later.');
+                            Log::warning('Finance contract mail failed', [
+                                'finance_application_id' => $financeApplication->id,
+                                'diagnostic' => $diagnostic,
+                            ]);
+
+                            // Symfony/Laravel wrap SMTP text — codes appear mid-string, not at start.
+                            if (stripos($diagnostic, '5.7.1') !== false
+                                || (stripos($diagnostic, '550') !== false && stripos($diagnostic, 'relay') !== false)) {
+                                throw new \Exception('Email sending failed: The email service is not properly configured. Please contact system administrator.', 0, $e);
+                            }
+                            if (preg_match('/\b5\d{2}\b/', $diagnostic)) {
+                                throw new \Exception('Email sending failed: SMTP server rejected the request. Please contact system administrator.', 0, $e);
+                            }
+                            throw new \Exception('Email sending failed. Please try again later.', 0, $e);
                         }
 
                         return response()->json([

@@ -131,7 +131,7 @@
     <div class="container">
         <div class="header text-center mb-4">
             <div style="width: 20%">
-                <img src="{{ secure_asset('https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png') }}"
+                <img src="{{ secure_asset('https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png') }}"
                     alt="Neguinho Motors" width="65%">
             </div>
             <h1 class="h3 mt-2">Vehicle Sale Invoice</h1>

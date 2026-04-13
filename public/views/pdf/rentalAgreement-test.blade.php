@@ -67,7 +67,7 @@
             <div class="container">
                 <div class="logo float-left image-responsive col-sm-3 col-md-4">
                     <a href="/" title="logo" class="logo">
-                        <img src="{{ url('img/ngn-motor-logo-fit-optimized.png') }}" alt="Neguinho Motors" width="70%">
+                        <img src="{{ url('img/ngn-motor-logo-fit-small.png') }}" alt="Neguinho Motors" width="70%">
                     </a>
                 </div><!-- /.logo -->
                 <h1 id="ag-title" class="title mb-3">MOTORCYCLE RENTAL AGREEMENT</h1><br>

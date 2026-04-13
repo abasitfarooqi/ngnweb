@@ -2,18 +2,18 @@
 
 namespace App\Mail;
 
+use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
-use App\Support\UniversalMailPayload;
 
 class MOTCompletedNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    protected $mailData;
 
     public function __construct($mailData)
     {
@@ -29,6 +29,8 @@ class MOTCompletedNotification extends Mailable
 
     public function content()
     {
+        $data = is_array($this->mailData) ? $this->mailData : (array) $this->mailData;
+
         return new Content(
 
             view: 'emails.templates.agreement-controller-universal',
@@ -36,18 +38,13 @@ class MOTCompletedNotification extends Mailable
             with: [
 
                 'mailData' => UniversalMailPayload::fromLegacyEmailView(
-
                     'livewire.agreements.migrated.emails.mot_completed',
-
-                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
-
+                    $data,
                     ['title' => 'MOT Completed'],
-
                 ),
 
             ],
 
         );
     }
-
 }

@@ -24,7 +24,17 @@ final class UniversalMailPayload
      */
     public static function fromLegacyEmailView(string $view, array $viewData, array $overrides = []): array
     {
-        return self::processRenderedHtml(View::make($view, $viewData)->render(), $overrides);
+        $payload = self::processRenderedHtml(View::make($view, $viewData)->render(), $overrides);
+
+        // Legacy MOT / booking blades use $customer_name; universal shell expects greetingName (else "there").
+        if (! isset($payload['greetingName']) || trim((string) $payload['greetingName']) === '') {
+            $name = trim((string) ($viewData['customer_name'] ?? ''));
+            if ($name !== '') {
+                $payload['greetingName'] = $name;
+            }
+        }
+
+        return $payload;
     }
 
     /**

@@ -1,52 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Order Cancellation</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            color: #333;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: auto;
-            background: #c31924;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #c31924;
-        }
-        .footer {
-            margin-top: 20px;
-            font-size: 12px;
-            color: #777;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <h1>Order Cancellation</h1>
-        <p>Dear {{ $order->full_name }},</p>
-        <p>We regret to inform you that your order has been cancelled. Here are the details:</p>
-        <ul>
-            <li>Order ID: {{ $order->id }}</li>
-            <li>Pickup Address: {{ $order->pickup_address }}</li>
-            <li>Dropoff Address: {{ $order->dropoff_address }}</li>
-            <li>Vehicle Registration: {{ $order->vrm }}</li>
-            <li>Cancellation Reason: {{ $order->note }}</li>
-        </ul>
-        <p>If you have any questions or need further assistance, please do not hesitate to contact us.</p>
-        <p>Best regards,<br>Your Company Name</p>
-        <div class="footer">
-            <p>This email was sent by NGN.</p>
-            <p>© {{ date('Y') }} NGN. All rights reserved.</p>
-        </div>
-    </div>
-</body>
-</html>
+{{--
+  Fragment only: consumed via UniversalMailPayload inside emails.templates.agreement-controller-universal.
+  No outer html/head/body, logos, or branch footers — universal wrapper + x-emails.base supply those.
+--}}
+<p style="margin:0 0 8px;font-size:13px;font-weight:700;color:#c31924;letter-spacing:0.06em;text-transform:uppercase;">
+    Order cancellation
+</p>
+<p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
+    Dear {{ $order->full_name ?? 'customer' }},
+</p>
+<p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
+    We regret to inform you that your order has been cancelled. Here are the details:
+</p>
+<ul style="margin:0 0 16px;padding-left:20px;font-size:14px;color:#111827;line-height:1.65;">
+    <li style="margin:4px 0;"><strong>Order ID:</strong> {{ $order->id ?? $order->order_id ?? 'N/A' }}</li>
+    <li style="margin:4px 0;"><strong>Pickup address:</strong> {{ $order->pickup_address ?? '' }}</li>
+    <li style="margin:4px 0;"><strong>Dropoff address:</strong> {{ $order->dropoff_address ?? '' }}</li>
+    <li style="margin:4px 0;"><strong>Vehicle registration:</strong> {{ $order->vrm ?? '' }}</li>
+    <li style="margin:4px 0;"><strong>Cancellation reason / note:</strong> {{ $order->note ?? '' }}</li>
+</ul>
+<p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
+    If you have any questions or need further assistance, please contact us.
+</p>
+<p style="margin:0;font-size:14px;color:#111827;line-height:1.65;">
+    Best regards,<br>NGN Motors
+</p>

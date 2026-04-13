@@ -114,7 +114,7 @@
                             <td>£{{ number_format($booking['discount'], 2) }}</td>
                         </tr>
                     @endforeach
-                    <tr style="font-weight: bold; background-color: #f0f0f0;">
+                    <tr style="font-weight: bold;">
                         <td colspan="2" style="text-align: right;">Total:</td>
                         <td>£{{ number_format($totalSum, 2) }}</td>
                         <td></td>

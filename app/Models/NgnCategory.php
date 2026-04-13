@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Services\ShopService;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -12,6 +13,12 @@ class NgnCategory extends Model
     use CrudTrait;
     use HasFactory;
     use HasRoles;
+
+    protected static function booted(): void
+    {
+        static::saved(fn () => ShopService::clearNavigationCache());
+        static::deleted(fn () => ShopService::clearNavigationCache());
+    }
 
     protected $table = 'ngn_categories';
 

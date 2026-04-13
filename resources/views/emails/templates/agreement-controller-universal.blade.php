@@ -16,6 +16,9 @@
         $customerName = trim((string) (($mailData['customer']->first_name ?? '').' '.($mailData['customer']->last_name ?? '')));
     }
     if ($customerName === '') {
+        $customerName = trim((string) ($mailData['customer_name'] ?? ''));
+    }
+    if ($customerName === '') {
         $customerName = 'there';
     }
 

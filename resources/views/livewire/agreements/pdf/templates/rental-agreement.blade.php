@@ -65,7 +65,7 @@
 
         <!-- Page Content -->
         <section class="blog-posts style1">
-            <img src="{{ url('img/ngn-motor-logo-fit-optimized.png') }}" alt="Neguinho Motors" width="40%">
+            <img src="{{ url('img/ngn-motor-logo-fit-small.png') }}" alt="Neguinho Motors" width="40%">
             <h1 style="font-size: 16px; font-weight: 400; line-height: 24px; color: #777777;" id="ag-title"
                 class="title mb-3">MOTORCYCLE RENTAL AGREEMENT</h1>
             <div class="container">

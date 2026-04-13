@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
 use App\Models\BookingIssuanceItem;
+use App\Models\ClubMember;
 use App\Models\CustomerAddress;
 use App\Models\CustomerAgreement;
 use App\Models\CustomerAuth;
@@ -20,6 +21,7 @@ use App\Models\RentingTransaction;
 use App\Models\ServiceBooking;
 use App\Models\SupportConversation;
 use App\Models\VehicleDeliveryOrder;
+use App\Services\Club\ClubMemberDashboardData;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -745,5 +747,80 @@ class MobilePortalController extends Controller
                 ->sortByDesc(fn (array $row) => $row['date'] ?? '')
                 ->values(),
         ]);
+    }
+
+    public function clubMember(Request $request): JsonResponse
+    {
+        $customerAuth = $this->customerAuthFrom($request);
+        if (! $customerAuth) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $customerAuth->loadMissing('customer');
+        $email = strtolower(trim((string) ($customerAuth->email ?? '')));
+        $phoneRaw = trim((string) ($customerAuth->customer?->phone ?? ''));
+
+        if ($email === '' || $phoneRaw === '') {
+            return response()->json([
+                'matched' => false,
+                'message' => 'Customer profile must include email and phone to match a club member.',
+                'member' => null,
+                'summary' => null,
+            ]);
+        }
+
+        $phoneNorm = $this->normalisePhoneForClubMemberMatch($phoneRaw);
+
+        $member = ClubMember::query()
+            ->where('is_active', true)
+            ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+            ->get()
+            ->first(fn (ClubMember $row) => $this->normalisePhoneForClubMemberMatch((string) ($row->phone ?? '')) === $phoneNorm);
+
+        if (! $member) {
+            return response()->json([
+                'matched' => false,
+                'message' => 'No active club member found for this email and phone.',
+                'member' => null,
+                'summary' => null,
+            ]);
+        }
+
+        $dash = ClubMemberDashboardData::forMember($member);
+
+        return response()->json([
+            'matched' => true,
+            'message' => null,
+            'member' => [
+                'id' => $member->id,
+                'full_name' => $member->full_name,
+                'email' => $member->email,
+                'phone' => $member->phone,
+                'make' => $member->make,
+                'model' => $member->model,
+                'year' => $member->year,
+                'vrm' => $member->vrm,
+            ],
+            'summary' => [
+                'total_reward' => (float) $dash['total_reward'],
+                'total_redeemed' => (float) $dash['total_redeemed'],
+                'total_not_redeemed' => (float) $dash['total_not_redeemed'],
+                'qualified_referal' => (bool) $dash['qualified_referal'],
+                'spending_total_amount' => (float) $dash['spending_total_amount'],
+                'spending_total_paid' => (float) $dash['spending_total_paid'],
+                'spending_total_unpaid' => (float) $dash['spending_total_unpaid'],
+                'spending_fully_paid_count' => (int) $dash['spending_fully_paid_count'],
+                'spending_partial_count' => (int) $dash['spending_partial_count'],
+                'spending_unpaid_count' => (int) $dash['spending_unpaid_count'],
+            ],
+        ]);
+    }
+
+    private function normalisePhoneForClubMemberMatch(string $phone): string
+    {
+        $s = preg_replace('/[\s\-()]/', '', trim($phone)) ?? '';
+        $s = preg_replace('/^\+44/', '0', $s) ?? '';
+
+        return $s;
     }
 }

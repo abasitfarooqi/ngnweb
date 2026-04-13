@@ -19,7 +19,7 @@
     <flux:sidebar.toggle class="lg:hidden text-white" icon="x-mark" />
 
     <a href="/admin" class="flex items-center gap-3 px-4 py-4 border-b border-gray-800">
-        <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN" class="h-7 w-auto brightness-0 invert">
+        <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN" class="h-7 w-auto brightness-0 invert">
         <span class="text-sm font-semibold text-white">NGN Admin</span>
     </a>
 

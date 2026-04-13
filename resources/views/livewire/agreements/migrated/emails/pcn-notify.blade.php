@@ -134,7 +134,7 @@
         </div>
         <p>Dear Customer,</p>
         <p>Our records indicate that the vehicle with registration number <strong>{{ $data['reg_no'] }}</strong> has received a Penalty Charge Notice (PCN).</p>
-        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;">
+        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;color: #000000 !important;">
             PCN Number: <strong>{{ $data['pcn_number'] }}</strong>
         </p>
         @if (!empty($data['council_link']))
@@ -177,7 +177,7 @@
         </div>
         <p>Prezado Cliente,</p>
         <p>Nossos registos mostram que o veículo de matrícula <strong>{{ $data['reg_no'] }}</strong> recebeu uma Notificação de Multa (PCN).</p>
-        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;">
+        <p style="text-align: center; padding:4px; background-color:rgb(246, 239, 135); letter-spacing: 1.2px;color: #000000 !important;">
             Número do PCN: <strong>{{ $data['pcn_number'] }}</strong>
         </p>
         @if (!empty($data['council_link']))

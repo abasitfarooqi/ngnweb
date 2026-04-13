@@ -13,7 +13,6 @@
     <title>Free TAX and MOT notification</title>
     <style>
         body {
-            background-color: #f2f2f2;
             font-family: Arial, sans-serif;
         }
 
@@ -22,7 +21,7 @@
             width: 90%;
             margin: 0 auto;
             padding: 20px;
-            background-color: #fff;
+            /* background-color: #fff; */
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
         }
@@ -95,6 +94,10 @@
             .container {
                 padding: 10px;
             }
+            .text-center {
+                text-align: center !important;
+                margin:0 auto;
+            }
         }
     </style>
     @include('livewire.agreements.partials.signing-vite-assets')
@@ -111,7 +114,14 @@
 
     <div class="container">
 
-        <x-agreements.theme-logo class="w-full" />
+        <div style="width: 100%; display: flex; justify-content: center; align-items: center; text-align: center !important; margin: 0 auto;">
+            <div style="width: 100%; text-align: center;">
+                
+                <x-agreements.theme-logo style="display: block; margin: 0 auto; width: 100%;" class="w-full" /><br>
+            </div>
+        </div>
+   
+   
 
         <h3 style="text-align: center; ">FREE ALERT NOTIFICATION</h3>
         <h2 style="text-align: center; vertical-align: middle;">TAX & MOT</h2>

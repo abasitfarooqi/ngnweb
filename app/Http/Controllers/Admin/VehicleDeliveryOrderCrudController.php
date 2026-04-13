@@ -6,7 +6,6 @@ use App\Http\Requests\VehicleDeliveryOrderRequest;
 use App\Mail\MotorbikeTransportDeliveryOrderCancelled;
 use App\Mail\MotorbikeTransportDeliveryOrderConfirmed;
 use App\Models\VehicleDeliveryOrder;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Illuminate\Support\Facades\Mail;
 

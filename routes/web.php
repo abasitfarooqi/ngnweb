@@ -174,8 +174,6 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/bikes/used', \App\Livewire\Site\Bikes\UsedIndex::class)->name('bikes.used');
     Route::get('/bikes/new', \App\Livewire\Site\Bikes\SalesIndex::class)->name('bikes.new');
 
-    // Shop & E-Bikes
-    Route::get('/shop', \App\Livewire\Site\Shop\Index::class)->name('shop');
     Route::get('/ebikes', \App\Livewire\Site\Ebikes\Index::class)->name('ebikes');
     Route::get('/accessories', \App\Livewire\Site\Shop\Accessories::class)->name('accessories');
     Route::get('/gps-tracker', \App\Livewire\Site\Shop\GpsTracker::class)->name('gps-tracker');
@@ -424,26 +422,48 @@ Route::prefix('ngn-partner')->group(function () {
 });
 
 // ============================================================
-// ECOMMERCE / STORE (Vue SPA) — kept as-is
+// Legacy Vue SPA URLs (retired) → Livewire shop / legal / customer portal
 // ============================================================
-Route::get('/shop/{any?}', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
-    ->where('any', '.*')->name('shop-motorcycle')->middleware('ecommerce.view');
-Route::get('/legals/{any?}', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
-    ->where('any', '.*')->name('legals')->middleware('ecommerce.view');
-// Route::get('/login', \App\Livewire\Auth\Login::class)->name('customer.login')->middleware('auth:customer');
-// The legacy Vue login/register/reset-password routes for /accountinformation/* are now disabled in favor of /login (Livewire + Fortify)
-// Route::get('/accountinformation/login', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
-//     ->where('any', '.*')->name('customer.login')->middleware('ecommerce.view');
-// Route::post('/accountinformation/logout', [\App\Http\Controllers\Customer\AuthController::class, 'logout'])
-//     ->name('customer.logout')->middleware('auth:customer');
-// Route::get('/accountinformation/register', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
-//     ->where('any', '.*')->name('customer.register')->middleware('ecommerce.view');
-// Route::get('/accountinformation/reset-password/{token}', function (string $token) {
-//     $query = request()->only('email');
-//     return redirect()->route('password.reset', array_merge(['token' => $token], $query));
-// })->middleware('guest:customer');
-Route::get('/accountinformation/{any?}', fn () => view('livewire.agreements.migrated.frontend.vue_store.app'))
-    ->where('any', '.*')->name('accountinformation')->middleware(['ecommerce.view', 'auth.customer']);
+Route::permanentRedirect('/legals', '/legal');
+Route::get('/legals/{path}', fn (string $path) => redirect('/legal/'.ltrim($path, '/'), 301))
+    ->where('path', '.*')
+    ->name('legals');
+
+Route::permanentRedirect('/accountinformation/login', '/login');
+Route::permanentRedirect('/accountinformation/register', '/register');
+Route::permanentRedirect('/accountinformation/forgotpassword', '/forgot-password');
+Route::get('/accountinformation/reset-password/{token}', function (string $token) {
+    return redirect()->route('password.reset', array_merge(['token' => $token], request()->only('email')), 301);
+})->middleware('guest:customer');
+
+Route::middleware('auth.customer')->group(function () {
+    Route::get('/accountinformation/{path?}', function (?string $path = null) {
+        $trim = $path === null ? '' : trim($path, '/');
+        if ($trim === '') {
+            return redirect('/account', 301);
+        }
+        if (str_starts_with($trim, 'orders/')) {
+            $rest = substr($trim, 7);
+            if ($rest !== '' && ctype_digit($rest)) {
+                return redirect('/account/orders/'.$rest, 301);
+            }
+
+            return redirect('/account/orders', 301);
+        }
+        if (str_starts_with($trim, 'payment-methods/')) {
+            return redirect('/account/payment-methods', 301);
+        }
+
+        return match ($trim) {
+            'profile' => redirect('/account/profile', 301),
+            'orders' => redirect('/account/orders', 301),
+            'addresses' => redirect('/account/addresses', 301),
+            'payment-methods' => redirect('/account/payment-methods', 301),
+            'change-password' => redirect('/account/security', 301),
+            default => redirect('/account', 301),
+        };
+    })->where('path', '.*')->name('accountinformation');
+});
 
 // Store product details
 Route::prefix('store')->group(function () {
@@ -781,7 +801,7 @@ Route::get('storage/{path}', [FileController::class, 'show'])->where('path', '.*
 // ============================================================
 // DASHBOARD / USERS / INTERNAL
 // ============================================================
-Route::get('/dashboard', fn () => redirect('/accountinformation'))->name('dashboard');
+Route::get('/dashboard', fn () => redirect('/account'))->name('dashboard');
 Route::get('/admindashboard', [DashboardController::class, 'adminDashboard'])->name('admin.dashboard');
 Route::get('staff/dashboard', [DashboardController::class, 'staffDashboard'])->name('staff.dashboard');
 Route::get('customer/dashboard', [DashboardController::class, 'customerDashboard'])->name('customer.dashboard');

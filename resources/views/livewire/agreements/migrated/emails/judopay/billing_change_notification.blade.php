@@ -211,7 +211,7 @@
     </div>
     <div class="footer" style="background-color: #c31924; padding: 20px; margin-top: 30px; border-top: 1px solid  #e7e7e7;">
         <div class="footer-content" style="max-width: 600px; margin: 0 auto; text-align: center;">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motor Logo" class="footer-logo" style="width: 120px; margin-bottom: 15px;">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" class="footer-logo" style="width: 120px; margin-bottom: 15px;">
             <p>Kind regards,</p>
             <p>The Neguinho Motors Team</p>
             <p><strong>Email:</strong> <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></p>

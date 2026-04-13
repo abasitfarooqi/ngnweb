@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to NGN Store - Your One-Stop Shop for Motorcycles Rentals, Repairs, and Accessories!</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Helvetica:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Monospace&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --font-family-heading: 'Helvetica', sans-serif;
+            --font-family-body: 'Monospace', monospace;
+            --font-family-text: 'Roboto', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family-text);
+            margin: 0;
+            padding: 0;
+            background-color: #e7e7e7;
+        }
+
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        ul {
+            margin-top: 5px;
+            padding-left: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            font-family: var(--font-family-text);
+            color: #121212;
+            padding-right: 5%;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 10px auto;
+            padding: 15px;
+            margin-bottom: 0px;
+            background-color: #f8f8f8;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-bottom-left-radius: 0px;
+            border-bottom-right-radius: 0px;
+        }
+
+        .inner-box {
+            margin: 10px;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .inner-box p,
+        .inner-box ul {
+            color: #ffffff;
+            font-weight: 500;
+            font-size: 12px;
+            font-family: var(--font-family-text);
+            line-height: 1.1;
+            letter-spacing: 0.1px;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            padding-left: 15px;
+            padding-right: 5%;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+
+        @media (max-width: 650px) {
+            .container {
+                margin: 10px 10px;
+                /* Adjust margin for mobile */
+            }
+        }
+
+        .header {
+            /* margin: 20px; */
+            margin-top: 10px;
+            text-align: center;
+            margin-bottom: 0;
+            font-family: var(--font-family-heading);
+        }
+
+        .header h1 {
+            font-size: 30px;
+            padding: 10px;
+            padding-bottom: 0;
+            margin: 0;
+        }
+
+        .header img {
+            width: 20%;
+            max-width: 160px;
+        }
+
+        .content {
+            font-size: 14px;
+            color: #232323;
+        }
+
+        .footer {
+            margin-top: 10px;
+            text-align: center;
+            font-size: 10px;
+            color: #121212;
+        }
+
+        .footer-logo {
+            width: 18%;
+            max-width: 80px;
+        }
+
+        .contact-info {
+            margin-top: 2px;
+        }
+
+        .contact-text a {
+            color: #007bff;
+            text-decoration: none;
+        }
+
+        .contact-text a:hover {
+            text-decoration: underline;
+        }
+
+        .header-text {
+            margin-top: 10px;
+        }
+
+        .sub-title p {
+            font-size: 13px;
+            margin: 0px;
+            padding: 0px;
+            background: linear-gradient(to bottom, #000000, #242424);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-family: var(--font-family-text);
+            text-align: center;
+            font-weight: 500;
+            letter-spacing: 0.2px;
+        }
+
+        .active-color {
+            color: #ea3737 !important;
+        }
+
+        a {
+            color: #ea3737 !important;
+            text-decoration: none;
+        }
+
+        .active-bg {
+            background-color: #ea3737;
+            color: #ffffff;
+        }
+
+        a:hover {
+            text-decoration: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo"
+            style="margin-top: 6px;">
+        <div class="header-text">
+            <div class="sub-title">
+                <p class="">One-Stop for New and Used Motorcycles, Repairs, Rentals, MOT Services, and
+                    Accessories!</p>
+            </div>
+        </div>
+    </div>
+    <div class="container">
+
+        <div class="content">
+            <p>Dear <span class="active active-color"><strong>{{ $customer->first_name }}
+                        {{ $customer->last_name }}</strong></span>,</p>
+            <br>
+            <p style="line-height: 1.5;">Thank you for joining us! We are thrilled to have you with us. At NGN Store,
+                we strive to
+                provide you with the best shopping experience possible.</p>
+            <br>
+            <p style="line-height: 1.5;">Feel free to explore our website and discover amazing products tailored just
+                for
+                you. Here's what we
+                offer:</p>
+            <ul style="list-style-type: none; margin-left: 4px; font-size: 13px; line-height: 1.5; color: #121212;">
+                <li><strong>✓</strong> Motorbike and rider accessories</li>
+                <li><strong>✓</strong> Spare parts</li>
+                <li><strong>✓</strong> Professional repair Services for Yamaha, Honda, Piaggio, Suzuki, Kawasaki, and
+                    more</li>
+                <li><strong>✓</strong> New and used motorbikes</li>
+                <li><strong>✓</strong> Motorcycle rentals</li>
+                <li><strong>✓</strong> Vehicle collection and delivery</li>
+                <li><strong>✓</strong> MOT services</li>
+            </ul>
+
+            <p>We'd love to see you! Visit us online at:<br>
+                <strong><a style="margin-top: 4px;" href="https://ngnmotors.co.uk/shop"
+                        target="_blank">ngnmotors.co.uk/shop</a></strong>
+            </p>
+        </div>
+
+        <div class="footer"
+            style="background-color: #f8f8f8; padding: 20px; margin-top: 30px; border-top: 1px solid  #e7e7e7;">
+            <div class="footer-content" style="max-width: 600px; margin: 0 auto; text-align: center;">
+                <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo"
+                    class="footer-logo" style="width: 120px; margin-bottom: 15px;">
+
+                <div class="contact-info" style="font-size: 13px; line-height: 1.5; color: #333333;">
+
+                    <p class="contact-text" style="margin-bottom: 4px;">
+                        <strong style="color: #121212;">CATFORD</strong><br>
+                        9-13 Unit 1179 Catford Hill, London, SE6 4NU<br>
+                        Phone: <a href="tel:02083141498" class="active active-color"
+                            style="color: #000000 !important;">0208 314 1498</a><br>
+                            WhatsApp: <a href="tel:+447951790568">+44 7951 790568</a>
+                    </p>
+
+                    <p class="contact-text" style="margin-bottom: 4px;">
+                        <strong style="color: #121212;">TOOTING</strong><br>
+                        4A Penwortham Road, London, SW16 6RE<br>
+                        Phone: <a href="tel:02034095478" class="active active-color"
+                            style="color: #000000 !important;">0203 409 5478</a><br>
+                            WhatsApp: <a href="tel:+447951790565">+44 7951 790565</a>
+                    </p>
+
+                    <p class="contact-text" style="margin-bottom: 4px;">
+                        <strong style="color: #121212;">SUTTON</strong><br>
+                        329 High St, Sutton, London, SM1 1LW<br>
+                        Phone: <a href="tel:02084129275" class="active active-color"
+                            style="color: #000000 !important;">0208 412 9275</a><br>
+                            WhatsApp: <a href="tel:+447946295530">+44 7946 295530</a>
+                    </p>
+
+                    <p class="contact-text" style="margin-top: 6px; margin-bottom: 0px;">
+                        Visit us online at: <a href="https://ngnmotors.co.uk" target="_blank"
+                            style="color: #000000 !important;">ngnmotors.co.uk</a>
+                    </p>
+
+                    <div
+                        style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd; color: #666666; font-size: 10px;">
+                        <p style="margin: 0;">Registered Company Name: NEGUINHO MOTORS LTD | Company number: 11600635
+                        </p>
+                        <p style="margin: 5px 0;">Registered Address: 9-13 Catford Hill, London, England, SE6 4NU</p>
+                        <p style="margin: 0;">Customer Service: enquiries@neguinhomotors.co.uk | 0208 314 1498</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+</body>
+
+</html>

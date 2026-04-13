@@ -67,8 +67,8 @@
                 <div class="container-fluid container-width-93 clearfix" id="site-header-inner">
                     <div id="logo" class="logo float-left image-responsive col-sm-3 col-md-4">
                         <a href="/" title="logo" class="logo">
-                            <img src="{{ url('img/ngn-motor-logo-fit-optimized.png') }}" alt="Neguinho Motors" width="70%"
-                                height="24" data-retina="{{ url('img/ngn-motor-logo-fit-optimized.png') }}"
+                            <img src="{{ url('img/ngn-motor-logo-fit-small.png') }}" alt="Neguinho Motors" width="70%"
+                                height="24" data-retina="{{ url('img/ngn-motor-logo-fit-small.png') }}"
                                 data-width="70%" data-height="24">
                         </a>
                     </div><!-- /.logo -->

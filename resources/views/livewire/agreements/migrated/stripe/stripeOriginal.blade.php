@@ -18,7 +18,7 @@
 
         <div id="logo" class="logo float-left image-responsive col-sm-3 col-md-4">
             <a href="/" title="Neguinho Motors Ltd" class="logo">
-                <img src="{{ url('img/ngn-motor-logo-fit-optimized.png') }}" alt="Neguinho Motors Ltd" width="70%">
+                <img src="{{ url('img/ngn-motor-logo-fit-small.png') }}" alt="Neguinho Motors Ltd" width="70%">
             </a>
         </div><!-- /.logo -->
 

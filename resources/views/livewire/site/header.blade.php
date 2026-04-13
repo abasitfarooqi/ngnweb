@@ -47,7 +47,7 @@
 
             {{-- Logo --}}
             <a href="/" class="flex-shrink-0">
-                <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors" class="h-9 sm:h-10 w-auto">
+                <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-9 sm:h-10 w-auto">
             </a>
 
             {{-- Desktop nav --}}
@@ -224,7 +224,7 @@
         {{-- Drawer header --}}
         <div class="flex items-center justify-between px-4 py-4 border-b border-gray-200 dark:border-gray-800 flex-shrink-0">
             <a href="/" @click="closeMobile()">
-                <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors" class="h-8 w-auto">
+                <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-8 w-auto">
             </a>
             <button @click="closeMobile()" class="p-2 -m-2 text-gray-500 hover:text-brand-red transition" aria-label="Close menu">
                 <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>

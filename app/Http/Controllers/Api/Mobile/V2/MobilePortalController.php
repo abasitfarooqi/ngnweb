@@ -54,4 +54,9 @@ class MobilePortalController extends \App\Http\Controllers\Api\Mobile\MobilePort
     {
         return $this->rewriteApiPayload(parent::bookingsUnified($request));
     }
+
+    public function clubMember(Request $request): JsonResponse
+    {
+        return $this->rewriteApiPayload(parent::clubMember($request));
+    }
 }

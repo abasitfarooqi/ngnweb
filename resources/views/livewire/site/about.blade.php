@@ -19,7 +19,7 @@
             </div>
         </div>
         <div class="bg-gray-100 dark:bg-gray-800 h-72 flex items-center justify-center">
-            <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors" class="h-24 w-auto opacity-50">
+            <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-24 w-auto opacity-50">
         </div>
     </div>
 </div>

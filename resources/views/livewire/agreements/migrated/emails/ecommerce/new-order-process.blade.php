@@ -157,7 +157,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p style="color: green; font-weight: bold;">New Order Notification</p>
                 <div class="sub-title" style="padding: 10px; margin: 15px 0; background-color: #ffcc00; color: red;">

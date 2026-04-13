@@ -21,7 +21,6 @@
             padding: 0 !important;
             height: 100% !important;
             width: 100% !important;
-            background: #f1f1f1;
         }
 
         /* What it does: Stops email clients resizing small text. */
@@ -310,29 +309,12 @@
 </head>
 
 <body width="100%"
-    style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #f1f1f1;">
-    <center style="width: 100%; background-color: #f1f1f1;">
-        <div
-            style="display: none; font-size: 1px;max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
-            &zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;&zwnj;&nbsp;
-        </div>
+    style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; ">
+    <center style="width: 100%; ">
         <div style="max-width: 600px; margin: 0 auto;" class="email-container">
             <!-- BEGIN BODY -->
             <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%"
                 style="margin: auto;">
-                <tr>
-                    <td valign="top" class="bg_white" style="padding: 1em 2.5em 0 2.5em;">
-                        <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                            <tr style="border-bottom: 1px solid rgba(0,0,0,.05);">
-                                <td class="logo" style="text-align: left;">
-                                    <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png"
-                                        alt=""
-                                        style="width: 40%; max-width: 600px; height: auto; margin-bottom: 10px; display: block;">
-                                </td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr><!-- end tr -->
                 <tr>
                     <td valign="middle" class="hero bg_white" style="padding: 2em 0 2em 0;">
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
@@ -369,7 +351,7 @@
                                             The Neguinho Motors Team
                                         </p>
                                         <img style="width: 40%; height: auto; margin-bottom: 10px; display: block; text-align: left;"
-                                            src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png"
+                                            src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png"
                                             alt="">
                                     </div>
                                 </td>
@@ -386,7 +368,7 @@
                         <tr style="border-bottom: 1px solid rgba(0,0,0,.05);">
                             <td valign="middle" width="80%" style="text-align:left; padding: 0 2.5em;">
                                 <div class="product-entry">
-                                    <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-optimized.png" alt="" style="width: 100px; max-width: 600px; height: auto; margin-bottom: 20px; display: block;">
+                                    <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="" style="width: 100px; max-width: 600px; height: auto; margin-bottom: 20px; display: block;">
                                     <div class="text">
                                         <h3>Analog Wrest Watch</h3>
                                         <span>Small</span>

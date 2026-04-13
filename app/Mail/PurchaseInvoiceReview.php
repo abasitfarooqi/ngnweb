@@ -12,7 +12,7 @@ class PurchaseInvoiceReview extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    protected $mailData;
 
     public function __construct($mailData)
     {

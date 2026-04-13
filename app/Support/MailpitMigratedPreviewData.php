@@ -81,8 +81,6 @@ final class MailpitMigratedPreviewData
             'customer_email' => 'preview@example.com',
             'customer_phone' => '020 0000 0000',
             'customer_id' => 1,
-            'title' => 'Preview title',
-            'body' => "Line one of preview body.\nLine two.",
             'name' => 'Preview Name',
             'email' => 'preview@example.com',
             'fullname' => 'Preview Full Name',
@@ -333,8 +331,18 @@ final class MailpitMigratedPreviewData
             ],
             in_array($relativeDot, ['pcn.failed-t1', 'pcn.failed-t2'], true) => [
                 'data' => [
-                    'Example row' => ['Line A', 'Line B'],
-                    'Single value' => 'Plain text',
+                    'Notice 1' => [
+                        'PCN-77204 · Reg AB12 CDE',
+                        'Recipient: owner.invalid@example.com',
+                        'Reason: mailbox does not exist',
+                        'Last attempt: '.Carbon::now()->subHours(2)->format('Y-m-d H:i'),
+                    ],
+                    'Notice 2' => [
+                        'PCN-77205 · Reg XY99 ZZZ',
+                        'Recipient: bounced@example.com',
+                        'Reason: message rejected by provider',
+                        'Last attempt: '.Carbon::now()->subHour()->format('Y-m-d H:i'),
+                    ],
                 ],
             ],
             in_array($relativeDot, ['payment_reminder'], true) => [
@@ -453,6 +461,24 @@ final class MailpitMigratedPreviewData
             in_array($relativeDot, ['vehicle_delivery_order_confirmation'], true) => [
                 'order' => self::mockVehicleDeliveryOrder(),
             ],
+            in_array($relativeDot, ['rental-agreement', 'rental-agreement-sign', 'purchase-invoice-sign', 'upload-documents'], true) => [
+                'mailData' => self::previewActionMailData(match ($relativeDot) {
+                    'purchase-invoice-sign' => 'Complete your purchase invoice',
+                    'upload-documents' => 'Upload your supporting documents',
+                    default => 'Sign your rental agreement',
+                }),
+            ],
+            in_array($relativeDot, ['TAX.15days', 'TAX.30days'], true) => [
+                'subscriber' => (object) [
+                    'email' => 'subscriber@example.com',
+                    'full_name' => 'Alex Morgan',
+                    'first_name' => 'Alex',
+                    'last_name' => 'Morgan',
+                    'reg_no' => 'AB12 CDE',
+                    'tax_due_date' => Carbon::now()->addDays($relativeDot === 'TAX.15days' ? 15 : 30)->format('j F Y'),
+                ],
+            ],
+            in_array($relativeDot, self::migratedViewsUsingTitleBody(), true) => self::documentPreviewFields($relativeDot),
             default => [],
         };
     }
@@ -499,6 +525,93 @@ final class MailpitMigratedPreviewData
             'express_fee' => 0,
             'notes' => '',
         ];
+    }
+
+    /**
+     * Migrated blades that read $title / $body (not only mailData). Do not put defaults in coreStubs() — they leak into every preview fragment.
+     *
+     * @return list<string>
+     */
+    private static function migratedViewsUsingTitleBody(): array
+    {
+        return [
+            'sale-agreement',
+            'purchase-invoice',
+            'finance-contract-sign',
+            'rental-terminate-v1',
+            'quote-request',
+            'rental-payment-receipt',
+            'othercharges-receipt',
+            'loyalty-scheme-policy',
+            'logbook-transfer',
+        ];
+    }
+
+    /**
+     * @return array{title: string, url: string, customer_name: string, totalProcessed: int, total: int, successCount: int, failureCount: int}
+     */
+    private static function previewActionMailData(string $title): array
+    {
+        return [
+            'title' => $title,
+            'url' => 'https://example.com/customer/preview-action',
+            'customer_name' => 'Taylor Morgan',
+            'totalProcessed' => 5,
+            'total' => 10,
+            'successCount' => 4,
+            'failureCount' => 1,
+        ];
+    }
+
+    /**
+     * Realistic copy for Mailpit previews (local only). Production mailables pass real title/body.
+     *
+     * @return array{title: string, body: string}
+     */
+    private static function documentPreviewFields(string $relativeDot): array
+    {
+        return match ($relativeDot) {
+            'sale-agreement' => [
+                'title' => 'Hire / sale agreement',
+                'body' => 'Thank you for choosing NGN Motors. Your hire or sale agreement is attached to this email. If anything does not match what you agreed in branch, please contact us before signing.',
+            ],
+            'purchase-invoice' => [
+                'title' => 'Purchase invoice',
+                'body' => 'Please find your purchase invoice attached. The amount and vehicle details should match your order. Contact us if you need a correction or payment plan.',
+            ],
+            'finance-contract-sign' => [
+                'title' => 'Finance contract',
+                'body' => 'Your finance contract is ready to review and sign. Open the link we sent separately or refer to the attached PDF. Our sales team can explain any clause you are unsure about.',
+            ],
+            'rental-terminate-v1' => [
+                'title' => 'Rental termination',
+                'body' => 'Please find attached your termination letter. It confirms the end date and any amounts still due. If you have questions, reply to this email or call customer services.',
+            ],
+            'quote-request' => [
+                'title' => 'Dear Spare Parts Team,',
+                'body' => 'Find attached our quote request. Please reply to the email below.',
+            ],
+            'rental-payment-receipt' => [
+                'title' => 'Rental payment receipt',
+                'body' => 'Thank you. We have recorded your rental payment against your agreement. Keep this email for your records.',
+            ],
+            'othercharges-receipt' => [
+                'title' => 'Other charges receipt',
+                'body' => 'Please find attached your receipt for additional charges (e.g. repairs, accessories, or fees). Contact us if the description or amount does not look right.',
+            ],
+            'loyalty-scheme-policy' => [
+                'title' => 'Loyalty upgrade scheme',
+                'body' => 'Thank you for enrolling in our loyalty upgrade scheme. A short summary of benefits and terms is set out below; your signed policy document is attached for your records.',
+            ],
+            'logbook-transfer' => [
+                'title' => 'Logbook (V5) transfer',
+                'body' => 'We are processing the logbook transfer for your vehicle with DVLA. You will receive a further update when the registration document is issued or if we need more information.',
+            ],
+            default => [
+                'title' => 'Document',
+                'body' => 'Please see the attached document.',
+            ],
+        };
     }
 
     /**

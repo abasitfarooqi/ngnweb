@@ -9,7 +9,6 @@ use App\Models\Customer;
 use App\Models\Motorbike;
 use App\Models\PcnCase;
 use App\Services\SmsNotificationService;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -273,7 +272,7 @@ class PcnCaseCrudController extends BaseCrudController
 
         CRUD::field('is_police')->type('checkbox')->label('Police Case');
         CRUD::field('isClosed')->type('checkbox')->label('Case Closed');
-        
+
         CRUD::field('full_amount')->wrapper(['class' => 'form-group col-md-6']);
         CRUD::field('reduced_amount')->label('Reduced Amount (If paid within 14 days)')->wrapper(['class' => 'form-group col-md-6']);
         CRUD::addField(['name' => 'picture_url', 'type' => 'hidden']);
@@ -375,9 +374,8 @@ class PcnCaseCrudController extends BaseCrudController
         CRUD::addField([
             'name' => 'copy_letter',
             'type' => 'view',
-            'view' => 'admin.pcn_case_updates.copy_letter',
+            'view' => 'livewire.agreements.migrated.admin.pcn_case_updates.copy_letter',
         ]);
-
 
         CRUD::addField([
             'name' => 'updates',

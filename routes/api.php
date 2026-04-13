@@ -40,7 +40,9 @@ use App\Http\Controllers\NgnVehicleDeliveryController;
 use App\Http\Controllers\PayPalWebhookController;
 use App\Http\Controllers\Shopper\SalesController;
 use App\Http\Controllers\Welcome\ContactController;
+use App\Mail\FinanceContractReview;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 // use App\Http\Controllers\PayPalController;
 use Illuminate\Support\Facades\Route;
 
@@ -412,6 +414,7 @@ Route::prefix('v1/mobile')->group(function () {
 
     Route::middleware('auth:customer,sanctum')->group(function () {
         Route::get('portal/overview', [MobilePortalController::class, 'overview']);
+        Route::get('portal/club-member', [MobilePortalController::class, 'clubMember']);
         Route::get('portal/full-state', [MobilePortalController::class, 'fullState']);
         Route::get('portal/orders', [MobilePortalController::class, 'myOrders']);
         Route::get('portal/orders/{id}', [MobilePortalAccountController::class, 'orderDetail']);
@@ -571,6 +574,7 @@ Route::prefix('v2/mobile')->group(function () {
         Route::get('auth/customer/user', [CustomerAuthController::class, 'getUser']);
 
         Route::get('portal/overview', [MobileV2PortalController::class, 'overview']);
+        Route::get('portal/club-member', [MobileV2PortalController::class, 'clubMember']);
         Route::get('portal/full-state', [MobileV2PortalController::class, 'fullState']);
         Route::get('portal/orders', [MobileV2PortalController::class, 'myOrders']);
         Route::get('portal/orders/{id}', [MobileV2PortalAccountController::class, 'orderDetail']);
@@ -658,3 +662,39 @@ Route::middleware(['auth:customer'])->group(function () {
 Route::get('/email/verify/{id}/{hash}',
     [CustomerVerificationController::class, 'verify'])
     ->name('api.customer.verification.verify');
+
+if (app()->environment('local')) {
+    Route::post('__dev/finance-contract-mail-test', function (Request $request) {
+        $to = $request->input('to', config('mail.from.address'));
+        $mailData = [
+            'title' => 'Contract Review (curl test)',
+            'customer_name' => 'Curl Test Customer',
+            'body' => 'Finance contract review mail test via POST /api/__dev/finance-contract-mail-test.',
+            'url' => rtrim((string) config('app.url'), '/').'/',
+        ];
+
+        $financeMailer = config('mail.finance_contract_mailer');
+        try {
+            if (is_string($financeMailer) && $financeMailer !== '' && array_key_exists($financeMailer, config('mail.mailers'))) {
+                Mail::mailer($financeMailer)->to($to)->send(new FinanceContractReview($mailData));
+                $used = $financeMailer;
+            } else {
+                Mail::to($to)->send(new FinanceContractReview($mailData));
+                $used = (string) config('mail.default');
+            }
+        } catch (\Throwable $e) {
+            return response()->json([
+                'ok' => false,
+                'mailer' => config('mail.default'),
+                'finance_contract_mailer' => config('mail.finance_contract_mailer'),
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        return response()->json([
+            'ok' => true,
+            'mailer' => $used,
+            'to' => $to,
+        ], 200);
+    })->middleware('throttle:12,1');
+}

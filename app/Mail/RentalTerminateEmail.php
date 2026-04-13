@@ -13,7 +13,7 @@ class RentalTerminateEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $mailData;
+    protected $mailData;
 
     public function __construct($mailData)
     {

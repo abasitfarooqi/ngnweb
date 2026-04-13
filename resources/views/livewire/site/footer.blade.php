@@ -125,7 +125,7 @@
         "@@type": "AutoDealer",
         "name": "Neguinho Motors Ltd",
         "url": "{{ url('/') }}",
-        "logo": "{{ asset('img/ngn-motor-logo-fit-optimized.png') }}",
+        "logo": "{{ asset('img/ngn-motor-logo-fit-small.png') }}",
         "telephone": "+442083141498",
         "email": "enquiries@neguinhomotors.co.uk"
     }

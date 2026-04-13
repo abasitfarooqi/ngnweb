@@ -89,7 +89,7 @@
         <p>You can view the full list of grounds for refusal to carry out a test by visiting the <a href="https://www.gov.uk/guidance/mot-testing-guide/appendix-3-grounds-for-refusal" class="link">government website here</a>.</p>
 
         <h4>Refund Policy</h4>
-        <p>Please note, as this cancellation is due to <strong>{{ $cancellation_reason }}</strong>, no refund will be issued in accordance with current MOT testing guidelines. For more information on MOT fees and the refund policy, you may refer to the <a href="https://www.gov.uk/guidance/mot-testing-guide/appendix-3-grounds-for-refusal" class="link">MOT Testing Guide</a>.</p>
+        <p>Please note, as this cancellation is due to <strong>{{ $cancellation_reason ?? 'circumstances beyond our control' }}</strong>, no refund will be issued in accordance with current MOT testing guidelines. For more information on MOT fees and the refund policy, you may refer to the <a href="https://www.gov.uk/guidance/mot-testing-guide/appendix-3-grounds-for-refusal" class="link">MOT Testing Guide</a>.</p>
 
         <p>Should you have any questions or require further assistance, please don't hesitate to contact us.</p>
 

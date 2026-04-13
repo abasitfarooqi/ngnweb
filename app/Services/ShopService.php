@@ -57,20 +57,32 @@ class ShopService
                 'ngn_products.normal_price',
             );
 
-        if (!empty($categoryIds)) {
+        if (! empty($categoryIds)) {
             $query->whereIn('ngn_products.category_id', $categoryIds);
         }
 
-        if (!empty($brandIds)) {
+        if (! empty($brandIds)) {
             $query->whereIn('ngn_products.brand_id', $brandIds);
         }
 
-        if (!empty($categorySlugs)) {
-            $query->whereIn('ngn_categories.slug', $categorySlugs);
+        $categorySlugNorm = $this->normaliseShopSlugs($categorySlugs);
+        if ($categorySlugNorm !== []) {
+            $resolvedCategoryIds = $this->ecommerceCategoryIdsForNormalisedSlugs($categorySlugNorm);
+            if ($resolvedCategoryIds === []) {
+                $query->whereRaw('0 = 1');
+            } else {
+                $query->whereIn('ngn_products.category_id', $resolvedCategoryIds);
+            }
         }
 
-        if (!empty($brandSlugs)) {
-            $query->whereIn('ngn_brands.slug', $brandSlugs);
+        $brandSlugNorm = $this->normaliseShopSlugs($brandSlugs);
+        if ($brandSlugNorm !== []) {
+            $resolvedBrandIds = $this->ecommerceBrandIdsForNormalisedSlugs($brandSlugNorm);
+            if ($resolvedBrandIds === []) {
+                $query->whereRaw('0 = 1');
+            } else {
+                $query->whereIn('ngn_products.brand_id', $resolvedBrandIds);
+            }
         }
 
         if ($search) {
@@ -88,10 +100,10 @@ class ShopService
         }
 
         match ($sort) {
-            'price_low'  => $query->orderBy('ngn_products.normal_price', 'asc'),
+            'price_low' => $query->orderBy('ngn_products.normal_price', 'asc'),
             'price_high' => $query->orderBy('ngn_products.normal_price', 'desc'),
-            'name'       => $query->orderBy('ngn_products.name', 'asc'),
-            default      => $query->orderBy('max_created_at', 'desc'),
+            'name' => $query->orderBy('ngn_products.name', 'asc'),
+            default => $query->orderBy('max_created_at', 'desc'),
         };
 
         return $query->paginate($perPage, ['*'], 'page', $page);
@@ -103,7 +115,7 @@ class ShopService
     public function getProductBySlug(string $slug): ?array
     {
         $products = DB::table('ngn_products')
-            ->where('slug', 'like', $slug . '%')
+            ->where('slug', 'like', $slug.'%')
             ->where('is_ecommerce', true)
             ->where('dead', false)
             ->get();
@@ -125,29 +137,29 @@ class ShopService
 
         $variants = $products->map(function ($p) use ($totalBalances) {
             return [
-                'id'            => $p->id,
-                'sku'           => trim($p->sku),
-                'name'          => trim($p->name),
-                'variation'     => trim($p->variation),
-                'slug'          => trim($p->slug),
+                'id' => $p->id,
+                'sku' => trim($p->sku),
+                'name' => trim($p->name),
+                'variation' => trim($p->variation),
+                'slug' => trim($p->slug),
                 'total_balance' => $totalBalances[$p->id] ?? 0,
             ];
         })->values()->all();
 
         return [
-            'name'                 => $products[0]->name,
-            'slug'                 => $products[0]->slug,
-            'image_url'            => $products[0]->image_url,
-            'image_array'          => $uniqueImages,
-            'normal_price'         => $products[0]->normal_price,
-            'global_stock'         => $products[0]->global_stock,
-            'meta_title'           => $products[0]->meta_title,
-            'meta_description'     => $products[0]->meta_description,
-            'description'          => strip_tags($products[0]->description),
+            'name' => $products[0]->name,
+            'slug' => $products[0]->slug,
+            'image_url' => $products[0]->image_url,
+            'image_array' => $uniqueImages,
+            'normal_price' => $products[0]->normal_price,
+            'global_stock' => $products[0]->global_stock,
+            'meta_title' => $products[0]->meta_title,
+            'meta_description' => $products[0]->meta_description,
+            'description' => strip_tags($products[0]->description),
             'extended_description' => strip_tags($products[0]->extended_description),
-            'colour'               => $products[0]->colour,
-            'counts'               => count($variants),
-            'variants'             => $variants,
+            'colour' => $products[0]->colour,
+            'counts' => count($variants),
+            'variants' => $variants,
         ];
     }
 
@@ -182,8 +194,93 @@ class ShopService
 
         return [
             'total_balance' => $total,
-            'branches'      => $branches,
+            'branches' => $branches,
         ];
+    }
+
+    public static function clearNavigationCache(): void
+    {
+        cache()->forget('shop_categories');
+        cache()->forget('shop_brands');
+    }
+
+    /**
+     * @param  array<int, mixed>  $slugs
+     * @return list<int>
+     */
+    public function resolveEcommerceCategoryIdsBySlugs(array $slugs): array
+    {
+        $norm = $this->normaliseShopSlugs($slugs);
+
+        return $norm === [] ? [] : $this->ecommerceCategoryIdsForNormalisedSlugs($norm);
+    }
+
+    /**
+     * @param  array<int, mixed>  $slugs
+     * @return list<int>
+     */
+    public function resolveEcommerceBrandIdsBySlugs(array $slugs): array
+    {
+        $norm = $this->normaliseShopSlugs($slugs);
+
+        return $norm === [] ? [] : $this->ecommerceBrandIdsForNormalisedSlugs($norm);
+    }
+
+    /**
+     * @param  array<int, mixed>  $slugs
+     * @return list<string>
+     */
+    private function normaliseShopSlugs(array $slugs): array
+    {
+        $out = [];
+        foreach ($slugs as $raw) {
+            $s = strtolower(trim((string) $raw));
+            if ($s !== '') {
+                $out[$s] = true;
+            }
+        }
+
+        return array_keys($out);
+    }
+
+    /**
+     * @param  list<string>  $normalisedSlugs
+     * @return list<int>
+     */
+    private function ecommerceCategoryIdsForNormalisedSlugs(array $normalisedSlugs): array
+    {
+        return NgnCategory::query()
+            ->where('is_ecommerce', true)
+            ->where(function ($q) use ($normalisedSlugs) {
+                foreach ($normalisedSlugs as $slug) {
+                    $q->orWhereRaw('LOWER(TRIM(COALESCE(slug, ?))) = ?', ['', $slug]);
+                }
+            })
+            ->pluck('id')
+            ->unique()
+            ->values()
+            ->map(fn ($id) => (int) $id)
+            ->all();
+    }
+
+    /**
+     * @param  list<string>  $normalisedSlugs
+     * @return list<int>
+     */
+    private function ecommerceBrandIdsForNormalisedSlugs(array $normalisedSlugs): array
+    {
+        return NgnBrand::query()
+            ->where('is_ecommerce', true)
+            ->where(function ($q) use ($normalisedSlugs) {
+                foreach ($normalisedSlugs as $slug) {
+                    $q->orWhereRaw('LOWER(TRIM(COALESCE(slug, ?))) = ?', ['', $slug]);
+                }
+            })
+            ->pluck('id')
+            ->unique()
+            ->values()
+            ->map(fn ($id) => (int) $id)
+            ->all();
     }
 
     /**

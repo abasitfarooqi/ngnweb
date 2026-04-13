@@ -10,7 +10,6 @@ use App\Models\Branch;
 use App\Models\DeliveryAgreementAccess;
 use App\Models\DeliveryVehicleType;
 use App\Models\MotorbikeDeliveryOrderEnquiries;
-use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Illuminate\Support\Facades\Cache;
@@ -374,7 +373,7 @@ class MotorbikeDeliveryOrderEnquiriesCrudController extends BaseCrudController
     {
         $enquiry = MotorbikeDeliveryOrderEnquiries::findOrFail($id);
         $data = [
-            'order_id' => $enquiry->order_id,
+            'order_id' => $enquiry->order_id ?? $enquiry->id,
             'full_name' => $enquiry->full_name,
             'email' => $enquiry->email,
             'phone' => $enquiry->phone,

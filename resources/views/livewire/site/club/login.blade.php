@@ -3,7 +3,7 @@
     <div class="max-w-md w-full">
         {{-- Logo & heading --}}
         <div class="text-center mb-8">
-            <img src="{{ asset('img/ngn-motor-logo-fit-optimized.png') }}" alt="NGN Motors" class="h-12 w-auto mx-auto mb-4">
+            <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-12 w-auto mx-auto mb-4">
             <div class="inline-flex items-center gap-2 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-4 py-1 mb-4 text-sm font-semibold tracking-wide">
                 ★ NGN CLUB
             </div>
