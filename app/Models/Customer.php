@@ -122,6 +122,11 @@ class Customer extends Model
         return $this->hasMany(CustomerDocument::class, 'customer_id');
     }
 
+    public function preferredBranch()
+    {
+        return $this->belongsTo(Branch::class, 'preferred_branch_id');
+    }
+
     public function isFieldLocked(string $field): bool
     {
         $locked = $this->locked_fields ?? [];

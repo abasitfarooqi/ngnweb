@@ -26,9 +26,11 @@ class RouteServiceProvider extends ServiceProvider
             Route::middleware('web')
                 ->group(base_path('routes/web.php'));
 
-            Route::middleware(['web', 'auth', 'admin', 'check.admin.access'])
-                ->prefix('flux-admin')
-                ->group(base_path('routes/flux-admin.php'));
+            if (file_exists(base_path('routes/flux-admin.php'))) {
+                Route::middleware(['web', 'auth', 'admin', 'check.admin.access'])
+                    ->prefix('flux-admin')
+                    ->group(base_path('routes/flux-admin.php'));
+            }
         });
     }
 }

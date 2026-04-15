@@ -2,7 +2,6 @@
 
 namespace App\Livewire\FluxAdmin\Pages;
 
-use App\Models\BookingInvoice;
 use App\Models\ClubMember;
 use App\Models\FinanceApplication;
 use App\Models\Motorbike;
@@ -10,46 +9,37 @@ use App\Models\PcnCase;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use Illuminate\Support\Facades\Cache;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
+#[Layout('flux-admin.layouts.app')]
+#[Title('Dashboard — Flux Admin')]
 class Dashboard extends Component
 {
-    public function refreshStats(): void
+    public function render()
     {
-        Cache::forget('flux-admin-dashboard-stats');
-    }
-
-    protected function stats(): array
-    {
-        return Cache::remember('flux-admin-dashboard-stats', 300, function () {
-            $activeBookings = RentingBooking::with([
-                'rentingBookingItems' => fn ($q) => $q->whereNull('end_date'),
-                'bookingInvoices' => fn ($q) => $q->where('is_paid', false),
-            ])
+        $stats = Cache::remember('flux-admin.dashboard.stats', now()->addMinutes(5), function () {
+            $activeRentals = RentingBookingItem::whereNull('end_date')
+                ->whereHas('booking', fn ($q) => $q->where('is_posted', true))
                 ->where('is_posted', true)
-                ->whereHas('rentingBookingItems', fn ($q) => $q->whereNull('end_date'))
-                ->get();
+                ->count();
 
             return [
                 'total_motorbikes' => Motorbike::count(),
-                'active_rentals' => $activeBookings->flatMap->rentingBookingItems->count(),
-                'weekly_revenue' => $activeBookings->flatMap->rentingBookingItems->sum('weekly_rent'),
-                'unpaid_invoices' => $activeBookings->sum(
-                    fn ($b) => $b->bookingInvoices->where('invoice_date', '<=', now())->sum('amount')
-                ),
+                'active_rentals' => $activeRentals,
+                'finance_applications' => FinanceApplication::where('is_cancelled', false)->count(),
                 'open_pcn_cases' => PcnCase::where('isClosed', false)->count(),
-                'active_finance' => FinanceApplication::where('is_cancelled', false)
-                    ->where('is_posted', true)->count(),
-                'total_customers' => \App\Models\Customer::count(),
-                'active_club_members' => ClubMember::where('is_active', true)->count(),
+                'club_members' => ClubMember::where('is_active', true)->count(),
+                'total_bookings' => RentingBooking::where('is_posted', true)->count(),
             ];
         });
+
+        return view('flux-admin.pages.dashboard', compact('stats'));
     }
 
-    public function render()
+    public function refreshStats(): void
     {
-        return view('livewire.flux-admin.pages.dashboard', [
-            'stats' => $this->stats(),
-        ])->layout('components.layouts.flux-admin', ['title' => 'Dashboard']);
+        Cache::forget('flux-admin.dashboard.stats');
     }
 }

@@ -1,61 +1,41 @@
 <?php
 
+use App\Livewire\FluxAdmin\Pages\Branches\BranchIndex;
+use App\Livewire\FluxAdmin\Pages\Branches\BranchShow;
+use App\Livewire\FluxAdmin\Pages\Club\ClubIndex;
+use App\Livewire\FluxAdmin\Pages\Club\ClubShow;
+use App\Livewire\FluxAdmin\Pages\Customers\CustomerIndex;
+use App\Livewire\FluxAdmin\Pages\Customers\CustomerShow;
+use App\Livewire\FluxAdmin\Pages\Dashboard;
+use App\Livewire\FluxAdmin\Pages\Finance\FinanceIndex;
+use App\Livewire\FluxAdmin\Pages\Finance\FinanceShow;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeIndex;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeShow;
+use App\Livewire\FluxAdmin\Pages\Pcn\PcnIndex;
+use App\Livewire\FluxAdmin\Pages\Pcn\PcnShow;
+use App\Livewire\FluxAdmin\Pages\Rentals\RentalIndex;
+use App\Livewire\FluxAdmin\Pages\Rentals\RentalShow;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Flux Admin Routes
-|--------------------------------------------------------------------------
-|
-| New admin panel built with Livewire 4 + Flux Pro + Tailwind.
-| Middleware: web, auth, admin, check.admin.access (same as Backpack).
-| Prefix: flux-admin
-|
-*/
+Route::get('/', Dashboard::class)->name('flux-admin.dashboard');
 
-// Dashboard
-Route::get('/', fn () => redirect()->route('flux-admin.dashboard'));
-Route::get('/dashboard', \App\Livewire\FluxAdmin\Pages\Dashboard::class)
-    ->name('flux-admin.dashboard');
+Route::get('/motorbikes', MotorbikeIndex::class)->name('flux-admin.motorbikes.index');
+Route::get('/motorbikes/{motorbike}', MotorbikeShow::class)->name('flux-admin.motorbikes.show');
 
-// Motorbikes
-Route::prefix('motorbikes')->name('flux-admin.motorbikes.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeIndex::class)->name('index');
-    Route::get('/{motorbike}', \App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeShow::class)->name('show');
-});
+Route::get('/customers', CustomerIndex::class)->name('flux-admin.customers.index');
+Route::get('/customers/{customer}', CustomerShow::class)->name('flux-admin.customers.show');
 
-// Customers
-Route::prefix('customers')->name('flux-admin.customers.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Customers\CustomerIndex::class)->name('index');
-    Route::get('/{customer}', \App\Livewire\FluxAdmin\Pages\Customers\CustomerShow::class)->name('show');
-});
+Route::get('/rentals', RentalIndex::class)->name('flux-admin.rentals.index');
+Route::get('/rentals/{booking}', RentalShow::class)->name('flux-admin.rentals.show');
 
-// Rentals
-Route::prefix('rentals')->name('flux-admin.rentals.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Rentals\RentalIndex::class)->name('index');
-    Route::get('/{booking}', \App\Livewire\FluxAdmin\Pages\Rentals\RentalShow::class)->name('show');
-});
+Route::get('/finance', FinanceIndex::class)->name('flux-admin.finance.index');
+Route::get('/finance/{application}', FinanceShow::class)->name('flux-admin.finance.show');
 
-// Finance
-Route::prefix('finance')->name('flux-admin.finance.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Finance\FinanceIndex::class)->name('index');
-    Route::get('/{application}', \App\Livewire\FluxAdmin\Pages\Finance\FinanceShow::class)->name('show');
-});
+Route::get('/pcn', PcnIndex::class)->name('flux-admin.pcn.index');
+Route::get('/pcn/{pcnCase}', PcnShow::class)->name('flux-admin.pcn.show');
 
-// PCN
-Route::prefix('pcn')->name('flux-admin.pcn.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Pcn\PcnIndex::class)->name('index');
-    Route::get('/{pcnCase}', \App\Livewire\FluxAdmin\Pages\Pcn\PcnShow::class)->name('show');
-});
+Route::get('/club', ClubIndex::class)->name('flux-admin.club.index');
+Route::get('/club/{clubMember}', ClubShow::class)->name('flux-admin.club.show');
 
-// Club Members
-Route::prefix('club')->name('flux-admin.club.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Club\ClubIndex::class)->name('index');
-    Route::get('/{clubMember}', \App\Livewire\FluxAdmin\Pages\Club\ClubShow::class)->name('show');
-});
-
-// Branches
-Route::prefix('branches')->name('flux-admin.branches.')->group(function () {
-    Route::get('/', \App\Livewire\FluxAdmin\Pages\Branches\BranchIndex::class)->name('index');
-    Route::get('/{branch}', \App\Livewire\FluxAdmin\Pages\Branches\BranchShow::class)->name('show');
-});
+Route::get('/branches', BranchIndex::class)->name('flux-admin.branches.index');
+Route::get('/branches/{branch}', BranchShow::class)->name('flux-admin.branches.show');

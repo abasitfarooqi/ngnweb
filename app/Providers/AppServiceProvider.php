@@ -15,6 +15,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 
@@ -83,5 +84,8 @@ class AppServiceProvider extends ServiceProvider
         JudopayCitPaymentSession::observe(JudopayCitPaymentSessionObserver::class);
         JudopayMitPaymentSession::observe(JudopayMitPaymentSessionObserver::class);
         JudopayEnquiryRecord::observe(JudopayEnquiryRecordObserver::class);
+
+        // Flux Admin anonymous Blade components: <x-flux-admin::stat-card> etc.
+        Blade::anonymousComponentPath(resource_path('views/flux-admin/components'), 'flux-admin');
     }
 }
