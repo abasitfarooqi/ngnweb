@@ -816,6 +816,137 @@ class MobilePortalController extends Controller
         ]);
     }
 
+    public function financeApplications(Request $request): JsonResponse
+    {
+        $customerAuth = $this->customerAuthFrom($request);
+        if (! $customerAuth) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $customerId = $customerAuth->customer_id;
+        if (! $customerId) {
+            return response()->json(['data' => [], 'message' => 'No customer profile linked.']);
+        }
+
+        $perPage = max(1, min(50, (int) $request->integer('per_page', 20)));
+
+        $applications = \App\Models\FinanceApplication::query()
+            ->where('customer_id', $customerId)
+            ->with(['items.motorbike', 'customerContracts'])
+            ->orderByDesc('id')
+            ->paginate($perPage)
+            ->through(function (\App\Models\FinanceApplication $app) {
+                $bike = $app->items?->first()?->motorbike;
+
+                return [
+                    'id' => $app->id,
+                    'status' => $app->status,
+                    'vehicle' => $bike ? trim((string) $bike->make.' '.$bike->model) : null,
+                    'vehicle_reg' => $bike?->reg_no,
+                    'amount' => (float) ($app->amount ?? 0),
+                    'deposit' => (float) ($app->deposit ?? 0),
+                    'term_months' => (int) ($app->term_months ?? 0),
+                    'subscription_group' => $app->subscription_group,
+                    'contracts_count' => $app->customerContracts?->count() ?? 0,
+                    'created_at' => optional($app->created_at)->toDateTimeString(),
+                ];
+            });
+
+        return response()->json($applications);
+    }
+
+    public function financeApplicationDetail(Request $request, int $id): JsonResponse
+    {
+        $customerAuth = $this->customerAuthFrom($request);
+        if (! $customerAuth) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $customerId = $customerAuth->customer_id;
+        if (! $customerId) {
+            return response()->json(['message' => 'No customer profile linked.'], 422);
+        }
+
+        $app = \App\Models\FinanceApplication::query()
+            ->where('customer_id', $customerId)
+            ->with(['items.motorbike', 'customerContracts'])
+            ->findOrFail($id);
+
+        $bike = $app->items?->first()?->motorbike;
+
+        return response()->json([
+            'data' => [
+                'id' => $app->id,
+                'status' => $app->status,
+                'vehicle' => $bike ? trim((string) $bike->make.' '.$bike->model) : null,
+                'vehicle_reg' => $bike?->reg_no,
+                'amount' => (float) ($app->amount ?? 0),
+                'deposit' => (float) ($app->deposit ?? 0),
+                'term_months' => (int) ($app->term_months ?? 0),
+                'subscription_group' => $app->subscription_group,
+                'notes' => $app->notes,
+                'contracts' => $app->customerContracts?->map(fn ($c) => [
+                    'id' => $c->id,
+                    'file_name' => $c->file_name,
+                    'sent_private' => (bool) ($c->sent_private ?? false),
+                ])->values() ?? [],
+                'items' => $app->items?->map(fn ($item) => [
+                    'id' => $item->id,
+                    'motorbike_id' => $item->motorbike_id,
+                    'vehicle' => $item->motorbike ? trim((string) $item->motorbike->make.' '.$item->motorbike->model) : null,
+                    'reg_no' => $item->motorbike?->reg_no,
+                ])->values() ?? [],
+                'created_at' => optional($app->created_at)->toDateTimeString(),
+            ],
+        ]);
+    }
+
+    public function recoveryRequestDetail(Request $request, int $id): JsonResponse
+    {
+        $customerAuth = $this->customerAuthFrom($request);
+        if (! $customerAuth) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $email = strtolower(trim((string) ($customerAuth->email ?? '')));
+        if ($email === '') {
+            return response()->json(['message' => 'No email on account.'], 422);
+        }
+
+        $enquiry = \App\Models\MotorbikeDeliveryOrderEnquiries::query()
+            ->with('branch')
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->findOrFail($id);
+
+        return response()->json([
+            'data' => [
+                'id' => $enquiry->id,
+                'vrm' => $enquiry->vrm,
+                'pickup_address' => $enquiry->pickup_address,
+                'dropoff_address' => $enquiry->dropoff_address,
+                'pickup_postcode' => $enquiry->pickup_postcode,
+                'dropoff_postcode' => $enquiry->dropoff_postcode,
+                'pick_up_datetime' => optional($enquiry->pick_up_datetime)->toDateTimeString(),
+                'distance' => (float) ($enquiry->distance ?? 0),
+                'total_cost' => (float) ($enquiry->total_cost ?? 0),
+                'vehicle_type' => $enquiry->vehicle_type,
+                'moveable' => (bool) $enquiry->moveable,
+                'documents' => (bool) $enquiry->documents,
+                'keys' => (bool) $enquiry->keys,
+                'full_name' => $enquiry->full_name,
+                'phone' => $enquiry->phone,
+                'email' => $enquiry->email,
+                'branch' => $enquiry->branch ? [
+                    'id' => $enquiry->branch->id,
+                    'name' => $enquiry->branch->name,
+                ] : null,
+                'is_dealt' => (bool) $enquiry->is_dealt,
+                'note' => $enquiry->note,
+                'created_at' => optional($enquiry->created_at)->toDateTimeString(),
+            ],
+        ]);
+    }
+
     private function normalisePhoneForClubMemberMatch(string $phone): string
     {
         $s = preg_replace('/[\s\-()]/', '', trim($phone)) ?? '';

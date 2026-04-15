@@ -1,0 +1,484 @@
+The plan is complete. Here's a quick summary of what it covers:                                                                           
+                                                                                                                                          
+  10 phases building a new flux-admin panel alongside the untouched Backpack admin:                                                         
+                                                                                                                                            
+  1. Foundation — routes at /flux-admin, shell layout with Flux sidebar, auth reuse                                                         
+  2. Component Library — DataTable, FilterBar, EntityPicker, InlineEditor, GlobalSearch                                                     
+  3. Motorbike Module — central entity with 8 tab partials (compliance, repairs, registrations, etc.)                                       
+  4. Customer Module — unified view across 7 tabs (profile, documents, bookings, finance, PCNs, club)                                       
+  5. Rental Module — reuses proven OperationsDashboard.php query patterns                                                                   
+  6. Finance Module — ports complex JS logic (contract type enforcement, signing access)                                                    
+  7. PCN Module — cross-module linking to determine rental/finance liability                                                                
+  8. Club Member Module — balance calculations, spending tracking                                                                           
+  9. Branch & Dashboard — remaining modules + real KPI dashboard                                                                            
+  10. Polish — permissions, performance, loading states, responsiveness                                                                     
+                                                                                                                                            
+  All 19 JS business logic files are mapped to specific Livewire replacements. No existing files are modified except adding one route group 
+  in RouteServiceProvider.php.                                                                                                              
+                                                                                                                                            
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+ Ready to code?
+
+ Here is Claude's plan:
+╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌
+ Flux Admin Panel — Implementation Plan
+
+ Context
+
+ The existing Backpack admin panel (98 CRUD controllers at /ngn-admin) is operationally fragmented — staff must navigate many disconnected
+ pages to complete a single business process. The goal is to build a new, parallel admin panel called flux-admin using Livewire 4 + Flux
+ Pro + Tailwind that unifies these fragmented CRUDs into coherent operational modules. The existing Backpack panel is read-only from a
+ migration perspective — no files in app/Http/Controllers/Admin/ or routes/backpack/ will be touched.
+
+ The new panel uses the same database, same models, same auth system (Spatie Permission, admin middleware, check.admin.access middleware,
+ User model with is_admin flag). It is a separate UI layer on top of the existing data.
+
+ ---
+ Phase 1: Foundation & Infrastructure
+
+ 1.1 Route Registration
+
+ Create: routes/flux-admin.php
+ - Route prefix: flux-admin
+ - Middleware: ['web', 'auth', 'admin', 'check.admin.access'] (identical to Backpack's stack from routes/backpack/custom.php:44)
+ - Full-page Livewire component routing (e.g., Route::get('/dashboard', DashboardPage::class))
+ - Module groups: motorbikes, customers, finance, rentals, pcn, club, branches
+
+ Modify: app/Providers/RouteServiceProvider.php
+ - Add a third Route::middleware('web') block loading routes/flux-admin.php with prefix flux-admin and the admin middleware stack
+
+ 1.2 Shell Layout
+
+ Create: resources/views/components/layouts/flux-admin.blade.php
+
+ Structure (follows the pattern from base.blade.php for Vite/Flux/Livewire loading):
+ <head>: @vite, @fluxAppearance, @livewireStyles, theme-boot partial
+ <body>:
+   <flux:sidebar collapsible sticky>  — Main navigation
+     Brand logo, sidebar search, module nav groups, profile
+   </flux:sidebar>
+   <flux:main>
+     <flux:header> — Breadcrumbs + global search trigger + profile dropdown
+     <div class="flex flex-1 overflow-hidden">
+       <main class="flex-1 overflow-y-auto p-6">{{ $slot }}</main>
+       @if(isset($contextPanel))
+         <aside class="w-80 xl:w-96 border-l">{{ $contextPanel }}</aside>
+       @endif
+     </div>
+   </flux:main>
+   @fluxScripts, @livewireScripts
+
+ Sidebar items are permission-gated with @can(). Each module item uses flux:sidebar.item with an icon and active state detection.
+
+ 1.3 Dashboard Page (Placeholder)
+
+ Create:
+ - app/Livewire/FluxAdmin/Pages/Dashboard.php
+ - resources/views/livewire/flux-admin/pages/dashboard.blade.php
+
+ Renders inside the flux-admin layout. Initially just stat cards; will be populated in Phase 9.
+
+ 1.4 Verification
+
+ - Log into Backpack at /ngn-admin, then navigate to /flux-admin/dashboard
+ - Confirm: same authenticated user, sidebar renders, layout is correct
+
+ ---
+ Phase 2: Reusable Component Library
+
+ All custom components at app/Livewire/FluxAdmin/Components/ with views at resources/views/livewire/flux-admin/components/.
+
+ 2.1 DataTable Component
+
+ - Wraps <flux:table> with server-side search, sort, pagination
+ - Properties: $search (debounced 300ms), $sortField, $sortDirection, $perPage, $filters
+ - Uses WithPagination trait
+ - Supports column definitions via a columns() method in child classes
+ - Search across multiple fields via LIKE with $searchableFields array
+ - Renders <flux:table.column> headers with sortable, <flux:table.row> for each record
+
+ 2.2 FilterBar Component
+
+ - Horizontal bar of filter controls (selects, date pickers, toggles, text search)
+ - Accepts filter definitions array; emits filter-change events to parent DataTable
+ - Uses <flux:select>, <flux:date-picker> (Pro), <flux:switch>
+
+ 2.3 EntityPicker Component
+
+ - Wraps <flux:autocomplete> (Flux Pro) for selecting Customer, Motorbike, ClubMember, etc.
+ - Configurable: model class, search fields, display format, value field
+ - Server-side search with debounce
+ - Replaces all Select2-based pickers from the existing JS files (get-customer-details-inline.js, get-motorbike-details-inline.js)
+
+ 2.4 InlineEditor Component
+
+ - Toggle between display/edit mode on click
+ - Save on blur/Enter, cancel on Escape
+ - Validates on save, emits inline-saved event
+ - Replaces inline_stock_edit.js and sp_inline_stock_edit.js
+
+ 2.5 Blade Components (non-Livewire)
+
+ - resources/views/components/flux-admin/summary-header.blade.php — entity header with title, subtitle, status badges, stat cards, action
+ buttons
+ - resources/views/components/flux-admin/stat-card.blade.php — label + value + optional trend
+ - resources/views/components/flux-admin/slide-over.blade.php — wraps <flux:modal variant="flyout" position="right">
+
+ 2.6 GlobalSearch Component
+
+ - Wraps <flux:command> (Flux Pro) — triggered by Cmd+K
+ - Searches across: motorbikes (reg_no, VIN), customers (name, email, phone), finance apps (ID), rental bookings (ID), PCN cases
+ (pcn_number), club members (name, phone)
+ - Uses debounced server-side queries
+
+ 2.7 Verification
+
+ - Create a test/demo page at /flux-admin/components-demo showing each component with sample data
+ - Remove the demo page after verification
+
+ ---
+ Phase 3: Motorbike Module (Central Entity — 2,198 records)
+
+ Why first: Motorbike is the hub connecting Finance, Rental, PCN. Building it first validates the tab architecture, cross-module linking,
+ and DataTable performance.
+
+ Files to Create
+
+ Pages:
+ - app/Livewire/FluxAdmin/Pages/Motorbikes/MotorbikeIndex.php + view
+ - app/Livewire/FluxAdmin/Pages/Motorbikes/MotorbikeShow.php + view
+
+ Tab Partials (nested Livewire components, #[Lazy]):
+ - Partials/Motorbikes/DetailsTab.php — editable fields (inline or form)
+ - Partials/Motorbikes/ComplianceTab.php — MOT, tax, insurance from MotorbikeAnnualCompliance
+ - Partials/Motorbikes/RepairsTab.php — MotorbikeRepair list with expandable updates/services/observations
+ - Partials/Motorbikes/RegistrationsTab.php — MotorbikeRegistration history
+ - Partials/Motorbikes/MaintenanceTab.php — MotorbikeMaintenanceLog entries
+ - Partials/Motorbikes/PricingTab.php — current/old RentingPricing
+ - Partials/Motorbikes/ImagesTab.php — gallery with flux:file-upload
+ - Partials/Motorbikes/LinkedRecordsTab.php — finance apps (via ApplicationItem), rental bookings (via RentingBookingItem), PCN cases
+
+ Index Page
+
+ - Columns: reg_no, make, model, year, engine, branch, vehicle_profile, compliance status badge
+ - Filters: branch, make, year, vehicle_profile, compliance status
+ - Row click → navigate to show page
+
+ Show Page
+
+ - Summary header: reg_no, make/model/year, branch badge, compliance badges (MOT/tax/insurance)
+ - <flux:tabs> for each tab partial
+ - Context panel (right): branch info, current rental customer if rented
+
+ Models Used
+
+ - Motorbike, MotorbikeAnnualCompliance, MotorbikeMaintenanceLog, MotorbikeRegistration, MotorbikeRepair, MotorbikeRepairUpdate,
+ MotorbikeRepairObservation, MotorbikeRepairServicesList, MotorbikeImage, RentingPricing, VehicleProfile, Branch
+
+ ---
+ Phase 4: Customer Module (Shared Across Modules)
+
+ Files to Create
+
+ Pages:
+ - Pages/Customers/CustomerIndex.php + view
+ - Pages/Customers/CustomerShow.php + view
+
+ Tab Partials:
+ - Partials/Customers/ProfileSection.php — contact, license, verification, locked_fields
+ - Partials/Customers/AddressesSection.php — CustomerAddress records, inline editable
+ - Partials/Customers/DocumentsSection.php — CustomerDocument list with file preview/upload
+ - Partials/Customers/BookingsSection.php — linked RentingBooking records with status
+ - Partials/Customers/FinanceSection.php — linked FinanceApplication records with status
+ - Partials/Customers/PcnSection.php — linked PcnCase records
+ - Partials/Customers/ClubSection.php — club membership details
+
+ Index Page
+
+ - Columns: full_name, email, phone, verification_status badge, is_club badge, preferred_branch
+ - Filters: verification_status, is_club, branch, rating
+
+ Show Page
+
+ - Summary header: full name, phone, email, rating, verification badge, club badge
+ - Tabs for each section
+ - Context panel: active rental summary, active finance summary
+
+ Models Used
+
+ - Customer, CustomerAuth, CustomerAddress, CustomerDocument, CustomerAgreement, CustomerContract, CustomerAppointments, ClubMember
+
+ ---
+ Phase 5: Rental Module (First Workflow Module)
+
+ Files to Create
+
+ Pages:
+ - Pages/Rentals/RentalIndex.php + view
+ - Pages/Rentals/RentalShow.php + view
+
+ Tab Partials:
+ - Partials/Rentals/BookingItemsTab.php — RentingBookingItem with motorbike details, inline end_date editing
+ - Partials/Rentals/TransactionsTab.php — RentingTransaction + RentingOtherChargesTransaction
+ - Partials/Rentals/InvoicesTab.php — BookingInvoice with payment status, WhatsApp tracking, mark-as-paid
+ - Partials/Rentals/AgreementTab.php — AgreementAccess management, signing status
+ - Partials/Rentals/OtherChargesTab.php — RentingOtherCharge records
+
+ Index Page
+
+ - Reuse the query pattern from app/Livewire/Admin/Rentals/OperationsDashboard.php (lines 40-107) — the rowsQuery() with invoice summary
+ sub-query is proven and correct
+ - Columns: booking_id, customer, motorbike(s), deposit, start_date, due_date, state, outstanding_amount badge
+ - Filters: status (active/inactive/all), payment status (due/up-to-date)
+ - Stats cards at top (active rentals, weekly revenue, due payments, unpaid invoices) — reuse stats() method pattern
+
+ Show Page
+
+ - Summary header: Booking #ID, customer name, active bikes count, outstanding balance
+ - Tabs for each partial
+ - Context panel: Customer summary + Motorbike(s) compliance status
+
+ Business Logic Ported from JS
+
+ - update-recalculate-distance-cost.js → Livewire calculateDistanceCost() method on field change
+
+ Models Used
+
+ - RentingBooking, RentingBookingItem, RentingTransaction, RentingOtherChargesTransaction, BookingInvoice, AgreementAccess,
+ RentalTerminateAccess, RentingPricing, JudopaySubscription
+
+ ---
+ Phase 6: Finance Module (Most Complex Business Logic)
+
+ Files to Create
+
+ Pages:
+ - Pages/Finance/FinanceIndex.php + view
+ - Pages/Finance/FinanceShow.php + view
+
+ Tab Partials:
+ - Partials/Finance/ContractDetailsTab.php — all fields, contract type selection
+ - Partials/Finance/ApplicationItemsTab.php — linked motorbikes via ApplicationItem
+ - Partials/Finance/ExtraItemsTab.php — ContractExtraItem records
+ - Partials/Finance/InstalmentTrackerTab.php — payment history, JudoPay subscription status, balance
+ - Partials/Finance/SigningAccessTab.php — ContractAccess passcode management, agreement generation
+ - Partials/Finance/DocumentsTab.php — CustomerContract documents
+
+ Critical Business Logic to Port from JS
+
+ ┌───────────────────────────────────┬──────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │              JS File              │                                       Livewire Replacement                                       │
+ ├───────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │                                   │ Replace mutual-exclusion checkboxes with a single $contractType enum select/radio group. Only    │
+ │ finance-application-checkboxes.js │ one of is_used, is_new_latest, is_used_latest, is_used_extended, is_used_extended_custom,        │
+ │                                   │ is_subscription can be true.                                                                     │
+ ├───────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ show-is-monthly.js                │ Reactive $isMonthly boolean → @if($isMonthly) conditional field rendering                        │
+ ├───────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ logbook-transfer.js               │ $logBookSent boolean → conditional visibility of transfer date field                             │
+ ├───────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ get-customer-details-inline.js    │ EntityPicker component auto-fills customer details on selection                                  │
+ ├───────────────────────────────────┼──────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ get-motorbike-details-inline.js   │ EntityPicker component auto-fills motorbike details on selection                                 │
+ └───────────────────────────────────┴──────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ Model Boot Behavior (Already Handled — No Action Needed)
+
+ - FinanceApplication::boot() auto-generates AgreementAccess on save — fires automatically
+ - FinanceApplication::boot() enforces sold_by field immutability — fires automatically
+
+ Models Used
+
+ - FinanceApplication, ApplicationItem, ContractExtraItem, ContractAccess, CustomerContract, JudopaySubscription
+
+ ---
+ Phase 7: PCN Module (Cross-Module)
+
+ Files to Create
+
+ Pages:
+ - Pages/Pcn/PcnIndex.php + view
+ - Pages/Pcn/PcnShow.php + view
+
+ Tab Partials:
+ - Partials/Pcn/CaseDetailsTab.php — all fields, editable
+ - Partials/Pcn/UpdatesTab.php — PcnCaseUpdate with appeal/payment/transfer status, expandable
+ - Partials/Pcn/TolRequestsTab.php — PcnTolRequest with PDF generation
+ - Partials/Pcn/PaymentsTab.php — Payment records
+
+ Index Page
+
+ - Columns: pcn_number, customer, motorbike reg_no, date_of_contravention, amounts, is_police badge, status (open/closed), days_since
+ - Filters: status, is_police, date range, customer
+
+ Cross-Module Context
+
+ - Context panel shows: Customer summary (other open PCNs), Motorbike summary (other PCNs for same bike)
+ - Determine linked Rental/Finance: query RentingBookingItem and ApplicationItem where motorbike_id matches and date ranges overlap with
+ contravention date
+
+ Business Logic from JS
+
+ - pcn-tol-request.js — dynamic PDF buttons rendered in Blade based on update_id (no JS needed, pure Blade conditional rendering)
+
+ Models Used
+
+ - PcnCase, PcnCaseUpdate, PcnTolRequest, Payment
+
+ ---
+ Phase 8: Club Member Module
+
+ Files to Create
+
+ Pages:
+ - Pages/Club/ClubIndex.php + view
+ - Pages/Club/ClubShow.php + view
+
+ Tab Partials:
+ - Partials/Club/OverviewTab.php — member details, vehicle info, customer link, partner link
+ - Partials/Club/PurchasesTab.php — ClubMemberPurchase records
+ - Partials/Club/RedemptionsTab.php — ClubMemberRedeem records
+ - Partials/Club/SpendingsTab.php — ClubMemberSpending with payments sub-table
+ - Partials/Club/ActivityTab.php — combined timeline
+
+ Business Logic from JS
+
+ ┌────────────────────────────┬─────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+ │          JS File           │                                          Livewire Replacement                                           │
+ ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ remaining-balance-check.js │ $availableRedeemableBalance from ClubMember::getAvailableRedeemableBalanceAttribute(). Same-day         │
+ │                            │ purchase confirmation via <flux:modal>.                                                                 │
+ ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ spending-totals-check.js   │ Load from ClubMember::getTotalSpendingAttribute() and getTotalUnpaidSpendingAttribute() on member       │
+ │                            │ selection                                                                                               │
+ ├────────────────────────────┼─────────────────────────────────────────────────────────────────────────────────────────────────────────┤
+ │ pos-duplication-check.js   │ Livewire validation method checking for same-day, same-POS purchases before save. Discount auto-calc in │
+ │                            │  updatedTotal().                                                                                        │
+ └────────────────────────────┴─────────────────────────────────────────────────────────────────────────────────────────────────────────┘
+
+ Models Used
+
+ - ClubMember, ClubMemberPurchase, ClubMemberRedeem, ClubMemberSpending, ClubMemberSpendingPayment, NgnPartner
+
+ ---
+ Phase 9: Branch Module & Dashboard
+
+ Branch Module (4 records — simple)
+
+ - Index: card-based layout (not table) showing branch name, address, motorbike count, appointments count
+ - Show: tabs for Motorbikes (filtered DataTable), Stock Movements (NgnStockMovement), Appointments (MOTBooking)
+
+ Dashboard (Real Data)
+
+ - KPI stat cards: active rentals, open PCNs, pending payments, upcoming compliance items
+ - Charts via <flux:chart> (Flux Pro): rental revenue trend, PCN status distribution
+ - Quick-access links to common operations
+ - Recent activity feed
+
+ Business Logic from JS
+
+ ┌───────────────────────────────────────────┬────────────────────────────────────────────────────────────────────────┐
+ │                  JS File                  │                          Livewire Replacement                          │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ branch-transfer.js                        │ Livewire form with transferBranch() method (motorbike branch transfer) │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ inline-brands.js                          │ updatedCategoryId() method fetching brands                             │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ product-details.js                        │ updatedProductId() fetching stock info                                 │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ sp_part_details.js                        │ updatedPartId() fetching spare parts info                              │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ sp_inline_stock_edit.js                   │ InlineEditor component for spare parts stock                           │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ inline_stock_edit.js                      │ InlineEditor component for product stock                               │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ motorbikes-sale-buyer-fields-toggle.js    │ Conditional $hasBuyer boolean rendering                                │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ repeatable-services-serializer.js         │ Livewire array $services[] with add/remove, PHP serialization on save  │
+ ├───────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────┤
+ │ toggle-motorbike-repairs-services-list.js │ Reactive visibility toggle based on repair type                        │
+ └───────────────────────────────────────────┴────────────────────────────────────────────────────────────────────────┘
+
+ ---
+ Phase 10: Polish & Permissions
+
+ - Add @can() gates to all sensitive actions and navigation items
+ - Audit all queries for N+1 (use Laravel Debugbar)
+ - Add <flux:skeleton> loading states for all #[Lazy] tab components
+ - Add keyboard shortcuts: Cmd+K (global search), Escape (close modals/slide-overs)
+ - Responsive: sidebar collapses on mobile, context panel hides below xl breakpoint
+ - Error handling: validation messages via <flux:error>, 404 handling for deleted records
+ - Performance testing with production-scale data
+
+ ---
+ File Structure Overview
+
+ routes/
+   flux-admin.php                          # NEW — route definitions
+
+ resources/views/
+   components/layouts/
+     flux-admin.blade.php                  # NEW — shell layout
+   components/flux-admin/
+     summary-header.blade.php             # NEW — entity header
+     stat-card.blade.php                  # NEW — KPI card
+     slide-over.blade.php                 # NEW — flyout wrapper
+   livewire/flux-admin/
+     components/                          # NEW — reusable component views
+     pages/                               # NEW — full-page component views
+     partials/                            # NEW — tab/section partial views
+
+ app/Livewire/FluxAdmin/
+   Components/                            # NEW — DataTable, FilterBar, EntityPicker, InlineEditor, GlobalSearch
+   Pages/                                 # NEW — Dashboard, Motorbikes/, Customers/, Finance/, Rentals/, Pcn/, Club/, Branches/
+   Partials/                              # NEW — Motorbikes/, Customers/, Finance/, Rentals/, Pcn/, Club/
+
+ app/Providers/
+   RouteServiceProvider.php               # MODIFY — add flux-admin route group
+
+ No other existing files are modified. All existing Backpack controllers, models, views, JS files, and routes remain untouched.
+
+ ---
+ Performance Strategy
+
+ ┌────────────────────────────────────────────────────────┬────────────────────────────────────────────────────────────────────────────┐
+ │                        Concern                         │                                  Approach                                  │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ Large datasets (2k+ motorbikes, 2.4k+ club members,    │ Server-side search/sort/filter/pagination. No client-side data loading.    │
+ │ 1.1k+ PCNs)                                            │                                                                            │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ Search input                                           │ wire:model.live.debounce.300ms — 300ms debounce on all search fields       │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ Tab content                                            │ #[Lazy] attribute — loads only when tab is activated                       │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ Related data                                           │ withCount() for counts on index pages; full relations only on show pages   │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ Context panel                                          │ Separate Livewire component, loads on show page mount                      │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ Caching                                                │ Branch list (4 records): cache 1hr. Dashboard KPIs: cache 5min with manual │
+ │                                                        │  refresh.                                                                  │
+ ├────────────────────────────────────────────────────────┼────────────────────────────────────────────────────────────────────────────┤
+ │ DOM size                                               │ Paginate tables (20-50 rows). No infinite scroll needed at current data    │
+ │                                                        │ volumes.                                                                   │
+ └────────────────────────────────────────────────────────┴────────────────────────────────────────────────────────────────────────────┘
+
+ ---
+ Key Architectural Decisions
+
+ 1. Full-page Livewire components for all routes (same pattern as existing Portal/Dashboard.php)
+ 2. Nested #[Lazy] Livewire components for tabs — each tab manages its own data independently
+ 3. No JavaScript framework — all interactivity via Livewire + Alpine.js (ships with Livewire)
+ 4. Same models, no new tables — CrudTrait on models is harmless outside Backpack context
+ 5. Same auth, same permissions — reuse the existing 13 roles and 87 permissions via @can() and auth()->user()->hasRole()
+ 6. Module-based navigation — 7 main modules instead of 98 separate CRUD pages
+
+ ---
+ Verification Strategy
+
+ For each module after implementation:
+ 1. Data accuracy — compare record counts and field values with the existing Backpack CRUD list views
+ 2. Search — verify search finds the same records as Backpack's search
+ 3. Cross-module links — click through motorbike → rental → customer → PCN chains
+ 4. Business logic — for Finance, verify contract type mutual exclusion works; for Club, verify balance calculations match
+ 5. Permissions — log in as different roles and verify visibility gates work
+ 6. Performance — check page load times and query counts via Laravel Debugbar

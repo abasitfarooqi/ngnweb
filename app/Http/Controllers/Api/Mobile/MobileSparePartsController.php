@@ -112,11 +112,16 @@ class MobileSparePartsController extends Controller
 
                 return [
                     'manufacturer' => $make?->name,
+                    'manufacturer_slug' => $make?->slug,
                     'model' => $model?->name,
+                    'model_slug' => $model?->slug,
                     'year' => $fitment?->year,
                     'country' => $fitment?->country_name,
+                    'country_slug' => $fitment?->country_slug,
                     'colour' => $fitment?->colour_name,
+                    'colour_slug' => $fitment?->colour_slug,
                     'assembly' => $link->assembly?->name,
+                    'assembly_slug' => $link->assembly?->slug,
                 ];
             })
             ->filter(fn (array $row) => ! empty($row['manufacturer']) && ! empty($row['model']))
@@ -134,6 +139,7 @@ class MobileSparePartsController extends Controller
 
         return response()->json([
             'data' => [
+                'sp_part_id' => (int) $part->id,
                 'part_number' => $part->part_number,
                 'name' => $part->name,
                 'note' => $part->note,

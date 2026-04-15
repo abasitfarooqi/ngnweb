@@ -61,6 +61,8 @@ class MobileEnquiryController extends Controller
             'subject' => ['nullable', 'string', 'max:255'],
             'message' => ['required', 'string', 'max:4000'],
             'phone' => ['required', 'string', 'max:40'],
+            /** When the portal account has no email, the app sends the address typed in the form. */
+            'email' => ['nullable', 'string', 'email', 'max:255'],
             'reg_no' => ['nullable', 'string', 'max:40'],
             'reference_type' => ['nullable', 'string', 'max:60'],
             'reference_id' => ['nullable', 'integer', 'min:1'],
@@ -77,6 +79,11 @@ class MobileEnquiryController extends Controller
 
         $serviceType = $this->serviceTypeFromModule($data['module']);
         $enquiryType = $this->enquiryTypeFromModule($data['module']);
+
+        $resolvedEmail = trim((string) ($data['email'] ?? ''));
+        if ($resolvedEmail === '') {
+            $resolvedEmail = trim((string) ($customerAuth->email ?? ''));
+        }
 
         $subject = trim((string) ($data['subject'] ?? ''));
         if ($subject === '') {
@@ -95,7 +102,7 @@ class MobileEnquiryController extends Controller
         $booking = null;
         $conversation = null;
 
-        DB::transaction(function () use (&$booking, &$conversation, $customerAuth, $name, $serviceType, $enquiryType, $subject, $lines, $data): void {
+        DB::transaction(function () use (&$booking, &$conversation, $customerAuth, $name, $serviceType, $enquiryType, $subject, $lines, $data, $resolvedEmail): void {
             $booking = ServiceBooking::query()->create([
                 'customer_id' => $customerAuth->customer_id,
                 'customer_auth_id' => $customerAuth->id,
@@ -111,7 +118,7 @@ class MobileEnquiryController extends Controller
                 'fullname' => $name,
                 'phone' => (string) $data['phone'],
                 'reg_no' => (string) ($data['reg_no'] ?? 'N/A'),
-                'email' => (string) ($customerAuth->email ?? ''),
+                'email' => $resolvedEmail,
             ]);
 
             $conversation = SupportConversation::query()->create([

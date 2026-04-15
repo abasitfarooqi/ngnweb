@@ -1,0 +1,1559 @@
+================================================================================
+FLUX ADMIN PANEL — COMPLETE KNOWLEDGE BASE & IMPLEMENTATION PLAN
+================================================================================
+
+This document contains ALL research findings from deep codebase exploration.
+Any developer agent reading this will have complete context to build the new
+flux-admin panel without needing to re-explore the codebase.
+
+================================================================================
+SECTION 1: PROJECT OVERVIEW
+================================================================================
+
+Project: NGN Motors — Motorbike Operations Platform (ERP-style)
+Framework: Laravel 12
+Location: /Users/abdulbasit/NGNWEBTONGN
+Git Branch: main
+
+Business Domain:
+- Motorbike fleet management (rentals + sales + finance)
+- Customer management (shared across rental, finance, PCN, club)
+- Rental booking system
+- Finance/instalment purchase system
+- PCN (Penalty Charge Notice) management
+- Club membership loyalty program
+- Spare parts and inventory
+- E-commerce shop
+- Service bookings and MOT management
+
+================================================================================
+SECTION 2: TECH STACK (INSTALLED PACKAGES)
+================================================================================
+
+Core:
+- laravel/framework: ^12.0
+- livewire/livewire: ^4.1 (Livewire 4 — reactive components)
+- livewire/flux: ^2.12 (Flux UI components — FREE)
+- livewire/flux-pro: ^2.12 (Flux Pro premium components)
+- inertiajs/inertia-laravel: ^2.0
+
+Admin:
+- backpack/crud: ^7.0 (current admin panel — 98 CRUD controllers)
+- backpack/permissionmanager: ^7.0
+- backpack/pro: ^3.0
+- backpack/theme-tabler: ^2.0
+
+Auth & Permissions:
+- spatie/laravel-permission: ^6.7 (13 roles, 87 permissions)
+- laravel/fortify: ^1.34
+- laravel/sanctum: ^4.3
+
+Payments:
+- laravel/cashier: ^15.0 (Stripe)
+- paypal/paypal-checkout-sdk: ^1.0
+- srmklive/paypal: ~3.0
+- Custom JudoPay integration (config/judopay.php)
+
+Media & Documents:
+- spatie/laravel-medialibrary: ^11.19
+- intervention/image: ^3.11
+- barryvdh/laravel-dompdf: ^3.0
+- spatie/browsershot: ^5.0
+- maatwebsite/excel: ^3.1
+
+Search:
+- laravel/scout: ^10.2
+- algolia/algoliasearch-client-php: ^3.2
+
+Communication:
+- twilio/sdk: ^8.3 (SMS)
+- pusher/pusher-php-server: ^7.2
+
+Utilities:
+- spatie/laravel-activitylog: ^4.9
+- spatie/laravel-translatable: ^6.9
+- cviebrock/eloquent-sluggable: ^12.0
+- creagia/laravel-sign-pad: ^2.1 (digital signatures)
+- predis/predis: ^2.3 (Redis)
+- bugsnag/bugsnag-laravel: ^2.29
+
+Flux Components Available (FREE):
+- sidebar (collapsible, groups, items, search, profile, toggle)
+- table (sortable columns, rows, cells, pagination)
+- modal (flyout variant for slide-overs)
+- navlist, navmenu, card, button, input, select, checkbox, switch
+- badge, dropdown, skeleton, breadcrumbs, fieldset, textarea
+- separator, avatar, tooltip
+
+Flux Pro Components Available:
+- tabs (tab groups, panels)
+- accordion
+- command palette
+- autocomplete
+- calendar, date-picker, time-picker
+- editor
+- file-upload
+- kanban
+- slider, popover
+- chart
+- pillbox, composer
+
+================================================================================
+SECTION 3: AUTHENTICATION SYSTEM
+================================================================================
+
+Admin Route Prefix: ngn-admin (Backpack)
+New Panel Route Prefix: flux-admin (to be created)
+
+Guards (defined in config/auth.php):
+- web: session driver, users provider (User model)
+- customer: session driver, customer_auths provider (CustomerAuth model)
+- api: token driver
+- backpack: session driver, users provider (same as web)
+
+Admin User Model: App\Models\User
+- extends Authenticatable
+- uses: Billable, HasApiTokens, HasFactory, Notifiable, Searchable, CrudTrait, HasRoles
+- fillable: first_name, last_name, username, is_client, employee_id, role_id, is_admin, rating, email, password
+- Key field: is_admin (boolean) — determines admin access
+- Accessors: getFullNameAttribute(), getDetailAttribute()
+- Relationships: roles (belongsToMany), purchaseRequestItems, rentals, accessLogs, ipRestrictions, documents
+
+Middleware Stack for Admin Routes (from routes/backpack/custom.php line 44):
+['web', 'auth', 'admin', 'check.admin.access']
+
+Middleware Details:
+
+1. AdminMiddleware (app/Http/Middleware/AdminMiddleware.php):
+   - Alias: 'admin'
+   - Checks Auth::user()->is_admin == 0 and redirects if not admin
+
+2. CheckAdminAccessMiddleware (app/Http/Middleware/CheckAdminAccessMiddleware.php):
+   - Alias: 'check.admin.access'
+   - IP-based and time-based restrictions (8am-8pm working hours)
+   - Outside hours requires IP/user whitelist
+
+3. Authenticate (app/Http/Middleware/Authenticate.php):
+   - Alias: 'auth'
+   - Standard Laravel auth check
+
+Kernel.php (app/Http/Kernel.php):
+- Route middleware aliases: admin, sync.auth, check.admin.access
+- Middleware aliases: auth, auth.basic, auth.session, can, guest, etc.
+- Web middleware group: EncryptCookies, StartSession, ShareErrors, VerifyCsrf, SubstituteBindings
+
+Permission System:
+- Uses Spatie Permission (spatie/laravel-permission v6.7)
+- 13 roles in database
+- 87 permissions in database
+- Tables: roles, permissions, model_has_permissions, model_has_roles, role_has_permissions, role_users
+- User model has HasRoles trait
+- Check permissions: auth()->user()->can('permission-name')
+- Check roles: auth()->user()->hasRole('role-name')
+
+Key Insight: Users logged into Backpack (ngn-admin) share the same session as the web guard.
+The flux-admin routes can use the SAME middleware stack and the user will already be authenticated.
+
+================================================================================
+SECTION 4: ROUTE STRUCTURE
+================================================================================
+
+RouteServiceProvider (app/Providers/RouteServiceProvider.php):
+- HOME constant: '/ngn-admin/dashboard'
+- Registers two route groups: api (with api middleware) and web
+- TO BE MODIFIED: Add flux-admin route group
+
+Backpack Routes (routes/backpack/custom.php):
+- Prefix: config('backpack.base.route_prefix', 'admin') = 'ngn-admin'
+- Middleware: ['web', 'auth', 'admin', 'check.admin.access']
+- 98 CRUD routes registered via Route::crud()
+- 25+ custom non-CRUD routes for exports, PDF generation, data fetching
+
+Web Routes (routes/web.php): 65KB — main web routes
+API Routes (routes/api.php): 40KB — API routes
+Auth Routes (routes/auth.php): authentication
+JudoPay Routes (routes/judopay.php): webhook routes
+
+================================================================================
+SECTION 5: COMPLETE MODEL INVENTORY & RELATIONSHIPS
+================================================================================
+
+Total Models: ~221 files in app/Models/
+
+─── MOTORBIKE MODELS ───
+
+Motorbike (app/Models/Motorbike.php)
+  Table: motorbikes (~2,198 records)
+  Fillable: vin_number, model, make, year, engine, co2_emissions, fuel_type,
+    marked_for_export, color, deleted_at, type_approval, wheel_plan,
+    month_of_first_registration, reg_no, branch_id, vehicle_profile_id,
+    date_of_last_v5c_issuance, accessories, is_ebike
+  Casts: marked_for_export (integer)
+  Relationships:
+    vehicleProfile() → belongsTo VehicleProfile
+    branch() → belongsTo Branch
+    registrations() → hasMany MotorbikeRegistration
+    repairs() → hasMany MotorbikeRepair
+    annualCompliances() → hasMany MotorbikeAnnualCompliance
+    motNotifiers() → hasMany NgnMotNotifier
+    motorbikeCatB() → hasMany MotorbikeCatB
+    images() → hasMany MotorbikeImage
+    maintenanceLogs() → hasMany MotorbikeMaintenanceLog
+    rentingPricings() → hasMany RentingPricing
+    rentingBookingItems() → hasMany RentingBookingItem
+    invoices() → hasMany Invoice
+  Scopes: byMake(), byYear(), byEngine(), byColor(), External()
+  Accessors: getDetailAttribute(), getFilteredRegNoAttribute()
+  Methods: getMotorbikeIdByRegNo(), isRegNoExists(), getMotorbikeModelById(), currentRentingPricing()
+
+MotorbikeAnnualCompliance (app/Models/MotorbikeAnnualCompliance.php)
+  Table: motorbike_annual_compliance
+  Fillable: motorbike_id, year, mot_status, road_tax_status, insurance_status,
+    tax_due_date, insurance_due_date, mot_due_date
+  Casts: isClosed (boolean), date_of_contravention (date), full_amount (decimal:2), reduced_amount (decimal:2)
+  Relationships: motorbike() → belongsTo Motorbike
+  Accessors: getMotStatusAttribute(), getTaxStatusAttribute()
+
+MotorbikeMaintenanceLog (app/Models/MotorbikeMaintenanceLog.php)
+  Table: motorbike_maintenance_logs
+  Fillable: motorbike_id, booking_id, user_id, cost, serviced_at, description, note
+  Casts: cost (decimal:2), serviced_at (datetime)
+  Relationships:
+    motorbike() → belongsTo Motorbike
+    booking() → belongsTo RentingBooking
+    user() → belongsTo User
+
+MotorbikeRegistration (app/Models/MotorbikeRegistration.php)
+  Table: motorbike_registrations
+  Fillable: motorbike_id, registration_number, start_date, end_date
+  Relationships: motorbike() → belongsTo Motorbike
+
+MotorbikeRepair (app/Models/MotorbikeRepair.php)
+  Table: motorbikes_repair
+  Fillable: arrival_date, motorbike_id, notes, is_repaired, repaired_date,
+    is_returned, returned_date, fullname, email, phone, branch_id, user_id
+  Casts: is_repaired (boolean), is_returned (boolean), arrival_date (datetime),
+    repaired_date (datetime), returned_date (datetime)
+  Relationships:
+    motorbike() → belongsTo Motorbike
+    updates() → hasMany MotorbikeRepairUpdate (with services)
+    observations() → hasMany MotorbikeRepairObservation
+    branch() → belongsTo Branch
+
+MotorbikeRepairUpdate (app/Models/MotorbikeRepairUpdate.php)
+  Table: motorbike_repair_updates
+  Fillable: motorbike_repair_id, job_description, price, note
+  Relationships:
+    motorbikeRepair() → belongsTo MotorbikeRepair
+    services() → belongsToMany MotorbikeRepairServicesList (via repair_update_service)
+  Accessors: getServicesIdsAttribute()
+
+MotorbikeRepairObservation (app/Models/MotorbikeRepairObservation.php)
+  Table: motorbike_repair_observations
+  Fillable: motorbike_repair_id, observation_description
+  Relationships: motorbikeRepair() → belongsTo MotorbikeRepair
+
+MotorbikeRepairServicesList (app/Models/MotorbikeRepairServicesList.php)
+  Fillable: name, description, price
+  Relationships: updates() → belongsToMany MotorbikeRepairUpdate (via repair_update_service)
+
+VehicleProfile (app/Models/VehicleProfile.php)
+  Table: vehicle_profiles
+  Fillable: name, is_internal
+  Casts: is_internal (boolean)
+  Relationships: motorbike() → hasMany Motorbike
+
+MotorbikeImage (app/Models/MotorbikeImage.php)
+  [Image storage for motorbikes]
+
+MotorbikeCatB (app/Models/MotorbikeCatB.php)
+  [Category B classification data]
+
+NgnMotNotifier (app/Models/NgnMotNotifier.php)
+  [MOT notification tracking]
+
+─── CUSTOMER MODELS ───
+
+Customer (app/Models/Customer.php)
+  Table: customers
+  Fillable: username, first_name, last_name, dob, address, postcode,
+    emergency_contact, whatsapp, phone, city, country, nationality, email,
+    reputation_note, rating, license_number, license_expiry_date,
+    license_issuance_authority, license_issuance_date, is_register, is_club,
+    preferred_branch_id, verification_status, verified_at,
+    verification_expires_at, locked_fields, current_terms_version_id
+  Casts: dob (date), rating (integer), license_expiry_date (date),
+    license_issuance_date (date), is_register (boolean), is_club (boolean),
+    verified_at (datetime), verification_expires_at (datetime), locked_fields (array)
+  Relationships:
+    judopayOnboarding() → morphOne JudopayOnboarding
+    renting_bookings() → hasMany RentingBooking
+    booking_invoices() → hasMany BookingInvoice
+    invoices() → hasMany Invoice
+    financeApplications() → hasMany FinanceApplication
+    customerAuth() → hasOne CustomerAuth
+    clubMember() → hasOne ClubMember
+    customerAddresses() → hasMany CustomerAddress
+    customerDocuments() → hasMany CustomerDocument
+  Accessors: getFullNameAttribute(), getDetailAttribute(), getAgeAttribute()
+  Methods: isFieldLocked(), rentingBookings()
+
+CustomerAuth (app/Models/CustomerAuth.php)
+  Guard: customer
+  Fillable: customer_id, email, password, remember_token, email_verified_at
+  Casts: email_verified_at (datetime)
+  Relationships:
+    customer() → belongsTo Customer
+    profile() → belongsTo Customer (backward-compatible alias)
+  Implements: CanResetPassword, MustVerifyEmail
+
+CustomerProfile (app/Models/CustomerProfile.php)
+  Table: customer_profiles
+  Fillable: customer_auth_id, first_name, last_name, phone, whatsapp, dob,
+    nationality, license_number, license_expiry_date, license_issuance_authority,
+    license_issuance_date, address, postcode, city, country, emergency_contact,
+    preferred_branch_id, verification_status, verified_at, verification_expires_at,
+    locked_fields, reputation_note, rating, is_register
+  Casts: dob (date), license_expiry_date (date), license_issuance_date (date),
+    verified_at (datetime), verification_expires_at (datetime), locked_fields (array),
+    emergency_contact (array), is_register (boolean)
+  Relationships: customerAuth() → belongsTo CustomerAuth
+
+CustomerDocument (app/Models/CustomerDocument.php)
+  Fillable: customer_id, document_type_id, file_name, file_path, file_format,
+    document_number, valid_until, is_verified, booking_id, motorbike_id,
+    sent_private, status
+  Relationships:
+    customer() → belongsTo Customer
+    documentType() → belongsTo DocumentType
+  Accessors: getFileUrlAttribute()
+
+CustomerAgreement (app/Models/CustomerAgreement.php)
+  Fillable: customer_id, document_type_id, file_name, file_path, file_format,
+    document_number, valid_until, is_verified, booking_id, sent_private
+  [~640 records — rental agreements]
+
+CustomerContract (app/Models/CustomerContract.php)
+  Fillable: customer_id, document_type_id, file_name, file_path, file_format,
+    document_number, valid_until, is_verified, application_id, sent_private
+  Methods: deleteContractFile()
+  [~920 records — finance contracts]
+
+CustomerAddress (app/Models/CustomerAddress.php)
+  Table: customer_addresses
+  Fillable: customer_id, last_name, first_name, company_name, street_address,
+    street_address_plus, postcode, city, phone_number, is_default, type, country_id
+  Relationships: customer() → belongsTo Customer
+  Boot: Sets default country_id to 3 (UK) if not supplied
+
+CustomerAppointments (app/Models/CustomerAppointments.php)
+  Table: customer_appointments
+  Fillable: appointment_date, customer_name, registration_number, contact_number,
+    is_resolved, email, booking_reason
+  Casts: appointment_date (datetime)
+
+─── FINANCE MODELS ───
+
+FinanceApplication (app/Models/FinanceApplication.php)
+  Table: finance_applications (~331 records)
+  Fillable: customer_id, user_id, sold_by, is_posted, deposit, notes,
+    contract_date, first_instalment_date, weekly_instalment, log_book_sent,
+    motorbike_price, extra_items, extra, reason_of_cancellation, is_cancelled,
+    logbook_transfer_date, cancelled_at, is_monthly, is_used, is_used_extended,
+    is_used_extended_custom, is_new_latest, is_used_latest, is_subscription,
+    subscription_option
+  Relationships:
+    judopaySubscription() → morphOne JudopaySubscription
+    application_items() → hasMany ApplicationItem
+    customer() → belongsTo Customer
+    user() → belongsTo User
+    items() → hasMany ApplicationItem
+    extraItems() → hasMany ContractExtraItem
+    customerContracts() → hasMany CustomerContract
+  Methods: getActiveFinanceApplications()
+  Boot:
+    - Calls generateAgreementAccess() on save (auto-creates ContractAccess)
+    - Prevents modification of sold_by field after initial set
+
+ApplicationItem (app/Models/ApplicationItem.php)
+  Fillable: application_id, motorbike_id, user_id, start_date, due_date,
+    end_date, is_posted, weekly_instalment
+  Relationships:
+    application() → belongsTo FinanceApplication
+    motorbike() → belongsTo Motorbike
+    user() → belongsTo User
+
+ContractExtraItem (app/Models/ContractExtraItem.php)
+  Table: contract_extra_items
+  Fillable: application_id, name, price, quantity
+  Relationships: application() → belongsTo FinanceApplication
+  Accessors: getTotalAttribute()
+
+ContractAccess (app/Models/ContractAccess.php)
+  Table: contract_access
+  Fillable: customer_id, passcode, expires_at, application_id
+  Casts: expires_at (datetime)
+  Relationships:
+    application() → belongsTo FinanceApplication
+    customer() → belongsTo Customer
+  [Passcode-based access for customer contract signing]
+
+─── RENTAL MODELS ───
+
+RentingBooking (app/Models/RentingBooking.php)
+  Table: renting_bookings (~190 records)
+  Fillable: customer_id, user_id, deposit, start_date, due_date, state, is_posted
+  Casts: deposit (decimal:2), start_date (datetime), due_date (datetime), is_posted (boolean)
+  Relationships:
+    judopaySubscription() → morphOne JudopaySubscription
+    customer() → belongsTo Customer
+    user() → belongsTo User
+    transactions() → hasMany RentingTransaction
+    bookingInvoices() → hasMany BookingInvoice
+    rentingBookingItems() → hasMany RentingBookingItem
+    activeItems() → hasMany RentingBookingItem (filtered: end_date is null)
+    invoices() → hasMany BookingInvoice
+    bookingItems() → hasMany RentingBookingItem
+  Scopes: active()
+  Methods: getActiveRentals()
+  Accessors: getCustomerNameAndBookingIdAttribute()
+
+RentingBookingItem (app/Models/RentingBookingItem.php)
+  Table: renting_booking_items
+  Fillable: booking_id, motorbike_id, user_id, weekly_rent, start_date,
+    due_date, end_date, is_posted
+  Casts: weekly_rent (decimal:2), start_date (date), due_date (date),
+    end_date (date), is_posted (boolean)
+  Relationships:
+    booking() → belongsTo RentingBooking
+    motorbike() → belongsTo Motorbike
+    user() → belongsTo User
+    transactions() → hasMany RentingTransaction
+
+RentingPricing (app/Models/RentingPricing.php)
+  Fillable: motorbike_id, user_id, iscurrent, weekly_price, update_date, minimum_deposit
+  Casts: iscurrent (boolean), update_date (datetime)
+  Relationships:
+    motorbike() → belongsTo Motorbike
+    user() → belongsTo User
+    motorbikeRegistrations() → hasMany MotorbikeRegistration
+  Scopes: Current(), Old()
+  Methods: motorbikeNotPriced()
+  Boot: Sets iscurrent to false by default on creation
+
+RentingTransaction (app/Models/RentingTransaction.php)
+  Table: renting_transactions
+  Fillable: transaction_date, booking_id, invoice_id, transaction_type_id,
+    payment_method_id, amount, user_id, notes
+  Relationships:
+    booking() → belongsTo RentingBooking
+    invoice() → belongsTo BookingInvoice
+    transactionType() → belongsTo TransactionType
+    paymentMethod() → belongsTo PaymentMethod
+    user() → belongsTo User
+
+BookingInvoice (app/Models/BookingInvoice.php)
+  Table: booking_invoices
+  Fillable: booking_id, user_id, invoice_date, amount, deposit, is_posted,
+    is_paid, paid_date, state, notes, is_whatsapp_sent, whatsapp_last_reminder_sent_at
+  Casts: invoice_date (date), amount (decimal:2), deposit (decimal:2),
+    is_posted (boolean), is_paid (boolean), paid_date (date),
+    is_whatsapp_sent (boolean), whatsapp_last_reminder_sent_at (datetime)
+  Relationships:
+    booking() → belongsTo RentingBooking
+    user() → belongsTo User
+    transactions() → hasMany RentingTransaction
+  Methods: getBookingSummary()
+
+RentingOtherChargesTransaction (app/Models/RentingOtherChargesTransaction.php)
+  Fillable: transaction_date, charges_id, transaction_type_id,
+    payment_method_id, amount, user_id, notes
+  Relationships:
+    charges() → belongsTo RentingOtherCharge
+    transactionType() → belongsTo TransactionType
+    paymentMethod() → belongsTo PaymentMethod
+    user() → belongsTo User
+
+RentalTerminateAccess (app/Models/RentalTerminateAccess.php)
+  Table: rental_terminate_accesses
+  Fillable: customer_id, booking_id, passcode, expire_at
+  Relationships:
+    customers() → belongsTo Customer
+    bookings() → belongsTo RentingBooking
+
+AgreementAccess (app/Models/AgreementAccess.php)
+  Fillable: customer_id, passcode, expires_at, booking_id
+  Appends: link_html
+  Relationships: customer() → belongsTo Customer
+  Accessors: getLinkHtmlAttribute()
+  Methods: getLink()
+
+─── PCN MODELS ───
+
+PcnCase (app/Models/PcnCase.php)
+  Table: pcn_cases (~1,138 records)
+  Fillable: pcn_number, user_id, date_of_contravention, time_of_contravention,
+    motorbike_id, council_link, customer_id, isClosed, is_police, full_amount,
+    reduced_amount, picture_url, note, is_whatsapp_sent,
+    whatsapp_last_reminder_sent_at, is_sms_sent, sms_last_sent_at,
+    date_of_letter_issued
+  Casts: isClosed (boolean), date_of_contravention (date),
+    full_amount (decimal:2), reduced_amount (decimal:2)
+  Relationships:
+    motorbike() → belongsTo Motorbike
+    customer() → belongsTo Customer
+    payments() → hasMany Payment
+    user() → belongsTo User
+    updates() → hasMany PcnCaseUpdate
+    tolRequests() → hasMany PcnTolRequest
+  Accessors: getHasBeenAppealedAttribute(), getViewUpdatesButtonAttribute()
+  Methods: showUpdates(), getUpdatesLink(), getDaysSinceContravention(), getExportButton()
+
+PcnCaseUpdate (app/Models/PcnCaseUpdate.php)
+  Table: pcn_case_updates
+  Fillable: case_id, user_id, update_date, is_appealed, is_paid_by_owner,
+    is_paid_by_keeper, is_transferred, additional_fee, picture_url,
+    is_cancled, note
+  Relationships:
+    pcnCase() → belongsTo PcnCase
+    user() → belongsTo User
+    tolRequests() → hasMany PcnTolRequest
+  Accessors: getUpdateTypeAttribute(), getDisplayForTolAttribute()
+  Methods: requestTolButton()
+
+PcnTolRequest (app/Models/PcnTolRequest.php)
+  Table: pcn_tol_requests
+  Guarded: ['id']
+  Fillable: update_id, request_date, status, letter_sent_at, note, user_id,
+    pcn_case_id, full_path
+  Relationships:
+    pcnCaseUpdate() → belongsTo PcnCaseUpdate
+    pcnCase() → belongsTo PcnCase
+    user() → belongsTo User
+  Accessors: getPcnUpdateDisplayAttribute()
+  Methods: generateTolPdfButton()
+  Boot: Syncs pcn_case_id from update_id during save
+
+─── CLUB MEMBER MODELS ───
+
+ClubMember (app/Models/ClubMember.php)
+  Table: club_members (~2,478 records)
+  Fillable: full_name, email, phone, customer_id, is_active, tc_agreed,
+    passkey, email_sent, make, model, year, vrm, is_partner,
+    ngn_partner_id, user_id
+  Relationships:
+    partner() → belongsTo NgnPartner
+    user() → belongsTo User
+    customer() → belongsTo Customer
+    purchases() → hasMany ClubMemberPurchase
+    redemptions() → hasMany ClubMemberRedeem
+    spendings() → hasMany ClubMemberSpending
+    sessions() → hasMany UserSession
+    segment() → hasOne UserSegment
+    feedback() → hasMany UserFeedback
+  Accessors:
+    getDetailAttribute()
+    getTotalPurchasesAttribute()
+    getTotalDiscountsAttribute()
+    getTotalRedeemedAttribute()
+    getAvailableRedeemableBalanceAttribute()
+    getRemainingRedeemableAttribute()
+    getTotalSpendingAttribute()
+    getTotalUnpaidSpendingAttribute()
+
+ClubMemberPurchase (app/Models/ClubMemberPurchase.php)
+  Table: club_member_purchases
+  Fillable: date, club_member_id, percent, total, discount, is_redeemed,
+    redeem_amount, user_id, pos_invoice, branch_id
+  Relationships:
+    clubMember() → belongsTo ClubMember
+    user() → belongsTo User
+    clubMemberRedeem() → hasMany ClubMemberRedeem
+  Boot: Backs up deleted purchases to backup_club_member_purchases table
+
+ClubMemberRedeem (app/Models/ClubMemberRedeem.php)
+  Table: club_member_redeem
+  Fillable: club_member_id, date, redeem_total, pos_invoice, note,
+    user_id, branch_id
+  Relationships:
+    clubMember() → belongsTo ClubMember
+    user() → belongsTo User
+    clubMemberPurchase() → belongsTo ClubMemberPurchase
+
+ClubMemberSpending (app/Models/ClubMemberSpending.php)
+  Table: club_member_spendings
+  Fillable: date, club_member_id, total, paid_amount, is_paid, user_id,
+    pos_invoice, branch_id
+  Casts: date (datetime), is_paid (boolean), paid_amount (decimal:2), total (decimal:2)
+  Relationships:
+    clubMember() → belongsTo ClubMember
+    user() → belongsTo User
+    payments() → hasMany ClubMemberSpendingPayment
+  Accessors: getUnpaidAmountAttribute(), getTotalAmountAttribute()
+
+ClubMemberSpendingPayment (app/Models/ClubMemberSpendingPayment.php)
+  Table: club_member_spending_payments
+  Fillable: club_member_id, spending_id, date, received_total, pos_invoice,
+    user_id, branch_id, note
+  Casts: date (datetime), received_total (decimal:2)
+  Relationships:
+    clubMember() → belongsTo ClubMember
+    spending() → belongsTo ClubMemberSpending
+    user() → belongsTo User
+
+NgnPartner (app/Models/NgnPartner.php)
+  Table: ngn_partners
+  Fillable: companyname, company_logo, company_address, company_number,
+    first_name, last_name, phone, mobile, email, website, fleet_size,
+    operating_since, is_approved
+  Casts: is_approved (boolean), fleet_size (integer)
+  Relationships: clubMembers() → hasMany ClubMember
+
+─── BRANCH MODEL ───
+
+Branch (app/Models/Branch.php)
+  Table: branches (4 records)
+  Fillable: name, address, latitude, longitude, postal_code, city
+  Relationships:
+    stockMovements() → hasMany NgnStockMovement
+    spStockMovements() → hasMany SpStockMovement
+    appointments() → hasMany MOTBooking
+    motorbikes() → hasMany Motorbike
+    deliveryOrders() → hasMany VehicleDeliveryOrder
+    orders() → hasMany EcommerceOrder
+    dropOrderItems() → hasMany VehicleDeliveryOrderItem
+  Scopes: withAppointments(), withPendingAppointments()
+
+─── PAYMENT MODELS ───
+
+Payment (app/Models/Payment.php)
+  Table: payments
+  Uses: SoftDeletes
+  Fillable: payment_id, user_id, motorcycle_id, registration, payment_type,
+    rental_deposit, rental_price, description, received, outstanding, notes,
+    payment_due_date, payment_due_count, payment_next_date, payment_date,
+    paid, auth_user, deleted_by
+  Casts: rental_deposit (float), rental_price (float), received (float),
+    outstanding (float), payment_due_date (datetime), payment_due_count (int),
+    payment_next_date (datetime), payment_date (datetime)
+
+PaymentMethod (app/Models/PaymentMethod.php)
+  Table: payment_methods
+  Fillable: title, slug, logo, link_url, instructions, is_enabled
+  Casts: is_enabled (bool)
+  Scopes: enabled()
+
+TransactionType (app/Models/TransactionType.php)
+  Table: transaction_types
+  Fillable: type
+
+─── JUDOPAY MODELS ───
+
+JudopaySubscription (app/Models/JudopaySubscription.php)
+  Table: judopay_subscriptions
+  Fillable: [many fields including billing_frequency, amount, status, card_token, etc.]
+  Casts: amount (decimal:2), opening_balance (decimal:2), card_token (EncryptCast)
+  Relationships:
+    subscribable() → morphTo (works with RentingBooking, FinanceApplication)
+    citPaymentSessions() → hasMany JudopayCitPaymentSession
+    mitPaymentSessions() → hasMany JudopayMitPaymentSession
+    paymentSessionOutcomes() → hasMany JudopayPaymentSessionOutcome
+  [Polymorphic — can belong to either RentingBooking or FinanceApplication]
+
+─── OTHER IMPORTANT MODELS ───
+
+DocumentType, Invoice, RentingOtherCharge, PurchaseAgreementAccess,
+NgnStockMovement, SpStockMovement, MOTBooking, UserSession, UserSegment,
+UserFeedback, AccessLog, IpRestriction, EcommerceOrder, ServiceBooking
+
+================================================================================
+SECTION 6: CROSS-MODEL RELATIONSHIP MAP
+================================================================================
+
+MOTORBIKE as Central Hub:
+  Motorbike ←→ Rental: via RentingBookingItem (motorbike_id)
+  Motorbike ←→ Finance: via ApplicationItem (motorbike_id)
+  Motorbike ←→ PCN: via PcnCase (motorbike_id)
+  Motorbike ←→ Repairs: via MotorbikeRepair (motorbike_id)
+  Motorbike ←→ Compliance: via MotorbikeAnnualCompliance (motorbike_id)
+  Motorbike ←→ Pricing: via RentingPricing (motorbike_id)
+  Motorbike ←→ Branch: via branch_id
+
+CUSTOMER as Shared Entity:
+  Customer ←→ Rental: via RentingBooking (customer_id)
+  Customer ←→ Finance: via FinanceApplication (customer_id)
+  Customer ←→ PCN: via PcnCase (customer_id)
+  Customer ←→ Club: via ClubMember (customer_id)
+  Customer ←→ Auth: via CustomerAuth (customer_id)
+  Customer ←→ Documents: via CustomerDocument (customer_id)
+  Customer ←→ Addresses: via CustomerAddress (customer_id)
+  Customer ←→ Agreements: via CustomerAgreement (customer_id + booking_id)
+  Customer ←→ Contracts: via CustomerContract (customer_id + application_id)
+
+FINANCE APPLICATION Chain:
+  FinanceApplication → ApplicationItem → Motorbike
+  FinanceApplication → ContractExtraItem
+  FinanceApplication → ContractAccess (passcode signing access)
+  FinanceApplication → CustomerContract (documents)
+  FinanceApplication → JudopaySubscription (morphOne)
+  FinanceApplication → Customer
+
+RENTAL BOOKING Chain:
+  RentingBooking → RentingBookingItem → Motorbike
+  RentingBooking → BookingInvoice → RentingTransaction
+  RentingBooking → AgreementAccess (agreement signing)
+  RentingBooking → RentalTerminateAccess (termination access)
+  RentingBooking → JudopaySubscription (morphOne)
+  RentingBooking → MotorbikeMaintenanceLog
+  RentingBooking → Customer
+
+PCN CASE Chain:
+  PcnCase → PcnCaseUpdate → PcnTolRequest
+  PcnCase → Payment
+  PcnCase → Motorbike (which connects to Rental/Finance)
+  PcnCase → Customer
+
+CLUB MEMBER Chain:
+  ClubMember → ClubMemberPurchase → ClubMemberRedeem
+  ClubMember → ClubMemberSpending → ClubMemberSpendingPayment
+  ClubMember → NgnPartner
+  ClubMember → Customer
+  ClubMember → UserSession, UserSegment, UserFeedback
+
+================================================================================
+SECTION 7: BACKPACK CRUD CONTROLLERS (98 TOTAL)
+================================================================================
+
+All in app/Http/Controllers/Admin/
+
+MOTORBIKE CONTROLLERS (8):
+- MotorbikesCrudController — main motorbike CRUD
+- MotorbikesSaleCrudController — motorbikes for sale
+- MotorbikeRepairCrudController — repair management
+- MotorbikeAnnualComplianceCrudController — MOT/tax/insurance
+- MotorbikeMaintenanceLogCrudController — maintenance logs
+- MotorbikeRegistrationCrudController — registration history
+- MotorbikeCatBCrudController — Cat B classification
+- RentingPricingCrudController — rental pricing
+
+RENTAL CONTROLLERS (10):
+- RentingBookingCrudController — bookings
+- RentingBookingItemCrudController — booking items
+- BookingInvoiceCrudController — invoices
+- RentingTransactionCrudController — transactions
+- RentingPricingCrudController — pricing
+- RentingOtherChargeCrudController — other charges
+- RentingOtherChargesTransactionCrudController — charge transactions
+- ActiveRentingController — active rentals view
+- RentalOperationsController — operations dashboard (non-CRUD)
+- RentalDuePaymentsController — due payments view
+
+FINANCE CONTROLLERS (4):
+- FinanceApplicationCrudController — applications
+- ApplicationItemCrudController — application items
+- ContractAccessCrudController — signing access
+- ContractExtraItemCrudController — extra items
+
+CUSTOMER CONTROLLERS (9):
+- CustomerCrudController — customer CRUD
+- CustomerDocumentCrudController — documents
+- CustomerAgreementCrudController — rental agreements
+- CustomerContractCrudController — finance contracts
+- CustomerAddressCrudController — addresses
+- CustomerAppointmentsCrudController — appointments
+- CustomerProfileCrudController — profiles
+- DocumentTypeCrudController — document types
+- CustomerTermsVersionCrudController — terms versions
+
+PCN CONTROLLERS (4):
+- PcnCaseCrudController — PCN cases
+- PcnCaseExpCrudController — expanded PCN view
+- PcnCaseUpdateCrudController — case updates
+- PcnTolRequestCrudController — TOL requests
+
+CLUB CONTROLLERS (6):
+- ClubMemberCrudController — members
+- ClubMemberPurchaseCrudController — purchases
+- ClubMemberRedeemCrudController — redemptions
+- ClubMemberSpendingCrudController — spending
+- ClubMemberSpendingPaymentCrudController — spending payments
+- NgnPartnerCrudController — partners
+
+OTHER CONTROLLERS:
+- UserCrudController, RoleCrudController, PermissionCrudController
+- BranchCrudController
+- NgnProductCrudController, NgnBrandCrudController, NgnCategoryCrudController
+- NgnInventoryManagementCrudController, NgnStockHandlerCrudController
+- SpPartsCrudController, SpStockHandlerCrudController, SpAssemblyCrudController
+- SurveyCrudController, SurveyQuestionCrudController, SurveyCampaignCrudController
+- VehicleDeliveryOrderCrudController
+- EcommerceOrderCrudController
+- SupportInboxController (non-CRUD)
+- BackpackDashboardController (dashboard)
+- MOTBookingCrudController, MotCheckerCrudController
+- PaymentMethodCrudController, TransactionTypeCrudController
+- And many more...
+
+NON-CRUD ADMIN CONTROLLERS (14+):
+- BackpackDashboardController — admin dashboard with KPI data
+- RentalOperationsController — booking panel (key operations page)
+- RentalDuePaymentsController — due payments tracking
+- AdjustBookingWeekdayController — booking date adjustment
+- NgnStorePageController — store management
+- NgnClubController — club management page
+- PcnPageController — PCN management page
+- MOTStatsPageController — MOT statistics
+- RecurringController — JudoPay MIT wizard
+- SupportInboxController — support ticket inbox
+- NgnSurveyCampaignController — survey campaigns
+- AgentSettingsController — agent configuration
+- EbikeManagerController — e-bike management
+- QueueMonitorController — queue monitoring
+- ActiveRentingController — active rental overview
+
+================================================================================
+SECTION 8: JAVASCRIPT BUSINESS LOGIC (19 FILES)
+================================================================================
+
+All located in: public/assets/js/admin/forms/
+
+1. branch-transfer.js
+   Purpose: Handles branch transfer operations for motorbikes
+   Logic: Form submission with branch selection
+
+2. finance-application-checkboxes.js
+   Purpose: Complex contract type enforcement — mutual exclusion
+   Logic: When one contract type checkbox is checked (is_used, is_new_latest,
+   is_used_latest, is_used_extended, is_used_extended_custom, is_subscription),
+   all others are unchecked. Also handles insurance PCN toggle.
+   Livewire replacement: Single $contractType enum select or radio group
+
+3. get-customer-details-inline.js
+   Purpose: Auto-fill customer details from Select2 dropdown
+   Logic: Parses pipe-delimited string from Select2 option
+   (first_name | last_name | email | phone) and fills form fields
+   Livewire replacement: EntityPicker component with updatedSelectedCustomerId()
+
+4. get-motorbike-details-inline.js
+   Purpose: Auto-fill motorbike details from Select2 dropdown
+   Logic: Same pipe-delimited parsing pattern for motorbike data
+   Livewire replacement: EntityPicker component with updatedSelectedMotorbikeId()
+
+5. inline_stock_edit.js
+   Purpose: AJAX inline editing of stock levels in product tables
+   Logic: Click cell → shows input → blur saves via AJAX POST
+   Livewire replacement: InlineEditor component
+
+6. inline-brands.js
+   Purpose: Dynamic brand fetching based on category selection
+   Logic: On category change, fetches brands via AJAX
+   Livewire replacement: updatedCategoryId() method
+
+7. logbook-transfer.js
+   Purpose: Toggle visibility of logbook transfer date field
+   Logic: When log_book_sent checkbox is checked, show transfer date field
+   Livewire replacement: @if($logBookSent) conditional rendering
+
+8. motorbikes-sale-buyer-fields-toggle.js
+   Purpose: Show/hide buyer information fields
+   Logic: When "has buyer" is selected, show buyer detail fields
+   Livewire replacement: @if($hasBuyer) conditional rendering
+
+9. pcn-tol-request.js
+   Purpose: Dynamic PDF generation buttons in repeatable rows
+   Logic: Creates "Generate TOL PDF" buttons for each PCN update row
+   Livewire replacement: Blade conditional rendering based on update_id
+
+10. pos-duplication-check.js
+    Purpose: POS invoice duplicate checking + discount auto-calculation
+    Logic: On total change, auto-calculates discount percentage.
+    On member selection, checks for same-day purchases at same POS.
+    Livewire replacement: updatedTotal() for discount calc,
+    Livewire validation method for duplicate check
+
+11. product-details.js
+    Purpose: Populate product stock information via AJAX
+    Logic: On product selection, fetches stock levels from server
+    Livewire replacement: updatedProductId() method
+
+12. remaining-balance-check.js
+    Purpose: Fetch club member remaining balance + same-day purchase confirmation
+    Logic: On member selection, queries remaining redeemable balance.
+    If purchase exists today, shows confirmation dialog.
+    Livewire replacement: Uses ClubMember::getAvailableRedeemableBalanceAttribute()
+    + flux:modal confirmation
+
+13. repeatable-services-serializer.js
+    Purpose: Merge service checklist items into JSON before form submission
+    Logic: Collects all checked services from repeatable rows,
+    serializes into JSON array field
+    Livewire replacement: Livewire array $services[] with add/remove methods
+
+14. show-is-monthly.js
+    Purpose: Toggle visibility based on contract payment frequency
+    Logic: Show/hide monthly-related fields when is_monthly changes
+    Livewire replacement: @if($isMonthly) conditional rendering
+
+15. sp_inline_stock_edit.js
+    Purpose: Spare parts inline stock editing (same pattern as inline_stock_edit.js)
+    Livewire replacement: InlineEditor component
+
+16. sp_part_details.js
+    Purpose: Fetch spare part details via AJAX on selection
+    Livewire replacement: updatedPartId() method
+
+17. spending-totals-check.js
+    Purpose: Fetch spending totals when club member is selected
+    Logic: Loads total spending and unpaid spending for display
+    Livewire replacement: Uses ClubMember accessors on member selection
+
+18. toggle-motorbike-repairs-services-list.js
+    Purpose: Toggle services list visibility + pre-fill repair service options
+    Logic: On repair type selection, shows/hides services checklist
+    Livewire replacement: Reactive visibility toggle based on repair type
+
+19. update-recalculate-distance-cost.js
+    Purpose: Recalculate distance-based cost on form field changes
+    Logic: Intercepts form submit, recalculates cost based on distance
+    Livewire replacement: calculateDistanceCost() method called on field change
+
+================================================================================
+SECTION 9: EXISTING LIVEWIRE COMPONENTS (~90+)
+================================================================================
+
+Admin Components:
+- Admin/Rentals/OperationsDashboard.php (KEY REFERENCE — see Section 10)
+
+Auth Components:
+- Auth/Login.php, Auth/Register.php, Auth/ForgotPassword.php, Auth/ResetPassword.php
+
+Portal Components (Customer Dashboard):
+- Portal/Dashboard.php, Portal/Profile.php, Portal/Security.php
+- Portal/PaymentMethods.php, Portal/Addresses.php, Portal/Club.php
+- Portal/Orders/Index.php, Portal/Orders/Show.php
+- Portal/MOT/MyBookings.php, Portal/MOT/Book.php
+- Portal/Finance/MyApplications.php
+- Portal/Payments/Recurring.php
+- Portal/Recovery/Request.php, Portal/Recovery/MyRequests.php, Portal/Recovery/Show.php
+
+Site Components (Public):
+- Site/About.php, Site/Contact.php, Site/Faq.php
+- Site/Header.php, Site/Footer.php
+- Site/Newsletter.php, Site/Reviews.php
+- Site/Rentals/Index.php, Site/Rentals/Show.php, Site/Rentals/BikeModel.php
+- Site/Bikes/SalesIndex.php, Site/Bikes/Show.php, Site/Bikes/UsedIndex.php
+- Site/Shop/Index.php, Site/Shop/Accessories.php
+- Site/SpareParts/ (many components)
+- Site/Club/ (Index, Login, Register, Dashboard, etc.)
+- Site/Services/, Site/MOT/, Site/Recovery/
+- Site/Legal/ (Index, Show, Privacy, Shipping, Refund)
+- And many more...
+
+V2 Components (Newer):
+- V2/Navbar.php, V2/Footer.php, V2/Home.php
+- V2/BikesForSale.php, V2/BikeDetail.php
+- V2/Rentals.php, V2/RentalDetail.php
+- V2/Services.php, V2/ServiceBasic.php, etc.
+
+Shop Components:
+- Shop/BlogIndex.php, Shop/BlogShow.php
+- Shop/Basket.php, Shop/Product.php, Shop/Checkout.php
+
+Agreement Components:
+- Agreements/LegacyRenderer.php
+
+Utility:
+- Components/BranchSelector.php
+- FluxUpload.php (Flux-based file upload)
+- MotCheckerForm.php, MotorcycleList.php
+
+================================================================================
+SECTION 10: KEY REFERENCE CODE — OperationsDashboard.php
+================================================================================
+
+This is the BEST existing reference for building Livewire admin components.
+Located at: app/Livewire/Admin/Rentals/OperationsDashboard.php
+
+```php
+<?php
+namespace App\Livewire\Admin\Rentals;
+
+use App\Models\BookingInvoice;
+use App\Models\RentingBooking;
+use App\Models\RentingBookingItem;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+use Livewire\Component;
+use Livewire\WithPagination;
+
+class OperationsDashboard extends Component
+{
+    use WithPagination;
+    protected string $paginationTheme = 'bootstrap';
+    public string $search = '';
+    public string $status = 'all';
+    public int $perPage = 20;
+
+    public function updatingSearch(): void { $this->resetPage(); }
+    public function updatingStatus(): void { $this->resetPage(); }
+    public function updatingPerPage(): void { $this->resetPage(); }
+
+    protected function rowsQuery(): Builder
+    {
+        $invoiceSummary = BookingInvoice::query()
+            ->select('booking_id')
+            ->selectRaw('MIN(CASE WHEN is_paid = 0 THEN invoice_date END) as next_unpaid_invoice_date')
+            ->selectRaw('SUM(CASE WHEN is_paid = 0 AND invoice_date <= CURDATE() THEN amount ELSE 0 END) as outstanding_amount')
+            ->groupBy('booking_id');
+
+        $query = RentingBookingItem::query()
+            ->toBase()
+            ->from('renting_booking_items as rbi')
+            ->join('renting_bookings as rb', 'rb.id', '=', 'rbi.booking_id')
+            ->join('customers as c', 'c.id', '=', 'rb.customer_id')
+            ->join('motorbikes as mb', 'mb.id', '=', 'rbi.motorbike_id')
+            ->leftJoinSub($invoiceSummary, 'invoice_summary', function ($join) {
+                $join->on('invoice_summary.booking_id', '=', 'rb.id');
+            })
+            ->where('rb.is_posted', true)
+            ->where('rbi.is_posted', true)
+            ->whereNull('rbi.end_date')
+            ->select([
+                'rb.id as booking_id', 'rb.customer_id', 'rb.deposit',
+                'rb.start_date as booking_start_date', 'rb.due_date as booking_due_date',
+                'rb.state as booking_state',
+                'rbi.id as booking_item_id', 'rbi.motorbike_id',
+                'rbi.start_date as item_start_date', 'rbi.due_date as item_due_date',
+                'rbi.weekly_rent',
+                'c.first_name', 'c.last_name', 'c.phone', 'c.email', 'c.license_expiry_date',
+                'mb.reg_no', 'mb.make', 'mb.model',
+            ])
+            ->selectRaw('COALESCE(invoice_summary.outstanding_amount, 0) as outstanding_amount')
+            ->selectRaw('invoice_summary.next_unpaid_invoice_date as next_unpaid_invoice_date');
+
+        if ($this->search !== '') {
+            $search = '%'.$this->search.'%';
+            $query->where(function ($innerQuery) use ($search) {
+                $innerQuery->where('rb.id', 'like', $search)
+                    ->orWhere('c.first_name', 'like', $search)
+                    ->orWhere('c.last_name', 'like', $search)
+                    ->orWhere(DB::raw("CONCAT(c.first_name, ' ', c.last_name)"), 'like', $search)
+                    ->orWhere('c.email', 'like', $search)
+                    ->orWhere('c.phone', 'like', $search)
+                    ->orWhere('mb.reg_no', 'like', $search)
+                    ->orWhere('mb.make', 'like', $search)
+                    ->orWhere('mb.model', 'like', $search);
+            });
+        }
+
+        if ($this->status === 'payment_due') {
+            $query->whereRaw('COALESCE(invoice_summary.outstanding_amount, 0) > 0');
+        } elseif ($this->status === 'active') {
+            $query->whereRaw('COALESCE(invoice_summary.outstanding_amount, 0) = 0');
+        }
+
+        return $query->orderByDesc('rb.id');
+    }
+
+    protected function stats(): array
+    {
+        $activeBookings = RentingBooking::with([
+            'rentingBookingItems' => fn ($query) => $query->whereNull('end_date'),
+            'bookingInvoices' => fn ($query) => $query->where('is_paid', false),
+        ])
+            ->where('is_posted', true)
+            ->whereHas('rentingBookingItems', fn ($query) => $query->whereNull('end_date'))
+            ->get();
+
+        return [
+            'active_rentals' => $activeBookings->flatMap->rentingBookingItems->count(),
+            'weekly_revenue' => $activeBookings->flatMap->rentingBookingItems->sum('weekly_rent'),
+            'due_payments' => $activeBookings->sum(fn ($b) => $b->bookingInvoices->where('invoice_date', '<=', now())->count()),
+            'unpaid_invoices' => $activeBookings->sum(fn ($b) => $b->bookingInvoices->where('invoice_date', '<=', now())->sum('amount')),
+        ];
+    }
+
+    public function render()
+    {
+        return view('livewire.admin.rentals.operations-dashboard', [
+            'rows' => $this->rowsQuery()->paginate($this->perPage),
+            'stats' => $this->stats(),
+        ]);
+    }
+}
+```
+
+================================================================================
+SECTION 11: LAYOUT TEMPLATES (REFERENCE)
+================================================================================
+
+Base Layout (resources/views/components/layouts/base.blade.php):
+```blade
+@props(['title' => null, 'description' => null, 'canonical' => null, 'robots' => 'index, follow'])
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="h-full scroll-pt-16">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ $title ?? config('app.name') }}</title>
+    @include('components.partials.theme-boot')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @fluxAppearance
+    @include('components.partials.theme-api')
+    @livewireStyles
+    {{ $head ?? '' }}
+</head>
+<body class="min-h-screen flex flex-col bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 antialiased transition-colors">
+    {{ $slot }}
+    @fluxScripts
+    @livewireScripts
+    {{ $scripts ?? '' }}
+</body>
+</html>
+```
+
+Portal Layout Pattern (resources/views/components/layouts/portal.blade.php):
+- Uses same head structure as base
+- Has top nav with logo, user email, dashboard link, dark mode toggle, sign out
+- Uses Inter font from fonts.bunny.net
+- Customer guard auth: auth('customer')->user()
+
+FOR FLUX-ADMIN: Follow the base.blade.php pattern for head section.
+Use flux:sidebar for navigation (not top nav). Use flux:main for content area.
+
+================================================================================
+SECTION 12: ROUTE SERVICE PROVIDER
+================================================================================
+
+File: app/Providers/RouteServiceProvider.php
+```php
+<?php
+namespace App\Providers;
+
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvider;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
+use Illuminate\Support\Facades\Route;
+
+class RouteServiceProvider extends ServiceProvider
+{
+    public const HOME = '/ngn-admin/dashboard';
+
+    public function boot(): void
+    {
+        RateLimiter::for('api', function (Request $request) {
+            return Limit::perMinute(1024)->by($request->user()?->id ?: $request->ip());
+        });
+
+        $this->routes(function () {
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/api.php'));
+
+            Route::middleware('web')
+                ->group(base_path('routes/web.php'));
+        });
+    }
+}
+```
+
+MODIFICATION NEEDED: Add flux-admin route group inside the routes() callback:
+```php
+Route::middleware(['web', 'auth', 'admin', 'check.admin.access'])
+    ->prefix('flux-admin')
+    ->group(base_path('routes/flux-admin.php'));
+```
+
+================================================================================
+SECTION 13: KERNEL MIDDLEWARE CONFIGURATION
+================================================================================
+
+File: app/Http/Kernel.php
+
+Route Middleware:
+  'admin' => App\Http\Middleware\AdminMiddleware::class
+  'sync.auth' => App\Http\Middleware\SyncAuth::class
+  'check.admin.access' => App\Http\Middleware\CheckAdminAccessMiddleware::class
+
+Middleware Aliases:
+  'auth' => App\Http\Middleware\Authenticate::class
+  'can' => Illuminate\Auth\Middleware\Authorize::class
+  'guest' => App\Http\Middleware\RedirectIfAuthenticated::class
+  'auth.customer' => App\Http\Middleware\CustomerAuthenticate::class
+  'customer' => App\Http\Middleware\CustomerAuthenticate::class
+
+Web Middleware Group:
+  EncryptCookies, AddQueuedCookies, StartSession, ShareErrors, VerifyCsrf, SubstituteBindings
+
+================================================================================
+SECTION 14: DATABASE TABLE RECORD COUNTS
+================================================================================
+
+motorbikes: ~2,198 records
+customers: many (exact count not retrieved)
+finance_applications: ~331 records
+renting_bookings: ~190 records
+pcn_cases: ~1,138 records
+club_members: ~2,478 records
+customer_agreements: ~640 records
+customer_contracts: ~920 records
+branches: 4 records
+users (admin/staff): ~130 records
+database migrations: 252 files
+
+================================================================================
+SECTION 15: IMPLEMENTATION PLAN
+================================================================================
+
+NON-NEGOTIABLE RULE: Do NOT modify any existing Backpack admin code.
+The existing Backpack panel remains untouched and continues working.
+
+── Phase 1: Foundation ──
+
+1.1 Create routes/flux-admin.php
+  - Prefix: flux-admin
+  - Middleware: ['web', 'auth', 'admin', 'check.admin.access']
+  - Use Livewire full-page component routing
+  - Module route groups: motorbikes, customers, finance, rentals, pcn, club, branches
+
+1.2 Modify app/Providers/RouteServiceProvider.php
+  - Add flux-admin route registration inside routes() callback
+
+1.3 Create resources/views/components/layouts/flux-admin.blade.php
+  - Follow base.blade.php pattern for head (Vite, Flux, Livewire)
+  - Use flux:sidebar (collapsible, sticky) for navigation
+  - Use flux:main for content area
+  - Include flux:header with breadcrumbs and global search trigger
+  - Support optional right context panel via named slot
+  - Permission-gate sidebar items with @can()
+
+1.4 Create app/Livewire/FluxAdmin/Pages/Dashboard.php + view
+  - Placeholder dashboard with stat cards
+  - Layout: components.layouts.flux-admin
+
+1.5 Verify: Login to Backpack, navigate to /flux-admin/dashboard
+
+── Phase 2: Reusable Component Library ──
+
+All at app/Livewire/FluxAdmin/Components/ with views at
+resources/views/livewire/flux-admin/components/
+
+2.1 DataTable — wraps flux:table with server-side search/sort/pagination
+  Properties: $search (debounced 300ms), $sortField, $sortDirection, $perPage, $filters
+  Uses WithPagination trait
+
+2.2 FilterBar — horizontal bar of filter controls
+  Uses flux:select, flux:date-picker (Pro), flux:switch
+
+2.3 EntityPicker — wraps flux:autocomplete (Pro)
+  For selecting Customer, Motorbike, ClubMember
+  Server-side search with debounce, replaces all Select2 pickers
+
+2.4 InlineEditor — toggle display/edit on click, save on blur/Enter
+  Replaces inline_stock_edit.js and sp_inline_stock_edit.js
+
+2.5 Blade Components (non-Livewire):
+  - summary-header.blade.php — entity header with title, badges, stats, actions
+  - stat-card.blade.php — label + value + trend
+  - slide-over.blade.php — wraps flux:modal variant="flyout"
+
+2.6 GlobalSearch — wraps flux:command (Pro)
+  Triggered by Cmd+K, searches across all entity types
+
+── Phase 3: Motorbike Module (Central Entity) ──
+
+Pages:
+  - MotorbikeIndex.php — DataTable with filters (branch, make, year, profile)
+  - MotorbikeShow.php — SummaryHeader + flux:tabs
+
+Tab Partials (#[Lazy] Livewire components):
+  - DetailsTab — editable fields
+  - ComplianceTab — MOT/tax/insurance from MotorbikeAnnualCompliance
+  - RepairsTab — MotorbikeRepair list with expandable updates/services
+  - RegistrationsTab — MotorbikeRegistration history
+  - MaintenanceTab — MotorbikeMaintenanceLog entries
+  - PricingTab — current/old RentingPricing
+  - ImagesTab — gallery with flux:file-upload
+  - LinkedRecordsTab — finance apps, rental bookings, PCN cases
+
+Context Panel: Branch info, current rental customer if rented
+
+── Phase 4: Customer Module ──
+
+Pages:
+  - CustomerIndex.php — DataTable with filters
+  - CustomerShow.php — SummaryHeader + tabs
+
+Tab Partials:
+  - ProfileSection — contact, license, verification, locked_fields
+  - AddressesSection — CustomerAddress records, inline editable
+  - DocumentsSection — CustomerDocument list with file preview/upload
+  - BookingsSection — linked RentingBooking records
+  - FinanceSection — linked FinanceApplication records
+  - PcnSection — linked PcnCase records
+  - ClubSection — club membership details
+
+Context Panel: Active rental summary, active finance summary
+
+── Phase 5: Rental Module ──
+
+Pages:
+  - RentalIndex.php — REUSE query pattern from OperationsDashboard.php
+  - RentalShow.php — SummaryHeader + tabs
+
+Tab Partials:
+  - BookingItemsTab — RentingBookingItem with motorbike details
+  - TransactionsTab — RentingTransaction + RentingOtherChargesTransaction
+  - InvoicesTab — BookingInvoice with payment status, WhatsApp tracking
+  - AgreementTab — AgreementAccess management
+  - OtherChargesTab — RentingOtherCharge records
+
+Context Panel: Customer + Motorbike summaries
+
+── Phase 6: Finance Module ──
+
+Pages:
+  - FinanceIndex.php — DataTable with contract type filters
+  - FinanceShow.php — SummaryHeader + tabs
+
+Tab Partials:
+  - ContractDetailsTab — all fields, contract type selection
+  - ApplicationItemsTab — linked motorbikes via ApplicationItem
+  - ExtraItemsTab — ContractExtraItem records
+  - InstalmentTrackerTab — payment history, JudoPay status, balance
+  - SigningAccessTab — ContractAccess passcode management
+  - DocumentsTab — CustomerContract documents
+
+JS Logic to Port:
+  - finance-application-checkboxes.js → single $contractType select
+  - show-is-monthly.js → @if($isMonthly) conditional rendering
+  - logbook-transfer.js → @if($logBookSent) conditional rendering
+
+── Phase 7: PCN Module ──
+
+Pages:
+  - PcnIndex.php — DataTable with status/date/customer filters
+  - PcnShow.php — SummaryHeader + tabs
+
+Tab Partials:
+  - CaseDetailsTab — all fields, editable
+  - UpdatesTab — PcnCaseUpdate with appeal/payment/transfer status
+  - TolRequestsTab — PcnTolRequest with PDF generation
+  - PaymentsTab — Payment records
+
+Cross-Module: Determine rental/finance link by querying
+RentingBookingItem and ApplicationItem where motorbike_id matches
+and date ranges overlap with contravention date
+
+── Phase 8: Club Member Module ──
+
+Pages:
+  - ClubIndex.php — DataTable with balance calculations
+  - ClubShow.php — SummaryHeader + tabs
+
+Tab Partials:
+  - OverviewTab — member details, vehicle info, partner link
+  - PurchasesTab — ClubMemberPurchase records
+  - RedemptionsTab — ClubMemberRedeem records
+  - SpendingsTab — ClubMemberSpending with payments
+  - ActivityTab — combined timeline
+
+JS Logic to Port:
+  - remaining-balance-check.js → model accessors + flux:modal confirmation
+  - spending-totals-check.js → model accessors on member selection
+  - pos-duplication-check.js → Livewire validation method
+
+── Phase 9: Branch Module & Dashboard ──
+
+Branch: Card-based layout for 4 branches with tabs (Motorbikes, Stock, Appointments)
+Dashboard: Real KPI stat cards + flux:chart trends + recent activity feed
+
+── Phase 10: Polish & Permissions ──
+
+- @can() gates on all sensitive actions
+- N+1 query audit
+- flux:skeleton loading states
+- Keyboard shortcuts (Cmd+K search)
+- Responsive design
+- Error handling
+
+================================================================================
+SECTION 16: FILE STRUCTURE TO CREATE
+================================================================================
+
+routes/
+  flux-admin.php                                    # NEW
+
+resources/views/
+  components/layouts/
+    flux-admin.blade.php                            # NEW — shell layout
+  components/flux-admin/
+    summary-header.blade.php                        # NEW
+    stat-card.blade.php                             # NEW
+    slide-over.blade.php                            # NEW
+  livewire/flux-admin/
+    components/
+      data-table.blade.php                          # NEW
+      filter-bar.blade.php                          # NEW
+      inline-editor.blade.php                       # NEW
+      entity-picker.blade.php                       # NEW
+      global-search.blade.php                       # NEW
+    pages/
+      dashboard.blade.php                           # NEW
+      motorbikes/index.blade.php                    # NEW
+      motorbikes/show.blade.php                     # NEW
+      customers/index.blade.php                     # NEW
+      customers/show.blade.php                      # NEW
+      finance/index.blade.php                       # NEW
+      finance/show.blade.php                        # NEW
+      rentals/index.blade.php                       # NEW
+      rentals/show.blade.php                        # NEW
+      pcn/index.blade.php                           # NEW
+      pcn/show.blade.php                            # NEW
+      club/index.blade.php                          # NEW
+      club/show.blade.php                           # NEW
+      branches/index.blade.php                      # NEW
+      branches/show.blade.php                       # NEW
+    partials/
+      motorbikes/
+        details-tab.blade.php                       # NEW
+        compliance-tab.blade.php                    # NEW
+        repairs-tab.blade.php                       # NEW
+        registrations-tab.blade.php                 # NEW
+        maintenance-tab.blade.php                   # NEW
+        pricing-tab.blade.php                       # NEW
+        images-tab.blade.php                        # NEW
+        linked-records-tab.blade.php                # NEW
+      customers/
+        profile-section.blade.php                   # NEW
+        addresses-section.blade.php                 # NEW
+        documents-section.blade.php                 # NEW
+        bookings-section.blade.php                  # NEW
+        finance-section.blade.php                   # NEW
+        pcn-section.blade.php                       # NEW
+        club-section.blade.php                      # NEW
+      rentals/
+        booking-items-tab.blade.php                 # NEW
+        transactions-tab.blade.php                  # NEW
+        invoices-tab.blade.php                      # NEW
+        agreement-tab.blade.php                     # NEW
+        other-charges-tab.blade.php                 # NEW
+      finance/
+        contract-details-tab.blade.php              # NEW
+        application-items-tab.blade.php             # NEW
+        extra-items-tab.blade.php                   # NEW
+        instalment-tracker-tab.blade.php            # NEW
+        signing-access-tab.blade.php                # NEW
+        documents-tab.blade.php                     # NEW
+      pcn/
+        case-details-tab.blade.php                  # NEW
+        updates-tab.blade.php                       # NEW
+        tol-requests-tab.blade.php                  # NEW
+        payments-tab.blade.php                      # NEW
+      club/
+        overview-tab.blade.php                      # NEW
+        purchases-tab.blade.php                     # NEW
+        redemptions-tab.blade.php                   # NEW
+        spendings-tab.blade.php                     # NEW
+        activity-tab.blade.php                      # NEW
+
+app/Livewire/FluxAdmin/
+  Components/
+    DataTable.php                                   # NEW
+    FilterBar.php                                   # NEW
+    InlineEditor.php                                # NEW
+    EntityPicker.php                                # NEW
+    GlobalSearch.php                                # NEW
+  Pages/
+    Dashboard.php                                   # NEW
+    Motorbikes/MotorbikeIndex.php                   # NEW
+    Motorbikes/MotorbikeShow.php                    # NEW
+    Customers/CustomerIndex.php                     # NEW
+    Customers/CustomerShow.php                      # NEW
+    Finance/FinanceIndex.php                        # NEW
+    Finance/FinanceShow.php                         # NEW
+    Rentals/RentalIndex.php                         # NEW
+    Rentals/RentalShow.php                          # NEW
+    Pcn/PcnIndex.php                                # NEW
+    Pcn/PcnShow.php                                 # NEW
+    Club/ClubIndex.php                              # NEW
+    Club/ClubShow.php                               # NEW
+    Branches/BranchIndex.php                        # NEW
+    Branches/BranchShow.php                         # NEW
+  Partials/
+    Motorbikes/
+      DetailsTab.php                                # NEW
+      ComplianceTab.php                             # NEW
+      RepairsTab.php                                # NEW
+      RegistrationsTab.php                          # NEW
+      MaintenanceTab.php                            # NEW
+      PricingTab.php                                # NEW
+      ImagesTab.php                                 # NEW
+      LinkedRecordsTab.php                          # NEW
+    Customers/
+      ProfileSection.php                            # NEW
+      AddressesSection.php                          # NEW
+      DocumentsSection.php                          # NEW
+      BookingsSection.php                           # NEW
+      FinanceSection.php                            # NEW
+      PcnSection.php                                # NEW
+      ClubSection.php                               # NEW
+    Rentals/
+      BookingItemsTab.php                           # NEW
+      TransactionsTab.php                           # NEW
+      InvoicesTab.php                               # NEW
+      AgreementTab.php                              # NEW
+      OtherChargesTab.php                           # NEW
+    Finance/
+      ContractDetailsTab.php                        # NEW
+      ApplicationItemsTab.php                       # NEW
+      ExtraItemsTab.php                             # NEW
+      InstalmentTrackerTab.php                      # NEW
+      SigningAccessTab.php                           # NEW
+      DocumentsTab.php                              # NEW
+    Pcn/
+      CaseDetailsTab.php                            # NEW
+      UpdatesTab.php                                # NEW
+      TolRequestsTab.php                            # NEW
+      PaymentsTab.php                               # NEW
+    Club/
+      OverviewTab.php                               # NEW
+      PurchasesTab.php                              # NEW
+      RedemptionsTab.php                            # NEW
+      SpendingsTab.php                              # NEW
+      ActivityTab.php                               # NEW
+
+ONLY EXISTING FILE MODIFIED:
+  app/Providers/RouteServiceProvider.php             # MODIFY (add route group)
+
+================================================================================
+SECTION 17: PERFORMANCE STRATEGY
+================================================================================
+
+- All search/sort/filter/pagination is SERVER-SIDE
+- wire:model.live.debounce.300ms for all search inputs
+- #[Lazy] attribute on all tab partial components (load on tab activation only)
+- withCount() for counts on index pages (no full relation loading)
+- Paginate tables at 20-50 rows per page
+- Branch list cached for 1 hour (only 4 records)
+- Dashboard KPIs cached for 5 minutes with manual refresh
+- No infinite scroll needed at current data volumes (max ~2.5k records)
+
+================================================================================
+SECTION 18: KEY ARCHITECTURAL DECISIONS
+================================================================================
+
+1. Full-page Livewire components for all routes (same pattern as Portal components)
+2. Nested #[Lazy] Livewire components for tabs (independent data loading)
+3. No JavaScript framework — all interactivity via Livewire + Alpine.js
+4. Same models, no new database tables — CrudTrait on models is harmless outside Backpack
+5. Same auth, same permissions — reuse existing 13 roles and 87 permissions
+6. Module-based navigation — 7 main modules instead of 98 separate CRUD pages
+7. Context panels for cross-module data (right-side panel showing related entities)
+8. Slide-over flyouts via flux:modal variant="flyout" for quick previews
+
+================================================================================
+END OF KNOWLEDGE BASE
+================================================================================

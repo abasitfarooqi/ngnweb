@@ -210,6 +210,22 @@ class MobileCatalogueController extends Controller
             ->where('motorbikes_sale.is_sold', 0)
             ->firstOrFail();
 
+        $saleImagePaths = array_values(array_filter([
+            $bike->image_one ?? null,
+            $bike->image_two ?? null,
+            $bike->image_three ?? null,
+            $bike->image_four ?? null,
+        ], fn ($p) => is_string($p) && trim($p) !== ''));
+
+        $galleryUrls = array_values(array_unique(array_map(
+            fn ($p) => NgnMotorcycleImage::urlForUsedSale($p),
+            $saleImagePaths
+        )));
+
+        if ($galleryUrls === []) {
+            $galleryUrls = [NgnMotorcycleImage::urlForUsedSale($bike->image_one)];
+        }
+
         return response()->json([
             'id' => $bike->id,
             'type' => (bool) ($bike->is_ebike ?? false) ? 'ebike' : 'used',
@@ -222,7 +238,8 @@ class MobileCatalogueController extends Controller
             'mileage' => $bike->sale_mileage,
             'reg_hint' => $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : null,
             'price' => (float) ($bike->price ?? 0),
-            'image_url' => NgnMotorcycleImage::urlForUsedSale($bike->image_one),
+            'gallery_urls' => $galleryUrls,
+            'image_url' => $galleryUrls[0],
             'actions' => [
                 'finance_link_query' => [
                     'source' => (bool) ($bike->is_ebike ?? false) ? 'ebike' : 'used-bike',
@@ -311,7 +328,27 @@ class MobileCatalogueController extends Controller
     public function shopProducts(Request $request): JsonResponse
     {
         $perPage = max(1, min(80, (int) $request->integer('per_page', 24)));
+        $page = max(1, (int) $request->integer('page', 1));
         $search = trim((string) $request->string('search', ''));
+        $sort = trim((string) $request->string('sort', 'newest'));
+        if (! in_array($sort, ['newest', 'price_low', 'price_high', 'name'], true)) {
+            $sort = 'newest';
+        }
+
+        $categoryId = 0;
+        if ($request->filled('cid')) {
+            $categoryId = max(0, (int) $request->integer('cid'));
+        } elseif ($request->filled('category_id')) {
+            $categoryId = max(0, (int) $request->integer('category_id'));
+        }
+
+        $brandId = 0;
+        if ($request->filled('bid')) {
+            $brandId = max(0, (int) $request->integer('bid'));
+        } elseif ($request->filled('brand_id')) {
+            $brandId = max(0, (int) $request->integer('brand_id'));
+        }
+
         $catSlug = trim((string) $request->string('cat', ''));
         if ($catSlug === '') {
             $catSlug = trim((string) $request->string('category', ''));
@@ -319,7 +356,7 @@ class MobileCatalogueController extends Controller
         $brandSlug = trim((string) $request->string('brand', ''));
 
         $query = NgnProduct::query()
-            ->with(['brand:id,name', 'category:id,name'])
+            ->with(['brand:id,name,slug', 'category:id,name,slug'])
             ->where('is_ecommerce', 1)
             ->where(function ($q) {
                 $q->whereNull('dead')->orWhere('dead', 0);
@@ -327,7 +364,9 @@ class MobileCatalogueController extends Controller
 
         $shop = app(ShopService::class);
 
-        if ($catSlug !== '') {
+        if ($categoryId > 0) {
+            $query->where('category_id', $categoryId);
+        } elseif ($catSlug !== '') {
             $catIds = $shop->resolveEcommerceCategoryIdsBySlugs([$catSlug]);
             if ($catIds === []) {
                 $query->whereRaw('0 = 1');
@@ -336,7 +375,9 @@ class MobileCatalogueController extends Controller
             }
         }
 
-        if ($brandSlug !== '') {
+        if ($brandId > 0) {
+            $query->where('brand_id', $brandId);
+        } elseif ($brandSlug !== '') {
             $brandIds = $shop->resolveEcommerceBrandIdsBySlugs([$brandSlug]);
             if ($brandIds === []) {
                 $query->whereRaw('0 = 1');
@@ -353,8 +394,15 @@ class MobileCatalogueController extends Controller
             });
         }
 
-        $products = $query->orderByDesc('id')
-            ->paginate($perPage)
+        match ($sort) {
+            'price_low' => $query->orderBy('normal_price', 'asc')->orderBy('id', 'asc'),
+            'price_high' => $query->orderBy('normal_price', 'desc')->orderBy('id', 'desc'),
+            'name' => $query->orderBy('name', 'asc')->orderBy('id', 'asc'),
+            default => $query->orderByDesc('id'),
+        };
+
+        $products = $query
+            ->paginate($perPage, ['*'], 'page', $page)
             ->through(fn (NgnProduct $p) => [
                 'id' => $p->id,
                 'name' => $p->name,
@@ -364,7 +412,11 @@ class MobileCatalogueController extends Controller
                 'stock' => (float) ($p->global_stock ?? 0),
                 'image_url' => $p->image_url,
                 'brand' => $p->brand?->name,
+                'brand_slug' => $p->brand?->slug,
                 'category' => $p->category?->name,
+                'category_slug' => $p->category?->slug,
+                'category_id' => $p->category_id,
+                'brand_id' => $p->brand_id,
             ]);
 
         return response()->json([
@@ -399,28 +451,67 @@ class MobileCatalogueController extends Controller
     public function spareParts(Request $request): JsonResponse
     {
         $perPage = max(1, min(80, (int) $request->integer('per_page', 24)));
+        $page = max(1, (int) $request->integer('page', 1));
         $search = trim((string) $request->string('search', ''));
+        $manufacturer = trim((string) $request->string('manufacturer', ''));
+        $model = trim((string) $request->string('model', ''));
+        $assembly = trim((string) $request->string('assembly', ''));
 
         $query = SpPart::query()
-            ->where('is_active', true);
+            ->where('is_active', true)
+            ->with(['assemblyParts' => function ($q): void {
+                $q->orderBy('sort_order')->with(['assembly.fitment.model.make']);
+            }]);
 
         if ($search !== '') {
-            $query->where(function ($q) use ($search): void {
-                $q->where('part_number', 'like', '%'.$search.'%')
+            $needle = str_replace(' ', '', $search);
+            $query->where(function ($q) use ($search, $needle): void {
+                $q->where('part_number', 'like', '%'.$needle.'%')
                     ->orWhere('name', 'like', '%'.$search.'%');
             });
         }
 
+        if ($manufacturer !== '') {
+            $query->whereHas('assemblyParts.assembly.fitment.model.make', function ($q) use ($manufacturer): void {
+                $q->where('slug', $manufacturer);
+            });
+        }
+
+        if ($model !== '') {
+            $query->whereHas('assemblyParts.assembly.fitment.model', function ($q) use ($model): void {
+                $q->where('slug', $model);
+            });
+        }
+
+        if ($assembly !== '') {
+            $query->whereHas('assemblyParts.assembly', function ($q) use ($assembly): void {
+                $q->where('slug', $assembly);
+            });
+        }
+
         $parts = $query->orderBy('part_number')
-            ->paginate($perPage)
-            ->through(fn (SpPart $part) => [
-                'id' => $part->id,
-                'part_number' => $part->part_number,
-                'name' => $part->name,
-                'stock_status' => $part->stock_status,
-                'price' => (float) ($part->price_gbp_inc_vat ?? 0),
-                'global_stock' => (float) ($part->global_stock ?? 0),
-            ]);
+            ->paginate($perPage, ['*'], 'page', $page)
+            ->through(function (SpPart $part) {
+                $line = $part->assemblyParts->first();
+                $assembly = $line?->assembly;
+                $fitment = $assembly?->fitment;
+                $m = $fitment?->model;
+                $make = $m?->make;
+
+                return [
+                    'id' => $part->id,
+                    'part_number' => $part->part_number,
+                    'name' => $part->name,
+                    'stock_status' => $line?->stock_override ?: ($part->stock_status ?? 'NOT IN STOCK'),
+                    'price' => (float) ($line?->price_override ?? $part->price_gbp_inc_vat ?? 0),
+                    'global_stock' => (float) ($part->global_stock ?? 0),
+                    'image_url' => (string) ($assembly?->image_url ?? ''),
+                    'manufacturer_name' => (string) ($make?->name ?? ''),
+                    'model_name' => (string) ($m?->name ?? ''),
+                    'assembly_name' => (string) ($assembly?->name ?? ''),
+                    'sp_assembly_id' => (int) ($assembly?->id ?? 0),
+                ];
+            });
 
         return response()->json([
             'data' => $parts,
@@ -460,23 +551,65 @@ class MobileCatalogueController extends Controller
             ->filter(fn ($item) => is_string($item) && trim($item) !== '')
             ->values();
 
+        $shop = app(ShopService::class);
+        $grouped = $shop->getProductBySlug((string) $product->slug);
+        $variants = [];
+        $stockByBranch = [];
+        $effectiveStock = (float) ($product->global_stock ?? 0);
+        $displayPrice = (float) ($product->normal_price ?? 0);
+        $displayName = $product->name;
+        $displaySlug = (string) $product->slug;
+        $displayDesc = $product->description;
+        $displayExtDesc = $product->extended_description;
+        $displayColour = $product->colour;
+
+        if (is_array($grouped) && ! empty($grouped['variants'])) {
+            $displayName = (string) ($grouped['name'] ?? $displayName);
+            $displaySlug = (string) ($grouped['slug'] ?? $displaySlug);
+            $displayDesc = (string) ($grouped['description'] ?? $displayDesc);
+            $displayExtDesc = (string) ($grouped['extended_description'] ?? $displayExtDesc);
+            $displayColour = (string) ($grouped['colour'] ?? $displayColour);
+            foreach ($grouped['variants'] as $v) {
+                $variants[] = [
+                    'id' => (int) ($v['id'] ?? 0),
+                    'sku' => (string) ($v['sku'] ?? ''),
+                    'name' => (string) ($v['name'] ?? ''),
+                    'variation' => (string) ($v['variation'] ?? ''),
+                    'slug' => (string) ($v['slug'] ?? ''),
+                    'total_balance' => (int) ($v['total_balance'] ?? 0),
+                ];
+            }
+            $firstVariantId = (int) ($variants[0]['id'] ?? $product->id);
+            $avail = $shop->getProductAvailability($firstVariantId);
+            $effectiveStock = (float) ($avail['total_balance'] ?? 0);
+            foreach ($avail['branches'] ?? [] as $b) {
+                $stockByBranch[] = [
+                    'branch_name' => (string) ($b->branch_name ?? ''),
+                    'balance' => (float) ($b->branch_balance ?? 0),
+                ];
+            }
+            $displayPrice = (float) ($grouped['normal_price'] ?? $product->normal_price ?? 0);
+        }
+
         return response()->json([
             'data' => [
                 'id' => $product->id,
-                'name' => $product->name,
-                'slug' => $product->slug,
+                'name' => $displayName,
+                'slug' => $displaySlug,
                 'sku' => $product->sku,
                 'ean' => $product->ean,
-                'price' => (float) ($product->normal_price ?? 0),
-                'stock' => (float) ($product->global_stock ?? 0),
-                'stock_message' => ((float) ($product->global_stock ?? 0) > 0) ? 'In stock' : 'Out of stock after this order',
-                'description' => $product->description,
-                'extended_description' => $product->extended_description,
+                'price' => $displayPrice,
+                'stock' => $effectiveStock,
+                'stock_message' => $effectiveStock > 0 ? 'In stock' : 'Out of stock',
+                'description' => $displayDesc,
+                'extended_description' => $displayExtDesc,
                 'variation' => $product->variation,
-                'colour' => $product->colour,
+                'colour' => $displayColour,
                 'brand' => $product->brand ? ['id' => $product->brand->id, 'name' => $product->brand->name, 'slug' => $product->brand->slug] : null,
                 'category' => $product->category ? ['id' => $product->category->id, 'name' => $product->category->name, 'slug' => $product->category->slug] : null,
                 'gallery' => $gallery,
+                'variants' => $variants,
+                'stock_by_branch' => $stockByBranch,
                 'attributes' => [
                     'vatable' => (bool) ($product->vatable ?? false),
                     'is_oxford' => (bool) ($product->is_oxford ?? false),
@@ -499,6 +632,10 @@ class MobileCatalogueController extends Controller
             ->findOrFail($id);
         $pricing = RentingPricing::query()->where('motorbike_id', $bike->id)->where('iscurrent', true)->latest('id')->first();
 
+        $galleryPaths = $bike->images->pluck('image_path')->filter()->values();
+        $galleryUrls = $galleryPaths->map(fn ($p) => NgnMotorcycleImage::urlForUsedSale((string) $p))->values()->all();
+        $primaryImage = $galleryUrls[0] ?? NgnMotorcycleImage::urlForUsedSale(null);
+
         return response()->json([
             'data' => [
                 'id' => $bike->id,
@@ -510,6 +647,8 @@ class MobileCatalogueController extends Controller
                 'fuel_type' => $bike->fuel_type,
                 'colour' => $bike->color,
                 'reg_hint' => $bike->reg_no ? '****'.substr((string) $bike->reg_no, -3) : null,
+                'image_url' => $primaryImage,
+                'gallery_urls' => $galleryUrls,
                 'branch' => $bike->branch ? [
                     'id' => $bike->branch->id,
                     'name' => $bike->branch->name,

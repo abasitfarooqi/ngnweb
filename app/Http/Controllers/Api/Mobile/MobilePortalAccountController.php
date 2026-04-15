@@ -207,6 +207,51 @@ class MobilePortalAccountController extends Controller
         ]);
     }
 
+    public function cancelOrder(Request $request, int $id): JsonResponse
+    {
+        $actor = $this->customerActor($request);
+        if (! $actor) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $order = EcOrder::query()
+            ->where('customer_id', $actor->id)
+            ->findOrFail($id);
+
+        if (in_array($order->order_status, ['cancelled', 'delivered'], true)) {
+            return response()->json(['message' => 'This order cannot be cancelled.'], 422);
+        }
+
+        $order->update([
+            'order_status' => 'cancelled',
+            'shipping_status' => 'cancelled',
+        ]);
+
+        return response()->json([
+            'message' => 'Order cancelled successfully.',
+            'data' => [
+                'id' => $order->id,
+                'order_status' => 'cancelled',
+            ],
+        ]);
+    }
+
+    public function resendVerification(Request $request): JsonResponse
+    {
+        $actor = $this->customerActor($request);
+        if (! $actor) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        if ($actor->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Email already verified.']);
+        }
+
+        $actor->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Verification email sent.']);
+    }
+
     private function customerActor(Request $request): ?CustomerAuth
     {
         $actor = $request->user('customer') ?: $request->user('sanctum');

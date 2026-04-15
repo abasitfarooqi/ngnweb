@@ -42,6 +42,8 @@ use App\Support\QrCodeGenerator;
 use App\Support\BrowsershotPdfAdapter;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
+use App\Livewire\Agreements\LegacyMigratedDocument;
+
 class AgreementController extends Controller
 {
     public function link_Logs()
@@ -56,7 +58,7 @@ class AgreementController extends Controller
                 return $access;
             });
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('access'), ['legacyView' => 'livewire.agreements.migrated.admin.customers.upload-links']));
+        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.admin.customers.upload-links', compact('access'));
     }
 
     public function agreement_Logs()
@@ -72,7 +74,7 @@ class AgreementController extends Controller
             });
 
         // admin/customers/agreement-links
-        return view('livewire.agreements.legacy-host', array_merge(compact('access'), ['legacyView' => 'livewire.agreements.migrated.admin.customers.agreement-links']));
+        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.admin.customers.agreement-links', compact('access'));
     }
 
     public function generateAgreementAccess($customer_id)
@@ -234,7 +236,7 @@ class AgreementController extends Controller
         // return view('signature', compact(
 
         // V6
-        return view('livewire.agreements.legacy-host', array_merge(compact(
+        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.signature-v6', compact(
             'booking',
             'customer',
             'bookingItem',
@@ -245,7 +247,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ), ['legacyView' => 'livewire.agreements.migrated.signature-v6']));
+        ));
     }
 
 
@@ -276,7 +278,7 @@ class AgreementController extends Controller
         // return view('signature', compact(
 
         // V3
-        return view('livewire.agreements.legacy-host', array_merge(compact(
+        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.signature-v6-ins', compact(
             'booking',
             'customer',
             'bookingItem',
@@ -287,7 +289,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ), ['legacyView' => 'livewire.agreements.migrated.signature-v6-ins']));
+        ));
     }
 
 
@@ -320,7 +322,7 @@ class AgreementController extends Controller
 
             // Collect Booking Issuance Details.
 
-            return view('livewire.agreements.legacy-host', array_merge([
+            return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.rental-termination-v1', [
                 'customer_id' => $customer_id,
                 'booking_id' => $booking_id,
                 'booking' => $Booking,
@@ -330,7 +332,7 @@ class AgreementController extends Controller
                 'bookingItem' => $bookingItem,
                 'user_name' => '$Booking->user_id',
                 'motorbike' => $motorbike,
-            ], ['legacyView' => 'livewire.agreements.migrated.rental-termination-v1']));
+            ]);
         } else {
 
             return response()->view('errors.404', $validated, 404); // Return 404 view with response
@@ -616,7 +618,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return view('livewire.agreements.legacy-host', array_merge(compact(
+        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.signature-contract-v6-ins-latest', compact(
             'booking',
             'customer',
             'bookingItem',
@@ -627,7 +629,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-ins-latest']));
+        ));
     }
 
     // 2025 12-SEP-2025 - Latest Contract
@@ -851,7 +853,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return view('livewire.agreements.legacy-host', array_merge(compact(
+        return view('livewire.agreements.legacy-host', compact(
             'booking',
             'customer',
             'bookingItem',
@@ -862,7 +864,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-ins-used-latest']));
+        ));
     }
 
     // 2025 12-SEP-2025 - Create Latest Insurance Contract (Used Vehicle)
