@@ -1,7 +1,7 @@
 <div wire:key="documents-page">
     <div class="mb-6">
         <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Documents</h1>
-        <p class="text-sm text-gray-500 mt-1">Upload and manage rental, finance, and general documents from one place.</p>
+        <p class="text-sm text-gray-500 mt-1">Upload and manage rental and general documents, and finance documents, from one place.</p>
     </div>
 
     @if(session('success'))
@@ -28,15 +28,11 @@
         <div class="flex items-center gap-2">
             <button type="button" wire:click="switchTab('rental')"
                 class="px-3 py-2 text-sm border-b-2 {{ $activeTab === 'rental' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
-                Rental Documents
+                Rental and general
             </button>
             <button type="button" wire:click="switchTab('finance')"
                 class="px-3 py-2 text-sm border-b-2 {{ $activeTab === 'finance' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
                 Finance Documents
-            </button>
-            <button type="button" wire:click="switchTab('other')"
-                class="px-3 py-2 text-sm border-b-2 {{ $activeTab === 'other' ? 'border-brand-red text-brand-red' : 'border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200' }}">
-                Other
             </button>
         </div>
     </div>
@@ -44,8 +40,8 @@
     @if($activeTab === 'rental')
         <div class="space-y-4">
             <flux:card class="p-6 mb-4">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Rental Required Documents</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Upload these documents before starting your rental agreement.</p>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Rental and general documents</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Includes rental requirements and any general document types not classed as finance.</p>
                 @if($missingRentalMandatory->isNotEmpty())
                     <flux:callout variant="warning" icon="exclamation-triangle" class="mb-4">
                         <flux:callout.text>
@@ -53,11 +49,11 @@
                         </flux:callout.text>
                     </flux:callout>
                 @endif
-                @if($rentalDocs->isEmpty())
-                    <p class="text-sm text-gray-400">No rental document types defined yet. Please contact us.</p>
+                @if($rentalAndGeneralDocs->isEmpty())
+                    <p class="text-sm text-gray-400">No document types defined yet. Please contact us.</p>
                 @else
                     <div class="space-y-3">
-                        @foreach($rentalDocs as $docType)
+                        @foreach($rentalAndGeneralDocs as $docType)
                             @php
                                 $uploaded = $uploadedByType[$docType->id] ?? null;
                                 $status   = $uploaded ? ($uploaded->status ?? 'pending_review') : 'missing';
@@ -112,9 +108,9 @@
             </flux:card>
 
             <flux:card class="p-6 mb-4">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Uploaded Rental Files</h3>
+                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">Uploaded rental and general files</h3>
                 @if($rentalUploadedDocuments->isEmpty())
-                    <p class="text-sm text-gray-500">No rental files uploaded yet.</p>
+                    <p class="text-sm text-gray-500">No files uploaded yet in this section.</p>
                 @else
                     <div class="space-y-2">
                         @foreach($rentalUploadedDocuments as $doc)
@@ -289,66 +285,6 @@
         </div>
     @endif
 
-    @if($activeTab === 'other')
-        <div class="space-y-4">
-            <flux:card class="p-6 mb-4">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Other Document Types</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">General documents not specifically marked as rental or finance.</p>
-                @if($otherDocs->isEmpty())
-                    <p class="text-sm text-gray-500">No additional document types configured yet.</p>
-                @else
-                    <div class="space-y-3">
-                        @foreach($otherDocs as $docType)
-                            @php
-                                $uploaded = $uploadedByType[$docType->id] ?? null;
-                                $statusLabel = $uploaded ? 'Uploaded' : 'Missing';
-                            @endphp
-                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
-                                <div>
-                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $docType->name }}</p>
-                                    <p class="text-xs text-gray-500">{{ $statusLabel }}</p>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    @if($uploaded?->portal_file_url)
-                                        <flux:button href="{{ $uploaded->portal_file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
-                                    @endif
-                                    <flux:button wire:click="startUpload({{ $docType->id }})" variant="filled" size="sm" class="bg-brand-red text-white">
-                                        {{ $uploaded ? 'Replace' : 'Upload' }}
-                                    </flux:button>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </flux:card>
-
-            <flux:card class="p-6">
-                <h3 class="text-base font-bold text-gray-900 dark:text-white mb-3">All Uploaded Files</h3>
-                @if($uploadedDocuments->isEmpty())
-                    <p class="text-sm text-gray-500">No documents uploaded yet.</p>
-                @else
-                    <div class="space-y-2">
-                        @foreach($uploadedDocuments as $doc)
-                            <div class="flex items-center justify-between gap-3 p-3 border border-gray-200 dark:border-gray-700">
-                                <div class="min-w-0">
-                                    <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $doc->documentType?->name ?? 'Document' }}</p>
-                                    <p class="text-xs text-gray-500">
-                                        {{ $doc->file_name ?: 'Unnamed file' }} · {{ optional($doc->created_at)->format('d M Y H:i') }}
-                                    </p>
-                                </div>
-                                @if($doc->portal_file_url)
-                                    <flux:button href="{{ $doc->portal_file_url }}" target="_blank" variant="outline" size="sm">Open</flux:button>
-                                @else
-                                    <span class="text-xs text-gray-400">Stored privately</span>
-                                @endif
-                            </div>
-                        @endforeach
-                    </div>
-                @endif
-            </flux:card>
-        </div>
-    @endif
-
     @if($uploadingFor)
         <div class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4" wire:key="doc-upload-modal">
             <div class="bg-white dark:bg-gray-800 w-full max-w-lg shadow-2xl">
@@ -373,11 +309,6 @@
                                 @error('file')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Document number (optional)</label>
-                                <input type="text" wire:model="document_number" class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                             </div>
 
                             <div>

@@ -16,7 +16,7 @@
     </div>
 
     @if(isset($footer))
-        <div class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-800/50">
+        <div class="px-6 py-4 border-t border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-900/50">
             {{ $footer }}
         </div>
     @endif

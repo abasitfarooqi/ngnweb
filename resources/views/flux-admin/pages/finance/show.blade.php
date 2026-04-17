@@ -31,7 +31,7 @@
     </x-flux-admin::summary-header>
 
     {{-- Tabs --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 mb-6">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 mb-6">
         <div class="border-b border-zinc-200 dark:border-zinc-700 overflow-x-auto">
             <nav class="flex -mb-px">
                 @foreach(['contract' => 'Contract Details', 'items' => 'Items', 'extras' => 'Extras', 'instalments' => 'Instalments', 'signing' => 'Signing Access', 'documents' => 'Documents'] as $tab => $label)

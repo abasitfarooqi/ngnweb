@@ -30,7 +30,7 @@
     </x-flux-admin::summary-header>
 
     {{-- Tabs --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 mb-6">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 mb-6">
         <div class="flex overflow-x-auto border-b border-zinc-200 dark:border-zinc-700">
             @foreach(['items' => 'Booking Items', 'invoices' => 'Invoices', 'transactions' => 'Transactions', 'agreement' => 'Agreement', 'charges' => 'Other Charges'] as $tab => $label)
                 <button

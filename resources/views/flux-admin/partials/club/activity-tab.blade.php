@@ -1,6 +1,6 @@
 <div>
     @if($timeline->count())
-        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
             <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
                 @foreach($timeline as $entry)
                     <div class="flex items-start gap-4 px-5 py-4">
@@ -40,7 +40,7 @@
             </div>
         </div>
     @else
-        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
             No activity found.
         </div>
     @endif

@@ -50,7 +50,7 @@
     </div>
 
     {{-- Quick navigation --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
         <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700">
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Quick Navigation</h2>
         </div>

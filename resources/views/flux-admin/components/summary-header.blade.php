@@ -6,7 +6,7 @@
     'backLabel' => 'Back',
 ])
 
-<div {{ $attributes->merge(['class' => 'border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 mb-6']) }}>
+<div {{ $attributes->merge(['class' => 'border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5 mb-6']) }}>
     <div class="flex flex-col sm:flex-row sm:items-start gap-4">
         <div class="flex-1 min-w-0">
             @if($backUrl)

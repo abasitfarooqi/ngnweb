@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\SupportAttachment;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
 use App\Models\User;
+use App\Support\SupportChatFileRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 
 class SupportInboxController extends Controller
@@ -196,18 +199,41 @@ class SupportInboxController extends Controller
 
     public function sendMessage(Request $request, int $conversationId): JsonResponse
     {
-        $validated = $request->validate([
-            'body' => ['required', 'string', 'max:6000'],
-        ]);
-
         $conversation = SupportConversation::query()->findOrFail($conversationId);
+
+        $validated = $request->validate(array_merge([
+            'body' => ['nullable', 'string', 'max:6000'],
+        ], SupportChatFileRules::arrayWithFiles('files', 5)));
+
+        $body = trim((string) ($validated['body'] ?? ''));
+        $uploads = Arr::wrap($request->file('files') ?? []);
+
+        if ($body === '' && $uploads === []) {
+            return response()->json([
+                'message' => 'Please type a message or attach a file.',
+            ], 422);
+        }
 
         $message = SupportMessage::query()->create([
             'conversation_id' => $conversation->id,
             'sender_type' => 'staff',
             'sender_user_id' => backpack_user()?->id,
-            'body' => $validated['body'],
+            'body' => $body !== '' ? $body : null,
         ]);
+
+        foreach ($uploads as $upload) {
+            $path = $upload->store('support-chat/'.$conversation->uuid, 'public');
+
+            SupportAttachment::query()->create([
+                'message_id' => $message->id,
+                'disk' => 'public',
+                'path' => $path,
+                'original_name' => $upload->getClientOriginalName(),
+                'mime' => $upload->getMimeType(),
+                'size' => (int) $upload->getSize(),
+                'uploaded_by_user_id' => backpack_user()?->id,
+            ]);
+        }
 
         return response()->json([
             'ok' => true,

@@ -63,7 +63,7 @@
 @can('see-menu-commons')
 <x-backpack::menu-dropdown title="CUSTOMERS" icon="las la-chevron-circle-down">
     <x-backpack::menu-dropdown-item title="Customer List" icon="la la-users" :link="backpack_url('customer')" />
-    <x-backpack::menu-dropdown-item title="Documents" icon="la la-file" :link="backpack_url('customer-document')" />
+    <x-backpack::menu-dropdown-item title="Verify documents" icon="la la-file" :link="backpack_url('customer-document')" />
 </x-backpack::menu-dropdown>
 @endcan
 
@@ -177,7 +177,7 @@
     <x-backpack::menu-dropdown-item title="Purchase request items" icon="la la-clipboard-list" :link="backpack_url('purchase-request-item')" />
     <x-backpack::menu-dropdown-item title="Old Admin Panel" icon="la la-cog" :link="url('/admin')" />
     <x-backpack::menu-dropdown-item title="Vehicles Database" icon="la la-motorcycle" :link="backpack_url('motorbike-annual-compliance')" />
-    <x-backpack::menu-dropdown-item title="Customer documents" icon="la la-file-alt" :link="backpack_url('customer-document')" />
+    <x-backpack::menu-dropdown-item title="Verify customer documents" icon="la la-file-alt" :link="backpack_url('customer-document')" />
     <x-backpack::menu-dropdown-item title="Vehicle issuances" icon="la la-id-card" :link="backpack_url('vehicle-issuance')" />
     <x-backpack::menu-dropdown-item title="Vehicle delivery orders" icon="la la-truck" :link="backpack_url('vehicle-delivery-order')" />
 </x-backpack::menu-dropdown>

@@ -1,5 +1,5 @@
 <div>
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-x-auto">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Request Date</flux:table.column>

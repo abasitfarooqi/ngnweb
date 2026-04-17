@@ -9,7 +9,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
         @foreach($branches as $branch)
             <a href="{{ route('flux-admin.branches.show', $branch) }}" wire:navigate
-               class="block border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-5 transition hover:border-zinc-400 dark:hover:border-zinc-500">
+               class="block border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5 transition hover:border-zinc-400 dark:hover:border-zinc-500">
                 <div class="flex items-start justify-between gap-3">
                     <div class="min-w-0">
                         <h2 class="text-base font-bold text-zinc-900 dark:text-white truncate">{{ $branch->name }}</h2>

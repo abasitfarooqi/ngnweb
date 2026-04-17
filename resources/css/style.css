@@ -306,7 +306,7 @@ input::-moz-focus-inner {
     box-sizing: border-box;
 }
 
-body {
+body:not(.flux-admin-app) {
     font: 14px/26px "Poppins", sans-serif;
     font-weight: 300;
     background-color: #fff;
@@ -371,22 +371,22 @@ input[type="submit"] {
     transition: all 0.3s ease 0s;
 }
 
-select,
-textarea,
-input[type="text"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"] {
+body:not(.flux-admin-app) select,
+body:not(.flux-admin-app) textarea,
+body:not(.flux-admin-app) input[type="text"],
+body:not(.flux-admin-app) input[type="password"],
+body:not(.flux-admin-app) input[type="datetime"],
+body:not(.flux-admin-app) input[type="datetime-local"],
+body:not(.flux-admin-app) input[type="date"],
+body:not(.flux-admin-app) input[type="month"],
+body:not(.flux-admin-app) input[type="time"],
+body:not(.flux-admin-app) input[type="week"],
+body:not(.flux-admin-app) input[type="number"],
+body:not(.flux-admin-app) input[type="email"],
+body:not(.flux-admin-app) input[type="url"],
+body:not(.flux-admin-app) input[type="search"],
+body:not(.flux-admin-app) input[type="tel"],
+body:not(.flux-admin-app) input[type="color"] {
     background-color: #ffffff;
     height: 50px;
     width: 100%;
@@ -403,21 +403,21 @@ input[type="color"] {
     transition: all 0.3s ease-in-out;
 }
 
-textarea:focus,
-input[type="text"]:focus,
-input[type="password"]:focus,
-input[type="datetime"]:focus,
-input[type="datetime-local"]:focus,
-input[type="date"]:focus,
-input[type="month"]:focus,
-input[type="time"]:focus,
-input[type="week"]:focus,
-input[type="number"]:focus,
-input[type="email"]:focus,
-input[type="url"]:focus,
-input[type="search"]:focus,
-input[type="tel"]:focus,
-input[type="color"]:focus {
+body:not(.flux-admin-app) textarea:focus,
+body:not(.flux-admin-app) input[type="text"]:focus,
+body:not(.flux-admin-app) input[type="password"]:focus,
+body:not(.flux-admin-app) input[type="datetime"]:focus,
+body:not(.flux-admin-app) input[type="datetime-local"]:focus,
+body:not(.flux-admin-app) input[type="date"]:focus,
+body:not(.flux-admin-app) input[type="month"]:focus,
+body:not(.flux-admin-app) input[type="time"]:focus,
+body:not(.flux-admin-app) input[type="week"]:focus,
+body:not(.flux-admin-app) input[type="number"]:focus,
+body:not(.flux-admin-app) input[type="email"]:focus,
+body:not(.flux-admin-app) input[type="url"]:focus,
+body:not(.flux-admin-app) input[type="search"]:focus,
+body:not(.flux-admin-app) input[type="tel"]:focus,
+body:not(.flux-admin-app) input[type="color"]:focus {
     border: 1px solid #C31924;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
@@ -494,23 +494,23 @@ button:hover:before {
     background-image: none;
 }
 
-textarea,
-input[type="text"],
-input[type="submit"],
-input[type="password"],
-input[type="datetime"],
-input[type="datetime-local"],
-input[type="date"],
-input[type="month"],
-input[type="time"],
-input[type="week"],
-input[type="number"],
-input[type="email"],
-input[type="url"],
-input[type="search"],
-input[type="tel"],
-input[type="color"],
-.uneditable-input,
+body:not(.flux-admin-app) textarea,
+body:not(.flux-admin-app) input[type="text"],
+body:not(.flux-admin-app) input[type="submit"],
+body:not(.flux-admin-app) input[type="password"],
+body:not(.flux-admin-app) input[type="datetime"],
+body:not(.flux-admin-app) input[type="datetime-local"],
+body:not(.flux-admin-app) input[type="date"],
+body:not(.flux-admin-app) input[type="month"],
+body:not(.flux-admin-app) input[type="time"],
+body:not(.flux-admin-app) input[type="week"],
+body:not(.flux-admin-app) input[type="number"],
+body:not(.flux-admin-app) input[type="email"],
+body:not(.flux-admin-app) input[type="url"],
+body:not(.flux-admin-app) input[type="search"],
+body:not(.flux-admin-app) input[type="tel"],
+body:not(.flux-admin-app) input[type="color"],
+body:not(.flux-admin-app) .uneditable-input,
 .dropdown-menu,
 .navbar .nav>.active>a,
 .navbar .nav>.active>a:hover,

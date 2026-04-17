@@ -7,32 +7,42 @@
         </div>
     </div>
 
-    {{-- Filters row --}}
-    <div class="flex flex-col sm:flex-row gap-3 mb-4">
-        <div class="flex-1">
-            <flux:input wire:model.live.debounce.300ms="search" placeholder="Search by name, email or phone…" icon="magnifying-glass" />
+    <div class="flux-admin-toolbar mb-4 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
+            <div class="min-w-0 w-full lg:flex-1">
+                <flux:input wire:model.live.debounce.300ms="search" placeholder="Search by name, email or phone…" variant="filled" />
+            </div>
+            <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-48 lg:flex-none">
+                    <flux:select wire:model.live="filterVerification" placeholder="Verification">
+                        <flux:select.option value="">All statuses</flux:select.option>
+                        <flux:select.option value="verified">Verified</flux:select.option>
+                        <flux:select.option value="pending">Pending</flux:select.option>
+                        <flux:select.option value="rejected">Rejected</flux:select.option>
+                        <flux:select.option value="unverified">Unverified</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
+                    <flux:select wire:model.live="filterClub" placeholder="Club">
+                        <flux:select.option value="">All members</flux:select.option>
+                        <flux:select.option value="1">Club members</flux:select.option>
+                        <flux:select.option value="0">Non-members</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:basis-full sm:max-w-[10rem] lg:basis-auto lg:w-28">
+                    <flux:select wire:model.live="perPage">
+                        <flux:select.option value="20">20 per page</flux:select.option>
+                        <flux:select.option value="50">50 per page</flux:select.option>
+                        <flux:select.option value="100">100 per page</flux:select.option>
+                    </flux:select>
+                </div>
+            </div>
         </div>
-        <flux:select wire:model.live="filterVerification" class="w-full sm:w-48">
-            <option value="">All Statuses</option>
-            <option value="verified">Verified</option>
-            <option value="pending">Pending</option>
-            <option value="rejected">Rejected</option>
-            <option value="unverified">Unverified</option>
-        </flux:select>
-        <flux:select wire:model.live="filterClub" class="w-full sm:w-40">
-            <option value="">All Members</option>
-            <option value="1">Club Members</option>
-            <option value="0">Non-Members</option>
-        </flux:select>
-        <flux:select wire:model.live="perPage" class="w-full sm:w-28">
-            <option value="20">20</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
-        </flux:select>
     </div>
 
-    {{-- Table --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-x-auto">
+    <div class="flux-admin-table-panel border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[44rem] md:min-w-0">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column sortable :sorted="$sortField === 'first_name'" :direction="$sortField === 'first_name' ? $sortDirection : null" wire:click="sortBy('first_name')">Name</flux:table.column>
@@ -84,6 +94,8 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+            </div>
+        </div>
     </div>
 
     <div class="mt-4">

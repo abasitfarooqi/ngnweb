@@ -1,5 +1,5 @@
 <div>
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-x-auto">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto">
         @if($registrations->count())
             <flux:table>
                 <flux:table.columns>

@@ -57,7 +57,7 @@
             <flux:field>
                 <flux:label>Attachments (optional)</flux:label>
                 <input type="file" wire:model="messageFiles" multiple class="block w-full text-sm text-gray-700 dark:text-gray-300" />
-                <p class="text-xs text-gray-500 mt-1">Up to 5 files, 10MB each (jpg, png, webp, pdf, doc, docx, txt).</p>
+                <p class="text-xs text-gray-500 mt-1">Up to 5 files, 10MB each. Types allowed: JPG, PNG, WebP, PDF, Word, plain text (server checks MIME type).</p>
                 <div wire:loading wire:target="messageFiles" class="text-xs text-gray-500 mt-1">Uploading files…</div>
                 @error('messageFiles')
                     <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>

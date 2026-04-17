@@ -1,6 +1,6 @@
 <div>
     @if($member)
-        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
             <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between">
                 <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Club Membership</h2>
                 <flux:badge :color="$member->is_active ? 'green' : 'zinc'" size="sm">{{ $member->is_active ? 'Active' : 'Inactive' }}</flux:badge>

@@ -28,8 +28,6 @@ class Documents extends Component
 
     public $file;
 
-    public $document_number;
-
     public $valid_until;
 
     public ?array $lastUploadReceipt = null;
@@ -37,7 +35,10 @@ class Documents extends Component
     public function mount(): void
     {
         $tab = strtolower((string) request()->query('tab', 'rental'));
-        if (in_array($tab, ['rental', 'finance', 'other'], true)) {
+        if ($tab === 'other') {
+            $tab = 'rental';
+        }
+        if (in_array($tab, ['rental', 'finance'], true)) {
             $this->activeTab = $tab;
         }
     }
@@ -83,14 +84,16 @@ class Documents extends Component
 
     public function switchTab($tab)
     {
-        $this->activeTab = $tab;
+        $tab = strtolower((string) $tab);
+        if (in_array($tab, ['rental', 'finance'], true)) {
+            $this->activeTab = $tab;
+        }
     }
 
     public function startUpload($documentTypeId)
     {
         $this->uploadingFor = (int) $documentTypeId;
         $this->file = null;
-        $this->document_number = '';
         $this->valid_until = '';
         $this->resetValidation();
     }
@@ -195,7 +198,7 @@ class Documents extends Component
                 'file_name' => $this->file->getClientOriginalName(),
                 'file_path' => $path,
                 'file_format' => $this->file->getClientOriginalExtension(),
-                'document_number' => $this->document_number ?: '',
+                'document_number' => '',
                 'valid_until' => $this->valid_until ?: null,
             ];
             if (Schema::hasColumn('customer_documents', 'status')) {
@@ -262,22 +265,20 @@ class Documents extends Component
         $profile = $customerAuth?->customer;
         $customerId = $this->getPortalCustomerId();
 
-        $rentalDocs = DocumentType::query()->forRental()->orderBy('sort_order')->orderBy('name')->get();
         $financeDocs = DocumentType::query()->forFinance()->orderBy('sort_order')->orderBy('name')->get();
-        $rentalDocIds = $rentalDocs->pluck('id');
         $financeDocIds = $financeDocs->pluck('id');
 
-        $otherDocs = DocumentType::query()
-            ->whereNotIn('id', $rentalDocIds->merge($financeDocIds)->unique()->values())
+        $rentalAndGeneralDocs = DocumentType::query()
+            ->when($financeDocIds->isNotEmpty(), fn ($q) => $q->whereNotIn('id', $financeDocIds->all()))
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();
+        $rentalGeneralDocIds = $rentalAndGeneralDocs->pluck('id');
 
         $uploadedDocuments = collect();
         $uploadedByType = collect();
         $rentalUploadedDocuments = collect();
         $financeUploadedDocuments = collect();
-        $otherUploadedDocuments = collect();
         $rentalAgreements = collect();
         $financeContracts = collect();
 
@@ -300,15 +301,11 @@ class Documents extends Component
                     ->keyBy('document_type_id');
 
                 $rentalUploadedDocuments = $uploadedDocuments
-                    ->filter(fn (CustomerDocument $doc) => $rentalDocIds->contains($doc->document_type_id))
+                    ->filter(fn (CustomerDocument $doc) => $rentalGeneralDocIds->contains($doc->document_type_id))
                     ->values();
 
                 $financeUploadedDocuments = $uploadedDocuments
                     ->filter(fn (CustomerDocument $doc) => $financeDocIds->contains($doc->document_type_id))
-                    ->values();
-
-                $otherUploadedDocuments = $uploadedDocuments
-                    ->filter(fn (CustomerDocument $doc) => $otherDocs->pluck('id')->contains($doc->document_type_id))
                     ->values();
 
                 $rentalAgreements = CustomerAgreement::query()
@@ -336,21 +333,19 @@ class Documents extends Component
             }
         }
 
-        $rentalMandatoryIds = $rentalDocs->where('is_mandatory', true)->pluck('id');
+        $rentalMandatoryIds = $rentalAndGeneralDocs->where('is_mandatory', true)->pluck('id');
         $financeMandatoryIds = $financeDocs->where('is_mandatory', true)->pluck('id');
 
         $missingRentalMandatory = $rentalMandatoryIds->filter(fn ($id) => ! $uploadedByType->has($id))->values();
         $missingFinanceMandatory = $financeMandatoryIds->filter(fn ($id) => ! $uploadedByType->has($id))->values();
 
         return view('livewire.portal.documents', compact(
-            'rentalDocs',
+            'rentalAndGeneralDocs',
             'financeDocs',
-            'otherDocs',
             'uploadedByType',
             'uploadedDocuments',
             'rentalUploadedDocuments',
             'financeUploadedDocuments',
-            'otherUploadedDocuments',
             'rentalAgreements',
             'financeContracts',
             'profile',

@@ -5,6 +5,7 @@ namespace App\Livewire\Portal\Support;
 use App\Models\SupportAttachment;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
+use App\Support\SupportChatFileRules;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Livewire\Features\SupportFileUploads\WithFileUploads;
@@ -24,11 +25,9 @@ class Thread extends Component
 
     protected function rules(): array
     {
-        return [
+        return array_merge([
             'messageBody' => ['nullable', 'string', 'max:4000'],
-            'messageFiles' => ['nullable', 'array', 'max:5'],
-            'messageFiles.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
-        ];
+        ], SupportChatFileRules::arrayWithFiles('messageFiles', 5));
     }
 
     public function mount(string $conversationUuid): void

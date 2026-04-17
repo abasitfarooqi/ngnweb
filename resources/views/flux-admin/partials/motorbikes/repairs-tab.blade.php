@@ -1,5 +1,5 @@
 <div>
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-x-auto">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto">
         @if($repairs->count())
             <flux:table>
                 <flux:table.columns>
@@ -60,7 +60,7 @@
                                                 <h4 class="text-xs font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400 mb-2">Updates</h4>
                                                 <div class="space-y-2">
                                                     @foreach($repair->updates as $update)
-                                                        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 p-3">
+                                                        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3">
                                                             <p class="text-sm text-zinc-900 dark:text-white">{{ $update->job_description }}</p>
                                                             @if($update->price)
                                                                 <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">Price: £{{ number_format($update->price, 2) }}</p>

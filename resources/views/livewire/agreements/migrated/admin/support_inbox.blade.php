@@ -98,6 +98,9 @@
 
                             <label class="form-label fw-bold mb-1">Reply</label>
                             <textarea id="thread-reply" class="form-control" rows="3" maxlength="6000" placeholder="Type your message"></textarea>
+                            <label class="form-label fw-bold mb-1 mt-2">Attachments (optional)</label>
+                            <input id="thread-files" type="file" class="form-control form-control-sm" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.txt,image/jpeg,image/png,image/webp,application/pdf">
+                            <div class="form-text">Up to 5 files, 10MB each. Allowed: JPG, PNG, WebP, PDF, Word, plain text.</div>
                             <div class="d-flex justify-content-end mt-2">
                                 <button id="thread-send" class="btn btn-primary btn-sm" disabled>Send message</button>
                             </div>
@@ -181,6 +184,7 @@
         threadStatus: document.getElementById('thread-status'),
         threadAssignee: document.getElementById('thread-assignee'),
         threadSaveMeta: document.getElementById('thread-save-meta'),
+        files: document.getElementById('thread-files'),
     };
 
     let selectedConversationId = null;
@@ -215,6 +219,9 @@
         els.threadStatus.disabled = !enabled;
         els.threadAssignee.disabled = !enabled;
         els.threadSaveMeta.disabled = !enabled;
+        if (els.files) {
+            els.files.disabled = !enabled;
+        }
     };
 
     const renderConversationList = (items) => {
@@ -322,28 +329,63 @@
 
     const sendMessage = async () => {
         const body = els.reply.value.trim();
-        if (!selectedConversationId || body === '') {
+        const fileList = els.files?.files ? Array.from(els.files.files) : [];
+        if (!selectedConversationId) {
+            return;
+        }
+        if (body === '' && fileList.length === 0) {
+            alert('Please type a message or choose a file.');
             return;
         }
 
         els.send.disabled = true;
         try {
-            const response = await fetch(`${urls.sendBase}/${selectedConversationId}/messages`, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf,
-                },
-                credentials: 'same-origin',
-                body: JSON.stringify({ body }),
-            });
+            let response;
+            if (fileList.length > 0) {
+                const formData = new FormData();
+                formData.append('body', body);
+                fileList.forEach((file) => formData.append('files[]', file));
+                response = await fetch(`${urls.sendBase}/${selectedConversationId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    credentials: 'same-origin',
+                    body: formData,
+                });
+            } else {
+                response = await fetch(`${urls.sendBase}/${selectedConversationId}/messages`, {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': csrf,
+                    },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ body }),
+                });
+            }
 
             if (response.ok) {
                 els.reply.value = '';
+                if (els.files) {
+                    els.files.value = '';
+                }
                 await loadConversation(selectedConversationId, selectedConversationUuid);
             } else {
-                alert(`Message failed to send (${response.status}).`);
+                let detail = '';
+                try {
+                    const err = await response.json();
+                    if (err.message) {
+                        detail = String(err.message);
+                    } else if (err.errors) {
+                        detail = JSON.stringify(err.errors);
+                    }
+                } catch (e) {
+                    detail = '';
+                }
+                alert(`Message failed to send (${response.status}). ${detail}`);
             }
         } finally {
             els.send.disabled = false;

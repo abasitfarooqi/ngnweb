@@ -9,8 +9,10 @@ use App\Models\SupportAttachment;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
 use App\Models\User;
+use App\Support\SupportChatFileRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 
@@ -316,15 +318,13 @@ class StaffSupportConversationController extends Controller
 
         $conversation = SupportConversation::query()->findOrFail($conversationId);
 
-        $data = $request->validate([
+        $data = $request->validate(array_merge([
             'body' => ['nullable', 'string', 'max:6000'],
-            'files' => ['nullable', 'array', 'max:5'],
-            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
-        ]);
+        ], SupportChatFileRules::arrayWithFiles('files', 5)));
 
         $body = trim((string) ($data['body'] ?? ''));
-        $uploads = $request->file('files', []);
-        if ($body === '' && empty($uploads)) {
+        $uploads = Arr::wrap($request->file('files') ?? []);
+        if ($body === '' && $uploads === []) {
             return response()->json([
                 'message' => 'Please type a message or attach a file.',
             ], 422);

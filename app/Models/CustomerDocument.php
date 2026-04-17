@@ -28,7 +28,46 @@ class CustomerDocument extends Model
         'motorbike_id',
         'sent_private',
         'status',
+        'rejection_reason',
+        'reviewer_id',
+        'reviewed_at',
     ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (CustomerDocument $doc): void {
+            if (! $doc->isDirty('status')) {
+                return;
+            }
+
+            $status = (string) $doc->status;
+
+            if ($status === 'approved') {
+                $doc->is_verified = true;
+            } elseif ($status === 'rejected') {
+                $doc->is_verified = false;
+            } elseif (in_array($status, ['pending_review', 'uploaded', 'archived'], true)) {
+                $doc->is_verified = false;
+            }
+
+            if (in_array($status, ['approved', 'rejected'], true)
+                && function_exists('backpack_auth')
+                && backpack_auth()->check()) {
+                $doc->reviewer_id = backpack_user()?->id;
+                $doc->reviewed_at = now();
+            }
+        });
+
+        static::saved(function (CustomerDocument $doc): void {
+            if ($doc->status !== 'approved' || trim((string) $doc->document_number) !== '') {
+                return;
+            }
+
+            $doc->forceFill([
+                'document_number' => 'NGN-CD-'.str_pad((string) $doc->id, 6, '0', STR_PAD_LEFT).'-'.now()->format('Ymd'),
+            ])->saveQuietly();
+        });
+    }
 
     public function customer()
     {

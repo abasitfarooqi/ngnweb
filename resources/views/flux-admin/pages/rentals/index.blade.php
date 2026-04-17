@@ -34,32 +34,37 @@
         />
     </div>
 
-    {{-- Filters --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 mb-6">
-        <div class="p-4 flex flex-col sm:flex-row gap-3">
-            <div class="flex-1">
+    <div class="flux-admin-toolbar mb-6 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
+            <div class="min-w-0 w-full lg:flex-1">
                 <flux:input
                     wire:model.live.debounce.300ms="search"
-                    icon="magnifying-glass"
-                    placeholder="Search by booking ID, customer, reg no, make, model..."
-                    size="sm"
+                    placeholder="Search booking ID, customer, registration, make, model…"
+                    variant="filled"
                 />
             </div>
-            <flux:select wire:model.live="status" size="sm" class="w-full sm:w-48">
-                <option value="all">All Statuses</option>
-                <option value="active">Active (No Due)</option>
-                <option value="payment_due">Payment Due</option>
-            </flux:select>
-            <flux:select wire:model.live="perPage" size="sm" class="w-full sm:w-28">
-                <option value="10">10 / page</option>
-                <option value="20">20 / page</option>
-                <option value="50">50 / page</option>
-            </flux:select>
+            <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">
+                <div class="min-w-0 w-full sm:min-w-[14rem] sm:flex-1 lg:w-52 lg:flex-none">
+                    <flux:select wire:model.live="status" placeholder="Payment status">
+                        <flux:select.option value="all">All statuses</flux:select.option>
+                        <flux:select.option value="active">Active (no due)</flux:select.option>
+                        <flux:select.option value="payment_due">Payment due</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:basis-full sm:max-w-[10rem] lg:basis-auto lg:w-32">
+                    <flux:select wire:model.live="perPage">
+                        <flux:select.option value="10">10 per page</flux:select.option>
+                        <flux:select.option value="20">20 per page</flux:select.option>
+                        <flux:select.option value="50">50 per page</flux:select.option>
+                    </flux:select>
+                </div>
+            </div>
         </div>
     </div>
 
-    {{-- Table --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-x-auto">
+    <div class="flux-admin-table-panel border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[56rem] md:min-w-0">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column sortable :sorted="$sortField === 'booking_id'" :direction="$sortDirection" wire:click="sortBy('booking_id')">Booking ID</flux:table.column>
@@ -110,6 +115,8 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+            </div>
+        </div>
     </div>
 
     <div class="mt-4">

@@ -1,6 +1,6 @@
 <div class="space-y-4">
     {{-- Current pricing card --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800">
+    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
         <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700">
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Current Pricing</h2>
         </div>
@@ -28,7 +28,7 @@
 
     {{-- History table --}}
     @if($history->count())
-        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-x-auto">
+        <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto">
             <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700">
                 <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Pricing History</h2>
             </div>

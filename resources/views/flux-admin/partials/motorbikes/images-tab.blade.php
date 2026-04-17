@@ -2,7 +2,7 @@
     @if($images->count())
         <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             @foreach($images as $image)
-                <div wire:key="img-{{ $image->id }}" class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-800 overflow-hidden">
+                <div wire:key="img-{{ $image->id }}" class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden">
                     <img
                         src="{{ asset('storage/' . $image->image_path) }}"
                         alt="{{ $image->alt_text ?? 'Motorbike image' }}"

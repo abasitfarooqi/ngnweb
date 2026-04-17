@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\SupportMessageResource;
 use App\Models\SupportAttachment;
 use App\Models\SupportMessage;
+use App\Support\SupportChatFileRules;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -52,7 +53,7 @@ class SupportMessageController extends Controller
 
         $data = $request->validate([
             'files' => ['required', 'array', 'max:5'],
-            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
+            'files.*' => SupportChatFileRules::eachFileRule(),
         ]);
 
         foreach ($data['files'] as $file) {
