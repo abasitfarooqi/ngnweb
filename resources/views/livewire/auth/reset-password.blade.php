@@ -7,7 +7,7 @@
     </div>
 
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm px-6 py-8 sm:px-8">
-        <form wire:submit.prevent="resetPassword" class="space-y-5" novalidate>
+        <form wire:submit="resetPassword" class="space-y-5">
             <input type="hidden" wire:model="token">
 
             <div>

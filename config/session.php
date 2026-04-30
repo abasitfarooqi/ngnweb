@@ -18,7 +18,9 @@ return [
     ),
     'path' => '/',
     'domain' => env('SESSION_DOMAIN'),
-    'secure' => env('SESSION_SECURE_COOKIE', true),
+    // Default false keeps Livewire/session working on plain HTTP hosts (e.g. server IP during setup).
+    // Set SESSION_SECURE_COOKIE=true explicitly once HTTPS domain is active.
+    'secure' => env('SESSION_SECURE_COOKIE', false),
     'http_only' => true,
     'same_site' => 'lax',
 ];
