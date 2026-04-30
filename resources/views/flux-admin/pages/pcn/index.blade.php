@@ -4,6 +4,9 @@
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">PCN Cases</h1>
             <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{{ $cases->total() }} cases in total</p>
         </div>
+        <div class="flex items-center gap-2">
+            <flux:button href="{{ url('/ngn-admin/pcn-case/create') }}" icon="plus" variant="primary">New PCN case</flux:button>
+        </div>
     </div>
 
     {{-- Toolbar: no leading icon (avoids mis-sized icon rail); one row on lg, stacked on small screens. --}}

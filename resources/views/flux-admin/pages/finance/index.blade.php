@@ -4,6 +4,9 @@
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Finance Applications</h1>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage all finance applications and contracts.</p>
         </div>
+        <div class="flex items-center gap-2">
+            <flux:button href="{{ url('/ngn-admin/finance-application/create') }}" icon="plus" variant="primary">New application</flux:button>
+        </div>
     </div>
 
     <div class="flux-admin-toolbar mb-4 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">

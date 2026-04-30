@@ -32,6 +32,7 @@ class NgnCareer extends Model
         'contact_email',
         'job_posted',
         'expire_date',
+        'is_active',
     ];
 
     /**

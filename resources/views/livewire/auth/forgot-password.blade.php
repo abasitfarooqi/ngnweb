@@ -16,7 +16,7 @@
             </div>
         @endif
 
-        <form wire:submit="sendResetLink" class="space-y-5">
+        <form wire:submit.prevent="sendResetLink" class="space-y-5" novalidate>
             <div>
                 <label for="email" class="ngn-label">Email address</label>
                 <input id="email" type="email" wire:model.blur="email"

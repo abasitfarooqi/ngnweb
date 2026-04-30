@@ -20,7 +20,7 @@ class ClubShow extends Component
 
     public function getTitle(): string
     {
-        return $this->clubMember->full_name . ' — Flux Admin';
+        return $this->clubMember->full_name.' — Flux Admin';
     }
 
     public function render()

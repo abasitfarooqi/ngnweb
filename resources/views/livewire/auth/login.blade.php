@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <form wire:submit="login" class="space-y-5">
+        <form wire:submit.prevent="login" class="space-y-5" novalidate>
 
             {{-- Email --}}
             <div>
