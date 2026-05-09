@@ -1,0 +1,1 @@
+{"table":"mot_tax_alert_subscriptions","columns":["id","first_name","last_name","email","phone","vehicle_registration","notify_email","notify_sms","enable_deals","created_at","updated_at"],"rows":[]}

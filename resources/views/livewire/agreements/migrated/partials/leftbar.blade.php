@@ -95,6 +95,9 @@
                                 <a href="/admin/renting/bookings">Bookings Management</a>
                             </li>
                             <li>
+                                <a href="/admin/renting/motorbikes/pricing">Motorbike Rental Pricing</a>
+                            </li>
+                            <li>
                                 <a href="/admin/renting/bookings/inactive">Inactive Bookings</a>
                             </li>
                             <li>

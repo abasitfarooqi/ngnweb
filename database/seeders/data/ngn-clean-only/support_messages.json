@@ -1,0 +1,1 @@
+{"table":"support_messages","columns":["id","conversation_id","sender_type","sender_customer_auth_id","sender_user_id","body","meta","read_at_customer","read_at_staff","created_at","updated_at"],"rows":[]}

@@ -28,6 +28,61 @@
             var total = 0;
             var minimum_deposit = 0;
 
+            function startBookingForActiveList(bookingId, onSuccessCallback) {
+                if (!bookingId) {
+                    $('#error-message').text(
+                        'Booking was created, but booking_id is missing. Cannot start booking.'
+                    );
+                    $('#modal-error').modal('show');
+                    return;
+                }
+
+                $.ajax({
+                    url: `/admin/renting/bookings/${bookingId}/startbooking`,
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        booking_id: bookingId
+                    },
+                    success: function(response) {
+                        console.log('Booking started/posted for active list:', response);
+                        is_posted = !!response.is_posted;
+                        status = response.status || response.state || status;
+
+                        if (typeof onSuccessCallback === 'function') {
+                            onSuccessCallback(response);
+                        }
+                    },
+                    error: function(xhr, statusText, error) {
+                        console.error(
+                            'Booking created but failed to start/post:',
+                            xhr.responseText || error
+                        );
+                        $('#error-message').text(
+                            'Booking was created, but it was not started/posted. It may not appear in Active Booking.\n\n' +
+                            (xhr.responseText || error)
+                        );
+                        $('#modal-error').modal('show');
+                    }
+                });
+            }
+
+            function showPricingRescueArea() {
+                $('#modal-wait').modal('hide');
+                $('#pricing-rescue-area').removeClass('d-none');
+                $('#btn-confirm-vehicle-selection').prop('disabled', true);
+            }
+
+            function hidePricingRescueArea() {
+                $('#pricing-rescue-area').addClass('d-none');
+                $('#btn-confirm-vehicle-selection').prop('disabled', no_price_bike);
+            }
+
+            function showPricingEditor() {
+                $('#pricing-rescue-area').removeClass('d-none');
+                $('#btn-confirm-vehicle-selection').prop('disabled', no_price_bike);
+            }
+
             // 1.0 - Motorbike Selection >>> //
             $('tbody .motorbike-row').click(function() {
 
@@ -56,30 +111,20 @@
                         _token: '{{ csrf_token() }}'
                     },
                     dataType: 'json',
-                    beforeSend: function() {
-                        $('#modal-wait').modal('show');
-                        setTimeout(function() {
-                            $('#modal-wait').modal('hide');
-                        }, 500);
-                    },
-                    complete: function() {
-                        setTimeout(function() {
-                            $('#modal-wait').modal('hide');
-                        }, 500);
-                    },
                     success: function(response) {
                         if (response.pricing) {
                             // Handle the successful retrieval of pricing here
                             console.log('Pricing details:', response.pricing);
                             no_price_bike = false;
+                            $('#realtime-weekly-price').val(response.pricing.weekly_price);
+                            $('#realtime-minimum-deposit').val(response.pricing.minimum_deposit);
+                            hidePricingRescueArea();
+                            $('#btn-edit-pricing-inline').removeClass('d-none');
                         } else {
-                            // Handle the case whre pricing is not found
-                            alert(
-                                'Price Not Found.\n\nKindly set the price first.'
-                            );
+                            // Handle the case where pricing is not found
                             no_price_bike = true;
-                            $('#modal-motorbike').modal('hide');
-                            return;
+                            showPricingRescueArea();
+                            $('#btn-edit-pricing-inline').addClass('d-none');
                         }
                     },
                     error: function(xhr, status, error) {
@@ -154,6 +199,32 @@
                         </tbody>
                     </table>
                     </div>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-outline-primary btn-sm d-none" id="btn-edit-pricing-inline">
+                            Change Price
+                        </button>
+                    </div>
+                    <div id="pricing-rescue-area" class="mt-3 d-none" style="border: 1px solid #ddd; padding: 10px;">
+                        <p class="mb-2" style="font-weight: 700;">Price not found for this bike.</p>
+                        <p class="mb-2">Add or update pricing here to proceed immediately.</p>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label for="realtime-weekly-price" class="form-label">Weekly Price</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="realtime-weekly-price" placeholder="e.g. 70">
+                            </div>
+                            <div class="col-6">
+                                <label for="realtime-minimum-deposit" class="form-label">Minimum Deposit</label>
+                                <input type="number" step="0.01" min="0" class="form-control" id="realtime-minimum-deposit" placeholder="e.g. 100">
+                            </div>
+                        </div>
+                        <div class="mt-2 d-flex gap-2">
+                            <button type="button" class="btn btn-primary btn-sm" id="btn-save-realtime-pricing">Save / Update Price</button>
+                            <button type="button" class="btn btn-warning btn-sm" id="btn-make-bike-available">Make Bike Available</button>
+                        </div>
+                        <small class="text-muted d-block mt-2">
+                            "Make Bike Available" clears stale open non-issued booking entries for this bike.
+                        </small>
+                    </div>
                     `);
                 // 1.0.2 - END <<< //
 
@@ -166,7 +237,9 @@
             $('#modal-motorbike #btn-confirm-vehicle-selection').click(function() {
 
                 if (no_price_bike) {
-                    alert('Price Not Found.\n\nKindly set the price first from Pricing option.');
+                    showPricingRescueArea();
+                    $('#issue-message').text('Price not found. Add/update price in this popup first, then confirm.');
+                    $('#modal-issue').modal('show');
                     return;
                 }
 
@@ -297,6 +370,74 @@
                     `);
 
                 $('#modal-motorbike').modal('hide');
+            });
+            $(document).on('click', '#btn-save-realtime-pricing', function() {
+                if (!motorbike_id) {
+                    $('#issue-message').text('Please select a motorbike first.');
+                    $('#modal-issue').modal('show');
+                    return;
+                }
+
+                var weekly = parseFloat($('#realtime-weekly-price').val());
+                var minimumDeposit = parseFloat($('#realtime-minimum-deposit').val());
+                if (isNaN(weekly) || weekly <= 0 || isNaN(minimumDeposit) || minimumDeposit < 0) {
+                    $('#issue-message').text('Please provide valid Weekly Price and Minimum Deposit.');
+                    $('#modal-issue').modal('show');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/admin/renting/motorbike-pricing/upsert',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        motorbike_id: motorbike_id,
+                        weekly_price: weekly,
+                        minimum_deposit: minimumDeposit
+                    },
+                    success: function(response) {
+                        no_price_bike = false;
+                        weekly_price = Number(response.pricing.weekly_price);
+                        minimum_deposit = Number(response.pricing.minimum_deposit);
+                        hidePricingRescueArea();
+                        $('#btn-edit-pricing-inline').removeClass('d-none');
+                        $('#info-message').text('Pricing saved. You can now confirm this vehicle.');
+                        $('#modal-info').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        $('#issue-message').text(xhr.responseJSON?.message || `Failed to save pricing: ${error}`);
+                        $('#modal-issue').modal('show');
+                    }
+                });
+            });
+
+            $(document).on('click', '#btn-make-bike-available', function() {
+                if (!motorbike_id) {
+                    $('#issue-message').text('Please select a motorbike first.');
+                    $('#modal-issue').modal('show');
+                    return;
+                }
+
+                $.ajax({
+                    url: '/admin/renting/motorbike-make-available',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        motorbike_id: motorbike_id
+                    },
+                    success: function(response) {
+                        $('#info-message').text(response.message);
+                        $('#modal-info').modal('show');
+                    },
+                    error: function(xhr, status, error) {
+                        $('#issue-message').text(xhr.responseJSON?.message || `Failed to update availability: ${error}`);
+                        $('#modal-issue').modal('show');
+                    }
+                });
+            });
+
+            $(document).on('click', '#btn-edit-pricing-inline', function() {
+                showPricingEditor();
             });
             // 1.1 - END <<< //
             // 1.2 - MOTORVEHICLE Section > X Row Selected >>> //
@@ -767,7 +908,7 @@
                                     $('#modal-wait').modal('hide');
                                 }, 500);
                                 booking_id = response.booking_id;
-                                status = response.state;
+                                status = response.status || response.state;
                                 invoice_id = response.invoice_id;
                                 is_posted = response.is_posted;
 
@@ -780,29 +921,37 @@
                                 console.log(response);
 
                                 // 2.2.2.1 - Customer Section > Customer Row Selected > New Booking > AJAX Request > Quick View >>> //
-                                $('.selection-section .bookingcard').html(`
-                                <h6 class="text-center">Booking</h6>
-                                <div class="table-responsive">
-                                    <table class="table table-dark table-borderless mb-1">
-                                        <thead>
-                                        <tr>
-                                            <th class="inforce-font-size" >Booking ID</th>
-                                            <th class="inforce-font-size" !important;" style="display: none;">TRANSACTION NO.</th>
-                                            <th class="inforce-font-size" !important;" >START DATE</th>
-                                            <th class="inforce-font-size" !important;" >BOOKING STATUS</th>
-                                            <th class="inforce-font-size" !important;" >STARTED</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td id="booking_id">${booking_id}</td>
-                                            <td id="transaction_id" style="display: none;"></td>
-                                            <td id="start_date">${start_date}</td>
-                                            <td id="bookingStatus">${status}</td>
-                                            <td id="bookingStarted">${is_posted ? 'YES' : 'NO'}</td>
-                                        </tr>
-                                    </tbody>
-                                </div>`);
+                                var renderBookingCard = function() {
+                                    $('.selection-section .bookingcard').html(`
+                                    <h6 class="text-center">Booking</h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-dark table-borderless mb-1">
+                                            <thead>
+                                            <tr>
+                                                <th class="inforce-font-size" >Booking ID</th>
+                                                <th class="inforce-font-size" !important;" style="display: none;">TRANSACTION NO.</th>
+                                                <th class="inforce-font-size" !important;" >START DATE</th>
+                                                <th class="inforce-font-size" !important;" >BOOKING STATUS</th>
+                                                <th class="inforce-font-size" !important;" >STARTED</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td id="booking_id">${booking_id}</td>
+                                                <td id="transaction_id" style="display: none;"></td>
+                                                <td id="start_date">${start_date}</td>
+                                                <td id="bookingStatus">${status}</td>
+                                                <td id="bookingStarted">${is_posted ? 'YES' : 'NO'}</td>
+                                            </tr>
+                                        </tbody>
+                                    </div>`);
+                                };
+                                renderBookingCard();
+                                if (!is_posted) {
+                                    startBookingForActiveList(booking_id, function() {
+                                        renderBookingCard();
+                                    });
+                                }
                                 // 2.2.2.1 - END <<< //
 
                             },
@@ -1283,39 +1432,9 @@
                 // 4.3.1 - END <<< ///////
 
                 // 4.3.2 - Update Record upon Rental Agreement Generation Signature >>> ///////
-                $.ajax({
-                    url: `/admin/renting/bookings/${booking_id}/startbooking`,
-                    type: 'POST',
-                    data: {
-                        _token: $('meta[name="csrf-token"]').attr('content'),
-                        booking_id: booking_id
-                    },
-                    beforeSend: function() {
-                        $('#modal-wait').modal('show');
-                    },
-                    complete: function() {
-                        setTimeout(function() {
-                            $('#modal-wait').modal('hide');
-                        }, 500);
-                    },
-                    success: function(response) {
-                        setTimeout(function() {
-                            $('#modal-wait').modal('hide');
-                        }, 500);
-                        console.log(response);
-                        $('#info-message').html(
-                            '<p>Rental Agreement Sent for Signature for booking: ' +
-                            booking_id +
-                            '.</p><p>Please inform the customer to check the email for the link</p><p>Or offer QR CODE to customer to scan.'
-                        );
-                        $('#modal-info').modal('show');
-                    },
-                    error: function(xhr, status, error) {
-                        console.error("Error starting booking: ", error);
-                        $('#error-message').text(`Error: ${error}`);
-                        $('#modal-error').modal('show');
-                    }
-                });
+                if (!is_posted) {
+                    startBookingForActiveList(booking_id);
+                }
                 // 4.3.2 - END <<< ///////
 
             });

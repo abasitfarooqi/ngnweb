@@ -1,0 +1,1 @@
+{"table":"sp_fitments","columns":["id","model_id","year","country_slug","country_name","colour_slug","colour_name","is_active","created_at","updated_at"],"rows":[]}

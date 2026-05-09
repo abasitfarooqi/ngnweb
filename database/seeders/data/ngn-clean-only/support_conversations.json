@@ -1,0 +1,1 @@
+{"table":"support_conversations","columns":["id","uuid","customer_auth_id","service_booking_id","assigned_backpack_user_id","title","topic","status","last_message_at","first_customer_message_at","external_ai_session_id","created_at","updated_at"],"rows":[]}

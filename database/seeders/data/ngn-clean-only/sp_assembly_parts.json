@@ -1,0 +1,1 @@
+{"table":"sp_assembly_parts","columns":["id","assembly_id","part_id","qty_used","sort_order","note_override","price_override","stock_override","created_at","updated_at"],"rows":[]}

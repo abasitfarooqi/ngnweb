@@ -1,0 +1,79 @@
+{
+    "generated_at": "2026-05-08T15:18:40+01:00",
+    "source_db": "ngn_clean",
+    "production_db": "nqfkhvtysa",
+    "tables": [
+        {
+            "name": "cache",
+            "rows": 0
+        },
+        {
+            "name": "cache_locks",
+            "rows": 0
+        },
+        {
+            "name": "customer_profiles",
+            "rows": 0
+        },
+        {
+            "name": "document_change_requests",
+            "rows": 0
+        },
+        {
+            "name": "mot_tax_alert_subscriptions",
+            "rows": 0
+        },
+        {
+            "name": "requirement_sets",
+            "rows": 0
+        },
+        {
+            "name": "requirements",
+            "rows": 0
+        },
+        {
+            "name": "sp_assemblies",
+            "rows": 0
+        },
+        {
+            "name": "sp_assembly_parts",
+            "rows": 0
+        },
+        {
+            "name": "sp_fitments",
+            "rows": 0
+        },
+        {
+            "name": "sp_makes",
+            "rows": 0
+        },
+        {
+            "name": "sp_models",
+            "rows": 0
+        },
+        {
+            "name": "sp_parts",
+            "rows": 0
+        },
+        {
+            "name": "sp_stock_movements",
+            "rows": 0
+        },
+        {
+            "name": "support_attachments",
+            "rows": 0
+        },
+        {
+            "name": "support_conversations",
+            "rows": 0
+        },
+        {
+            "name": "support_messages",
+            "rows": 0
+        },
+        {
+            "name": "upload_tests",
+            "rows": 0
+        }
+    ]
+}

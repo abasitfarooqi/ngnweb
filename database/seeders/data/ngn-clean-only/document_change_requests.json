@@ -1,0 +1,1 @@
+{"table":"document_change_requests","columns":["id","customer_profile_id","customer_id","document_id","new_document_id","reason","status","reviewed_by","reviewed_at","review_notes","created_at","updated_at"],"rows":[]}

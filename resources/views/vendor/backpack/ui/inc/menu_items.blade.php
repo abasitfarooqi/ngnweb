@@ -19,6 +19,7 @@
     <x-backpack::menu-dropdown-item title="Rental Operations" icon="la la-columns" :link="backpack_url('rental-operations')" />
     <x-backpack::menu-dropdown-item title="New Booking" icon="la la-plus" :link="route('page.rental_operations.new_booking')" />
     <x-backpack::menu-dropdown-item title="Bookings Management" icon="la la-list" :link="route('page.rental_operations.bookings_management')" />
+    <x-backpack::menu-dropdown-item title="Motorbike Pricing" icon="la la-pound-sign" :link="backpack_url('../admin/renting/motorbikes/pricing')" />
     <x-backpack::menu-dropdown-item title="Inactive Bookings" icon="la la-toggle-off" :link="route('page.rental_operations.inactive_bookings')" />
     <x-backpack::menu-dropdown-item title="All Bookings" icon="la la-table" :link="route('page.rental_operations.all_bookings')" />
     <x-backpack::menu-dropdown-item title="Booking Invoice Dates" icon="la la-calendar" :link="route('page.rental_operations.booking_invoice_dates')" />

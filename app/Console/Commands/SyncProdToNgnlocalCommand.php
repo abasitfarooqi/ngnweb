@@ -20,6 +20,8 @@ class SyncProdToNgnlocalCommand extends Command
                             {--migration-folder=database/migrations/unified-sync : Folder (relative to project root) for generated migration/report files}
                             {--prepare-schema : If production schema is missing/mismatched, run migration folder first}
                             {--deep-clone : Prepare schema if needed, then sync all production data}
+                            {--seed-local-extra : Also sync non-production tables from local seed DB (override + preserve PK IDs)}
+                            {--seed-source-db= : Local seed source DB name for non-production tables (default: ngn_clean)}
                             {--skip-views : Do not recreate views from production}
                             {--force : Allow risky targets (same as source, or non-ngn_clean DB)}';
 
@@ -200,6 +202,10 @@ class SyncProdToNgnlocalCommand extends Command
                     $this->warn("View {$view} skipped: ".$e->getMessage());
                 }
             }
+        }
+
+        if ($this->option('seed-local-extra')) {
+            $this->syncLocalOnlyTables($prod, $target, $srcSchema, $dstSchema);
         }
 
         $this->info('Full sync finished.');
@@ -441,6 +447,56 @@ class SyncProdToNgnlocalCommand extends Command
         return true;
     }
 
+    protected function syncLocalOnlyTables(array $prod, array $target, string $srcSchema, string $dstSchema): void
+    {
+        $seedDb = (string) ($this->option('seed-source-db') ?: env('SYNC_LOCAL_SEED_DB', 'ngn_clean'));
+        if ($seedDb === '') {
+            $this->warn('Skip local-extra sync: empty seed source DB name.');
+
+            return;
+        }
+
+        $seed = $target;
+        $seed['database'] = $seedDb;
+
+        if ($this->isSameDatabase($seed, $target)) {
+            $this->warn('Skip local-extra sync: seed source DB matches target DB.');
+
+            return;
+        }
+
+        try {
+            $seedPdo = ProdToLocalTableSync::connectSource($seed);
+            $dstPdo = ProdToLocalTableSync::connectTarget($target);
+            $prodPdo = ProdToLocalTableSync::connectSource($prod);
+        } catch (\Throwable $e) {
+            $this->warn('Skip local-extra sync: '.$e->getMessage());
+
+            return;
+        }
+
+        $prodTables = $this->baseTables($prodPdo, $srcSchema);
+        $seedTables = $this->baseTables($seedPdo, $seedDb);
+        $extraTables = array_values(array_diff($seedTables, $prodTables));
+        sort($extraTables);
+
+        if ($extraTables === []) {
+            $this->info("No local-only tables found in seed DB [{$seedDb}].");
+
+            return;
+        }
+
+        $this->info('Syncing local-only tables from seed DB ['.$seedDb.']: '.count($extraTables));
+        foreach ($extraTables as $table) {
+            try {
+                $r = ProdToLocalTableSync::syncTable($seedPdo, $dstPdo, $seedDb, $table);
+                $this->line("  {$table}: rows={$r['rows']}, inserted={$r['inserted']}");
+            } catch (\Throwable $e) {
+                $this->warn("  {$table} skipped: ".$e->getMessage());
+            }
+        }
+    }
+
     protected function productionSchemaMatchesTarget(\PDO $src, string $srcSchema, \PDO $dst, string $dstSchema): bool
     {
         [$srcTables, $srcColumns] = $this->schemaSnapshot($src, $srcSchema);
@@ -458,6 +514,21 @@ class SyncProdToNgnlocalCommand extends Command
         }
 
         return true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function baseTables(\PDO $pdo, string $schema): array
+    {
+        $stmt = $pdo->query(
+            'SELECT table_name FROM information_schema.tables
+             WHERE table_schema = '.$pdo->quote($schema)." AND table_type = 'BASE TABLE'
+             ORDER BY table_name"
+        );
+        $rows = $stmt ? $stmt->fetchAll(\PDO::FETCH_COLUMN) : [];
+
+        return is_array($rows) ? array_values($rows) : [];
     }
 
     protected function flushPermissionCache(): void

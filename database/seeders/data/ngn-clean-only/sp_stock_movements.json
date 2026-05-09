@@ -1,0 +1,1 @@
+{"table":"sp_stock_movements","columns":["id","sp_part_id","branch_id","transaction_date","in","out","transaction_type","user_id","ref_doc_no","remarks","created_at","updated_at"],"rows":[]}

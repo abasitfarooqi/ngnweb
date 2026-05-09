@@ -28,6 +28,7 @@ class MotorbikeAvailableCrudController extends BaseCrudController
     protected function setupListOperation()
     {
         $this->crud->query->select('motorbikes.*');
+        $this->crud->addButtonFromView('line', 'make_available', 'make_available', 'beginning');
 
         // Joins
         $this->crud->query->leftJoin('motorbike_annual_compliance as mac', 'mac.motorbike_id', '=', 'motorbikes.id');

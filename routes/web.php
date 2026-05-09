@@ -606,6 +606,10 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
         Route::get('/bookings/change-start-date', [RentingController::class, 'showUpdateStartDateForm'])->name('admin.renting.bookings.showUpdateStartDateForm');
         Route::post('/bookings/change-start-date', [RentingController::class, 'updateStartDate'])->name('admin.renting.bookings.updateStartDate');
         Route::get('/motorbike-price-check', [RentingController::class, 'getMotorbikePrice'])->name('admin.motorbike.price');
+        Route::post('/motorbike-pricing/upsert', [RentingController::class, 'upsertMotorbikePricing'])->name('admin.motorbike.price.upsert');
+        Route::post('/motorbike-make-available', [RentingController::class, 'makeMotorbikeAvailable'])->name('admin.motorbike.make-available');
+        Route::get('/motorbike-available/{motorbikeId}/make-available-preview', [RentingController::class, 'previewMakeMotorbikeAvailable'])->name('admin.motorbike.make-available.preview');
+        Route::post('/motorbike-available/{motorbikeId}/make-available-execute', [RentingController::class, 'executeMakeMotorbikeAvailable'])->name('admin.motorbike.make-available.execute');
         Route::post('/bookings/doc-confirm', [RentingController::class, 'docConfirm'])->name('admin.renting.bookings.doc-confirm');
         // Bookings by {bookingId}
         Route::post('/bookings/{bookingId}/startbooking', [RentingController::class, 'startbooking'])->name('admin.renting.bookings.startbooking');

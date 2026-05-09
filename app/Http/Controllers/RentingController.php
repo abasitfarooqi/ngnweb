@@ -12,6 +12,7 @@ use App\Models\BookingIssuanceItem;
 use App\Models\Customer;
 use App\Models\DocumentType;
 use App\Models\Motorbike;
+use App\Models\MotorbikeRegistration;
 use App\Models\MotorbikeMaintenanceLog;
 use App\Models\PaymentMethod;
 use App\Models\PcnCase;
@@ -23,7 +24,6 @@ use App\Models\RentingPricing;
 use App\Models\RentingServiceVideo;
 use App\Models\RentingTransaction;
 use App\Models\TransactionType;
-use App\Support\QrCodeGenerator;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Exception;
@@ -35,6 +35,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+// DateTime
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class RentingController extends Controller
 {
@@ -57,7 +59,8 @@ class RentingController extends Controller
 
         if ($access) {
 
-            $qrBase64 = QrCodeGenerator::dataUrl($url, 200);
+            $qrImage = QrCode::format('png')->size(200)->generate($url);
+            $qrBase64 = 'data:image/png;base64,'.base64_encode($qrImage);
 
             return response()->json([
                 'qrImage' => $qrBase64,
@@ -70,6 +73,7 @@ class RentingController extends Controller
     // addOtherCharges
     public function addOtherCharges(Request $request)
     {
+
 
         $validatedData = $request->validate([
             'booking_id' => 'required',
@@ -109,7 +113,7 @@ class RentingController extends Controller
     //     DB::beginTransaction();
 
     //     try {
-    //
+    // 
 
     //         $validatedData = $request->validate([
     //             'charges_id' => 'required',
@@ -165,6 +169,7 @@ class RentingController extends Controller
         DB::beginTransaction();
 
         try {
+    
 
             $validatedData = $request->validate([
                 'charges_id' => 'required',
@@ -307,7 +312,7 @@ class RentingController extends Controller
             ->where('BI.id', $invoiceId)
             ->first();
 
-        if (! $invoice) {
+        if (!$invoice) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invoice not found',
@@ -391,7 +396,7 @@ class RentingController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Error: '.$e->getMessage(),
+                'message' => 'Error: ' . $e->getMessage(),
             ], 500);
         }
     }
@@ -486,6 +491,7 @@ class RentingController extends Controller
     {
         // Convert isChecked to a boolean value
         $request->merge(['isChecked' => filter_var($request->input('isChecked'), FILTER_VALIDATE_BOOLEAN)]);
+        $request->merge(['proceed_anyway' => filter_var($request->input('proceed_anyway'), FILTER_VALIDATE_BOOLEAN)]);
 
         \Log::info('Incoming request data:', $request->all());
 
@@ -497,16 +503,22 @@ class RentingController extends Controller
                 'collectDate' => 'nullable|date',
                 'collectTime' => 'nullable|date_format:H:i',
                 'isChecked' => 'required|boolean',
+                'proceed_anyway' => 'sometimes|boolean',
             ]);
 
+            $updateData = [
+                'collect_details' => $validatedData['collectDetails'],
+                'collect_date' => $validatedData['collectDate'],
+                'collect_time' => $validatedData['collectTime'],
+                'collect_checked' => $validatedData['isChecked'],
+            ];
+            if (! empty($validatedData['proceed_anyway'])) {
+                $updateData['collect_proceeded_anyway_user_id'] = auth()->id();
+                $updateData['collect_proceeded_anyway_at'] = now();
+            }
             $bookingClosing = BookingClosing::updateOrCreate(
                 ['booking_id' => $validatedData['booking_id']],
-                [
-                    'collect_details' => $validatedData['collectDetails'],
-                    'collect_date' => $validatedData['collectDate'],
-                    'collect_time' => $validatedData['collectTime'],
-                    'collect_checked' => $validatedData['isChecked'],
-                ]
+                $updateData
             );
 
             //    protected $table = 'renting_booking_items';
@@ -677,6 +689,381 @@ class RentingController extends Controller
         }
     }
 
+    /**
+     * Record deposit refund with proof and optional email. Blocks if PCN open or additional charges due.
+     * POST /admin/renting/deposit-refund
+     */
+    public function depositRefund(Request $request)
+    {
+        $request->merge([
+            'send_email' => filter_var($request->input('send_email'), FILTER_VALIDATE_BOOLEAN),
+        ]);
+
+        $validated = $request->validate([
+            'booking_id' => 'required|exists:renting_bookings,id',
+            'amount_refunded' => 'required|numeric|min:0',
+            'refund_date' => 'required|date',
+            'refund_method' => 'required|in:cash,bank_transfer,card,other',
+            'proof_reference' => 'nullable|string|max:255',
+            'send_email' => 'required|boolean',
+            'email_content_type' => 'nullable|in:full,deposit_only',
+            'proof_file' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:10240',
+        ]);
+        $validated['email_content_type'] = ($validated['send_email'] && ! empty($validated['email_content_type']))
+            ? $validated['email_content_type']
+            : 'full';
+
+        $booking = RentingBooking::with(['customer', 'rentingBookingItems.motorbike'])->findOrFail($validated['booking_id']);
+        $bookingItem = $booking->rentingBookingItems->first();
+        $motorbikeId = $bookingItem ? $bookingItem->motorbike_id : null;
+
+        // Block: PCN open
+        if ($motorbikeId) {
+            $openPcnCases = $this->pcnCasesForBooking($booking, $motorbikeId)
+                ->where('isClosed', false)
+                ->get();
+            if ($openPcnCases->isNotEmpty()) {
+                $prefix = config('backpack.base.route_prefix', 'admin');
+                $pcnCases = $openPcnCases->map(function ($c) use ($prefix) {
+                    return [
+                        'id' => $c->id,
+                        'pcn_number' => $c->pcn_number,
+                        'reduced_amount' => $c->reduced_amount,
+                        'date_of_contravention' => $c->date_of_contravention?->format('Y-m-d'),
+                        'isClosed' => (bool) $c->isClosed,
+                        'link' => url($prefix.'/pcn-case/'.$c->id.'/edit'),
+                    ];
+                });
+                return response()->json([
+                    'blocked' => true,
+                    'reason' => 'pcn_open',
+                    'message' => 'Refund not authorised. Open PCN case(s) must be resolved first.',
+                    'pcn_cases' => $pcnCases,
+                ], 422);
+            }
+        }
+
+        // Block: additional charges due (unpaid)
+        $unpaidAmount = (float) DB::table('renting_other_charges')
+            ->where('booking_id', $booking->id)
+            ->where(function ($q) {
+                $q->where('is_paid', 0)->orWhereNull('is_paid');
+            })
+            ->sum('amount');
+        if ($unpaidAmount > 0) {
+            return response()->json([
+                'blocked' => true,
+                'reason' => 'additional_charges_due',
+                'message' => 'Refund not authorised. Additional charges are due. Clear them in the CHARGES tab.',
+            ], 422);
+        }
+
+        $proofPath = null;
+        if ($request->hasFile('proof_file')) {
+            $file = $request->file('proof_file');
+            $name = $file->getClientOriginalName() ?: 'proof_'.time().'.'.$file->getClientOriginalExtension();
+            $proofPath = $file->storeAs('deposit_refunds/'.$booking->id, $name, 'public');
+        }
+
+        $userId = auth()->id();
+        $bookingClosing = BookingClosing::updateOrCreate(
+            ['booking_id' => $booking->id],
+            [
+                'deposit_checked' => true,
+                'deposit_refunded_at' => \Carbon\Carbon::parse($validated['refund_date']),
+                'deposit_refund_method' => $validated['refund_method'],
+                'deposit_refund_proof_path' => $proofPath,
+                'deposit_refund_proof_reference' => $validated['proof_reference'] ?? null,
+                'deposit_refund_user_id' => $userId,
+                'deposit_refund_send_email' => $validated['send_email'],
+            ]
+        );
+
+        if ($validated['send_email']) {
+            try {
+                $mailData = $this->buildDepositRefundMailData($booking, $bookingClosing, $validated);
+                $mailData['email_content_type'] = $validated['email_content_type'];
+                $pdf = null;
+                if ($validated['email_content_type'] === 'full') {
+                    try {
+                        $pdf = Pdf::loadView('emails.pdf.deposit-refund-report', $mailData)
+                            ->setPaper('a4', 'portrait');
+                    } catch (\Throwable $e) {
+                        Log::warning('Deposit refund PDF generation failed: '.$e->getMessage());
+                    }
+                }
+                $recipients = array_filter([$booking->customer->email ?? null, 'customerservice@neguinhomotors.co.uk']);
+                Mail::to($recipients)->send(new \App\Mail\DepositRefundRentalEndingMail($mailData, $pdf));
+                $bookingClosing->update(['deposit_refund_email_sent_at' => now()]);
+            } catch (\Throwable $e) {
+                Log::error('Deposit refund email failed: '.$e->getMessage());
+            }
+        }
+
+        $closingStatus = BookingClosing::where('booking_id', $booking->id)->first();
+        return response()->json([
+            'success' => true,
+            'deposit_checked' => true,
+            'message' => 'Refund recorded.',
+            'closing' => $closingStatus ? [
+                'notice_details' => $closingStatus->notice_details,
+                'notice_checked' => $closingStatus->notice_checked,
+                'collect_details' => $closingStatus->collect_details,
+                'collect_date' => $closingStatus->collect_date,
+                'collect_time' => $closingStatus->collect_time,
+                'collect_checked' => $closingStatus->collect_checked,
+                'damages_checked' => $closingStatus->damages_checked,
+                'pcn_checked' => $closingStatus->pcn_checked,
+                'pending_checked' => $closingStatus->pending_checked,
+                'deposit_checked' => $closingStatus->deposit_checked,
+            ] : null,
+        ]);
+    }
+
+    private function buildDepositRefundMailData(RentingBooking $booking, BookingClosing $closing, array $validated): array
+    {
+        $item = $booking->rentingBookingItems->first();
+        $motorbike = $item ? $item->motorbike : null;
+        $customer = $booking->customer;
+        $collectDate = $closing->collect_date ? \Carbon\Carbon::parse($closing->collect_date)->format('d/m/Y') : null;
+        $collectTime = $closing->collect_time ? \Carbon\Carbon::parse($closing->collect_time)->format('H:i') : null;
+
+        return [
+            'booking_id' => $booking->id,
+            'customer_name' => trim(($customer->first_name ?? '').' '.($customer->last_name ?? '')),
+            'email' => $customer->email ?? '',
+            'vehicle_reg' => $motorbike ? $motorbike->reg_no : 'N/A',
+            'rental_start' => $booking->start_date ? $booking->start_date->format('d/m/Y') : 'N/A',
+            'rental_end' => $item && $item->end_date ? $item->end_date->format('d/m/Y') : ($collectDate ?: 'N/A'),
+            'collect_details' => $closing->collect_details,
+            'collect_date' => $collectDate,
+            'collect_time' => $collectTime,
+            'amount_refunded' => $validated['amount_refunded'],
+            'refund_date' => is_string($validated['refund_date']) ? $validated['refund_date'] : \Carbon\Carbon::parse($validated['refund_date'])->format('d/m/Y'),
+            'refund_method' => $validated['refund_method'],
+            'proof_reference' => $validated['proof_reference'] ?? null,
+        ];
+    }
+
+    /**
+     * Get pendings that block or warn when collecting motorbike (additional charges, PCN, pending rent).
+     * Used to show "Proceed anyway?" modal before marking collect.
+     */
+    public function getClosingPendings($bookingId)
+    {
+        $booking = RentingBooking::with(['rentingBookingItems.motorbike'])->findOrFail($bookingId);
+        $motorbikeId = $booking->rentingBookingItems->first()?->motorbike_id;
+        $prefix = config('backpack.base.route_prefix', 'admin');
+
+        $additionalChargesTotal = (float) DB::table('renting_other_charges')
+            ->where('booking_id', $booking->id)
+            ->sum('amount');
+        $additionalChargesPaid = (float) DB::table('renting_other_charges')
+            ->where('booking_id', $booking->id)
+            ->where('is_paid', true)
+            ->sum('amount');
+        $additionalChargesDue = $additionalChargesTotal - $additionalChargesPaid;
+
+        $pcnDue = 0.0;
+        $pcnTotal = 0.0;
+        $pcnPaid = 0.0;
+        $pcnCases = [];
+        if ($motorbikeId) {
+            $pcnTotal = (float) $this->pcnCasesForBooking($booking, $motorbikeId)
+                ->sum('reduced_amount');
+            $pcnPaid = (float) $this->pcnCasesForBooking($booking, $motorbikeId)
+                ->where('isClosed', true)
+                ->sum('reduced_amount');
+            $pcnDue = $pcnTotal - $pcnPaid;
+            $openPcnCases = $this->pcnCasesForBooking($booking, $motorbikeId)
+                ->where('isClosed', false)
+                ->get();
+            foreach ($openPcnCases as $c) {
+                $pcnCases[] = [
+                    'id' => $c->id,
+                    'pcn_number' => $c->pcn_number,
+                    'reduced_amount' => $c->reduced_amount,
+                    'date_of_contravention' => $c->date_of_contravention?->format('Y-m-d'),
+                    'link' => url($prefix.'/pcn-case/'.$c->id.'/edit'),
+                ];
+            }
+        }
+
+        // Only invoices with invoice_date on or before today count as required to pay (future invoices excluded)
+        $today = \Carbon\Carbon::today()->toDateString();
+        $pendingRentDue = (float) BookingInvoice::where('booking_id', $booking->id)
+            ->where('is_paid', false)
+            ->whereDate('invoice_date', '<=', $today)
+            ->sum('amount');
+
+        $hasPendings = $additionalChargesDue > 0 || $pcnDue > 0 || $pendingRentDue > 0;
+
+        // Explicit cause per type so user knows what is blocking
+        $messages = [];
+        $causes = [];
+        if ($pendingRentDue > 0) {
+            $msg = 'Rental left to pay: £'.number_format($pendingRentDue, 2).' (see PAYMENT tab).';
+            $messages[] = $msg;
+            $causes[] = ['type' => 'rental', 'label' => 'Rental left to pay', 'amount' => $pendingRentDue, 'message' => $msg];
+        }
+        if ($additionalChargesDue > 0) {
+            $msg = 'Additional charges left to pay: £'.number_format($additionalChargesDue, 2).' (see CHARGES tab).';
+            $messages[] = $msg;
+            $causes[] = ['type' => 'additional', 'label' => 'Additional charges left to pay', 'amount' => $additionalChargesDue, 'message' => $msg];
+        }
+        if ($pcnDue > 0) {
+            $msg = 'PCN left to pay: £'.number_format($pcnDue, 2).'.';
+            $messages[] = $msg;
+            $causes[] = ['type' => 'pcn', 'label' => 'PCN left to pay', 'amount' => $pcnDue, 'message' => $msg];
+        }
+
+        return response()->json([
+            'has_pendings' => $hasPendings,
+            'additional_charges_total' => round($additionalChargesTotal, 2),
+            'additional_charges_paid' => round($additionalChargesPaid, 2),
+            'additional_charges_due' => round($additionalChargesDue, 2),
+            'pcn_total' => round($pcnTotal, 2),
+            'pcn_paid' => round($pcnPaid, 2),
+            'pcn_due' => round($pcnDue, 2),
+            'pcn_cases' => $pcnCases,
+            'pending_rent_due' => round($pendingRentDue, 2),
+            'messages' => $messages,
+            'causes' => $causes,
+        ]);
+    }
+
+    /**
+     * Compute current pending amounts for a booking (rental, additional charges, PCN).
+     */
+    private function computePendingsForBooking($bookingId): array
+    {
+        $booking = RentingBooking::with(['rentingBookingItems.motorbike'])->find($bookingId);
+        if (! $booking) {
+            return ['rental' => 0.0, 'additional' => 0.0, 'pcn' => 0.0];
+        }
+        $motorbikeId = $booking->rentingBookingItems->first()?->motorbike_id;
+
+        $additional = (float) DB::table('renting_other_charges')
+            ->where('booking_id', $booking->id)
+            ->where(function ($q) {
+                $q->where('is_paid', 0)->orWhereNull('is_paid');
+            })
+            ->sum('amount');
+
+        $pcn = 0.0;
+        if ($motorbikeId) {
+            $pcn = (float) $this->pcnCasesForBooking($booking, $motorbikeId)
+                ->where('isClosed', false)
+                ->sum('reduced_amount');
+        }
+
+        $today = \Carbon\Carbon::today()->toDateString();
+        $rental = (float) BookingInvoice::where('booking_id', $booking->id)
+            ->where('is_paid', false)
+            ->whereDate('invoice_date', '<=', $today)
+            ->sum('amount');
+
+        return ['rental' => $rental, 'additional' => $additional, 'pcn' => $pcn];
+    }
+
+    private function pcnCasesForBooking(RentingBooking $booking, int $motorbikeId)
+    {
+        $bookingItem = $booking->rentingBookingItems->first();
+        $startDate = optional($booking->start_date)->toDateString();
+        $endDate = optional($bookingItem?->end_date)->toDateString();
+
+        $query = PcnCase::where('motorbike_id', $motorbikeId)
+            ->where('customer_id', $booking->customer_id);
+
+        if ($startDate) {
+            $query->whereDate('date_of_contravention', '>=', $startDate);
+        }
+
+        if ($endDate) {
+            $query->whereDate('date_of_contravention', '<=', $endDate);
+        }
+
+        return $query;
+    }
+
+    /**
+     * List bookings that were ended with "Proceed anyway" (collect despite pendings).
+     * Same handling as active/inactive: click row to open detail and collect what's left.
+     */
+    public function endedWithPendingsBookings()
+    {
+        $bookingIds = BookingClosing::whereNotNull('collect_proceeded_anyway_user_id')
+            ->pluck('booking_id')
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($bookingIds)) {
+            $bookingDetails = collect();
+            $closingsMap = collect();
+            $pendingsMap = [];
+        } else {
+            $closings = BookingClosing::whereNotNull('collect_proceeded_anyway_user_id')
+                ->with('collectProceededAnywayUser')
+                ->get()
+                ->keyBy('booking_id');
+
+            $base = DB::table('renting_bookings as RB')
+                ->join('renting_booking_items as RBI', 'RB.id', '=', 'RBI.booking_id')
+                ->join('customers as C', 'RB.customer_id', '=', 'C.id')
+                ->join('motorbikes as MB', 'RBI.motorbike_id', '=', 'MB.id')
+                ->select(
+                    'RB.id as BOOKING_ID',
+                    'C.id as CUSTOMER_ID',
+                    'RB.start_date as BOOKING_Date',
+                    'RB.due_date as NEXT_DUE_DATE',
+                    'RB.state as RBSTATE',
+                    'RB.is_posted as RB_POSTED',
+                    'RB.deposit as DEPOSIT',
+                    'RBI.motorbike_id as MBID',
+                    'RBI.id as BOOKING_ITEM_ID',
+                    'RBI.end_date as END_DATE',
+                    'MB.reg_no as REG_NO',
+                    'RBI.weekly_rent as WEEKLY_RENT',
+                    'C.first_name as FIRST_NAME',
+                    'C.last_name as LAST_NAME',
+                    'C.phone as PHONE',
+                    'C.email as EMAIL'
+                )
+                ->whereIn('RB.id', $bookingIds)
+                ->whereNotNull('RBI.end_date')
+                ->get();
+
+            $pendingsMap = [];
+            foreach ($bookingIds as $bid) {
+                $pendingsMap[$bid] = $this->computePendingsForBooking($bid);
+            }
+
+            $bookingDetails = $base->map(function ($row) use ($closings, $pendingsMap) {
+                $row = (object) (array) $row;
+                $closing = $closings->get($row->BOOKING_ID);
+                $p = $pendingsMap[$row->BOOKING_ID] ?? ['rental' => 0, 'additional' => 0, 'pcn' => 0];
+                $row->PROCEEDED_BY = $closing && $closing->collectProceededAnywayUser
+                    ? $closing->collectProceededAnywayUser->full_name
+                    : '—';
+                $row->PROCEEDED_AT = $closing && $closing->collect_proceeded_anyway_at
+                    ? $closing->collect_proceeded_anyway_at->format('d/m/Y H:i')
+                    : '—';
+                $row->RENTAL_LEFT = $p['rental'];
+                $row->ADDITIONAL_LEFT = $p['additional'];
+                $row->PCN_LEFT = $p['pcn'];
+                return $row;
+            });
+            $closingsMap = $closings;
+        }
+
+        return view('admin.renting.ended-with-pendings-bookings', [
+            'bookingDetails' => $bookingDetails,
+            'closingsMap' => $closingsMap ?? collect(),
+            'pendingsMap' => $pendingsMap ?? [],
+        ]);
+    }
+
     // 7 - CLOSING THE BOOKING
     public function getClosingStatus($bookingId)
     {
@@ -828,28 +1215,20 @@ class RentingController extends Controller
                 // 'BI.is_paid as IS_PAID'
             )
             ->where('RB.state', '!=', 'DRAFT')
+            ->where('RB.is_posted', true)
             ->whereNull('RBI.end_date')
+            ->whereNotExists(function ($q) {
+                $q->select(DB::raw(1))
+                    ->from('renting_bookings as RB2')
+                    ->join('renting_booking_items as RBI2', 'RB2.id', '=', 'RBI2.booking_id')
+                    ->whereColumn('RB2.customer_id', 'RB.customer_id')
+                    ->whereColumn('RBI2.motorbike_id', 'RBI.motorbike_id')
+                    ->whereRaw('RB2.id > RB.id')
+                    ->whereNotNull('RBI2.end_date');
+            })
             ->get();
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('bookingDetails'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.bookings']));
-    }
-
-    /**
-     * Alias for route admin.renting.bookings.
-     */
-    public function bookings()
-    {
-        return $this->renting_bookings();
-    }
-
-    /**
-     * Show a single booking (route admin.renting.bookings.show).
-     */
-    public function showBooking($booking)
-    {
-        $booking = RentingBooking::findOrFail($booking);
-
-        return redirect()->route('admin.renting.bookings')->with('info', 'Booking #'.$booking->id);
+        return view('admin.renting.bookings', compact('bookingDetails'));
     }
 
     public function inactive_renting_bookings()
@@ -881,10 +1260,11 @@ class RentingController extends Controller
                 // 'BI.is_paid as IS_PAID'
             )
             ->where('RB.state', '!=', 'DRAFT')
+            ->where('RB.is_posted', true)
             ->whereNotNull('RBI.end_date')
             ->get();
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('bookingDetails'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.inactive-bookings']));
+        return view('admin.renting.inactive-bookings', compact('bookingDetails'));
     }
 
     public function all_renting_bookings(Request $request)
@@ -962,14 +1342,14 @@ class RentingController extends Controller
         $customers = DB::table('customers')->select('id', 'first_name', 'last_name')->get();
         $motorbikes = DB::table('motorbikes')->select('id', 'reg_no')->get();
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('bookingHistory', 'customers', 'motorbikes'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.bookings_history']));
+        return view('admin.renting.bookings_history', compact('bookingHistory', 'customers', 'motorbikes'));
     }
 
     public function renting_index()
     {
         $motorbikes = Motorbike::all();
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('motorbikes'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.index']));
+        return view('admin.renting.index', compact('motorbikes'));
     }
 
     // Single Motorbike ONLY
@@ -1057,6 +1437,7 @@ class RentingController extends Controller
     {
         DB::beginTransaction();
         \Log::info('Transaction started');
+
 
         if (empty($request->amount)) {
             \Log::error('Amount is null or empty');
@@ -1168,6 +1549,7 @@ class RentingController extends Controller
         // log
         \Log::info('Booking ID: '.$bookingId);
 
+
         $booking = RentingBooking::findOrFail($bookingId);
         // log booking
         \Log::info($booking);
@@ -1184,6 +1566,8 @@ class RentingController extends Controller
     // 3.1 - Payment Section > Confirm Amount >>>
     public function updateBooking(Request $request)
     {
+
+
 
         $bookingId = $request->input('booking_id');
         $paymentMethodId = $request->input('payment_method_id');
@@ -1359,7 +1743,7 @@ class RentingController extends Controller
                     $data['amount'] = $amountReceived;
 
                     // IF PDF IS NEEDED
-                    // $pdf = Pdf::loadView('livewire.agreements.pdf.templates.test',[
+                    // $pdf = Pdf::loadView('pdf.test',[
                     //     'today' => $toDay,
                     //     'SIGFILE'=>$fileName,
                     //     'booking' => $Booking,
@@ -1511,37 +1895,66 @@ class RentingController extends Controller
     // 4.3.2 - Update Record Upon Rental Agreement Generation for Signature
     public function startbooking(Request $request, $bookingId)
     {
+        DB::beginTransaction();
+        try {
+            $resolvedBookingId = $bookingId ?: $request->input('booking_id');
+            if (! $resolvedBookingId) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'booking_id is required',
+                ], 422);
+            }
 
-        $bookingId = $request->input('booking_id');
-        $booking = RentingBooking::findOrFail($bookingId);
-        $booking->state = 'Awaiting Documents & Payment';
-        $booking->save();
-        \Log::info('Booking updated: '.$booking->id);
+            $booking = RentingBooking::findOrFail($resolvedBookingId);
 
-        $RentingbookingItems = RentingBookingItem::where('booking_id', $bookingId)->get();
-        foreach ($RentingbookingItems as $RentingbookingItem) {
-            $RentingbookingItem->is_posted = true;
-            $RentingbookingItem->save();
+            if ($booking->state === 'DRAFT') {
+                $booking->state = 'Awaiting Documents & Payment';
+            }
+            if (! $booking->is_posted) {
+                $booking->is_posted = true;
+            }
+            $booking->save();
+            \Log::info('Booking updated: '.$booking->id);
+
+            $RentingbookingItems = RentingBookingItem::where('booking_id', $resolvedBookingId)->get();
+            foreach ($RentingbookingItems as $RentingbookingItem) {
+                if (! $RentingbookingItem->is_posted) {
+                    $RentingbookingItem->is_posted = true;
+                    $RentingbookingItem->save();
+                }
+            }
+            \Log::info('Booking Item updated', [$RentingbookingItems]);
+
+            $BookingInvoices = BookingInvoice::where('booking_id', $resolvedBookingId)->get();
+            foreach ($BookingInvoices as $BookingInvoice) {
+                $BookingInvoice->is_paid = false;
+                $BookingInvoice->state = 'Awaiting Payment';
+                $BookingInvoice->is_posted = true;
+                $BookingInvoice->notes = 'Invoice created as unpaid';
+                $BookingInvoice->save();
+            }
+            \Log::info('Booking Invoice updated', [$BookingInvoices]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'booking_id' => $booking->id,
+                'status' => $booking->state,
+                'state' => $booking->state,
+                'is_posted' => (bool) $booking->is_posted,
+                'message' => 'Booking updated successfully',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('startbooking failed: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to start booking',
+                'error' => $e->getMessage(),
+            ], 500);
         }
-
-        // Since it is multiple items RentingbookingItems how to log all
-        \Log::info('Booking Item updated', [$RentingbookingItems]);
-
-        $BookingInvoices = BookingInvoice::where('booking_id', $bookingId)->get();
-        foreach ($BookingInvoices as $BookingInvoice) {
-            $BookingInvoice->is_paid = false;
-            $BookingInvoice->state = 'Awaiting Payment';
-            $BookingInvoice->is_posted = true;
-            $BookingInvoice->notes = 'Invoice created as unpaid';
-            $BookingInvoice->save();
-        }
-        \Log::info('Booking Invoice updated', [$BookingInvoices]);
-
-        return response()->json([
-            'success' => true,
-            'booking_id' => $booking->id,
-            'message' => 'Booking updated successfully',
-        ]);
     }
 
     // /admin/renting/bookings/{bookingId}/invoice/create
@@ -1616,6 +2029,7 @@ class RentingController extends Controller
     public function getMotorbikePrice(Request $request)
     {
 
+
         $validatedData = $request->validate([
             'motorbike_id' => 'required|exists:motorbikes,id',
         ]);
@@ -1633,42 +2047,84 @@ class RentingController extends Controller
         }
     }
 
-    /**
-     * Data for the new renting booking page (legacy admin layout and Backpack rental operations).
-     *
-     * @return array{motorbikes:\Illuminate\Support\Collection, customers:\Illuminate\Database\Eloquent\Collection, documentTypes:\Illuminate\Database\Eloquent\Collection}
-     */
-    public function bookingNewPageData(): array
+    public function upsertMotorbikePricing(Request $request)
     {
-        $motorbikes = DB::table('motorbikes as MB')
-            ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
-            ->rightJoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
-            ->leftJoin('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
-            ->select(
-                'MB.id as MOTORBIKE_ID',
-                'MB.make as MAKE',
-                'MB.model as MODEL',
-                'MB.year as YEAR',
-                'MB.engine as ENGINE',
-                'MB.color as COLOR',
-                'MB.is_ebike as IS_EBIKE',
-                'MR.registration_number as REG_NO',
-                DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
-                DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
-                'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
-                'MC.insurance_status as INSURANCE_STATUS'
-            )
-            ->where('MB.vehicle_profile_id', 1)
-            ->where('RP.iscurrent', true)
-            ->whereNotExists(function ($query) {
-                $query->select(DB::raw(1))
-                    ->from('renting_booking_items')
-                    ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
-                    ->where('renting_booking_items.is_posted', true)
-                    ->whereNull('renting_booking_items.end_date');
-            })
-            ->where(function ($q) {
-                $q->where('MB.is_ebike', true)
+        $validatedData = $request->validate([
+            'motorbike_id' => 'required|exists:motorbikes,id',
+            'weekly_price' => 'required|numeric|min:0.01',
+            'minimum_deposit' => 'required|numeric|min:0',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            RentingPricing::where('motorbike_id', $validatedData['motorbike_id'])
+                ->where('iscurrent', true)
+                ->update(['iscurrent' => false]);
+
+            $pricing = new RentingPricing($validatedData);
+            $pricing->user_id = auth()->id();
+            $pricing->iscurrent = true;
+            $pricing->update_date = now();
+            $pricing->save();
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Pricing saved successfully.',
+                'pricing' => $pricing,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('upsertMotorbikePricing failed: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to save pricing.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    // The function that respond to get reuest to display the new booking page
+    public function renting_booking_new()
+    {
+        \Log::info('New Booking Page Requested.');
+
+        try {
+            $motorbikes = DB::table('motorbikes as MB')
+                ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
+                ->rightJoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
+                ->leftJoin('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
+                ->select(
+                    'MB.id as MOTORBIKE_ID',
+                    'MB.make as MAKE',
+                    'MB.model as MODEL',
+                    'MB.year as YEAR',
+                    'MB.engine as ENGINE',
+                    'MB.color as COLOR',
+                    'MB.is_ebike as IS_EBIKE',
+                    'MR.registration_number as REG_NO',
+                    DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
+                    DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
+                    'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
+                    'MC.insurance_status as INSURANCE_STATUS'
+                )
+                ->where('MB.vehicle_profile_id', 1)
+                ->where('RP.iscurrent', true)
+
+                // Availability check (same for bike + e-bike)
+                ->whereNotExists(function ($query) {
+                    $query->select(DB::raw(1))
+                        ->from('renting_booking_items')
+                        ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
+                        ->where('renting_booking_items.is_posted', true)
+                        ->whereNull('renting_booking_items.end_date');
+                })
+
+                // Compliance rules
+                ->where(function ($q) {
+                    $q->where('MB.is_ebike', true) // e-bike → always allowed
                     ->orWhere(function ($q2) {
                         $q2->where('MB.is_ebike', false)
                             ->where('MC.road_tax_status', 'Taxed')
@@ -1677,26 +2133,23 @@ class RentingController extends Controller
                                     ->orWhere('MC.mot_status', 'No details held by DVLA');
                             });
                     });
-            })
-            ->get();
+                })
+                ->get();
 
-        $customers = Customer::all();
-        $documentTypes = DocumentType::all();
+            $customers = Customer::all();
 
-        return compact('motorbikes', 'customers', 'documentTypes');
-    }
-
-    public function renting_booking_new()
-    {
-        Log::info('New Booking Page Requested.');
-
-        try {
-            return view('livewire.agreements.legacy-host', array_merge($this->bookingNewPageData(), ['legacyView' => 'livewire.agreements.migrated.admin.renting.booking-new']));
         } catch (\Exception $e) {
-            Log::error('Error: '.$e->getMessage());
-
+            \Log::error('Error: '.$e->getMessage());
             return response()->json(['error' => 'An error occurred'], 500);
         }
+
+        $documentTypes = DocumentType::all();
+
+        return view('admin.renting.booking-new', compact(
+            'motorbikes',
+            'customers',
+            'documentTypes'
+        ));
     }
 
     // public function renting_booking_new()
@@ -1749,7 +2202,7 @@ class RentingController extends Controller
 
     //     $documentTypes = DocumentType::all();
 
-    //     return view('livewire.agreements.migrated.admin.renting.booking-new', [
+    //     return view('admin.renting.booking-new', [
     //         'motorbikes' => $motorbikes,
     //         'customers' => $customers,
     //         'documentTypes' => $documentTypes,
@@ -1778,6 +2231,332 @@ class RentingController extends Controller
         } else {
             return response()->json(['status' => 'Not Available']);
         }
+    }
+
+    public function makeMotorbikeAvailable(Request $request)
+    {
+        $validatedData = $request->validate([
+            'motorbike_id' => 'required|exists:motorbikes,id',
+        ]);
+
+        DB::beginTransaction();
+        try {
+            $openItems = RentingBookingItem::with('booking')
+                ->where('motorbike_id', $validatedData['motorbike_id'])
+                ->where('is_posted', true)
+                ->whereNull('end_date')
+                ->get()
+                ->filter(function ($item) {
+                    return optional($item->booking)->state !== 'Completed & Issued';
+                });
+
+            $updated = 0;
+            foreach ($openItems as $item) {
+                $item->is_posted = false;
+                $item->save();
+
+                if ($item->booking && $item->booking->is_posted) {
+                    $item->booking->is_posted = false;
+                    $item->booking->save();
+                }
+                $updated++;
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'updated_count' => $updated,
+                'message' => $updated > 0
+                    ? 'Motorbike has been made available by clearing stale open entries.'
+                    : 'No stale open entries were found. Bike availability is unchanged.',
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('makeMotorbikeAvailable failed: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to make motorbike available.',
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function previewMakeMotorbikeAvailable(Request $request, int $motorbikeId)
+    {
+        $motorbike = Motorbike::findOrFail($motorbikeId);
+        $snapshot = $this->buildMakeAvailableSnapshot($motorbikeId);
+        $checks = $this->buildAvailabilityChecks($motorbikeId);
+
+        return response()->json([
+            'success' => true,
+            'motorbike_id' => $motorbike->id,
+            'reg_no' => $motorbike->reg_no,
+            'preview' => $snapshot,
+            'checks' => $checks,
+        ]);
+    }
+
+    public function executeMakeMotorbikeAvailable(Request $request, int $motorbikeId)
+    {
+        $request->validate([
+            'confirm_force' => 'required|boolean|accepted',
+        ]);
+
+        $motorbike = Motorbike::findOrFail($motorbikeId);
+        $snapshot = $this->buildMakeAvailableSnapshot($motorbikeId);
+        $openItems = $snapshot['items'];
+        $itemIds = collect($openItems)->pluck('item_id')->filter()->values();
+        $bookingIds = collect($openItems)->pluck('booking_id')->filter()->unique()->values();
+
+        $auditUserId = $this->resolveAuditUserId();
+        DB::beginTransaction();
+        try {
+            $itemsClosed = 0;
+            $bookingsUpdated = 0;
+
+            if ($itemIds->isNotEmpty()) {
+                $itemsClosed = RentingBookingItem::whereIn('id', $itemIds)
+                    ->update([
+                        'end_date' => now(),
+                        'is_posted' => false,
+                        'updated_at' => now(),
+                    ]);
+            }
+
+            foreach ($bookingIds as $bookingId) {
+                $hasOpenPosted = RentingBookingItem::where('booking_id', $bookingId)
+                    ->where('is_posted', true)
+                    ->whereNull('end_date')
+                    ->exists();
+
+                if (! $hasOpenPosted) {
+                    $bookingsUpdated += RentingBooking::where('id', $bookingId)
+                        ->where('is_posted', true)
+                        ->update([
+                            'is_posted' => false,
+                            'updated_at' => now(),
+                        ]);
+                }
+            }
+
+            DB::commit();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            Log::error('executeMakeMotorbikeAvailable failed: '.$e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to force-end active rental linkage: '.$e->getMessage(),
+                'error' => $e->getMessage(),
+            ], 500);
+        }
+
+        $repairActions = [];
+        $repairErrors = [];
+        try {
+            $repairActions = $this->repairAvailabilityPrerequisites($motorbikeId, $auditUserId);
+        } catch (\Throwable $e) {
+            $repairErrors[] = $e->getMessage();
+            Log::error('repairAvailabilityPrerequisites failed: '.$e->getMessage());
+        }
+
+        $checks = $this->buildAvailabilityChecks($motorbikeId);
+        $isVisibleByRules = $checks['vehicle_profile_ok'] && $checks['has_current_pricing'] && $checks['has_registration'] && $checks['compliance_pass'] && ! $checks['has_open_posted_item'];
+        $message = $isVisibleByRules
+            ? 'Bike is now available for New Booking.'
+            : 'Force end completed, but pricing/compliance still blocks visibility.';
+
+        Log::info('force_make_available_executed', [
+            'motorbike_id' => $motorbike->id,
+            'reg_no' => $motorbike->reg_no,
+            'backpack_user_id' => $auditUserId,
+            'items_closed' => $itemsClosed,
+            'bookings_updated' => $bookingsUpdated,
+            'repair_actions' => $repairActions,
+            'remaining_blockers' => $checks['blockers'],
+            'ip' => $request->ip(),
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'motorbike_id' => $motorbike->id,
+            'reg_no' => $motorbike->reg_no,
+            'items_closed' => $itemsClosed,
+            'bookings_updated' => $bookingsUpdated,
+            'repair_actions' => $repairActions,
+            'repair_errors' => $repairErrors,
+            'remaining_blockers' => $checks['blockers'],
+            'checks' => $checks,
+            'message' => $message,
+        ]);
+    }
+
+    private function buildMakeAvailableSnapshot(int $motorbikeId): array
+    {
+        $items = RentingBookingItem::query()
+            ->leftJoin('renting_bookings as rb', 'rb.id', '=', 'renting_booking_items.booking_id')
+            ->where('renting_booking_items.motorbike_id', $motorbikeId)
+            ->where('renting_booking_items.is_posted', true)
+            ->whereNull('renting_booking_items.end_date')
+            ->orderByDesc('renting_booking_items.id')
+            ->get([
+                'renting_booking_items.id as item_id',
+                'renting_booking_items.booking_id',
+                'renting_booking_items.is_posted',
+                'renting_booking_items.start_date',
+                'renting_booking_items.end_date',
+                'rb.state as booking_state',
+                'rb.is_posted as booking_is_posted',
+            ])
+            ->map(function ($item) {
+                return [
+                    'item_id' => $item->item_id,
+                    'booking_id' => $item->booking_id,
+                    'is_posted' => (bool) $item->is_posted,
+                    'start_date' => $item->start_date,
+                    'end_date' => $item->end_date,
+                    'booking_state' => $item->booking_state,
+                    'booking_is_posted' => (bool) $item->booking_is_posted,
+                ];
+            })
+            ->values()
+            ->all();
+
+        return [
+            'open_posted_items_count' => count($items),
+            'items' => $items,
+        ];
+    }
+
+    private function buildAvailabilityChecks(int $motorbikeId): array
+    {
+        $motorbike = Motorbike::query()
+            ->leftJoin('motorbike_annual_compliance as mac', 'mac.motorbike_id', '=', 'motorbikes.id')
+            ->where('motorbikes.id', $motorbikeId)
+            ->select(
+                'motorbikes.id',
+                'motorbikes.vehicle_profile_id',
+                'motorbikes.is_ebike',
+                'mac.mot_status',
+                'mac.road_tax_status'
+            )
+            ->firstOrFail();
+
+        $hasCurrentPricing = RentingPricing::where('motorbike_id', $motorbikeId)
+            ->where('iscurrent', true)
+            ->exists();
+        $hasRegistration = MotorbikeRegistration::where('motorbike_id', $motorbikeId)->exists();
+
+        $hasOpenPostedItem = RentingBookingItem::where('motorbike_id', $motorbikeId)
+            ->where('is_posted', true)
+            ->whereNull('end_date')
+            ->exists();
+
+        $vehicleProfileOk = (int) $motorbike->vehicle_profile_id === 1;
+        $compliancePass = $motorbike->is_ebike
+            ? true
+            : ($motorbike->road_tax_status === 'Taxed'
+                && in_array($motorbike->mot_status, ['Valid', 'No details held by DVLA'], true));
+
+        $blockers = [];
+        if (! $vehicleProfileOk) {
+            $blockers[] = 'vehicle_profile_id must be 1';
+        }
+        if (! $hasCurrentPricing) {
+            $blockers[] = 'current pricing is missing';
+        }
+        if (! $hasRegistration) {
+            $blockers[] = 'registration row is missing';
+        }
+        if ($hasOpenPostedItem) {
+            $blockers[] = 'open posted booking item still exists';
+        }
+        if (! $compliancePass) {
+            $blockers[] = 'MOT/tax compliance does not meet booking rules';
+        }
+
+        return [
+            'vehicle_profile_ok' => $vehicleProfileOk,
+            'has_current_pricing' => $hasCurrentPricing,
+            'has_registration' => $hasRegistration,
+            'has_open_posted_item' => $hasOpenPostedItem,
+            'compliance_pass' => $compliancePass,
+            'mot_status' => $motorbike->mot_status,
+            'road_tax_status' => $motorbike->road_tax_status,
+            'blockers' => $blockers,
+        ];
+    }
+
+    private function repairAvailabilityPrerequisites(int $motorbikeId, ?int $auditUserId = null): array
+    {
+        $actions = [];
+        $motorbike = Motorbike::findOrFail($motorbikeId);
+
+        if ((int) $motorbike->vehicle_profile_id !== 1) {
+            $motorbike->vehicle_profile_id = 1;
+            $motorbike->save();
+            $actions[] = 'set vehicle_profile_id to 1';
+        }
+
+        $hasRegistration = MotorbikeRegistration::where('motorbike_id', $motorbikeId)->exists();
+        if (! $hasRegistration && ! empty($motorbike->reg_no)) {
+            MotorbikeRegistration::create([
+                'motorbike_id' => $motorbikeId,
+                'registration_number' => $motorbike->reg_no,
+                'start_date' => now(),
+            ]);
+            $actions[] = 'created missing motorbike registration row';
+        }
+
+        $currentPricing = RentingPricing::where('motorbike_id', $motorbikeId)
+            ->where('iscurrent', true)
+            ->first();
+        if (! $currentPricing) {
+            $latestPricing = RentingPricing::where('motorbike_id', $motorbikeId)
+                ->orderByDesc('id')
+                ->first();
+
+            RentingPricing::where('motorbike_id', $motorbikeId)->update(['iscurrent' => false]);
+
+            if ($latestPricing) {
+                $latestPricing->iscurrent = true;
+                $latestPricing->update_date = now();
+                $latestPricing->save();
+                $actions[] = 'promoted latest pricing row as current';
+            } else {
+                RentingPricing::create([
+                    'motorbike_id' => $motorbikeId,
+                    'user_id' => $auditUserId,
+                    'iscurrent' => true,
+                    'weekly_price' => 70,
+                    'minimum_deposit' => 0,
+                    'update_date' => now(),
+                ]);
+                $actions[] = 'created fallback pricing row';
+            }
+        }
+
+        if (! $motorbike->is_ebike) {
+            $mac = MotorbikeAnnualCompliance::firstOrNew(['motorbike_id' => $motorbikeId]);
+            $mac->year = $mac->year ?: (int) now()->format('Y');
+            $mac->road_tax_status = 'Taxed';
+            $mac->mot_status = 'No details held by DVLA';
+            $mac->save();
+            $actions[] = 'forced compliance to Taxed + No details held by DVLA';
+        }
+
+        return $actions;
+    }
+
+    private function resolveAuditUserId(): ?int
+    {
+        if (function_exists('backpack_auth')) {
+            return optional(backpack_auth()->user())->id ?? optional(auth()->user())->id;
+        }
+
+        return optional(auth()->user())->id;
     }
 
     // A1.0 - Function Library - GET So Far Received Payments against a Booking
@@ -1911,7 +2690,7 @@ class RentingController extends Controller
 
         // 'id', 'make', 'model', 'year', 'engine', 'color', 'fuel_type', 'reg_no'
 
-        return view('livewire.agreements.legacy-host', array_merge(['pricing' => $pricing, 'motorbikes_not_priced' => $instance->motorbikeNotPriced()], ['legacyView' => 'livewire.agreements.migrated.admin.motorbikes.pricing']));
+        return view('admin.motorbikes.pricing', ['pricing' => $pricing, 'motorbikes_not_priced' => $instance->motorbikeNotPriced()]);
     }
 
     // SET MOTORBIKE PRICE
@@ -1942,6 +2721,7 @@ class RentingController extends Controller
     // update bike renting price / deposit
     public function updatePricing(Request $request)
     {
+
 
         $existingPricing = RentingPricing::findOrFail($request->id);
 
@@ -2022,7 +2802,7 @@ class RentingController extends Controller
     //     $data["title"] = "Rental Agreement";
     //     $data["body"] = "Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!";
 
-    //     $pdf = Pdf::loadView('livewire.agreements.pdf.templates.test', [
+    //     $pdf = Pdf::loadView('pdf.test', [
     //         'today' => $toDay,
     //         'SIGFILE' => $fileName,
     //         'booking' => $Booking,
@@ -2044,12 +2824,12 @@ class RentingController extends Controller
 
     public function finance_agreement_template()
     {
-        return view('livewire.agreements.legacy-host', ['legacyView' => 'livewire.agreements.migrated.admin.finance.agreement']);
+        return view('admin.finance.agreement');
     }
 
     public function renting_agreement_template()
     {
-        return view('livewire.agreements.legacy-host', ['legacyView' => 'livewire.agreements.migrated.admin.renting.agreement']);
+        return view('admin.renting.agreement');
     }
 
     public function updateInvoiceDate(Request $request)
@@ -2111,7 +2891,7 @@ class RentingController extends Controller
         // For dropdowns if you want to keep them for future
         $bookingIds = $invoices->pluck('booking_id')->unique();
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('invoices', 'bookingIds', 'search'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.invoice-dates-all']));
+        return view('admin.renting.invoice-dates-all', compact('invoices', 'bookingIds', 'search'));
     }
 
     public function updateStartDate(Request $request)
@@ -2122,21 +2902,69 @@ class RentingController extends Controller
         ]);
 
         $booking = RentingBooking::findOrFail($request->booking_id);
-        $booking->start_date = $request->new_start_date;
-        $booking->save();
+        $oldStartDate = $booking->start_date;
+        $oldDayOfWeek = Carbon::parse($oldStartDate)->dayOfWeek; // 0=Sun .. 6=Sat
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Booking start date updated successfully',
-            'booking' => $booking,
-        ]);
+        DB::beginTransaction();
+        try {
+            $booking->start_date = $request->new_start_date;
+            $booking->save();
+
+            $newDayOfWeek = Carbon::parse($booking->start_date)->dayOfWeek;
+            $updatedInvoicesCount = 0;
+
+            if ($oldDayOfWeek !== $newDayOfWeek) {
+                $today = Carbon::today()->toDateString();
+                $invoices = BookingInvoice::where('booking_id', $booking->id)
+                    ->where('is_paid', false)
+                    ->whereDate('invoice_date', '>=', $today)
+                    ->get();
+
+                // ISO week day: 1=Monday .. 7=Sunday (Carbon dayOfWeek: 0=Sun, 1=Mon .. 6=Sat)
+                $isoDay = $newDayOfWeek === 0 ? 7 : $newDayOfWeek;
+
+                foreach ($invoices as $invoice) {
+                    $invoiceDate = Carbon::parse($invoice->invoice_date);
+                    $newDate = $invoiceDate->copy()->setISODate(
+                        $invoiceDate->isoWeekYear(),
+                        $invoiceDate->isoWeek(),
+                        $isoDay
+                    );
+                    $invoice->invoice_date = $newDate->startOfDay();
+                    $invoice->save();
+                    $updatedInvoicesCount++;
+                }
+            }
+
+            DB::commit();
+
+            $message = 'Booking start date updated successfully.';
+            if ($updatedInvoicesCount > 0) {
+                $message .= " {$updatedInvoicesCount} future invoice(s) realigned to the new due day.";
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => $message,
+                'booking' => $booking->fresh(),
+                'updated_invoices_count' => $updatedInvoicesCount,
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('updateStartDate failed: '.$e->getMessage(), ['booking_id' => $booking->id]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update start date: '.$e->getMessage(),
+            ], 500);
+        }
     }
 
     public function showUpdateStartDateForm()
     {
         $bookings = RentingBooking::with('customer')->get();
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('bookings'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.update-start-date']));
+        return view('admin.renting.update-start-date', compact('bookings'));
     }
 
     public function uploadServiceVideo(Request $request, $bookingId)
@@ -2349,7 +3177,7 @@ class RentingController extends Controller
         $pricePeriods = isset($pricePeriods) ? $pricePeriods : [];
         $paidInvoiceCount = isset($paidInvoiceCount) ? $paidInvoiceCount : 0;
 
-        return view('livewire.agreements.legacy-host', array_merge(compact('booking'), ['legacyView' => 'livewire.agreements.migrated.admin.renting.summary-view']));
+        return view('admin.renting.summary-view', compact('booking'));
     }
 
     // Delete a maintenance log by its ID

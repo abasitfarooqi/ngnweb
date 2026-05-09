@@ -56,4 +56,10 @@
             border-radius: 5px;
             padding: 8px;
         }
+
+        #pricing-rescue-area {
+            position: relative;
+            z-index: 1065;
+            pointer-events: auto;
+        }
     </style>
