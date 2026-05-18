@@ -147,3 +147,114 @@ php artisan migrate --path=database/migrations/prod-align-ngnclean --force
 ## One-line mental model
 
 **Migrations build `ngn_clean` → export freezes structure → sync copies production rows into that structure locally → prod-align closes gaps on the live server.**
+
+---
+
+## How we get **data** from production (read this)
+
+Only **one** command copies production **rows**. Everything else is schema only.
+
+### The only data pipe
+
+```
+  OLD PRODUCTION (read-only)              YOUR TARGET (written)
+  ─────────────────────────              ─────────────────────
+  SYNC_PROD_DB_HOST                      DB_HOST
+  SYNC_PROD_DB_DATABASE                  DB_DATABASE
+  SYNC_PROD_DB_USERNAME                  DB_USERNAME
+  SYNC_PROD_DB_PASSWORD                  DB_PASSWORD
+           │                                      ▲
+           │   php artisan                        │
+           │   db:sync-prod-to-connected          │
+           │   --deep-clone --force               │
+           └──────── SELECT rows ────────────────┘
+                    (per table, column intersection)
+```
+
+- **Reads:** `SYNC_PROD_*` in `.env` (today: old server / current live DB).
+- **Writes:** `DB_*` in `.env` (empty local `ngn_clean`, staging, or **new Digital Ocean MySQL**).
+- **Structure on target:** from committed `database/schema/ngn-clean/` (not from production `SHOW CREATE TABLE`).
+- **Data on target:** `INSERT` from production for columns that exist on **both** sides.
+
+`db:export-ngnclean-schema` and migrations **never** pull data from production.
+
+### New Digital Ocean server — take production state there
+
+Goal: new empty MySQL on DO = same **data** as old production + **schema** from your app (snapshot).
+
+1. Deploy this repo on the DO droplet (include `database/schema/ngn-clean/`).
+2. Create an **empty** MySQL database on DO (e.g. `nqfkhvtysa` or `ngn_app`).
+3. On DO, set `.env`:
+
+```env
+# TARGET — new DO database (empty, will be filled)
+DB_HOST=127.0.0.1
+DB_DATABASE=your_new_do_database
+DB_USERNAME=...
+DB_PASSWORD=...
+
+# SOURCE — old production (read-only copy FROM here)
+SYNC_PROD_DB_HOST=46.101.2.204
+SYNC_PROD_DB_PORT=3306
+SYNC_PROD_DB_DATABASE=nqfkhvtysa
+SYNC_PROD_DB_USERNAME=...
+SYNC_PROD_DB_PASSWORD=...
+```
+
+4. Align structure if old prod is behind snapshot (safe on empty DB):
+
+```bash
+php artisan migrate --force
+php artisan migrate --path=database/migrations/prod-align-ngnclean --force
+```
+
+5. **Copy all production data into the new DO database:**
+
+```bash
+php artisan db:sync-prod-to-connected --deep-clone --force
+```
+
+`--force` is required because `DB_DATABASE` is not named `ngn_clean`.
+
+6. Point the app at `DB_*` only (remove or blank `SYNC_PROD_*` on DO when cutover is done).
+
+7. Optional check (from DO or your Mac, with same `SYNC_PROD_*` + snapshot in repo):
+
+```bash
+php artisan db:sync-prod-to-connected --compare-vs-ngnclean
+```
+
+### What `--deep-clone` does per table
+
+1. `DROP TABLE` on **target** (`DB_*`).
+2. `CREATE TABLE` from **snapshot** SQL (`database/schema/ngn-clean/tables/...`).
+3. `SELECT` all rows from **production** (`SYNC_PROD_*`).
+4. `INSERT` into target only for columns present on both prod and snapshot.
+
+Tables only in snapshot (no prod table): created empty.  
+Tables only on prod (not in snapshot): **skipped** (warned in output).
+
+### Local Mac vs new DO (same idea)
+
+| Machine | `DB_*` | `SYNC_PROD_*` | Command |
+|---------|--------|---------------|---------|
+| Mac dev | `ngn_clean` | old production | `db:sync-prod-to-connected --deep-clone --force` |
+| New DO | new empty DB | old production | same command |
+
+Same command: **production = data in**, **`DB_*` = data out**.
+
+### After cutover
+
+- Old server: stop app or make read-only.
+- New DO: `DB_*` only; run normal `php artisan migrate --force` for future releases.
+- Refresh local dev occasionally: `db:sync-prod-to-connected --deep-clone --force` with `SYNC_PROD_*` pointing at whichever server is now live.
+
+Short version:
+
+Data only comes from db:sync-prod-to-connected --deep-clone
+It reads SYNC_PROD_* (old production)
+It writes DB_* (local ngn_clean or new empty Digital Ocean MySQL)
+Structure on the target comes from database/schema/ngn-clean/, not from production’s table definitions
+New Digital Ocean: empty DB on DO → set DB_* = new DB and SYNC_PROD_* = old prod → run --deep-clone --force → production rows land on DO with the canonical schema.
+
+Exports and migrations never copy rows; only the sync command does.
