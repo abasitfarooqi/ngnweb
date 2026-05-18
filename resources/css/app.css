@@ -1,5 +1,5 @@
 /* NGN Motors — single CSS entry: frontend, portal, auth (NOT Backpack admin).
-   Layouts use @vite(['resources/css/app.css', 'resources/js/app.js']).
+   Compiled to public/assets/ngn/app.css — loaded via <x-ngn-assets />.
    Dark mode: class="dark" on <html>; set via inline script before paint. */
 
 /* All @import rules MUST precede @tailwind in Tailwind v3 */

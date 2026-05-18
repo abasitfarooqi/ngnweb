@@ -7,7 +7,7 @@
 <style>
     /* Shared agreement signing: centred column, header row, signature modal (aligned with signature-contract-v6-merged; no rounded corners). */
     /*
-     * These pages use @@vite (Tailwind) without Bootstrap. Legacy markup still uses Bootstrap 5
+     * Signing pages use agreement-signing-public.css (Bootstrap) without the main Tailwind bundle.
      * display utilities (d-md-none / d-none d-md-block) for duplicate mobile vs desktop tables.
      * Replicate the md breakpoint (768px) so only one variant shows at a time.
      */

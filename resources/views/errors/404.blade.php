@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>404 — Page Not Found | NGN Motors</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-ngn-assets />
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center px-4">
     <div class="max-w-lg w-full text-center">

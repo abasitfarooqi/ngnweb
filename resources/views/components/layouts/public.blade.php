@@ -25,7 +25,7 @@
 
     @include('components.partials.theme-boot')
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-ngn-assets />
     @fluxAppearance
     @include('components.partials.theme-api')
     @livewireStyles

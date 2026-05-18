@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
     @include('components.partials.theme-boot')
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-ngn-assets />
     @fluxAppearance
     @include('components.partials.theme-api')
     @livewireStyles

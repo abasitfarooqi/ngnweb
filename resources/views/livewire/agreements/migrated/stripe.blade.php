@@ -25,7 +25,7 @@
 
     <!-- Mobile Specific Metas -->
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-ngn-assets />
 {{-- all40 --}}
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" />
@@ -246,7 +246,6 @@
     <!-- End Page Content -->
 
     <!-- Javascript -->
-    @vite(['resources/js/app.js'])
 </body>
 
 </html>

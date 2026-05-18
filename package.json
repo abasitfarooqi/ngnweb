@@ -2,51 +2,36 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "devtools": "vue-devtools --host 0.0.0.0 --port 8098",
-        "dev:all": "concurrently \"npm run dev\" \"npm run devtools\""
+        "build": "npm run build:assets",
+        "build:assets": "npm run build:css && npm run build:css:signing && npm run build:js && npm run build:js:signing",
+        "build:css": "tailwindcss -i ./resources/css/app.css -o ./public/assets/ngn/app.css --minify",
+        "build:css:signing": "esbuild ./resources/css/agreement-signing-public.css --bundle --minify --outfile=./public/assets/ngn/agreement-signing-public.css --loader:.css=css --loader:.woff2=file --loader:.woff=file --loader:.ttf=file",
+        "build:js": "esbuild ./resources/js/app.js --bundle --minify --outfile=./public/assets/ngn/app.js --format=iife",
+        "build:js:signing": "esbuild ./resources/js/agreement-signing-public.js --bundle --minify --outfile=./public/assets/ngn/agreement-signing-public.js --format=iife",
+        "dev:css": "tailwindcss -i ./resources/css/app.css -o ./public/assets/ngn/app.css --watch",
+        "dev:js": "esbuild ./resources/js/app.js --bundle --outfile=./public/assets/ngn/app.js --format=iife --watch"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",
-        "@vitejs/plugin-vue": "^5.2.1",
-        "@vue/devtools": "^7.4.4",
         "autoprefixer": "^10.4.20",
         "axios": "^0.28.1",
-        "concurrently": "^9.1.0",
-        "laravel-mix": "^6.0.49",
-        "laravel-vite-plugin": "^1.1.1",
+        "esbuild": "^0.25.12",
         "postcss": "^8.4.41",
-        "purgecss": "^7.0.2",
         "tailwind-scrollbar": "^3.1.0",
-        "tailwindcss": "^3.4.17",
-        "vite": "^6.0.3",
-        "vite-plugin-vue-devtools": "^7.6.8",
-        "vue": "^3.5.13"
+        "tailwindcss": "^3.4.17"
     },
     "dependencies": {
         "@alpinejs/focus": "^3.14.1",
         "@alpinejs/intersect": "^3.14.1",
         "@alpinejs/persist": "^3.14.1",
         "@fortawesome/fontawesome-free": "^6.7.2",
-        "@headlessui/vue": "^1.7.23",
-        "@heroicons/vue": "^2.2.0",
-        "@inertiajs/vue3": "^1.2.0",
         "@tailwindcss/aspect-ratio": "^0.4.2",
         "@tailwindcss/typography": "^0.5.15",
         "alpinejs": "^3.14.1",
         "bootstrap": "^5.3.3",
         "chart.js": "^4.3.1",
-        "flexslider": "^2.7.2",
-        "http-proxy-middleware": "^2.0.7",
         "jquery": "^3.7.1",
         "laravel-echo": "^1.19.0",
-        "pinia": "^2.3.0",
-        "pusher-js": "^8.4.0-rc2",
-        "vue-meta": "^3.0.0-alpha.2",
-        "vue-router": "^4.3.0"
-    },
-    "optionalDependencies": {
-        "@rollup/rollup-darwin-x64": "4.29.1"
+        "pusher-js": "^8.4.0-rc2"
     }
 }

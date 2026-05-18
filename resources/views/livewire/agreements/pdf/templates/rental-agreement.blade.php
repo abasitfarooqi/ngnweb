@@ -29,7 +29,7 @@
 
     <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/all_imports.css">
-    @vite(['resources/css/app.css', 'resources/css/style.css'])
+    <x-ngn-assets css-only />
 {{-- all40 --}}
 <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 <link rel="stylesheet" type="text/css" href="/assets/css/responsive.css">
@@ -53,7 +53,7 @@
             font-size: medium;
         }
     </style>
-    @vite('resources/js/app.js')
+    <x-ngn-assets js-only />
 </head>
 
 <!-- /#site-header-wrap -->

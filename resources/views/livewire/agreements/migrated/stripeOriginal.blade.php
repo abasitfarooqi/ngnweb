@@ -4,7 +4,7 @@
 <head>
     <title>NGN Payment System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <x-ngn-assets />
 </head>
 <style type="text/css">
     h2 {

@@ -17,7 +17,7 @@
     <meta property="og:type" content="website">
 
     {{-- Flux + Alpine + Tailwind --}}
-    @vite(['resources/css/v2.css', 'resources/js/v2.js'])
+    <x-ngn-assets />
     @fluxStyles
 </head>
 <body class="bg-white text-zinc-900 antialiased" x-data>
