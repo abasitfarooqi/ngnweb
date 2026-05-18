@@ -68,19 +68,39 @@ class ProdToLocalTableSync
     /**
      * Replace destination table structure and copy all rows from production.
      *
-     * @return array{rows:int, inserted:int}
+     * @return array{rows:int, inserted:int, schema_only_columns:int}
      */
     public static function syncTable(PDO $src, PDO $dst, string $srcSchema, string $table): array
     {
+        return self::syncTableWithSchemaFrom($src, $srcSchema, $src, $srcSchema, $dst, $table);
+    }
+
+    /**
+     * Create table from canonical schema DB (e.g. ngn_clean), copy row data from production for shared columns only.
+     *
+     * @return array{rows:int, inserted:int, schema_only_columns:int}
+     */
+    public static function syncTableWithSchemaFrom(
+        PDO $dataSrc,
+        string $dataSchema,
+        PDO $schemaSrc,
+        string $schemaSchema,
+        PDO $dst,
+        string $table
+    ): array {
         $q = self::qid($table);
 
-        $row = $src->query('SHOW CREATE TABLE '.$q)->fetch(PDO::FETCH_ASSOC);
+        $row = $schemaSrc->query('SHOW CREATE TABLE '.$q)->fetch(PDO::FETCH_ASSOC);
         if (! $row || empty($row['Create Table'])) {
-            throw new PDOException('SHOW CREATE TABLE failed for '.$table);
+            throw new PDOException('SHOW CREATE TABLE failed for '.$table.' in schema '.$schemaSchema);
         }
         $createSql = self::normalizeCreateTableSql($row['Create Table']);
 
-        $count = (int) $src->query('SELECT COUNT(*) FROM '.$q)->fetchColumn();
+        $hasDataTable = self::tableExists($dataSrc, $dataSchema, $table);
+        $count = 0;
+        if ($hasDataTable) {
+            $count = (int) $dataSrc->query('SELECT COUNT(*) FROM '.$q)->fetchColumn();
+        }
 
         $dst->exec('SET FOREIGN_KEY_CHECKS=0');
         $dst->exec('SET UNIQUE_CHECKS=0');
@@ -93,28 +113,20 @@ class ProdToLocalTableSync
             // Some engines or temp tables may not support convert; data copy will surface real issues.
         }
 
-        if ($count === 0) {
+        $schemaColumns = self::tableColumns($schemaSrc, $schemaSchema, $table);
+        $dataColumns = $hasDataTable ? self::tableColumns($dataSrc, $dataSchema, $table) : [];
+        $copyColumns = array_values(array_intersect($schemaColumns, $dataColumns));
+        $schemaOnlyColumns = count($schemaColumns) - count($copyColumns);
+
+        if ($count === 0 || $copyColumns === []) {
             $dst->exec('SET UNIQUE_CHECKS=1');
             $dst->exec('SET FOREIGN_KEY_CHECKS=1');
 
-            return ['rows' => 0, 'inserted' => 0];
+            return ['rows' => $count, 'inserted' => 0, 'schema_only_columns' => max(0, $schemaOnlyColumns)];
         }
 
-        $stmt = $src->prepare(
-            'SELECT COLUMN_NAME FROM information_schema.COLUMNS
-             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
-             ORDER BY ORDINAL_POSITION'
-        );
-        $stmt->execute([$srcSchema, $table]);
-        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
-        if ($columns === false || $columns === []) {
-            $dst->exec('SET UNIQUE_CHECKS=1');
-            $dst->exec('SET FOREIGN_KEY_CHECKS=1');
-            throw new PDOException('No columns found for '.$table);
-        }
-
-        $colList = implode(',', array_map([self::class, 'qid'], $columns));
-        $placeholders = implode(',', array_fill(0, count($columns), '?'));
+        $colList = implode(',', array_map([self::class, 'qid'], $copyColumns));
+        $placeholders = implode(',', array_fill(0, count($copyColumns), '?'));
         $insertSql = 'INSERT INTO '.$q.' ('.$colList.') VALUES ('.$placeholders.')';
         $insert = $dst->prepare($insertSql);
 
@@ -122,12 +134,11 @@ class ProdToLocalTableSync
         $inserted = 0;
         $offset = 0;
 
-        // Avoid strict-mode failures when prod has values that truncate on this server (ENUM/set, dates, etc.).
         $dst->exec("SET SESSION sql_mode = ''");
 
         while ($offset < $count) {
             $select = 'SELECT '.$colList.' FROM '.$q.' LIMIT '.(int) $chunk.' OFFSET '.(int) $offset;
-            $rows = $src->query($select)->fetchAll(PDO::FETCH_NUM);
+            $rows = $dataSrc->query($select)->fetchAll(PDO::FETCH_NUM);
             foreach ($rows as $r) {
                 foreach ($r as $i => $v) {
                     if (is_string($v)) {
@@ -143,7 +154,33 @@ class ProdToLocalTableSync
         $dst->exec('SET UNIQUE_CHECKS=1');
         $dst->exec('SET FOREIGN_KEY_CHECKS=1');
 
-        return ['rows' => $count, 'inserted' => $inserted];
+        return ['rows' => $count, 'inserted' => $inserted, 'schema_only_columns' => max(0, $schemaOnlyColumns)];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function tableColumns(PDO $pdo, string $schema, string $table): array
+    {
+        $stmt = $pdo->prepare(
+            'SELECT COLUMN_NAME FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+             ORDER BY ORDINAL_POSITION'
+        );
+        $stmt->execute([$schema, $table]);
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return is_array($columns) ? array_values($columns) : [];
+    }
+
+    public static function tableExists(PDO $pdo, string $schema, string $table): bool
+    {
+        $stmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM information_schema.tables WHERE table_schema = ? AND table_name = ?'
+        );
+        $stmt->execute([$schema, $table]);
+
+        return (int) $stmt->fetchColumn() > 0;
     }
 
     /**

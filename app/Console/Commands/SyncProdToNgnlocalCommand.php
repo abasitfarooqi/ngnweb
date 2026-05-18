@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Support\NgnCleanSchemaSnapshot;
 use App\Support\ProdToLocalTableSync;
 use App\Support\UnifiedSchemaMigration;
 use Illuminate\Console\Command;
@@ -22,12 +23,21 @@ class SyncProdToNgnlocalCommand extends Command
                             {--deep-clone : Prepare schema if needed, then sync all production data}
                             {--seed-local-extra : Also sync non-production tables from local seed DB (override + preserve PK IDs)}
                             {--seed-source-db= : Local seed source DB name for non-production tables (default: ngn_clean)}
+                            {--schema-snapshot : Apply committed ngn_clean schema from database/schema/ngn-clean (works on production without ngn_clean DB)}
+                            {--schema-snapshot-path= : Override snapshot folder (default: database/schema/ngn-clean)}
+                            {--schema-from-db= : Use live ngn_clean DB for structure instead of committed snapshot (local only)}
+                            {--refresh-schema-snapshot : Re-export database/schema/ngn-clean from live ngn_clean before sync}
+                            {--use-production-schema : Use production table structure (legacy; not recommended)}
+                            {--compare-vs-ngnclean : List columns/tables production is missing vs ngn_clean schema}
                             {--skip-views : Do not recreate views from production}
                             {--force : Allow risky targets (same as source, or non-ngn_clean DB)}';
 
     protected $aliases = ['db:sync-prod-to-ngnlocal'];
 
-    protected $description = 'Copy structure + data from production MySQL to the connected DB. Set SYNC_PROD_* in .env. Includes permissions/roles tables.';
+    protected $description = 'Overwrite target with ngn_clean schema (committed snapshot) + production row data. Export schema locally: db:export-ngnclean-schema';
+
+    /** @var array<string, array{columns:list<string>, create_sql:string}>|null */
+    protected ?array $schemaSnapshotTables = null;
 
     public function handle(): int
     {
@@ -78,8 +88,33 @@ class SyncProdToNgnlocalCommand extends Command
         $srcSchema = $prod['database'];
         $dstSchema = $target['database'];
 
-        $this->info("Source DB: {$prod['host']}:{$prod['port']}/{$srcSchema}");
+        $this->info("Data source (production): {$prod['host']}:{$prod['port']}/{$srcSchema}");
         $this->info("Target DB: {$target['host']}:{$target['port']}/{$dstSchema} (connection: {$connection})");
+
+        if ($this->option('refresh-schema-snapshot')) {
+            if ($this->exportSchemaSnapshot($connection) !== 0) {
+                return 1;
+            }
+        }
+
+        if ($this->option('compare-vs-ngnclean')) {
+            $schemaPdo = null;
+            $schemaSchema = '';
+            if (! $this->resolveCanonicalSchema($connection, $schemaPdo, $schemaSchema)) {
+                return 1;
+            }
+            if ($this->schemaSnapshotTables !== null) {
+                $this->renderSchemaCompareProdVsSnapshot($src, $srcSchema, $this->schemaSnapshotTables);
+            } elseif ($schemaPdo !== null) {
+                $this->renderSchemaCompareProdVsNgnClean($src, $srcSchema, $schemaPdo, $schemaSchema);
+            } else {
+                $this->error('No ngn_clean schema available. Run: php artisan db:export-ngnclean-schema');
+
+                return 1;
+            }
+
+            return 0;
+        }
 
         if ($this->option('show-schema')) {
             $this->renderSchemaMap($src, $srcSchema, 'Production');
@@ -100,8 +135,20 @@ class SyncProdToNgnlocalCommand extends Command
             }
         }
 
+        $schemaPdo = null;
+        $schemaSchema = '';
+        $needsCanonicalSchema = $this->option('prepare-schema')
+            || $this->option('deep-clone')
+            || $this->option('table')
+            || $this->option('permissions-only')
+            || (! $this->option('compare-schema') && ! $this->option('show-schema') && ! $this->option('generate-migration'));
+
+        if ($needsCanonicalSchema && ! $this->resolveCanonicalSchema($connection, $schemaPdo, $schemaSchema)) {
+            return 1;
+        }
+
         if ($this->option('prepare-schema') || $this->option('deep-clone')) {
-            $prepared = $this->prepareSchemaIfNeeded($src, $srcSchema, $dst, $dstSchema);
+            $prepared = $this->prepareSchemaIfNeeded($src, $srcSchema, $dst, $dstSchema, $schemaPdo, $schemaSchema);
             if (! $prepared) {
                 return 1;
             }
@@ -130,8 +177,8 @@ class SyncProdToNgnlocalCommand extends Command
         if ($this->option('table')) {
             $table = $this->option('table');
             $this->info("Syncing {$table}...");
-            $r = ProdToLocalTableSync::syncTable($src, $dst, $srcSchema, $table);
-            $this->info("Done. rows={$r['rows']}, inserted={$r['inserted']}");
+            $r = $this->syncOneTable($src, $srcSchema, $schemaPdo, $schemaSchema, $dst, $table);
+            $this->info("Done. rows={$r['rows']}, inserted={$r['inserted']}, schema_only_columns={$r['schema_only_columns']}");
             $this->flushPermissionCache();
 
             return 0;
@@ -147,7 +194,7 @@ class SyncProdToNgnlocalCommand extends Command
                     continue;
                 }
                 $this->line("Syncing {$table}...");
-                $r = ProdToLocalTableSync::syncTable($src, $dst, $srcSchema, $table);
+                $r = $this->syncOneTable($src, $srcSchema, $schemaPdo, $schemaSchema, $dst, $table);
                 $this->info("  rows={$r['rows']}");
             }
             $this->flushPermissionCache();
@@ -155,11 +202,14 @@ class SyncProdToNgnlocalCommand extends Command
             return 0;
         }
 
-        $tables = $src->query(
-            'SELECT table_name FROM information_schema.tables
-             WHERE table_schema = '.$src->quote($srcSchema)." AND table_type = 'BASE TABLE'
-             ORDER BY table_name"
-        )->fetchAll(\PDO::FETCH_COLUMN);
+        $tables = $this->canonicalTableList($src, $srcSchema, $schemaPdo, $schemaSchema);
+
+        if ($this->schemaSnapshotTables !== null || $schemaPdo !== null) {
+            $prodOnly = array_values(array_diff($this->baseTables($src, $srcSchema), $tables));
+            if ($prodOnly !== []) {
+                $this->warn('Tables in production but not in ngn_clean schema (skipped): '.count($prodOnly));
+            }
+        }
 
         $this->info('Base tables to sync: '.count($tables));
         $bar = $this->output->createProgressBar(count($tables));
@@ -167,7 +217,7 @@ class SyncProdToNgnlocalCommand extends Command
 
         foreach ($tables as $i => $table) {
             try {
-                ProdToLocalTableSync::syncTable($src, $dst, $srcSchema, $table);
+                $this->syncOneTable($src, $srcSchema, $schemaPdo, $schemaSchema, $dst, $table);
             } catch (\Throwable $e) {
                 $bar->finish();
                 $this->newLine();
@@ -411,10 +461,56 @@ class SyncProdToNgnlocalCommand extends Command
         $this->line('Run with: php artisan migrate --path='.trim(str_replace(base_path(), '', $fullPath), '/').' --force');
     }
 
-    protected function prepareSchemaIfNeeded(\PDO $src, string $srcSchema, \PDO $dst, string $dstSchema): bool
-    {
-        if ($this->productionSchemaMatchesTarget($src, $srcSchema, $dst, $dstSchema)) {
-            $this->info('Step 1 skipped: target already has all production tables/columns.');
+    /**
+     * @return array{rows:int, inserted:int, schema_only_columns:int}
+     */
+    protected function syncOneTable(
+        \PDO $dataSrc,
+        string $dataSchema,
+        ?\PDO $schemaPdo,
+        string $schemaSchema,
+        \PDO $dst,
+        string $table
+    ): array {
+        if ($this->schemaSnapshotTables !== null) {
+            $meta = $this->schemaSnapshotTables[$table] ?? null;
+            if ($meta === null) {
+                throw new \RuntimeException('Table '.$table.' missing from ngn_clean schema snapshot');
+            }
+
+            return NgnCleanSchemaSnapshot::applyTableToTarget($dataSrc, $dataSchema, $dst, $table, $meta);
+        }
+
+        if ($schemaPdo !== null && $schemaSchema !== '') {
+            return ProdToLocalTableSync::syncTableWithSchemaFrom(
+                $dataSrc,
+                $dataSchema,
+                $schemaPdo,
+                $schemaSchema,
+                $dst,
+                $table
+            );
+        }
+
+        return ProdToLocalTableSync::syncTable($dataSrc, $dst, $dataSchema, $table);
+    }
+
+    protected function prepareSchemaIfNeeded(
+        \PDO $src,
+        string $srcSchema,
+        \PDO $dst,
+        string $dstSchema,
+        ?\PDO $schemaPdo = null,
+        string $schemaSchema = ''
+    ): bool {
+        $schemaMatches = $this->schemaSnapshotTables !== null
+            ? $this->snapshotSchemaMatchesTarget($this->schemaSnapshotTables, $dst, $dstSchema)
+            : ($schemaPdo !== null && $schemaSchema !== ''
+                ? $this->canonicalSchemaMatchesTarget($schemaPdo, $schemaSchema, $dst, $dstSchema)
+                : $this->productionSchemaMatchesTarget($src, $srcSchema, $dst, $dstSchema));
+
+        if ($schemaMatches) {
+            $this->info('Step 1 skipped: target already matches canonical schema.');
 
             return true;
         }
@@ -514,6 +610,239 @@ class SyncProdToNgnlocalCommand extends Command
         }
 
         return true;
+    }
+
+    protected function canonicalSchemaMatchesTarget(\PDO $schema, string $schemaDb, \PDO $dst, string $dstSchema): bool
+    {
+        [$schemaTables, $schemaColumns] = $this->schemaSnapshot($schema, $schemaDb);
+        [, $dstColumns] = $this->schemaSnapshot($dst, $dstSchema);
+
+        foreach ($schemaTables as $table) {
+            $expected = $schemaColumns[$table] ?? [];
+            $actual = $dstColumns[$table] ?? null;
+            if ($actual === null) {
+                return false;
+            }
+            if ($expected !== $actual) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function resolveCanonicalSchema(string $connection, ?\PDO &$schemaPdo, string &$schemaSchema): bool
+    {
+        $this->schemaSnapshotTables = null;
+        $schemaPdo = null;
+        $schemaSchema = '';
+
+        if ($this->option('use-production-schema')) {
+            $this->warn('Using production schema for table structure (legacy mode).');
+
+            return true;
+        }
+
+        $schemaFromDb = trim((string) $this->option('schema-from-db'));
+
+        if ($schemaFromDb === '') {
+            $root = $this->schemaSnapshotPath();
+            if (! is_file(NgnCleanSchemaSnapshot::manifestPath($root))) {
+                $this->error('Committed ngn_clean schema snapshot not found: '.$root);
+                $this->line('On your Mac (where ngn_clean lives): php artisan db:export-ngnclean-schema');
+                $this->line('Commit database/schema/ngn-clean/ then deploy.');
+                $this->line('Or for local-only sync: --schema-from-db=ngn_clean');
+
+                return false;
+            }
+
+            try {
+                $manifest = NgnCleanSchemaSnapshot::load($root);
+                $this->schemaSnapshotTables = $manifest['tables'];
+                $this->info('Schema source (committed snapshot): '.$root);
+                if ($manifest['generated_at'] !== '') {
+                    $this->line('Snapshot generated: '.$manifest['generated_at']);
+                }
+
+                return true;
+            } catch (\Throwable $e) {
+                $this->error($e->getMessage());
+
+                return false;
+            }
+        }
+
+        $dbName = $schemaFromDb;
+        $schemaConfig = $this->schemaConfig($connection, $dbName);
+        if ($schemaConfig === null) {
+            $this->error("Could not connect to schema DB [{$dbName}].");
+            $this->line('On production, commit database/schema/ngn-clean and use --schema-snapshot (default).');
+            $this->line('Locally: php artisan db:export-ngnclean-schema');
+
+            return false;
+        }
+
+        try {
+            $schemaPdo = ProdToLocalTableSync::connectSource($schemaConfig);
+        } catch (\Throwable $e) {
+            $this->error('Schema DB connection failed: '.$e->getMessage());
+
+            return false;
+        }
+        $schemaSchema = $dbName;
+        $this->info("Schema source (live DB): {$schemaConfig['host']}:{$schemaConfig['port']}/{$schemaSchema}");
+
+        return true;
+    }
+
+    protected function schemaSnapshotPath(): string
+    {
+        $path = trim((string) $this->option('schema-snapshot-path'));
+
+        return $path !== ''
+            ? (str_starts_with($path, '/') ? $path : base_path($path))
+            : NgnCleanSchemaSnapshot::defaultPath();
+    }
+
+    protected function exportSchemaSnapshot(string $connection): int
+    {
+        $sourceDb = trim((string) $this->option('schema-from-db'));
+        if ($sourceDb === '') {
+            $sourceDb = (string) ($this->option('seed-source-db') ?: env('SYNC_LOCAL_SEED_DB', 'ngn_clean'));
+        }
+
+        return Artisan::call('db:export-ngnclean-schema', [
+            '--connection' => $connection,
+            '--source-db' => $sourceDb,
+            '--output' => $this->schemaSnapshotPath(),
+        ]) === 0 ? 0 : 1;
+    }
+
+    /**
+     * @param  array<string, array{columns:list<string>, create_sql:string}>  $snapshotTables
+     */
+    protected function renderSchemaCompareProdVsSnapshot(\PDO $prod, string $prodSchema, array $snapshotTables): void
+    {
+        [$prodTables, $prodColumns] = $this->schemaSnapshot($prod, $prodSchema);
+        $ngnTables = array_keys($snapshotTables);
+        sort($ngnTables);
+
+        $onlyNgn = array_values(array_diff($ngnTables, $prodTables));
+        $common = array_values(array_intersect($prodTables, $ngnTables));
+        sort($common);
+
+        $this->newLine();
+        $this->info("Schema diff: production [{$prodSchema}] vs committed ngn_clean snapshot");
+        $this->line('Tables only in ngn_clean snapshot: '.count($onlyNgn));
+
+        $missingOnProd = 0;
+        foreach ($common as $table) {
+            $ngnCols = $snapshotTables[$table]['columns'] ?? [];
+            $missing = array_values(array_diff($ngnCols, $prodColumns[$table] ?? []));
+            if ($missing === []) {
+                continue;
+            }
+            $missingOnProd++;
+            $this->newLine();
+            $this->warn("{$table} — columns missing on production:");
+            foreach ($missing as $col) {
+                $this->line("  - {$col}");
+            }
+        }
+
+        if ($missingOnProd === 0) {
+            $this->newLine();
+            $this->info('Production has all snapshot columns for shared tables.');
+        } else {
+            $this->newLine();
+            $this->line('Deploy snapshot schema: php artisan db:sync-prod-to-connected --schema-snapshot --deep-clone --force');
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected function canonicalTableList(\PDO $src, string $srcSchema, ?\PDO $schemaPdo, string $schemaSchema): array
+    {
+        if ($this->schemaSnapshotTables !== null) {
+            return array_values(array_keys($this->schemaSnapshotTables));
+        }
+        if ($schemaPdo !== null) {
+            return $this->baseTables($schemaPdo, $schemaSchema);
+        }
+
+        return $this->baseTables($src, $srcSchema);
+    }
+
+    /**
+     * @param  array<string, array{columns:list<string>, create_sql:string}>  $snapshotTables
+     */
+    protected function snapshotSchemaMatchesTarget(array $snapshotTables, \PDO $dst, string $dstSchema): bool
+    {
+        [, $dstColumns] = $this->schemaSnapshot($dst, $dstSchema);
+
+        foreach ($snapshotTables as $table => $meta) {
+            $expected = $meta['columns'] ?? [];
+            $actual = $dstColumns[$table] ?? null;
+            if ($actual === null || $expected !== $actual) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    protected function renderSchemaCompareProdVsNgnClean(\PDO $prod, string $prodSchema, \PDO $ngn, string $ngnSchema): void
+    {
+        [$prodTables, $prodColumns] = $this->schemaSnapshot($prod, $prodSchema);
+        [$ngnTables, $ngnColumns] = $this->schemaSnapshot($ngn, $ngnSchema);
+
+        $onlyNgn = array_values(array_diff($ngnTables, $prodTables));
+        $onlyProd = array_values(array_diff($prodTables, $ngnTables));
+        $common = array_values(array_intersect($prodTables, $ngnTables));
+        sort($common);
+
+        $this->newLine();
+        $this->info("Schema diff: production [{$prodSchema}] vs canonical [{$ngnSchema}]");
+        $this->line('Tables only in ngn_clean: '.count($onlyNgn));
+        $this->line('Tables only in production: '.count($onlyProd));
+
+        $missingOnProd = 0;
+        foreach ($common as $table) {
+            $missing = array_values(array_diff($ngnColumns[$table] ?? [], $prodColumns[$table] ?? []));
+            if ($missing === []) {
+                continue;
+            }
+            $missingOnProd++;
+            $this->newLine();
+            $this->warn("{$table} — columns on production missing (app expects from ngn_clean):");
+            foreach ($missing as $col) {
+                $this->line("  - {$col}");
+            }
+        }
+
+        if ($missingOnProd === 0 && $onlyNgn === []) {
+            $this->newLine();
+            $this->info('Production has all ngn_clean tables/columns for shared tables.');
+        } else {
+            $this->newLine();
+            $this->line('Fix: php artisan migrate --path=database/migrations/unified-sync --force');
+            $this->line('Or sync with: --schema-from-db='.$ngnSchema.' --deep-clone');
+        }
+    }
+
+    /**
+     * @return array{host:string,port:int,database:string,username:string,password:string}|null
+     */
+    protected function schemaConfig(string $connection, string $database): ?array
+    {
+        $cfg = $this->targetConfig($connection);
+        if ($cfg === null) {
+            return null;
+        }
+        $cfg['database'] = $database;
+
+        return $cfg;
     }
 
     /**

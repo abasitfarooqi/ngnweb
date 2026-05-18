@@ -28,8 +28,14 @@ class UnifiedSchemaMigration
         $unifiedSql = [];
         $origins = [];
         foreach ($prodTables as $table) {
-            $unifiedSql[$table] = self::createTableSql($src, $table, true);
-            $origins[$table] = 'production';
+            if (in_array($table, $targetTables, true)) {
+                // Shared table: ngn_clean (target) is canonical schema; production supplies data only.
+                $unifiedSql[$table] = self::createTableSql($dst, $table, false);
+                $origins[$table] = 'ngn_clean';
+            } else {
+                $unifiedSql[$table] = self::createTableSql($src, $table, true);
+                $origins[$table] = 'production_only';
+            }
         }
         foreach ($targetOnly as $table) {
             $unifiedSql[$table] = self::createTableSql($dst, $table, false);
