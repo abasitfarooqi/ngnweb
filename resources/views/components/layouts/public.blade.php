@@ -65,6 +65,8 @@
 
     @livewire('site.footer')
 
+    <x-ui.quick-book-modal />
+
     @stack('schema')
     <flux:toast />
     @fluxScripts

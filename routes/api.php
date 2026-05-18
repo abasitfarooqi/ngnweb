@@ -271,7 +271,7 @@ Route::prefix('v1/shop')->group(function () {
         ->middleware('auth:customer');
 
     // Service Enquiry Form submit
-    Route::post('/service-enquiry-form-vue', [ContactController::class, 'handleEnquiryFormVue'])->name('handle-enquiry-form-vue');
+    Route::post('/service-enquiry-form-vue', [ContactController::class, 'handleEnquiryFormVue'])->name('api.handle-enquiry-form-vue');
 });
 // ECOMMERCE / V1 API / 28/12/2024 api.php >> END
 // ECOMMERCE Customer Auth Routes / V1 API / 28/12/2024 >> START

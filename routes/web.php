@@ -471,7 +471,12 @@ Route::middleware('auth.customer')->group(function () {
 
 // Store product details
 Route::prefix('store')->group(function () {
-    Route::get('/search', [StoreController::class, 'searchResults'])->name('ngn_search_results');
+    // Legacy /store/search → same behaviour as /search (name lives on /search only for route:cache)
+    Route::get('/search', function () {
+        $q = request('query', request('q', ''));
+
+        return redirect('/shop?q='.urlencode((string) $q));
+    });
     Route::get('/{identifier}', [StoreController::class, 'productDetails'])->name('ngn_product_details');
 });
 
@@ -680,7 +685,7 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
     Route::post('/customers/documents/{documentTypeId}/verifyAgreement', [CustomerController::class, 'verifyAgreementDocument'])->name('customers.documents.verifyAgreement');
 
     Route::get('/rotas-view', [AdminController::class, 'rotas'])->name('admin.rotas');
-    Route::get('/bookings/invoices/{invoice}/print', [InvoicePdfController::class, 'print'])->name('invoices.print');
+    Route::get('/bookings/invoices/{invoice}/print', [InvoicePdfController::class, 'print'])->name('admin.invoices.print');
 });
 
 // Welcome Routes GET
@@ -692,7 +697,7 @@ Route::controller(WelcomeController::class)->group(function () {
     Route::get('/service-repairs', 'Repairs')->name('service-repairs');
     Route::get('/service-motorcycle', 'ServiceBike')->name('service-motorcycle');
     Route::get('/service-mot', 'ServiceMot')->name('service-mot');
-    Route::get('/accident-management-services', 'AccidentClaim')->name('road-traffic-accidents');
+    Route::get('/accident-management-services', fn () => redirect('/accident-management', 301));
     Route::get('/shop-motorcycle', 'MotorcycleShop')->name('shop');
     Route::get('/shop-accessories', 'MotorcycleAccessories')->name('shop-accessories');
     Route::get('/gps-tracker', 'GpsTracker')->name('gps-tracker');
