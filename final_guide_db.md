@@ -257,4 +257,4 @@ It writes DB_* (local ngn_clean or new empty Digital Ocean MySQL)
 Structure on the target comes from database/schema/ngn-clean/, not from production’s table definitions
 New Digital Ocean: empty DB on DO → set DB_* = new DB and SYNC_PROD_* = old prod → run --deep-clone --force → production rows land on DO with the canonical schema.
 
-Exports and migrations never copy rows; only the sync command does.
+Exports and migrations never copy rows; only the sync command does. s
