@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Mail\OtherChargesReceipt;
 use App\Mail\RentalAgreement;
 use App\Mail\RentalPaymentReceipt;
+use App\Mail\RentalPaymentReversedNotice;
 use App\Models\AgreementAccess;
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
@@ -248,8 +249,24 @@ class RentingController extends Controller
     {
         $bookingId = $request->route('bookingId');
 
+        $latestTransactionIds = DB::table('renting_transactions')
+            ->selectRaw('MAX(id) as latest_transaction_id, invoice_id')
+            ->whereNotNull('invoice_id')
+            ->groupBy('invoice_id');
+
+        $invoicePaymentSums = DB::table('renting_transactions')
+            ->selectRaw('invoice_id, SUM(amount) as total_paid_amount')
+            ->whereNotNull('invoice_id')
+            ->groupBy('invoice_id');
+
         $invoices = DB::table('booking_invoices as BI')
-            ->leftJoin('renting_transactions as RT', 'RT.invoice_id', '=', 'BI.id')
+            ->leftJoinSub($latestTransactionIds, 'LRT', function ($join) {
+                $join->on('LRT.invoice_id', '=', 'BI.id');
+            })
+            ->leftJoinSub($invoicePaymentSums, 'IPS', function ($join) {
+                $join->on('IPS.invoice_id', '=', 'BI.id');
+            })
+            ->leftJoin('renting_transactions as RT', 'RT.id', '=', 'LRT.latest_transaction_id')
             ->leftJoin('users as U', 'RT.user_id', '=', 'U.id')
             ->leftJoin('renting_bookings as RB', 'RB.id', '=', 'BI.booking_id')
             ->leftJoin('customers as C', 'C.id', '=', 'RB.customer_id')
@@ -273,6 +290,8 @@ class RentingController extends Controller
                 'RT.created_at as TRANSACTION_DATETIME',
                 'RT.updated_at as TRANSACTION_DATETIME_UPDATE',
                 'U.first_name as FIRST_NAME',
+                DB::raw('COALESCE(IPS.total_paid_amount, 0) as TOTAL_PAID_AMOUNT'),
+                DB::raw('(BI.amount - COALESCE(IPS.total_paid_amount, 0)) as OUTSTANDING_BALANCE'),
                 DB::raw("CONCAT(C.first_name, ' ', C.last_name) AS CUSTOMER_NAME"),
                 'C.whatsapp as CUSTOMER_WHATSAPP',
                 'C.phone as CUSTOMER_PHONE',
@@ -329,7 +348,7 @@ class RentingController extends Controller
 
         // Generate WhatsApp message
         $invoiceDate = \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y');
-        $message = "Dear {$invoice->customer_name}, this is a reminder regarding your Weekly Rental payment for motorbike {$invoice->motorbike_reg_no}. The outstanding amount of £".number_format($invoice->weekly_rent, 2)." is due on {$invoiceDate}. Please ensure payment is made as soon as possible to avoid late fees. If you have already paid, please contact us immediately at 0208 314 1498 or WhatsApp us on 07951790568, NGN Motors.";
+        $message = "Dear {$invoice->customer_name}, this is a reminder regarding your Weekly Rental payment for motorbike {$invoice->motorbike_reg_no}. The outstanding amount of £".number_format($invoice->weekly_rent, 2)." is due on {$invoiceDate}. Please ensure payment is made as soon as possible to avoid late fees. If you have already paid, please contact us immediately at 0208 314 1498 or WhatsApp us on 07951790568, NGN Motors, ".$this->buildWhatsappStaffSignature().'.';
 
         $whatsappUrl = "https://wa.me/{$number}?text=".urlencode($message);
 
@@ -1566,12 +1585,14 @@ class RentingController extends Controller
     // 3.1 - Payment Section > Confirm Amount >>>
     public function updateBooking(Request $request)
     {
-
-
-
         $bookingId = $request->input('booking_id');
+        $invoiceId = $request->input('invoice_id');
         $paymentMethodId = $request->input('payment_method_id');
         $amountReceived = $request->input('amount');
+
+        if (empty($invoiceId)) {
+            return response()->json(['error' => 'invoice_id is required'], 422);
+        }
 
         if (empty($amountReceived)) {
 
@@ -1593,7 +1614,9 @@ class RentingController extends Controller
 
         try {
             $booking = RentingBooking::findOrFail($bookingId);
-            $invoice = BookingInvoice::where('booking_id', $bookingId)->where('is_paid', false)->firstOrFail();
+            $invoice = BookingInvoice::where('booking_id', $bookingId)
+                ->where('id', $invoiceId)
+                ->firstOrFail();
 
             // check anomaly: unpaid invoice
             $pendingInvoices = BookingInvoice::where('booking_id', $bookingId)
@@ -1614,25 +1637,21 @@ class RentingController extends Controller
 
             \Log::info('Pending invoices count: '.$pendingInvoices);
 
+            if ($invoice->is_paid) {
+                DB::rollBack();
+
+                return response()->json(['error' => 'This invoice is already marked as paid.'], 400);
+            }
+
             if ($invoice->amount <= 0) {
                 DB::rollBack();
 
                 return response()->json(['error' => 'Invoice amount is zero or negative.'], 400);
             }
 
-            $getPendingInvoices = BookingInvoice::where('booking_id', $bookingId)
-                ->where(function ($query) {
-                    $query->where('is_paid', false)
-                        ->where('is_posted', true);
-                })
-                ->orderBy('invoice_date', 'desc')
-                ->first(['id']);
-
-            \Log::info('Pending invoices: '.$getPendingInvoices);
-
             $totalPayableDue = $invoice->amount;
 
-            $totalReceived = $booking->transactions($getPendingInvoices->id)->sum('amount') ?? 0;
+            $totalReceived = $booking->transactions($invoice->id)->sum('amount') ?? 0;
 
             $CurrentRemainingBalance = $totalPayableDue - $totalReceived;
 
@@ -1741,6 +1760,12 @@ class RentingController extends Controller
                     $data['transaction_date'] = $transaction->transaction_date;
                     $data['payment_method'] = PaymentMethod::findOrFail($paymentMethodId)->title;
                     $data['amount'] = $amountReceived;
+                    $data['customer_name'] = trim($Customer->first_name.' '.$Customer->last_name);
+                    $data['registration_number'] = optional($Booking->rentingBookingItems()->with('motorbike')->first()?->motorbike)->reg_no;
+                    $data['invoice_amount'] = (float) $invoice->amount;
+                    $data['remaining_balance'] = 0.00;
+                    $data['invoice_status_label'] = 'Paid in full';
+                    $data['receipt_message'] = 'We have received your payment and this invoice is now marked as paid in full.';
 
                     // IF PDF IS NEEDED
                     // $pdf = Pdf::loadView('pdf.test',[
@@ -1825,10 +1850,17 @@ class RentingController extends Controller
 
                     $data['booking_id'] = $bookingId;
                     $data['invoice_id'] = $invoice->id;
+                    $data['invoice_date'] = $invoice->invoice_date;
                     $data['transaction_id'] = $transaction->id;
                     $data['transaction_date'] = $transaction->transaction_date;
                     $data['payment_method'] = PaymentMethod::findOrFail($paymentMethodId)->title;
                     $data['amount'] = $amountReceived;
+                    $data['customer_name'] = trim($Customer->first_name.' '.$Customer->last_name);
+                    $data['registration_number'] = optional($Booking->rentingBookingItems()->with('motorbike')->first()?->motorbike)->reg_no;
+                    $data['invoice_amount'] = (float) $invoice->amount;
+                    $data['remaining_balance'] = max((float) ($CurrentRemainingBalance - $amountReceived), 0.00);
+                    $data['invoice_status_label'] = 'Part-paid';
+                    $data['receipt_message'] = 'We have received your payment, but there is still an outstanding balance remaining on this invoice.';
 
                     try {
                         Mail::to($data['email'])->send(new RentalPaymentReceipt($data));
@@ -1889,6 +1921,107 @@ class RentingController extends Controller
             \Log::error('Transaction rolled back due to error: '.$e->getMessage());
 
             return response()->json(['error' => 'An error occurred while updating the booking.', 'exception' => $e->getMessage()], 500);
+        }
+    }
+
+    public function reverseInvoicePayment(Request $request, $invoiceId)
+    {
+        $backpackUserId = $this->resolveAuditUserId();
+        $authUserId = optional(auth()->user())->id;
+
+        DB::beginTransaction();
+
+        try {
+            $invoice = BookingInvoice::with('booking')->findOrFail($invoiceId);
+            $latestTransaction = RentingTransaction::where('invoice_id', $invoice->id)
+                ->orderByDesc('id')
+                ->first();
+
+            if (! $latestTransaction) {
+                DB::rollBack();
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'No payment transaction found for this invoice.',
+                ], 404);
+            }
+
+            $booking = $invoice->booking;
+            $customer = Customer::findOrFail($booking->customer_id);
+
+            $reversedTransactionId = $latestTransaction->id;
+            $reversedAmount = (float) $latestTransaction->amount;
+            $latestTransaction->delete();
+
+            $remainingPaid = RentingTransaction::where('invoice_id', $invoice->id)->sum('amount');
+
+            $invoice->is_paid = false;
+            $invoice->paid_date = null;
+            $invoice->state = 'Awaiting Payment';
+            $invoice->notes = 'Payment reversed by staff'.($backpackUserId ? ' (backpack user ID: '.$backpackUserId.')' : '');
+            $invoice->save();
+
+            $auditContext = [
+                'invoice_id' => $invoice->id,
+                'booking_id' => $booking->id,
+                'customer_id' => $customer->id,
+                'customer_email' => $customer->email,
+                'deleted_transaction_id' => $reversedTransactionId,
+                'deleted_transaction_amount' => $reversedAmount,
+                'remaining_paid_for_invoice' => (float) $remainingPaid,
+                'backpack_user_id' => $backpackUserId,
+                'auth_user_id' => $authUserId,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ];
+            $this->writeReverseInvoiceAudit('rental_invoice_payment_reversed', $auditContext);
+
+            DB::commit();
+
+            $mailData = [
+                'email' => [$customer->email, 'customerservice@neguinhomotors.co.uk'],
+                'customer_name' => trim($customer->first_name.' '.$customer->last_name),
+                'weekly_rent' => number_format((float) $invoice->amount, 2),
+                'invoice_amount' => (float) $invoice->amount,
+                'registration_number' => optional($booking->rentingBookingItems()->with('motorbike')->first()?->motorbike)->reg_no,
+                'invoice_date' => $invoice->invoice_date,
+                'invoice_id' => $invoice->id,
+                'booking_id' => $booking->id,
+                'reversed_amount' => number_format($reversedAmount, 2),
+            ];
+
+            try {
+                Mail::to($mailData['email'])->send(new RentalPaymentReversedNotice($mailData));
+            } catch (Exception $e) {
+                Log::error('Failed to send reverse payment email: '.$e->getMessage(), [
+                    'invoice_id' => $invoice->id,
+                    'booking_id' => $booking->id,
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'invoice_id' => $invoice->id,
+                'deleted_transaction_id' => $reversedTransactionId,
+                'remaining_paid' => (float) $remainingPaid,
+                'message' => 'Invoice payment reversed successfully.',
+            ]);
+        } catch (Exception $e) {
+            DB::rollBack();
+            $this->writeReverseInvoiceAudit('rental_invoice_payment_reverse_failed', [
+                'invoice_id' => $invoiceId,
+                'backpack_user_id' => $backpackUserId,
+                'auth_user_id' => $authUserId,
+                'ip_address' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+                'error' => $e->getMessage(),
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reverse invoice payment.',
+                'error' => $e->getMessage(),
+            ], 500);
         }
     }
 
@@ -2557,6 +2690,36 @@ class RentingController extends Controller
         }
 
         return optional(auth()->user())->id;
+    }
+
+    private function writeReverseInvoiceAudit(string $event, array $context): void
+    {
+        try {
+            Log::build([
+                'driver' => 'single',
+                'path' => storage_path('logs/rental-invoice-reverse.log'),
+            ])->info($event, $context);
+        } catch (\Throwable $e) {
+            Log::warning('reverse_invoice_audit_file_write_failed', [
+                'event' => $event,
+                'error' => $e->getMessage(),
+            ]);
+        }
+
+        Log::info($event, $context);
+    }
+
+    private function buildWhatsappStaffSignature(): string
+    {
+        $user = function_exists('backpack_auth') ? (backpack_auth()->user() ?: auth()->user()) : auth()->user();
+        $staffId = optional($user)->id;
+        $staffName = trim(((string) optional($user)->first_name).' '.((string) optional($user)->last_name));
+
+        if ($staffName === '') {
+            $staffName = (string) (optional($user)->name ?: 'Staff');
+        }
+
+        return $staffId ? "{$staffName} (ID: {$staffId})" : $staffName;
     }
 
     // A1.0 - Function Library - GET So Far Received Payments against a Booking

@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rental Payment Receipt</title>
+    <title>Invoice Still Unpaid</title>
     <style>
         body {
             margin: 0;
             padding: 24px;
+            font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             color: #1f2933;
-            font-family: Arial, sans-serif;
         }
 
         .container {
@@ -18,6 +18,7 @@
             margin: 0 auto;
             background: #ffffff;
             border: 2px solid #111111;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
         .header {
@@ -36,38 +37,33 @@
             margin: 0;
             font-size: 28px;
             line-height: 1.2;
-            color: #0f766e;
-        }
-
-        .subtitle {
-            margin: 8px 0 0;
-            font-size: 14px;
-            color: #4b5563;
+            color: #c31924;
         }
 
         .content {
             padding: 24px;
-            line-height: 1.6;
+            line-height: 1.5;
             font-size: 15px;
         }
 
-        .status-box {
+        .warning-box {
             margin: 18px 0;
             padding: 14px 16px;
-            border-left: 6px solid #0f766e;
-            background: #ecfdf5;
+            border-left: 6px solid #c31924;
+            background: #fff1f2;
         }
 
-        .status-title {
-            margin: 0 0 6px;
-            font-size: 16px;
+        .warning {
+            color: #9f1239;
             font-weight: 700;
-            color: #065f46;
         }
 
-        .status-copy {
-            margin: 0;
-            color: #1f2933;
+        .warning-box p {
+            margin: 0 0 8px;
+        }
+
+        .warning-box p:last-child {
+            margin-bottom: 0;
         }
 
         table {
@@ -103,40 +99,33 @@
 </head>
 <body>
     @php
-        $customerName = !empty($customer_name) ? $customer_name : 'Customer';
-        $invoiceDate = !empty($invoice_date) ? \Carbon\Carbon::parse($invoice_date)->format('Y-m-d') : 'N/A';
-        $transactionDate = !empty($transaction_date) ? \Carbon\Carbon::parse($transaction_date)->format('Y-m-d H:i') : 'N/A';
-        $amountReceived = number_format((float) ($amount ?? 0), 2);
-        $invoiceAmount = number_format((float) ($invoice_amount ?? $amount ?? 0), 2);
-        $remainingBalance = number_format((float) ($remaining_balance ?? 0), 2);
-        $statusLabel = $invoice_status_label ?? 'Payment received';
-        $receiptMessage = $receipt_message ?? 'We have received your payment and attached the payment details below.';
+        $invoiceDate = !empty($emailData['invoice_date']) ? \Carbon\Carbon::parse($emailData['invoice_date'])->format('Y-m-d') : 'N/A';
+        $invoiceAmount = number_format((float) ($emailData['invoice_amount'] ?? $emailData['weekly_rent'] ?? 0), 2);
+        $reversedAmount = number_format((float) ($emailData['reversed_amount'] ?? 0), 2);
     @endphp
-
     <div class="container">
         <div class="header">
             <img class="logo" src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motors">
-            <h1 class="title">Rental Payment Receipt</h1>
-            <p class="subtitle">Confirmation of payment received for your rental invoice.</p>
+            <h1 class="title">Invoice Still Unpaid</h1>
         </div>
 
         <div class="content">
-            <p>Dear {{ $customerName }},</p>
-            <p>{{ $body ?? 'Please find your payment details below.' }}</p>
+            <p>Dear {{ $emailData['customer_name'] }},</p>
 
-            <div class="status-box">
-                <p class="status-title">{{ $statusLabel }}</p>
-                <p class="status-copy">{{ $receiptMessage }}</p>
+            <div class="warning-box">
+                <p class="warning">Please ignore the previous email which said your payment was received.</p>
+                <p class="warning">This invoice is still unpaid and now requires payment again.</p>
+                <p>Please make payment as soon as possible to bring the invoice back up to date.</p>
             </div>
 
             <table>
                 <tr>
                     <td class="label">Booking No</td>
-                    <td><strong>{{ $booking_id }}</strong></td>
+                    <td><strong>{{ $emailData['booking_id'] }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice No</td>
-                    <td><strong>{{ $invoice_id }}</strong></td>
+                    <td><strong>{{ $emailData['invoice_id'] }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice Date</td>
@@ -144,31 +133,15 @@
                 </tr>
                 <tr>
                     <td class="label">Registration No</td>
-                    <td><strong>{{ $registration_number ?: 'N/A' }}</strong></td>
+                    <td><strong>{{ $emailData['registration_number'] ?: 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice Amount</td>
                     <td><strong>&pound;{{ $invoiceAmount }}</strong></td>
                 </tr>
                 <tr>
-                    <td class="label">Amount Received</td>
-                    <td><strong>&pound;{{ $amountReceived }}</strong></td>
-                </tr>
-                <tr>
-                    <td class="label">Remaining Balance</td>
-                    <td><strong>&pound;{{ $remainingBalance }}</strong></td>
-                </tr>
-                <tr>
-                    <td class="label">Payment Method</td>
-                    <td><strong>{{ $payment_method ?? 'N/A' }}</strong></td>
-                </tr>
-                <tr>
-                    <td class="label">Transaction No</td>
-                    <td><strong>{{ $transaction_id ?? 'N/A' }}</strong></td>
-                </tr>
-                <tr>
-                    <td class="label">Transaction Date</td>
-                    <td><strong>{{ $transactionDate }}</strong></td>
+                    <td class="label">Reversed Amount</td>
+                    <td><strong>&pound;{{ $reversedAmount }}</strong></td>
                 </tr>
             </table>
         </div>
@@ -176,7 +149,7 @@
         <div class="footer">
             <p>If you have any questions, please contact our customer service team on 0208 314 1498.</p>
             <p>Best regards,</p>
-            <p>Neguinho Motors Finance Department</p>
+            <p>Neguinho Motors Customer Service</p>
         </div>
     </div>
 </body>

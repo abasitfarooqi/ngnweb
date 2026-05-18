@@ -53,7 +53,9 @@ class RentalDuePaymentsController extends Controller
             ->orderBy('renting_bookings.id')
             ->get();
 
-        $records = $records->map(function ($row) {
+        $staffSignature = $this->buildWhatsappStaffSignature();
+
+        $records = $records->map(function ($row) use ($staffSignature) {
             $number = $row->whatsapp ?: $row->phone;
             $number = preg_replace('/\s+|^0/', '', $number);
             $number = preg_replace('/^(\+44)+/', '', $number);
@@ -61,7 +63,7 @@ class RentalDuePaymentsController extends Controller
             $number = '+44'.$number;
             $number = preg_replace('/\s+/', '', $number);
 
-            $message = "Dear {$row->customer}, this is a reminder regarding your Weekly Rental payment for motorbike {$row->reg_no}. The outstanding amount of £".number_format($row->weekly, 2).' is due on '.\Carbon\Carbon::parse($row->invoice_date)->format('d M Y').'. Please ensure payment is made as soon as possible to avoid late fees. If you have already paid, please contact us immediately at 0208 314 1498 or WhatsApp us on 07951790568, NGN Motors.';
+            $message = "Dear {$row->customer}, this is a reminder regarding your Weekly Rental payment for motorbike {$row->reg_no}. The outstanding amount of £".number_format($row->weekly, 2).' is due on '.\Carbon\Carbon::parse($row->invoice_date)->format('d M Y').". Please ensure payment is made as soon as possible to avoid late fees. If you have already paid, please contact us immediately at 0208 314 1498 or WhatsApp us on 07951790568, NGN Motors, {$staffSignature}.";
             $row->whatsapp_number = $number;
             $row->whatsapp_url = "https://wa.me/{$number}?text=".urlencode($message);
 
@@ -101,5 +103,18 @@ class RentalDuePaymentsController extends Controller
         $invoice->save();
 
         return redirect()->back()->with('success', 'Invoice date updated successfully.');
+    }
+
+    private function buildWhatsappStaffSignature(): string
+    {
+        $user = function_exists('backpack_auth') ? (backpack_auth()->user() ?: auth()->user()) : auth()->user();
+        $staffId = optional($user)->id;
+        $staffName = trim(((string) optional($user)->first_name).' '.((string) optional($user)->last_name));
+
+        if ($staffName === '') {
+            $staffName = (string) (optional($user)->name ?: 'Staff');
+        }
+
+        return $staffId ? "{$staffName} (ID: {$staffId})" : $staffName;
     }
 }

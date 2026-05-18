@@ -34,6 +34,7 @@ use App\Http\Controllers\PdfController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RentalSignupController;
 use App\Http\Controllers\RentingController;
+use App\Http\Controllers\SitePreviewController;
 use App\Http\Controllers\Shopper\CartController;
 use App\Http\Controllers\Shopper\CartrentalController;
 use App\Http\Controllers\SMSController;
@@ -47,6 +48,9 @@ use App\Jobs\SendBatchUserCredentials;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/site-preview/{token}', [SitePreviewController::class, 'unlock'])
+    ->name('site-preview.unlock');
 
 // ============================================================
 // JUDOPAY LIVE ROUTES
@@ -631,6 +635,7 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
         Route::get('/bookings/{bookingId}/invoices', [RentingController::class, 'getInvoices'])->name('admin.renting.bookings.invoices');
         Route::get('/bookings/invoices/{invoiceId}/details', [RentingController::class, 'getInvoiceDetails'])->name('admin.renting.bookings.invoices.details');
         Route::post('/bookings/invoices/{invoiceId}/send-whatsapp', [RentingController::class, 'sendInvoiceWhatsappReminder'])->name('admin.renting.bookings.invoices.send-whatsapp');
+        Route::post('/bookings/invoices/{invoiceId}/reverse', [RentingController::class, 'reverseInvoicePayment'])->name('admin.renting.bookings.invoices.reverse');
         Route::put('/bookings/invoices/{invoiceId}/update-date', [RentingController::class, 'updateInvoiceDateById'])->name('admin.renting.bookings.invoices.update-date');
         Route::get('/bookings/motorbike-availability', [RentingController::class, 'checkMotorbikeAvailability'])->name('admin.renting.bookings.motorbike-availability');
         Route::post('/bookings/create', [RentingController::class, 'createBooking'])->name('admin.renting.bookings.create');

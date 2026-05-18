@@ -173,6 +173,7 @@
         <x-backpack::menu-dropdown-item title="Club member purchases" icon="la la-shopping-bag" :link="backpack_url('club-member-purchase')" />
         <x-backpack::menu-dropdown-item title="Club member redeems" icon="la la-gift" :link="backpack_url('club-member-redeem')" />
         <x-backpack::menu-dropdown-item title="0% Spendings" icon="la la-money-bill" :link="backpack_url('club-member-spending')" />
+        <x-backpack::menu-dropdown-item title="Dev Club OTP" icon="la la-key" :link="backpack_url('dev-club-otp')" />
     </x-backpack::menu-dropdown>
 
     <x-backpack::menu-dropdown-item title="Purchase request items" icon="la la-clipboard-list" :link="backpack_url('purchase-request-item')" />

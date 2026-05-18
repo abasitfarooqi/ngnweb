@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class RentalPaymentReceipt extends Mailable
+class RentalPaymentReversedNotice extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -23,30 +23,21 @@ class RentalPaymentReceipt extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Rental Payment Receipt',
+            subject: 'Important: Previous Receipt Ignored - Invoice Still Unpaid',
         );
     }
 
     public function content()
     {
         return new Content(
-
             view: 'emails.templates.agreement-controller-universal',
-
             with: [
-
                 'mailData' => UniversalMailPayload::fromLegacyEmailView(
-
-                    'livewire.agreements.migrated.emails.rental-payment-receipt',
-
+                    'livewire.agreements.migrated.emails.rental-payment-reversed-notice',
                     is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
-
-                    ['title' => 'Hire Payment Receipt'],
-
+                    ['title' => 'Payment Reversed']
                 ),
-
             ],
-
         );
     }
 

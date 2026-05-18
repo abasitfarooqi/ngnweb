@@ -824,6 +824,7 @@
             var isCompleteSelected = false;
             // var genQR = false; // UNUSED REMOVAL REQUESTED
             var updated_total = 0;
+            var selected_invoice_outstanding = 0;
 
             // VRM SEARCH BAR
             document.getElementById("regFilterInput").addEventListener("keyup", function() {
@@ -1793,6 +1794,7 @@
                             data: {
                                 _token: csrf_token,
                                 booking_id: booking_id,
+                                invoice_id: invoice_id,
                                 payment_method_id: payment_method,
                                 amount: payment_value
                             },
@@ -2039,14 +2041,16 @@
                                                                     <td style="color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.TRANSACTION_NO || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:13px;font-weight:bold;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.INVOICE_DATE || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.INVOICE_AMOUNT || 'Awaiting Payment'}</td>
-                                                                    <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.PAID_AMOUNT || 'Awaiting Payment'}</td>
+                                                                    <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.TOTAL_PAID_AMOUNT || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.PAID_DATE || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.INV_STATE || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.DEPOSIT || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.FIRST_NAME || 'Awaiting Payment'}</td>
                                                                     <td style="font-size:12px;color:#333333 ;background-color: ${invoice.PAID_DATE ? 'transparent' : '#ffcccc'}">${invoice.TRANSACTION_DATETIME || 'Awaiting Payment'}</td>
                                                                     <td>
-                                                                    ${invoice.INV_STATE === 'Completed' ? '<button class="btn btn-success" disabled>Paid</button>' : '<button class="btn btn-danger btn-pay-line-invoice" data-invoice-id="' + invoice.INVOICE_ID + '">UnPaid</button>'}
+                                                                    ${invoice.IS_PAID == 1
+                                                                        ? '<button class="btn btn-success btn-sm" disabled>Paid</button> <button class="btn btn-warning btn-sm btn-reverse-line-invoice" data-invoice-id="' + invoice.INVOICE_ID + '">Reverse</button>'
+                                                                        : '<button class="btn btn-danger btn-pay-line-invoice" data-invoice-id="' + invoice.INVOICE_ID + '" data-outstanding-balance="' + invoice.OUTSTANDING_BALANCE + '">UnPaid</button>'}
                                                                     </td>
                                                                     </tr>
                                                                     ${invoice.IS_PAID == 0 ? `
@@ -2390,6 +2394,12 @@
 
             $(document).on('click', '.btn-pay-line-invoice', function(e) {
                 e.stopPropagation();
+                invoice_id = $(this).data('invoice-id');
+                selected_invoice_outstanding = parseFloat($(this).data('outstanding-balance') || 0);
+                updated_total = selected_invoice_outstanding;
+
+                $('#paymentvalue').closest('.mb-3').remove();
+                $('#paymentdropdown').off('change');
 
                 // 3.0.1 - Payment Section > Fetch Available Payment Methods >>> ////
                 $.get("{{ '/admin/payment-methods' }}", function(data) {
@@ -2408,7 +2418,7 @@
                 });
 
                 // 3.0.2 - Payment Section > Render TextBox for Amount Input >>> ////
-                $('#paymentdropdown').change(function() {
+                $('#paymentdropdown').on('change', function() {
                     if ($(this).val() != '') {
                         if ($('#paymentvalue').length === 0) {
                             $(this).after(`
@@ -2443,6 +2453,42 @@
                 $('#modal-paynow').modal('show');
                 $('#modal-paynow #btn-confirm-pay-selection').prop('disabled', false);
 
+            });
+
+            $(document).on('click', '.btn-reverse-line-invoice', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                var selectedInvoiceId = $(this).data('invoice-id');
+                if (!selectedInvoiceId) {
+                    alert('Invoice ID not found.');
+                    return;
+                }
+
+                if (!confirm('Are you sure you want to mark this invoice as unpaid again?\n\nThis will reverse the latest payment and send an unpaid warning email to the customer.')) {
+                    return;
+                }
+
+                $.ajax({
+                    url: '/admin/renting/bookings/invoices/' + selectedInvoiceId + '/reverse',
+                    type: 'POST',
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content')
+                    },
+                    beforeSend: function() {
+                        $('#modal-wait').modal('show');
+                    },
+                    complete: function() {
+                        $('#modal-wait').modal('hide');
+                    },
+                    success: function(response) {
+                        alert(response.message || 'Invoice reversed successfully.');
+                        fetchInvoices();
+                    },
+                    error: function(xhr, status, error) {
+                        alert((xhr.responseJSON && (xhr.responseJSON.error || xhr.responseJSON.message)) || error || 'Failed to reverse invoice.');
+                    }
+                });
             });
 
             // 1.0 - Motorbike Section | Payment Receivable >>> //

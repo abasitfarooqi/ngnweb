@@ -126,7 +126,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('spareparts.index') }}" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('spareparts*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">Spareparts</a>
+                <!-- <a href="{{ route('spareparts.index') }}" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('spareparts*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">Spareparts</a> -->
 
                 <a href="/about" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('about*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">About</a>
                 <a href="/contact" class="px-3 py-2 text-sm font-semibold uppercase tracking-wide {{ request()->is('contact*') ? 'text-brand-red' : 'text-gray-700 dark:text-gray-300 hover:text-brand-red' }} transition">Contact</a>

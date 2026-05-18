@@ -341,6 +341,7 @@ Route::group([
     Route::crud('dev-ngn-mit-queue', 'NgnMitQueueCrudController');
     Route::crud('dev-judopay-subscription', 'JudopaySubscriptionCrudController');
     Route::crud('dev-judopay-mit-queue', 'JudopayMitQueueCrudController');
+    Route::crud('dev-club-otp', 'DevClubOtpCrudController');
     Route::crud('club-member-spending-payment', 'ClubMemberSpendingPaymentCrudController');
 
     // Queue Monitor - View Redis delayed jobs
