@@ -5,7 +5,14 @@ return [
     /*
     | When true, everyone sees the normal site. When false, visitors are gated.
     */
-    'public_live' => filter_var(env('SITE_PUBLIC_LIVE', true), FILTER_VALIDATE_BOOL),
+    'public_live' => (static function (): bool {
+        $raw = env('SITE_PUBLIC_LIVE', 'true');
+        if ($raw === null || $raw === '') {
+            return true;
+        }
+
+        return in_array(strtolower((string) $raw), ['1', 'true', 'yes', 'on'], true);
+    })(),
 
     /*
     | redirect = HTTP redirect to live_legacy_url
@@ -14,6 +21,11 @@ return [
     'mode' => env('SITE_LAUNCH_MODE', 'page'),
 
     'live_legacy_url' => env('SITE_LAUNCH_REDIRECT_URL', 'https://neguinhomotors.co.uk'),
+
+    /*
+    | On under-construction page: seconds before browser goes to live_legacy_url (0 = off).
+    */
+    'auto_redirect_seconds' => (int) env('SITE_LAUNCH_AUTO_REDIRECT_SECONDS', 0),
 
     /*
     | Secret token for /site-preview/{token}. Set a long random string in .env on production.
@@ -42,6 +54,9 @@ return [
         'livewire',
         'api',
         'site-preview',
+        'under-construction',
+        'build',
+        'assets',
         'judopay/webhook',
         'webhook',
         'sanctum',

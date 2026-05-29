@@ -204,6 +204,10 @@ class Kernel extends ConsoleKernel
         //     ->cron('30 19 26 11 *')
         //     ->description('One-time run: sends NGN Club festive hours email (EN + PT) to all members on 26 November at 7:30 PM.');
 
+        // Renting Invoice Generate (uses RentingInvoiceSyncService — safe dedup per booking)
+        $schedule->command('app:renting-invoice-generate')
+            ->dailyAt('01:05');
+
     }
 
     protected function commands(): void

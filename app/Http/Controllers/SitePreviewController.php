@@ -16,18 +16,29 @@ class SitePreviewController extends Controller
             abort(404);
         }
 
+        $secure = $request->isSecure() || (bool) config('session.secure', false);
+
         Cookie::queue(
             (string) config('launch.preview_cookie', 'ngn_launch_preview'),
             hash_hmac('sha256', $secret, (string) config('app.key')),
             max(1, (int) config('launch.preview_cookie_days', 30)) * 24 * 60,
             '/',
             null,
-            $request->isSecure(),
+            $secure,
             true,
             false,
             'lax'
         );
 
-        return redirect('/')->with('status', 'Preview access enabled on this browser.');
+        return redirect('/')->with('status', 'Preview access enabled. Visit /site-preview/revoke to test the gate again.');
+    }
+
+    public function revoke(Request $request): RedirectResponse
+    {
+        $name = (string) config('launch.preview_cookie', 'ngn_launch_preview');
+        Cookie::queue(Cookie::forget($name));
+
+        return redirect('/under-construction')
+            ->with('status', 'Preview cookie cleared. You should now see the maintenance gate.');
     }
 }

@@ -25,6 +25,7 @@ use App\Models\RentingPricing;
 use App\Models\RentingServiceVideo;
 use App\Models\RentingTransaction;
 use App\Models\TransactionType;
+use App\Services\RentingInvoiceSyncService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use DateTime;
 use Exception;
@@ -3057,7 +3058,7 @@ class RentingController extends Controller
         return view('admin.renting.invoice-dates-all', compact('invoices', 'bookingIds', 'search'));
     }
 
-    public function updateStartDate(Request $request)
+    public function updateStartDate(Request $request, RentingInvoiceSyncService $syncService)
     {
         $request->validate([
             'booking_id' => 'required|exists:renting_bookings,id',
@@ -3065,52 +3066,28 @@ class RentingController extends Controller
         ]);
 
         $booking = RentingBooking::findOrFail($request->booking_id);
-        $oldStartDate = $booking->start_date;
-        $oldDayOfWeek = Carbon::parse($oldStartDate)->dayOfWeek; // 0=Sun .. 6=Sat
 
         DB::beginTransaction();
         try {
             $booking->start_date = $request->new_start_date;
             $booking->save();
 
-            $newDayOfWeek = Carbon::parse($booking->start_date)->dayOfWeek;
-            $updatedInvoicesCount = 0;
-
-            if ($oldDayOfWeek !== $newDayOfWeek) {
-                $today = Carbon::today()->toDateString();
-                $invoices = BookingInvoice::where('booking_id', $booking->id)
-                    ->where('is_paid', false)
-                    ->whereDate('invoice_date', '>=', $today)
-                    ->get();
-
-                // ISO week day: 1=Monday .. 7=Sunday (Carbon dayOfWeek: 0=Sun, 1=Mon .. 6=Sat)
-                $isoDay = $newDayOfWeek === 0 ? 7 : $newDayOfWeek;
-
-                foreach ($invoices as $invoice) {
-                    $invoiceDate = Carbon::parse($invoice->invoice_date);
-                    $newDate = $invoiceDate->copy()->setISODate(
-                        $invoiceDate->isoWeekYear(),
-                        $invoiceDate->isoWeek(),
-                        $isoDay
-                    );
-                    $invoice->invoice_date = $newDate->startOfDay();
-                    $invoice->save();
-                    $updatedInvoicesCount++;
-                }
-            }
+            $syncResult = $syncService->syncFutureInvoicesForBooking($booking->id);
 
             DB::commit();
 
             $message = 'Booking start date updated successfully.';
-            if ($updatedInvoicesCount > 0) {
-                $message .= " {$updatedInvoicesCount} future invoice(s) realigned to the new due day.";
+            if ($syncResult['deleted'] > 0 || $syncResult['created'] > 0) {
+                $message .= " {$syncResult['deleted']} invalid future invoice(s) removed, {$syncResult['created']} created.";
             }
 
             return response()->json([
                 'success' => true,
                 'message' => $message,
                 'booking' => $booking->fresh(),
-                'updated_invoices_count' => $updatedInvoicesCount,
+                'deleted_invoices_count' => $syncResult['deleted'],
+                'created_invoices_count' => $syncResult['created'],
+                'kept_invoices_count' => $syncResult['kept'],
             ]);
         } catch (\Exception $e) {
             DB::rollBack();

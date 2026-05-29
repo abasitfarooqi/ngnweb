@@ -4,6 +4,10 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
+    @php $seconds = (int) ($autoRedirectSeconds ?? config('launch.auto_redirect_seconds', 0)); @endphp
+    @if($seconds > 0)
+        <meta http-equiv="refresh" content="{{ $seconds }};url={{ $liveUrl }}">
+    @endif
     <title>NGN Motors — site under construction</title>
     <style>
         * { box-sizing: border-box; }
@@ -51,13 +55,14 @@
 </head>
 <body>
     <div class="panel" role="main">
-        <h1>Site under construction</h1>
+        <h1>Website Under Maintenance</h1>
         <p>
-            NGN Motors on this domain is not live yet. Work is still in progress.
+            This website is undergoing maintenance. Please visit our temporary website at <strong>neguinhomotors.co.uk</strong>.
         </p>
         <p>
-            For bookings, shop, rentals and all current services, please use our working website:
+            <strong>ngnmotors.co.uk</strong> will be our main website address in the future. Meanwhile, please use <strong>neguinhomotors.co.uk</strong> for all services.
         </p>
+   
         <a class="btn" href="{{ $liveUrl }}">Visit neguinhomotors.co.uk</a>
         <p class="note">Do not place orders or enter personal details on this site until we announce go-live.</p>
     </div>

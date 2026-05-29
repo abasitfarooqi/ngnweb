@@ -3,9 +3,8 @@
 namespace App\Console\Commands;
 
 use App\Mail\InvoiceGenerationNotification;
-use Carbon\Carbon;
+use App\Services\RentingInvoiceSyncService;
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 
 class RentingInvoiceGenerate extends Command
@@ -14,65 +13,23 @@ class RentingInvoiceGenerate extends Command
 
     protected $description = 'Renting Invoice Generation';
 
-    public function handle()
+    public function handle(RentingInvoiceSyncService $syncService): int
     {
-        $bookingIds = DB::table('renting_booking_items')
-            ->select('booking_id')
-            ->distinct()
-            ->where('is_posted', true)
-            ->whereNull('end_date')
-            ->pluck('booking_id')
-            ->toArray();
-
+        $bookingIds = $syncService->getActiveBookingIds();
         $newInvoices = 0;
+        $totalDeleted = 0;
 
         foreach ($bookingIds as $bookingId) {
-            // Get the weekly rent
-            $weeklyRent = DB::table('renting_booking_items')
-                ->where('booking_id', $bookingId)
-                ->value('weekly_rent');
+            $result = $syncService->syncFutureInvoicesForBooking($bookingId);
 
-            // Get the booking date
-            $bookingDate = DB::table('renting_bookings')
-                ->where('id', $bookingId)
-                ->value('start_date');
-
-            // Get the day of the week
-            $dayOfWeek = Carbon::parse($bookingDate)->dayOfWeek;
-
-            // Get the invoice dates
-            $invoiceDates = [
-                Carbon::now()->next($dayOfWeek),
-                Carbon::now()->next($dayOfWeek)->addWeek(),
-                Carbon::now()->next($dayOfWeek)->addWeeks(2),
-            ];
-
-            // Loop through the invoice dates
-            foreach ($invoiceDates as $invoiceDate) {
-                // Check if the invoice already exists
-                $exists = \App\Models\BookingInvoice::where('booking_id', $bookingId)
-                    ->whereDate('invoice_date', $invoiceDate->format('Y-m-d'))
-                    ->exists();
-
-                // If the invoice does not exist, create it
-                if (! $exists) {
-                    \App\Models\BookingInvoice::create([
-                        'booking_id' => $bookingId,
-                        'user_id' => 93,
-                        'invoice_date' => $invoiceDate,
-                        'amount' => $weeklyRent,
-                        'deposit' => 0.00,
-                        'is_posted' => true,
-                        'is_paid' => false,
-                        'state' => 'Awaiting Payment',
-                        'notes' => 'Invoice created as unpaid',
-                    ]);
-                    $newInvoices++;
-                }
+            if ($result['skipped']) {
+                continue;
             }
+
+            $newInvoices += $result['created'];
+            $totalDeleted += $result['deleted'];
         }
 
-        // Prepare data for email
         $data = [
             'email' => ['support@neguinhomotors.co.uk'],
             'totalProcessed' => count($bookingIds),
@@ -83,6 +40,8 @@ class RentingInvoiceGenerate extends Command
             Mail::to($data['email'])->send(new InvoiceGenerationNotification($data));
         }
 
-        $this->info("{$newInvoices} new invoices generated.");
+        $this->info("{$newInvoices} new invoices generated. {$totalDeleted} invalid future invoice(s) removed.");
+
+        return self::SUCCESS;
     }
 }

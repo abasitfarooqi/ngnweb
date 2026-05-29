@@ -507,6 +507,7 @@
                 "email",
                 "phone",
                 "user_id",
+                "customer_id",
                 "make",
                 "model",
                 "year",

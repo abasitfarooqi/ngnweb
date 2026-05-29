@@ -49,8 +49,18 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/site-preview/revoke', [SitePreviewController::class, 'revoke'])
+    ->name('site-preview.revoke');
+
 Route::get('/site-preview/{token}', [SitePreviewController::class, 'unlock'])
     ->name('site-preview.unlock');
+
+Route::get('/under-construction', function () {
+    return response()->view('site.under-construction', [
+        'liveUrl' => (string) config('launch.live_legacy_url', 'https://neguinhomotors.co.uk'),
+        'autoRedirectSeconds' => max(0, (int) config('launch.auto_redirect_seconds', 0)),
+    ], 503);
+})->name('site.under-construction');
 
 // ============================================================
 // JUDOPAY LIVE ROUTES

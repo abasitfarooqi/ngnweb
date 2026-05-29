@@ -4,6 +4,7 @@ CREATE TABLE `club_members` (
   `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `phone` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `user_id` bigint unsigned DEFAULT NULL COMMENT 'Last user who updated this record',
+  `customer_id` bigint unsigned DEFAULT NULL,
   `make` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `model` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `year` varchar(4) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -20,6 +21,7 @@ CREATE TABLE `club_members` (
   PRIMARY KEY (`id`),
   KEY `club_members_ngn_partner_id_foreign` (`ngn_partner_id`),
   KEY `club_members_user_id_foreign` (`user_id`),
+  KEY `club_members_customer_id_index` (`customer_id`),
   CONSTRAINT `club_members_ngn_partner_id_foreign` FOREIGN KEY (`ngn_partner_id`) REFERENCES `ngn_partners` (`id`),
   CONSTRAINT `club_members_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=2671 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci

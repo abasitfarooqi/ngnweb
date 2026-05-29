@@ -24,14 +24,19 @@ class SiteLaunchGate
         }
 
         if (config('launch.mode') === 'redirect') {
-            $url = (string) config('launch.live_legacy_url', 'https://neguinhomotors.co.uk');
-
-            return redirect()->away($url);
+            return redirect()->away($this->liveLegacyUrl(), 302);
         }
 
-        return response()->view('site.under-construction', [
-            'liveUrl' => (string) config('launch.live_legacy_url', 'https://neguinhomotors.co.uk'),
-        ], 503);
+        return redirect('/under-construction', 302);
+    }
+
+    protected function cookieSecure(Request $request): bool
+    {
+        if ($request->isSecure()) {
+            return true;
+        }
+
+        return (bool) config('session.secure', false);
     }
 
     protected function isExcludedPath(Request $request): bool
@@ -70,7 +75,7 @@ class SiteLaunchGate
                 $this->previewCookieMinutes(),
                 '/',
                 null,
-                $request->isSecure(),
+                $this->cookieSecure($request),
                 true,
                 false,
                 'lax'
@@ -111,5 +116,10 @@ class SiteLaunchGate
     protected function signedPreviewValue(string $secret): string
     {
         return hash_hmac('sha256', $secret, (string) config('app.key'));
+    }
+
+    protected function liveLegacyUrl(): string
+    {
+        return (string) config('launch.live_legacy_url', 'https://neguinhomotors.co.uk');
     }
 }

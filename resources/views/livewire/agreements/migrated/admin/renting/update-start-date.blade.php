@@ -83,7 +83,7 @@ $(function() {
                 new_start_date: newStartDate
             },
             success: function(response) {
-                alert('Start date updated successfully');
+                alert(response.message || 'Start date updated successfully');
                 row.find('.start-date').prop('disabled', true);
                 row.find('.update-start-date').addClass('d-none');
                 row.find('.edit-start-date').removeClass('d-none');
