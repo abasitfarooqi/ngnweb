@@ -24,7 +24,39 @@ class RentalIndex extends Component
     #[Url]
     public string $status = 'all';
 
+    #[Url]
+    public string $filterMotorbikeId = '';
+
+    #[Url]
+    public string $bookingStateFilter = '';
+
+    #[Url]
+    public string $startDateFrom = '';
+
+    #[Url]
+    public string $startDateTo = '';
+
     public function updatingStatus(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterMotorbikeId(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingBookingStateFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStartDateFrom(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStartDateTo(): void
     {
         $this->resetPage();
     }
@@ -92,6 +124,22 @@ class RentalIndex extends Component
             $query->whereRaw('COALESCE(invoice_summary.outstanding_amount, 0) > 0');
         } elseif ($this->status === 'active') {
             $query->whereRaw('COALESCE(invoice_summary.outstanding_amount, 0) = 0');
+        }
+
+        if ($this->filterMotorbikeId !== '') {
+            $query->where('rbi.motorbike_id', (int) $this->filterMotorbikeId);
+        }
+
+        if ($this->bookingStateFilter !== '') {
+            $query->where('rb.state', $this->bookingStateFilter);
+        }
+
+        if ($this->startDateFrom !== '') {
+            $query->where('rbi.start_date', '>=', $this->startDateFrom);
+        }
+
+        if ($this->startDateTo !== '') {
+            $query->where('rbi.start_date', '<=', $this->startDateTo);
         }
 
         $sortColumn = match ($this->sortField) {

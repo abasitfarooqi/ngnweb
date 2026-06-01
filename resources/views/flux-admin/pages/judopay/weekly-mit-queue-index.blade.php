@@ -6,7 +6,6 @@
             <flux:button size="sm" variant="ghost" icon="chevron-left" wire:click="goTo('prev')" class="!rounded-none">Previous</flux:button>
             <flux:button size="sm" variant="ghost" wire:click="goToday" class="!rounded-none">Today</flux:button>
             <flux:button size="sm" variant="ghost" icon="chevron-right" wire:click="goTo('next')" class="!rounded-none">Next</flux:button>
-            <flux:button size="sm" variant="ghost" icon="arrow-top-right-on-square" :href="url(config('backpack.base.route_prefix').'/judopay/weekly-mit-queue?week='.$weekStart->toDateString())" class="!rounded-none">Legacy actions</flux:button>
         </x-slot:actions>
     </x-flux-admin::summary-header>
 

@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\ServiceBooking;
@@ -16,7 +17,13 @@ use Livewire\WithPagination;
 #[Title('Service bookings — Flux Admin')]
 class ServiceBookingIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithExport, WithPagination;
+    use WithAuthorization;
+    use WithCrudForm;
+    use WithDataTable;
+    use WithExport;
+    use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
@@ -24,6 +31,58 @@ class ServiceBookingIndex extends Component
         $this->exportable = true;
         $this->exportFilename = 'service-bookings';
         $this->sortField = 'booking_date';
+    }
+
+    protected function formModel(): string { return ServiceBooking::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.fullname'      => ['required', 'string', 'max:255'],
+            'formData.phone'         => ['nullable', 'string', 'max:50'],
+            'formData.email'         => ['nullable', 'email', 'max:255'],
+            'formData.reg_no'        => ['nullable', 'string', 'max:20'],
+            'formData.enquiry_type'  => ['nullable', 'string', 'in:service_booking,general'],
+            'formData.service_type'  => ['nullable', 'string', 'max:100'],
+            'formData.subject'       => ['nullable', 'string', 'max:255'],
+            'formData.description'   => ['nullable', 'string', 'max:5000'],
+            'formData.booking_date'  => ['nullable', 'date'],
+            'formData.booking_time'  => ['nullable', 'string', 'max:20'],
+            'formData.status'        => ['nullable', 'string', 'in:pending,confirmed,completed,cancelled'],
+            'formData.notes'         => ['nullable', 'string', 'max:5000'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [
+            'status'        => 'pending',
+            'enquiry_type'  => 'service_booking',
+            'booking_date'  => now()->format('Y-m-d'),
+        ];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(ServiceBooking::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        ServiceBooking::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function toggleDealt(int $id): void

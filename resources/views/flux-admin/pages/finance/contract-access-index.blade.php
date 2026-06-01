@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="Contract links" description="Passcode URLs allowing customers to sign finance contracts.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/contract-access/create')" class="!rounded-none">New link</flux:button>
+            <a href="{{ route('flux-admin.contract-access.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New link</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search passcode, contract ID or customer…" />
@@ -26,7 +26,8 @@
                         <flux:table.cell>
                             <div class="flex gap-1">
                                 <flux:button size="xs" variant="ghost" :href="'https://neguinhomotors.co.uk/sale-ins-latest/'.$r->customer_id.'/'.$r->passcode" target="_blank" icon="link" class="!rounded-none">Link</flux:button>
-                                <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/contract-access/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.contract-access.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this contract link?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -37,4 +38,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

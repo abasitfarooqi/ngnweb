@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Pcn;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\PcnCaseUpdate;
@@ -17,9 +18,12 @@ use Livewire\WithPagination;
 class PcnUpdateIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithExport;
     use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
@@ -27,6 +31,61 @@ class PcnUpdateIndex extends Component
         $this->exportable = true;
         $this->exportFilename = 'pcn-updates';
         $this->sortField = 'update_date';
+    }
+
+    protected function formModel(): string { return PcnCaseUpdate::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.case_id'          => ['required', 'integer'],
+            'formData.update_date'      => ['required', 'date'],
+            'formData.is_appealed'      => ['boolean'],
+            'formData.is_paid_by_owner' => ['boolean'],
+            'formData.is_paid_by_keeper' => ['boolean'],
+            'formData.is_transferred'   => ['boolean'],
+            'formData.is_cancled'       => ['boolean'],
+            'formData.additional_fee'   => ['nullable', 'numeric', 'min:0'],
+            'formData.note'             => ['nullable', 'string', 'max:2000'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [
+            'is_appealed'      => false,
+            'is_paid_by_owner' => false,
+            'is_paid_by_keeper' => false,
+            'is_transferred'   => false,
+            'is_cancled'       => false,
+            'update_date'      => now()->format('Y-m-d'),
+        ];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(PcnCaseUpdate::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        foreach (['is_appealed', 'is_paid_by_owner', 'is_paid_by_keeper', 'is_transferred', 'is_cancled'] as $field) {
+            $this->formData[$field] = (bool) ($this->formData[$field] ?? false);
+        }
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'PCN update saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        PcnCaseUpdate::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'PCN update deleted.');
     }
 
     public function render()

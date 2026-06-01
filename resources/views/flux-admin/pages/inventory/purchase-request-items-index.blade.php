@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Purchase request items" description="Individual parts across all purchase requests.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/purchase-request-item/create')" class="!rounded-none">New item</flux:button>
+            <a href="{{ route('flux-admin.purchase-request-items.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New item</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search part #, reg or chassis…">
@@ -32,7 +34,12 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->quantity }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->year }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/purchase-request-item/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.purchase-request-items.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this item?" icon="trash" class="!rounded-none text-red-600" />
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

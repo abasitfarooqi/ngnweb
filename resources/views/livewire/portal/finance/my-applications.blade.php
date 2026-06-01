@@ -1,6 +1,6 @@
 <div wire:key="finance-my-applications">
     <div class="flex items-center justify-between gap-3 mb-6 flex-wrap">
-        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Finance Applications</h1>
+        <h1 class="text-2xl font-bold text-gray-900 dark:text-white">My Payment Plan Applications</h1>
         <div class="flex items-center gap-2 flex-wrap">
             <a href="{{ route('account.documents', ['tab' => 'finance']) }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-brand-red hover:text-brand-red">
                 View Documents
@@ -56,14 +56,14 @@
                             <p class="text-sm font-semibold">£{{ number_format($app->motorbike_price, 2) }}</p>
                         </div>
                         <div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Finance Amount</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Plan Amount</p>
                             <p class="text-sm font-semibold">£{{ number_format($app->financeAmount, 2) }}</p>
                         </div>
                     </div>
 
                     <div class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                         <div>
-                            <p class="text-xs text-gray-500 dark:text-gray-400">Financed Principal</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">Plan Principal</p>
                             <p class="text-sm font-semibold">£{{ number_format((float) ($snapshot['principal'] ?? 0), 2) }}</p>
                         </div>
                         <div>
@@ -154,7 +154,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
             <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white">No applications yet</h3>
-            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Start by browsing bikes available for finance.</p>
+            <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Start by browsing bikes available on a payment plan.</p>
             <div class="mt-6">
                 <a href="{{ route('account.finance.browse') }}"
                     class="inline-flex items-center px-4 py-2 bg-brand-red text-white font-medium rounded hover:bg-red-700">

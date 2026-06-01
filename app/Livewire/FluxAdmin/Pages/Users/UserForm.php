@@ -47,6 +47,7 @@ class UserForm extends Component
 
     public function mount(?int $user = null): void
     {
+        $this->resetErrorBag();
         $this->authorizeModule('see-menu-permissions');
 
         if ($user !== null) {

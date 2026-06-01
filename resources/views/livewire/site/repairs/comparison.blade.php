@@ -63,7 +63,7 @@
     </div>
 
     <flux:callout variant="info" icon="information-circle" class="mt-12 max-w-3xl mx-auto">
-        <flux:callout.text>Looking for MOT, delivery, sales, rental or finance? Open the <a href="{{ route('all-services') }}" class="font-semibold text-brand-red underline underline-offset-2">full services overview</a> or the <a href="{{ route('site.repairs') }}" class="font-semibold text-brand-red underline underline-offset-2">repairs hub</a>.</flux:callout.text>
+        <flux:callout.text>Looking for MOT, delivery, sales, rental or payment plans? Open the <a href="{{ route('all-services') }}" class="font-semibold text-brand-red underline underline-offset-2">full services overview</a> or the <a href="{{ route('site.repairs') }}" class="font-semibold text-brand-red underline underline-offset-2">repairs hub</a>.</flux:callout.text>
     </flux:callout>
 
     <x-site.repairs.branches-cta-dark heading="Questions about which package to book?" intro="Call any branch — we will talk you through basic versus full service and availability." />

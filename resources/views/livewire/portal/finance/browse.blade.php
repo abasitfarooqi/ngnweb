@@ -5,13 +5,13 @@
 <div wire:key="finance-browse-page" class="space-y-10">
     <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-            <flux:heading size="xl">Finance enquiry</flux:heading>
+            <flux:heading size="xl">Payment Plan enquiry</flux:heading>
             <p class="mt-2 text-sm text-gray-600 dark:text-gray-400 max-w-2xl">
-                Browse our stock below, then use <strong>Enquire on finance</strong> on a bike card to open the form for that bike (new, used, or e-bike). We prepare contracts in admin — you do not create a finance application yourself here.
+                Browse our stock below, then use <strong>Enquire on payment plan</strong> on a bike card to open the form for that bike (new, used, or eBike). We prepare contracts in admin — you do not create a payment plan application yourself here.
             </p>
         </div>
         <flux:button href="{{ route('account.finance.my-applications') }}" variant="outline" class="border-brand-red text-brand-red shrink-0">
-            My finance applications
+            My payment plan applications
         </flux:button>
     </div>
 
@@ -19,7 +19,7 @@
         <span class="text-sm text-gray-600 dark:text-gray-400 self-center mr-1">Full catalogue:</span>
         <flux:button href="{{ route('site.bikes', ['filter' => 'new']) }}" variant="ghost" size="sm" class="text-brand-red">Full new stock</flux:button>
         <flux:button href="{{ route('site.bikes') }}" variant="ghost" size="sm" class="text-brand-red">Full used stock</flux:button>
-        <flux:button href="{{ route('site.ebikes') }}" variant="ghost" size="sm" class="text-brand-red">E-bikes site page</flux:button>
+        <flux:button href="{{ route('site.ebikes') }}" variant="ghost" size="sm" class="text-brand-red">eBikes site page</flux:button>
     </div>
 
     @if (session('success'))
@@ -28,7 +28,7 @@
         </flux:callout>
     @endif
 
-    {{-- New motorcycles first, then e-bikes (same finance flow), then used --}}
+    {{-- New motorcycles first, then eBikes (same payment plan flow), then used --}}
     @if ($newForFinance->isNotEmpty())
         <section>
             <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
@@ -62,7 +62,7 @@
                                 size="sm"
                                 class="mt-auto w-full bg-brand-red text-white hover:bg-brand-red-dark"
                             >
-                                Enquire on finance
+                                Enquire on payment plan
                             </flux:button>
                         </div>
                     </flux:card>
@@ -74,8 +74,8 @@
     @if ($ebikesForFinance->isNotEmpty())
         <section>
             <div class="flex items-center justify-between gap-3 mb-4 flex-wrap">
-                <flux:heading size="lg">E-bikes for sale</flux:heading>
-                <a href="{{ route('site.ebikes') }}" class="text-sm font-medium text-brand-red hover:text-brand-red-dark">E-bikes site page</a>
+                <flux:heading size="lg">eBikes for sale</flux:heading>
+                <a href="{{ route('site.ebikes') }}" class="text-sm font-medium text-brand-red hover:text-brand-red-dark">eBikes site page</a>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                 @foreach ($ebikesForFinance as $bike)
@@ -92,7 +92,7 @@
                             <h3 class="font-semibold text-gray-900 dark:text-white">
                                 <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="hover:text-brand-red">{{ $bike->make }} {{ $bike->model }}</a>
                             </h3>
-                            <p class="text-xs text-gray-500">E-bike @if ($maskedReg)· Reg {{ $maskedReg }} @endif</p>
+                            <p class="text-xs text-gray-500">eBike @if ($maskedReg)· Reg {{ $maskedReg }} @endif</p>
                             <p class="text-brand-red font-bold">
                                 @if ($price > 0)
                                     £{{ number_format($price, 2) }}
@@ -106,7 +106,7 @@
                                 size="sm"
                                 class="mt-auto w-full bg-brand-red text-white hover:bg-brand-red-dark"
                             >
-                                Enquire on finance
+                                Enquire on payment plan
                             </flux:button>
                         </div>
                     </flux:card>
@@ -153,7 +153,7 @@
                                 size="sm"
                                 class="mt-auto w-full bg-brand-red text-white hover:bg-brand-red-dark"
                             >
-                                Enquire on finance
+                                Enquire on payment plan
                             </flux:button>
                         </div>
                     </flux:card>
@@ -163,7 +163,7 @@
     @endif
 
     <section id="finance-enquiry" class="scroll-mt-24 pt-4 border-t border-gray-200 dark:border-gray-700">
-        <flux:heading size="lg" class="mb-4">Finance calculator &amp; enquiry</flux:heading>
+        <flux:heading size="lg" class="mb-4">Payment plan calculator &amp; enquiry</flux:heading>
         <livewire:portal.finance.enquiry-panel wire:key="{{ $enquiryWireKey }}" />
     </section>
 

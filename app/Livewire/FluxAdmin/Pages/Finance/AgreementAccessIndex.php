@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Finance;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\AgreementAccess;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,12 +17,55 @@ use Livewire\WithPagination;
 class AgreementAccessIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-renting-page');
+    }
+
+    protected function formModel(): string { return AgreementAccess::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.customer_id' => ['required', 'integer'],
+            'formData.booking_id'  => ['required', 'integer'],
+            'formData.passcode'    => ['required', 'string', 'max:100'],
+            'formData.expires_at'  => ['nullable', 'date'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(AgreementAccess::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Agreement link saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        AgreementAccess::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Agreement link deleted.');
     }
 
     public function render()

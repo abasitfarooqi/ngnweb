@@ -1,11 +1,11 @@
 <flux:card class="p-6 space-y-5 border border-gray-200 dark:border-gray-700">
     <div>
-        <flux:heading size="lg">Finance enquiry</flux:heading>
+        <flux:heading size="lg">Payment plan enquiry</flux:heading>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Enquiry only — our team prepares your contract and sends a signing link when ready. Figures here are illustrative.
         </p>
         <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
-            Pick a bike from the listings above (new, used, or e-bike) and use <strong>Enquire on finance</strong> on that card so this form is linked to the correct bike — required before you can send.
+            Pick a bike from the listings above (new, used, or eBike) and use <strong>Enquire on payment plan</strong> on that card so this form is linked to the correct bike — required before you can send.
         </p>
     </div>
 
@@ -86,7 +86,7 @@
     </flux:field>
 
     <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled" wire:target="submitEnquiry">
-        <span wire:loading.remove wire:target="submitEnquiry">Send finance enquiry</span>
+        <span wire:loading.remove wire:target="submitEnquiry">Send payment plan enquiry</span>
         <span wire:loading wire:target="submitEnquiry">Sending…</span>
     </flux:button>
 </flux:card>

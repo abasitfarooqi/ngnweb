@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Security;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\IpRestriction;
 use Illuminate\Database\Eloquent\Builder;
@@ -17,26 +18,67 @@ use Livewire\WithPagination;
 class IpRestrictionIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithPagination;
 
-    public bool $editorOpen = false;
-
-    public ?int $editingId = null;
-
-    /** @var array<string, mixed> */
-    public array $form = [
-        'ip_address' => '',
-        'status' => 'blocked',
-        'restriction_type' => 'full_site',
-        'label' => '',
-        'user_id' => null,
-    ];
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-security');
         $this->sortField = 'updated_at';
+    }
+
+    protected function formModel(): string
+    {
+        return IpRestriction::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.ip_address' => ['required', 'string', 'max:45'],
+            'formData.status' => ['required', Rule::in(['allowed', 'blocked'])],
+            'formData.restriction_type' => ['required', Rule::in(['admin_only', 'full_site'])],
+            'formData.label' => ['nullable', 'string', 'max:255'],
+            'formData.user_id' => ['nullable', 'integer', 'exists:users,id'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [
+            'ip_address' => '',
+            'status' => 'blocked',
+            'restriction_type' => 'full_site',
+            'label' => '',
+            'user_id' => null,
+        ];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $restriction = IpRestriction::findOrFail($id);
+        $this->fillFromModel($restriction);
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: $this->recordId ? 'Restriction updated.' : 'Restriction created.');
+    }
+
+    public function delete(int $id): void
+    {
+        IpRestriction::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Restriction deleted.');
     }
 
     public function render()
@@ -62,65 +104,5 @@ class IpRestrictionIndex extends Component
             })
             ->when($this->filter('status'), fn ($q, $v) => $q->where('status', $v))
             ->when($this->filter('restriction_type'), fn ($q, $v) => $q->where('restriction_type', $v));
-    }
-
-    public function openCreate(): void
-    {
-        $this->reset('form', 'editingId');
-        $this->form = [
-            'ip_address' => '',
-            'status' => 'blocked',
-            'restriction_type' => 'full_site',
-            'label' => '',
-            'user_id' => null,
-        ];
-        $this->editorOpen = true;
-    }
-
-    public function openEdit(int $id): void
-    {
-        $restriction = IpRestriction::findOrFail($id);
-        $this->editingId = $restriction->id;
-        $this->form = [
-            'ip_address' => $restriction->ip_address,
-            'status' => $restriction->status,
-            'restriction_type' => $restriction->restriction_type,
-            'label' => $restriction->label,
-            'user_id' => $restriction->user_id,
-        ];
-        $this->editorOpen = true;
-    }
-
-    protected function rules(): array
-    {
-        return [
-            'form.ip_address' => ['required', 'string', 'max:45'],
-            'form.status' => ['required', Rule::in(['allowed', 'blocked'])],
-            'form.restriction_type' => ['required', Rule::in(['admin_only', 'full_site'])],
-            'form.label' => ['nullable', 'string', 'max:255'],
-            'form.user_id' => ['nullable', 'integer', 'exists:users,id'],
-        ];
-    }
-
-    public function save(): void
-    {
-        $this->validate();
-
-        $restriction = $this->editingId
-            ? IpRestriction::findOrFail($this->editingId)
-            : new IpRestriction;
-
-        $restriction->fill($this->form)->save();
-
-        $this->editorOpen = false;
-        $this->editingId = null;
-
-        session()->flash('flux-admin.flash', $this->editingId ? 'Restriction updated.' : 'Restriction created.');
-    }
-
-    public function deleteRestriction(int $id): void
-    {
-        IpRestriction::findOrFail($id)->delete();
-        session()->flash('flux-admin.flash', 'Restriction deleted.');
     }
 }

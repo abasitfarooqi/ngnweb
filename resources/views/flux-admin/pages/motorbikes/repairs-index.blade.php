@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Motorbike repairs" description="Workshop repair log with PDF export for each entry.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/motorbike-repair/create')" class="!rounded-none">New repair</flux:button>
+            <a href="{{ route('flux-admin.motorbike-repairs.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New repair</flux:button>
+            </a>
         </x-slot:actions>
 
         <x-slot:toolbar>
@@ -56,7 +58,10 @@
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
                                 <flux:button size="xs" variant="ghost" wire:click="generatePdf({{ $r->id }})" icon="document-arrow-down" class="!rounded-none">PDF</flux:button>
-                                <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/motorbike-repair/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.motorbike-repairs.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -68,4 +73,5 @@
 
         <x-slot:footer>{{ $repairs->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

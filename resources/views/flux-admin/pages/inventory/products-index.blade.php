@@ -2,7 +2,11 @@
     <x-flux-admin::data-table title="Products" description="Inventory catalogue across all branches.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/ngn-product/create')" class="!rounded-none">New product</flux:button>
+            <flux:button size="sm" variant="ghost" icon="arrow-down-tray" wire:click="exportForPos" class="!rounded-none">POS export</flux:button>
+            <flux:button size="sm" variant="ghost" icon="arrow-up-tray" wire:click="$set('showImportModal', true)" class="!rounded-none">Import stock</flux:button>
+            <a href="{{ route('flux-admin.inventory-products.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New product</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name, SKU or EAN…">
@@ -66,7 +70,12 @@
                             @endif
                         </flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/ngn-product/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.inventory-products.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this product?" icon="trash" class="!rounded-none text-red-600" />
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -76,4 +85,22 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showImportModal" class="md:w-[500px]">
+        <form wire:submit.prevent="importStock" class="space-y-4" novalidate>
+            <flux:heading size="lg">Import stock (XLSX)</flux:heading>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">Upload a stock XLSX file. Columns should match the expected format (SKU, branch stock columns).</p>
+            <x-flux-admin::field-group label="XLSX file" :error="$errors->first('importFile')" required>
+                <input type="file" wire:model="importFile" accept=".xlsx,.xls" class="block w-full text-sm text-zinc-700 dark:text-zinc-300 file:mr-4 file:py-1 file:px-3 file:border file:border-zinc-300 file:text-sm file:bg-white dark:file:bg-zinc-800 dark:file:border-zinc-600 dark:file:text-zinc-300" />
+            </x-flux-admin::field-group>
+            <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                <input type="checkbox" wire:model="importUpdateZero" class="rounded-none" />
+                Update products with zero stock (overwrite with 0)
+            </label>
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showImportModal', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Import</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

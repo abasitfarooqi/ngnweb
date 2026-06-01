@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Judopay;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\JudopayMitQueue;
@@ -16,7 +17,9 @@ use Livewire\WithPagination;
 #[Title('Judopay MIT queue — Flux Admin')]
 class MitQueueIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithExport, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
@@ -24,6 +27,48 @@ class MitQueueIndex extends Component
         $this->exportable = true;
         $this->exportFilename = 'judopay-mit-queue';
         $this->sortField = 'mit_fire_date';
+    }
+
+    protected function formModel(): string { return JudopayMitQueue::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.ngn_mit_queue_id'          => ['required', 'integer'],
+            'formData.judopay_payment_reference'  => ['nullable', 'string'],
+            'formData.mit_fire_date'              => ['nullable', 'date'],
+            'formData.retry'                      => ['nullable', 'integer', 'min:0'],
+            'formData.fired'                      => ['boolean'],
+            'formData.cleared'                    => ['boolean'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['fired' => false, 'cleared' => false, 'retry' => 0];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(JudopayMitQueue::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        JudopayMitQueue::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()

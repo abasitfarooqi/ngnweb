@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Categories" description="Hierarchical product categories.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New category</flux:button>
+            <a href="{{ route('flux-admin.inventory-categories.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New category</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name…">
@@ -41,7 +43,9 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_active" /></flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.inventory-categories.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this category?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -53,55 +57,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit category' : 'New category' }}</flux:heading>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Name" :error="$errors->first('formData.name')" required>
-                    <flux:input wire:model="formData.name" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Parent category" :error="$errors->first('formData.super_category_id')">
-                    <flux:select wire:model="formData.super_category_id" placeholder="— None (top-level) —">
-                        <flux:select.option value="">None</flux:select.option>
-                        @foreach($superCats as $sc)
-                            @if($sc->id !== $recordId)
-                                <flux:select.option value="{{ $sc->id }}">{{ $sc->name }}</flux:select.option>
-                            @endif
-                        @endforeach
-                    </flux:select>
-                </x-flux-admin::field-group>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Slug" :error="$errors->first('formData.slug')" hint="Leave empty to auto-generate.">
-                    <flux:input wire:model="formData.slug" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Sort order" :error="$errors->first('formData.sort_order')">
-                    <flux:input type="number" wire:model="formData.sort_order" min="0" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Description" :error="$errors->first('formData.description')">
-                <flux:textarea wire:model="formData.description" rows="3" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Image URL" :error="$errors->first('formData.image_url')">
-                <flux:input wire:model="formData.image_url" />
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Meta title" :error="$errors->first('formData.meta_title')">
-                    <flux:input wire:model="formData.meta_title" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Meta description" :error="$errors->first('formData.meta_description')">
-                    <flux:input wire:model="formData.meta_description" />
-                </x-flux-admin::field-group>
-            </div>
-            <div class="flex gap-4">
-                <flux:checkbox wire:model="formData.is_active" label="Active" />
-                <flux:checkbox wire:model="formData.is_ecommerce" label="Visible on shop" />
-            </div>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

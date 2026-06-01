@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="Contract extra items" description="Additional charges or fees attached to finance contracts.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New item</flux:button>
+            <a href="{{ route('flux-admin.contract-extra-items.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New item</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name or application ID…" />
@@ -29,7 +29,7 @@
                         <flux:table.cell class="text-zinc-900 dark:text-white">£{{ number_format((float) $i->price * (int) $i->quantity, 2) }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $i->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.contract-extra-items.edit', $i->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $i->id }})" wire:confirm="Delete this item?" icon="trash" class="!rounded-none text-red-600">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -47,7 +47,7 @@
             <div>
                 <flux:heading size="lg">{{ $recordId ? 'Edit extra item' : 'New extra item' }}</flux:heading>
             </div>
-            <form wire:submit="saveForm" class="space-y-4">
+            <form wire:submit="saveForm" class="space-y-4" novalidate>
                 <x-flux-admin::field-group label="Application ID" required :error="$errors->first('formData.application_id')">
                     <flux:input type="number" wire:model="formData.application_id" />
                 </x-flux-admin::field-group>

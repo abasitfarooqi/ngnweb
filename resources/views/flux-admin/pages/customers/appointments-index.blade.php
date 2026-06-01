@@ -28,12 +28,6 @@
             </x-flux-admin::filter-bar>
         </x-slot:toolbar>
 
-        @if(session('flux-admin.flash'))
-            <div class="border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-300">
-                {{ session('flux-admin.flash') }}
-            </div>
-        @endif
-
         <flux:table>
             <flux:table.columns>
                 <flux:table.column sortable :sorted="$sortField === 'appointment_date'" :direction="$sortField === 'appointment_date' ? $sortDirection : null" wire:click="sortBy('appointment_date')">When</flux:table.column>
@@ -63,7 +57,7 @@
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
                                 <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $a->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
-                                <flux:button size="xs" variant="danger" wire:click="deleteAppointment({{ $a->id }})" wire:confirm="Delete this appointment?" icon="trash" class="!rounded-none">Delete</flux:button>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $a->id }})" wire:confirm="Delete this appointment?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -78,46 +72,46 @@
         <x-slot:footer>{{ $appointments->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model="editorOpen" class="md:w-[36rem]">
-        <div class="flex flex-col gap-4">
-            <flux:heading size="lg">{{ $editingId ? 'Edit appointment' : 'New appointment' }}</flux:heading>
+    <flux:modal wire:model.self="showForm" class="md:w-[36rem]">
+        <form wire:submit.prevent="saveForm" class="flex flex-col gap-4" novalidate>
+            <flux:heading size="lg">{{ $recordId ? 'Edit appointment' : 'New appointment' }}</flux:heading>
 
-            <x-flux-admin::field-group label="Appointment date" required :error="$errors->first('form.appointment_date')">
-                <flux:input type="datetime-local" wire:model="form.appointment_date" />
+            <x-flux-admin::field-group label="Appointment date" required :error="$errors->first('formData.appointment_date')">
+                <flux:input type="datetime-local" wire:model="formData.appointment_date" />
             </x-flux-admin::field-group>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <x-flux-admin::field-group label="Customer name" required :error="$errors->first('form.customer_name')">
-                    <flux:input wire:model="form.customer_name" />
+                <x-flux-admin::field-group label="Customer name" required :error="$errors->first('formData.customer_name')">
+                    <flux:input wire:model="formData.customer_name" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Registration" :error="$errors->first('form.registration_number')">
-                    <flux:input wire:model="form.registration_number" class="uppercase" />
+                <x-flux-admin::field-group label="Registration" :error="$errors->first('formData.registration_number')">
+                    <flux:input wire:model="formData.registration_number" class="uppercase" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Contact number" :error="$errors->first('form.contact_number')">
-                    <flux:input wire:model="form.contact_number" />
+                <x-flux-admin::field-group label="Contact number" :error="$errors->first('formData.contact_number')">
+                    <flux:input wire:model="formData.contact_number" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Email" :error="$errors->first('form.email')">
-                    <flux:input type="email" wire:model="form.email" />
+                <x-flux-admin::field-group label="Email" :error="$errors->first('formData.email')">
+                    <flux:input type="email" wire:model="formData.email" />
                 </x-flux-admin::field-group>
             </div>
 
-            <x-flux-admin::field-group label="Booking reason" :error="$errors->first('form.booking_reason')">
-                <flux:textarea wire:model="form.booking_reason" rows="3" />
+            <x-flux-admin::field-group label="Booking reason" :error="$errors->first('formData.booking_reason')">
+                <flux:textarea wire:model="formData.booking_reason" rows="3" />
             </x-flux-admin::field-group>
 
             <div class="flex flex-col gap-2">
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                    <input type="checkbox" wire:model="form.is_resolved" class="accent-zinc-900 dark:accent-zinc-200"> Mark as resolved
+                    <input type="checkbox" wire:model="formData.is_resolved" class="accent-zinc-900 dark:accent-zinc-200"> Mark as resolved
                 </label>
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                    <input type="checkbox" wire:model="form.send_email" class="accent-zinc-900 dark:accent-zinc-200"> Email the customer after saving
+                    <input type="checkbox" wire:model="formData.send_email" class="accent-zinc-900 dark:accent-zinc-200"> Email the customer after saving
                 </label>
             </div>
 
             <div class="flex items-center justify-end gap-2 pt-2">
-                <flux:button size="sm" variant="ghost" wire:click="$set('editorOpen', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button size="sm" variant="primary" wire:click="save" class="!rounded-none">Save</flux:button>
+                <flux:button size="sm" type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button size="sm" type="submit" variant="primary" class="!rounded-none">Save</flux:button>
             </div>
-        </div>
+        </form>
     </flux:modal>
 </div>

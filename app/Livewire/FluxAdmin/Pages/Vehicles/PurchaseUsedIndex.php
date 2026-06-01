@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\PurchaseUsedVehicle;
@@ -16,7 +17,13 @@ use Livewire\WithPagination;
 #[Title('Used vehicle purchases — Flux Admin')]
 class PurchaseUsedIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithExport, WithPagination;
+    use WithAuthorization;
+    use WithCrudForm;
+    use WithDataTable;
+    use WithExport;
+    use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
@@ -24,6 +31,68 @@ class PurchaseUsedIndex extends Component
         $this->exportable = true;
         $this->exportFilename = 'used-vehicle-purchases';
         $this->sortField = 'purchase_date';
+    }
+
+    protected function formModel(): string { return PurchaseUsedVehicle::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.purchase_date'  => ['nullable', 'date'],
+            'formData.full_name'      => ['required', 'string', 'max:255'],
+            'formData.phone_number'   => ['nullable', 'string', 'max:50'],
+            'formData.email'          => ['nullable', 'email', 'max:255'],
+            'formData.address'        => ['nullable', 'string', 'max:1000'],
+            'formData.postcode'       => ['nullable', 'string', 'max:20'],
+            'formData.make'           => ['nullable', 'string', 'max:100'],
+            'formData.model'          => ['nullable', 'string', 'max:100'],
+            'formData.year'           => ['nullable', 'string', 'max:10'],
+            'formData.colour'         => ['nullable', 'string', 'max:50'],
+            'formData.reg_no'         => ['nullable', 'string', 'max:20'],
+            'formData.vin'            => ['nullable', 'string', 'max:50'],
+            'formData.price'          => ['nullable', 'numeric', 'min:0'],
+            'formData.deposit'        => ['nullable', 'numeric', 'min:0'],
+            'formData.outstanding'    => ['nullable', 'numeric', 'min:0'],
+        ];
+    }
+
+    protected function beforeSave(array $attributes): array
+    {
+        if (! $this->recordId) {
+            $attributes['user_id'] = backpack_user()->id;
+        }
+
+        return $attributes;
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [
+            'purchase_date' => now()->format('Y-m-d'),
+        ];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(PurchaseUsedVehicle::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        PurchaseUsedVehicle::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()

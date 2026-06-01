@@ -22,7 +22,7 @@
 <div class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 lg:top-16 z-20 shadow-sm">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center gap-2 overflow-x-auto scrollbar-none py-3">
-            @foreach(['Rentals','MOT','Repairs & Servicing','Sales & Finance','General','NGN Club'] as $cat)
+            @foreach(['Rentals','MOT','Repairs & Servicing','Sales & Payment Plans','General','NGN Club'] as $cat)
                 <a href="#{{ Str::slug($cat) }}"
                    class="flex-shrink-0 px-3 py-1.5 text-xs font-semibold uppercase tracking-wide border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:border-brand-red hover:text-brand-red transition">
                     {{ $cat }}

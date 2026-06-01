@@ -2,10 +2,13 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Judopay;
 
+use App\Helpers\JudopayMit;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\Customer;
+use App\Models\JudopayMitQueue;
 use App\Models\JudopayOnboarding;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -18,6 +21,49 @@ class RecurringIndex extends Component
     use WithAuthorization, WithDataTable, WithPagination;
 
     public function mount(): void { $this->authorizeModule('see-menu-commons'); }
+
+    public function addToQueue(int $ngnMitQueueId): void
+    {
+        $userId = backpack_user()?->id;
+
+        if (! $userId) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Authentication required.');
+
+            return;
+        }
+
+        try {
+            $result = JudopayMit::addToLiveChamber($ngnMitQueueId, $userId);
+            $this->dispatch('flux-admin:toast',
+                type: $result['success'] ? 'success' : 'error',
+                message: $result['message'] ?? ($result['success'] ? 'Added to queue.' : 'Failed to add to queue.')
+            );
+        } catch (\Throwable $e) {
+            Log::channel('judopay')->error('addToQueue via Flux Admin failed', ['id' => $ngnMitQueueId, 'error' => $e->getMessage()]);
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Error: '.$e->getMessage());
+        }
+    }
+
+    public function stopQueue(int $liveQueueId): void
+    {
+        try {
+            $item = JudopayMitQueue::with('ngnMitQueue')->findOrFail($liveQueueId);
+            $ngnQueue = $item->ngnMitQueue;
+
+            if ($ngnQueue) {
+                $ngnQueue->is_in_live_chamber = false;
+                $ngnQueue->live_chamber_item_id = null;
+                $ngnQueue->save();
+            }
+
+            $item->delete();
+
+            Log::channel('judopay')->info('MIT queue item stopped via Flux Admin', ['live_queue_id' => $liveQueueId]);
+            $this->dispatch('flux-admin:toast', type: 'success', message: 'Queue item stopped.');
+        } catch (\Throwable $e) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Error: '.$e->getMessage());
+        }
+    }
 
     public function render()
     {

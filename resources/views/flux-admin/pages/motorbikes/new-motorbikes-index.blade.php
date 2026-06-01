@@ -5,7 +5,7 @@
     >
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/new-motorbike/create')" class="!rounded-none">New arrival</flux:button>
+            <a href="{{ route('flux-admin.motorbike-new.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New arrival</flux:button></a>
         </x-slot:actions>
 
         <x-slot:toolbar>
@@ -52,7 +52,10 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->status ?: '—' }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $b->is_migrated" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/new-motorbike/'.$b->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.motorbike-new.edit', $b->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $b->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -63,4 +66,67 @@
 
         <x-slot:footer>{{ $bikes->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showForm" class="md:w-[720px]">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
+            <flux:heading size="lg">{{ $recordId ? 'Edit motorbike' : 'New arrival' }}</flux:heading>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-flux-admin::field-group label="VRM" :error="$errors->first('formData.VRM')">
+                    <flux:input wire:model="formData.VRM" placeholder="e.g. AB12 CDE" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="VIM" :error="$errors->first('formData.VIM')">
+                    <flux:input wire:model="formData.VIM" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Make" :error="$errors->first('formData.make')">
+                    <flux:input wire:model="formData.make" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Model" :error="$errors->first('formData.model')">
+                    <flux:input wire:model="formData.model" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Year" :error="$errors->first('formData.year')">
+                    <flux:input wire:model="formData.year" type="number" placeholder="e.g. 2023" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Colour" :error="$errors->first('formData.colour')">
+                    <flux:input wire:model="formData.colour" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Engine" :error="$errors->first('formData.engine')">
+                    <flux:input wire:model="formData.engine" placeholder="e.g. 125cc" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Status" :error="$errors->first('formData.status')">
+                    <flux:input wire:model="formData.status" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Purchase date" :error="$errors->first('formData.purchase_date')">
+                    <flux:input wire:model="formData.purchase_date" type="date" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Branch" :error="$errors->first('formData.branch_id')">
+                    <flux:select wire:model="formData.branch_id" placeholder="Select branch">
+                        <flux:select.option value="">— None —</flux:select.option>
+                        @foreach($branches as $branch)
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <flux:checkbox wire:model="formData.is_migrated" id="is_migrated" />
+                <label for="is_migrated" class="text-sm text-zinc-700 dark:text-zinc-300">Allocated</label>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

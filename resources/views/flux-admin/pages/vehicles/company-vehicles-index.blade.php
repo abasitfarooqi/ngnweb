@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="Company vehicles" description="Motorbikes reserved for company use.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/company-vehicle/create')" class="!rounded-none">Assign vehicle</flux:button>
+            <a href="{{ route('flux-admin.company-vehicles.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Assign vehicle</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar><x-flux-admin::filter-bar search-placeholder="Search custodian or registration…" /></x-slot:toolbar>
         <flux:table>
@@ -20,7 +20,10 @@
                         <flux:table.cell class="text-zinc-900 dark:text-white">{{ $r->custodian }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->created_at?->format('d M Y') }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/company-vehicle/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.company-vehicles.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -30,4 +33,20 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
+            <flux:heading size="lg">{{ $recordId ? 'Edit company vehicle' : 'Assign vehicle' }}</flux:heading>
+            <x-flux-admin::field-group label="Custodian" :error="$errors->first('formData.custodian')" required>
+                <flux:input wire:model="formData.custodian" />
+            </x-flux-admin::field-group>
+            <x-flux-admin::field-group label="Motorbike ID" :error="$errors->first('formData.motorbike_id')" required>
+                <flux:input type="number" wire:model="formData.motorbike_id" />
+            </x-flux-admin::field-group>
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

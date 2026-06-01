@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Careers" description="Job openings published on the careers page.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New job</flux:button>
+            <a href="{{ route('flux-admin.careers.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New job</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search title or location…">
@@ -48,7 +50,9 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.careers.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this job?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -60,46 +64,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[720px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit job' : 'New job' }}</flux:heading>
-            <x-flux-admin::field-group label="Job title" :error="$errors->first('formData.job_title')" required>
-                <flux:input wire:model="formData.job_title" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Description" :error="$errors->first('formData.description')" hint="HTML allowed — sanitised on save.">
-                <flux:textarea wire:model="formData.description" rows="6" />
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Employment type" :error="$errors->first('formData.employment_type')">
-                    <flux:select wire:model="formData.employment_type" placeholder="— Select —">
-                        <flux:select.option value="Full-time">Full-time</flux:select.option>
-                        <flux:select.option value="Part-time">Part-time</flux:select.option>
-                        <flux:select.option value="Contract">Contract</flux:select.option>
-                        <flux:select.option value="Temporary">Temporary</flux:select.option>
-                    </flux:select>
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Location" :error="$errors->first('formData.location')">
-                    <flux:input wire:model="formData.location" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Salary" :error="$errors->first('formData.salary')">
-                    <flux:input wire:model="formData.salary" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Contact email" :error="$errors->first('formData.contact_email')">
-                    <flux:input type="email" wire:model="formData.contact_email" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Date posted" :error="$errors->first('formData.job_posted')">
-                    <flux:input type="date" wire:model="formData.job_posted" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Expires on" :error="$errors->first('formData.expire_date')">
-                    <flux:input type="date" wire:model="formData.expire_date" />
-                </x-flux-admin::field-group>
-            </div>
-            <flux:checkbox wire:model="formData.is_active" label="Active" />
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

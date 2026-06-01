@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Spare parts · Models" description="Motorbike models by make for the spare parts catalogue.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New model</flux:button>
+            <a href="{{ route('flux-admin.sp-models.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New model</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name…">
@@ -39,7 +41,9 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_active" /></flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.sp-models.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this model?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -51,28 +55,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[520px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit model' : 'New model' }}</flux:heading>
-            <x-flux-admin::field-group label="Make" :error="$errors->first('formData.make_id')" required>
-                <flux:select wire:model="formData.make_id" placeholder="— Select —">
-                    @foreach($makes as $m)
-                        <flux:select.option value="{{ $m->id }}">{{ $m->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Name" :error="$errors->first('formData.name')" required>
-                <flux:input wire:model="formData.name" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Slug" :error="$errors->first('formData.slug')" hint="Leave empty to auto-generate.">
-                <flux:input wire:model="formData.slug" />
-            </x-flux-admin::field-group>
-            <flux:checkbox wire:model="formData.is_active" label="Active" />
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

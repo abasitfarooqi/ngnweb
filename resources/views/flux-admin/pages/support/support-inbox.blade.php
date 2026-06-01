@@ -82,7 +82,7 @@
                     @endforeach
                 </div>
 
-                <form wire:submit.prevent="sendMessage" class="p-3 border-t border-zinc-200 dark:border-zinc-800 flex gap-2 items-end">
+                <form wire:submit.prevent="sendMessage" class="p-3 border-t border-zinc-200 dark:border-zinc-800 flex gap-2 items-end" novalidate>
                     <flux:textarea wire:model="newMessage" rows="2" placeholder="Type a reply…" class="flex-1" />
                     <flux:button type="submit" variant="primary" icon="paper-airplane" class="!rounded-none">Send</flux:button>
                 </form>

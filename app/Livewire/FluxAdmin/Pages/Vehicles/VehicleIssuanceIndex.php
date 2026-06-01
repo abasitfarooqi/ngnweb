@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\VehicleIssuance;
 use Livewire\Attributes\Layout;
@@ -14,11 +15,67 @@ use Livewire\WithPagination;
 #[Title('Vehicle issuances — Flux Admin')]
 class VehicleIssuanceIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-renting-page');
+    }
+
+    protected function formModel(): string
+    {
+        return VehicleIssuance::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.issue_date'   => ['required', 'date'],
+            'formData.user_id'      => ['required', 'integer'],
+            'formData.branch_id'    => ['nullable', 'integer'],
+            'formData.motorbike_id' => ['required', 'integer'],
+            'formData.customer_id'  => ['nullable', 'integer'],
+            'formData.notes'        => ['nullable', 'string'],
+            'formData.is_returned'  => ['boolean'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [
+            'issue_date'  => now()->toDateString(),
+            'user_id'     => backpack_user()->id,
+            'is_returned' => false,
+        ];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $record = VehicleIssuance::findOrFail($id);
+        $this->fillFromModel($record);
+        if (!empty($this->formData['issue_date'])) {
+            $this->formData['issue_date'] = \Carbon\Carbon::parse($this->formData['issue_date'])->format('Y-m-d');
+        }
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        VehicleIssuance::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()

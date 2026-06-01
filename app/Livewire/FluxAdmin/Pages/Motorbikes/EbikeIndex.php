@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\Motorbike;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,26 +16,73 @@ use Livewire\WithPagination;
 #[Title('E-bike manager — Flux Admin')]
 class EbikeIndex extends Component
 {
-    use WithAuthorization;
-    use WithDataTable;
-    use WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-commons');
     }
 
+    protected function formModel(): string { return Motorbike::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.reg_no'     => ['nullable', 'string', 'max:20'],
+            'formData.make'       => ['nullable', 'string', 'max:120'],
+            'formData.model'      => ['nullable', 'string', 'max:120'],
+            'formData.year'       => ['nullable', 'integer'],
+            'formData.color'      => ['nullable', 'string', 'max:80'],
+            'formData.vin_number' => ['nullable', 'string', 'max:80'],
+            'formData.engine'     => ['nullable', 'string', 'max:80'],
+            'formData.branch_id'  => ['nullable', 'integer'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['is_ebike' => true];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $b = Motorbike::findOrFail($id);
+        $this->fillFromModel($b);
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        Motorbike::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
+    }
+
     public function render()
     {
         $bikes = $this->baseQuery()
             ->with([
-                'registrations' => fn ($q) => $q->orderByDesc('start_date'),
+                'registrations'   => fn ($q) => $q->orderByDesc('start_date'),
                 'rentingPricings' => fn ($q) => $q->where('iscurrent', true)->orderByDesc('update_date'),
             ])
             ->orderByDesc('id')
             ->paginate($this->perPage);
 
-        return view('flux-admin.pages.motorbikes.ebikes-index', ['bikes' => $bikes]);
+        $branches = \App\Models\Branch::query()->orderBy('name')->get(['id', 'name']);
+
+        return view('flux-admin.pages.motorbikes.ebikes-index', compact('bikes', 'branches'));
     }
 
     protected function baseQuery(): Builder

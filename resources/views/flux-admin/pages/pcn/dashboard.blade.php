@@ -45,24 +45,28 @@
                     <div class="text-sm font-semibold text-zinc-900 dark:text-white">Top offending vehicles (open PCNs)</div>
                 </div>
             </div>
-            <flux:table>
-                <flux:table.columns>
-                    <flux:table.column>VRN</flux:table.column>
-                    <flux:table.column>Customer</flux:table.column>
-                    <flux:table.column>Open PCNs</flux:table.column>
-                </flux:table.columns>
-                <flux:table.rows>
-                    @forelse($topVehicles as $v)
-                        <flux:table.row wire:key="veh-{{ $v->motorbike_id }}-{{ $v->customer_id }}">
-                            <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $v->motorbike?->reg_no ?? '—' }}</flux:table.cell>
-                            <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $v->customer ? $v->customer->first_name.' '.$v->customer->last_name : '—' }}</flux:table.cell>
-                            <flux:table.cell class="text-zinc-900 dark:text-white">{{ $v->pcn_count }}</flux:table.cell>
-                        </flux:table.row>
-                    @empty
-                        <flux:table.row><flux:table.cell colspan="3" class="text-center py-4 text-zinc-500 dark:text-zinc-400">No data.</flux:table.cell></flux:table.row>
-                    @endforelse
-                </flux:table.rows>
-            </flux:table>
+            <div class="touch-pan-x overflow-x-auto">
+                <div class="min-w-[32rem] md:min-w-0">
+                    <flux:table>
+                        <flux:table.columns>
+                            <flux:table.column>VRN</flux:table.column>
+                            <flux:table.column>Customer</flux:table.column>
+                            <flux:table.column>Open PCNs</flux:table.column>
+                        </flux:table.columns>
+                        <flux:table.rows>
+                            @forelse($topVehicles as $v)
+                                <flux:table.row wire:key="veh-{{ $v->motorbike_id }}-{{ $v->customer_id }}">
+                                    <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $v->motorbike?->reg_no ?? '—' }}</flux:table.cell>
+                                    <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $v->customer ? $v->customer->first_name.' '.$v->customer->last_name : '—' }}</flux:table.cell>
+                                    <flux:table.cell class="text-zinc-900 dark:text-white">{{ $v->pcn_count }}</flux:table.cell>
+                                </flux:table.row>
+                            @empty
+                                <flux:table.row><flux:table.cell colspan="3" class="text-center py-4 text-zinc-500 dark:text-zinc-400">No data.</flux:table.cell></flux:table.row>
+                            @endforelse
+                        </flux:table.rows>
+                    </flux:table>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -71,37 +75,41 @@
             <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
                 <div class="text-sm font-semibold text-zinc-900 dark:text-white">Open PCN list with WhatsApp reminder</div>
             </div>
-            <flux:table>
-                <flux:table.columns>
-                    <flux:table.column>PCN</flux:table.column>
-                    <flux:table.column>Customer</flux:table.column>
-                    <flux:table.column>VRN</flux:table.column>
-                    <flux:table.column>Amount</flux:table.column>
-                    <flux:table.column>Last reminder</flux:table.column>
-                    <flux:table.column>Actions</flux:table.column>
-                </flux:table.columns>
-                <flux:table.rows>
-                    @forelse($pcnList as $p)
-                        <flux:table.row wire:key="pcn-row-{{ $p->id }}">
-                            <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $p->pcn_number }}</flux:table.cell>
-                            <flux:table.cell class="text-zinc-900 dark:text-white">{{ $p->customer_name }}</flux:table.cell>
-                            <flux:table.cell class="font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ $p->reg_no }}</flux:table.cell>
-                            <flux:table.cell class="text-zinc-900 dark:text-white">£{{ number_format((float) $p->amount, 2) }}</flux:table.cell>
-                            <flux:table.cell class="text-zinc-600 dark:text-zinc-400 text-xs">{{ $p->whatsapp_last_reminder_sent_at }}</flux:table.cell>
-                            <flux:table.cell>
-                                <div class="flex gap-1">
-                                    @if($p->whatsapp_url !== '#')
-                                        <flux:button size="xs" variant="ghost" :href="$p->whatsapp_url" target="_blank" icon="chat-bubble-left-right" class="!rounded-none">WhatsApp</flux:button>
-                                    @endif
-                                    <flux:button size="xs" variant="ghost" wire:click="sendReminder({{ $p->id }})" icon="bell" class="!rounded-none">Mark sent</flux:button>
-                                </div>
-                            </flux:table.cell>
-                        </flux:table.row>
-                    @empty
-                        <flux:table.row><flux:table.cell colspan="6" class="text-center py-4 text-zinc-500 dark:text-zinc-400">No open PCNs.</flux:table.cell></flux:table.row>
-                    @endforelse
-                </flux:table.rows>
-            </flux:table>
+            <div class="touch-pan-x overflow-x-auto">
+                <div class="min-w-[44rem] md:min-w-0">
+                    <flux:table>
+                        <flux:table.columns>
+                            <flux:table.column>PCN</flux:table.column>
+                            <flux:table.column>Customer</flux:table.column>
+                            <flux:table.column>VRN</flux:table.column>
+                            <flux:table.column>Amount</flux:table.column>
+                            <flux:table.column>Last reminder</flux:table.column>
+                            <flux:table.column>Actions</flux:table.column>
+                        </flux:table.columns>
+                        <flux:table.rows>
+                            @forelse($pcnList as $p)
+                                <flux:table.row wire:key="pcn-row-{{ $p->id }}">
+                                    <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $p->pcn_number }}</flux:table.cell>
+                                    <flux:table.cell class="text-zinc-900 dark:text-white">{{ $p->customer_name }}</flux:table.cell>
+                                    <flux:table.cell class="font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ $p->reg_no }}</flux:table.cell>
+                                    <flux:table.cell class="text-zinc-900 dark:text-white">£{{ number_format((float) $p->amount, 2) }}</flux:table.cell>
+                                    <flux:table.cell class="text-zinc-600 dark:text-zinc-400 text-xs">{{ $p->whatsapp_last_reminder_sent_at }}</flux:table.cell>
+                                    <flux:table.cell>
+                                        <div class="flex gap-1">
+                                            @if($p->whatsapp_url !== '#')
+                                                <flux:button size="xs" variant="ghost" :href="$p->whatsapp_url" target="_blank" icon="chat-bubble-left-right" class="!rounded-none">WhatsApp</flux:button>
+                                            @endif
+                                            <flux:button size="xs" variant="ghost" wire:click="sendReminder({{ $p->id }})" icon="bell" class="!rounded-none">Mark sent</flux:button>
+                                        </div>
+                                    </flux:table.cell>
+                                </flux:table.row>
+                            @empty
+                                <flux:table.row><flux:table.cell colspan="6" class="text-center py-4 text-zinc-500 dark:text-zinc-400">No open PCNs.</flux:table.cell></flux:table.row>
+                            @endforelse
+                        </flux:table.rows>
+                    </flux:table>
+                </div>
+            </div>
         </div>
     </div>
 </div>

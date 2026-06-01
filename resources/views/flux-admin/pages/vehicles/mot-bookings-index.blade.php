@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="MOT bookings" description="Appointments scheduled for MOT testing.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/m-o-t-booking/create')" class="!rounded-none">New booking</flux:button>
+            <a href="{{ route('flux-admin.mot-bookings.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New booking</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search VRM, customer name, phone or email…">
@@ -53,7 +55,12 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->status }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $b->is_paid" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/m-o-t-booking/'.$b->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.mot-bookings.edit', $b) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" icon="trash" wire:click="delete({{ $b->id }})" wire:confirm="Delete this record?" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -63,4 +70,5 @@
         </flux:table>
         <x-slot:footer>{{ $bookings->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

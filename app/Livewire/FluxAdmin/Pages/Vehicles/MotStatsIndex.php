@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\Customer;
 use App\Models\NgnMotNotifier;
@@ -16,9 +17,61 @@ use Livewire\WithPagination;
 #[Title('MOT notifier stats — Flux Admin')]
 class MotStatsIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithPagination;
+    use WithAuthorization;
+    use WithCrudForm;
+    use WithDataTable;
+    use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void { $this->authorizeModule('see-menu-commons'); }
+
+    protected function formModel(): string
+    {
+        return NgnMotNotifier::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.customer_name'    => ['required', 'string', 'max:255'],
+            'formData.customer_contact' => ['nullable', 'string', 'max:50'],
+            'formData.customer_email'   => ['nullable', 'email', 'max:255'],
+            'formData.motorbike_reg'    => ['required', 'string', 'max:20'],
+            'formData.mot_due_date'     => ['nullable', 'date'],
+            'formData.tax_due_date'     => ['nullable', 'date'],
+            'formData.mot_notify_email' => ['nullable', 'boolean'],
+            'formData.mot_notify_phone' => ['nullable', 'boolean'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['mot_notify_email' => false, 'mot_notify_phone' => false];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(NgnMotNotifier::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        NgnMotNotifier::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
+    }
 
     public function markWhatsappSent(int $id): void
     {

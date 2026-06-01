@@ -32,6 +32,8 @@
             <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700">
                 <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Pricing History</h2>
             </div>
+            <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[44rem] md:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>Weekly Price</flux:table.column>
@@ -49,6 +51,8 @@
                     @endforeach
                 </flux:table.rows>
             </flux:table>
+            </div>
+            </div>
         </div>
     @endif
 </div>

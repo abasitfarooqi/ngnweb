@@ -5,7 +5,12 @@
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage all finance applications and contracts.</p>
         </div>
         <div class="flex items-center gap-2">
-            <flux:button href="{{ url('/ngn-admin/finance-application/create') }}" icon="plus" variant="primary">New application</flux:button>
+            @if($exportable)
+                <x-flux-admin::export-button />
+            @endif
+            <a href="{{ route('flux-admin.finance.create') }}" wire:navigate>
+                <flux:button icon="plus" variant="primary" class="!rounded-none">New application</flux:button>
+            </a>
         </div>
     </div>
 
@@ -33,6 +38,26 @@
                     <flux:select.option value="cancelled">Cancelled</flux:select.option>
                 </flux:select>
             </div>
+            <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                <flux:select wire:model.live="filterLogbook" placeholder="Log book">
+                    <flux:select.option value="">All log books</flux:select.option>
+                    <flux:select.option value="1">Sent</flux:select.option>
+                    <flux:select.option value="0">Not sent</flux:select.option>
+                </flux:select>
+            </div>
+            <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                <flux:select wire:model.live="filterPosted" placeholder="Posted">
+                    <flux:select.option value="">All posted</flux:select.option>
+                    <flux:select.option value="1">Posted</flux:select.option>
+                    <flux:select.option value="0">Not posted</flux:select.option>
+                </flux:select>
+            </div>
+            <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                <flux:input type="date" wire:model.live="contractDateFrom" placeholder="Contract from" />
+            </div>
+            <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                <flux:input type="date" wire:model.live="contractDateTo" placeholder="Contract to" />
+            </div>
             <div class="min-w-0 w-full sm:basis-full sm:max-w-[10rem] lg:basis-auto lg:w-28">
                 <flux:select wire:model.live="perPage">
                     <flux:select.option value="20">20 per page</flux:select.option>
@@ -51,24 +76,34 @@
             <flux:table.columns>
                 <flux:table.column sortable :sorted="$sortField === 'id'" :direction="$sortDirection" wire:click="sortBy('id')">ID</flux:table.column>
                 <flux:table.column>Customer</flux:table.column>
+                <flux:table.column>User</flux:table.column>
                 <flux:table.column>Contract Type</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'deposit'" :direction="$sortDirection" wire:click="sortBy('deposit')">Deposit</flux:table.column>
-                <flux:table.column sortable :sorted="$sortField === 'weekly_instalment'" :direction="$sortDirection" wire:click="sortBy('weekly_instalment')">Weekly Instalment</flux:table.column>
+                <flux:table.column sortable :sorted="$sortField === 'weekly_instalment'" :direction="$sortDirection" wire:click="sortBy('weekly_instalment')">Monthly Instalment</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'contract_date'" :direction="$sortDirection" wire:click="sortBy('contract_date')">Contract Date</flux:table.column>
+                <flux:table.column sortable :sorted="$sortField === 'first_instalment_date'" :direction="$sortDirection" wire:click="sortBy('first_instalment_date')">First Instalment</flux:table.column>
                 <flux:table.column>Items</flux:table.column>
                 <flux:table.column>Status</flux:table.column>
+                <flux:table.column>Posted</flux:table.column>
+                <flux:table.column>Log Book</flux:table.column>
+                <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
                 @forelse($applications as $app)
-                    <flux:table.row wire:key="fa-{{ $app->id }}" class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50" wire:click="$dispatch('navigate', { url: '{{ route('flux-admin.finance.show', $app) }}' })" onclick="window.location='{{ route('flux-admin.finance.show', $app) }}'">
-                        <flux:table.cell class="font-mono text-xs">{{ $app->id }}</flux:table.cell>
+                    <flux:table.row wire:key="fa-{{ $app->id }}">
+                        <flux:table.cell class="font-mono text-xs">
+                            <a href="{{ route('flux-admin.finance.show', $app) }}" class="text-blue-600 hover:underline dark:text-blue-400">{{ $app->id }}</a>
+                        </flux:table.cell>
                         <flux:table.cell>
                             @if($app->customer)
                                 {{ $app->customer->first_name }} {{ $app->customer->last_name }}
                             @else
                                 <span class="text-zinc-400">—</span>
                             @endif
+                        </flux:table.cell>
+                        <flux:table.cell class="text-xs text-zinc-500 dark:text-zinc-400">
+                            {{ $app->user?->name ?? '—' }}
                         </flux:table.cell>
                         <flux:table.cell>
                             @php
@@ -87,6 +122,7 @@
                         <flux:table.cell>£{{ number_format($app->deposit ?? 0, 2) }}</flux:table.cell>
                         <flux:table.cell>£{{ number_format($app->weekly_instalment ?? 0, 2) }}</flux:table.cell>
                         <flux:table.cell class="text-xs">{{ $app->contract_date ? \Carbon\Carbon::parse($app->contract_date)->format('d M Y') : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $app->first_instalment_date ? \Carbon\Carbon::parse($app->first_instalment_date)->format('d M Y') : '—' }}</flux:table.cell>
                         <flux:table.cell>{{ $app->items_count }}</flux:table.cell>
                         <flux:table.cell>
                             @if($app->is_cancelled)
@@ -95,10 +131,33 @@
                                 <flux:badge color="green" size="sm">Active</flux:badge>
                             @endif
                         </flux:table.cell>
+                        <flux:table.cell>
+                            @if($app->is_posted)
+                                <flux:badge color="green" size="sm">Yes</flux:badge>
+                            @else
+                                <flux:badge color="zinc" size="sm">No</flux:badge>
+                            @endif
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            @if($app->log_book_sent)
+                                <flux:badge color="green" size="sm">Sent</flux:badge>
+                            @else
+                                <flux:badge color="zinc" size="sm">No</flux:badge>
+                            @endif
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.finance.edit', $app) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <a href="{{ route('flux-admin.finance.show', $app) }}" class="inline-flex items-center gap-1 px-2 py-1 text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">View</a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $app->id }})" wire:confirm="Delete this application? This cannot be undone." icon="trash" class="!rounded-none text-red-600" />
+                            </div>
+                        </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="8" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                        <flux:table.cell colspan="13" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
                             No finance applications found.
                         </flux:table.cell>
                     </flux:table.row>
@@ -112,4 +171,5 @@
     <div class="mt-4">
         {{ $applications->links() }}
     </div>
+
 </div>

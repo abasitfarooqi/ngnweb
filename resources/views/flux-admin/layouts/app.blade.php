@@ -70,7 +70,19 @@
         @media (min-width: 1024px) {
             body.flux-admin-app [data-flux-sidebar] { min-width: 17rem; }
         }
-    </style>
+        {{-- Ensure sidebar fills viewport height and inner navlist scrolls properly
+             on both desktop (sticky) and mobile (stashable overlay). --}}
+        body.flux-admin-app [data-flux-sidebar] {
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        body.flux-admin-app [data-flux-sidebar] [data-flux-navlist] {
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }    </style>
 </head>
 <body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row">
 
@@ -193,7 +205,7 @@
                     <flux:navlist.item href="{{ route('flux-admin.sp-assemblies.index') }}" :current="request()->routeIs('flux-admin.sp-assemblies.*')">Assemblies</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.sp-assembly-parts.index') }}" :current="request()->routeIs('flux-admin.sp-assembly-parts.*')">Assembly parts</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.sp-stock-movements.index') }}" :current="request()->routeIs('flux-admin.sp-stock-movements.*')">Stock movements</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/ngn-admin/sp-stock-handler') }}" badge="Legacy">Stock handler</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.inventory-stock-movements.index') }}" :current="false">Stock handler (sp)</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
@@ -201,7 +213,7 @@
                 <flux:navlist.group expandable :expanded="false" heading="Vehicles">
                     <flux:navlist.item href="{{ route('flux-admin.motorbikes-dvla.create') }}" :current="request()->routeIs('flux-admin.motorbikes-dvla.*')">DVLA add / edit</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbikes.index') }}" :current="request()->routeIs('flux-admin.motorbikes*')">Manual add / edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/ngn-admin/motorbike-annual-compliance-m') }}" badge="Legacy">MOT / TAX override</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.motorbike-compliance.index') }}" :current="request()->routeIs('flux-admin.motorbike-compliance.*')">MOT / TAX compliance</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbike-compliance.index') }}" :current="request()->routeIs('flux-admin.motorbike-compliance.*')">Vehicle database</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbike-new.index') }}" :current="request()->routeIs('flux-admin.motorbike-new.*')">New arrivals</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.ebikes.index') }}" :current="request()->routeIs('flux-admin.ebikes.*')">E-bike manager</flux:navlist.item>
@@ -246,10 +258,15 @@
                     <flux:navlist.item href="{{ route('flux-admin.blog-tags.index') }}" :current="request()->routeIs('flux-admin.blog-tags.*')">Blog tags</flux:navlist.item>
                 </flux:navlist.group>
 
-                <flux:navlist.group expandable :expanded="false" heading="Motorbike preference survey">
-                    <flux:navlist.item href="{{ url('/ngn-admin/ngn_survey_campaign/1') }}" badge="Legacy">Survey WhatsApp notifier</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/ngn-admin/survey_responses/1') }}" badge="Legacy">Survey results</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/ngn-admin/survey_index') }}" badge="Legacy">Survey campaign</flux:navlist.item>
+            @endcan
+
+            @can('see-menu-surveys')
+                <flux:navlist.group expandable :expanded="false" heading="Surveys">
+                    <flux:navlist.item href="{{ route('flux-admin.surveys.index') }}" :current="request()->routeIs('flux-admin.surveys.*')">Surveys</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.survey-questions.index') }}" :current="request()->routeIs('flux-admin.survey-questions.*')">Questions</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.survey-options.index') }}" :current="request()->routeIs('flux-admin.survey-options.*')">Options</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.survey-responses.index') }}" :current="request()->routeIs('flux-admin.survey-responses.*')">Responses</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.survey-answers.index') }}" :current="request()->routeIs('flux-admin.survey-answers.*')">Answers</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
@@ -272,6 +289,8 @@
                     <flux:navlist.item href="{{ route('flux-admin.branches.index') }}" :current="request()->routeIs('flux-admin.branches*')">Branches</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.vehicle-issuances.index') }}" :current="request()->routeIs('flux-admin.vehicle-issuances.*')">Vehicle issuances</flux:navlist.item>
                     <flux:navlist.item href="{{ url('/admin') }}" badge="Old">Old admin panel</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.dev-club-otp.index') }}" :current="request()->routeIs('flux-admin.dev-club-otp.*')">Club OTP viewer</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.queue-monitor.index') }}" :current="request()->routeIs('flux-admin.queue-monitor.*')">Queue monitor</flux:navlist.item>
                 </flux:navlist.group>
             @endrole
 
@@ -301,7 +320,6 @@
                 </flux:navlist.group>
             @endcan
 
-            <flux:navlist.item href="{{ url('/ngn-admin/ebike_manager') }}" badge="Legacy">Ebike manager</flux:navlist.item>
 
         </flux:navlist>
 

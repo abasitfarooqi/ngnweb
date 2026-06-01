@@ -28,6 +28,7 @@ class RoleForm extends Component
 
     public function mount(?int $role = null): void
     {
+        $this->resetErrorBag();
         $this->authorizeModule('see-menu-permissions');
 
         if ($role !== null) {

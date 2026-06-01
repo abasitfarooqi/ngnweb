@@ -6,7 +6,7 @@
             <flux:badge color="green" class="mb-4 uppercase tracking-widest text-[10px]">New stock</flux:badge>
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Motorcycles for sale</h1>
             <p class="mt-3 max-w-2xl text-sm md:text-base text-gray-300 leading-relaxed">
-                Same listings as <a href="{{ route('site.bikes') }}" class="text-white underline hover:text-brand-red">/bikes</a> — full photos, specifications and finance links.
+                Same listings as <a href="{{ route('site.bikes') }}" class="text-white underline hover:text-brand-red">/bikes</a> — full photos, specifications and payment plan links.
             </p>
         </div>
     </section>
@@ -133,7 +133,7 @@
                                         Full details
                                     </flux:button>
                                     <flux:button href="/finance?source=new-bike&bike_id={{ $motorcycle->id }}&bike_type=new&price={{ (float) ($motorcycle->sale_new_price ?? 0) }}" variant="filled" size="sm" class="flex-1 justify-center bg-brand-red text-white hover:bg-brand-red-dark">
-                                        Finance
+                                        Payment Plan
                                     </flux:button>
                                 </div>
                             </div>

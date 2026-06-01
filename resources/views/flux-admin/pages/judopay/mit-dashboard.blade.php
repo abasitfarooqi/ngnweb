@@ -3,7 +3,6 @@
         <x-slot:actions>
             <flux:button size="sm" variant="ghost" icon="calendar-days" :href="route('flux-admin.judopay-weekly-queue.index')" class="!rounded-none">Weekly schedule</flux:button>
             <flux:button size="sm" variant="ghost" icon="credit-card" :href="route('flux-admin.judopay-recurring.index')" class="!rounded-none">Onboarded customers</flux:button>
-            <flux:button size="sm" variant="ghost" icon="arrow-top-right-on-square" :href="url(config('backpack.base.route_prefix').'/judopay/mit-dashboard')" class="!rounded-none">Legacy full view</flux:button>
         </x-slot:actions>
     </x-flux-admin::summary-header>
 

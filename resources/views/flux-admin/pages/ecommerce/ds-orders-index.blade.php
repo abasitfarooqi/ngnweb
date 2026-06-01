@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Delivery service orders" description="Customer requests for motorbike collection and delivery.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/ds-order/create')" class="!rounded-none">New order</flux:button>
+            <a href="{{ route('flux-admin.ds-orders.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New order</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search customer, phone or postcode…">
@@ -34,8 +36,11 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 max-w-xs truncate">{{ $r->address }} <span class="text-xs text-zinc-400">{{ $r->postcode }}</span></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->ds_order_items_count }}</flux:table.cell>
                         <flux:table.cell><flux:switch :checked="(bool) $r->proceed" wire:click="toggleProceed({{ $r->id }})" /></flux:table.cell>
-                        <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/ds-order/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                        <flux:table.cell class="flex gap-1">
+                            <a href="{{ route('flux-admin.ds-orders.edit', $r->id) }}">
+                                <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            </a>
+                            <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none">Delete</flux:button>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

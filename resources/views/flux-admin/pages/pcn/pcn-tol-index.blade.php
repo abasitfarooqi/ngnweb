@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="PCN TOL requests" description="Transfer-of-liability letters generated for PCN cases.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/pcn-tol-request/create')" class="!rounded-none">New TOL</flux:button>
+            <a href="{{ route('flux-admin.pcn-tol-requests.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New TOL</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search by PCN number…">
@@ -45,7 +45,8 @@
                         <flux:table.cell>
                             <div class="flex gap-1">
                                 <flux:button size="xs" variant="ghost" wire:click="generatePdf({{ $r->id }})" icon="document-arrow-down" class="!rounded-none">PDF</flux:button>
-                                <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/pcn-tol-request/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.pcn-tol-requests.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this TOL request?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -56,4 +57,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

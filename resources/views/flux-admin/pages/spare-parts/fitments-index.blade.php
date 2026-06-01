@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Spare parts · Fitments" description="Year, colour and country variants of each model.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New fitment</flux:button>
+            <a href="{{ route('flux-admin.sp-fitments.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New fitment</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search model…">
@@ -35,7 +37,9 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_active" /></flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.sp-fitments.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this fitment?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -47,33 +51,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit fitment' : 'New fitment' }}</flux:heading>
-            <x-flux-admin::field-group label="Model" :error="$errors->first('formData.model_id')" required>
-                <flux:select wire:model="formData.model_id" placeholder="— Select —">
-                    @foreach($models as $m)
-                        <flux:select.option value="{{ $m->id }}">{{ $m->make?->name }} · {{ $m->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <x-flux-admin::field-group label="Year" :error="$errors->first('formData.year')">
-                    <flux:input type="number" wire:model="formData.year" min="1900" max="2100" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Colour" :error="$errors->first('formData.colour_name')">
-                    <flux:input wire:model="formData.colour_name" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Country" :error="$errors->first('formData.country_name')">
-                    <flux:input wire:model="formData.country_name" />
-                </x-flux-admin::field-group>
-            </div>
-            <flux:checkbox wire:model="formData.is_active" label="Active" />
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

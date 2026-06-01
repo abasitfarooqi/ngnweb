@@ -5,6 +5,8 @@
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Rental Bookings</h2>
         </div>
         @if($bookingItems->count())
+            <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[44rem] md:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>Booking ID</flux:table.column>
@@ -40,6 +42,8 @@
                     @endforeach
                 </flux:table.rows>
             </flux:table>
+            </div>
+            </div>
         @else
             <div class="p-6 text-center text-sm text-zinc-500 dark:text-zinc-400">No rental bookings linked.</div>
         @endif
@@ -51,6 +55,8 @@
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Finance Applications</h2>
         </div>
         @if($applicationItems->count())
+            <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[44rem] md:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>Application ID</flux:table.column>
@@ -86,6 +92,8 @@
                     @endforeach
                 </flux:table.rows>
             </flux:table>
+            </div>
+            </div>
         @else
             <div class="p-6 text-center text-sm text-zinc-500 dark:text-zinc-400">No finance applications linked.</div>
         @endif
@@ -97,6 +105,8 @@
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">PCN Cases</h2>
         </div>
         @if($pcnCases->count())
+            <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[44rem] md:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>PCN Number</flux:table.column>
@@ -126,6 +136,8 @@
                     @endforeach
                 </flux:table.rows>
             </flux:table>
+            </div>
+            </div>
         @else
             <div class="p-6 text-center text-sm text-zinc-500 dark:text-zinc-400">No PCN cases linked.</div>
         @endif

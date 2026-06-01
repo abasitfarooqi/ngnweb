@@ -71,6 +71,8 @@ export default {
                 'brand-red': '#c31924',
                 'brand-black': '#000000',
                 'brand-gray': '#424242',
+                'brand-green': '#16a34a',
+                'brand-green-dark': '#15803d',
                 'brand-light': '#f8f9fa',
                 'bg-ngn-primary': {
                     50: '#ffe5e5',   // Lightest shade

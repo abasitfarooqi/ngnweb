@@ -64,7 +64,7 @@
             'title' => 'Motorcycle Sales',
             'image' => 'assets/images/services/new-and-used-motorcycles-for-sale-in-london.png',
             'alt' => 'New and used motorcycles for sale in London',
-            'teaser' => 'New and used Honda, Yamaha and more — 2025 range, flexible finance on new stock, and practical used options for London riders.',
+            'teaser' => 'New and used Honda, Yamaha and more — 2025 range, flexible payment plans on new stock, and practical used options for London riders.',
             'buttons' => [
                 ['href' => route('motorcycles.new'), 'label' => 'New motorcycles', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
                 ['href' => route('motorcycles.used'), 'label' => 'Used motorcycles', 'variant' => 'filled', 'class' => 'bg-gray-800 text-white hover:bg-gray-900 dark:bg-gray-700'],
@@ -99,15 +99,15 @@
             ],
         ],
         [
-            'panel' => 'Finance',
+            'panel' => 'Payment Plan',
             'slug' => 'finance',
             'icon' => 'banknotes',
-            'title' => 'Finance',
+            'title' => 'Payment Plan',
             'image' => 'assets/images/services/finance.jpg',
-            'alt' => 'Motorcycle finance options',
-            'teaser' => 'Finance options to make your next motorcycle purchase straightforward — ask us what is available on new stock.',
+            'alt' => 'Motorcycle payment plan options',
+            'teaser' => 'Payment plan options to make your next motorcycle purchase straightforward — ask us what is available on new stock.',
             'buttons' => [
-                ['href' => route('site.finance'), 'label' => 'Finance overview', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => route('site.finance'), 'label' => 'Payment plan overview', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
             ],
         ],
     ];
@@ -138,7 +138,7 @@
                     <li><span class="text-gray-300">Our Services</span></li>
                 </ol>
             </nav>
-            <p class="mt-4 text-sm md:text-base text-gray-300 max-w-3xl leading-relaxed">Everything NGN offers in one place — repairs, MOT, servicing, delivery, sales, rental, accident support and finance. Use the cards below, then the universal enquiry form at the bottom.</p>
+            <p class="mt-4 text-sm md:text-base text-gray-300 max-w-3xl leading-relaxed">Everything NGN offers in one place — repairs, MOT, servicing, delivery, sales, rental, accident support and payment plans. Use the cards below, then the universal enquiry form at the bottom.</p>
             <div class="mt-6 flex flex-wrap gap-2 justify-start">
                 <flux:button href="{{ route('site.repairs') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Repairs hub</flux:button>
                 <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" size="sm" class="border-white/40 text-white hover:bg-white/10">Compare servicing</flux:button>

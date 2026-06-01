@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\MotorbikeAnnualCompliance;
@@ -18,15 +19,65 @@ use Livewire\WithPagination;
 class ComplianceIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithExport;
     use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-services-and-repairs-and-report');
         $this->exportable = true;
         $this->exportFilename = 'vehicle-compliance';
+    }
+
+    protected function formModel(): string
+    {
+        return MotorbikeAnnualCompliance::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.motorbike_id' => ['required', 'integer', 'exists:motorbikes,id'],
+            'formData.year'         => ['required', 'string', 'max:4'],
+            'formData.mot_status'   => ['nullable', 'string', 'in:Valid,Invalid,Expired,Unknown'],
+            'formData.mot_due_date' => ['nullable', 'date'],
+            'formData.road_tax_status' => ['nullable', 'string', 'in:Valid,Invalid,Expired,Unknown'],
+            'formData.tax_due_date'    => ['nullable', 'date'],
+            'formData.insurance_status'   => ['nullable', 'string', 'in:Valid,Invalid,Expired,Unknown'],
+            'formData.insurance_due_date' => ['nullable', 'date'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(MotorbikeAnnualCompliance::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        MotorbikeAnnualCompliance::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()

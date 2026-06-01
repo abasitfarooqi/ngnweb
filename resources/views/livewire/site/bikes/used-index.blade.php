@@ -162,7 +162,7 @@
                                         Details
                                     </flux:button>
                                     <flux:button href="/finance?source=used-bike&bike_id={{ $bike->id }}&bike_type=used&price={{ (float) $bike->price }}" variant="filled" size="sm" class="flex-1 justify-center bg-brand-red text-white hover:bg-brand-red-dark">
-                                        Finance
+                                        Payment Plan
                                     </flux:button>
                                 </div>
                             </div>
@@ -179,7 +179,7 @@
                 <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
                     <div>
                         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">New bikes in stock</h2>
-                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Honda &amp; Yamaha — enquire for delivery and finance.</p>
+                        <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">Honda &amp; Yamaha — enquire for delivery and payment plans.</p>
                     </div>
                     <flux:button href="{{ route('site.bikes') }}" variant="outline" size="sm" class="self-start sm:self-auto">View new range</flux:button>
                 </div>

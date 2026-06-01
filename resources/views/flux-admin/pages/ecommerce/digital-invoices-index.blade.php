@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Digital invoices" description="PDF invoices issued for sales and services.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/ngn-digital-invoice/create')" class="!rounded-none">New invoice</flux:button>
+            <a href="{{ route('flux-admin.digital-invoices.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New invoice</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search invoice #, customer, email or reg…">
@@ -51,8 +53,11 @@
                         <flux:table.cell class="text-zinc-900 dark:text-white">£{{ number_format((float) $r->total, 2) }}</flux:table.cell>
                         <flux:table.cell class="text-emerald-600 dark:text-emerald-400">£{{ number_format((float) $r->total_paid, 2) }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="$r->status" /></flux:table.cell>
-                        <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/ngn-digital-invoice/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                        <flux:table.cell class="flex gap-1">
+                            <a href="{{ route('flux-admin.digital-invoices.edit', $r->id) }}">
+                                <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            </a>
+                            <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none">Delete</flux:button>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

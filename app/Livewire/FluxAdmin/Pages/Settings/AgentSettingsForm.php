@@ -30,6 +30,7 @@ class AgentSettingsForm extends Component
 
     public function mount(): void
     {
+        $this->resetErrorBag();
         $this->authorizeModule('see-menu-commons');
 
         $settings = SystemSetting::whereIn('key', [

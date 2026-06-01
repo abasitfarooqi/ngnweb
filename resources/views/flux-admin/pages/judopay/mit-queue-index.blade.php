@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="Judopay MIT queue" description="Scheduled merchant-initiated transactions via Judopay.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/judopay-mit-queue/create')" class="!rounded-none">New entry</flux:button>
+            <a href="{{ route('flux-admin.judopay-mit-queue.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New entry</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search Judo payment reference…">
@@ -44,7 +44,10 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->cleared" /></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->cleared_at?->format('d M H:i') ?? '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/judopay-mit-queue/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.judopay-mit-queue.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this MIT queue entry?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -54,4 +57,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

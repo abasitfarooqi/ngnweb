@@ -145,29 +145,15 @@ class NewBookingWizard extends Component
                 'is_posted' => false,
             ]);
 
-            if ($this->deposit > 0) {
-                BookingInvoice::create([
-                    'booking_id' => $booking->id,
-                    'user_id' => auth()->id(),
-                    'invoice_date' => $start->toDateString(),
-                    'amount' => $this->deposit,
-                    'deposit' => 1,
-                    'state' => 'deposit',
-                    'is_posted' => false,
-                    'is_paid' => $this->initialPayment >= $this->deposit,
-                    'paid_date' => $this->initialPayment >= $this->deposit ? now()->toDateString() : null,
-                ]);
-            }
-
             BookingInvoice::create([
                 'booking_id' => $booking->id,
-                'user_id' => auth()->id(),
+                'user_id'    => auth()->id(),
                 'invoice_date' => $start->toDateString(),
-                'amount' => $this->weeklyRent,
-                'deposit' => 0,
-                'state' => 'weekly',
-                'is_posted' => false,
-                'is_paid' => false,
+                'amount'     => $this->weeklyRent + ($this->deposit > 0 ? $this->deposit : 0),
+                'deposit'    => $this->deposit > 0 ? $this->deposit : 0,
+                'state'      => 'weekly',
+                'is_posted'  => false,
+                'is_paid'    => false,
             ]);
 
             return $booking->id;

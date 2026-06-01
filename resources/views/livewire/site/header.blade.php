@@ -71,7 +71,7 @@
                          class="absolute left-0 top-full z-50 w-52 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
                         <a href="{{ route('motorcycles.new') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">New Motorcycles</a>
                         <a href="{{ route('motorcycles.used') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Used Motorcycles</a>
-                        <a href="{{ route('site.finance') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Finance</a>
+                        <a href="{{ route('site.finance') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Payment Plan</a>
                         <a href="{{ route('accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
                     </div>
                 </div>
@@ -122,7 +122,7 @@
                         <a href="{{ route('shop.accessories') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accessories</a>
                         <a href="{{ route('shop.gps-tracker') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">GPS Trackers</a>
                         <a href="{{ route('shop.helmets') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Helmets</a>
-                        <a href="{{ route('site.ebikes') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">E-Bikes</a>
+                        <a href="{{ route('site.ebikes') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">eBikes</a>
                     </div>
                 </div>
 
@@ -260,7 +260,7 @@
                 <div x-show="expandedGroup === 'sales'" x-transition class="bg-gray-50 dark:bg-gray-800">
                     <a href="{{ route('motorcycles.new') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">New Motorcycles</a>
                     <a href="{{ route('motorcycles.used') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Used Motorcycles</a>
-                    <a href="{{ route('site.finance') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Finance</a>
+                    <a href="{{ route('site.finance') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Payment Plan</a>
                     <a href="{{ route('accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>
                 </div>
 
@@ -306,7 +306,7 @@
                     <a href="{{ route('shop.accessories') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accessories</a>
                     <a href="{{ route('shop.gps-tracker') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">GPS Trackers</a>
                     <a href="{{ route('shop.helmets') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Helmets</a>
-                    <a href="{{ route('site.ebikes') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">E-Bikes</a>
+                    <a href="{{ route('site.ebikes') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">eBikes</a>
                 </div>
 
                 <a href="{{ route('spareparts.index') }}" @click="closeMobile()" class="flex items-center px-4 py-3 text-sm font-bold uppercase tracking-wide text-gray-900 dark:text-white hover:text-brand-red transition">

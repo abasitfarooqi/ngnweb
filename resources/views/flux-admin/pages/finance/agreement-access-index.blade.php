@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="Rental agreement links" description="Passcode URLs for customers to sign rental agreements and loyalty scheme.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/agreement-access/create')" class="!rounded-none">New link</flux:button>
+            <a href="{{ route('flux-admin.agreement-access.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New link</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search passcode, booking ID or customer…" />
@@ -26,7 +26,10 @@
                         <flux:table.cell class="text-xs"><a href="{{ url('/loyalty-scheme/'.$r->customer_id.'/'.$r->passcode) }}" target="_blank" class="text-blue-600 hover:underline">Open</a></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->expires_at ? \Carbon\Carbon::parse($r->expires_at)->format('d M Y H:i') : '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/agreement-access/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.agreement-access.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this agreement link?" icon="trash" class="!rounded-none">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -36,4 +39,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

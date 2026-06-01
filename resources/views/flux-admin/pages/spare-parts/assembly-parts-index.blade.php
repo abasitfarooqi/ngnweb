@@ -50,7 +50,7 @@
     </x-flux-admin::data-table>
 
     <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">{{ $recordId ? 'Edit entry' : 'New entry' }}</flux:heading>
             <x-flux-admin::field-group label="Assembly" :error="$errors->first('formData.assembly_id')" required>
                 <flux:select wire:model="formData.assembly_id" placeholder="— Select —">

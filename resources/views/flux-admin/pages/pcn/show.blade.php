@@ -9,6 +9,11 @@
             $pcnCase->is_police ? ['label' => 'Police', 'color' => 'red'] : null,
         ])"
     >
+        <x-slot:actions>
+            <a href="{{ route('flux-admin.pcn.edit', $pcnCase) }}" wire:navigate>
+                <flux:button icon="pencil-square" variant="ghost" size="sm" class="!rounded-none">Edit PCN</flux:button>
+            </a>
+        </x-slot:actions>
         <x-slot:stats>
             <x-flux-admin::stat-card label="Full Amount" :value="'£' . number_format($pcnCase->full_amount ?? 0, 2)" icon="banknotes" colour="red" />
             <x-flux-admin::stat-card label="Reduced Amount" :value="'£' . number_format($pcnCase->reduced_amount ?? 0, 2)" icon="receipt-percent" colour="amber" />

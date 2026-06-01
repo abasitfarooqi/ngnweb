@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Finance;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\ContractAccess;
 use Illuminate\Database\Eloquent\Builder;
@@ -16,12 +17,55 @@ use Livewire\WithPagination;
 class ContractAccessIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-finance-applications');
+    }
+
+    protected function formModel(): string { return ContractAccess::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.customer_id'    => ['required', 'integer'],
+            'formData.application_id' => ['required', 'integer'],
+            'formData.passcode'       => ['required', 'string', 'max:100'],
+            'formData.expires_at'     => ['nullable', 'date'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(ContractAccess::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Contract link saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        ContractAccess::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Contract link deleted.');
     }
 
     public function render()

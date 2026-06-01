@@ -51,6 +51,37 @@
                         <flux:select.option value="payment_due">Payment due</flux:select.option>
                     </flux:select>
                 </div>
+                <div class="min-w-0 w-full sm:min-w-[12rem] sm:flex-1 lg:w-44 lg:flex-none">
+                    <flux:select wire:model.live="bookingStateFilter" placeholder="Booking state">
+                        <flux:select.option value="">All states</flux:select.option>
+                        <flux:select.option value="DRAFT">Draft</flux:select.option>
+                        <flux:select.option value="Awaiting Documents &amp; Payment">Awaiting Docs &amp; Payment</flux:select.option>
+                        <flux:select.option value="Completed &amp; Issued">Completed &amp; Issued</flux:select.option>
+                        <flux:select.option value="Completed">Completed</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[8rem] sm:flex-1 lg:w-32 lg:flex-none">
+                    <flux:input
+                        type="number"
+                        wire:model.live.debounce.300ms="filterMotorbikeId"
+                        placeholder="Motorbike ID"
+                        min="1"
+                    />
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:input
+                        type="date"
+                        wire:model.live="startDateFrom"
+                        placeholder="Start date from"
+                    />
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:input
+                        type="date"
+                        wire:model.live="startDateTo"
+                        placeholder="Start date to"
+                    />
+                </div>
                 <div class="min-w-0 w-full sm:basis-full sm:max-w-[10rem] lg:basis-auto lg:w-32">
                     <flux:select wire:model.live="perPage">
                         <flux:select.option value="10">10 per page</flux:select.option>

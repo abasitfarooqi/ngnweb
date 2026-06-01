@@ -19,6 +19,8 @@
                     <flux:heading size="md">{{ $day }}</flux:heading>
                     <flux:text size="sm" class="text-zinc-500">{{ $byWeekday[$day]->count() }} bookings · £{{ number_format($byWeekday[$day]->flatMap->rentingBookingItems->whereNull('end_date')->sum('weekly_rent'), 2) }} / week</flux:text>
                 </div>
+                <div class="touch-pan-x overflow-x-auto">
+                <div class="min-w-[40rem] md:min-w-0">
                 <flux:table>
                     <flux:table.columns>
                         <flux:table.column>Ref</flux:table.column>
@@ -44,6 +46,8 @@
                         @endforeach
                     </flux:table.rows>
                 </flux:table>
+                </div>
+                </div>
             </div>
         @endif
     @endforeach

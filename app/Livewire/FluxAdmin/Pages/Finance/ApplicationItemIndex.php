@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Finance;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\ApplicationItem;
@@ -17,15 +18,62 @@ use Livewire\WithPagination;
 class ApplicationItemIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithExport;
     use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-finance-applications');
         $this->exportable = true;
         $this->exportFilename = 'application-items';
+    }
+
+    protected function formModel(): string { return ApplicationItem::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.application_id'    => ['required', 'integer'],
+            'formData.motorbike_id'      => ['required', 'integer'],
+            'formData.start_date'        => ['nullable', 'date'],
+            'formData.due_date'          => ['nullable', 'date'],
+            'formData.end_date'          => ['nullable', 'date'],
+            'formData.weekly_instalment' => ['nullable', 'numeric', 'min:0'],
+            'formData.is_posted'         => ['boolean'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['is_posted' => false];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(ApplicationItem::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->formData['is_posted'] = (bool) ($this->formData['is_posted'] ?? false);
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Application item saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        ApplicationItem::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Application item deleted.');
     }
 
     public function render()

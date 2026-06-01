@@ -162,13 +162,13 @@
                         class="portal-nav-link w-full justify-between {{ request()->routeIs('account.finance*') ? 'active' : '' }}">
                         <span class="flex items-center gap-3">
                             <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $icon_finance !!}</svg>
-                            <span>Finance</span>
+                            <span>Payment Plan</span>
                         </span>
                         <svg class="h-4 w-4 transition-transform flex-shrink-0" :class="{'rotate-180': openFinance}" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $icon_chevron !!}</svg>
                     </button>
                     <div x-show="openFinance" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-end="opacity-0" class="border-l-2 border-brand-red ml-4 bg-gray-50 dark:bg-gray-800/50">
                         <a href="{{ route('account.finance') }}"                  class="portal-nav-sub-link px-4 py-2 {{ (request()->routeIs('account.finance') || request()->routeIs('account.finance.browse')) ? 'active' : '' }}">Browse New & Used Bikes</a>
-                        <a href="{{ route('account.finance.my-applications') }}"  class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.finance.my-applications') ? 'active' : '' }}">My Finance Applications</a>
+                        <a href="{{ route('account.finance.my-applications') }}"  class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.finance.my-applications') ? 'active' : '' }}">My Payment Plan Applications</a>
                     </div>
                 </div>
 

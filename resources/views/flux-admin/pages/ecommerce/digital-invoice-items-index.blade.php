@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="Digital invoice items" description="Line items attached to digital invoices.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New item</flux:button>
+            <a href="{{ route('flux-admin.digital-invoice-items.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New item</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name, SKU or invoice ID…">
@@ -31,7 +31,7 @@
                         <flux:table.cell class="text-zinc-900 dark:text-white font-semibold">£{{ number_format((float) $r->total, 2) }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.digital-invoice-items.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this item?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -45,7 +45,7 @@
     </x-flux-admin::data-table>
 
     <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">{{ $recordId ? 'Edit item' : 'New invoice item' }}</flux:heading>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Invoice ID" :error="$errors->first('formData.invoice_id')" required>

@@ -62,7 +62,7 @@
     </x-flux-admin::data-table>
 
     <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">{{ $recordId ? 'Edit movement' : 'New stock movement' }}</flux:heading>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Branch" :error="$errors->first('formData.branch_id')" required>

@@ -4,6 +4,8 @@
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Bookings</h2>
         </div>
 
+        <div class="touch-pan-x overflow-x-auto">
+        <div class="min-w-[44rem] md:min-w-0">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>ID</flux:table.column>
@@ -48,5 +50,7 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
+        </div>
     </div>
 </div>

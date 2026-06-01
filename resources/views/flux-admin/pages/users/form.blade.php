@@ -1,16 +1,33 @@
 <div>
-    <x-flux-admin::form-panel
-        :title="$userId ? 'Edit user' : 'New user'"
-        description="Staff account details, role assignment and extra permissions."
-    >
-        @if(session('flux-admin.flash'))
-            <div class="mb-4 border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-300">
-                {{ session('flux-admin.flash') }}
+    <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+            <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-1">
+                <a href="{{ route('flux-admin.users.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200 transition">Users</a>
+                <span>/</span>
+                <span>{{ $userId ? 'Edit' : 'New' }}</span>
             </div>
-        @endif
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $userId ? 'Edit user' : 'New user' }}</h1>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('flux-admin.users.index') }}">
+                <flux:button variant="ghost" size="sm" class="!rounded-none">Cancel</flux:button>
+            </a>
+            <flux:button wire:click="save" variant="primary" size="sm" class="!rounded-none">Save user</flux:button>
+        </div>
+    </div>
 
-        <form wire:submit.prevent="save" class="flex flex-col gap-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    @if(session('flux-admin.flash'))
+        <div class="mb-4 border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-700 dark:border-green-900 dark:bg-green-950 dark:text-green-300">
+            {{ session('flux-admin.flash') }}
+        </div>
+    @endif
+
+    <form wire:submit.prevent="save" class="space-y-6" novalidate>
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Account details</h2>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Staff account details, role assignment and extra permissions.</p>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="First name" required :error="$errors->first('first_name')">
                     <flux:input wire:model="first_name" />
                 </x-flux-admin::field-group>
@@ -26,7 +43,7 @@
                 <x-flux-admin::field-group label="Employee ID" :error="$errors->first('employee_id')">
                     <flux:input wire:model="employee_id" />
                 </x-flux-admin::field-group>
-                <div class="flex items-end gap-4">
+                <div class="flex items-end gap-6 pb-1">
                     <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                         <input type="checkbox" wire:model="is_admin" class="accent-zinc-900 dark:accent-zinc-200"> Admin
                     </label>
@@ -35,8 +52,12 @@
                     </label>
                 </div>
             </div>
+        </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Password</h2>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group
                     label="Password"
                     :required="! $userId"
@@ -49,8 +70,12 @@
                     <flux:input type="password" wire:model="password_confirmation" />
                 </x-flux-admin::field-group>
             </div>
+        </div>
 
-            <x-flux-admin::field-group label="Roles" :error="$errors->first('selectedRoles')">
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Roles</h2>
+
+            <x-flux-admin::field-group :error="$errors->first('selectedRoles')">
                 <div class="flex flex-wrap gap-2">
                     @foreach($roles as $role)
                         <label class="inline-flex items-center gap-2 border border-zinc-200 dark:border-zinc-800 px-2 py-1 text-sm">
@@ -60,8 +85,12 @@
                     @endforeach
                 </div>
             </x-flux-admin::field-group>
+        </div>
 
-            <x-flux-admin::field-group label="Extra permissions" hint="Granted in addition to the user's role permissions.">
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Extra permissions</h2>
+
+            <x-flux-admin::field-group hint="Granted in addition to the user's role permissions.">
                 <div class="mb-2">
                     <flux:input wire:model.live.debounce.250ms="permissionSearch" placeholder="Filter permissions…" />
                 </div>
@@ -76,11 +105,13 @@
                     @endforelse
                 </div>
             </x-flux-admin::field-group>
+        </div>
 
-            <x-slot:footer>
-                <flux:button size="sm" variant="ghost" :href="route('flux-admin.users.index')" class="!rounded-none">Back</flux:button>
-                <flux:button size="sm" variant="primary" type="submit" class="!rounded-none">Save</flux:button>
-            </x-slot:footer>
-        </form>
-    </x-flux-admin::form-panel>
+        <div class="flex justify-end gap-3 pt-2">
+            <a href="{{ route('flux-admin.users.index') }}">
+                <flux:button type="button" variant="ghost" class="!rounded-none">Cancel</flux:button>
+            </a>
+            <flux:button type="submit" variant="primary" class="!rounded-none">Save user</flux:button>
+        </div>
+    </form>
 </div>

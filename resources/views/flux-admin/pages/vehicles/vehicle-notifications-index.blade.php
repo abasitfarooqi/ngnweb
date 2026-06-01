@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="Vehicle notifications" description="Customer requests to be notified when a vehicle becomes available.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/vehicle-notification/create')" class="!rounded-none">New subscription</flux:button>
+            <a href="{{ route('flux-admin.vehicle-notifications.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New subscription</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name, email or registration…">
@@ -36,7 +36,10 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->notify_phone" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->enable" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/vehicle-notification/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.vehicle-notifications.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this subscription?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -46,4 +49,38 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
+            <flux:heading size="lg">{{ $recordId ? 'Edit subscription' : 'New subscription' }}</flux:heading>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-flux-admin::field-group label="First name" :error="$errors->first('formData.first_name')" required>
+                    <flux:input wire:model="formData.first_name" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Last name" :error="$errors->first('formData.last_name')" required>
+                    <flux:input wire:model="formData.last_name" />
+                </x-flux-admin::field-group>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-flux-admin::field-group label="Email" :error="$errors->first('formData.email')">
+                    <flux:input type="email" wire:model="formData.email" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Phone" :error="$errors->first('formData.phone')">
+                    <flux:input wire:model="formData.phone" />
+                </x-flux-admin::field-group>
+            </div>
+            <x-flux-admin::field-group label="Registration" :error="$errors->first('formData.reg_no')">
+                <flux:input wire:model="formData.reg_no" />
+            </x-flux-admin::field-group>
+            <div class="flex flex-wrap gap-4">
+                <flux:checkbox wire:model="formData.notify_email" label="Notify by email" />
+                <flux:checkbox wire:model="formData.notify_phone" label="Notify by phone" />
+                <flux:checkbox wire:model="formData.enable" label="Active" />
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

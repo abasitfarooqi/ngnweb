@@ -54,7 +54,7 @@
                 <flux:field>
                     <flux:label>Topic *</flux:label>
                     <flux:select wire:model="topic" variant="listbox" placeholder="Select a topic">
-                        @foreach(['rentals'=>'Rentals','mot'=>'MOT','repairs'=>'Repairs & Servicing','sales'=>'Bike Sales','finance'=>'Finance','recovery'=>'Recovery','other'=>'Other'] as $val => $label)
+                        @foreach(['rentals'=>'Rentals','mot'=>'MOT','repairs'=>'Repairs & Servicing','sales'=>'Bike Sales','finance'=>'Payment Plan','recovery'=>'Recovery','other'=>'Other'] as $val => $label)
                             <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>

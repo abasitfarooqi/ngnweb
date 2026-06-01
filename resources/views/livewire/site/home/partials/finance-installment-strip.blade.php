@@ -1,5 +1,5 @@
 {{-- Legacy: InstalmentMotorbikes --}}
-<section class="border-y border-gray-200 dark:border-gray-800 bg-slate-100 dark:bg-gray-950" id="installment-services" aria-label="Finance and instalments">
+<section class="border-y border-gray-200 dark:border-gray-800 bg-slate-100 dark:bg-gray-950" id="installment-services" aria-label="Payment plan and instalments">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-12">
         <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
             <div class="max-w-3xl">

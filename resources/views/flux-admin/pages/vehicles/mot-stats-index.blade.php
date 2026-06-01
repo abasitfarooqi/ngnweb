@@ -12,6 +12,10 @@
     </div>
 
     <x-flux-admin::data-table>
+        <x-slot:actions>
+            <a href="{{ route('flux-admin.mot-stats.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New notifier</flux:button></a>
+        </x-slot:actions>
+
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name, VRM or phone…">
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
@@ -58,6 +62,8 @@
                             <div class="flex gap-1">
                                 <flux:button size="xs" variant="ghost" icon="chat-bubble-left-ellipsis" class="!rounded-none" href="{{ $n->whatsapp_url }}" target="_blank">WhatsApp</flux:button>
                                 <flux:button size="xs" variant="ghost" wire:click="markWhatsappSent({{ $n->id }})" icon="check" class="!rounded-none">Mark sent</flux:button>
+                                <a href="{{ route('flux-admin.mot-stats.edit', $n->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $n->id }})" wire:confirm="Delete this notifier?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -68,4 +74,51 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showForm" class="md:w-[700px]">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
+            <flux:heading size="lg">{{ $recordId ? 'Edit notifier' : 'New notifier' }}</flux:heading>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <x-flux-admin::field-group label="Customer name" required :error="$errors->first('formData.customer_name')">
+                    <flux:input wire:model="formData.customer_name" placeholder="Full name" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Motorbike reg" required :error="$errors->first('formData.motorbike_reg')">
+                    <flux:input wire:model="formData.motorbike_reg" placeholder="e.g. AB12 CDE" class="uppercase" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <x-flux-admin::field-group label="Contact number" :error="$errors->first('formData.customer_contact')">
+                    <flux:input wire:model="formData.customer_contact" placeholder="07700 900000" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Email" :error="$errors->first('formData.customer_email')">
+                    <flux:input type="email" wire:model="formData.customer_email" placeholder="customer@example.com" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <x-flux-admin::field-group label="MOT due date" :error="$errors->first('formData.mot_due_date')">
+                    <flux:input type="date" wire:model="formData.mot_due_date" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Tax due date" :error="$errors->first('formData.tax_due_date')">
+                    <flux:input type="date" wire:model="formData.tax_due_date" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="flex gap-6">
+                <x-flux-admin::field-group label="Notify by email" :error="$errors->first('formData.mot_notify_email')">
+                    <flux:checkbox wire:model="formData.mot_notify_email" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Notify by phone" :error="$errors->first('formData.mot_notify_phone')">
+                    <flux:checkbox wire:model="formData.mot_notify_phone" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

@@ -7,6 +7,8 @@
     --color-brand-black:    #000000;
     --color-brand-gray:     #424242;
     --color-brand-light:    #f8f9fa;
+    --color-brand-green:    #16a34a;
+    --color-brand-green-dark: #15803d;
 
     /* Flux accent = NGN red */
     --color-accent:            #c31924;
@@ -35,6 +37,13 @@
     .hover-primary:hover       { color: var(--color-brand-red) !important; }
     .text-justify              { text-align: justify; }
     .scroll-pt-16              { scroll-padding-top: 4rem; }
+
+    /* Brand green */
+    .bg-brand-green             { background-color: var(--color-brand-green); }
+    .text-brand-green           { color: var(--color-brand-green); }
+    .border-brand-green         { border-color: var(--color-brand-green); }
+    .hover\:bg-brand-green:hover    { background-color: var(--color-brand-green); }
+    .hover\:text-brand-green:hover  { color: var(--color-brand-green); }
 }
 
 /* Sharp corners: eliminate rounded-lg, rounded-xl, rounded-md, rounded-sm (keep rounded-full for circles) */
@@ -53,14 +62,104 @@
     @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
 }
 
+/* Primary brand CTA (red) — use for marketing/hero calls to action */
 .ngn-btn-primary {
     @apply inline-flex items-center justify-center px-4 py-2 bg-brand-red text-white text-sm font-medium border border-transparent hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
 }
+
+/* Confirm / Submit / Accept — green */
+.ngn-btn-confirm {
+    @apply inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--color-brand-green);
+    --tw-ring-color: var(--color-brand-green);
+}
+.ngn-btn-confirm:hover { background-color: var(--color-brand-green-dark); }
+
+/* Decline / Cancel / Delete — red */
+.ngn-btn-danger {
+    @apply inline-flex items-center justify-center px-4 py-2 text-white text-sm font-medium border border-transparent focus:outline-none focus:ring-2 focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+    background-color: var(--color-brand-red);
+    --tw-ring-color: var(--color-brand-red);
+}
+.ngn-btn-danger:hover { background-color: var(--color-brand-red-dark); }
 
 .ngn-btn-secondary {
     @apply inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 transition;
 }
 
+/* Base card — logo grey fill */
 .ngn-card {
-    @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm;
+    @apply border shadow-sm;
+    background-color: var(--color-brand-gray);
+    color: #f3f4f6;
+}
+.dark .ngn-card {
+    background-color: #1f2937;
+    border-color: #374151;
+}
+
+/* Box variants: border colour + logo grey fill */
+.ngn-box-positive {
+    @apply border p-4;
+    border-color: var(--color-brand-green);
+    background-color: var(--color-brand-gray);
+    color: #f3f4f6;
+}
+.ngn-box-negative {
+    @apply border p-4;
+    border-color: var(--color-brand-red);
+    background-color: var(--color-brand-gray);
+    color: #f3f4f6;
+}
+.ngn-box-highlight {
+    @apply border p-4;
+    border-color: var(--color-brand-green);
+    background-color: var(--color-brand-gray);
+    color: #f3f4f6;
+}
+
+/* Inline alert variants */
+.ngn-alert-positive {
+    @apply border-l-4 px-4 py-3 text-sm;
+    border-color: var(--color-brand-green);
+    background-color: #f0fdf4;
+    color: #14532d;
+}
+.dark .ngn-alert-positive {
+    background-color: #052e16;
+    color: #bbf7d0;
+}
+.ngn-alert-negative {
+    @apply border-l-4 px-4 py-3 text-sm;
+    border-color: var(--color-brand-red);
+    background-color: #fff1f2;
+    color: #9f1239;
+}
+.dark .ngn-alert-negative {
+    background-color: #1c0a0c;
+    color: #fecdd3;
+}
+
+/* Suppress browser native :invalid glow/outline — Flux handles its own invalid state via data-invalid */
+body.flux-admin-app input:invalid,
+body.flux-admin-app select:invalid,
+body.flux-admin-app textarea:invalid {
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+/* Flux-admin form field consistency */
+body.flux-admin-app [data-flux-input] input,
+body.flux-admin-app [data-flux-input] select,
+body.flux-admin-app [data-flux-input] textarea {
+    border-radius: 0 !important;
+}
+
+/* Ensure error message text is consistent */
+body.flux-admin-app .ngn-field-error {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    line-height: 1rem;
+    color: #dc2626;
 }

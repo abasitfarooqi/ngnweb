@@ -3,9 +3,11 @@
 namespace App\Livewire\FluxAdmin\Pages\Misc;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\RentingPricing;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -16,13 +18,68 @@ use Livewire\WithPagination;
 #[Title('Rental pricing — Flux Admin')]
 class RentingPricingIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithExport, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-renting-page');
         $this->exportable = true;
         $this->exportFilename = 'rental-pricing';
+    }
+
+    protected function formModel(): string
+    {
+        return RentingPricing::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.motorbike_id' => ['nullable', 'integer'],
+            'formData.user_id' => ['nullable', 'integer'],
+            'formData.weekly_price' => ['required', 'numeric', 'min:0'],
+            'formData.minimum_deposit' => ['nullable', 'numeric', 'min:0'],
+            'formData.update_date' => ['nullable', 'date'],
+            'formData.iscurrent' => ['boolean'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [
+            'update_date' => now()->toDateString(),
+            'user_id' => backpack_user()->id,
+            'iscurrent' => true,
+        ];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $record = RentingPricing::findOrFail($id);
+        $this->fillFromModel($record);
+        $this->formData['update_date'] = $record->update_date
+            ? Carbon::parse($record->update_date)->format('Y-m-d')
+            : null;
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        RentingPricing::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()
@@ -54,7 +111,7 @@ class RentingPricingIndex extends Component
             'Make' => fn ($r) => $r->motorbike?->make, 'Model' => fn ($r) => $r->motorbike?->model,
             'Weekly price' => 'weekly_price', 'Minimum deposit' => 'minimum_deposit',
             'Current' => fn ($r) => $r->iscurrent ? 'Yes' : 'No',
-            'Effective from' => fn ($r) => $r->update_date ? \Carbon\Carbon::parse($r->update_date)->format('Y-m-d') : '',
+            'Effective from' => fn ($r) => $r->update_date ? Carbon::parse($r->update_date)->format('Y-m-d') : '',
         ];
     }
 }

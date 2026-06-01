@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="New motorbikes for sale" description="Catalogue of new bikes available for purchase.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/new-motorbikes-for-sale/create')" class="!rounded-none">New listing</flux:button>
+            <a href="{{ route('flux-admin.motorbike-for-sale.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New listing</flux:button></a>
         </x-slot:actions>
 
         <x-slot:toolbar>
@@ -42,7 +42,10 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->colour }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">£{{ number_format((float) $b->sale_new_price, 2) }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/new-motorbikes-for-sale/'.$b->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.motorbike-for-sale.edit', $b->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $b->id }})" wire:confirm="Delete this listing?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -53,4 +56,62 @@
 
         <x-slot:footer>{{ $bikes->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showForm" class="md:w-[700px]">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
+            <flux:heading size="lg">{{ $recordId ? 'Edit listing' : 'New listing' }}</flux:heading>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <x-flux-admin::field-group label="Make" required :error="$errors->first('formData.make')">
+                    <flux:input wire:model="formData.make" placeholder="e.g. Honda" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Model" required :error="$errors->first('formData.model')">
+                    <flux:input wire:model="formData.model" placeholder="e.g. CBR500R" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <x-flux-admin::field-group label="Year" :error="$errors->first('formData.year')">
+                    <flux:input wire:model="formData.year" placeholder="e.g. 2024" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Colour" :error="$errors->first('formData.colour')">
+                    <flux:input wire:model="formData.colour" placeholder="e.g. Red" />
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Engine" :error="$errors->first('formData.engine')">
+                    <flux:input wire:model="formData.engine" placeholder="e.g. 500cc" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <x-flux-admin::field-group label="Type" :error="$errors->first('formData.type')">
+                    <flux:select wire:model="formData.type">
+                        <flux:select.option value="">— select —</flux:select.option>
+                        <flux:select.option value="manual">Manual</flux:select.option>
+                        <flux:select.option value="automatic">Automatic</flux:select.option>
+                        <flux:select.option value="other">Other</flux:select.option>
+                    </flux:select>
+                </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="Availability" :error="$errors->first('formData.availability')">
+                    <flux:select wire:model="formData.availability">
+                        <flux:select.option value="for sale">For sale</flux:select.option>
+                        <flux:select.option value="reserved">Reserved</flux:select.option>
+                        <flux:select.option value="sold">Sold</flux:select.option>
+                    </flux:select>
+                </x-flux-admin::field-group>
+            </div>
+
+            <x-flux-admin::field-group label="Sale price (£)" :error="$errors->first('formData.sale_new_price')">
+                <flux:input type="number" step="0.01" wire:model="formData.sale_new_price" placeholder="0.00" />
+            </x-flux-admin::field-group>
+
+            <x-flux-admin::field-group label="Description" :error="$errors->first('formData.description')">
+                <flux:textarea wire:model="formData.description" rows="3" />
+            </x-flux-admin::field-group>
+
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

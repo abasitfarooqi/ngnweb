@@ -1,7 +1,15 @@
 <div>
     <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
-        <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700">
+        <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700 flex items-center justify-between gap-4">
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Profile Details</h2>
+            <flux:button
+                size="sm"
+                variant="ghost"
+                icon="envelope"
+                wire:click="sendPortalCredentials"
+                wire:confirm="Send portal login credentials to this customer via email and SMS?"
+                class="!rounded-none"
+            >Send portal credentials</flux:button>
         </div>
 
         <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-5">

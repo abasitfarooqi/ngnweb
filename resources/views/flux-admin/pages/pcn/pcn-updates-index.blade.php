@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="PCN case updates" description="Progression log for penalty charge notices including appeals and payments.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/pcn-case-update/create')" class="!rounded-none">New update</flux:button>
+            <a href="{{ route('flux-admin.pcn-updates.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New update</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search PCN number or registration…">
@@ -48,8 +48,9 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">£{{ number_format((float) $r->additional_fee, 2) }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/pcn-tol-request/create?update_id='.$r->id)" icon="document-text" class="!rounded-none">TOL</flux:button>
-                                <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/pcn-case-update/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.pcn-tol-requests.index').'?update_id='.$r->id" icon="document-text" class="!rounded-none">TOL</flux:button>
+                                <a href="{{ route('flux-admin.pcn-updates.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this PCN update?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -60,4 +61,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

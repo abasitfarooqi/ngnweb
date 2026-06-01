@@ -13,8 +13,8 @@
             ['Booking invoices', 'All invoices across every booking.', route('flux-admin.booking-invoices.index'), 'document-text'],
             ['Rental pricing', 'Weekly-rate matrix by vehicle class.', route('flux-admin.renting-pricing.index'), 'currency-pound'],
             ['Terminate access links', 'Customer-side termination passcodes.', route('flux-admin.rental-terminate-links.index'), 'key'],
-            ['New booking (legacy)', 'Multi-step new-booking wizard in classic admin.', url('/admin/page/rentals/bookings/new'), 'arrow-up-right', true],
-            ['Bookings management (legacy)', 'Full operational admin for rentals.', url('/admin/page/rentals/bookings'), 'arrow-up-right', true],
+            ['New booking', 'Multi-step new-booking wizard.', route('flux-admin.new-booking.index'), 'plus-circle'],
+            ['Bookings management', 'Full operational admin for rentals.', route('flux-admin.rentals.index'), 'list-bullet'],
         ];
     @endphp
 

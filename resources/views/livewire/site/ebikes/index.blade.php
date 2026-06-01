@@ -119,7 +119,7 @@
                 x-bind:class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
             >
                 <p class="mb-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-red dark:text-red-400">London &middot; EAPC-compliant</p>
-                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white md:text-4xl">Pedal-assist e-bikes revolution in London</h1>
+                <h1 class="text-3xl font-bold tracking-tight text-gray-900 dark:text-white md:text-4xl">Pedal-assist eBikes revolution in London</h1>
                 <p class="mx-auto mt-5 max-w-3xl text-lg leading-relaxed text-gray-600 dark:text-gray-300">
                     Experience the future of urban mobility. Our brand new pedal-assist electric bicycles are now available for purchase and hire in London. Clean, green, and built for British roads.
                 </p>
@@ -134,7 +134,7 @@
                 x-bind:class="shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'"
             >
                 <div class="border-l-[3px] border-brand-red pl-5 md:pl-6">
-                    <h2 class="mb-5 text-xl font-bold text-gray-900 dark:text-white">Why choose our e-bikes?</h2>
+                    <h2 class="mb-5 text-xl font-bold text-gray-900 dark:text-white">Why choose our eBikes?</h2>
                     <ul class="space-y-4 text-base leading-relaxed text-gray-700 dark:text-gray-300">
                         <li><span class="font-semibold text-gray-900 dark:text-white">Eco-friendly:</span> Zero emissions, perfect for London&rsquo;s ULEZ and clean air zones.</li>
                         <li><span class="font-semibold text-gray-900 dark:text-white">Affordable:</span> Competitive pricing for both sales and rentals. Save on fuel and public transport.</li>
@@ -147,7 +147,7 @@
                     <div class="border-b border-gray-200 bg-white p-6 dark:border-gray-600 dark:bg-gray-800">
                         <h2 class="mb-3 text-xl font-bold text-gray-900 dark:text-white">Ready to ride?</h2>
                         <p class="mb-5 text-base leading-relaxed text-gray-600 dark:text-gray-300">
-                            Be among the first to experience the pedal-assist e-bike revolution in London. Whether you want to buy or hire, we have the right option for you.
+                            Be among the first to experience the pedal-assist eBike revolution in London. Whether you want to buy or hire, we have the right option for you.
                         </p>
                         <div class="flex flex-wrap gap-3">
                             <flux:button href="#ebike-enquiry-form" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
@@ -204,22 +204,22 @@
             <div class="grid gap-12 lg:grid-cols-2 lg:gap-14">
                 <div>
                     <h2 class="mb-2 text-center text-xl font-bold text-gray-900 dark:text-white lg:text-left">Frequently asked questions</h2>
-                    <p class="mb-6 text-center text-sm text-gray-600 dark:text-gray-400 lg:text-left">Common questions about UK e-bikes and how we can help</p>
+                    <p class="mb-6 text-center text-sm text-gray-600 dark:text-gray-400 lg:text-left">Common questions about UK eBikes and how we can help</p>
 
                     <flux:accordion class="border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800 [&_button[data-flux-accordion-heading]]:text-gray-900 [&_button[data-flux-accordion-heading]]:dark:text-gray-100 [&_[data-flux-accordion-content]>div]:!text-gray-600 [&_[data-flux-accordion-content]>div]:dark:!text-gray-300">
                         <flux:accordion.item
                             class="!border-b border-gray-200 px-3 dark:!border-gray-600"
-                            heading="Do I need a licence to ride a pedal-assist e-bike in the UK?"
+                            heading="Do I need a licence to ride a pedal-assist eBike in the UK?"
                             :expanded="true"
                             :transition="true"
                         >
                             <p class="leading-relaxed text-gray-600 dark:text-gray-300">
-                                No, as long as the e-bike meets UK EAPC regulations (maximum 15.5 mph assisted speed, 250W pedal-assist motor, pedals must be used), you do not need a licence, insurance, or tax. Our e-bikes are fully compliant.
+                                No, as long as the eBike meets UK EAPC regulations (maximum 15.5 mph assisted speed, 250W pedal-assist motor, pedals must be used), you do not need a licence, insurance, or tax. Our eBikes are fully compliant.
                             </p>
                         </flux:accordion.item>
-                        <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" :transition="true" heading="Can I use your pedal-assist e-bikes for delivery work?">
+                        <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" :transition="true" heading="Can I use your pedal-assist eBikes for delivery work?">
                             <p class="leading-relaxed text-gray-600 dark:text-gray-300">
-                                Absolutely! Our e-bikes are designed for reliability and range, making them ideal for couriers and delivery riders in London.
+                                Absolutely! Our eBikes are designed for reliability and range, making them ideal for couriers and delivery riders in London.
                             </p>
                         </flux:accordion.item>
                         <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" :transition="true" heading="Do you offer finance or instalment plans for electric bicycles?">
@@ -227,9 +227,9 @@
                                 Yes, flexible finance and instalment options are available. Contact us for details.
                             </p>
                         </flux:accordion.item>
-                        <flux:accordion.item class="px-3 !pb-5" :transition="true" heading="Where can I see or test ride the pedal-assist e-bikes?">
+                        <flux:accordion.item class="px-3 !pb-5" :transition="true" heading="Where can I see or test ride the pedal-assist eBikes?">
                             <p class="leading-relaxed text-gray-600 dark:text-gray-300">
-                                Visit our London showrooms or book a test ride online. We&rsquo;re happy to help you find the perfect e-bike.
+                                Visit our London showrooms or book a test ride online. We&rsquo;re happy to help you find the perfect eBike.
                             </p>
                         </flux:accordion.item>
                     </flux:accordion>
@@ -238,8 +238,8 @@
                 <div class="lg:pl-2">
                     @include('livewire.site.partials.sales.enquiry-form', [
                         'submitAction' => 'submitEnquiry',
-                        'heading' => 'Enquire about e-bikes',
-                        'enquiryTypeLabel' => 'Pedal-assist e-bike',
+                        'heading' => 'Enquire about eBikes',
+                        'enquiryTypeLabel' => 'Pedal-assist eBike',
                         'showRegNo' => true,
                         'submitButtonLabel' => 'Enquire now',
                     ])
@@ -250,7 +250,7 @@
 
     <div class="bg-brand-red py-10 text-white">
         <div class="max-w-7xl mx-auto flex flex-col items-center justify-between gap-4 px-4 sm:px-6 lg:flex-row lg:px-8">
-            <p class="text-center text-lg font-semibold leading-snug text-white lg:text-left">Ready to ride? Send an e-bike enquiry and we&rsquo;ll get back to you.</p>
+            <p class="text-center text-lg font-semibold leading-snug text-white lg:text-left">Ready to ride? Send an eBike enquiry and we&rsquo;ll get back to you.</p>
             <flux:button href="#ebike-enquiry-form" variant="filled" class="shrink-0 bg-white font-semibold text-brand-red hover:bg-gray-100">
                 Enquire now
             </flux:button>

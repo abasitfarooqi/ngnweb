@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Support;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\SupportConversation;
 use Illuminate\Database\Eloquent\Builder;
@@ -15,12 +16,50 @@ use Livewire\WithPagination;
 #[Title('Support conversations — Flux Admin')]
 class SupportConversationIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-commons');
         $this->sortField = 'last_message_at';
+    }
+
+    protected function formModel(): string
+    {
+        return SupportConversation::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.title' => ['nullable', 'string', 'max:255'],
+            'formData.topic' => ['nullable', 'string', 'max:255'],
+            'formData.status' => ['required', 'string'],
+            'formData.customer_auth_id' => ['nullable', 'integer'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['status' => 'open'];
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        SupportConversation::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()

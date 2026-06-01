@@ -3,9 +3,9 @@
 <div class="bg-gray-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Motorcycles For Sale</h1>
-        <p class="text-gray-300 text-lg mb-6">Quality used bikes & new arrivals · Finance available</p>
+                        <p class="text-gray-300 text-lg mb-6">Quality used bikes & new arrivals · Payment plans available</p>
         <flux:button href="/finance" variant="outline" class="border-white text-white hover:bg-white hover:text-gray-900">
-            Check Finance Options
+            Check Payment Plan Options
         </flux:button>
     </div>
 </div>
@@ -133,7 +133,7 @@
                             size="sm"
                             class="w-full justify-center"
                         >
-                            Finance options
+                            Payment plan options
                         </flux:button>
                     </div>
                 </div>
@@ -179,7 +179,7 @@
                             More information
                         </flux:button>
                         <flux:button href="/finance?source=new-bike&bike_id={{ $bike->id }}&bike_type=new&price={{ (float) ($bike->sale_new_price ?? $bike->price ?? 0) }}" variant="outline" size="sm" class="w-full">
-                            Finance options
+                            Payment plan options
                         </flux:button>
                     </div>
                 </div>
@@ -199,13 +199,13 @@
 </div>
 @endif
 
-{{-- Finance CTA --}}
+{{-- Payment Plan CTA --}}
 <div class="bg-gray-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-2xl font-bold mb-3">Finance Available</h2>
-        <p class="text-gray-300 mb-6">Spread the cost with our flexible finance options. Check your eligibility today.</p>
+        <h2 class="text-2xl font-bold mb-3">Payment Plan Available</h2>
+        <p class="text-gray-300 mb-6">Spread the cost with our flexible payment plan options. Check your eligibility today.</p>
         <flux:button href="/finance" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
-            Check Finance Options
+            Check Payment Plan Options
         </flux:button>
     </div>
 </div>

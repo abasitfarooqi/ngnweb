@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="NGN MIT queue" description="Upcoming scheduled recurring billing runs.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/ngn-mit-queue/create')" class="!rounded-none">New entry</flux:button>
+            <a href="{{ route('flux-admin.ngn-mit-queue.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New entry</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search invoice #…">
@@ -44,7 +44,16 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="$r->status" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->cleared" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/ngn-mit-queue/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.ngn-mit-queue.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this queue entry?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                                @if(!$r->is_in_live_chamber && in_array($r->status, ['pending', 'failed']))
+                                    <flux:button size="xs" variant="ghost" wire:click="addToQueue({{ $r->id }})" wire:confirm="Add this item to the live firing chamber?" icon="play" class="!rounded-none text-green-600 dark:text-green-400">Add to queue</flux:button>
+                                @endif
+                                @if($r->is_in_live_chamber && $r->live_chamber_item_id)
+                                    <flux:button size="xs" variant="ghost" wire:click="stopQueue({{ $r->live_chamber_item_id }})" wire:confirm="Stop and remove this item from the live chamber?" icon="stop" class="!rounded-none text-red-600 dark:text-red-400">Stop</flux:button>
+                                @endif
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -54,4 +63,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

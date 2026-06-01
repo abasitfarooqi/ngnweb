@@ -1,7 +1,7 @@
 <div>
     <x-flux-admin::data-table title="DS order items" description="Pickup and drop-off legs for delivery service orders.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New leg</flux:button>
+            <a href="{{ route('flux-admin.ds-order-items.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New leg</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search VRM, postcode or order…">
@@ -35,7 +35,7 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.ds-order-items.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this leg?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -49,7 +49,7 @@
     </x-flux-admin::data-table>
 
     <flux:modal wire:model.self="showForm" class="md:w-[720px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">{{ $recordId ? 'Edit leg' : 'New delivery leg' }}</flux:heading>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="DS order ID" :error="$errors->first('formData.ds_order_id')" required>

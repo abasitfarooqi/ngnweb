@@ -40,6 +40,7 @@
             @error('motorbikeId') <p class="mb-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
             <div class="overflow-x-auto">
+                <div class="min-w-[40rem] md:min-w-0">
                 <flux:table>
                     <flux:table.columns>
                         <flux:table.column>Reg</flux:table.column>
@@ -80,6 +81,7 @@
                         @endforelse
                     </flux:table.rows>
                 </flux:table>
+                </div>
             </div>
         </div>
     @endif
@@ -104,6 +106,7 @@
             @error('customerId') <p class="mb-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
             <div class="overflow-x-auto">
+                <div class="min-w-[36rem] md:min-w-0">
                 <flux:table>
                     <flux:table.columns>
                         <flux:table.column>Name</flux:table.column>
@@ -128,6 +131,7 @@
                         @endforelse
                     </flux:table.rows>
                 </flux:table>
+                </div>
             </div>
         </div>
     @endif
@@ -138,7 +142,7 @@
             <div class="lg:col-span-2 border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">Rental terms</h2>
 
-                <form wire:submit.prevent="confirmTerms" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <form wire:submit.prevent="confirmTerms" class="grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
                     <flux:input type="date" label="Start date" wire:model="startDate" />
                     <flux:input type="number" step="0.01" min="0" label="Weekly rent (£)" wire:model="weeklyRent" description="{{ ($weeklyRent ?? 0) > 0 ? 'Pricing loaded from the bike.' : 'No pricing set — enter the agreed rate.' }}" />
                     <div class="sm:col-span-2">
@@ -175,7 +179,7 @@
             <div class="lg:col-span-2 border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">Initial payment</h2>
 
-                <form wire:submit.prevent="confirmPayment" class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <form wire:submit.prevent="confirmPayment" class="grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
                     <flux:input type="number" step="0.01" min="0" label="Deposit (£)" wire:model="deposit" />
                     <flux:input type="number" step="0.01" min="0" label="Initial payment received (£)" wire:model="initialPayment" description="Marks deposit as paid when ≥ deposit amount." />
                     <flux:select label="Payment method" wire:model="paymentMethod">

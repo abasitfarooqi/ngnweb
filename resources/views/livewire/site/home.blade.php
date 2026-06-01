@@ -40,14 +40,14 @@
         <div class="absolute inset-0 bg-black/50 group-hover:bg-black/60 transition-all"></div>
         <div class="absolute inset-0 flex flex-col items-center justify-center text-white text-center p-4">
             <h2 class="text-3xl md:text-4xl font-bold mb-2">MOTORCYCLES FOR SALE</h2>
-            <p class="text-gray-200 text-sm">New & used · Finance available</p>
+            <p class="text-gray-200 text-sm">New & used · Payment plans available</p>
         </div>
     </a>
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
         @foreach([
             ['url' => route('shop.home'), 'img' => 'spare-parts.jpg', 'title' => 'SPARE PARTS', 'sub' => 'Honda & Yamaha parts'],
             ['url' => route('site.repairs'), 'img' => 'services.jpg', 'title' => 'ALL SERVICES', 'sub' => 'Repairs, servicing & more'],
-            ['url' => route('site.finance'), 'img' => 'finance.jpg', 'title' => 'FINANCE', 'sub' => 'Flexible payment plans'],
+            ['url' => route('site.finance'), 'img' => 'finance.jpg', 'title' => 'PAYMENT PLAN', 'sub' => 'Flexible payment plans'],
         ] as $box)
             <a href="{{ $box['url'] }}" class="relative group overflow-hidden h-52 block">
                 <img src="{{ asset('images/' . $box['img']) }}" alt="{{ $box['title'] }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">

@@ -41,7 +41,7 @@
     </x-flux-admin::data-table>
 
     <flux:modal wire:model.self="showForm" class="md:w-[520px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">Edit vehicle details</flux:heading>
             <flux:text size="sm" class="text-zinc-500">Member: {{ $formData['full_name'] ?? '—' }}</flux:text>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">

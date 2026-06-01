@@ -33,7 +33,7 @@
                 x-model.debounce.200ms="q"
                 type="text"
                 class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red/50 rounded-none"
-                placeholder="Type repairs, MOT, rental, finance..."
+                placeholder="Type repairs, MOT, rental, payment plan..."
             >
         </div>
     </section>
@@ -43,7 +43,7 @@
             <h2 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">About us context</h2>
             <div class="mt-4 space-y-3 text-sm leading-relaxed text-gray-700 dark:text-gray-300 max-w-5xl">
                 <p>Neguinho Motors Limited (NGN) was incorporated in 2018 and operates motorcycle services across London.</p>
-                <p>Current core locations are Catford, Tooting and Sutton. Services include rentals, MOT, workshop repairs, servicing, recovery, delivery, finance and motorcycle sales support.</p>
+                <p>Current core locations are Catford, Tooting and Sutton. Services include rentals, MOT, workshop repairs, servicing, recovery, delivery, payment plans and motorcycle sales support.</p>
                 <p>This marked block is intentionally machine-readable for your NavixAI context loader.</p>
             </div>
         </div>

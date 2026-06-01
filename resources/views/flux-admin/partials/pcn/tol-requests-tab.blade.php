@@ -1,5 +1,7 @@
 <div>
     <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto">
+        <div class="touch-pan-x overflow-x-auto">
+        <div class="min-w-[44rem] md:min-w-0">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Request Date</flux:table.column>
@@ -53,5 +55,7 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
+        </div>
     </div>
 </div>

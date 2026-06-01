@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Club purchases" description="Club member purchases accruing reward points.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/club-member-purchase/create')" class="!rounded-none">Log purchase</flux:button>
+            <a href="{{ route('flux-admin.club-purchases.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Log purchase</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search POS invoice or customer…">
@@ -36,8 +38,11 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">£{{ number_format((float) $r->price, 2) }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-900 dark:text-white">£{{ number_format((float) $r->total, 2) }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_redeemed" /></flux:table.cell>
-                        <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/club-member-purchase/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                        <flux:table.cell class="flex gap-1">
+                            <a href="{{ route('flux-admin.club-purchases.edit', $r->id) }}">
+                                <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            </a>
+                            <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none">Delete</flux:button>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

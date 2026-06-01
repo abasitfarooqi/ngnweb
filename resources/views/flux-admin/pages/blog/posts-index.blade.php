@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Blog posts" description="Publish and manage blog content.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/blog-post/create')" class="!rounded-none">New post</flux:button>
+            <a href="{{ route('flux-admin.blog-posts.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New post</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search title or slug…">
@@ -32,7 +34,9 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->updated_at?->format('d M Y') }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/blog-post/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.blog-posts.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" icon="trash" wire:click="delete({{ $r->id }})" wire:confirm="Delete this post?" class="!rounded-none text-red-600">Delete</flux:button>
                             </div>
                         </flux:table.cell>

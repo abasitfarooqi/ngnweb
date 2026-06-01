@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Blog categories" description="Organise blog posts by topic.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New category</flux:button>
+            <a href="{{ route('flux-admin.blog-categories.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New category</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar><x-flux-admin::filter-bar search-placeholder="Search name…" /></x-slot:toolbar>
         <flux:table>
@@ -19,7 +21,9 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->blog_category }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" icon="pencil-square" wire:click="openEdit({{ $r->id }})" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.blog-categories.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" icon="trash" wire:click="delete({{ $r->id }})" wire:confirm="Delete this category?" class="!rounded-none text-red-600">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -31,23 +35,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model="showForm" class="md:w-[32rem]">
-        <div class="space-y-5">
-            <flux:heading size="lg">{{ $recordId ? 'Edit category' : 'New category' }}</flux:heading>
-            <x-flux-admin::field-group label="Name" :error="$errors->first('formData.name')" required>
-                <flux:input wire:model="formData.name" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Slug" hint="Auto-generated from name if left blank." :error="$errors->first('formData.slug')">
-                <flux:input wire:model="formData.slug" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Group" hint="Optional grouping key." :error="$errors->first('formData.blog_category')">
-                <flux:input wire:model="formData.blog_category" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2">
-                <flux:button variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button variant="primary" wire:click="saveForm" class="!rounded-none">Save</flux:button>
-            </div>
-        </div>
-    </flux:modal>
 </div>

@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Purchase requests" description="Parts required for incoming motorbike stock.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/purchase-request/create')" class="!rounded-none">New request</flux:button>
+            <a href="{{ route('flux-admin.purchase-requests.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New request</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search note…">
@@ -32,7 +34,12 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 max-w-md truncate">{{ $r->note }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_posted" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/purchase-request/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.purchase-requests.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this purchase request?" icon="trash" class="!rounded-none text-red-600" />
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -42,4 +49,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

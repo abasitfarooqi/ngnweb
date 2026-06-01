@@ -4,6 +4,8 @@
             <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Documents</h2>
         </div>
 
+        <div class="touch-pan-x overflow-x-auto">
+        <div class="min-w-[44rem] md:min-w-0">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Document Type</flux:table.column>
@@ -11,6 +13,7 @@
                 <flux:table.column>Status</flux:table.column>
                 <flux:table.column>Valid Until</flux:table.column>
                 <flux:table.column>Verified</flux:table.column>
+                <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
 
             <flux:table.rows>
@@ -43,6 +46,16 @@
                                 <flux:badge color="zinc" size="sm">No</flux:badge>
                             @endif
                         </flux:table.cell>
+                        <flux:table.cell>
+                            <flux:button
+                                size="xs"
+                                variant="ghost"
+                                icon="archive-box-x-mark"
+                                wire:click="deleteDocument({{ $doc->id }})"
+                                wire:confirm="Move this document to private storage? This removes it from public access."
+                                class="!rounded-none text-red-600 dark:text-red-400"
+                            >Move to private</flux:button>
+                        </flux:table.cell>
                     </flux:table.row>
                 @empty
                     <flux:table.row>
@@ -53,5 +66,7 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
+        </div>
     </div>
 </div>

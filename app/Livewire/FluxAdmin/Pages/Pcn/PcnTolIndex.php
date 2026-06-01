@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Pcn;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\PcnTolRequest;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -17,13 +18,57 @@ use Livewire\WithPagination;
 class PcnTolIndex extends Component
 {
     use WithAuthorization;
+    use WithCrudForm;
     use WithDataTable;
     use WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-pcn-portal');
         $this->sortField = 'request_date';
+    }
+
+    protected function formModel(): string { return PcnTolRequest::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.update_id'     => ['required', 'integer', 'exists:pcn_case_updates,id'],
+            'formData.request_date'  => ['required', 'date'],
+            'formData.status'        => ['required', 'string', 'in:pending,sent,approved,rejected'],
+            'formData.letter_sent_at' => ['nullable', 'date'],
+            'formData.note'          => ['nullable', 'string', 'max:2000'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['status' => 'pending', 'request_date' => now()->format('Y-m-d')];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(PcnTolRequest::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'TOL request saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        PcnTolRequest::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'TOL request deleted.');
     }
 
     public function generatePdf(int $id)

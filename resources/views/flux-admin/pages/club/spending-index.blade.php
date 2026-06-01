@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Club spending" description="Member account spending (FIFO-tracked debt).">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/club-member-spending/create')" class="!rounded-none">Log spend</flux:button>
+            <a href="{{ route('flux-admin.club-spendings.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Log spend</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search POS invoice or member…">
@@ -38,8 +40,11 @@
                         <flux:table.cell class="text-emerald-600 dark:text-emerald-400">£{{ number_format((float) $r->paid_amount, 2) }}</flux:table.cell>
                         <flux:table.cell class="text-amber-600 dark:text-amber-400">£{{ number_format((float) ($r->total - $r->paid_amount), 2) }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_paid" /></flux:table.cell>
-                        <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/club-member-spending/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                        <flux:table.cell class="flex gap-1">
+                            <a href="{{ route('flux-admin.club-spendings.edit', $r->id) }}">
+                                <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            </a>
+                            <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none">Delete</flux:button>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

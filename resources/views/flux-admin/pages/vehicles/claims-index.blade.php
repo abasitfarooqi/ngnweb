@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Motorbike claims" description="Third-party claims for recovered/abandoned motorbikes.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/claim-motorbike/create')" class="!rounded-none">New claim</flux:button>
+            <a href="{{ route('flux-admin.motorbike-claims.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New claim</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search claimant or registration…">
@@ -41,7 +43,12 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_received" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_returned" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/claim-motorbike/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.motorbike-claims.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this claim?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -51,4 +58,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\CompanyVehicle;
 use Livewire\Attributes\Layout;
@@ -14,11 +15,54 @@ use Livewire\WithPagination;
 #[Title('Company vehicles — Flux Admin')]
 class CompanyVehicleIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-commons');
+    }
+
+    protected function formModel(): string
+    {
+        return CompanyVehicle::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.custodian'   => ['required', 'string', 'max:255'],
+            'formData.motorbike_id' => ['required', 'integer'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = [];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(CompanyVehicle::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        CompanyVehicle::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function render()

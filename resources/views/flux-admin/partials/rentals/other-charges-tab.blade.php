@@ -1,6 +1,7 @@
 <div>
     @if($charges->isNotEmpty())
-        <div class="overflow-x-auto">
+        <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[44rem] md:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>ID</flux:table.column>
@@ -24,6 +25,7 @@
                     @endforeach
                 </flux:table.rows>
             </flux:table>
+            </div>
         </div>
     @else
         <div class="p-8 text-center">

@@ -4,8 +4,10 @@
         description="Used motorbikes listed for sale and sold bikes."
     >
         <x-slot:actions>
-            <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/motorbikes-sale/create')" class="!rounded-none">New sale</flux:button>
+            <x-flux-admin::export-button xlsxAction="exportSales" />
+            <a href="{{ route('flux-admin.motorbike-sales.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New sale</flux:button>
+            </a>
         </x-slot:actions>
 
         <x-slot:toolbar>
@@ -42,7 +44,12 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="$sale->is_sold ? 'yes' : 'no'" :map="['yes' => ['red', 'Sold'], 'no' => ['green', 'Available']]" /></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $sale->buyer_name ?: '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/motorbikes-sale/'.$sale->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.motorbike-sales.edit', $sale) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $sale->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -53,4 +60,5 @@
 
         <x-slot:footer>{{ $sales->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

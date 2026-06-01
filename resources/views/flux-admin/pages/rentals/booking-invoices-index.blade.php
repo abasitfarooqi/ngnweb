@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Booking invoices" description="Weekly rental invoices raised against bookings.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/booking-invoice/create')" class="!rounded-none">New invoice</flux:button>
+            <a href="{{ route('flux-admin.booking-invoices.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New invoice</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search booking, customer or state…">
@@ -46,7 +48,12 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $i->state }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $i->is_paid" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/booking-invoice/'.$i->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.booking-invoices.edit', $i->id) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $i->id }})" wire:confirm="Delete this invoice?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -56,4 +63,5 @@
         </flux:table>
         <x-slot:footer>{{ $invoices->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

@@ -1,7 +1,7 @@
 <footer class="bg-gray-900 text-white mt-auto">
 
     {{-- Main footer grid --}}
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="max-w-7xl mx-auto px-6 sm:px-8 lg:px-8 py-12">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
 
             {{-- Brand + Social --}}
@@ -30,10 +30,10 @@
                     <li><a href="/repairs" class="hover:text-white transition">Repairs & Servicing</a></li>
                     <li><a href="{{ route('rental-hire') }}" class="hover:text-white transition">Motorcycle Rentals</a></li>
                     <li><a href="/bikes" class="hover:text-white transition">Bikes For Sale</a></li>
-                    <li><a href="/finance" class="hover:text-white transition">Finance</a></li>
+                    <li><a href="/finance" class="hover:text-white transition">Payment Plan</a></li>
                     <li><a href="/motorcycle-delivery" class="hover:text-white transition">Recovery & Delivery</a></li>
                     <li><a href="/shop" class="hover:text-white transition">Shop</a></li>
-                    <li><a href="/ebikes" class="hover:text-white transition">E-Bikes</a></li>
+                    <li><a href="/ebikes" class="hover:text-white transition">eBikes</a></li>
                 </ul>
             </div>
 

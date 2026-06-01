@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Misc;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\ContactQuery;
@@ -16,13 +17,57 @@ use Livewire\WithPagination;
 #[Title('Contact queries — Flux Admin')]
 class ContactQueryIndex extends Component
 {
-    use WithAuthorization, WithDataTable, WithExport, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-commons');
         $this->exportable = true;
         $this->exportFilename = 'contact-queries';
+    }
+
+    protected function formModel(): string
+    {
+        return ContactQuery::class;
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'subject'  => ['nullable', 'string', 'max:255'],
+            'notes'    => ['nullable', 'string'],
+            'is_dealt' => ['boolean'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['is_dealt' => false];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(ContactQuery::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        ContactQuery::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
     public function toggleDealt(int $id): void

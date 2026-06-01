@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Rentals;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\BookingInvoice;
@@ -16,10 +17,9 @@ use Livewire\WithPagination;
 #[Title('Booking invoices — Flux Admin')]
 class BookingInvoiceIndex extends Component
 {
-    use WithAuthorization;
-    use WithDataTable;
-    use WithExport;
-    use WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
+
+    public bool $showForm = false;
 
     public function mount(): void
     {
@@ -27,6 +27,50 @@ class BookingInvoiceIndex extends Component
         $this->exportable = true;
         $this->exportFilename = 'booking-invoices';
         $this->sortField = 'invoice_date';
+    }
+
+    protected function formModel(): string { return BookingInvoice::class; }
+
+    protected function formRules(): array
+    {
+        return [
+            'formData.booking_id'   => ['required', 'integer', 'exists:renting_bookings,id'],
+            'formData.invoice_date' => ['nullable', 'date'],
+            'formData.amount'       => ['nullable', 'numeric', 'min:0'],
+            'formData.deposit'      => ['nullable', 'numeric', 'min:0'],
+            'formData.state'        => ['nullable', 'string', 'max:50'],
+            'formData.is_paid'      => ['boolean'],
+            'formData.paid_date'    => ['nullable', 'date'],
+            'formData.notes'        => ['nullable', 'string'],
+        ];
+    }
+
+    public function openCreate(): void
+    {
+        $this->resetValidation();
+        $this->recordId = null;
+        $this->formData = ['is_paid' => false, 'invoice_date' => now()->format('Y-m-d')];
+        $this->showForm = true;
+    }
+
+    public function openEdit(int $id): void
+    {
+        $this->resetValidation();
+        $this->fillFromModel(BookingInvoice::findOrFail($id));
+        $this->showForm = true;
+    }
+
+    public function saveForm(): void
+    {
+        $this->save();
+        $this->showForm = false;
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Invoice saved.');
+    }
+
+    public function delete(int $id): void
+    {
+        BookingInvoice::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Invoice deleted.');
     }
 
     public function render()

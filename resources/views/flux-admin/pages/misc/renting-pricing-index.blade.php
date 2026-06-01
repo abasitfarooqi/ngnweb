@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="Rental pricing" description="Weekly hire price history per motorbike.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="url(config('backpack.base.route_prefix').'/renting-pricing/create')" class="!rounded-none">New price</flux:button>
+            <a href="{{ route('flux-admin.renting-pricing.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New price</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search reg, make or model…">
@@ -36,7 +36,10 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->iscurrent" /></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->update_date ? \Carbon\Carbon::parse($r->update_date)->format('d M Y') : '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/renting-pricing/'.$r->id.'/edit')" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.renting-pricing.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this pricing entry?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -46,4 +49,5 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
 </div>

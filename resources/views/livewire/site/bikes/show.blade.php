@@ -67,7 +67,7 @@
                 @else
                     <div class="text-2xl font-bold text-gray-500 mb-1">Call for Price</div>
                 @endif
-                <p class="text-xs text-gray-500">Finance available – ask us for monthly options</p>
+                <p class="text-xs text-gray-500">Payment plan available – ask us for monthly options</p>
             </div>
 
             {{-- Key specs --}}
@@ -93,7 +93,7 @@
                         : (float) ($saleInfo->price ?? 0);
                 @endphp
                 <flux:button href="/finance?source={{ $isNew ? 'new-bike' : 'used-bike' }}&bike_id={{ $bike->id }}&bike_type={{ $isNew ? 'new' : 'used' }}&price={{ $financePrice }}" variant="outline" size="base" class="w-full">
-                    Check Finance Options
+                    Check Payment Plan Options
                 </flux:button>
                 <flux:button href="tel:{{ config('site.phone') }}" variant="ghost" class="w-full">
                     Call Us: {{ config('site.phone') }}

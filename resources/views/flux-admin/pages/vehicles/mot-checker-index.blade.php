@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="MOT checker subscribers" description="Public MOT reminder subscriptions by email.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">Add subscriber</flux:button>
+            <a href="{{ route('flux-admin.mot-checker.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Add subscriber</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search VRM or email…">
@@ -35,7 +35,7 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->email }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.mot-checker.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Remove this subscriber?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -49,7 +49,7 @@
     </x-flux-admin::data-table>
 
     <flux:modal wire:model.self="showForm" class="md:w-[520px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">{{ $recordId ? 'Edit subscriber' : 'Add subscriber' }}</flux:heading>
             <x-flux-admin::field-group label="Vehicle registration" :error="$errors->first('formData.vehicle_registration')" required>
                 <flux:input wire:model="formData.vehicle_registration" />

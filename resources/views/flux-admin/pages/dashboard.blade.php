@@ -1,7 +1,7 @@
 <div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Dashboard</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">NGN Grid</h1>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Welcome back, {{ auth()->user()->first_name }}. Here is your overview.</p>
         </div>
         <flux:button wire:click="refreshStats" icon="arrow-path" size="sm" variant="subtle">

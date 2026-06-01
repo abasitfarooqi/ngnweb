@@ -45,7 +45,7 @@
                     </div>
                 @endif
 
-                <form wire:submit.prevent="save" class="flex flex-col gap-4">
+                <form wire:submit.prevent="save" class="flex flex-col gap-4" novalidate>
                     <x-flux-admin::field-group label="Status" required :error="$errors->first('status')">
                         <flux:select wire:model.live="status">
                             <flux:select.option value="pending_review">Pending review</flux:select.option>

@@ -1,6 +1,8 @@
 <div>
     <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-x-auto">
         @if($records->count())
+            <div class="touch-pan-x overflow-x-auto">
+            <div class="min-w-[60rem] md:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>Year</flux:table.column>
@@ -46,6 +48,8 @@
                     @endforeach
                 </flux:table.rows>
             </flux:table>
+            </div>
+            </div>
         @else
             <div class="p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
                 No compliance records found.

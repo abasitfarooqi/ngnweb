@@ -94,6 +94,7 @@ trait WithCrudForm
 
     /**
      * Rewrite rule keys to `formData.*` so validator targets nested array.
+     * Guards against rules that were already written with the `formData.` prefix.
      *
      * @param  array<string, mixed>  $rules
      * @return array<string, mixed>
@@ -102,7 +103,8 @@ trait WithCrudForm
     {
         $result = [];
         foreach ($rules as $key => $value) {
-            $result['formData.'.$key] = $value;
+            $normalised = str_starts_with($key, 'formData.') ? $key : 'formData.' . $key;
+            $result[$normalised] = $value;
         }
 
         return $result;

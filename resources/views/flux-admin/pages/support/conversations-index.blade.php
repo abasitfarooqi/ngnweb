@@ -1,7 +1,8 @@
 <div>
     <x-flux-admin::data-table title="Support conversations" description="Customer chat threads routed through the support inbox.">
         <x-slot:actions>
-            <flux:button size="sm" variant="ghost" :href="url(config('backpack.base.route_prefix').'/support-inbox')" icon="inbox" class="!rounded-none">Open inbox</flux:button>
+            <flux:button size="sm" variant="ghost" :href="route('flux-admin.support-inbox.index')" icon="inbox" class="!rounded-none">Open inbox</flux:button>
+            <a href="{{ route('flux-admin.support-conversations.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New conversation</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search title, topic or UUID…">
@@ -35,7 +36,10 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->assignedBackpackUser ? $r->assignedBackpackUser->first_name.' '.$r->assignedBackpackUser->last_name : '—' }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="$r->status" :map="['open' => ['colour' => 'emerald', 'label' => 'Open'], 'closed' => ['colour' => 'zinc', 'label' => 'Closed'], 'archived' => ['colour' => 'zinc', 'label' => 'Archived']]" /></flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" :href="url(config('backpack.base.route_prefix').'/support-inbox?conversation='.$r->id)" icon="chat-bubble-left-right" class="!rounded-none">Open</flux:button>
+                            <div class="flex items-center gap-1">
+                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.support-inbox.index').'?conversation='.$r->id" icon="chat-bubble-left-right" class="!rounded-none">Open</flux:button>
+                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this conversation and all its messages?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
@@ -45,4 +49,30 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
+
+    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
+        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
+            <flux:heading size="lg">New conversation</flux:heading>
+            <x-flux-admin::field-group label="Title" :error="$errors->first('formData.title')">
+                <flux:input wire:model="formData.title" placeholder="Subject of the conversation" />
+            </x-flux-admin::field-group>
+            <x-flux-admin::field-group label="Topic" :error="$errors->first('formData.topic')">
+                <flux:input wire:model="formData.topic" placeholder="e.g. billing, repairs" />
+            </x-flux-admin::field-group>
+            <x-flux-admin::field-group label="Status" :error="$errors->first('formData.status')" required>
+                <flux:select wire:model="formData.status">
+                    <flux:select.option value="open">Open</flux:select.option>
+                    <flux:select.option value="closed">Closed</flux:select.option>
+                    <flux:select.option value="archived">Archived</flux:select.option>
+                </flux:select>
+            </x-flux-admin::field-group>
+            <x-flux-admin::field-group label="Customer auth ID" :error="$errors->first('formData.customer_auth_id')">
+                <flux:input type="number" wire:model="formData.customer_auth_id" placeholder="Optional" />
+            </x-flux-admin::field-group>
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            </div>
+        </form>
+    </flux:modal>
 </div>

@@ -5,7 +5,7 @@
     </div>
 
     <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-6 max-w-3xl">
-        <form wire:submit.prevent="save" class="space-y-4">
+        <form wire:submit.prevent="save" class="space-y-4" novalidate>
             <x-flux-admin::field-group label="Endpoint URL" :error="$errors->first('endpoint_url')" required>
                 <flux:input type="url" wire:model="endpoint_url" placeholder="https://agent-xxxx.ondigitalocean.app/api/v1/chat/completions" />
             </x-flux-admin::field-group>

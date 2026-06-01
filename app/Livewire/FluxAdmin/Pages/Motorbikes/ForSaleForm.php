@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
+
+use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Models\Motorcycle;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
+
+#[Layout('flux-admin.layouts.app')]
+class ForSaleForm extends Component
+{
+    use WithAuthorization;
+
+    public ?Motorcycle $motorcycle = null;
+
+    public array $form = [];
+
+    public function mount(?Motorcycle $motorcycle = null): void
+    {
+        $this->resetErrorBag();
+        $this->authorizeModule('see-menu-commons');
+        $this->motorcycle = $motorcycle;
+
+        if ($motorcycle && $motorcycle->exists) {
+            $this->form = $motorcycle->getAttributes();
+        } else {
+            $this->form = ['availability' => 'for sale'];
+        }
+    }
+
+    protected function formRules(): array
+    {
+        return [
+            'form.make'           => ['required', 'string', 'max:255'],
+            'form.model'          => ['required', 'string', 'max:255'],
+            'form.year'           => ['nullable', 'string', 'max:4'],
+            'form.colour'         => ['nullable', 'string', 'max:255'],
+            'form.engine'         => ['nullable', 'string', 'max:255'],
+            'form.type'           => ['nullable', 'string', 'in:manual,automatic,other'],
+            'form.sale_new_price' => ['nullable', 'numeric', 'min:0'],
+            'form.description'    => ['nullable', 'string'],
+            'form.availability'   => ['nullable', 'string', 'in:for sale,sold,reserved'],
+        ];
+    }
+
+    public function save(): void
+    {
+        $data = $this->validate($this->formRules());
+        $payload = $data['form'];
+
+        if ($this->motorcycle && $this->motorcycle->exists) {
+            $this->motorcycle->update($payload);
+            $this->dispatch('flux-admin:toast', type: 'success', message: 'Listing updated.');
+        } else {
+            Motorcycle::create($payload);
+            $this->dispatch('flux-admin:toast', type: 'success', message: 'Listing created.');
+        }
+
+        $this->redirect(route('flux-admin.motorbike-for-sale.index'), navigate: true);
+    }
+
+    public function render()
+    {
+        return view('flux-admin.pages.motorbikes.for-sale-form');
+    }
+}

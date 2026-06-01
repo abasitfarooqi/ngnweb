@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Calendar events" description="Internal events calendar (admin schedules, reminders, milestones).">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New event</flux:button>
+            <a href="{{ route('flux-admin.calendar.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New event</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search title…" />
@@ -25,7 +27,9 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.calendar.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this event?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -37,31 +41,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[560px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit event' : 'New event' }}</flux:heading>
-            <x-flux-admin::field-group label="Title" :error="$errors->first('formData.title')" required>
-                <flux:input wire:model="formData.title" />
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Starts" :error="$errors->first('formData.start')" required>
-                    <flux:input type="datetime-local" wire:model="formData.start" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Ends" :error="$errors->first('formData.end')">
-                    <flux:input type="datetime-local" wire:model="formData.end" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Background colour">
-                    <flux:input wire:model="formData.background_color" placeholder="#2563eb" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Text colour">
-                    <flux:input wire:model="formData.text_color" placeholder="#ffffff" />
-                </x-flux-admin::field-group>
-            </div>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

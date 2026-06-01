@@ -15,7 +15,7 @@
 
     <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <div class="lg:col-span-2 border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <form wire:submit.prevent="lookupReg" class="flex flex-col gap-3 sm:flex-row sm:items-end">
+            <form wire:submit.prevent="lookupReg" class="flex flex-col gap-3 sm:flex-row sm:items-end" novalidate>
                 <div class="flex-1">
                     <flux:input
                         label="Registration"
@@ -71,7 +71,7 @@
                         @endforeach
                     </dl>
 
-                    <form wire:submit.prevent="saveVehicle" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <form wire:submit.prevent="saveVehicle" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
                         <flux:input label="Model (required)" wire:model="model" description="DVLA does not return the model for every VRM." />
                         <flux:input label="VIN (optional)" wire:model="vinNumber" />
                         <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 sm:col-span-2">

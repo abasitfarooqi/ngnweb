@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Spare parts · Parts" description="Individual parts in the spare parts catalogue.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New part</flux:button>
+            <a href="{{ route('flux-admin.sp-parts.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New part</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search part # or name…">
@@ -45,7 +47,9 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->last_synced_at?->format('d M H:i') ?? '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.sp-parts.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this part?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -57,42 +61,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit part' : 'New part' }}</flux:heading>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Part number" :error="$errors->first('formData.part_number')" required>
-                    <flux:input wire:model="formData.part_number" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Name" :error="$errors->first('formData.name')" required>
-                    <flux:input wire:model="formData.name" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Note" :error="$errors->first('formData.note')">
-                <flux:textarea wire:model="formData.note" rows="3" />
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <x-flux-admin::field-group label="Stock status" :error="$errors->first('formData.stock_status')">
-                    <flux:select wire:model="formData.stock_status">
-                        <flux:select.option value="in_stock">In stock</flux:select.option>
-                        <flux:select.option value="low_stock">Low stock</flux:select.option>
-                        <flux:select.option value="out_of_stock">Out of stock</flux:select.option>
-                        <flux:select.option value="discontinued">Discontinued</flux:select.option>
-                    </flux:select>
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Price (inc VAT)" :error="$errors->first('formData.price_gbp_inc_vat')">
-                    <flux:input type="number" step="0.01" wire:model="formData.price_gbp_inc_vat" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Global stock" :error="$errors->first('formData.global_stock')">
-                    <flux:input type="number" step="0.01" wire:model="formData.global_stock" />
-                </x-flux-admin::field-group>
-            </div>
-            <flux:checkbox wire:model="formData.is_active" label="Active" />
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

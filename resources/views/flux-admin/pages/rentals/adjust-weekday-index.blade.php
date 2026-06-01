@@ -5,7 +5,7 @@
     </div>
 
     <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-        <form wire:submit.prevent="adjust" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+        <form wire:submit.prevent="adjust" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end" novalidate>
             <x-flux-admin::field-group label="Booking" :error="$errors->first('selectedBookingId')" required>
                 <flux:select wire:model="selectedBookingId" placeholder="— Select booking —">
                     @foreach($bookings as $b)
@@ -25,6 +25,8 @@
     </div>
 
     <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
+        <div class="touch-pan-x overflow-x-auto">
+        <div class="min-w-[36rem] md:min-w-0">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Booking</flux:table.column>
@@ -45,5 +47,7 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
+        </div>
     </div>
 </div>

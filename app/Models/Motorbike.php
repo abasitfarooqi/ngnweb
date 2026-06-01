@@ -172,4 +172,9 @@ class Motorbike extends Model
         return $this->hasOne(RentingPricing::class)->where('iscurrent', true)->latest('update_date');
     }
 
+    public function latestCompliance()
+    {
+        return $this->hasOne(MotorbikeAnnualCompliance::class)->latestOfMany();
+    }
+
 }

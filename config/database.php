@@ -93,6 +93,22 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'sync_prod' => [
+            'driver' => 'mysql',
+            'host' => env('SYNC_PROD_DB_HOST'),
+            'port' => env('SYNC_PROD_DB_PORT', '3306'),
+            'database' => env('SYNC_PROD_DB_DATABASE'),
+            'username' => env('SYNC_PROD_DB_USERNAME'),
+            'password' => env('SYNC_PROD_DB_PASSWORD'),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+        ],
+
     ],
 
     /*

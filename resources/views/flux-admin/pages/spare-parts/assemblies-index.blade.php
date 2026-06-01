@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Spare parts · Assemblies" description="Named subassemblies of parts with diagrams.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New assembly</flux:button>
+            <a href="{{ route('flux-admin.sp-assemblies.create') }}">
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New assembly</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name…">
@@ -33,7 +35,9 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_active" /></flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.sp-assemblies.edit', $r->id) }}">
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this assembly?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
@@ -45,42 +49,4 @@
         </flux:table>
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4">
-            <flux:heading size="lg">{{ $recordId ? 'Edit assembly' : 'New assembly' }}</flux:heading>
-            <x-flux-admin::field-group label="Fitment" :error="$errors->first('formData.fitment_id')" required>
-                <flux:select wire:model="formData.fitment_id" placeholder="— Select —">
-                    @foreach($fitments as $f)
-                        <flux:select.option value="{{ $f->id }}">{{ $f->model?->name }} · {{ $f->year }} · {{ $f->colour_name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Name" :error="$errors->first('formData.name')" required>
-                    <flux:input wire:model="formData.name" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="External ID" :error="$errors->first('formData.external_id')">
-                    <flux:input wire:model="formData.external_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Slug" :error="$errors->first('formData.slug')" hint="Leave empty to auto-generate.">
-                    <flux:input wire:model="formData.slug" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Sort order" :error="$errors->first('formData.sort_order')">
-                    <flux:input type="number" wire:model="formData.sort_order" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Image URL" :error="$errors->first('formData.image_url')">
-                    <flux:input wire:model="formData.image_url" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Diagram URL" :error="$errors->first('formData.diagram_url')">
-                    <flux:input wire:model="formData.diagram_url" />
-                </x-flux-admin::field-group>
-            </div>
-            <flux:checkbox wire:model="formData.is_active" label="Active" />
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>
