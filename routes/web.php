@@ -182,11 +182,14 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/motorbike-repair-services', \App\Livewire\Site\Repairs\RepairServices::class)->name('repairs.repair-services');
     Route::get('/motorbike-service-comparison', \App\Livewire\Site\Repairs\Comparison::class)->name('repairs.comparison');
 
-    // Bikes
-    Route::get('/bikes', \App\Livewire\Site\Bikes\Index::class)->name('bikes');
-    Route::get('/bikes/{type}/{id}', \App\Livewire\Site\Bikes\Show::class)->name('bikes.show');
-    Route::get('/bikes/used', \App\Livewire\Site\Bikes\UsedIndex::class)->name('bikes.used');
-    Route::get('/bikes/new', \App\Livewire\Site\Bikes\SalesIndex::class)->name('bikes.new');
+    // Motorbikes (was /bikes — permanent redirects keep old URLs working)
+    Route::permanentRedirect('/bikes', '/motorbikes');
+    Route::permanentRedirect('/bikes/used', '/motorbikes/used');
+    Route::permanentRedirect('/bikes/new', '/motorbikes/new');
+    Route::get('/motorbikes', \App\Livewire\Site\Bikes\Index::class)->name('bikes');
+    Route::get('/motorbikes/{type}/{id}', \App\Livewire\Site\Bikes\Show::class)->name('bikes.show');
+    Route::get('/motorbikes/used', \App\Livewire\Site\Bikes\UsedIndex::class)->name('bikes.used');
+    Route::get('/motorbikes/new', \App\Livewire\Site\Bikes\SalesIndex::class)->name('bikes.new');
 
     Route::get('/ebikes', \App\Livewire\Site\Ebikes\Index::class)->name('ebikes');
     Route::get('/accessories', \App\Livewire\Site\Shop\Accessories::class)->name('accessories');
@@ -247,9 +250,9 @@ Route::permanentRedirect('/services', '/repairs');
 Route::permanentRedirect('/motorbike-recovery', '/recovery');
 Route::permanentRedirect('/motorcycle-rental-hire', '/rentals');
 // Route::permanentRedirect('/motorcycle-sales', '/bikes'); // disabled: now served by Livewire SalesIndex
-Route::permanentRedirect('/motorcycle-sales-london', '/bikes');
-// Route::permanentRedirect('/used-motorcycles', '/bikes'); // disabled: now served by Livewire UsedIndex
-Route::permanentRedirect('/motorcycles-new', '/bikes');
+Route::permanentRedirect('/motorcycle-sales-london', '/motorbikes');
+// Route::permanentRedirect('/used-motorcycles', '/motorbikes'); // disabled: now served by Livewire UsedIndex
+Route::permanentRedirect('/motorcycles-new', '/motorbikes');
 Route::permanentRedirect('/repairs/basic', '/motorbike-basic-service-london');
 Route::permanentRedirect('/repairs/full', '/motorbike-full-service-london');
 Route::permanentRedirect('/major-services', '/motorbike-full-service-london')->name('repairs.major');
@@ -264,7 +267,7 @@ Route::get('/used-motorcycles', \App\Livewire\Site\Bikes\UsedIndex::class)->name
 Route::get('/new-motorcycle/{id}', \App\Livewire\Site\Bikes\Show::class)->defaults('type', 'new')->name('new-motorcycle.detail');
 Route::get('/used-motorcycle/{id}', \App\Livewire\Site\Bikes\Show::class)->defaults('type', 'used')->name('detail.used-motorcycle');
 Route::get('/services', fn () => redirect('/repairs', 301))->name('services');
-Route::get('/motorcycles-for-sale', fn () => redirect('/bikes', 301))->name('motorcycles');
+Route::get('/motorcycles-for-sale', fn () => redirect('/motorbikes', 301))->name('motorcycles');
 Route::get('/motorcycles/new', fn () => redirect('/motorcycle-sales', 301))->name('motorcycles.new');
 Route::get('/motorcycles/used', fn () => redirect('/used-motorcycles', 301))->name('motorcycles.used');
 Route::get('/faqs', \App\Livewire\Site\Faq::class)->name('faqs');
@@ -428,11 +431,9 @@ Route::prefix('ngn-club')->group(function () {
 // NGN Partner
 Route::prefix('ngn-partner')->group(function () {
     Route::redirect('/', '/ngn-partner/subscribe');
-    Route::get('/subscribe', [NgnPartnerController::class, 'showSubscribePage'])->name('ngnpartner.subscribe');
-    Route::post('/subscribe', [NgnPartnerController::class, 'subscribe'])->name('ngnpartner.subscribe.submit');
-    Route::post('/send-verification-code', [NgnPartnerController::class, 'sendVerificationCode'])->name('ngnpartner.send-verification-code');
-    Route::get('/terms-and-conditions', [NgnPartnerController::class, 'showTermsPage'])->name('ngnpartner.terms');
-    Route::get('/thank-you', [NgnPartnerController::class, 'showThankYouPage'])->name('ngnpartner.thankyou');
+    Route::get('/subscribe', \App\Livewire\Site\Partner\Subscribe::class)->name('ngnpartner.subscribe');
+    Route::get('/terms-and-conditions', \App\Livewire\Site\Partner\Terms::class)->name('ngnpartner.terms');
+    Route::get('/thank-you', \App\Livewire\Site\Partner\Thankyou::class)->name('ngnpartner.thankyou');
 });
 
 // ============================================================

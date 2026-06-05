@@ -10,6 +10,8 @@ class CallBack extends Component
 {
     public $name = '';
 
+    public $email = '';
+
     public $phone = '';
 
     public $preferredTime = '';
@@ -19,22 +21,26 @@ class CallBack extends Component
     public function submitRequest(): void
     {
         $this->validate([
-            'name' => 'required|string|min:2',
-            'phone' => 'required|string|min:10',
+            'name'          => 'required|string|min:2',
+            'email'         => 'nullable|email|max:255',
+            'phone'         => 'required|string|min:10',
             'preferredTime' => 'required|string',
-            'message' => 'nullable|string|max:5000',
+            'message'       => 'nullable|string|max:5000',
         ]);
 
+        $replyTo = $this->email !== '' ? $this->email : config('mail.from.address', 'customerservice@neguinhomotors.co.uk');
         $toEmail = config('mail.from.address', 'customerservice@neguinhomotors.co.uk');
+
         $body = 'Call back request'."\n\n"
             .'Phone: '.$this->phone."\n"
+            .($this->email !== '' ? 'Email: '.$this->email."\n" : '')
             .'Preferred time: '.$this->preferredTime."\n\n"
             .'Message:'."\n".($this->message !== '' ? $this->message : '—');
 
         try {
             Mail::to($toEmail)->send(new ContactSubmission(
                 senderName: $this->name,
-                senderEmail: $toEmail,
+                senderEmail: $replyTo,
                 phone: $this->phone,
                 topic: 'Call back request',
                 messageBody: $body,
@@ -45,7 +51,7 @@ class CallBack extends Component
         }
 
         session()->flash('success', 'Callback request received. We\'ll call you shortly.');
-        $this->reset(['name', 'phone', 'preferredTime', 'message']);
+        $this->reset(['name', 'email', 'phone', 'preferredTime', 'message']);
     }
 
     public function render()

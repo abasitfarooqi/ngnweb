@@ -24,14 +24,16 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
             <div>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-5">What We Check</h2>
-                <ul class="space-y-3">
-                    @foreach(['Lights, signals & reflectors', 'Steering & suspension', 'Brakes & tyres', 'Exhaust & emissions', 'Frame & chassis', 'Registration plate & VIN'] as $check)
-                        <li class="flex items-start gap-2 text-gray-700 dark:text-gray-300 text-sm">
-                            <flux:icon name="check-circle" class="h-5 w-5 text-brand-red flex-shrink-0 mt-0.5" />
-                            {{ $check }}
-                        </li>
-                    @endforeach
-                </ul>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4">
+                    Our MOT tests cover all items required by DVSA. For the full official list of motorcycle MOT inspection items, visit the government guidance:
+                </p>
+                <a href="https://www.gov.uk/guidance/mot-testing-guide"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="inline-flex items-center gap-2 text-brand-red font-medium hover:underline text-sm">
+                    <flux:icon name="arrow-top-right-on-square" class="h-4 w-4" />
+                    Official MOT Testing Guide — gov.uk
+                </a>
             </div>
             <div>
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-5">MOT Test Price</h2>
@@ -43,7 +45,6 @@
                     <flux:callout.heading>What to Bring</flux:callout.heading>
                     <flux:callout.text class="text-xs space-y-1">
                         <p>• Valid insurance certificate</p>
-                        <p>• V5C registration document (if available)</p>
                         <p>• Previous MOT certificate (if applicable)</p>
                     </flux:callout.text>
                 </flux:callout>

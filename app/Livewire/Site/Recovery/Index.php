@@ -24,34 +24,32 @@ class Index extends Component
     protected function rules(): array
     {
         return [
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|max:255',
-            'phone' => 'required|string|max:30',
+            'name'        => 'required|string|max:255',
+            'email'       => 'required|email|max:255',
+            'phone'       => 'required|string|max:30',
             'fromAddress' => 'required|string|max:255',
-            'toAddress' => 'required|string|max:255',
-            'bikeReg' => 'required|string|max:20',
-            'message' => 'nullable|string|max:3000',
-            'terms' => 'accepted',
+            'toAddress'   => 'required|string|max:255',
+            'bikeReg'     => 'required|string|max:20',
+            'message'     => 'nullable|string|max:3000',
+            'terms'       => 'accepted',
         ];
     }
 
     public function mount(): void
     {
-        $defaultBranch = Branch::query()->orderBy('id')->first();
-        if ($defaultBranch) {
-            $this->branchId = (int) $defaultBranch->id;
-            $this->toAddress = (string) ($defaultBranch->address ?? $defaultBranch->name);
-        }
+        // No default branch — customers choose or enter a custom address
     }
 
     public function updatedBranchId($branchId): void
     {
-        $branch = Branch::query()->find($branchId);
-        if (! $branch) {
+        if (! $branchId) {
             return;
         }
 
-        $this->toAddress = trim((string) ($branch->address ?: $branch->name));
+        $branch = Branch::query()->find($branchId);
+        if ($branch) {
+            $this->toAddress = trim((string) ($branch->address ?: $branch->name));
+        }
     }
 
     public function submitRequest(): void

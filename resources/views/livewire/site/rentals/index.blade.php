@@ -3,7 +3,7 @@
 <div class="bg-gray-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Motorcycle Rentals in London</h1>
-        <p class="text-gray-300 text-lg mb-6">From £80/week · Honda & Yamaha 125cc · CBT friendly</p>
+        <p class="text-gray-300 text-lg mb-6">From £70/week · Honda & Yamaha 125cc · CBT friendly</p>
         <flux:button href="/contact" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
             Get a Quote
         </flux:button>

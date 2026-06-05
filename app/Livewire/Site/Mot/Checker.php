@@ -6,6 +6,7 @@ use App\Models\MotChecker;
 use App\Services\DvlaVehicleEnquiryService;
 use Carbon\Carbon;
 use Livewire\Component;
+use Livewire\Attributes\Computed;
 
 class Checker extends Component
 {
@@ -72,13 +73,45 @@ class Checker extends Component
                 ],
                 ['mot_due_date' => $motDueDate]
             );
+
+            // Send the user their MOT result by email
+            $subject = "MOT status for {$this->regNo}";
+            $body = "MOT status for: {$this->regNo}\n\n"
+                . ($this->motData['make'] ? "Make: {$this->motData['make']}\n" : '')
+                . "MOT status: {$this->motData['mot_status']}\n"
+                . "MOT expires: {$this->motData['mot_expiry']}\n"
+                . "Road tax status: {$this->motData['tax_status']}\n"
+                . ($this->motData['tax_due'] ? "Tax due: {$this->motData['tax_due']}\n" : '');
+
+            try {
+                \Illuminate\Support\Facades\Mail::to($email)->send(
+                    new \App\Mail\ContactSubmission(
+                        senderName: 'NGN Motors MOT Checker',
+                        senderEmail: config('mail.from.address', 'customerservice@neguinhomotors.co.uk'),
+                        phone: '',
+                        topic: $subject,
+                        messageBody: $body,
+                        branchName: '',
+                    )
+                );
+            } catch (\Throwable $e) {
+                report($e);
+            }
         }
 
         $this->dispatch('mot-checked', regNo: $this->regNo);
     }
 
+    public function isDvlaAvailable(): bool
+    {
+        $key = config('services.dvla.api_key');
+        return $key !== null && $key !== '';
+    }
+
     public function render()
     {
-        return view('livewire.site.mot.checker');
+        return view('livewire.site.mot.checker', [
+            'dvlaAvailable' => $this->isDvlaAvailable(),
+        ]);
     }
 }

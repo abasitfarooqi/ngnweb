@@ -25,11 +25,18 @@
                 <flux:error name="name" />
             </flux:field>
 
-            <flux:field>
-                <flux:label>Phone Number *</flux:label>
-                <flux:input wire:model="phone" type="tel" />
-                <flux:error name="phone" />
-            </flux:field>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <flux:field>
+                    <flux:label>Phone Number *</flux:label>
+                    <flux:input wire:model="phone" type="tel" />
+                    <flux:error name="phone" />
+                </flux:field>
+                <flux:field>
+                    <flux:label>Email (optional)</flux:label>
+                    <flux:input wire:model="email" type="email" placeholder="we'll reply here if provided" />
+                    <flux:error name="email" />
+                </flux:field>
+            </div>
 
             <flux:field>
                 <flux:label>Preferred Time *</flux:label>

@@ -67,16 +67,18 @@
                 </flux:field>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <flux:field>
-                        <flux:label>Destination Branch *</flux:label>
-                        <flux:select wire:model.live="branchId" variant="listbox" searchable placeholder="Choose branch">
+                        <flux:label>Destination Branch (optional)</flux:label>
+                        <flux:select wire:model.live="branchId" variant="listbox" searchable placeholder="— or enter address below —">
+                            <flux:select.option value="">Custom address</flux:select.option>
                             @foreach($branches as $branch)
                                 <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                             @endforeach
                         </flux:select>
+                        <flux:description>Select a branch or leave blank and type a custom address.</flux:description>
                     </flux:field>
                     <flux:field>
                         <flux:label>Destination Address *</flux:label>
-                        <flux:input wire:model="toAddress" placeholder="Branch address" />
+                        <flux:input wire:model="toAddress" placeholder="Branch or any address" />
                         <flux:error name="toAddress" />
                     </flux:field>
                 </div>
@@ -84,9 +86,23 @@
                     <flux:label>Describe the Problem</flux:label>
                     <flux:textarea wire:model="message" rows="3" />
                 </flux:field>
+                {{-- Terms & Conditions --}}
+                <div class="bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 p-4 text-sm text-gray-600 dark:text-gray-400">
+                    <p class="font-semibold text-gray-800 dark:text-gray-200 mb-2">Terms & Conditions</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>The recovery service is subject to availability and location.</li>
+                        <li>Payment must be made before or upon collection of the vehicle.</li>
+                        <li>We reserve the right to refuse service if the vehicle condition poses safety risks.</li>
+                        <li>You confirm that you are the legal owner or authorised representative for the vehicle.</li>
+                        <li>NGN is not liable for any pre-existing damage to the vehicle.</li>
+                        <li>Personal information will be handled in accordance with our privacy policy.</li>
+                        <li>Changes to terms may occur with notice.</li>
+                    </ul>
+                </div>
+
                 <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
                     <input type="checkbox" wire:model="terms" class="mt-1">
-                    <span>I agree to the recovery terms and confirm I am authorised for this motorcycle.</span>
+                    <span>I agree to the recovery terms and conditions above, and confirm I am authorised for this motorcycle.</span>
                 </label>
                 <flux:error name="terms" />
                 <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">

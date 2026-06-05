@@ -5,9 +5,7 @@
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
             <flux:badge color="green" class="mb-4 uppercase tracking-widest text-[10px]">New stock</flux:badge>
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Motorcycles for sale</h1>
-            <p class="mt-3 max-w-2xl text-sm md:text-base text-gray-300 leading-relaxed">
-                Same listings as <a href="{{ route('site.bikes') }}" class="text-white underline hover:text-brand-red">/bikes</a> — full photos, specifications and payment plan links.
-            </p>
+            
         </div>
     </section>
 

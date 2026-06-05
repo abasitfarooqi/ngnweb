@@ -29,7 +29,7 @@
                     <li><a href="/mot" class="hover:text-white transition">MOT Testing</a></li>
                     <li><a href="/repairs" class="hover:text-white transition">Repairs & Servicing</a></li>
                     <li><a href="{{ route('rental-hire') }}" class="hover:text-white transition">Motorcycle Rentals</a></li>
-                    <li><a href="/bikes" class="hover:text-white transition">Bikes For Sale</a></li>
+                    <li><a href="/motorbikes" class="hover:text-white transition">Motorbikes For Sale</a></li>
                     <li><a href="/finance" class="hover:text-white transition">Payment Plan</a></li>
                     <li><a href="/motorcycle-delivery" class="hover:text-white transition">Recovery & Delivery</a></li>
                     <li><a href="/shop" class="hover:text-white transition">Shop</a></li>
@@ -43,15 +43,20 @@
                 <div class="space-y-5 text-sm text-gray-400">
                     @foreach($branches as $branch)
                         @php
-                            $phone   = $branch->phone       ?? config('site.branches.' . strtolower($branch->name) . '.phone');
-                            $address = $branch->address     ?? config('site.branches.' . strtolower($branch->name) . '.address');
-                            $postcode= $branch->postal_code ?? config('site.branches.' . strtolower($branch->name) . '.postcode');
-                            $city    = $branch->city        ?? 'London';
+                            $key       = strtolower($branch->name);
+                            $phone     = $branch->phone       ?? config("site.branches.{$key}.phone");
+                            $address   = $branch->address     ?? config("site.branches.{$key}.address");
+                            $postcode  = $branch->postal_code ?? config("site.branches.{$key}.postcode");
+                            $city      = $branch->city        ?? 'London';
+                            $whatsapp  = config("site.branches.{$key}.whatsapp_link");
                         @endphp
                         <address class="not-italic">
                             <p class="font-bold text-white uppercase mb-1">{{ $branch->name }}</p>
-                            <p>{{ $address }}, {{ $city }} {{ $postcode }}</p>
+                            <p>{{ $address }}</p>
                             <a href="tel:{{ $phone }}" class="text-brand-red hover:text-red-300 transition block">{{ $phone }}</a>
+                            @if($whatsapp)
+                                <a href="{{ $whatsapp }}" target="_blank" rel="noopener" class="text-green-400 hover:text-green-300 transition block text-xs mt-0.5">WhatsApp</a>
+                            @endif
                         </address>
                     @endforeach
                 </div>

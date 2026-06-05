@@ -10,7 +10,7 @@
                 <span class="text-red-400">Repairs & Sales.</span>
             </h1>
             <p class="text-lg md:text-xl text-gray-300 mb-8">
-                Serving Catford, Tooting & Sutton. From daily commuters to full-service mechanics – we've got every rider covered.
+                Serving Catford, Tooting & Sutton. 
             </p>
             <div class="flex flex-wrap gap-3">
                 <flux:button
@@ -33,7 +33,7 @@
 @include('livewire.site.home.partials.mot-recovery-club')
 @include('livewire.site.home.partials.ebikes-home')
 
-{{-- Quick links: avoids duplicating recovery / club / rentals / MOT tiles above --}}
+{{-- Quick links: avoids duplicating recovery / club / rentals / MOT tiles above 
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <a href="{{ route('site.bikes') }}" class="relative group block overflow-hidden h-64 md:h-72 mb-4">
         <img src="{{ asset('images/for-sale.jpg') }}" alt="Motorcycles for sale" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105">
@@ -60,7 +60,7 @@
         @endforeach
     </div>
 </div>
-
+--}}
 @include('livewire.site.home.partials.repairs-services-home-grid')
 
 {{-- Motorcycle rentals: scroll-snap slider (touch + Flux controls), 3 cards per slide --}}
@@ -136,28 +136,34 @@
                 @endforeach
             </div>
 
-            {{-- Side arrows (desktop) --}}
-            <div class="pointer-events-none absolute inset-y-0 inset-x-0 z-[5] hidden md:block">
-                <div class="relative h-full w-full">
+            {{-- Improved Side arrows (desktop) with better Z-index and layout --}}
+            <div class="absolute top-1/2 left-0 right-0 z-30 flex justify-between items-center pointer-events-none hidden md:flex -translate-y-1/2">
+                <div class="flex-1 flex justify-start pointer-events-auto">
                     <flux:button
                         type="button"
                         variant="filled"
-                        class="pointer-events-auto absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 z-10 h-11 w-11 min-w-11 p-0 bg-white/95 text-gray-900 ring-1 ring-gray-200 shadow-lg hover:bg-white dark:bg-gray-800 dark:text-white dark:ring-gray-600 opacity-90 hover:opacity-100 disabled:opacity-40 disabled:pointer-events-none"
+                        class="z-30 h-12 w-12 min-w-12 p-0 bg-white/95 text-gray-900 ring-1 ring-gray-200 shadow-lg hover:bg-white dark:bg-gray-800 dark:text-white dark:ring-gray-600 opacity-90 hover:opacity-100 flex items-center justify-center
+                            disabled:opacity-70 disabled:bg-gray-200 disabled:dark:bg-gray-700 disabled:text-gray-400 disabled:dark:text-gray-500 disabled:pointer-events-none"
                         x-bind:disabled="atStart"
                         @click="step(-1)"
                         aria-label="Previous rental models"
+                        style="box-shadow:0 2px 12px rgba(0,0,0,0.12);"
                     >
-                        <flux:icon name="chevron-left" class="size-5 mx-auto" />
+                        <flux:icon name="chevron-left" class="size-6 mx-auto" />
                     </flux:button>
+                </div>
+                <div class="flex-1 flex justify-end pointer-events-auto">
                     <flux:button
                         type="button"
                         variant="filled"
-                        class="pointer-events-auto absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 z-10 h-11 w-11 min-w-11 p-0 bg-white/95 text-gray-900 ring-1 ring-gray-200 shadow-lg hover:bg-white dark:bg-gray-800 dark:text-white dark:ring-gray-600 opacity-90 hover:opacity-100 disabled:opacity-40 disabled:pointer-events-none"
+                        class="z-30 h-12 w-12 min-w-12 p-0 bg-white/95 text-gray-900 ring-1 ring-gray-200 shadow-lg hover:bg-white dark:bg-gray-800 dark:text-white dark:ring-gray-600 opacity-90 hover:opacity-100 flex items-center justify-center
+                            disabled:opacity-70 disabled:bg-gray-200 disabled:dark:bg-gray-700 disabled:text-gray-400 disabled:dark:text-gray-500 disabled:pointer-events-none"
                         x-bind:disabled="atEnd"
                         @click="step(1)"
                         aria-label="Next rental models"
+                        style="box-shadow:0 2px 12px rgba(0,0,0,0.12);"
                     >
-                        <flux:icon name="chevron-right" class="size-5 mx-auto" />
+                        <flux:icon name="chevron-right" class="size-6 mx-auto" />
                     </flux:button>
                 </div>
             </div>
@@ -169,13 +175,20 @@
                             type="button"
                             role="tab"
                             :aria-selected="index === {{ $si }}"
-                            :class="index === {{ $si }} ? 'bg-brand-red w-8' : 'bg-gray-300 dark:bg-gray-600 w-6 hover:bg-gray-400 dark:hover:bg-gray-500'"
+                            :class="[
+                                index === {{ $si }}
+                                    ? 'bg-brand-red w-8'
+                                    : 'bg-gray-300 dark:bg-gray-600 w-6 hover:bg-gray-400 dark:hover:bg-gray-500',
+                                (index === {{ $si }}) ? '' : 'disabled:bg-gray-200 disabled:dark:bg-gray-700 disabled:opacity-60'
+                            ]"
                             class="h-1 max-w-8 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                             aria-label="Go to slide {{ $si + 1 }}"
                             @click="goTo({{ $si }})"
+                            :disabled="index === {{ $si }}"
                         ></button>
                     @endforeach
                 </div>
+           
                 <div class="flex md:hidden items-center justify-center gap-3">
                     <flux:button type="button" variant="outline" size="sm" class="min-w-[7rem] disabled:opacity-40" x-bind:disabled="atStart" @click="step(-1)">Previous</flux:button>
                     <flux:button type="button" variant="outline" size="sm" class="min-w-[7rem] disabled:opacity-40" x-bind:disabled="atEnd" @click="step(1)">Next</flux:button>
@@ -195,7 +208,7 @@
                 <flux:badge color="red" class="mb-3 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
                 <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Used motorcycles</h2>
                 <p class="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
-                    A sample of our current used bikes. Same listings as our full used showroom.
+                    current used motorcycles. Same listings as our full used showroom.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2 shrink-0">
@@ -335,7 +348,8 @@
         <h2 class="text-3xl md:text-4xl font-semibold mb-6 tracking-tight">About NGN</h2>
         <div class="text-sm md:text-base text-gray-300 leading-relaxed space-y-4 text-left md:text-center">
             <p>
-                Incorporated in October 2018, NGN is specialise in <strong class="text-white">motorcycle rentals</strong>, <strong class="text-white">MOT services</strong>, sales, <strong class="text-white">spare parts</strong>, <strong class="text-white">maintenance</strong>, and <strong class="text-white">repair services</strong>, offering a wide range of motorcycle accessories in <strong class="text-white">London</strong>, <strong class="text-white">Catford</strong>, <strong class="text-white">Tooting</strong>, and <strong class="text-white">Sutton</strong>. Our mission is to keep your motorcycle roadworthy and performing at its best.
+                Incorporated in October 2018, NGN specializes in <strong class="text-white">motorcycle rentals</strong>, <strong class="text-white">MOT services</strong>, sales, <strong class="text-white">spare parts</strong>, <strong class="text-white">maintenance</strong>, and <strong class="text-white">repair services</strong>. We offer a wide range of motorcycle accessories in <strong class="text-white">London</strong>, <strong class="text-white">Catford</strong>, <strong class="text-white">Tooting</strong>, and <strong class="text-white">Sutton</strong>. Our mission is to keep your motorcycle roadworthy and performing at its best.
+           
             </p>
             <p>
                 Whether you need quality motorcycle rentals or expert repairs, we are here to provide top-notch motorcycling solutions and exceptional customer support. Our commitment to excellence ensures that every rider receives the best possible service, making NGN the go-to destination for all your motorcycle needs.

@@ -212,7 +212,7 @@
                     <flux:icon name="key" class="h-5 w-5 text-brand-red" />
                     <h3 class="font-semibold text-gray-900 dark:text-white group-hover:text-brand-red">Motorcycle Rentals</h3>
                 </div>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Replacement bike from £80/week while your claim is processed.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Replacement bike from £70/week while your claim is processed.</p>
             </a>
         </div>
     </div>

@@ -27,18 +27,17 @@
                     <flux:error name="name" />
                 </flux:field>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <flux:field>
-                        <flux:label>Email *</flux:label>
-                        <flux:input wire:model="email" type="email" />
-                        <flux:error name="email" />
-                    </flux:field>
-                    <flux:field>
-                        <flux:label>Phone *</flux:label>
-                        <flux:input wire:model="phone" type="tel" />
-                        <flux:error name="phone" />
-                    </flux:field>
-                </div>
+                <flux:field>
+                    <flux:label>Email *</flux:label>
+                    <flux:input wire:model="email" type="email" />
+                    <flux:error name="email" />
+                </flux:field>
+
+                <flux:field>
+                    <flux:label>Phone *</flux:label>
+                    <flux:input wire:model="phone" type="tel" />
+                    <flux:error name="phone" />
+                </flux:field>
 
                 <flux:field>
                     <flux:label>Preferred Branch</flux:label>

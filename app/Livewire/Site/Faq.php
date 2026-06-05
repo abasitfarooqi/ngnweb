@@ -17,7 +17,7 @@ class Faq extends Component
         [
             'category' => 'Rentals',
             'q' => 'How much is the weekly rental price?',
-            'a' => 'Rental prices start from £80/week for 125cc motorcycles. The exact price depends on the model. You can see live pricing on our Rentals page or contact any branch.',
+            'a' => 'Rental prices start from £70/week for 125cc motorcycles. The exact price depends on the model. You can see live pricing on our Rentals page or contact any branch.',
         ],
         [
             'category' => 'Rentals',

@@ -150,12 +150,13 @@
                                                         <h6 class="title">Requirements for Rental</h6>
                                                         <ul class="list-unstyled mb-3">
                                                             <li>- Driving licence</li>
-                                                            <li>- Proof of address</li>
-                                                            <li>- Proof of identification</li>
-                                                            <li>- Insurance certification</li>
-                                                            <li>- CBT certification</li>
-                                                            <li>- £300 deposit</li>
-                                                            <li>- 1 week rent</li>
+                    <li>- CBT</li>
+                    <li>- Driving Licence Summary</li>
+                    <li>- Proof of address</li>
+                    <li>- Proof of identification</li>
+                    <li>- Proof of Insurance</li>
+                    <li>- £200 deposit</li>
+                    <li>- 6 weeks minimum rental period</li>
                                                         </ul>
                                                         <p class="mb-3">
                                                             You need to bring a lock and chain before collecting the

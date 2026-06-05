@@ -20,8 +20,8 @@ class Index extends Component
     {
         return view('livewire.site.rentals.index')
             ->layout('components.layouts.public', [
-                'title' => 'Motorcycle Rentals in London | From £80/Week | NGN Motors',
-                'description' => 'Rent a motorcycle in London from £80/week. Honda & Yamaha 125cc. CBT friendly.',
+                'title' => 'Motorcycle Rentals in London | From £70/week | NGN Motors',
+                'description' => 'Rent a motorcycle in London from £70/week. Honda & Yamaha 125cc. CBT friendly.',
             ]);
     }
 }

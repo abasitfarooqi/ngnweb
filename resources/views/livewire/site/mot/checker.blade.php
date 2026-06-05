@@ -2,6 +2,11 @@
     <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Check Your MOT Status</h3>
     <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Enter your registration to check when your MOT expires.</p>
 
+@if(!$dvlaAvailable)
+    <flux:callout variant="warning" icon="exclamation-triangle">
+        <flux:callout.text>The MOT checker is temporarily unavailable. Please <a href="/contact" class="underline">contact us</a> for assistance.</flux:callout.text>
+    </flux:callout>
+@else
     <form wire:submit="checkMOT" class="space-y-4">
         <flux:field>
             <flux:label>Registration number</flux:label>
@@ -47,4 +52,5 @@
             <flux:callout.text>{{ $error }}</flux:callout.text>
         </flux:callout>
     @endif
+@endif
 </div>

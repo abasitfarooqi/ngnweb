@@ -30,10 +30,10 @@
         <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-10 text-center">What We Do</h2>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach([
-                ['icon'=>'clock',            'title'=>'Motorcycle Rentals',   'text'=>'Daily, weekly & monthly rentals. Honda & Yamaha 125cc. CBT friendly. From £80/week.', 'url'=>'/rentals'],
+                ['icon'=>'clock',            'title'=>'Motorcycle Rentals',   'text'=>'Daily, weekly & monthly rentals. Honda & Yamaha 125cc. CBT friendly. From £70/week.', 'url'=>'/rentals'],
                 ['icon'=>'check-badge',      'title'=>'MOT Testing',          'text'=>'DVSA-approved MOT testing for motorcycles, mopeds & scooters. From £29.65.', 'url'=>'/mot'],
                 ['icon'=>'wrench-screwdriver','title'=>'Repairs & Servicing', 'text'=>'Full workshop repairs, basic & major services, accident damage, brake & tyre work.', 'url'=>'/repairs'],
-                ['icon'=>'shopping-bag',     'title'=>'Sales',                'text'=>'New and used motorcycles from trusted brands. Payment plan options available.', 'url'=>'/bikes'],
+                ['icon'=>'shopping-bag',     'title'=>'Sales',                'text'=>'New and used motorcycles from trusted brands. Payment plan options available.', 'url'=>'/motorbikes'],
                 ['icon'=>'banknotes',        'title'=>'Payment Plan',         'text'=>'Flexible payment plans to help you buy your dream bike. Competitive rates.', 'url'=>'/finance'],
                 ['icon'=>'bolt',             'title'=>'Recovery',             'text'=>'24/7 motorcycle recovery, breakdown assistance and delivery across London.', 'url'=>'/recovery'],
             ] as $item)

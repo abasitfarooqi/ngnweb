@@ -4,7 +4,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <flux:breadcrumbs>
             <flux:breadcrumbs.item href="/">Home</flux:breadcrumbs.item>
-            <flux:breadcrumbs.item href="/bikes">Bikes</flux:breadcrumbs.item>
+            <flux:breadcrumbs.item href="/motorbikes">Motorbikes</flux:breadcrumbs.item>
             <flux:breadcrumbs.item>{{ $bike->make }} {{ $bike->model }}</flux:breadcrumbs.item>
         </flux:breadcrumbs>
     </div>
