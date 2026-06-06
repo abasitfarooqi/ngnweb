@@ -45,6 +45,19 @@ class Index extends Component
     public function mount(): void
     {
         $this->branches = Branch::orderBy('name')->get();
+
+        $allowed = ['Basic Service', 'Major Service', 'Repairs / diagnostics', 'MOT', 'Other'];
+        $service = request()->query('service', '');
+        if (in_array($service, $allowed, true)) {
+            $this->selectedService = $service;
+        }
+    }
+
+    public function rendered(): void
+    {
+        if (request()->has('service') || request()->fragment() === 'enquiry') {
+            $this->js("document.getElementById('enquiry')?.scrollIntoView({ behavior: 'smooth', block: 'start' })");
+        }
     }
 
     public function submitEnquiry(): void

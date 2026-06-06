@@ -3,7 +3,7 @@
 <div class="bg-gray-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl font-bold mb-2">Book Your MOT Test</h1>
-        <p class="text-gray-300">Quick, reliable MOT testing at all our London branches</p>
+        <p class="text-gray-300">MOT testing at our Catford branch</p>
     </div>
 </div>
 
@@ -21,12 +21,16 @@
         <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="space-y-5">
 
             <flux:field>
-                <flux:label>Select Branch *</flux:label>
-                <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch…">
-                    @foreach($branches as $branch)
-                        <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <flux:label>Branch</flux:label>
+                @if($branches->count() === 1)
+                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 py-2">{{ $branches->first()->name }}</p>
+                @else
+                    <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch…">
+                        @foreach($branches as $branch)
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                @endif
                 <flux:error name="selectedBranch" />
             </flux:field>
 

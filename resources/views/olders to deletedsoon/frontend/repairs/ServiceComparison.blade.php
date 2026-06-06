@@ -83,15 +83,15 @@
                         <h4 class="active-color mb-3">Brakes</h4>
                         <ul class="feature-list">
                             <li class="included">Brake Check Inspection</li>
-                            <li class="included">Brake Fluid Check & Top-up</li>
+                            <li class="included">Brake Fluid Top Up & Replacement (if necessary)</li>
                             <li class="included">Brake Operation Test</li>
-                            <li class="excluded">Brake Pads/Discs Inspection</li>
-                            <li class="excluded">Brake Fluid Replacement</li>
-                            <li class="excluded">Brake Calipers Inspection & Cleaning</li>
+                            <li class="included">Brake Pads/Discs Inspection</li>
+                            <li class="included">Brake Calipers Inspection & Cleaning</li>
                         </ul>
                     </div>
+               
 
-                    <!-- 4. Tires & Wheels -->
+                    <!-- 4. tyre & Wheels -->
                     <div class="service-category mb-4">
                         <h4 class="active-color mb-3">Tires &amp; Wheels</h4>
                         <ul class="feature-list">
@@ -253,7 +253,7 @@
                         </ul>
                     </div>
 
-                    <!-- 4. Tires & Wheels -->
+                    <!-- 4. tyre & Wheels -->
                     <div class="service-category mb-4">
                         <h4 class="active-color mb-3">Tires &amp; Wheels</h4>
                         <ul class="feature-list">
@@ -263,17 +263,7 @@
                         </ul>
                     </div>
 
-                    <!-- 5. Chain/Drive Belt -->
-                    <div class="service-category mb-4">
-                        <h4 class="active-color mb-3">Chain/Drive Belt</h4>
-                        <ul class="feature-list">
-                            <li class="included">Chain Lubrication</li>
-                            <li class="included">Chain Check & Adjustment for Proper Operation</li>
-                            <!-- <li class="included">Chain Cleaning, Lubrication & Adjustment</li> -->
-                            <li class="included">Drive Belt Inspection</li>
-                            <li class="included">Drive Belt Wear Check</li>
-                        </ul>
-                    </div>
+                    
 
                     <!-- 5. Suspension & Steering -->
                     <div class="service-category mb-4">
@@ -293,7 +283,7 @@
                             <li class="included">Lights Checking & Inspection</li>
                             <li class="included">Battery Check</li>
                             <li class="included">Horn Test</li>
-                            <li class="included">Wiring Inspection</li>
+                            
                         </ul>
                     </div>
 

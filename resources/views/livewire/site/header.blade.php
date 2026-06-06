@@ -22,7 +22,7 @@
                 <a href="https://wa.me/447951790568?text=Hello%20NGN" target="_blank" rel="noopener" class="hover:text-white transition whitespace-nowrap">WhatsApp</a>
             </div>
             <div class="flex items-center gap-4 flex-shrink-0">
-                <span class="whitespace-nowrap">{{ config('site.hours', 'Mon–Sat 9am–6pm') }}</span>
+                <span class="whitespace-nowrap">{{ config('site.hours', 'Mon–Fri 9am–6pm · Sat 9am–3:45pm · Sun Closed') }}</span>
                 <a href="/career" class="hover:text-white transition">Careers</a>
             </div>
         </div>

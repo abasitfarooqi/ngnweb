@@ -98,7 +98,7 @@
             <div class="card repair-card h-100">
                 <div class="card-body">
                     <h3 class="active-color card-title">
-                        <i class="fas fa-tire me-2 text-primary"></i>
+                        <i class="fas fa-Tyre me-2 text-primary"></i>
                         Tyre Replacement & Puncture Repairs
                     </h3>
                     <p>Keep your ride smooth and safe with our tyre services.</p>

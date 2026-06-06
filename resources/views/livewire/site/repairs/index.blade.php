@@ -115,7 +115,7 @@
     </flux:card>
 
     <flux:callout variant="info" icon="map-pin" class="mb-12">
-        <flux:callout.text><span class="font-semibold text-gray-900 dark:text-white">Full service (major) package</span> — For the complete checklist including suspension, cooling, exhaust and optional test ride, open <a href="{{ route('site.repairs.full') }}" class="text-brand-red font-semibold underline underline-offset-2">full service details</a> or the <a href="{{ route('site.repairs.comparison') }}" class="text-brand-red font-semibold underline underline-offset-2">side-by-side comparison</a>.</flux:callout.text>
+        <flux:callout.text><span class="font-semibold text-gray-900 dark:text-white">major service (major) package</span> — For the complete checklist including suspension, cooling, exhaust and optional test ride, open <a href="{{ route('site.repairs.full') }}" class="text-brand-red font-semibold underline underline-offset-2">major service details</a> or the <a href="{{ route('site.repairs.comparison') }}" class="text-brand-red font-semibold underline underline-offset-2">side-by-side comparison</a>.</flux:callout.text>
     </flux:callout>
 
     <x-site.repairs.branches-cta-dark
@@ -124,7 +124,7 @@
     />
 
     {{-- Enquiry form --}}
-    <div class="mt-14 max-w-3xl mx-auto">
+        <div id="enquiry" class="mt-14 max-w-3xl mx-auto repairs-enquiry-form">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Book a Repair or Service</h2>
 
         @if(session('success'))
@@ -133,7 +133,7 @@
             </flux:callout>
         @endif
 
-        <flux:card class="p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
+        <flux:card class="p-6 md:p-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
             <form wire:key="repairs-index-enquiry-{{ $formNonce }}" wire:submit="submitEnquiry" class="space-y-4">
                 <flux:field>
                     <flux:label>Service type *</flux:label>
@@ -199,11 +199,24 @@
                     <flux:error name="description" />
                 </flux:field>
 
-                <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
-                    Submit enquiry
+                <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled">
+                    <span wire:loading.remove wire:target="submitEnquiry">Submit enquiry</span>
+                    <span wire:loading wire:target="submitEnquiry">Submitting…</span>
                 </flux:button>
             </form>
         </flux:card>
     </div>
 </div>
+
+<style>
+    .repairs-enquiry-form:not(.dark *) [data-flux-control],
+    html:not(.dark) .repairs-enquiry-form [data-flux-control] {
+        border-color: rgb(209 213 219) !important;
+        background-color: #fff !important;
+        color: rgb(17 24 39);
+    }
+    html:not(.dark) .repairs-enquiry-form [data-flux-label] {
+        color: rgb(55 65 81);
+    }
+</style>
 </div>

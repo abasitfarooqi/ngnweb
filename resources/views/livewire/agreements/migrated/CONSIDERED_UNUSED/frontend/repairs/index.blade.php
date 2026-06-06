@@ -68,11 +68,11 @@
                         </li>
                         <li class="mb-4">
                             <h5 class="active-color">
-                                <!-- <i class="fas fa-tire me-2"></i> -->
-                            Tires and Wheels</h5>
+                                <!-- <i class="fas fa-Tyre me-2"></i> -->
+                            Tyres and Wheels</h5>
                             <ul style="list-style-type: none;padding: 0 0px;font-weight: bold;">
-                                <li>Tire Pressure Check</li>
-                                <li>Tire Condition Inspection</li>
+                                <li>Tyre Pressure Check</li>
+                                <li>Tyre Condition Inspection</li>
                             </ul>
                         </li>
                     </ul>

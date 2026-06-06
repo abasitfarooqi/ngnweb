@@ -48,7 +48,7 @@
             Book your basic service
         </flux:button>
         <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" class="justify-center border-slate-300 dark:border-gray-600">
-            Compare with full service
+            Compare with Major Service
         </flux:button>
         <flux:button href="{{ route('site.repairs') }}" variant="outline" class="justify-center border-slate-300 dark:border-gray-600">
             Repairs hub

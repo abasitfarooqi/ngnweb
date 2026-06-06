@@ -35,7 +35,7 @@
         <li class="included">Wheel Bearings Check</li>
     </ul>
 </div>
-<div class="svc-cat">
+<!-- <div class="svc-cat">
     <h4 class="text-brand-red font-bold mb-3">Chain/Drive Belt</h4>
     <ul class="feature-list">
         <li class="included">Chain Lubrication</li>
@@ -43,7 +43,7 @@
         <li class="included">Drive Belt Inspection</li>
         <li class="included">Drive Belt Wear Check</li>
     </ul>
-</div>
+</div> -->
 <div class="svc-cat">
     <h4 class="text-brand-red font-bold mb-3">Suspension & Steering</h4>
     <ul class="feature-list">
@@ -58,7 +58,7 @@
         <li class="included">Lights Checking & Inspection</li>
         <li class="included">Battery Check</li>
         <li class="included">Horn Test</li>
-        <li class="included">Wiring Inspection</li>
+        
     </ul>
 </div>
 <div class="svc-cat">

@@ -41,13 +41,15 @@
                 <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-3">Requirements for rental</h2>
                 <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300 list-disc pl-5">
                     <li>Driving licence</li>
+                    <li>CBT</li>
+                    <li>Driving Licence Summary</li>
                     <li>Proof of address</li>
                     <li>Proof of identification</li>
-                    <li>Insurance certification</li>
-                    <li>CBT certification</li>
-                    <li>£300 deposit</li>
+                    <li>Proof of Insurance</li>
+                    <li>£200 deposit</li>
                     <li>6 weeks minimum rental period</li>
                 </ul>
+           
             </div>
 
             <div class="text-sm text-gray-700 dark:text-gray-300 space-y-3 border-t border-gray-200 dark:border-gray-700 pt-4">

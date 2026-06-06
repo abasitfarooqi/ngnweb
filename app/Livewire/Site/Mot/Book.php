@@ -45,7 +45,10 @@ class Book extends Component
 
     public function mount()
     {
-        $this->branches = Branch::orderBy('name')->get();
+        $this->branches = Branch::where('name', 'like', '%Catford%')->get();
+        if ($catford = $this->branches->first()) {
+            $this->selectedBranch = (string) $catford->id;
+        }
     }
 
     public function submitBooking()
@@ -89,7 +92,6 @@ class Book extends Component
         session()->flash('success', 'MOT booking request received! We will contact you shortly to confirm.');
         $this->resetValidation();
         $this->reset([
-            'selectedBranch',
             'regNo',
             'make',
             'model',
@@ -100,6 +102,9 @@ class Book extends Component
             'preferredTime',
             'notes',
         ]);
+        if ($catford = $this->branches->first()) {
+            $this->selectedBranch = (string) $catford->id;
+        }
         $this->formNonce++;
     }
 

@@ -44,16 +44,16 @@
                     @foreach($branches as $branch)
                         @php
                             $key       = strtolower($branch->name);
-                            $phone     = $branch->phone       ?? config("site.branches.{$key}.phone");
-                            $address   = $branch->address     ?? config("site.branches.{$key}.address");
-                            $postcode  = $branch->postal_code ?? config("site.branches.{$key}.postcode");
-                            $city      = $branch->city        ?? 'London';
+                            $phone     = config("site.branches.{$key}.phone") ?? $branch->phone ?? '';
+                            $address   = config("site.branches.{$key}.address") ?? $branch->address ?? '';
                             $whatsapp  = config("site.branches.{$key}.whatsapp_link");
                         @endphp
                         <address class="not-italic">
                             <p class="font-bold text-white uppercase mb-1">{{ $branch->name }}</p>
                             <p>{{ $address }}</p>
-                            <a href="tel:{{ $phone }}" class="text-brand-red hover:text-red-300 transition block">{{ $phone }}</a>
+                            @if($phone)
+                                <a href="tel:{{ preg_replace('/\s+/', '', $phone) }}" class="text-brand-red hover:text-red-300 transition block">{{ $phone }}</a>
+                            @endif
                             @if($whatsapp)
                                 <a href="{{ $whatsapp }}" target="_blank" rel="noopener" class="text-green-400 hover:text-green-300 transition block text-xs mt-0.5">WhatsApp</a>
                             @endif
@@ -119,6 +119,7 @@
                 <x-theme-toggle-icon variant="footer" />
             </div>
             <p class="mb-1">&copy; {{ date('Y') }} Neguinho Motors Limited – All Rights Reserved</p>
+            <p class="mb-1">{{ config('site.hours') }}</p>
             <p>Registered Company: NEGUINHO MOTORS LTD | Company No: 11600635 | Registered: 9–13 Catford Hill, London SE6 4NU</p>
             <p class="mt-1">Customer Service: <a href="mailto:enquiries@neguinhomotors.co.uk" class="hover:text-gray-300">enquiries@neguinhomotors.co.uk</a> | 0208 314 1498</p>
         </div>

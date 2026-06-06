@@ -40,8 +40,14 @@
                     @endphp
                     <flux:table.row wire:key="rcr-{{ $o->id }}">
                         <flux:table.cell>
-                            <div class="text-zinc-900 dark:text-white font-medium">{{ $customer?->first_name }} {{ $customer?->last_name }}</div>
-                            <div class="text-xs text-zinc-500">{{ $customer?->email }}</div>
+                            @if($customer)
+                                <a href="{{ route('flux-admin.customers.show', $customer->id) }}" class="group block hover:underline">
+                                    <div class="text-zinc-900 dark:text-white font-medium group-hover:text-brand-red">{{ $customer->first_name }} {{ $customer->last_name }}</div>
+                                    <div class="text-xs text-zinc-500">{{ $customer->email }}</div>
+                                </a>
+                            @else
+                                <span class="text-zinc-400">—</span>
+                            @endif
                         </flux:table.cell>
                         <flux:table.cell>
                             <span class="inline-flex items-center px-2 py-0.5 text-xs font-medium {{ $o->is_onboarded ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200' : 'bg-zinc-100 dark:bg-zinc-900/30 text-zinc-800 dark:text-zinc-200' }}">

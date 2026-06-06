@@ -34,17 +34,18 @@
                 <div class="text-center mb-4 mt-6">
                     <span class="inline-block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/60">Recommended Every 6,000 Miles</span>
                 </div>
-                <flux:button href="{{ route('site.repairs.basic') }}" variant="filled" class="w-full justify-center bg-brand-red text-white hover:bg-brand-red-dark">
-                    Choose basic service
-                </flux:button>
+                <a href="{{ route('site.repairs') }}?service=Basic+Service#enquiry"
+                   class="block w-full text-center py-2.5 px-4 bg-brand-red text-white font-semibold hover:bg-red-700 transition">
+                    Choose Basic Service &amp; Book
+                </a>
             </div>
         </div>
 
         {{-- Full (major) service package --}}
         <div class="relative border-2 border-emerald-600 dark:border-emerald-500 bg-white dark:bg-gray-800 shadow-md overflow-hidden">
-            <div class="absolute top-0 right-5 -translate-y-1/2 z-10 bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 uppercase tracking-wide">Recommended</div>
+            <div class="absolute top-4 right-4 z-10 bg-emerald-600 text-white text-xs font-bold px-4 py-1.5 uppercase tracking-wide">Recommended</div>
             <div class="bg-emerald-700 text-white text-center py-6">
-                <h2 class="text-2xl font-bold mb-0">Full Service</h2>
+                <h2 class="text-2xl font-bold mb-0">Major Service</h2>
                 <p class="mb-0 mt-2 text-sm text-emerald-100">Complete Care Package</p>
                 <div class="mt-3">
                     <span class="inline-block text-xs font-medium px-3 py-1 bg-white text-emerald-700">Comprehensive Maintenance</span>
@@ -55,18 +56,19 @@
                 <div class="text-center mb-4 mt-6">
                     <span class="inline-block px-4 py-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-100 dark:bg-gray-900/60">Recommended Every 12,000 Miles</span>
                 </div>
-                <flux:button href="{{ route('site.repairs.full') }}" variant="filled" class="w-full justify-center bg-emerald-700 text-white hover:bg-emerald-800">
-                    Choose full service
-                </flux:button>
+                <a href="{{ route('site.repairs') }}?service=Major+Service#enquiry"
+                   class="block w-full text-center py-2.5 px-4 bg-emerald-700 text-white font-semibold hover:bg-emerald-800 transition">
+                    Choose Major Service &amp; Book
+                </a>
             </div>
         </div>
     </div>
 
     <flux:callout variant="info" icon="information-circle" class="mt-12 max-w-3xl mx-auto">
-        <flux:callout.text>Looking for MOT, delivery, sales, rental or payment plans? Open the <a href="{{ route('all-services') }}" class="font-semibold text-brand-red underline underline-offset-2">full services overview</a> or the <a href="{{ route('site.repairs') }}" class="font-semibold text-brand-red underline underline-offset-2">repairs hub</a>.</flux:callout.text>
+        <flux:callout.text>Looking for MOT, delivery, sales, rental or payment plans? Open the <a href="{{ route('all-services') }}" class="font-semibold text-brand-red underline underline-offset-2">major services overview</a> or the <a href="{{ route('site.repairs') }}" class="font-semibold text-brand-red underline underline-offset-2">repairs hub</a>.</flux:callout.text>
     </flux:callout>
 
-    <x-site.repairs.branches-cta-dark heading="Questions about which package to book?" intro="Call any branch — we will talk you through basic versus full service and availability." />
+    <x-site.repairs.branches-cta-dark heading="Questions about which package to book?" intro="Call any branch — we will talk you through basic versus major service and availability." />
 </div>
 
 <style>

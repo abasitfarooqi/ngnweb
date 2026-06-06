@@ -117,7 +117,7 @@
 
                             <!-- <i class="fas fa-tire me-2 text-primary"></i> -->
 
-                            Tires & Wheels
+                            tyre & Wheels
                         </h3>
                         <ul style="padding: 0 0px;font-weight: bold;" class="list-group list-group-flush">
                             <li class="list-group-item">

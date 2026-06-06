@@ -109,22 +109,22 @@
                 </div>
             </div>
 
-            <!-- Tires and Wheels -->
+            <!-- Tyres and Wheels -->
             <div class="col-md-6 col-lg-4">
                 <div class="card repair-card h-100">
                     <div class="card-body">
                         <h3 class=" active-color card-title">
 
-                            <!-- <i class="fas fa-tire me-2 text-primary"></i> -->
+                            <!-- <i class="fas fa-Tyre me-2 text-primary"></i> -->
 
-                            Tires & Wheels
+                            tyre & Wheels
                         </h3>
                         <ul style="padding: 0 0px;font-weight: bold;" class="list-group list-group-flush">
                             <li class="list-group-item">
 
                                 <!-- <i class="fas fa-check text-success me-2"></i> -->
 
-                                Tire Pressure Check & Adjustment
+                                Tyre Pressure Check & Adjustment
                             </li>
                             <li class="list-group-item">
 

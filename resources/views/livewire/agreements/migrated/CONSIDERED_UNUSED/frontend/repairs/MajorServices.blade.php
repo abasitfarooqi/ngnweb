@@ -243,14 +243,14 @@
 
                             <!-- <i class="fas fa-circle me-2 text-primary"></i> -->
 
-                            Wheels & Tires
+                            Wheels & Tyre
                         </h3>
                         <ul style="padding: 0 0px;font-weight: bold;" class="list-group list-group-flush">
                             <li class="list-group-item">
 
                                 <!-- <i class="fas fa-check text-success me-2"></i> -->
 
-                                Tire Condition Check
+                                Tyre Condition Check
                             </li>
                             <li class="list-group-item">
 

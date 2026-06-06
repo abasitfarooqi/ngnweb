@@ -63,8 +63,8 @@
     </flux:card>
 
     <div class="mt-10 flex flex-col sm:flex-row flex-wrap gap-3 justify-center">
-        <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Full Service']) }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark justify-center">
-            Book your full service
+        <flux:button href="{{ route('site.contact.service-booking', ['service' => 'Motorcycle Major Service']) }}" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark justify-center">
+            Book your major service
         </flux:button>
         <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" class="justify-center border-slate-300 dark:border-gray-600">
             Compare service packages
@@ -78,7 +78,7 @@
     </div>
 
     <x-site.repairs.branches-cta-dark
-        heading="Book your full service today"
+        heading="Book your major service today"
         intro="Keep your motorcycle performing at its best with our comprehensive full (major) service package."
     />
 </div>
