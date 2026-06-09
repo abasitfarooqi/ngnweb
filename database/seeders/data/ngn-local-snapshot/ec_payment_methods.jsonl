@@ -1,0 +1,3 @@
+{"id":1,"title":"No Payment Method","slug":"no-payment-method","logo":"-","link_url":"-","instructions":"-","is_enabled":0,"created_at":null,"updated_at":null}
+{"id":2,"title":"Pay On Store","slug":"pay-on-store","logo":"-","link_url":"-","instructions":"-","is_enabled":0,"created_at":null,"updated_at":null}
+{"id":3,"title":"Paypal","slug":"paypal","logo":"-","link_url":"-","instructions":"-","is_enabled":1,"created_at":null,"updated_at":null}

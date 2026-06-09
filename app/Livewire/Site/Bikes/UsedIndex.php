@@ -2,65 +2,71 @@
 
 namespace App\Livewire\Site\Bikes;
 
-use App\Models\Motorbike;
 use App\Models\Motorcycle;
+use App\Support\UsedMotorbikeListing;
+use Illuminate\Support\Collection;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 class UsedIndex extends Component
 {
+    private const PER_PAGE = 12;
+
+    #[Url(except: '')]
     public string $search = '';
 
+    #[Url(except: 'default')]
     public string $sort = 'default';
 
+    #[Url(except: 'available')]
     public string $availability = 'available';
 
-    public function mount(): void
+    #[Url(except: '')]
+    public string $minPrice = '';
+
+    #[Url(except: '')]
+    public string $maxPrice = '';
+
+    public int $loadedPages = 1;
+
+    public function updated($property): void
     {
-        $this->search = (string) request()->query('search', '');
-        $this->sort = (string) request()->query('sort', 'default');
-        $this->availability = (string) request()->query('availability', 'available');
+        if (in_array($property, ['search', 'sort', 'availability', 'minPrice', 'maxPrice'], true)) {
+            $this->loadedPages = 1;
+        }
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->sort = 'default';
+        $this->availability = 'available';
+        $this->minPrice = '';
+        $this->maxPrice = '';
+        $this->loadedPages = 1;
+    }
+
+    public function loadMore(): void
+    {
+        $this->loadedPages++;
     }
 
     public function render()
     {
-        // Core list matches Home::usedBikesForSale (join + select + is_sold = 0), without limit.
-        $query = Motorbike::query()
-            ->join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
-            ->select(
-                'motorbikes.*',
-                'motorbikes_sale.price',
-                'motorbikes_sale.image_one',
-                'motorbikes_sale.mileage as sale_mileage',
-                'motorbikes_sale.is_sold',
-            );
+        $query = UsedMotorbikeListing::query(
+            $this->search,
+            $this->sort,
+            $this->availability,
+            $this->minPrice,
+            $this->maxPrice,
+        );
 
-        if ($this->search !== '') {
-            $query->where(function ($inner) {
-                $inner->where('motorbikes.make', 'like', '%'.$this->search.'%')
-                    ->orWhere('motorbikes.model', 'like', '%'.$this->search.'%')
-                    ->orWhere('motorbikes.reg_no', 'like', '%'.$this->search.'%');
-            });
-        }
+        $total = (clone $query)->count();
+        $limit = self::PER_PAGE * $this->loadedPages;
 
-        if ($this->availability === 'sold') {
-            $query->where('motorbikes_sale.is_sold', 1);
-        } else {
-            $query->where('motorbikes_sale.is_sold', 0);
-        }
-
-        if ($this->sort === 'price_asc') {
-            $query->orderBy('motorbikes_sale.price');
-        } elseif ($this->sort === 'price_desc') {
-            $query->orderByDesc('motorbikes_sale.price');
-        } elseif ($this->sort === 'year_asc') {
-            $query->orderBy('motorbikes.year');
-        } elseif ($this->sort === 'year_desc') {
-            $query->orderByDesc('motorbikes.year');
-        } else {
-            $query->orderBy('motorbikes.created_at', 'desc');
-        }
-
-        $motorbikes = $query->get();
+        /** @var Collection<int, mixed> $motorbikes */
+        $motorbikes = $query->limit($limit)->get();
+        $hasMore = $total > $motorbikes->count();
 
         $latestMotorcycles = Motorcycle::query()
             ->where('availability', 'for sale')
@@ -68,7 +74,7 @@ class UsedIndex extends Component
             ->limit(8)
             ->get();
 
-        return view('livewire.site.bikes.used-index', compact('motorbikes', 'latestMotorcycles'))
+        return view('livewire.site.bikes.used-index', compact('motorbikes', 'latestMotorcycles', 'total', 'hasMore'))
             ->layout('components.layouts.public', [
                 'title' => 'Used Motorbike For Sale - NGN - Motorcycle Rentals, Repairs, Accessories in Catford, Tooting, UK',
                 'description' => 'Browse used motorcycles for sale with full details, enquiry and finance links.',

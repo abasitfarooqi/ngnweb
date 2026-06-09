@@ -95,7 +95,7 @@
                     <div x-show="open === 'services'" x-transition.opacity x-cloak
                          class="absolute left-0 top-full z-50 w-56 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-lg py-1">
                         <a href="{{ route('all-services') }}" class="block px-4 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">All services</a>
-                        <a href="{{ route('site.mot') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">MOT Testing</a>
+                        <a href="{{ route('site.mot') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">MOT Booking</a>
                         <a href="{{ route('site.repairs') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Repairs &amp; Servicing</a>
                         <a href="{{ route('motorcycle.delivery') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Recovery &amp; Delivery</a>
                         <a href="{{ route('accident-management') }}" class="block px-4 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:bg-red-50 dark:hover:bg-gray-700 hover:text-brand-red">Accident Management</a>
@@ -283,7 +283,7 @@
                 </div>
                 <div x-show="expandedGroup === 'services'" x-transition class="bg-gray-50 dark:bg-gray-800">
                     <a href="{{ route('all-services') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm font-semibold text-gray-900 dark:text-white hover:text-brand-red">All services</a>
-                    <a href="{{ route('site.mot') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">MOT Testing</a>
+                    <a href="{{ route('site.mot') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">MOT Booking</a>
                     <a href="{{ route('site.repairs') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Repairs &amp; Servicing</a>
                     <a href="{{ route('motorcycle.delivery') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Recovery &amp; Delivery</a>
                     <a href="{{ route('accident-management') }}" @click="closeMobile()" class="block px-6 py-2.5 text-sm text-gray-700 dark:text-gray-300 hover:text-brand-red">Accident Management</a>

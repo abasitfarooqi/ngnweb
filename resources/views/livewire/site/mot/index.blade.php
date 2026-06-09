@@ -2,7 +2,7 @@
 {{-- Hero --}}
 <div class="bg-gray-900 text-white py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h1 class="text-4xl md:text-5xl font-bold mb-3">MOT Testing Services</h1>
+        <h1 class="text-4xl md:text-5xl font-bold mb-3">MOT Booking Services</h1>
         <p class="text-gray-300 text-lg mb-6">Ensure your motorcycle is roadworthy & safe with our expert MOT services</p>
         <flux:button href="/mot/book" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">
             Book MOT Now
@@ -32,7 +32,7 @@
                    rel="noopener noreferrer"
                    class="inline-flex items-center gap-2 text-brand-red font-medium hover:underline text-sm">
                     <flux:icon name="arrow-top-right-on-square" class="h-4 w-4" />
-                    Official MOT Testing Guide — gov.uk
+                    Official MOT Booking Guide — gov.uk
                 </a>
             </div>
             <div>

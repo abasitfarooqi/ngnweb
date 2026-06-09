@@ -15,7 +15,7 @@
             <div class="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed">
                 <p>Incorporated in October 2018, <strong>Neguinho Motors Limited (NGN)</strong> was founded with a single vision: to provide London riders with a trusted, reliable and comprehensive motorcycle service centre.</p>
                 <p>We started at our Catford branch and have since expanded to three London locations – Catford, Tooting and Sutton – serving thousands of riders across the city.</p>
-                <p>Our mission is to keep your motorcycle roadworthy and performing at its best, offering everything from daily rentals and MOT testing to full workshop repairs and motorcycle sales.</p>
+                <p>Our mission is to keep your motorcycle roadworthy and performing at its best, offering everything from daily rentals and MOT Booking to full workshop repairs and motorcycle sales.</p>
             </div>
         </div>
         <div class="bg-gray-100 dark:bg-gray-800 h-72 flex items-center justify-center">
@@ -31,7 +31,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             @foreach([
                 ['icon'=>'clock',            'title'=>'Motorcycle Rentals',   'text'=>'Daily, weekly & monthly rentals. Honda & Yamaha 125cc. CBT friendly. From £70/week.', 'url'=>'/rentals'],
-                ['icon'=>'check-badge',      'title'=>'MOT Testing',          'text'=>'DVSA-approved MOT testing for motorcycles, mopeds & scooters. From £29.65.', 'url'=>'/mot'],
+                ['icon'=>'check-badge',      'title'=>'MOT Booking',          'text'=>'DVSA-approved MOT Booking for motorcycles, mopeds & scooters. From £29.65.', 'url'=>'/mot'],
                 ['icon'=>'wrench-screwdriver','title'=>'Repairs & Servicing', 'text'=>'Full workshop repairs, basic & major services, accident damage, brake & tyre work.', 'url'=>'/repairs'],
                 ['icon'=>'shopping-bag',     'title'=>'Sales',                'text'=>'New and used motorcycles from trusted brands. Payment plan options available.', 'url'=>'/motorbikes'],
                 ['icon'=>'banknotes',        'title'=>'Payment Plan',         'text'=>'Flexible payment plans to help you buy your dream bike. Competitive rates.', 'url'=>'/finance'],

@@ -1,0 +1,453 @@
+{"id":31,"motorbike_repair_id":4,"job_description":"One connection is burned out","price":"80.00","note":"Tests","created_at":"2024-09-03 11:13:40","updated_at":"2024-09-03 11:13:40"}
+{"id":36,"motorbike_repair_id":19,"job_description":"collection","price":"0.00","note":"William Discuss price for collection","created_at":"2024-10-22 11:25:37","updated_at":"2024-10-22 11:25:37"}
+{"id":44,"motorbike_repair_id":21,"job_description":"MOT","price":"30.00","note":"CERTIFICATE","created_at":"2024-11-11 12:58:33","updated_at":"2024-11-11 12:58:33"}
+{"id":45,"motorbike_repair_id":21,"job_description":"BRAKE PADS FRONT","price":"25.00","note":"EBC","created_at":"2024-11-11 12:58:33","updated_at":"2024-11-11 12:58:33"}
+{"id":46,"motorbike_repair_id":21,"job_description":"REAR LIGHT BULB","price":"10.00","note":"REAR","created_at":"2024-11-11 12:58:33","updated_at":"2024-11-11 12:58:33"}
+{"id":52,"motorbike_repair_id":28,"job_description":"IGNITION VISION 2021","price":"175.00","note":"CUSTOMER PAID 50% UPON LEAVING HIS BIKE.","created_at":"2024-11-11 16:39:56","updated_at":"2024-11-11 16:39:56"}
+{"id":53,"motorbike_repair_id":28,"job_description":"LABOUR","price":"65.00","note":"CUSTOMER PAID 50% UPON LEAVING HIS BIKE.","created_at":"2024-11-11 16:39:56","updated_at":"2024-11-11 16:39:56"}
+{"id":54,"motorbike_repair_id":11,"job_description":"Discussion on whatsapp","price":"0.00","note":"Please find below the report of your motorcycle, we will call you in 30 mins to discuss it with you.\r\n\r\n*frame is damage, couple places broken, new frame from Yamaha £1500. We do not have the right tool to weld it but we could do a temporary repair which could cost you up to £350 labour roughly due to being a very lengthy work.  ️\r\n\r\n*we charge the battery, is working but is not healthy. It would need new battery £55️\r\n\r\n*Exhaust damage, cannot be repaired, top part of the engine case needs replacement. cylinder head, new part from Yamaha cost £410.️\r\n\r\n*dashboard is having circuit issues it doesn't show the details, need to be replaced, new part from Yamaha £435.️\r\n\r\n*bike has no horn, new part from Yamaha £60.️\r\n\r\n*brake pedal is bent, we can attempt to bring it back but there is a risk it will break, new part from Yamaha £75️\r\n\r\n*gear pedal is bent and lose, new part from Yamaha £90 may need a new shaft as well TBC.️\r\n\r\n*front fork left side oil leak, needs to replace the seals as a first action, however if it does not fix the problem, new fork is required, seals Yamaha £130 fitted aftermarket £85 fitted. New fork from Yamaha £390.️\r\n\r\n*front brake pads 25%️\r\n\r\n*engine oil and oil filter need to be change, new parts £35 ️\r\n\r\n*sprockets and chain almost finish, will need replacement soon, £195️\r\n\r\n*spark plug ok\r\n\r\n*air filter ok\r\n\r\n*tyres ok\r\n\r\n*rear brake pads ok\r\n\r\n*rear shock absorbers ok\r\n\r\n*steering ok\r\n\r\n*electrical parts, harness (normal wear and tear), indicator, headlight bulb, brake lights ok\r\nWe charge £55 per hour of labour, based on what you advise us to do, we will calculate the labour and send to you before starting the work.","created_at":"2024-11-11 16:49:47","updated_at":"2024-11-11 16:49:47"}
+{"id":55,"motorbike_repair_id":25,"job_description":"REAR DELI TYRE","price":"55.00","note":"---","created_at":"2024-11-11 16:50:47","updated_at":"2024-11-11 16:50:47"}
+{"id":56,"motorbike_repair_id":25,"job_description":"BRAKE PADS FRONT EBC","price":"25.00","note":"---","created_at":"2024-11-11 16:50:47","updated_at":"2024-11-11 16:50:47"}
+{"id":57,"motorbike_repair_id":25,"job_description":"HEADLIGHT BULB","price":"15.00","note":"---","created_at":"2024-11-11 16:50:47","updated_at":"2024-11-11 16:50:47"}
+{"id":58,"motorbike_repair_id":25,"job_description":"HANDLE BAR","price":"60.00","note":"HANDLE IS NOT STRAIGHT.","created_at":"2024-11-11 16:50:47","updated_at":"2024-11-11 16:50:47"}
+{"id":59,"motorbike_repair_id":25,"job_description":"MOT","price":"30.00","note":"---","created_at":"2024-11-11 16:50:47","updated_at":"2024-11-11 16:50:47"}
+{"id":60,"motorbike_repair_id":8,"job_description":"New Ignition","price":"150.00","note":"New Ignition will be change","created_at":"2024-11-11 18:01:20","updated_at":"2024-11-11 18:01:20"}
+{"id":61,"motorbike_repair_id":8,"job_description":"Recovery","price":"25.00","note":"Recovered from Se4 2ae","created_at":"2024-11-11 18:01:20","updated_at":"2024-11-11 18:01:20"}
+{"id":62,"motorbike_repair_id":8,"job_description":"Panels","price":"20.00","note":"This is just the labour to fix the panel's.","created_at":"2024-11-11 18:01:20","updated_at":"2024-11-11 18:01:20"}
+{"id":63,"motorbike_repair_id":8,"job_description":"OIL","price":"10.00","note":"ON 08/07/2024.","created_at":"2024-11-11 18:01:20","updated_at":"2024-11-11 18:01:20"}
+{"id":68,"motorbike_repair_id":27,"job_description":"FULL SERVICE","price":"95.00","note":"LJ20XOZ","created_at":"2024-11-12 17:51:15","updated_at":"2024-11-12 17:51:15"}
+{"id":69,"motorbike_repair_id":15,"job_description":"ENGINE REPAIRED","price":"650.00","note":"RECONDITIONED","created_at":"2024-11-12 17:55:56","updated_at":"2024-11-12 17:55:56"}
+{"id":70,"motorbike_repair_id":15,"job_description":"Air Filter","price":"25.00","note":"CHANGED AS REQUESTED","created_at":"2024-11-12 17:55:56","updated_at":"2024-11-12 17:55:56"}
+{"id":71,"motorbike_repair_id":22,"job_description":"Diagnosis","price":"70.00","note":"Customer paid £70 to check electrical Parts and give diagnosis for his bike.","created_at":"2024-11-12 17:57:06","updated_at":"2024-11-12 17:57:06"}
+{"id":72,"motorbike_repair_id":22,"job_description":"Problem","price":"0.00","note":"£165 Given by David. Fuel Pump is Blocked. Tahir Advised customer to change this part in order to proceed next.,","created_at":"2024-11-12 17:57:06","updated_at":"2024-11-12 17:57:06"}
+{"id":73,"motorbike_repair_id":22,"job_description":"Fuel Pump","price":"165.00","note":"Customer is Happy to proceed change Fuel Pump.","created_at":"2024-11-12 17:57:06","updated_at":"2024-11-12 17:57:06"}
+{"id":74,"motorbike_repair_id":22,"job_description":"Hot Grip","price":"90.00","note":"customer wanna change his Hot grips as well. which is £90","created_at":"2024-11-12 17:57:06","updated_at":"2024-11-12 17:57:06"}
+{"id":75,"motorbike_repair_id":30,"job_description":"FULL SERVICE","price":"95.00","note":"Customer paid half in start and remaining at Last.","created_at":"2024-11-13 12:06:39","updated_at":"2024-11-13 12:06:39"}
+{"id":76,"motorbike_repair_id":30,"job_description":"Tucano Hand Muffs","price":"55.00","note":"muffs","created_at":"2024-11-13 12:06:39","updated_at":"2024-11-13 12:06:39"}
+{"id":80,"motorbike_repair_id":31,"job_description":"FULL SERVICE","price":"95.00","note":"s","created_at":"2024-11-14 13:58:18","updated_at":"2024-11-14 13:58:18"}
+{"id":90,"motorbike_repair_id":16,"job_description":"exhaust","price":"0.00","note":"Place an order for exhaust","created_at":"2024-11-15 09:55:09","updated_at":"2024-11-15 09:55:09"}
+{"id":99,"motorbike_repair_id":32,"job_description":"Engine re-conditioned","price":"650.00","note":"Engine damaged","created_at":"2024-11-15 12:45:23","updated_at":"2024-11-15 12:45:23"}
+{"id":100,"motorbike_repair_id":32,"job_description":"Air Filter","price":"25.00","note":"needs replaced","created_at":"2024-11-15 12:45:23","updated_at":"2024-11-15 12:45:23"}
+{"id":131,"motorbike_repair_id":17,"job_description":"1x Spacer L=235.5","price":"0.00","note":"CM067809.we received this part.","created_at":"2024-11-21 09:28:29","updated_at":"2024-11-21 09:28:29"}
+{"id":132,"motorbike_repair_id":17,"job_description":"1x Complete silent block support bracket","price":"0.00","note":"666884. received update from Thiago on 04/11/2024 that part in transit to us, we expect to receive it in the next 1-2 weeks.","created_at":"2024-11-21 09:28:29","updated_at":"2024-11-21 09:28:29"}
+{"id":133,"motorbike_repair_id":17,"job_description":"1x WASHER","price":"0.00","note":"1A011500","created_at":"2024-11-21 09:28:29","updated_at":"2024-11-21 09:28:29"}
+{"id":134,"motorbike_repair_id":17,"job_description":"1x MIN.PRESSURE OIL SWITCH N.C.","price":"0.00","note":"1A011730.  we received this part.","created_at":"2024-11-21 09:28:29","updated_at":"2024-11-21 09:28:29"}
+{"id":135,"motorbike_repair_id":17,"job_description":"1x Chassis side swinging arm","price":"0.00","note":"1C000001R5. got update from Thiago on 04/11/2024. REAR SWINGING ARM – Part in transit to us, we expect to receive it in the next 1-2 weeks.","created_at":"2024-11-21 09:28:29","updated_at":"2024-11-21 09:28:29"}
+{"id":136,"motorbike_repair_id":17,"job_description":"Total Price given by Gustavo","price":"475.00","note":"including Labour, Customer paid £240 in cash on 16/10/2024","created_at":"2024-11-21 09:28:29","updated_at":"2024-11-21 09:28:29"}
+{"id":152,"motorbike_repair_id":9,"job_description":"LABOUR FOR CHANGING IGNITION","price":"55.00","note":"1ST job is to change the ignition first.","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":153,"motorbike_repair_id":9,"job_description":"Starting problem","price":"0.00","note":"we going to find the problem why it's not starting.","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":154,"motorbike_repair_id":9,"job_description":"Starting problem","price":"0.00","note":"it has been solved","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":155,"motorbike_repair_id":9,"job_description":"Brake","price":"35.00","note":"original Brake pads","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":156,"motorbike_repair_id":9,"job_description":"Deli tyre","price":"55.00","note":"New Rear tyre has been changed","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":157,"motorbike_repair_id":9,"job_description":"Oil","price":"15.00","note":"Castrol oil has been changed","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":158,"motorbike_repair_id":9,"job_description":"Tests","price":"0.00","note":"Tests","created_at":"2024-11-23 15:20:23","updated_at":"2024-11-23 15:20:23"}
+{"id":162,"motorbike_repair_id":35,"job_description":"Main Stand NMAX 125cc B6H","price":"120.00","note":"-","created_at":"2024-11-25 13:35:52","updated_at":"2024-11-25 13:35:52"}
+{"id":163,"motorbike_repair_id":35,"job_description":"BODY COWLING HEADLIGHT PANEL (L) (R) B6H","price":"75.00","note":"Discount, £10.00","created_at":"2024-11-25 13:35:52","updated_at":"2024-11-25 13:35:52"}
+{"id":164,"motorbike_repair_id":35,"job_description":"FRONT FENDER B6H","price":"110.00","note":"g","created_at":"2024-11-25 13:35:52","updated_at":"2024-11-25 13:35:52"}
+{"id":165,"motorbike_repair_id":36,"job_description":"Initial Repair Entry","price":"0.00","note":"Initial note","created_at":"2024-11-25 18:15:08","updated_at":"2024-11-25 18:15:08"}
+{"id":166,"motorbike_repair_id":36,"job_description":"Hdhdh","price":"5.00","note":"Wuhe","created_at":"2024-11-25 18:16:13","updated_at":"2024-11-25 18:16:13"}
+{"id":167,"motorbike_repair_id":36,"job_description":"Cc","price":"5.00","note":"Jcbd","created_at":"2024-11-25 18:16:13","updated_at":"2024-11-25 18:16:13"}
+{"id":170,"motorbike_repair_id":38,"job_description":"Initial Repair Entry","price":"0.00","note":"Initial note","created_at":"2024-11-26 13:07:09","updated_at":"2024-11-26 13:07:09"}
+{"id":171,"motorbike_repair_id":38,"job_description":"Bearnigs+oil","price":"100.00","note":"Needs to put","created_at":"2024-11-26 13:32:36","updated_at":"2024-11-26 13:32:36"}
+{"id":184,"motorbike_repair_id":33,"job_description":"Clutch Cable","price":"30.00","note":"order requested","created_at":"2024-11-27 16:21:32","updated_at":"2024-11-27 16:21:32"}
+{"id":185,"motorbike_repair_id":33,"job_description":"LABOUR","price":"30.00","note":"need to fix","created_at":"2024-11-27 16:21:32","updated_at":"2024-11-27 16:21:32"}
+{"id":186,"motorbike_repair_id":33,"job_description":"Chain Sprocket including fitting","price":"123.00","note":"we got his order. New guy will fix on his bike. changed","created_at":"2024-11-27 16:21:32","updated_at":"2024-11-27 16:21:32"}
+{"id":187,"motorbike_repair_id":33,"job_description":"Clutch cable","price":"60.00","note":"customer paid for this. Tahir requested for order. changed","created_at":"2024-11-27 16:21:32","updated_at":"2024-11-27 16:21:32"}
+{"id":188,"motorbike_repair_id":29,"job_description":"1x (Mitsuboshi) V-belt","price":"58.00","note":"E-bay.","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":189,"motorbike_repair_id":29,"job_description":"1x Half-pulley assy., driving","price":"96.00","note":"fowler's requested. arrived","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":190,"motorbike_repair_id":29,"job_description":"1x Complete fixed driving half-pulley","price":"62.00","note":"fowler's requested. arrived","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":191,"motorbike_repair_id":29,"job_description":"1x oil seal","price":"21.00","note":"requested. arrived","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":192,"motorbike_repair_id":29,"job_description":"1x labour","price":"55.00","note":"m","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":193,"motorbike_repair_id":29,"job_description":"1x front brake pads","price":"25.00","note":"b","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":194,"motorbike_repair_id":29,"job_description":"1x full service","price":"95.00","note":"Already paid","created_at":"2024-11-28 15:42:45","updated_at":"2024-11-28 15:42:45"}
+{"id":195,"motorbike_repair_id":40,"job_description":"BEARING","price":"13.00","note":"No Clue","created_at":"2024-12-04 11:30:14","updated_at":"2024-12-04 11:30:14"}
+{"id":196,"motorbike_repair_id":40,"job_description":"PLATE, FRICTION","price":"70.00","note":"2SB-E6321-00. Arrived","created_at":"2024-12-04 11:30:14","updated_at":"2024-12-04 11:30:14"}
+{"id":197,"motorbike_repair_id":40,"job_description":"GASKET, CRANKCASE COVER 2","price":"17.00","note":"2SB-E5461-00.  Arrived","created_at":"2024-12-04 11:30:14","updated_at":"2024-12-04 11:30:14"}
+{"id":198,"motorbike_repair_id":40,"job_description":"GASKET, CRANKCASE COVER 1","price":"13.00","note":"2SB-E5451-00. Arrived","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":199,"motorbike_repair_id":40,"job_description":"GASKET, HEAD COVER 1","price":"11.00","note":"2SB-E1193-00. Arrived","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":200,"motorbike_repair_id":40,"job_description":"GASKET, CYLINDER","price":"15.00","note":"2SB-E1351-00. Arrived","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":201,"motorbike_repair_id":40,"job_description":"GASKET, CYLINDER HEAD 1","price":"10.00","note":"BB6-E1181-00. Arrived","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":202,"motorbike_repair_id":40,"job_description":"GASKET","price":"2.00","note":"2SB-E2435-00. Arrived","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":203,"motorbike_repair_id":40,"job_description":"Oil","price":"10.00","note":"no clue","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":204,"motorbike_repair_id":40,"job_description":"Cable clutch","price":"29.00","note":"2SBF633511. Arrived","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":205,"motorbike_repair_id":40,"job_description":"Labour","price":"275.00","note":"5 hours.","created_at":"2024-12-04 11:30:15","updated_at":"2024-12-04 11:30:15"}
+{"id":209,"motorbike_repair_id":44,"job_description":"Harness repairing","price":"70.00","note":"Fixed","created_at":"2024-12-06 18:10:29","updated_at":"2024-12-06 18:10:29"}
+{"id":210,"motorbike_repair_id":44,"job_description":"FULL SERVICE 125CC","price":"95.00","note":"started.","created_at":"2024-12-06 18:10:29","updated_at":"2024-12-06 18:10:29"}
+{"id":212,"motorbike_repair_id":34,"job_description":"sprocket","price":"90.00","note":"paid","created_at":"2024-12-27 11:36:13","updated_at":"2024-12-27 11:36:13"}
+{"id":213,"motorbike_repair_id":34,"job_description":"chain","price":"142.00","note":"paid","created_at":"2024-12-27 11:36:13","updated_at":"2024-12-27 11:36:13"}
+{"id":214,"motorbike_repair_id":34,"job_description":"chain drive","price":"46.00","note":"paid","created_at":"2024-12-27 11:36:13","updated_at":"2024-12-27 11:36:13"}
+{"id":215,"motorbike_repair_id":34,"job_description":"LABOUR","price":"55.00","note":"paid","created_at":"2024-12-27 11:36:13","updated_at":"2024-12-27 11:36:13"}
+{"id":216,"motorbike_repair_id":26,"job_description":"FULL SERVICE","price":"230.00","note":"-","created_at":"2024-12-27 11:37:10","updated_at":"2024-12-27 11:37:10"}
+{"id":217,"motorbike_repair_id":26,"job_description":"CLUTCH CABLE","price":"50.00","note":"1-3 working days to get your order. \r\nwe don't have this part in stock Thiago place an order for that.","created_at":"2024-12-27 11:37:10","updated_at":"2024-12-27 11:37:10"}
+{"id":218,"motorbike_repair_id":26,"job_description":"REAR BRAKE PADS","price":"50.00","note":"FA679HH REAR BRAKE PADS ARE FINISHED. TAHIR SUGGESTED CUSTOMER TO CHNAGE IT. AND CUSTOMER AGREE TO CHANGE EBC PARTS. WE DON'T HAVE IN STOCK. HOWEVER, WE PLACED AN ORDER FOR THAT.","created_at":"2024-12-27 11:37:10","updated_at":"2024-12-27 11:37:10"}
+{"id":219,"motorbike_repair_id":37,"job_description":"Initial Repair Entry","price":"0.00","note":"Initial note","created_at":"2024-12-27 11:38:51","updated_at":"2024-12-27 11:38:51"}
+{"id":220,"motorbike_repair_id":37,"job_description":"Honda oil","price":"16.99","note":"Change oil","created_at":"2024-12-27 11:38:51","updated_at":"2024-12-27 11:38:51"}
+{"id":224,"motorbike_repair_id":42,"job_description":"Battery","price":"50.00","note":"chnaged","created_at":"2024-12-28 14:27:37","updated_at":"2024-12-28 14:27:37"}
+{"id":225,"motorbike_repair_id":42,"job_description":"Carburettor service","price":"75.00","note":"changed","created_at":"2024-12-28 14:27:37","updated_at":"2024-12-28 14:27:37"}
+{"id":228,"motorbike_repair_id":47,"job_description":"Check for problem","price":"70.00","note":"Paid in advance","created_at":"2025-01-24 09:35:53","updated_at":"2025-01-24 09:35:53"}
+{"id":229,"motorbike_repair_id":47,"job_description":"Engine Reconditioned","price":"650.00","note":"We rebuild the engine and gave three months warrenty.","created_at":"2025-01-24 09:35:53","updated_at":"2025-01-24 09:35:53"}
+{"id":241,"motorbike_repair_id":50,"job_description":"Engine Re-building","price":"650.00","note":"Clayton re-build engine again.","created_at":"2025-02-21 10:51:37","updated_at":"2025-02-21 10:51:37"}
+{"id":242,"motorbike_repair_id":50,"job_description":"Air Filter","price":"25.00","note":"Need to replace it otherwise it's gonna damage the engine of the bike","created_at":"2025-02-21 10:51:37","updated_at":"2025-02-21 10:51:37"}
+{"id":243,"motorbike_repair_id":50,"job_description":"Guide Stopper","price":"55.00","note":"Need to change. it was Rusted.","created_at":"2025-02-21 10:51:37","updated_at":"2025-02-21 10:51:37"}
+{"id":244,"motorbike_repair_id":50,"job_description":"Rear Original Brake Pads","price":"35.00","note":"Rear Pads was Finished. We replaced it.","created_at":"2025-02-21 10:51:37","updated_at":"2025-02-21 10:51:37"}
+{"id":245,"motorbike_repair_id":49,"job_description":"Engine Re-building","price":"650.00","note":"customer paid £350 to start the job.","created_at":"2025-02-21 10:53:06","updated_at":"2025-02-21 10:53:06"}
+{"id":248,"motorbike_repair_id":48,"job_description":"1x SEAL DUST BF7F314400","price":"95.00","note":"Placed an order from Fowler's.","created_at":"2025-02-21 10:56:54","updated_at":"2025-02-21 10:56:54"}
+{"id":249,"motorbike_repair_id":48,"job_description":"1x OIL SEAL BF7F314500","price":"0.00","note":"Placed an order from Fowler's. We got the parts client Leave the bike on 09/01/2025 to Tahir.","created_at":"2025-02-21 10:56:54","updated_at":"2025-02-21 10:56:54"}
+{"id":250,"motorbike_repair_id":48,"job_description":"MOT","price":"30.00","note":"CUSTOMER ask us to do the MOT on the bike.","created_at":"2025-02-21 10:56:54","updated_at":"2025-02-21 10:56:54"}
+{"id":254,"motorbike_repair_id":46,"job_description":"Carborator Cleaning","price":"70.00","note":"has been done.","created_at":"2025-02-21 10:59:41","updated_at":"2025-02-21 10:59:41"}
+{"id":255,"motorbike_repair_id":46,"job_description":"Electrical Problem(Harness)","price":"30.00","note":"Bike is starting.","created_at":"2025-02-21 10:59:41","updated_at":"2025-02-21 10:59:41"}
+{"id":256,"motorbike_repair_id":46,"job_description":"MOT","price":"30.00","note":"Customer ask us to do the MOT.","created_at":"2025-02-21 10:59:41","updated_at":"2025-02-21 10:59:41"}
+{"id":257,"motorbike_repair_id":43,"job_description":"Initial Repair Entry","price":"0.00","note":"Initial note Customer didn't do any work and buy new bike because it was lot of money instead he bought new bike from tahir.","created_at":"2025-02-21 11:02:50","updated_at":"2025-02-21 11:02:50"}
+{"id":282,"motorbike_repair_id":7,"job_description":"testing","price":"34.00","note":"testing","created_at":"2025-02-28 22:25:36","updated_at":"2025-02-28 22:25:36"}
+{"id":286,"motorbike_repair_id":39,"job_description":"Initial Repair Entry","price":"0.00","note":"Initial note","created_at":"2025-02-28 22:27:12","updated_at":"2025-02-28 22:27:12"}
+{"id":287,"motorbike_repair_id":39,"job_description":"generate","price":"10.00","note":"asdf","created_at":"2025-02-28 22:27:12","updated_at":"2025-02-28 22:27:12"}
+{"id":288,"motorbike_repair_id":39,"job_description":"electric fault fix","price":"20.00","note":"dy","created_at":"2025-02-28 22:27:12","updated_at":"2025-02-28 22:27:12"}
+{"id":345,"motorbike_repair_id":51,"job_description":"Starter Motor","price":"150.00","note":"We changed used Stater Motor. No Warranty. Customer agree.","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":346,"motorbike_repair_id":51,"job_description":"Phone Holder Arm","price":"5.00","note":"was Broken","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":347,"motorbike_repair_id":51,"job_description":"Oxford Hot Grips Essential","price":"70.00","note":"Customer ask us to put hot grips.","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":348,"motorbike_repair_id":51,"job_description":"Gasket","price":"25.00","note":"11394KTW902.","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":349,"motorbike_repair_id":51,"job_description":"Starter Plate","price":"85.00","note":"We need to replace that because once we open this","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":350,"motorbike_repair_id":51,"job_description":"Right Crankcase","price":"330.00","note":"customer wasn't agree to proceed.","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":351,"motorbike_repair_id":51,"job_description":"Engine Replacement","price":"250.00","note":"customer ask us to replace engine with no warranty on it.","created_at":"2025-03-03 12:32:15","updated_at":"2025-03-03 12:32:15"}
+{"id":353,"motorbike_repair_id":52,"job_description":"Full Service","price":"185.00","note":"Full service.","created_at":"2025-03-06 17:36:25","updated_at":"2025-03-06 17:36:25"}
+{"id":354,"motorbike_repair_id":52,"job_description":"Kit Belt","price":"150.00","note":"Rollers were damaged, and the kit belt was quite old and needs replacing along with the sliders.","created_at":"2025-03-06 17:36:25","updated_at":"2025-03-06 17:36:25"}
+{"id":371,"motorbike_repair_id":54,"job_description":"York Assy","price":"210.00","note":"Customer Leave the bike to change it.","created_at":"2025-03-14 11:47:11","updated_at":"2025-03-14 11:47:11"}
+{"id":380,"motorbike_repair_id":60,"job_description":"MOT","price":"30.00","note":"0","created_at":"2025-03-15 11:03:43","updated_at":"2025-03-15 11:03:43"}
+{"id":381,"motorbike_repair_id":60,"job_description":"Battery","price":"50.00","note":"0","created_at":"2025-03-15 11:03:43","updated_at":"2025-03-15 11:03:43"}
+{"id":382,"motorbike_repair_id":60,"job_description":"Recovery","price":"25.00","note":"0","created_at":"2025-03-15 11:03:43","updated_at":"2025-03-15 11:03:43"}
+{"id":383,"motorbike_repair_id":60,"job_description":"Basic Service 125cc","price":"65.00","note":"0","created_at":"2025-03-15 11:03:43","updated_at":"2025-03-15 11:03:43"}
+{"id":384,"motorbike_repair_id":60,"job_description":"Maintenance on the carburetor","price":"75.00","note":"0","created_at":"2025-03-15 11:03:43","updated_at":"2025-03-15 11:03:43"}
+{"id":397,"motorbike_repair_id":65,"job_description":"MOT","price":"30.00","note":"PAID, RECEIPT 1052","created_at":"2025-03-18 17:57:13","updated_at":"2025-03-18 17:57:13"}
+{"id":398,"motorbike_repair_id":65,"job_description":"Indicator lights","price":"20.00","note":"PAID","created_at":"2025-03-18 17:57:13","updated_at":"2025-03-18 17:57:13"}
+{"id":399,"motorbike_repair_id":65,"job_description":"Labour for fixe indicator","price":"30.00","note":"PAID","created_at":"2025-03-18 17:57:13","updated_at":"2025-03-18 17:57:13"}
+{"id":400,"motorbike_repair_id":65,"job_description":"Suport and light of the plate","price":"30.00","note":"PAID","created_at":"2025-03-18 17:57:13","updated_at":"2025-03-18 17:57:13"}
+{"id":401,"motorbike_repair_id":65,"job_description":"Horn","price":"15.00","note":"PAID","created_at":"2025-03-18 17:57:13","updated_at":"2025-03-18 17:57:13"}
+{"id":402,"motorbike_repair_id":65,"job_description":"Labour for fixe the horn","price":"10.00","note":"PAID","created_at":"2025-03-18 17:57:13","updated_at":"2025-03-18 17:57:13"}
+{"id":407,"motorbike_repair_id":66,"job_description":"RECTIFIER ASSEMBLY","price":"287.00","note":"NOT IN STOCK. 4 WEEKS WAIT FOR THE PART","created_at":"2025-03-20 13:31:30","updated_at":"2025-03-20 13:31:30"}
+{"id":408,"motorbike_repair_id":66,"job_description":"STATOR ASSEMBLY","price":"452.00","note":"NOT IN STOCK. 4 WEEKS WAIT FOR THE PART","created_at":"2025-03-20 13:31:30","updated_at":"2025-03-20 13:31:30"}
+{"id":409,"motorbike_repair_id":66,"job_description":"GASKET","price":"12.00","note":"IN STOCK","created_at":"2025-03-20 13:31:30","updated_at":"2025-03-20 13:31:30"}
+{"id":410,"motorbike_repair_id":66,"job_description":"LABOUR","price":"220.00","note":"£55 PER HOUR. 4 HOURS LABOUR FOR THIS JOB.","created_at":"2025-03-20 13:31:30","updated_at":"2025-03-20 13:31:30"}
+{"id":412,"motorbike_repair_id":64,"job_description":"MOT","price":"30.00","note":"ALL PAID","created_at":"2025-03-25 17:21:46","updated_at":"2025-03-25 17:21:46"}
+{"id":413,"motorbike_repair_id":64,"job_description":"Eletric Diagnostic","price":"80.00","note":"ALL PAID","created_at":"2025-03-25 17:21:46","updated_at":"2025-03-25 17:21:46"}
+{"id":415,"motorbike_repair_id":58,"job_description":"Basic Service","price":"65.00","note":"-","created_at":"2025-03-27 16:41:09","updated_at":"2025-03-27 16:41:09"}
+{"id":416,"motorbike_repair_id":58,"job_description":"EBC BRAKE PADS","price":"25.00","note":"-","created_at":"2025-03-27 16:41:09","updated_at":"2025-03-27 16:41:09"}
+{"id":417,"motorbike_repair_id":55,"job_description":"MOT","price":"30.00","note":"To Pass the MOT, Rear Brake Pads Needs to be changed.","created_at":"2025-03-27 16:41:28","updated_at":"2025-03-27 16:41:28"}
+{"id":418,"motorbike_repair_id":55,"job_description":"Oxford Muffs","price":"45.00","note":"-","created_at":"2025-03-27 16:41:28","updated_at":"2025-03-27 16:41:28"}
+{"id":419,"motorbike_repair_id":55,"job_description":"Rear Brake Pads Original","price":"35.00","note":"Rear Brake Pads were finished.","created_at":"2025-03-27 16:41:28","updated_at":"2025-03-27 16:41:28"}
+{"id":420,"motorbike_repair_id":55,"job_description":"Engine - Oil Motul","price":"10.00","note":"-","created_at":"2025-03-27 16:41:28","updated_at":"2025-03-27 16:41:28"}
+{"id":421,"motorbike_repair_id":53,"job_description":"Engine Re-building","price":"650.00","note":"We Re-build the Engine.","created_at":"2025-03-27 16:41:44","updated_at":"2025-03-27 16:41:44"}
+{"id":422,"motorbike_repair_id":53,"job_description":"Air Filter","price":"25.00","note":"Has been replaced.","created_at":"2025-03-27 16:41:44","updated_at":"2025-03-27 16:41:44"}
+{"id":423,"motorbike_repair_id":53,"job_description":"Kit Belt","price":"85.00","note":"We replaced.","created_at":"2025-03-27 16:41:44","updated_at":"2025-03-27 16:41:44"}
+{"id":430,"motorbike_repair_id":68,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-03-29 12:54:03","updated_at":"2025-03-29 12:54:03"}
+{"id":431,"motorbike_repair_id":68,"job_description":"MOT book","price":"30.00","note":"12am 05/04","created_at":"2025-03-29 12:54:03","updated_at":"2025-03-29 12:54:03"}
+{"id":432,"motorbike_repair_id":68,"job_description":"Start Relay","price":"50.00","note":"-","created_at":"2025-03-29 12:54:03","updated_at":"2025-03-29 12:54:03"}
+{"id":433,"motorbike_repair_id":68,"job_description":"Painel Light","price":"10.00","note":"-","created_at":"2025-03-29 12:54:03","updated_at":"2025-03-29 12:54:03"}
+{"id":434,"motorbike_repair_id":69,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-03-29 16:48:19","updated_at":"2025-03-29 16:48:19"}
+{"id":435,"motorbike_repair_id":69,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-03-29 16:48:19","updated_at":"2025-03-29 16:48:19"}
+{"id":436,"motorbike_repair_id":69,"job_description":"Wireless Phone Holder M-11","price":"50.00","note":"-","created_at":"2025-03-29 16:48:19","updated_at":"2025-03-29 16:48:19"}
+{"id":437,"motorbike_repair_id":70,"job_description":"RECTIFIER, STATOR AND GASKET","price":"82.00","note":"-","created_at":"2025-03-29 17:09:41","updated_at":"2025-03-29 17:09:41"}
+{"id":438,"motorbike_repair_id":70,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-03-29 17:09:41","updated_at":"2025-03-29 17:09:41"}
+{"id":439,"motorbike_repair_id":70,"job_description":"4 HOUR MECHANIC LABOUR","price":"220.00","note":"-","created_at":"2025-03-29 17:09:41","updated_at":"2025-03-29 17:09:41"}
+{"id":440,"motorbike_repair_id":70,"job_description":"2X ENGINE - OIL CASTROL","price":"30.00","note":"-","created_at":"2025-03-29 17:09:41","updated_at":"2025-03-29 17:09:41"}
+{"id":441,"motorbike_repair_id":70,"job_description":"OIL FILTER 650CC","price":"35.00","note":"-","created_at":"2025-03-29 17:09:41","updated_at":"2025-03-29 17:09:41"}
+{"id":472,"motorbike_repair_id":59,"job_description":"Voltage Regulator","price":"160.00","note":"-","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":473,"motorbike_repair_id":59,"job_description":"Stator","price":"90.00","note":"-","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":474,"motorbike_repair_id":59,"job_description":"Flywheel housing cover gasket","price":"20.00","note":"-","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":475,"motorbike_repair_id":59,"job_description":"Wireless Phone Holder M33A1","price":"50.00","note":"-","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":476,"motorbike_repair_id":59,"job_description":"Oil Castrol","price":"23.00","note":"-","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":477,"motorbike_repair_id":59,"job_description":"Mechanic Labour","price":"150.00","note":"Including Shocks","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":478,"motorbike_repair_id":59,"job_description":"Battery 7A","price":"50.00","note":"-","created_at":"2025-04-01 14:40:53","updated_at":"2025-04-01 14:40:53"}
+{"id":492,"motorbike_repair_id":81,"job_description":"Motorbike wash","price":"10.00","note":"PAID","created_at":"2025-04-04 11:21:07","updated_at":"2025-04-04 11:21:07"}
+{"id":493,"motorbike_repair_id":81,"job_description":"Side Cover B6H Right GREY","price":"75.00","note":"PAID","created_at":"2025-04-04 11:21:07","updated_at":"2025-04-04 11:21:07"}
+{"id":494,"motorbike_repair_id":81,"job_description":"Pad Rear brake","price":"25.00","note":"PAID","created_at":"2025-04-04 11:21:07","updated_at":"2025-04-04 11:21:07"}
+{"id":495,"motorbike_repair_id":81,"job_description":"Mechanic labour","price":"30.00","note":"PAID","created_at":"2025-04-04 11:21:07","updated_at":"2025-04-04 11:21:07"}
+{"id":496,"motorbike_repair_id":81,"job_description":"Kit belt B6H","price":"95.00","note":"PAID","created_at":"2025-04-04 11:21:07","updated_at":"2025-04-04 11:21:07"}
+{"id":510,"motorbike_repair_id":90,"job_description":"MAJOR SERVICE 125CC","price":"95.00","note":"-","created_at":"2025-04-08 17:45:44","updated_at":"2025-04-08 17:45:44"}
+{"id":511,"motorbike_repair_id":90,"job_description":"NGN WIRELESS PHONE HOLDER CHARGER M33A1","price":"50.00","note":"-","created_at":"2025-04-08 17:45:44","updated_at":"2025-04-08 17:45:44"}
+{"id":512,"motorbike_repair_id":90,"job_description":"SECOND HAND HORN","price":"5.00","note":"-","created_at":"2025-04-08 17:45:44","updated_at":"2025-04-08 17:45:44"}
+{"id":522,"motorbike_repair_id":91,"job_description":"GPS LIVE TRACKER","price":"135.00","note":"-","created_at":"2025-04-11 11:42:15","updated_at":"2025-04-11 11:42:15"}
+{"id":523,"motorbike_repair_id":86,"job_description":"180/55 ZR 17REAR TYRE MICHELIN ROAD 5","price":"205.00","note":"-","created_at":"2025-04-11 14:05:46","updated_at":"2025-04-11 14:05:46"}
+{"id":524,"motorbike_repair_id":86,"job_description":"Rear Wheel Bearning","price":"120.00","note":"Not Aftermarket. Not original","created_at":"2025-04-11 14:05:46","updated_at":"2025-04-11 14:05:46"}
+{"id":525,"motorbike_repair_id":92,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-04-11 16:11:46","updated_at":"2025-04-11 16:11:46"}
+{"id":526,"motorbike_repair_id":92,"job_description":"FRONT DISK","price":"45.00","note":"-","created_at":"2025-04-11 16:11:46","updated_at":"2025-04-11 16:11:46"}
+{"id":527,"motorbike_repair_id":92,"job_description":"BRAKE PADS EBC FRONT","price":"25.00","note":"-","created_at":"2025-04-11 16:11:46","updated_at":"2025-04-11 16:11:46"}
+{"id":528,"motorbike_repair_id":92,"job_description":"BULB LIGHT FAROLETE","price":"5.00","note":"-","created_at":"2025-04-11 16:11:46","updated_at":"2025-04-11 16:11:46"}
+{"id":529,"motorbike_repair_id":92,"job_description":"BULB LIGHT 2","price":"15.00","note":"-","created_at":"2025-04-11 16:11:46","updated_at":"2025-04-11 16:11:46"}
+{"id":550,"motorbike_repair_id":93,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-04-11 16:38:52","updated_at":"2025-04-11 16:38:52"}
+{"id":551,"motorbike_repair_id":93,"job_description":"Basic Service","price":"65.00","note":"-","created_at":"2025-04-11 16:38:52","updated_at":"2025-04-11 16:38:52"}
+{"id":552,"motorbike_repair_id":93,"job_description":"Mirror Pair","price":"20.00","note":"-","created_at":"2025-04-11 16:38:52","updated_at":"2025-04-11 16:38:52"}
+{"id":553,"motorbike_repair_id":93,"job_description":"Speedo Meter Cable","price":"25.00","note":"-","created_at":"2025-04-11 16:38:52","updated_at":"2025-04-11 16:38:52"}
+{"id":554,"motorbike_repair_id":93,"job_description":"Bulb Light","price":"5.00","note":"-","created_at":"2025-04-11 16:38:52","updated_at":"2025-04-11 16:38:52"}
+{"id":556,"motorbike_repair_id":96,"job_description":"Fob Key","price":"155.00","note":"-","created_at":"2025-04-12 09:59:55","updated_at":"2025-04-12 09:59:55"}
+{"id":557,"motorbike_repair_id":96,"job_description":"Battery","price":"50.00","note":"-","created_at":"2025-04-12 09:59:55","updated_at":"2025-04-12 09:59:55"}
+{"id":558,"motorbike_repair_id":96,"job_description":"Engine Oil Atlantic","price":"5.00","note":"-","created_at":"2025-04-12 09:59:55","updated_at":"2025-04-12 09:59:55"}
+{"id":559,"motorbike_repair_id":96,"job_description":"Motorcycle Wash","price":"10.00","note":"-","created_at":"2025-04-12 09:59:55","updated_at":"2025-04-12 09:59:55"}
+{"id":596,"motorbike_repair_id":89,"job_description":"Full Service","price":"230.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":597,"motorbike_repair_id":89,"job_description":"Carburettor Service","price":"150.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":598,"motorbike_repair_id":89,"job_description":"120/70 R17 FRONT TYRE MICHELIN ROAD 5","price":"140.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":599,"motorbike_repair_id":89,"job_description":"180/55 R17 REAR TYRE MICHELIN ROAD 5","price":"205.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":600,"motorbike_repair_id":89,"job_description":"Gasket Cover Clutch","price":"20.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":601,"motorbike_repair_id":89,"job_description":"Number Plate","price":"25.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":602,"motorbike_repair_id":89,"job_description":"Labour","price":"415.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":603,"motorbike_repair_id":89,"job_description":"Exhaust Seal","price":"30.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":604,"motorbike_repair_id":89,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-04-12 16:39:07","updated_at":"2025-04-12 16:39:07"}
+{"id":626,"motorbike_repair_id":103,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":627,"motorbike_repair_id":103,"job_description":"Kit Belt","price":"85.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":628,"motorbike_repair_id":103,"job_description":"Lever","price":"10.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":629,"motorbike_repair_id":103,"job_description":"Rear Brake Pad Ebc","price":"25.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":630,"motorbike_repair_id":103,"job_description":"BS Battery","price":"50.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":631,"motorbike_repair_id":103,"job_description":"Mirror","price":"29.98","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":632,"motorbike_repair_id":103,"job_description":"Light Bulb","price":"10.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":633,"motorbike_repair_id":103,"job_description":"Number Plate","price":"25.00","note":"-","created_at":"2025-04-15 11:43:04","updated_at":"2025-04-15 11:43:04"}
+{"id":636,"motorbike_repair_id":95,"job_description":"2-Hour Labour","price":"110.00","note":"-","created_at":"2025-04-16 16:39:36","updated_at":"2025-04-16 16:39:36"}
+{"id":637,"motorbike_repair_id":95,"job_description":"York Assy","price":"160.00","note":"-","created_at":"2025-04-16 16:39:36","updated_at":"2025-04-16 16:39:36"}
+{"id":645,"motorbike_repair_id":107,"job_description":"Front Brake Pads EBC","price":"25.00","note":"-","created_at":"2025-04-22 15:25:22","updated_at":"2025-04-22 15:25:22"}
+{"id":646,"motorbike_repair_id":107,"job_description":"Front Brake Pads 100/80-16","price":"75.00","note":"-","created_at":"2025-04-22 15:25:22","updated_at":"2025-04-22 15:25:22"}
+{"id":647,"motorbike_repair_id":107,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-04-22 15:25:22","updated_at":"2025-04-22 15:25:22"}
+{"id":648,"motorbike_repair_id":107,"job_description":"Mechanic Labour","price":"60.00","note":"-","created_at":"2025-04-22 15:25:22","updated_at":"2025-04-22 15:25:22"}
+{"id":651,"motorbike_repair_id":110,"job_description":"MOT","price":"30.00","note":"PAID RECEIPT","created_at":"2025-04-28 16:10:12","updated_at":"2025-04-28 16:10:12"}
+{"id":658,"motorbike_repair_id":111,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-04-29 14:03:14","updated_at":"2025-04-29 14:03:14"}
+{"id":659,"motorbike_repair_id":111,"job_description":"Rear Shock Absorber's","price":"170.00","note":"It was Jumping a lot.","created_at":"2025-04-29 14:03:14","updated_at":"2025-04-29 14:03:14"}
+{"id":660,"motorbike_repair_id":111,"job_description":"Light Bulb","price":"5.00","note":"-","created_at":"2025-04-29 14:03:14","updated_at":"2025-04-29 14:03:14"}
+{"id":661,"motorbike_repair_id":111,"job_description":"Front Wheel Bearnings","price":"40.00","note":"-","created_at":"2025-04-29 14:03:14","updated_at":"2025-04-29 14:03:14"}
+{"id":662,"motorbike_repair_id":111,"job_description":"Horn Scooter","price":"25.00","note":"-","created_at":"2025-04-29 14:03:14","updated_at":"2025-04-29 14:03:14"}
+{"id":663,"motorbike_repair_id":111,"job_description":"Front Brake Pads Original","price":"35.00","note":"-","created_at":"2025-04-29 14:03:14","updated_at":"2025-04-29 14:03:14"}
+{"id":668,"motorbike_repair_id":113,"job_description":"Ignition Set Vision 2019","price":"135.00","note":"-","created_at":"2025-04-29 15:17:56","updated_at":"2025-04-29 15:17:56"}
+{"id":669,"motorbike_repair_id":113,"job_description":"Engine Oil Atlantic","price":"5.00","note":"-","created_at":"2025-04-29 15:17:56","updated_at":"2025-04-29 15:17:56"}
+{"id":670,"motorbike_repair_id":67,"job_description":"Major service 300 cc","price":"185.00","note":"partially paid, 50% paid £92.50","created_at":"2025-04-29 17:30:51","updated_at":"2025-04-29 17:30:51"}
+{"id":671,"motorbike_repair_id":61,"job_description":"Tracker","price":"135.00","note":"ALL PAID, RECEIPT NUMBER 1005","created_at":"2025-04-29 17:32:08","updated_at":"2025-04-29 17:32:08"}
+{"id":672,"motorbike_repair_id":61,"job_description":"Alarm","price":"75.00","note":"ALL PAID, RECEIPT NUMBER 1006","created_at":"2025-04-29 17:32:08","updated_at":"2025-04-29 17:32:08"}
+{"id":673,"motorbike_repair_id":61,"job_description":"Sparkplug","price":"30.00","note":"ALL PAID, RECEIPT NUMBER 1005","created_at":"2025-04-29 17:32:08","updated_at":"2025-04-29 17:32:08"}
+{"id":674,"motorbike_repair_id":61,"job_description":"Jacket  Suko","price":"99.00","note":"ALL PAID, RECEIPT NUMBER 1005","created_at":"2025-04-29 17:32:08","updated_at":"2025-04-29 17:32:08"}
+{"id":675,"motorbike_repair_id":87,"job_description":"Front Wheel Bearning","price":"30.00","note":"-","created_at":"2025-04-29 17:32:24","updated_at":"2025-04-29 17:32:24"}
+{"id":676,"motorbike_repair_id":87,"job_description":"Rear Wheel Bearning","price":"30.00","note":"-","created_at":"2025-04-29 17:32:24","updated_at":"2025-04-29 17:32:24"}
+{"id":677,"motorbike_repair_id":87,"job_description":"Rear Brake Pads EBC","price":"25.00","note":"-","created_at":"2025-04-29 17:32:24","updated_at":"2025-04-29 17:32:24"}
+{"id":678,"motorbike_repair_id":87,"job_description":"Rear Tyre ANLAS 110/70-13","price":"65.00","note":"-","created_at":"2025-04-29 17:32:24","updated_at":"2025-04-29 17:32:24"}
+{"id":679,"motorbike_repair_id":87,"job_description":"MOT","price":"30.00","note":"-35","created_at":"2025-04-29 17:32:24","updated_at":"2025-04-29 17:32:24"}
+{"id":680,"motorbike_repair_id":104,"job_description":"Engine Re-building","price":"650.00","note":"Customer Paid £269 paid us in the shop to start re-building engine.","created_at":"2025-04-29 17:33:10","updated_at":"2025-04-29 17:33:10"}
+{"id":681,"motorbike_repair_id":104,"job_description":"Air Filter","price":"15.00","note":"-","created_at":"2025-04-29 17:33:10","updated_at":"2025-04-29 17:33:10"}
+{"id":682,"motorbike_repair_id":104,"job_description":"Speedo Meter Cable","price":"25.00","note":"-","created_at":"2025-04-29 17:33:10","updated_at":"2025-04-29 17:33:10"}
+{"id":683,"motorbike_repair_id":88,"job_description":"Engine Re-building","price":"650.00","note":"3-MONTHS WARRENTY","created_at":"2025-04-29 17:33:39","updated_at":"2025-04-29 17:33:39"}
+{"id":684,"motorbike_repair_id":88,"job_description":"Air Filter","price":"20.00","note":"-","created_at":"2025-04-29 17:33:39","updated_at":"2025-04-29 17:33:39"}
+{"id":688,"motorbike_repair_id":114,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-05-02 15:24:00","updated_at":"2025-05-02 15:24:00"}
+{"id":689,"motorbike_repair_id":114,"job_description":"130/70-13 Rear Tyre Deli","price":"55.00","note":"-","created_at":"2025-05-02 15:24:00","updated_at":"2025-05-02 15:24:00"}
+{"id":690,"motorbike_repair_id":114,"job_description":"Wheel Arm Bearning","price":"30.00","note":"-","created_at":"2025-05-02 15:24:00","updated_at":"2025-05-02 15:24:00"}
+{"id":692,"motorbike_repair_id":116,"job_description":"ENGINE OIL MOTUL","price":"10.00","note":"-","created_at":"2025-05-02 16:50:25","updated_at":"2025-05-02 16:50:25"}
+{"id":693,"motorbike_repair_id":116,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-05-02 16:50:25","updated_at":"2025-05-02 16:50:25"}
+{"id":703,"motorbike_repair_id":94,"job_description":"Kit Belt","price":"140.00","note":"-","created_at":"2025-05-03 15:56:01","updated_at":"2025-05-03 15:56:01"}
+{"id":704,"motorbike_repair_id":94,"job_description":"Face set, driven & face set, movable (USED No Warranty)","price":"378.00","note":"NO warranty","created_at":"2025-05-03 15:56:01","updated_at":"2025-05-03 15:56:01"}
+{"id":705,"motorbike_repair_id":94,"job_description":"Clutch shoes","price":"135.00","note":"-","created_at":"2025-05-03 15:56:01","updated_at":"2025-05-03 15:56:01"}
+{"id":706,"motorbike_repair_id":119,"job_description":"MAJOR SERVICE 125CC","price":"95.00","note":"-","created_at":"2025-05-03 17:56:14","updated_at":"2025-05-03 17:56:14"}
+{"id":707,"motorbike_repair_id":119,"job_description":"Crankshaft Oil Seal","price":"30.00","note":"-","created_at":"2025-05-03 17:56:14","updated_at":"2025-05-03 17:56:14"}
+{"id":708,"motorbike_repair_id":119,"job_description":"Rear Brake Pads Yamaha","price":"35.00","note":"-","created_at":"2025-05-03 17:56:14","updated_at":"2025-05-03 17:56:14"}
+{"id":709,"motorbike_repair_id":118,"job_description":"110/70-13 Front Tyre Anlas","price":"65.00","note":"-","created_at":"2025-05-05 17:25:40","updated_at":"2025-05-05 17:25:40"}
+{"id":710,"motorbike_repair_id":118,"job_description":"130/70-13 Rear Tyre Anlas","price":"65.00","note":"-","created_at":"2025-05-05 17:25:40","updated_at":"2025-05-05 17:25:40"}
+{"id":711,"motorbike_repair_id":118,"job_description":"BRAKE PADS EBC FRONT","price":"25.00","note":"-","created_at":"2025-05-05 17:25:40","updated_at":"2025-05-05 17:25:40"}
+{"id":712,"motorbike_repair_id":112,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-05-05 17:26:30","updated_at":"2025-05-05 17:26:30"}
+{"id":713,"motorbike_repair_id":112,"job_description":"Rear Brake Pads EBC HH","price":"60.00","note":"Finished","created_at":"2025-05-05 17:26:30","updated_at":"2025-05-05 17:26:30"}
+{"id":714,"motorbike_repair_id":57,"job_description":"Front Fender","price":"48.00","note":"Bend","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":715,"motorbike_repair_id":57,"job_description":"Front Fork Assembly","price":"320.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":716,"motorbike_repair_id":57,"job_description":"Headlight Brace","price":"53.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":717,"motorbike_repair_id":57,"job_description":"Headlight Housing","price":"45.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":718,"motorbike_repair_id":57,"job_description":"Headlight Front","price":"385.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":719,"motorbike_repair_id":57,"job_description":"Yok Assembly","price":"86.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":720,"motorbike_repair_id":57,"job_description":"Yok Bearings","price":"125.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":721,"motorbike_repair_id":57,"job_description":"Front Disk","price":"77.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":722,"motorbike_repair_id":57,"job_description":"COWLING, UNDER CTR","price":"19.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":723,"motorbike_repair_id":57,"job_description":"COVER FRAME FRONT LH (BLUE)","price":"75.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":724,"motorbike_repair_id":57,"job_description":"COVER FRAME FRONT RH (BLUE)","price":"75.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":725,"motorbike_repair_id":57,"job_description":"TAPEFRAME COVER NO.2 GSX-S125","price":"19.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":726,"motorbike_repair_id":57,"job_description":"TAPEFRAME GSX125-R/S125/L8","price":"19.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":727,"motorbike_repair_id":57,"job_description":"Bearings Wheel (L)","price":"28.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":728,"motorbike_repair_id":57,"job_description":"Bearings Wheel (R)","price":"28.00","note":"-","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":729,"motorbike_repair_id":57,"job_description":"Mechanic Labour","price":"220.00","note":"This is the minimum approximately time to fix these parts.","created_at":"2025-05-05 17:27:35","updated_at":"2025-05-05 17:27:35"}
+{"id":730,"motorbike_repair_id":117,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-05-06 10:51:46","updated_at":"2025-05-06 10:51:46"}
+{"id":731,"motorbike_repair_id":117,"job_description":"Rear Brake Shoes","price":"30.00","note":"-","created_at":"2025-05-06 10:51:46","updated_at":"2025-05-06 10:51:46"}
+{"id":732,"motorbike_repair_id":115,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-05-06 12:15:16","updated_at":"2025-05-06 12:15:16"}
+{"id":733,"motorbike_repair_id":120,"job_description":"Fob Key NMAX 125","price":"155.00","note":"-","created_at":"2025-05-07 13:25:37","updated_at":"2025-05-07 13:25:37"}
+{"id":734,"motorbike_repair_id":121,"job_description":"SWITCH ASSY., SEAT OPENER","price":"60.00","note":"35193-K0R-V01","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":735,"motorbike_repair_id":121,"job_description":"COVER, L. FLOOR SIDE","price":"80.00","note":"64432-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":736,"motorbike_repair_id":121,"job_description":"GARNISH, FR","price":"134.00","note":"64305-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":737,"motorbike_repair_id":121,"job_description":"PANEL, FR. METER","price":"71.00","note":"64336-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":738,"motorbike_repair_id":121,"job_description":"COVER, L. FR. SIDE","price":"85.00","note":"64502-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":739,"motorbike_repair_id":121,"job_description":"COVER, R. FR. SIDE","price":"140.18","note":"64501-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":740,"motorbike_repair_id":121,"job_description":"COVER, FR. CENTER","price":"20.00","note":"64503-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":741,"motorbike_repair_id":121,"job_description":"MIRROR COMP., R.","price":"40.00","note":"88210-K96-V01","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":742,"motorbike_repair_id":121,"job_description":"COVER, INNER","price":"90.00","note":"81131-K1Z-J10","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":743,"motorbike_repair_id":121,"job_description":"Delivery Charges","price":"10.00","note":"-","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":744,"motorbike_repair_id":121,"job_description":"Wireless Holder Fitted","price":"50.00","note":"-","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":745,"motorbike_repair_id":121,"job_description":"Pizza Box Fitted","price":"50.00","note":"-","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":746,"motorbike_repair_id":121,"job_description":"Mechanic Labour(2 Hour)","price":"110.00","note":"-","created_at":"2025-05-07 15:37:15","updated_at":"2025-05-07 15:37:15"}
+{"id":747,"motorbike_repair_id":122,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-05-09 12:42:52","updated_at":"2025-05-09 12:42:52"}
+{"id":748,"motorbike_repair_id":122,"job_description":"Ignition Cables","price":"80.00","note":"-","created_at":"2025-05-09 12:42:52","updated_at":"2025-05-09 12:42:52"}
+{"id":750,"motorbike_repair_id":123,"job_description":"Genuine Tensioner Assy","price":"165.00","note":"-","created_at":"2025-05-10 12:07:43","updated_at":"2025-05-10 12:07:43"}
+{"id":751,"motorbike_repair_id":123,"job_description":"Engine Oil Castrol","price":"15.00","note":"-","created_at":"2025-05-10 12:07:43","updated_at":"2025-05-10 12:07:43"}
+{"id":753,"motorbike_repair_id":125,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-05-19 09:25:39","updated_at":"2025-05-19 09:25:39"}
+{"id":754,"motorbike_repair_id":125,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-05-19 09:25:39","updated_at":"2025-05-19 09:25:39"}
+{"id":755,"motorbike_repair_id":124,"job_description":"Mechanic Labour","price":"80.00","note":"-","created_at":"2025-05-28 11:14:39","updated_at":"2025-05-28 11:14:39"}
+{"id":756,"motorbike_repair_id":82,"job_description":"1x.   IDLE GEAR ASSY","price":"26.00","note":"4KL-E5650-20","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":757,"motorbike_repair_id":82,"job_description":"BEARING","price":"14.00","note":"93317-110Y4","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":758,"motorbike_repair_id":82,"job_description":"SHAFT 1","price":"20.00","note":"5WG-E5521-00","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":759,"motorbike_repair_id":82,"job_description":"WASHER, PLATE","price":"1.00","note":"90201-108A3","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":760,"motorbike_repair_id":82,"job_description":"PLATE, IDLE GEAR","price":"7.00","note":"5MH-E5532-00","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":761,"motorbike_repair_id":82,"job_description":"SCREW PAN","price":"1.00","note":"9851706012","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":762,"motorbike_repair_id":82,"job_description":"WHEEL, STARTER","price":"64.00","note":"4KL-E5524-00","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":763,"motorbike_repair_id":82,"job_description":"BEARING","price":"44.00","note":"93306-003X8","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":764,"motorbike_repair_id":82,"job_description":"CIRCLIP","price":"3.00","note":"99009-35700","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":765,"motorbike_repair_id":82,"job_description":"STARTER CLUTCH ASSY","price":"120.00","note":"4KLE557010","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":766,"motorbike_repair_id":82,"job_description":"WASHER, PLATE","price":"7.00","note":"90201-163G6","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":767,"motorbike_repair_id":82,"job_description":"SHAFT","price":"30.00","note":"4KL-E5659-00","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":768,"motorbike_repair_id":82,"job_description":"Mechanic Labour","price":"55.00","note":"One Hour Labour.","created_at":"2025-05-28 11:15:09","updated_at":"2025-05-28 11:15:09"}
+{"id":769,"motorbike_repair_id":127,"job_description":"Major Service","price":"185.00","note":"-","created_at":"2025-06-09 12:48:05","updated_at":"2025-06-09 12:48:05"}
+{"id":770,"motorbike_repair_id":128,"job_description":"Basic Service","price":"125.00","note":"-","created_at":"2025-06-13 17:10:20","updated_at":"2025-06-13 17:10:20"}
+{"id":776,"motorbike_repair_id":129,"job_description":"CLUTCH FORZA 125","price":"165.00","note":"-","created_at":"2025-06-19 15:14:15","updated_at":"2025-06-19 15:14:15"}
+{"id":777,"motorbike_repair_id":129,"job_description":"KIT BELT FORZA 125 K40","price":"130.00","note":"-","created_at":"2025-06-19 15:14:15","updated_at":"2025-06-19 15:14:15"}
+{"id":778,"motorbike_repair_id":129,"job_description":"SPRING CLUTCH ASSY","price":"11.00","note":"-","created_at":"2025-06-19 15:14:15","updated_at":"2025-06-19 15:14:15"}
+{"id":779,"motorbike_repair_id":129,"job_description":"MAJOR SERVICE 125","price":"95.00","note":"-","created_at":"2025-06-19 15:14:15","updated_at":"2025-06-19 15:14:15"}
+{"id":780,"motorbike_repair_id":129,"job_description":"REAR BRAKE PADS ORIGINAL 125","price":"35.00","note":"-","created_at":"2025-06-19 15:14:15","updated_at":"2025-06-19 15:14:15"}
+{"id":781,"motorbike_repair_id":129,"job_description":"CLUTCH OUTER COMP.","price":"162.00","note":"-","created_at":"2025-06-19 15:14:15","updated_at":"2025-06-19 15:14:15"}
+{"id":782,"motorbike_repair_id":130,"job_description":"Engine Re-building","price":"650.00","note":"-","created_at":"2025-06-19 15:38:46","updated_at":"2025-06-19 15:38:46"}
+{"id":783,"motorbike_repair_id":130,"job_description":"Air Filter","price":"20.00","note":"-","created_at":"2025-06-19 15:38:46","updated_at":"2025-06-19 15:38:46"}
+{"id":880,"motorbike_repair_id":132,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-06-23 16:46:55","updated_at":"2025-06-23 16:46:55"}
+{"id":881,"motorbike_repair_id":132,"job_description":"Rear Tyre TL WINTER GRIP 2 R","price":"85.00","note":"-","created_at":"2025-06-23 16:46:55","updated_at":"2025-06-23 16:46:55"}
+{"id":882,"motorbike_repair_id":132,"job_description":"Head Bearnings Labour","price":"30.00","note":"-","created_at":"2025-06-23 16:46:55","updated_at":"2025-06-23 16:46:55"}
+{"id":883,"motorbike_repair_id":133,"job_description":"2x SEAL SET, FR. FORK","price":"55.00","note":"-","created_at":"2025-06-24 13:37:53","updated_at":"2025-06-24 13:37:53"}
+{"id":884,"motorbike_repair_id":133,"job_description":"Fork Oil & Labour","price":"110.00","note":"-","created_at":"2025-06-24 13:37:53","updated_at":"2025-06-24 13:37:53"}
+{"id":885,"motorbike_repair_id":134,"job_description":"MAJOR SERVICE 125CC","price":"235.00","note":"-","created_at":"2025-06-24 17:21:28","updated_at":"2025-06-24 17:21:28"}
+{"id":928,"motorbike_repair_id":131,"job_description":"COVER SET R. BODY (WL) *","price":"176.79","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":929,"motorbike_repair_id":131,"job_description":"COVER SET L. BODY (WL) *","price":"173.10","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":930,"motorbike_repair_id":131,"job_description":"COVER R. FLOOR SIDE *NHA","price":"38.02","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":931,"motorbike_repair_id":131,"job_description":"COVER L. FLOOR SIDE *NHA","price":"37.38","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":932,"motorbike_repair_id":131,"job_description":"STEP FLOOR *NH1*","price":"94.94","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":933,"motorbike_repair_id":131,"job_description":"COVER UNDER *NH1*","price":"30.68","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":934,"motorbike_repair_id":131,"job_description":"LIGHT ASSY. RR. COMBINAT","price":"307.49","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":935,"motorbike_repair_id":131,"job_description":"FENDER SET RR. (WL) *TYP","price":"42.66","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":936,"motorbike_repair_id":131,"job_description":"COVER L. FR. SIDE *NHA84","price":"87.20","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":937,"motorbike_repair_id":131,"job_description":"COVER SET FR. (WL) *TYPE","price":"110.92","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":938,"motorbike_repair_id":131,"job_description":"COVER INNER LOWER *NH1*","price":"120.15","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":939,"motorbike_repair_id":131,"job_description":"COVER INNER UPPER *NHA84","price":"115.06","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":940,"motorbike_repair_id":131,"job_description":"FENDER FR. *NHA84P","price":"149.94","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":941,"motorbike_repair_id":131,"job_description":"COVER SET HANDLE RR. (WL","price":"84.69","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":942,"motorbike_repair_id":131,"job_description":"MIRROR COMP. R.","price":"30.86","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":943,"motorbike_repair_id":131,"job_description":"MIRROR COMP. L.","price":"30.86","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":944,"motorbike_repair_id":131,"job_description":"WINKER UNIT L. FR.","price":"67.70","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":945,"motorbike_repair_id":131,"job_description":"COVER SUB ASSY. AIR CLEA","price":"45.35","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":946,"motorbike_repair_id":131,"job_description":"BOX LUGGAGE","price":"120.76","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":947,"motorbike_repair_id":131,"job_description":"PROTECTOR MUFFLER","price":"36.98","note":"Original parts broken","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":948,"motorbike_repair_id":131,"job_description":"MECHANIC LABOUR","price":"220.00","note":"4 HOURS THE LABOUR FOR FIXE THE PARTS","created_at":"2025-06-25 11:05:51","updated_at":"2025-06-25 11:05:51"}
+{"id":949,"motorbike_repair_id":135,"job_description":"Easy Block","price":"180.00","note":"-","created_at":"2025-07-14 17:10:09","updated_at":"2025-07-14 17:10:09"}
+{"id":950,"motorbike_repair_id":135,"job_description":"Premium Top Box","price":"170.00","note":"-","created_at":"2025-07-14 17:10:09","updated_at":"2025-07-14 17:10:09"}
+{"id":951,"motorbike_repair_id":135,"job_description":"Windshield","price":"110.00","note":"-","created_at":"2025-07-14 17:10:09","updated_at":"2025-07-14 17:10:09"}
+{"id":952,"motorbike_repair_id":135,"job_description":"Wireless Phone Holder M11-A","price":"50.00","note":"-","created_at":"2025-07-14 17:10:09","updated_at":"2025-07-14 17:10:09"}
+{"id":953,"motorbike_repair_id":135,"job_description":"DOUBLE SEAT ASSY","price":"220.00","note":"-","created_at":"2025-07-14 17:10:09","updated_at":"2025-07-14 17:10:09"}
+{"id":954,"motorbike_repair_id":135,"job_description":"Left Mirror","price":"15.00","note":"-","created_at":"2025-07-14 17:10:09","updated_at":"2025-07-14 17:10:09"}
+{"id":955,"motorbike_repair_id":136,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-07-23 11:15:15","updated_at":"2025-07-23 11:15:15"}
+{"id":956,"motorbike_repair_id":136,"job_description":"MOT","price":"29.65","note":"-","created_at":"2025-07-23 11:15:15","updated_at":"2025-07-23 11:15:15"}
+{"id":957,"motorbike_repair_id":136,"job_description":"Oil Seal","price":"15.00","note":"-","created_at":"2025-07-23 11:15:15","updated_at":"2025-07-23 11:15:15"}
+{"id":958,"motorbike_repair_id":137,"job_description":"Gear Box Bearnings","price":"115.00","note":"-","created_at":"2025-07-28 18:03:47","updated_at":"2025-07-28 18:03:47"}
+{"id":959,"motorbike_repair_id":137,"job_description":"Kit Belt 125cc","price":"85.00","note":"-","created_at":"2025-07-28 18:03:47","updated_at":"2025-07-28 18:03:47"}
+{"id":960,"motorbike_repair_id":137,"job_description":"Variator Kit 125cc","price":"120.00","note":"-","created_at":"2025-07-28 18:03:47","updated_at":"2025-07-28 18:03:47"}
+{"id":961,"motorbike_repair_id":138,"job_description":"MAJOR SERVICE 125CC","price":"95.00","note":"-","created_at":"2025-07-29 16:43:33","updated_at":"2025-07-29 16:43:33"}
+{"id":965,"motorbike_repair_id":139,"job_description":"REAR BRAKE CALIPER","price":"125.00","note":"-","created_at":"2025-07-29 17:39:05","updated_at":"2025-07-29 17:39:05"}
+{"id":966,"motorbike_repair_id":139,"job_description":"KIT BELT","price":"122.00","note":"-","created_at":"2025-07-29 17:39:05","updated_at":"2025-07-29 17:39:05"}
+{"id":967,"motorbike_repair_id":139,"job_description":"2 HOURS LABOUR","price":"110.00","note":"-","created_at":"2025-07-29 17:39:05","updated_at":"2025-07-29 17:39:05"}
+{"id":970,"motorbike_repair_id":140,"job_description":"maintenance in the carburettor","price":"75.00","note":"Receipt no. 3657","created_at":"2025-08-02 12:46:09","updated_at":"2025-08-02 12:46:09"}
+{"id":971,"motorbike_repair_id":140,"job_description":"Petrol","price":"5.00","note":"Receipt no. 3657","created_at":"2025-08-02 12:46:09","updated_at":"2025-08-02 12:46:09"}
+{"id":972,"motorbike_repair_id":141,"job_description":"IGNITION SET VISION","price":"135.00","note":"50% PAID 01/08/25","created_at":"2025-08-02 14:06:24","updated_at":"2025-08-02 14:06:24"}
+{"id":973,"motorbike_repair_id":141,"job_description":"MIRROR PAIR","price":"20.00","note":"50% PAID 01/08/25","created_at":"2025-08-02 14:06:24","updated_at":"2025-08-02 14:06:24"}
+{"id":974,"motorbike_repair_id":141,"job_description":"MECHANIC LABOUR","price":"55.00","note":"50% PAID 01/08/25","created_at":"2025-08-02 14:06:24","updated_at":"2025-08-02 14:06:24"}
+{"id":975,"motorbike_repair_id":141,"job_description":"NUMBER PLATE","price":"25.00","note":"50% PAID 01/08/25","created_at":"2025-08-02 14:06:24","updated_at":"2025-08-02 14:06:24"}
+{"id":976,"motorbike_repair_id":142,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":977,"motorbike_repair_id":142,"job_description":"MOT","price":"30.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":978,"motorbike_repair_id":142,"job_description":"Kit Belt 125","price":"85.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":979,"motorbike_repair_id":142,"job_description":"Clutch 125","price":"85.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":980,"motorbike_repair_id":142,"job_description":"Clutch Bearnings 125","price":"60.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":981,"motorbike_repair_id":142,"job_description":"Number Plate Bulb","price":"5.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":982,"motorbike_repair_id":142,"job_description":"EBC Brake Pads 125","price":"25.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":983,"motorbike_repair_id":142,"job_description":"Mechanic Labour","price":"28.00","note":"-","created_at":"2025-08-05 14:28:36","updated_at":"2025-08-05 14:28:36"}
+{"id":984,"motorbike_repair_id":143,"job_description":"Rear Tyre Kenda","price":"55.00","note":"-","created_at":"2025-08-07 12:34:42","updated_at":"2025-08-07 12:34:42"}
+{"id":985,"motorbike_repair_id":143,"job_description":"Number Plate Light Bulb","price":"5.00","note":"-","created_at":"2025-08-07 12:34:42","updated_at":"2025-08-07 12:34:42"}
+{"id":986,"motorbike_repair_id":143,"job_description":"MOT","price":"29.65","note":"-","created_at":"2025-08-07 12:34:42","updated_at":"2025-08-07 12:34:42"}
+{"id":987,"motorbike_repair_id":144,"job_description":"MOT","price":"29.65","note":"-","created_at":"2025-08-13 12:17:05","updated_at":"2025-08-13 12:17:05"}
+{"id":988,"motorbike_repair_id":144,"job_description":"Rear Shock Absorber's","price":"150.00","note":"-","created_at":"2025-08-13 12:17:05","updated_at":"2025-08-13 12:17:05"}
+{"id":989,"motorbike_repair_id":144,"job_description":"EBC Front Brake Pads","price":"25.00","note":"-","created_at":"2025-08-13 12:17:05","updated_at":"2025-08-13 12:17:05"}
+{"id":990,"motorbike_repair_id":144,"job_description":"Mechanic Labour","price":"15.00","note":"-","created_at":"2025-08-13 12:17:05","updated_at":"2025-08-13 12:17:05"}
+{"id":991,"motorbike_repair_id":144,"job_description":"Bearning","price":"30.00","note":"-","created_at":"2025-08-13 12:17:05","updated_at":"2025-08-13 12:17:05"}
+{"id":992,"motorbike_repair_id":145,"job_description":"MOT","price":"29.65","note":"-","created_at":"2025-08-18 15:27:53","updated_at":"2025-08-18 15:27:53"}
+{"id":993,"motorbike_repair_id":145,"job_description":"Basic Service","price":"190.00","note":"-","created_at":"2025-08-18 15:27:53","updated_at":"2025-08-18 15:27:53"}
+{"id":994,"motorbike_repair_id":146,"job_description":"COVER SIDE 1","price":"64.98","note":"ONLY PART","created_at":"2025-08-23 14:46:29","updated_at":"2025-08-23 14:46:29"}
+{"id":995,"motorbike_repair_id":146,"job_description":"COVER SIDE 3","price":"65.72","note":"ONLY PART","created_at":"2025-08-23 14:46:29","updated_at":"2025-08-23 14:46:29"}
+{"id":996,"motorbike_repair_id":146,"job_description":"MECHANIC LABOUR","price":"110.00","note":"2 HOURS MECHANIC LABOUR","created_at":"2025-08-23 14:46:29","updated_at":"2025-08-23 14:46:29"}
+{"id":997,"motorbike_repair_id":147,"job_description":"Front mudguard 66719700NM","price":"350.27","note":"ONLY PART","created_at":"2025-08-23 15:03:10","updated_at":"2025-08-23 15:03:10"}
+{"id":998,"motorbike_repair_id":147,"job_description":"MECHANIC LABOUR","price":"110.00","note":"LABOUR","created_at":"2025-08-23 15:03:10","updated_at":"2025-08-23 15:03:10"}
+{"id":999,"motorbike_repair_id":148,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-08-23 16:33:59","updated_at":"2025-08-23 16:33:59"}
+{"id":1000,"motorbike_repair_id":149,"job_description":"MOT","price":"29.65","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1001,"motorbike_repair_id":149,"job_description":"Number Plate Light Bulb","price":"5.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1002,"motorbike_repair_id":149,"job_description":"Rear Brake Bulb","price":"5.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1003,"motorbike_repair_id":149,"job_description":"EBC Front Brake Pads","price":"25.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1004,"motorbike_repair_id":149,"job_description":"EBC Rear Brake Shoes","price":"30.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1005,"motorbike_repair_id":149,"job_description":"Rear Kenda Tyre","price":"55.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1006,"motorbike_repair_id":149,"job_description":"Left Rear Brake Lever","price":"10.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1007,"motorbike_repair_id":149,"job_description":"Right Front Brake Lever","price":"10.00","note":"-","created_at":"2025-08-26 15:04:11","updated_at":"2025-08-26 15:04:11"}
+{"id":1045,"motorbike_repair_id":102,"job_description":"test","price":"10.00","note":"10","created_at":"2025-09-02 22:08:06","updated_at":"2025-09-02 22:08:06"}
+{"id":1046,"motorbike_repair_id":150,"job_description":"Major Service","price":"95.00","note":"-","created_at":"2025-09-27 09:28:52","updated_at":"2025-09-27 09:28:52"}
+{"id":1047,"motorbike_repair_id":150,"job_description":"Kit belt Piaggio","price":"110.00","note":"-","created_at":"2025-09-27 09:28:52","updated_at":"2025-09-27 09:28:52"}
+{"id":1048,"motorbike_repair_id":150,"job_description":"Tail Light bulb","price":"10.00","note":"-","created_at":"2025-09-27 09:28:52","updated_at":"2025-09-27 09:28:52"}
+{"id":1051,"motorbike_repair_id":151,"job_description":"Major Service","price":"10.00","note":"note","created_at":"2025-09-29 15:04:53","updated_at":"2025-09-29 15:04:53"}
+{"id":1052,"motorbike_repair_id":152,"job_description":"R225 - YAMAHA NMAX 2021-2024","price":"130.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1053,"motorbike_repair_id":152,"job_description":"130/70-13 MI CITY GRIP 2 / PILOT STREET","price":"85.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1054,"motorbike_repair_id":152,"job_description":"110/70-13 MI CITY GRIP 2 / PILOT STREET","price":"75.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1055,"motorbike_repair_id":152,"job_description":"ENGINE - OIL CASTROL","price":"15.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1056,"motorbike_repair_id":152,"job_description":"MECHANIC LABOUR","price":"55.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1057,"motorbike_repair_id":152,"job_description":"EXHAUST COVER","price":"44.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1058,"motorbike_repair_id":152,"job_description":"COVER L SIDE HEADLIGHT","price":"187.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1059,"motorbike_repair_id":152,"job_description":"BRACKET MIRROR","price":"59.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1060,"motorbike_repair_id":152,"job_description":"YAMAHA BRAKE PAD ORIGINAL 125 REAR","price":"35.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1061,"motorbike_repair_id":152,"job_description":"YAMAHA BRAKE PAD ORIGINAL 125 FRONT","price":"35.00","note":"-","created_at":"2025-11-05 15:12:36","updated_at":"2025-11-05 15:12:36"}
+{"id":1062,"motorbike_repair_id":153,"job_description":"Major Service","price":"185.00","note":"-","created_at":"2025-11-15 17:36:04","updated_at":"2025-11-15 17:36:04"}
+{"id":1063,"motorbike_repair_id":153,"job_description":"EBC REAR BRAKE PADS","price":"50.00","note":"-","created_at":"2025-11-15 17:36:04","updated_at":"2025-11-15 17:36:04"}
+{"id":1064,"motorbike_repair_id":154,"job_description":"Step L. Floor","price":"105.00","note":"-","created_at":"2026-01-16 10:17:42","updated_at":"2026-01-16 10:17:42"}
+{"id":1065,"motorbike_repair_id":154,"job_description":"Cover L Floor","price":"115.00","note":"-","created_at":"2026-01-16 10:17:42","updated_at":"2026-01-16 10:17:42"}
+{"id":1066,"motorbike_repair_id":154,"job_description":"Handle Bar Repair","price":"25.00","note":"-","created_at":"2026-01-16 10:17:42","updated_at":"2026-01-16 10:17:42"}
+{"id":1067,"motorbike_repair_id":154,"job_description":"MOT","price":"29.65","note":"-","created_at":"2026-01-16 10:17:42","updated_at":"2026-01-16 10:17:42"}
+{"id":1068,"motorbike_repair_id":154,"job_description":"Diagnostic","price":"80.00","note":"-","created_at":"2026-01-16 10:17:42","updated_at":"2026-01-16 10:17:42"}
+{"id":1069,"motorbike_repair_id":154,"job_description":"Mechanic Labour","price":"205.00","note":"-","created_at":"2026-01-16 14:42:28","updated_at":"2026-01-16 14:42:28"}
+{"id":1070,"motorbike_repair_id":155,"job_description":"GASKET – CLUTCH COVER","price":"13.80","note":"90130027000","created_at":"2026-01-31 15:01:32","updated_at":"2026-01-31 15:01:32"}
+{"id":1071,"motorbike_repair_id":155,"job_description":"VALVE COVER GASKET","price":"23.22","note":"90136053000","created_at":"2026-01-31 15:01:32","updated_at":"2026-01-31 15:01:32"}
+{"id":1072,"motorbike_repair_id":155,"job_description":"TIMING CHAIN","price":"68.08","note":"90136013000","created_at":"2026-01-31 15:01:32","updated_at":"2026-01-31 15:01:32"}
+{"id":1073,"motorbike_repair_id":155,"job_description":"DECOUPLING ELEMENT (x4)","price":"16.00","note":"90136052010","created_at":"2026-01-31 15:01:32","updated_at":"2026-01-31 15:01:32"}
+{"id":1074,"motorbike_repair_id":155,"job_description":"CHAIN ADJUSTER","price":"63.24","note":"90136003000","created_at":"2026-01-31 15:01:32","updated_at":"2026-01-31 15:01:32"}
+{"id":1075,"motorbike_repair_id":155,"job_description":"Mechanic Labour","price":"165.00","note":"-","created_at":"2026-01-31 15:01:32","updated_at":"2026-01-31 15:01:32"}
+{"id":1076,"motorbike_repair_id":156,"job_description":"120/70-14 Michelin City Grip 2","price":"85.99","note":"Fitted","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1078,"motorbike_repair_id":156,"job_description":"140/70-14 Michelin City Grip 2","price":"95.99","note":"Fitted","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1079,"motorbike_repair_id":156,"job_description":"Front Right Genuine Brake pads","price":"26.34","note":"2CM-F5805-00","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1080,"motorbike_repair_id":156,"job_description":"Front Left Genuine Brake pads","price":"26.34","note":"2CMF580510","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1081,"motorbike_repair_id":156,"job_description":"Rear Genuine Brake pads","price":"35.12","note":"B74-F5806-00","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1082,"motorbike_repair_id":156,"job_description":"Mechanic Labour for Brake Pads","price":"60.00","note":"-","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1083,"motorbike_repair_id":156,"job_description":"Tie Rod Assembly","price":"57.45","note":"BX9F383000","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1084,"motorbike_repair_id":156,"job_description":"Joint 2 – Left","price":"28.10","note":"BX9F382300","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1085,"motorbike_repair_id":156,"job_description":"Joint 3","price":"28.10","note":"BX9F383200","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1086,"motorbike_repair_id":156,"job_description":"Joint 1","price":"26.64","note":"BX9F382200","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1087,"motorbike_repair_id":156,"job_description":"Delivery Charges","price":"20.00","note":"-","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1088,"motorbike_repair_id":156,"job_description":"Mechanic Labour(2 Hour)","price":"111.98","note":"-","created_at":"2026-04-03 11:15:59","updated_at":"2026-04-03 11:15:59"}
+{"id":1089,"motorbike_repair_id":157,"job_description":"MAIN SWITCH SUB ASSY","price":"111.72","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1090,"motorbike_repair_id":157,"job_description":"PANEL COMP 2","price":"49.64","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1091,"motorbike_repair_id":157,"job_description":"LEG SHIELD 1","price":"79.64","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1092,"motorbike_repair_id":157,"job_description":"REAR VIEW MIRROR ASSY (RIGHT)","price":"15.98","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1093,"motorbike_repair_id":157,"job_description":"BIKE WASH","price":"10.00","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1094,"motorbike_repair_id":157,"job_description":"L PLATE & STICKER","price":"5.98","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1095,"motorbike_repair_id":157,"job_description":"Number Plate","price":"25.99","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1096,"motorbike_repair_id":157,"job_description":"Engine Oil Motul","price":"10.00","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1097,"motorbike_repair_id":157,"job_description":"Wireless Phone Holder M22A1","price":"50.99","note":"-","created_at":"2026-04-08 14:31:29","updated_at":"2026-04-08 14:31:29"}
+{"id":1098,"motorbike_repair_id":157,"job_description":"Brake Pads Front Original","price":"35.99","note":"-","created_at":"2026-04-08 14:39:46","updated_at":"2026-04-08 14:39:46"}
+{"id":1099,"motorbike_repair_id":157,"job_description":"Mechanic Labour 2 hours","price":"111.98","note":"-","created_at":"2026-04-08 14:39:46","updated_at":"2026-04-08 14:39:46"}
+{"id":1100,"motorbike_repair_id":158,"job_description":"BODY. COWLING","price":"75.00","note":"-","created_at":"2026-04-17 14:37:07","updated_at":"2026-04-17 14:37:07"}
+{"id":1101,"motorbike_repair_id":158,"job_description":"COVER FRONT","price":"64.00","note":"-","created_at":"2026-04-17 14:40:39","updated_at":"2026-04-17 14:40:39"}
+{"id":1102,"motorbike_repair_id":158,"job_description":"REAR SHOCKS","price":"151.00","note":"-","created_at":"2026-04-17 14:40:39","updated_at":"2026-04-17 14:40:39"}
+{"id":1103,"motorbike_repair_id":158,"job_description":"DELIVERY CHARGE","price":"13.00","note":"-","created_at":"2026-04-17 14:40:39","updated_at":"2026-04-17 14:40:39"}
+{"id":1104,"motorbike_repair_id":158,"job_description":"MECHANIC LABOUR (1 Hour)","price":"56.00","note":"-","created_at":"2026-04-17 14:40:39","updated_at":"2026-04-17 14:40:39"}
+{"id":1105,"motorbike_repair_id":159,"job_description":"2x VALVE, EX.","price":"66.00","note":"14721-K40-F00","created_at":"2026-04-23 13:26:59","updated_at":"2026-04-23 13:26:59"}
+{"id":1106,"motorbike_repair_id":159,"job_description":"2x SEAL, VALVE STEM (ARAI)","price":"26.30","note":"12209-ML0-722","created_at":"2026-04-23 13:26:59","updated_at":"2026-04-23 13:26:59"}
+{"id":1107,"motorbike_repair_id":159,"job_description":"GASKET CYLINDER HEA","price":"22.96","note":"12251-K40-F01","created_at":"2026-04-23 13:26:59","updated_at":"2026-04-23 13:26:59"}
+{"id":1108,"motorbike_repair_id":159,"job_description":"Mechanic Labour","price":"298.90","note":"-","created_at":"2026-04-23 13:26:59","updated_at":"2026-04-23 13:26:59"}
+{"id":1109,"motorbike_repair_id":159,"job_description":"Major Service","price":"99.78","note":"-","created_at":"2026-04-23 13:26:59","updated_at":"2026-04-23 13:26:59"}

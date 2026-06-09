@@ -1,0 +1,5 @@
+{"id":1,"name":"administrator","guard_name":"web","display_name":"Administrator","description":"Site administrator with access to shop admin panel and developer tools.","can_be_removed":0,"created_at":"2023-04-10 15:45:21","updated_at":"2023-04-10 15:45:21"}
+{"id":2,"name":"manager","guard_name":"web","display_name":"Manager","description":"Site manager with access to shop admin panel and publishing menus.","can_be_removed":0,"created_at":"2023-04-10 15:45:21","updated_at":"2023-04-10 15:45:21"}
+{"id":3,"name":"user","guard_name":"web","display_name":"User","description":"Site customer role with access on front site.","can_be_removed":0,"created_at":"2023-04-10 15:45:21","updated_at":"2023-04-10 15:45:21"}
+{"id":4,"name":"client","guard_name":"web","display_name":"Client","description":"","can_be_removed":1,"created_at":"2023-04-10 16:58:55","updated_at":"2023-04-10 16:58:55"}
+{"id":5,"name":"customer","guard_name":"web","display_name":"Customer","description":"","can_be_removed":1,"created_at":"2023-04-22 10:07:45","updated_at":"2023-04-22 10:07:45"}

@@ -40,7 +40,7 @@
     @endif
 
     @if($step === 2)
-        <form wire:submit.prevent="submitOrder" class="space-y-6">
+        <form wire:submit.prevent="submitOrder" class="site-form space-y-6">
             <flux:card class="p-6 space-y-4">
                 <div class="flex justify-between items-center">
                     <h3 class="text-base font-semibold text-gray-900 dark:text-white">Step 2: Complete Recovery Order</h3>
@@ -62,7 +62,17 @@
             <flux:card class="p-6 space-y-4">
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white">Bike and Pickup</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <flux:field><flux:label>Pickup Date & Time</flux:label><flux:input wire:model="pickUpDatetime" type="datetime-local" /><flux:error name="pickUpDatetime" /></flux:field>
+                    <div class="md:col-span-2">
+                        <flux:label class="mb-2 block">Pickup Date &amp; Time</flux:label>
+                        <x-site.booking-datetime-field
+                            date-model="pickUpDate"
+                            time-model="pickUpTime"
+                            date-label="Pickup date"
+                            time-label="Pickup time"
+                        />
+                        <flux:description>We are closed on Sundays.</flux:description>
+                        <flux:error name="pickUpDatetime" />
+                    </div>
                     <flux:field><flux:label>Vehicle Registration</flux:label><flux:input wire:model="vrm" class="uppercase" /><flux:error name="vrm" /></flux:field>
                     <flux:field>
                         <flux:label>Vehicle Type</flux:label>
@@ -88,7 +98,7 @@
                     <flux:field><flux:label>Phone</flux:label><flux:input wire:model="phone" /><flux:error name="phone" /></flux:field>
                     <flux:field><flux:label>Email</flux:label><flux:input wire:model="email" type="email" /><flux:error name="email" /></flux:field>
                     <flux:field><flux:label>Address</flux:label><flux:input wire:model="customerAddress" /><flux:error name="customerAddress" /></flux:field>
-                    <flux:field class="md:col-span-2"><flux:label>Additional Note</flux:label><flux:textarea wire:model="note" rows="4" /><flux:error name="note" /></flux:field>
+                    <flux:field class="md:col-span-2"><flux:label>Additional Note</flux:label><flux:textarea wire:model="note" rows="5" /><flux:error name="note" /></flux:field>
                 </div>
                 <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300"><input type="checkbox" wire:model="terms" class="mt-1"><span>I confirm these details are correct.</span></label>
                 <flux:error name="terms" />

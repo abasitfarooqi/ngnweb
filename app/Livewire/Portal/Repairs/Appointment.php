@@ -5,6 +5,7 @@ namespace App\Livewire\Portal\Repairs;
 use App\Mail\CustomerAppointmentNotification;
 use App\Models\Branch;
 use App\Models\CustomerAppointments;
+use App\Rules\NotSunday;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
@@ -47,7 +48,7 @@ class Appointment extends Component
         return [
             'service_type' => 'required|string',
             'bike_reg_no' => 'required|string|min:2|max:12',
-            'date_requested' => 'required|date|after:today',
+            'date_requested' => ['required', 'date', 'after:today', new NotSunday],
             'time_slot' => 'required|string',
             'branch_id' => 'required|exists:branches,id',
         ];

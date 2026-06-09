@@ -1,0 +1,32 @@
+{"id":1,"user_id":null,"payment_id":77,"motorcycle_id":146,"payment_type":"deposit","note":"Agreed to pay £160 deposit","created_at":"2023-07-11 13:40:51","updated_at":"2023-07-11 13:40:51"}
+{"id":2,"user_id":null,"payment_id":80,"motorcycle_id":148,"payment_type":"deposit","note":"Agreed to pay £180 deposit","created_at":"2023-07-11 13:53:28","updated_at":"2023-07-11 13:53:28"}
+{"id":3,"user_id":null,"payment_id":71,"motorcycle_id":99,"payment_type":"deposit","note":"agreed no deposit","created_at":"2023-07-11 13:56:55","updated_at":"2023-07-11 13:56:55"}
+{"id":4,"user_id":null,"payment_id":83,"motorcycle_id":85,"payment_type":"deposit","note":"Agreed to pay £160 deposit","created_at":"2023-07-11 14:04:20","updated_at":"2023-07-11 14:04:20"}
+{"id":5,"user_id":null,"payment_id":89,"motorcycle_id":157,"payment_type":"deposit","note":"Agreed to pay £160 deposit","created_at":"2023-07-11 14:19:14","updated_at":"2023-07-11 14:19:14"}
+{"id":6,"user_id":null,"payment_id":92,"motorcycle_id":158,"payment_type":"deposit","note":"Agreed to pay £160 deposit","created_at":"2023-07-11 14:26:47","updated_at":"2023-07-11 14:26:47"}
+{"id":7,"user_id":null,"payment_id":95,"motorcycle_id":100,"payment_type":"deposit","note":"Agreed to pay £160 deposit","created_at":"2023-07-11 14:33:09","updated_at":"2023-07-11 14:33:09"}
+{"id":8,"user_id":69,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"Customer has told us that bike has been impounded for no insurance.","created_at":"2023-07-18 11:33:17","updated_at":"2023-07-18 11:33:17"}
+{"id":9,"user_id":69,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"£650 outstanding","created_at":"2023-07-20 13:37:39","updated_at":"2023-07-20 13:37:39"}
+{"id":10,"user_id":75,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"LATE WEEK PAYMENTS","created_at":"2023-07-20 18:15:40","updated_at":"2023-07-20 18:15:40"}
+{"id":11,"user_id":67,"payment_id":74,"motorcycle_id":164,"payment_type":"deposit","note":"£210 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:21:42","updated_at":"2023-07-21 14:21:42"}
+{"id":12,"user_id":6,"payment_id":77,"motorcycle_id":146,"payment_type":"deposit","note":"£140 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:22:09","updated_at":"2023-07-21 14:22:09"}
+{"id":13,"user_id":31,"payment_id":80,"motorcycle_id":148,"payment_type":"deposit","note":"£120 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:22:14","updated_at":"2023-07-21 14:22:14"}
+{"id":14,"user_id":38,"payment_id":83,"motorcycle_id":85,"payment_type":"deposit","note":"£140 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:22:59","updated_at":"2023-07-21 14:22:59"}
+{"id":15,"user_id":59,"payment_id":86,"motorcycle_id":150,"payment_type":"deposit","note":"£45 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:23:04","updated_at":"2023-07-21 14:23:04"}
+{"id":16,"user_id":44,"payment_id":89,"motorcycle_id":157,"payment_type":"deposit","note":"£140 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:23:10","updated_at":"2023-07-21 14:23:10"}
+{"id":17,"user_id":46,"payment_id":92,"motorcycle_id":158,"payment_type":"deposit","note":"£140 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:23:14","updated_at":"2023-07-21 14:23:14"}
+{"id":18,"user_id":47,"payment_id":95,"motorcycle_id":100,"payment_type":"deposit","note":"£140 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:23:18","updated_at":"2023-07-21 14:23:18"}
+{"id":19,"user_id":54,"payment_id":98,"motorcycle_id":162,"payment_type":"deposit","note":"£-200 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:23:29","updated_at":"2023-07-21 14:23:29"}
+{"id":20,"user_id":72,"payment_id":118,"motorcycle_id":161,"payment_type":"deposit","note":"£300 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:26:32","updated_at":"2023-07-21 14:26:32"}
+{"id":21,"user_id":27,"payment_id":71,"motorcycle_id":99,"payment_type":"deposit","note":"£300 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 14:30:30","updated_at":"2023-07-21 14:30:30"}
+{"id":22,"user_id":75,"payment_id":138,"motorcycle_id":167,"payment_type":"deposit","note":"£130 Customer Discount Applied by Emmanuel Nwokedi","created_at":"2023-07-21 15:23:09","updated_at":"2023-07-21 15:23:09"}
+{"id":23,"user_id":38,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"CLIENT ALWAYS PAY LATE","created_at":"2023-07-26 15:59:35","updated_at":"2023-07-26 15:59:35"}
+{"id":24,"user_id":41,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"MOTORCYCLE WAS TAKEN BY THE POLICE BECAUSE CUSTOMER WAS RIDING WITHOUT L PLATES.\r\n£1900 DEBT","created_at":"2023-07-26 16:27:11","updated_at":"2023-07-26 16:27:11"}
+{"id":25,"user_id":null,"payment_id":131,"motorcycle_id":167,"payment_type":"rental","note":"TAKE BIKE BACK LATER PAYMENT","created_at":"2023-07-31 15:55:58","updated_at":"2023-07-31 15:55:58"}
+{"id":26,"user_id":75,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"LATER PAYMENT ALL TIME","created_at":"2023-07-31 15:59:02","updated_at":"2023-07-31 15:59:02"}
+{"id":27,"user_id":78,"payment_id":192,"motorcycle_id":171,"payment_type":"deposit","note":"£ Customer Discount Applied by William Fauster Martins","created_at":"2023-08-03 11:28:08","updated_at":"2023-08-03 11:28:08"}
+{"id":28,"user_id":78,"payment_id":192,"motorcycle_id":171,"payment_type":"deposit","note":"£ Customer Discount Applied by William Fauster Martins","created_at":"2023-08-03 11:28:32","updated_at":"2023-08-03 11:28:32"}
+{"id":29,"user_id":78,"payment_id":192,"motorcycle_id":171,"payment_type":"deposit","note":"£130 Customer Discount Applied by William Fauster Martins","created_at":"2023-08-03 11:28:50","updated_at":"2023-08-03 11:28:50"}
+{"id":30,"user_id":38,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"MOTORCYCLE STOLEN. £1400","created_at":"2023-08-11 10:03:23","updated_at":"2023-08-11 10:03:23"}
+{"id":31,"user_id":67,"payment_id":null,"motorcycle_id":164,"payment_type":null,"note":"pay last month</br> Logged By: william","created_at":"2023-08-19 09:51:55","updated_at":"2023-08-19 09:51:55"}
+{"id":32,"user_id":84,"payment_id":null,"motorcycle_id":null,"payment_type":null,"note":"DIFFICULT TO DEAL WITH","created_at":"2023-08-29 10:53:57","updated_at":"2023-08-29 10:53:57"}

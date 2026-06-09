@@ -1,0 +1,25 @@
+{"id":1,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_name","display_name":"Store name","value":"\"Neguinho Motors\"","locked":1}
+{"id":2,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-22 09:09:48","key":"shop_email","display_name":"Store email","value":"\"admin@neguinhomotors.co.uk\"","locked":1}
+{"id":3,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_about","display_name":"Store description","value":"\"\"","locked":1}
+{"id":4,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_country_id","display_name":"Country","value":"81","locked":1}
+{"id":5,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_currency_id","display_name":"Store Currency","value":"47","locked":1}
+{"id":6,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_street_address","display_name":"Store street address","value":"\" Unit 1179, 9 Catford Hill\"","locked":1}
+{"id":7,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_zipcode","display_name":"Zip Code","value":"\"SE6 4NU\"","locked":1}
+{"id":8,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_city","display_name":"Store city","value":"\"London\"","locked":1}
+{"id":9,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_phone_number","display_name":"Store phone number","value":"\"0208 314 1498\"","locked":1}
+{"id":10,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_lng","display_name":"Longitude","value":"51.44342","locked":1}
+{"id":11,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-10 15:15:01","key":"shop_lat","display_name":"Latitude","value":"-0.02652","locked":1}
+{"id":12,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-22 09:41:23","key":"shop_facebook_link","display_name":"Facebook Page","value":"\"https://facebook.com\"","locked":1}
+{"id":13,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-22 09:41:23","key":"shop_instagram_link","display_name":"Twitter account","value":"\"https://instagram.com\"","locked":1}
+{"id":14,"created_at":"2023-04-10 15:15:01","updated_at":"2023-04-22 09:41:23","key":"shop_twitter_link","display_name":"Instagram account","value":"\"https://twitter.com\"","locked":1}
+{"id":15,"created_at":"2023-04-10 15:37:14","updated_at":"2023-04-10 15:37:14","key":"shop_legal_name","display_name":"Store Legal name","value":"\"Neguinho Motors Limited\"","locked":1}
+{"id":16,"created_at":"2023-04-22 09:40:29","updated_at":"2023-04-22 13:21:45","key":"shop_logo","display_name":"Store Logo","value":"\"hjjAckz1De9Z8fLalXZeSnpxcTBBQlGUGNOViiMn.png\"","locked":1}
+{"id":17,"created_at":"2023-04-22 09:40:50","updated_at":"2023-04-22 09:41:23","key":"shop_cover","display_name":"Store Cover Image","value":"\"1Gfg0P044hXirRRGLQqe3gbq6J5xZDZtCVP8ta7l.png\"","locked":1}
+{"id":18,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_endpoint_url","display_name":"DigitalOcean Agent Endpoint URL","value":"\"https:\\/\\/q3fdfxbbqy7r2fw5ezowvysq.agents.do-ai.run\\/\"","locked":0}
+{"id":19,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_access_key","display_name":"DigitalOcean Agent Endpoint Access Key","value":"\"TI1yjV-_Jrb4wO0POimfxwT_rSuklWGo\"","locked":0}
+{"id":20,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_max_tokens","display_name":"DigitalOcean Agent Max Tokens","value":"\"2001\"","locked":0}
+{"id":21,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_temperature","display_name":"DigitalOcean Agent Temperature","value":"\"0.7\"","locked":0}
+{"id":22,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_top_p","display_name":"DigitalOcean Agent Top P","value":"\"0.9\"","locked":0}
+{"id":23,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_top_k","display_name":"DigitalOcean Agent Top K","value":"\"10\"","locked":0}
+{"id":24,"created_at":"2026-02-04 17:31:27","updated_at":"2026-02-04 17:31:27","key":"digitalocean_agent_retrieval_method","display_name":"DigitalOcean Agent Retrieval Method","value":"\"none\"","locked":0}
+{"id":25,"created_at":"2026-03-12 05:21:08","updated_at":"2026-03-12 05:21:08","key":"judopay_recurring_live_queue_enabled","display_name":"Judopay Recurring Live Queue Enabled","value":"1","locked":0}

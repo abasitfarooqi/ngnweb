@@ -21,6 +21,7 @@ use App\Models\RentingTransaction;
 use App\Models\ServiceBooking;
 use App\Models\SupportConversation;
 use App\Models\VehicleDeliveryOrder;
+use App\Rules\NotSunday;
 use App\Services\Club\ClubMemberDashboardData;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
@@ -267,7 +268,7 @@ class MobilePortalController extends Controller
 
         $payload = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
-            'date_of_appointment' => ['required', 'date', 'after:today'],
+            'date_of_appointment' => ['required', 'date', 'after:today', new NotSunday],
             'time_slot' => ['required', 'string', 'max:10'],
             'motorbike_reg_no' => ['required', 'string', 'min:2', 'max:10'],
             'motorbike_make' => ['required', 'string', 'min:2', 'max:50'],

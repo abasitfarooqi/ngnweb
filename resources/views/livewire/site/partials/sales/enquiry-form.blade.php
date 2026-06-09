@@ -27,9 +27,9 @@
         </flux:callout>
     @endif
 
-    <form wire:submit.prevent="{{ $submitAction }}" class="space-y-3">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <flux:field>
+    <form wire:submit.prevent="{{ $submitAction }}" class="site-form space-y-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+            <flux:field class="w-full">
                 <flux:label>Full name</flux:label>
                 <flux:input wire:model.defer="name" autocomplete="name" />
                 <flux:error name="name" />
@@ -57,7 +57,7 @@
 
         <flux:field>
             <flux:label>Message</flux:label>
-            <flux:textarea wire:model.defer="message" rows="4" />
+            <flux:textarea wire:model.defer="message" rows="5" />
             <flux:error name="message" />
         </flux:field>
 

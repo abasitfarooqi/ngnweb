@@ -64,7 +64,7 @@
                 </div>
                 <div>
                     <label class="ngn-label">Additional Notes</label>
-                    <textarea wire:model="notes" rows="3" class="ngn-input w-full" placeholder="Describe any issues or specific requests..."></textarea>
+                    <textarea wire:model="notes" rows="5" class="ngn-input w-full min-h-[8.5rem]" placeholder="Describe any issues or specific requests..."></textarea>
                 </div>
                 <button type="submit" wire:loading.attr="disabled" class="btn-ngn w-full justify-center text-sm py-3">
                     <span wire:loading.remove>Submit Booking Request</span>

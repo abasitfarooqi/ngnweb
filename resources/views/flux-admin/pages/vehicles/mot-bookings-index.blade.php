@@ -1,5 +1,5 @@
 <div>
-    <x-flux-admin::data-table title="MOT bookings" description="Appointments scheduled for MOT testing.">
+    <x-flux-admin::data-table title="MOT bookings" description="Appointments scheduled for MOT Booking.">
         <x-slot:actions>
             <x-flux-admin::export-button />
             <a href="{{ route('flux-admin.mot-bookings.create') }}" wire:navigate>

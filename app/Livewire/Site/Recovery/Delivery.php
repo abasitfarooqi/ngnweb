@@ -8,6 +8,8 @@ use App\Models\DeliveryVehicleType;
 use App\Models\DsOrder;
 use App\Models\DsOrderItem;
 use App\Models\MotorbikeDeliveryOrderEnquiries;
+use App\Rules\NotSunday;
+use App\Support\BookingSchedule;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
@@ -24,6 +26,10 @@ class Delivery extends Component
     public float $dropoffLat = 0.0;
     public float $dropoffLon = 0.0;
     public string $pickUpDatetime = '';
+
+    public string $pickUpDate = '';
+
+    public string $pickUpTime = '';
     public string $vrm = '';
     public int $vehicleTypeId = 1;
     public bool $moveable = false;
@@ -39,9 +45,28 @@ class Delivery extends Component
 
     public function mount(): void
     {
-        $this->pickUpDatetime = now()->addHour()->format('Y-m-d\TH:i');
+        $this->pickUpDate = BookingSchedule::defaultPickUpDate();
+        $this->pickUpTime = BookingSchedule::defaultPickUpTime();
+        $this->syncPickUpDatetime();
         if ($this->vehicleTypeId === 0) {
             $this->vehicleTypeId = (int) (DeliveryVehicleType::query()->min('id') ?? 1);
+        }
+    }
+
+    public function updatedPickUpDate(): void
+    {
+        $this->syncPickUpDatetime();
+    }
+
+    public function updatedPickUpTime(): void
+    {
+        $this->syncPickUpDatetime();
+    }
+
+    protected function syncPickUpDatetime(): void
+    {
+        if ($this->pickUpDate !== '' && $this->pickUpTime !== '') {
+            $this->pickUpDatetime = $this->pickUpDate.'T'.$this->pickUpTime;
         }
     }
 
@@ -52,7 +77,9 @@ class Delivery extends Component
             'dropoffPostcode' => 'required|string|max:20',
             'pickupAddress' => 'required|string|max:255',
             'dropoffAddress' => 'required|string|max:255',
-            'pickUpDatetime' => 'required|date|after_or_equal:now',
+            'pickUpDate' => ['required', 'date', 'after_or_equal:today', new NotSunday],
+            'pickUpTime' => ['required', 'date_format:H:i'],
+            'pickUpDatetime' => ['required', 'date', 'after_or_equal:now', new NotSunday],
             'vrm' => 'required|string|max:20',
             'vehicleTypeId' => 'required|exists:delivery_vehicle_types,id',
             'fullName' => 'required|string|max:255',
@@ -117,11 +144,14 @@ class Delivery extends Component
             'customerAddress', 'note', 'terms',
         ]);
         $this->step = 1;
-        $this->pickUpDatetime = now()->addHour()->format('Y-m-d\TH:i');
+        $this->pickUpDate = BookingSchedule::defaultPickUpDate();
+        $this->pickUpTime = BookingSchedule::defaultPickUpTime();
+        $this->syncPickUpDatetime();
     }
 
     public function submitOrder(): void
     {
+        $this->syncPickUpDatetime();
         $this->validate();
 
         if ($this->distance <= 0 || $this->pickupLat === 0.0 || $this->dropoffLat === 0.0) {

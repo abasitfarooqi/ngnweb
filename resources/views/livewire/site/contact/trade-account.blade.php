@@ -35,7 +35,7 @@
     <flux:card class="p-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Trade Account Application Form</h2>
 
-        <form wire:submit.prevent="submitEnquiry" class="space-y-5">
+        <form wire:submit.prevent="submitEnquiry" class="site-form space-y-5">
             <flux:field>
                 <flux:label>Company Name *</flux:label>
                 <flux:input wire:model="companyName" type="text" placeholder="Your company name" />
@@ -63,7 +63,7 @@
 
             <flux:field>
                 <flux:label>Business Address *</flux:label>
-                <flux:textarea wire:model="address" rows="3" />
+                <flux:textarea wire:model="address" rows="4" />
                 <flux:error name="address" />
             </flux:field>
 
@@ -74,7 +74,7 @@
 
             <flux:field>
                 <flux:label>Tell Us About Your Business *</flux:label>
-                <flux:textarea wire:model="message" rows="4" placeholder="What type of business do you operate? What products/services are you interested in?" />
+                <flux:textarea wire:model="message" rows="5" placeholder="What type of business do you operate? What products/services are you interested in?" />
                 <flux:error name="message" />
             </flux:field>
 

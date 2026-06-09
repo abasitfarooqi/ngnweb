@@ -1,0 +1,7 @@
+{"id":1,"type":"Deposit","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}
+{"id":2,"type":"Rental Fee","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}
+{"id":3,"type":"Deposit & Rental Fee","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}
+{"id":4,"type":"Late Fee","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}
+{"id":5,"type":"Damage Fee","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}
+{"id":6,"type":"Refund","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}
+{"id":7,"type":"Adjustment","created_at":"2024-03-19 03:10:20","updated_at":"2024-03-19 03:10:20"}

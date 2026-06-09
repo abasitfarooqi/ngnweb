@@ -3,7 +3,7 @@
 <div class="bg-gray-900 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl font-bold mb-2">Book Your MOT Test</h1>
-        <p class="text-gray-300">MOT testing at our Catford branch</p>
+        <p class="text-gray-300">MOT Booking at our Catford branch</p>
     </div>
 </div>
 
@@ -18,7 +18,7 @@
     <flux:card class="p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
         <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">MOT booking form</h2>
 
-        <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="space-y-5">
+        <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="site-form space-y-5">
 
             <flux:field>
                 <flux:label>Branch</flux:label>
@@ -76,7 +76,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Preferred Date *</flux:label>
-                    <flux:date-picker wire:model="preferredDate" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
+                    <x-site.booking-date-picker wire:model="preferredDate" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
                     <flux:error name="preferredDate" />
                 </flux:field>
                 <flux:field>
@@ -92,7 +92,7 @@
 
             <flux:field>
                 <flux:label>Additional Notes</flux:label>
-                <flux:textarea wire:model="notes" rows="3" />
+                <flux:textarea wire:model="notes" rows="5" />
             </flux:field>
 
             <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">

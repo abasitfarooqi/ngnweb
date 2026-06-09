@@ -38,4 +38,119 @@
         @apply bg-brand-red text-white hover:bg-red-700 hover:text-white;
     }
 
+    /* Public site forms — aligned fields, consistent dark/light controls */
+    .site-form {
+        @apply w-full;
+    }
+
+    .site-form flux-field,
+    .site-form [data-flux-field] {
+        @apply w-full min-w-0;
+    }
+
+    .site-form .grid > flux-field,
+    .site-form .grid > [data-flux-field],
+    .site-form .grid > div {
+        @apply min-w-0;
+    }
+
+    .site-form input[data-flux-control],
+    .site-form textarea[data-flux-control],
+    .site-form [data-flux-date-picker-button],
+    .site-form [data-flux-select] > button,
+    .site-form [data-flux-select] [data-flux-group-target] {
+        @apply w-full min-w-0 !rounded-none;
+    }
+
+    .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]),
+    .site-form textarea[data-flux-control] {
+        @apply bg-gray-50 text-gray-900 border-gray-300
+               dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600;
+    }
+
+    .site-form [data-flux-date-picker-button],
+    .site-form [data-flux-select] > button,
+    .site-form [data-flux-select] [data-flux-group-target] {
+        @apply bg-gray-50 text-gray-900 border border-gray-300
+               dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600;
+    }
+
+    .site-form textarea[data-flux-control] {
+        min-height: 8.5rem;
+    }
+
+    .site-form input[type="checkbox"] {
+        @apply border-gray-300 dark:border-gray-500 dark:bg-gray-800;
+    }
+
+    /* Used bike listing filters — one height, one surface */
+    .bike-filter-field {
+        @apply flex min-w-0 flex-col;
+    }
+
+    .bike-filter-label {
+        @apply mb-1.5 block h-4 text-xs font-semibold uppercase leading-4 tracking-wide text-gray-500 dark:text-gray-400;
+    }
+
+    .bike-filter-control,
+    .bike-filter-btn {
+        @apply box-border h-10 min-h-10 max-h-10 w-full px-3 text-sm leading-10;
+    }
+
+    .bike-filter-control {
+        @apply border border-gray-300 bg-gray-100 text-gray-900
+               focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30;
+    }
+
+    .dark .bike-filter-control {
+        @apply border-gray-600 bg-gray-800 text-gray-100;
+    }
+
+    .bike-filter-control::placeholder {
+        @apply text-gray-400;
+    }
+
+    .dark .bike-filter-control::placeholder {
+        @apply text-gray-500;
+    }
+
+    .bike-filter-select {
+        @apply cursor-pointer appearance-none bg-no-repeat leading-normal;
+        padding: 4px 12px;
+        padding-right: 2.25rem;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+        background-position: right 0.75rem center;
+        background-size: 1.1rem;
+    }
+
+    .bike-filter-price-row {
+        @apply grid h-10 min-h-10 max-h-10 grid-cols-[1fr_auto_1fr] items-center gap-2;
+    }
+
+    .bike-filter-price-sep {
+        @apply px-0.5 text-center text-sm leading-none text-gray-400 dark:text-gray-500;
+    }
+
+    .bike-filter-control[type='number'] {
+        -moz-appearance: textfield;
+    }
+
+    .bike-filter-control[type='number']::-webkit-outer-spin-button,
+    .bike-filter-control[type='number']::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    .bike-filter-btn {
+        @apply border border-gray-300 font-semibold;
+    }
+
+    .bike-filter-btn-muted {
+        @apply bg-gray-100 text-gray-800 hover:bg-gray-200;
+    }
+
+    .dark .bike-filter-btn-muted {
+        @apply border-gray-600 bg-gray-800 text-gray-100 hover:bg-gray-700;
+    }
+
 }

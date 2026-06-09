@@ -3,6 +3,7 @@
 namespace App\Livewire\Site\Mot;
 
 use App\Models\Branch;
+use App\Rules\NotSunday;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
@@ -33,15 +34,18 @@ class Book extends Component
     /** Bumped after submit so Flux date-picker and selects remount empty. */
     public int $formNonce = 0;
 
-    protected $rules = [
-        'selectedBranch' => 'required|exists:branches,id',
-        'regNo' => 'required|string|min:2|max:10',
-        'name' => 'required|string|min:2',
-        'email' => 'required|email',
-        'phone' => 'required|string|min:10',
-        'preferredDate' => 'required|date|after:today',
-        'preferredTime' => 'required',
-    ];
+    protected function rules(): array
+    {
+        return [
+            'selectedBranch' => 'required|exists:branches,id',
+            'regNo' => 'required|string|min:2|max:10',
+            'name' => 'required|string|min:2',
+            'email' => 'required|email',
+            'phone' => 'required|string|min:10',
+            'preferredDate' => ['required', 'date', 'after:today', new NotSunday],
+            'preferredTime' => 'required',
+        ];
+    }
 
     public function mount()
     {

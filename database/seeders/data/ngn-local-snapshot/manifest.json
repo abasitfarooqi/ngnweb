@@ -1,0 +1,4397 @@
+{
+    "generated_at": "2026-06-09T04:42:49+01:00",
+    "database": "ngn_clean",
+    "tables": [
+        {
+            "name": "abouts",
+            "file": "abouts.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "short_title",
+                "short_description",
+                "long_description",
+                "about_image",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "access_logs",
+            "file": "access_logs.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "user_id",
+                "ip_address",
+                "area_attempted",
+                "status",
+                "message"
+            ],
+            "rows": 61
+        },
+        {
+            "name": "addresses",
+            "file": "addresses.jsonl",
+            "columns": [
+                "id",
+                "street_address",
+                "street_address_plus",
+                "post_code",
+                "city",
+                "phone_number",
+                "is_default",
+                "type",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "attributes",
+            "file": "attributes.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "slug",
+                "description",
+                "type",
+                "is_enabled",
+                "is_searchable",
+                "is_filterable"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "attribute_values",
+            "file": "attribute_values.jsonl",
+            "columns": [
+                "id",
+                "value",
+                "key",
+                "position",
+                "attribute_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "backup_club_member_purchases",
+            "file": "backup_club_member_purchases.jsonl",
+            "columns": [
+                "id",
+                "date",
+                "club_member_id",
+                "percent",
+                "total",
+                "discount",
+                "is_redeemed",
+                "redeem_amount",
+                "pos_invoice",
+                "branch_id",
+                "user_id",
+                "original_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 4
+        },
+        {
+            "name": "blog_categories",
+            "file": "blog_categories.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "slug",
+                "blog_category",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 8
+        },
+        {
+            "name": "blog_posts",
+            "file": "blog_posts.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "content",
+                "slug",
+                "seo_title",
+                "seo_description",
+                "category_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 7
+        },
+        {
+            "name": "blog_images",
+            "file": "blog_images.jsonl",
+            "columns": [
+                "id",
+                "path",
+                "blog_post_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 7
+        },
+        {
+            "name": "blog_tags",
+            "file": "blog_tags.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "slug",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "blogs",
+            "file": "blogs.jsonl",
+            "columns": [
+                "id",
+                "blog_category_id",
+                "blog_title",
+                "blog_image",
+                "blog_tags",
+                "blog_description",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "branches",
+            "file": "branches.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "address",
+                "latitude",
+                "longitude",
+                "created_at",
+                "updated_at",
+                "postal_code",
+                "city",
+                "opening_hours"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "brands",
+            "file": "brands.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "slug",
+                "website",
+                "description",
+                "position",
+                "is_enabled",
+                "seo_title",
+                "seo_description"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "cache",
+            "file": "cache.jsonl",
+            "columns": [
+                "key",
+                "value",
+                "expiration"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "cache_locks",
+            "file": "cache_locks.jsonl",
+            "columns": [
+                "key",
+                "owner",
+                "expiration"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "calendar",
+            "file": "calendar.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "start",
+                "end",
+                "background_color",
+                "text_color",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "carriers",
+            "file": "carriers.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "slug",
+                "logo",
+                "link_url",
+                "description",
+                "shipping_amount",
+                "is_enabled"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "channels",
+            "file": "channels.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "slug",
+                "description",
+                "timezone",
+                "url",
+                "is_default"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "chatbot_knowledge",
+            "file": "chatbot_knowledge.jsonl",
+            "columns": [
+                "id",
+                "category",
+                "title",
+                "content",
+                "keywords",
+                "priority",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "chatbot_messages",
+            "file": "chatbot_messages.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "chatbot_sessions",
+            "file": "chatbot_sessions.jsonl",
+            "columns": [
+                "id",
+                "session_id",
+                "user_message",
+                "bot_response",
+                "admin_reply",
+                "admin_id",
+                "admin_replied_at",
+                "bot_disabled",
+                "read_at",
+                "is_typing",
+                "message_status",
+                "message_order",
+                "user_name",
+                "user_email",
+                "user_id",
+                "user_ip",
+                "user_agent",
+                "metadata",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 38
+        },
+        {
+            "name": "collections",
+            "file": "collections.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "slug",
+                "description",
+                "type",
+                "sort",
+                "match_conditions",
+                "published_at",
+                "seo_title",
+                "seo_description"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "collection_rules",
+            "file": "collection_rules.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "rule",
+                "operator",
+                "value",
+                "collection_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "contacts",
+            "file": "contacts.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "email",
+                "subject",
+                "phone",
+                "message",
+                "created_at",
+                "updated_at",
+                "reg_no"
+            ],
+            "rows": 284
+        },
+        {
+            "name": "customer_appointments",
+            "file": "customer_appointments.jsonl",
+            "columns": [
+                "id",
+                "appointment_date",
+                "customer_name",
+                "registration_number",
+                "contact_number",
+                "email",
+                "is_resolved",
+                "booking_reason",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 55
+        },
+        {
+            "name": "customers",
+            "file": "customers.jsonl",
+            "columns": [
+                "id",
+                "first_name",
+                "last_name",
+                "dob",
+                "email",
+                "is_register",
+                "is_club",
+                "phone",
+                "address",
+                "postcode",
+                "city",
+                "country",
+                "created_at",
+                "updated_at",
+                "nationality",
+                "reputation_note",
+                "emergency_contact",
+                "whatsapp",
+                "Customer Full Name",
+                "last name",
+                "PHONE1",
+                "creatd",
+                "updated",
+                "WHATSAPP NO.",
+                "rating",
+                "license_number",
+                "license_expiry_date",
+                "license_issuance_authority",
+                "license_issuance_date"
+            ],
+            "rows": 420
+        },
+        {
+            "name": "delivery_vehicle_types",
+            "file": "delivery_vehicle_types.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "cc_range",
+                "additional_fee",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "discounts",
+            "file": "discounts.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "is_active",
+                "code",
+                "type",
+                "value",
+                "apply_to",
+                "min_required",
+                "min_required_value",
+                "eligibility",
+                "usage_limit",
+                "usage_limit_per_user",
+                "total_use",
+                "start_at",
+                "end_at"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "discountables",
+            "file": "discountables.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "condition",
+                "total_use",
+                "discountable_type",
+                "discountable_id",
+                "discount_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "document_types",
+            "file": "document_types.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "slug",
+                "code",
+                "description",
+                "is_mandatory",
+                "required_for",
+                "validation_rules",
+                "sort_order",
+                "is_required",
+                "is_active",
+                "created_at",
+                "updated_at",
+                "is_motorbike"
+            ],
+            "rows": 13
+        },
+        {
+            "name": "documents",
+            "file": "documents.jsonl",
+            "columns": [
+                "id",
+                "driving_licence_number",
+                "file_name",
+                "path",
+                "created_at",
+                "updated_at",
+                "user_id",
+                "motorcycle_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "ds_orders",
+            "file": "ds_orders.jsonl",
+            "columns": [
+                "id",
+                "pick_up_datetime",
+                "full_name",
+                "phone",
+                "address",
+                "postcode",
+                "note",
+                "proceed",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 260
+        },
+        {
+            "name": "ds_order_items",
+            "file": "ds_order_items.jsonl",
+            "columns": [
+                "id",
+                "ds_order_id",
+                "pickup_lat",
+                "pickup_lon",
+                "dropoff_lat",
+                "dropoff_lon",
+                "pickup_address",
+                "pickup_postcode",
+                "dropoff_address",
+                "distance",
+                "dropoff_postcode",
+                "vrm",
+                "moveable",
+                "documents",
+                "keys",
+                "note",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 259
+        },
+        {
+            "name": "ec_payment_methods",
+            "file": "ec_payment_methods.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "slug",
+                "logo",
+                "link_url",
+                "instructions",
+                "is_enabled",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "ec_shipping_methods",
+            "file": "ec_shipping_methods.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "slug",
+                "logo",
+                "link_url",
+                "description",
+                "shipping_amount",
+                "is_enabled",
+                "in_store_pickup",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "failed_jobs",
+            "file": "failed_jobs.jsonl",
+            "columns": [
+                "id",
+                "uuid",
+                "connection",
+                "queue",
+                "payload",
+                "exception",
+                "failed_at"
+            ],
+            "rows": 23
+        },
+        {
+            "name": "filerentals",
+            "file": "filerentals.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "file_path",
+                "user_id",
+                "motocycle_id",
+                "document_type",
+                "registration",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "files",
+            "file": "files.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "file_path",
+                "user_id",
+                "motocycle_id",
+                "document_type",
+                "registration",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 67
+        },
+        {
+            "name": "footers",
+            "file": "footers.jsonl",
+            "columns": [
+                "id",
+                "number",
+                "short_description",
+                "adress",
+                "email",
+                "facebook",
+                "twitter",
+                "copyright",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "home_slides",
+            "file": "home_slides.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "short_title",
+                "home_slide",
+                "video_url",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "ip_restrictions",
+            "file": "ip_restrictions.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "ip_address",
+                "status",
+                "restriction_type",
+                "label",
+                "user_id"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "jobs",
+            "file": "jobs.jsonl",
+            "columns": [
+                "id",
+                "queue",
+                "payload",
+                "attempts",
+                "reserved_at",
+                "available_at",
+                "created_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "judopay_onboardings",
+            "file": "judopay_onboardings.jsonl",
+            "columns": [
+                "id",
+                "onboardable_type",
+                "onboardable_id",
+                "is_onboarded",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 115
+        },
+        {
+            "name": "judopay_subscriptions",
+            "file": "judopay_subscriptions.jsonl",
+            "columns": [
+                "id",
+                "judopay_onboarding_id",
+                "date",
+                "subscribable_type",
+                "subscribable_id",
+                "billing_frequency",
+                "billing_day",
+                "amount",
+                "opening_balance",
+                "start_date",
+                "end_date",
+                "status",
+                "consumer_reference",
+                "card_token",
+                "receipt_id",
+                "judopay_receipt_id",
+                "acquirer_transaction_id",
+                "auth_code",
+                "merchant_name",
+                "statement_descriptor",
+                "card_last_four",
+                "card_funding",
+                "card_category",
+                "card_country",
+                "issuing_bank",
+                "billing_address",
+                "risk_assessment",
+                "three_d_secure",
+                "audit_log",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 134
+        },
+        {
+            "name": "judopay_cit_accesses",
+            "file": "judopay_cit_accesses.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "passcode",
+                "expires_at",
+                "subscription_id",
+                "admin_form_data",
+                "created_at",
+                "updated_at",
+                "last_accessed_at",
+                "access_ip_address",
+                "sms_requested_at",
+                "sms_request_count",
+                "sms_sids"
+            ],
+            "rows": 113
+        },
+        {
+            "name": "judopay_payment_session_outcomes",
+            "file": "judopay_payment_session_outcomes.jsonl",
+            "columns": [
+                "id",
+                "session_type",
+                "session_id",
+                "subscription_id",
+                "status",
+                "payment_network_transaction_id",
+                "locator_id",
+                "disable_network_tokenisation",
+                "allow_increment",
+                "acquirer_transaction_id",
+                "auth_code",
+                "external_bank_response_code",
+                "bank_response_category",
+                "is_retryable",
+                "appears_on_statement_as",
+                "merchant_name",
+                "judo_id",
+                "card_last_four",
+                "card_funding",
+                "card_category",
+                "card_country",
+                "issuing_bank",
+                "billing_address",
+                "risk_assessment",
+                "three_d_secure",
+                "risk_score",
+                "recurring_payment_type",
+                "type",
+                "source",
+                "judopay_receipt_id",
+                "amount",
+                "net_amount",
+                "original_amount",
+                "amount_collected",
+                "your_payment_reference",
+                "your_consumer_reference",
+                "payload",
+                "message",
+                "occurred_at",
+                "judopay_created_at",
+                "timezone",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 985
+        },
+        {
+            "name": "judopay_enquiry_records",
+            "file": "judopay_enquiry_records.jsonl",
+            "columns": [
+                "id",
+                "payment_session_outcome_id",
+                "enquiry_type",
+                "enquiry_identifier",
+                "endpoint_used",
+                "api_status",
+                "http_status_code",
+                "api_response",
+                "api_headers",
+                "judopay_status",
+                "current_state",
+                "matches_local_record",
+                "discrepancy_notes",
+                "external_bank_response_code",
+                "amount_collected_remote",
+                "remote_message",
+                "is_retryable",
+                "enquired_at",
+                "enquiry_reason",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "legals",
+            "file": "legals.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "slug",
+                "content",
+                "is_enabled",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 4
+        },
+        {
+            "name": "makes",
+            "file": "makes.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "manufacturer_type",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 17
+        },
+        {
+            "name": "bike_models",
+            "file": "bike_models.jsonl",
+            "columns": [
+                "id",
+                "brand_name_id",
+                "model",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1940
+        },
+        {
+            "name": "media",
+            "file": "media.jsonl",
+            "columns": [
+                "id",
+                "model_type",
+                "model_id",
+                "uuid",
+                "collection_name",
+                "name",
+                "file_name",
+                "mime_type",
+                "disk",
+                "conversions_disk",
+                "size",
+                "manipulations",
+                "custom_properties",
+                "generated_conversions",
+                "responsive_images",
+                "order_column",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 9
+        },
+        {
+            "name": "migrations",
+            "file": "migrations.jsonl",
+            "columns": [
+                "id",
+                "migration",
+                "batch"
+            ],
+            "rows": 440
+        },
+        {
+            "name": "mot_bookings",
+            "file": "mot_bookings.jsonl",
+            "columns": [
+                "id",
+                "branch_id",
+                "title",
+                "payment_link",
+                "date_of_appointment",
+                "start",
+                "end",
+                "vehicle_registration",
+                "vehicle_chassis",
+                "vehicle_color",
+                "all_day",
+                "customer_name",
+                "customer_contact",
+                "customer_email",
+                "status",
+                "notes",
+                "background_color",
+                "text_color",
+                "created_at",
+                "updated_at",
+                "is_paid",
+                "payment_method",
+                "payment_notes",
+                "is_validate",
+                "user_id"
+            ],
+            "rows": 575
+        },
+        {
+            "name": "mot_checker",
+            "file": "mot_checker.jsonl",
+            "columns": [
+                "id",
+                "vehicle_registration",
+                "mot_due_date",
+                "email",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 23
+        },
+        {
+            "name": "mot_tax_alert_subscriptions",
+            "file": "mot_tax_alert_subscriptions.jsonl",
+            "columns": [
+                "id",
+                "first_name",
+                "last_name",
+                "email",
+                "phone",
+                "vehicle_registration",
+                "notify_email",
+                "notify_sms",
+                "enable_deals",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "motorbike_delivery_order_enquiries",
+            "file": "motorbike_delivery_order_enquiries.jsonl",
+            "columns": [
+                "id",
+                "order_id",
+                "pickup_address",
+                "pickup_postcode",
+                "dropoff_address",
+                "dropoff_postcode",
+                "vrm",
+                "moveable",
+                "documents",
+                "keys",
+                "pick_up_datetime",
+                "distance",
+                "note",
+                "full_name",
+                "phone",
+                "email",
+                "customer_address",
+                "customer_postcode",
+                "total_cost",
+                "vehicle_type",
+                "vehicle_type_id",
+                "branch_name",
+                "branch_id",
+                "is_dealt",
+                "dealt_by_user_id",
+                "notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 196
+        },
+        {
+            "name": "delivery_agreement_accesses",
+            "file": "delivery_agreement_accesses.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "enquiry_id",
+                "passcode",
+                "expires_at",
+                "signed_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "motorbike_repair_services_lists",
+            "file": "motorbike_repair_services_lists.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "description",
+                "price",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 42
+        },
+        {
+            "name": "motorcycles",
+            "file": "motorcycles.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "availability",
+                "sale_new_enquire",
+                "sale_new_price",
+                "sale_used_price",
+                "rental_deposit",
+                "rental_deposit_weeks",
+                "rental_deposit_paid",
+                "rental_price",
+                "rental_start_date",
+                "next_payment_date",
+                "npd_test",
+                "rental_id",
+                "is_insured",
+                "registration",
+                "registration_place",
+                "registration_date",
+                "make",
+                "model",
+                "year",
+                "colour",
+                "category",
+                "description",
+                "road_tax",
+                "mot",
+                "insurance",
+                "vin_number",
+                "engine",
+                "engine_details",
+                "power",
+                "torque",
+                "compression",
+                "bore_x_stroke",
+                "valves_per_cylinder",
+                "fuel_type",
+                "fuel_system",
+                "fuel_consumption",
+                "lubrication_system",
+                "cooling_system",
+                "gear_box",
+                "clutch",
+                "drive_line",
+                "co2_emissions",
+                "green_house_gases",
+                "emission_details",
+                "exhaust_system",
+                "frame_type",
+                "front_brakes",
+                "front_brakes_diameter",
+                "front_suspension",
+                "front_tyre",
+                "front_wheel_travel",
+                "rake",
+                "rear_brakes",
+                "rear_brakes_diameter",
+                "rear_suspension",
+                "rear_tyre",
+                "rear_wheel_travel",
+                "seat",
+                "trail",
+                "wheel_plan",
+                "alternate_seat_height",
+                "dry_weight",
+                "fuel_capacity",
+                "overall_height",
+                "overall_length",
+                "power_weight_ratio",
+                "reserve_fuel_capacity",
+                "seat_height",
+                "weight_incl_oil_gas_etc",
+                "comments",
+                "starter",
+                "euro_status",
+                "last_v5_issue_date",
+                "type_approval",
+                "tax_status",
+                "tax_due_date",
+                "mot_status",
+                "mot_expiry_date",
+                "month_of_first_registration",
+                "marked_for_export",
+                "created_at",
+                "updated_at",
+                "auth_user",
+                "deleted_at",
+                "slug",
+                "file_name",
+                "file_path",
+                "type",
+                "image"
+            ],
+            "rows": 79
+        },
+        {
+            "name": "multi_images",
+            "file": "multi_images.jsonl",
+            "columns": [
+                "id",
+                "multi_image",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "ngn_brands",
+            "file": "ngn_brands.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "image_url",
+                "created_at",
+                "updated_at",
+                "slug",
+                "description",
+                "is_ecommerce",
+                "is_active",
+                "sort_order",
+                "meta_title",
+                "meta_description"
+            ],
+            "rows": 47
+        },
+        {
+            "name": "ngn_campaigns",
+            "file": "ngn_campaigns.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "description",
+                "status",
+                "start_date",
+                "end_date",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "ngn_careers",
+            "file": "ngn_careers.jsonl",
+            "columns": [
+                "id",
+                "job_title",
+                "description",
+                "employment_type",
+                "location",
+                "salary",
+                "contact_email",
+                "job_posted",
+                "expire_date",
+                "created_at",
+                "updated_at",
+                "is_active"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "ngn_models",
+            "file": "ngn_models.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "image_url",
+                "created_at",
+                "updated_at",
+                "slug",
+                "meta_title",
+                "meta_description",
+                "is_ecommerce"
+            ],
+            "rows": 18
+        },
+        {
+            "name": "ngn_mot_notifier",
+            "file": "ngn_mot_notifier.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "motorbike_reg",
+                "mot_due_date",
+                "tax_due_date",
+                "insurance_due_date",
+                "mot_status",
+                "customer_name",
+                "customer_contact",
+                "customer_email",
+                "mot_notify_email",
+                "mot_notify_phone",
+                "mot_is_email_sent",
+                "mot_email_sent_expired",
+                "mot_is_phone_sent",
+                "mot_is_whatsapp_sent",
+                "mot_is_notified_30",
+                "mot_email_sent_30",
+                "mot_is_notified_10",
+                "mot_email_sent_10",
+                "mot_last_email_notification_date",
+                "mot_last_phone_notification_date",
+                "mot_last_whatsapp_notification_date",
+                "notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 996
+        },
+        {
+            "name": "ngn_partners",
+            "file": "ngn_partners.jsonl",
+            "columns": [
+                "id",
+                "companyname",
+                "company_logo",
+                "company_address",
+                "company_number",
+                "first_name",
+                "last_name",
+                "phone",
+                "mobile",
+                "email",
+                "website",
+                "fleet_size",
+                "operating_since",
+                "is_approved",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 8
+        },
+        {
+            "name": "ngn_super_categories",
+            "file": "ngn_super_categories.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "slug",
+                "image",
+                "description",
+                "meta_title",
+                "meta_description",
+                "meta_keywords",
+                "is_active",
+                "is_ecommerce",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "ngn_categories",
+            "file": "ngn_categories.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "image_url",
+                "created_at",
+                "updated_at",
+                "slug",
+                "description",
+                "is_ecommerce",
+                "is_active",
+                "sort_order",
+                "meta_title",
+                "meta_description",
+                "super_category_id"
+            ],
+            "rows": 36
+        },
+        {
+            "name": "ngn_products",
+            "file": "ngn_products.jsonl",
+            "columns": [
+                "id",
+                "sku",
+                "ean",
+                "image_url",
+                "name",
+                "variation",
+                "description",
+                "extended_description",
+                "colour",
+                "pos_variant_id",
+                "pos_product_id",
+                "brand_id",
+                "category_id",
+                "model_id",
+                "normal_price",
+                "pos_price",
+                "pos_vat",
+                "global_stock",
+                "vatable",
+                "is_oxford",
+                "dead",
+                "sorting_code",
+                "created_at",
+                "updated_at",
+                "slug",
+                "meta_title",
+                "meta_description",
+                "is_ecommerce"
+            ],
+            "rows": 1570
+        },
+        {
+            "name": "ngn_attributes",
+            "file": "ngn_attributes.jsonl",
+            "columns": [
+                "product_id",
+                "attribute_key",
+                "attribute_value",
+                "slug",
+                "created_at",
+                "updated_at",
+                "stock_in_hand"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "ngn_product_images",
+            "file": "ngn_product_images.jsonl",
+            "columns": [
+                "id",
+                "product_id",
+                "sku",
+                "image_url",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 851
+        },
+        {
+            "name": "ngn_surveys",
+            "file": "ngn_surveys.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "description",
+                "is_active",
+                "created_at",
+                "updated_at",
+                "slug"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "ngn_survey_questions",
+            "file": "ngn_survey_questions.jsonl",
+            "columns": [
+                "id",
+                "survey_id",
+                "question_text",
+                "question_type",
+                "is_required",
+                "order",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 4
+        },
+        {
+            "name": "ngn_survey_options",
+            "file": "ngn_survey_options.jsonl",
+            "columns": [
+                "id",
+                "question_id",
+                "option_text",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 9
+        },
+        {
+            "name": "notes",
+            "file": "notes.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "payment_id",
+                "motorcycle_id",
+                "payment_type",
+                "note",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 32
+        },
+        {
+            "name": "oxford_products",
+            "file": "oxford_products.jsonl",
+            "columns": [
+                "id",
+                "sku",
+                "description",
+                "ean",
+                "rrp_less_vat",
+                "rrp_inc_vat",
+                "stock",
+                "catford_stock",
+                "estimated_delivery",
+                "image_file_name",
+                "vatable",
+                "obsolete",
+                "category",
+                "supplier",
+                "supplier_code",
+                "cost_price",
+                "brand",
+                "extended_description",
+                "variation",
+                "date_added",
+                "super_product_name",
+                "colour",
+                "image_url",
+                "model",
+                "created_at",
+                "updated_at",
+                "dead"
+            ],
+            "rows": 25677
+        },
+        {
+            "name": "oxfords",
+            "file": "oxfords.jsonl",
+            "columns": [
+                "id",
+                "sku",
+                "description",
+                "ean",
+                "price",
+                "vat_price",
+                "stock",
+                "estimated_delivery",
+                "image_name",
+                "vatable",
+                "obsolete",
+                "dead",
+                "replacement_product",
+                "brand",
+                "extended_description",
+                "variation",
+                "date_added",
+                "pid",
+                "super_product_name",
+                "colour",
+                "image_url",
+                "category",
+                "model",
+                "category_id",
+                "created_at",
+                "updated_at",
+                "quantity"
+            ],
+            "rows": 19977
+        },
+        {
+            "name": "password_reset_tokens",
+            "file": "password_reset_tokens.jsonl",
+            "columns": [
+                "email",
+                "token",
+                "created_at"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "password_resets",
+            "file": "password_resets.jsonl",
+            "columns": [
+                "email",
+                "token",
+                "created_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "payment_methods",
+            "file": "payment_methods.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "title",
+                "slug",
+                "logo",
+                "link_url",
+                "description",
+                "instructions",
+                "is_enabled"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "payments",
+            "file": "payments.jsonl",
+            "columns": [
+                "id",
+                "payment_id",
+                "user_id",
+                "pcn_case_id",
+                "motorcycle_id",
+                "registration",
+                "payment_type",
+                "rental_deposit",
+                "rental_price",
+                "description",
+                "received",
+                "outstanding",
+                "notes",
+                "payment_due_date",
+                "payment_due_count",
+                "payment_next_date",
+                "payment_date",
+                "paid",
+                "created_at",
+                "updated_at",
+                "auth_user",
+                "deleted_by",
+                "deleted_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "payments_paypal",
+            "file": "payments_paypal.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "order_id",
+                "transaction_id",
+                "amount",
+                "currency",
+                "status",
+                "payer_email",
+                "payer_name",
+                "payer_id",
+                "paypal_fee",
+                "net_amount",
+                "payment_response",
+                "response",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 9
+        },
+        {
+            "name": "paypal_webhook_events",
+            "file": "paypal_webhook_events.jsonl",
+            "columns": [
+                "id",
+                "payment_id",
+                "event_type",
+                "resource",
+                "payload",
+                "transmission_id",
+                "transmission_time",
+                "transmission_sig",
+                "auth_algo",
+                "cert_url",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 21
+        },
+        {
+            "name": "permissions",
+            "file": "permissions.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "guard_name",
+                "group_name",
+                "display_name",
+                "description",
+                "can_be_removed",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 28
+        },
+        {
+            "name": "model_has_permissions",
+            "file": "model_has_permissions.jsonl",
+            "columns": [
+                "permission_id",
+                "model_type",
+                "model_id"
+            ],
+            "rows": 69
+        },
+        {
+            "name": "personal_access_tokens",
+            "file": "personal_access_tokens.jsonl",
+            "columns": [
+                "id",
+                "tokenable_type",
+                "tokenable_id",
+                "name",
+                "token",
+                "abilities",
+                "last_used_at",
+                "expires_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 5509
+        },
+        {
+            "name": "portfolios",
+            "file": "portfolios.jsonl",
+            "columns": [
+                "id",
+                "portfolio_name",
+                "portfolio_title",
+                "portfolio_image",
+                "portfolio_description",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "product_types",
+            "file": "product_types.jsonl",
+            "columns": [
+                "id",
+                "types",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "rental_payments",
+            "file": "rental_payments.jsonl",
+            "columns": [
+                "id",
+                "payment_id",
+                "user_id",
+                "motorcycle_id",
+                "registration",
+                "payment_type",
+                "rental_deposit",
+                "rental_price",
+                "description",
+                "received",
+                "outstanding",
+                "notes",
+                "payment_due_date",
+                "payment_due_count",
+                "payment_next_date",
+                "payment_date",
+                "paid",
+                "created_at",
+                "updated_at",
+                "auth_user",
+                "deleted_by",
+                "deleted_at"
+            ],
+            "rows": 301
+        },
+        {
+            "name": "rentals",
+            "file": "rentals.jsonl",
+            "columns": [
+                "id",
+                "make",
+                "model",
+                "engine",
+                "year",
+                "colour",
+                "user_id",
+                "signature",
+                "motorcycle_id",
+                "registration",
+                "deposit",
+                "price",
+                "created_at",
+                "updated_at",
+                "auth_user",
+                "deleted_at",
+                "deleted_by"
+            ],
+            "rows": 10
+        },
+        {
+            "name": "requirement_sets",
+            "file": "requirement_sets.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "slug",
+                "description",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "requirements",
+            "file": "requirements.jsonl",
+            "columns": [
+                "id",
+                "requirement_set_id",
+                "type",
+                "key",
+                "label",
+                "description",
+                "validation_rules",
+                "is_mandatory",
+                "conditions",
+                "sort_order",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "reviews",
+            "file": "reviews.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "is_recommended",
+                "rating",
+                "title",
+                "content",
+                "approved",
+                "reviewrateable_type",
+                "reviewrateable_id",
+                "author_type",
+                "author_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "roles",
+            "file": "roles.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "guard_name",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 10
+        },
+        {
+            "name": "role_has_permissions",
+            "file": "role_has_permissions.jsonl",
+            "columns": [
+                "permission_id",
+                "role_id"
+            ],
+            "rows": 61
+        },
+        {
+            "name": "service_bookings",
+            "file": "service_bookings.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "customer_auth_id",
+                "submission_context",
+                "enquiry_type",
+                "service_type",
+                "subject",
+                "description",
+                "requires_schedule",
+                "booking_date",
+                "booking_time",
+                "status",
+                "fullname",
+                "phone",
+                "reg_no",
+                "email",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 119
+        },
+        {
+            "name": "sessions",
+            "file": "sessions.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "ip_address",
+                "user_agent",
+                "payload",
+                "last_activity"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "shopping_cart",
+            "file": "shopping_cart.jsonl",
+            "columns": [
+                "identifier",
+                "instance",
+                "content",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "signatures",
+            "file": "signatures.jsonl",
+            "columns": [
+                "id",
+                "model_type",
+                "model_id",
+                "uuid",
+                "filename",
+                "document_filename",
+                "certified",
+                "from_ips",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sms_messages",
+            "file": "sms_messages.jsonl",
+            "columns": [
+                "id",
+                "sid",
+                "account_sid",
+                "api_version",
+                "body",
+                "date_created",
+                "date_sent",
+                "date_updated",
+                "direction",
+                "error_code",
+                "error_message",
+                "from",
+                "to",
+                "messaging_service_sid",
+                "num_media",
+                "num_segments",
+                "price",
+                "price_unit",
+                "status",
+                "uri",
+                "subresource_uris",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 12667
+        },
+        {
+            "name": "sp_makes",
+            "file": "sp_makes.jsonl",
+            "columns": [
+                "id",
+                "slug",
+                "name",
+                "source",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sp_models",
+            "file": "sp_models.jsonl",
+            "columns": [
+                "id",
+                "make_id",
+                "slug",
+                "name",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sp_fitments",
+            "file": "sp_fitments.jsonl",
+            "columns": [
+                "id",
+                "model_id",
+                "year",
+                "country_slug",
+                "country_name",
+                "colour_slug",
+                "colour_name",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sp_assemblies",
+            "file": "sp_assemblies.jsonl",
+            "columns": [
+                "id",
+                "fitment_id",
+                "external_id",
+                "slug",
+                "name",
+                "image_url",
+                "diagram_url",
+                "sort_order",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sp_parts",
+            "file": "sp_parts.jsonl",
+            "columns": [
+                "id",
+                "part_number",
+                "name",
+                "note",
+                "stock_status",
+                "price_gbp_inc_vat",
+                "global_stock",
+                "meta",
+                "last_synced_at",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sp_assembly_parts",
+            "file": "sp_assembly_parts.jsonl",
+            "columns": [
+                "id",
+                "assembly_id",
+                "part_id",
+                "qty_used",
+                "sort_order",
+                "note_override",
+                "price_override",
+                "stock_override",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "status_flags",
+            "file": "status_flags.jsonl",
+            "columns": [
+                "id",
+                "short_name",
+                "long_name",
+                "color",
+                "icon",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "subscribers",
+            "file": "subscribers.jsonl",
+            "columns": [
+                "id",
+                "email",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "subscription_items",
+            "file": "subscription_items.jsonl",
+            "columns": [
+                "id",
+                "subscription_id",
+                "stripe_id",
+                "stripe_plan",
+                "quantity",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "subscriptions",
+            "file": "subscriptions.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "name",
+                "stripe_id",
+                "stripe_status",
+                "stripe_plan",
+                "quantity",
+                "trial_ends_at",
+                "ends_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "survey_email_campaigns",
+            "file": "survey_email_campaigns.jsonl",
+            "columns": [
+                "id",
+                "ngn_survey_id",
+                "fullname",
+                "email",
+                "phone",
+                "send_email",
+                "send_phone",
+                "is_sent",
+                "last_email_sent_datetime",
+                "last_sms_sent_datetime",
+                "is_email_sent",
+                "is_sms_sent",
+                "created_at",
+                "updated_at",
+                "is_whatsapp_sent",
+                "url_whatsapp",
+                "last_whatsapp_sent_datetime"
+            ],
+            "rows": 1607
+        },
+        {
+            "name": "system_applications",
+            "file": "system_applications.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "code",
+                "description",
+                "version",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "system_application_links",
+            "file": "system_application_links.jsonl",
+            "columns": [
+                "id",
+                "system_application_id",
+                "name",
+                "url",
+                "icon",
+                "description",
+                "order",
+                "is_active",
+                "is_visible",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "system_countries",
+            "file": "system_countries.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "name_official",
+                "cca2",
+                "cca3",
+                "flag",
+                "latitude",
+                "longitude",
+                "currencies"
+            ],
+            "rows": 9
+        },
+        {
+            "name": "customer_addresses",
+            "file": "customer_addresses.jsonl",
+            "columns": [
+                "id",
+                "last_name",
+                "first_name",
+                "company_name",
+                "street_address",
+                "street_address_plus",
+                "postcode",
+                "city",
+                "phone_number",
+                "is_default",
+                "type",
+                "country_id",
+                "customer_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 30
+        },
+        {
+            "name": "inventories",
+            "file": "inventories.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "code",
+                "description",
+                "email",
+                "street_address",
+                "street_address_plus",
+                "zipcode",
+                "city",
+                "phone_number",
+                "priority",
+                "latitude",
+                "longitude",
+                "is_default",
+                "country_id"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "system_currencies",
+            "file": "system_currencies.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "code",
+                "symbol",
+                "format",
+                "exchange_rate"
+            ],
+            "rows": 158
+        },
+        {
+            "name": "system_settings",
+            "file": "system_settings.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "key",
+                "display_name",
+                "value",
+                "locked"
+            ],
+            "rows": 25
+        },
+        {
+            "name": "telescope_monitoring",
+            "file": "telescope_monitoring.jsonl",
+            "columns": [
+                "tag"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "terms_versions",
+            "file": "terms_versions.jsonl",
+            "columns": [
+                "id",
+                "version",
+                "content",
+                "is_active",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "customer_auths",
+            "file": "customer_auths.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "email",
+                "password",
+                "remember_token",
+                "created_at",
+                "updated_at",
+                "current_terms_version_id",
+                "email_verified_at"
+            ],
+            "rows": 29
+        },
+        {
+            "name": "customer_profiles",
+            "file": "customer_profiles.jsonl",
+            "columns": [
+                "id",
+                "customer_auth_id",
+                "first_name",
+                "last_name",
+                "phone",
+                "whatsapp",
+                "dob",
+                "nationality",
+                "license_number",
+                "license_expiry_date",
+                "license_issuance_authority",
+                "license_issuance_date",
+                "address",
+                "postcode",
+                "city",
+                "country",
+                "emergency_contact",
+                "preferred_branch_id",
+                "verification_status",
+                "verified_at",
+                "verification_expires_at",
+                "locked_fields",
+                "reputation_note",
+                "rating",
+                "is_register",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "customer_terms_agreements",
+            "file": "customer_terms_agreements.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "terms_version_id",
+                "agreed_at",
+                "ip_address",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "ec_orders",
+            "file": "ec_orders.jsonl",
+            "columns": [
+                "id",
+                "order_date",
+                "order_status",
+                "total_amount",
+                "discount",
+                "tax",
+                "grand_total",
+                "shipping_cost",
+                "shipping_status",
+                "shipping_date",
+                "payment_status",
+                "currency",
+                "payment_date",
+                "payment_reference",
+                "customer_id",
+                "shipping_method_id",
+                "payment_method_id",
+                "customer_address_id",
+                "created_at",
+                "updated_at",
+                "branch_id"
+            ],
+            "rows": 8
+        },
+        {
+            "name": "ec_order_items",
+            "file": "ec_order_items.jsonl",
+            "columns": [
+                "id",
+                "order_id",
+                "product_id",
+                "item_type",
+                "product_name",
+                "sku",
+                "part_number",
+                "sp_part_id",
+                "sp_assembly_id",
+                "quantity",
+                "unit_price",
+                "total_price",
+                "discount",
+                "tax",
+                "line_total",
+                "source_meta",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "ec_order_shippings",
+            "file": "ec_order_shippings.jsonl",
+            "columns": [
+                "id",
+                "order_id",
+                "fulfillment_method",
+                "status",
+                "processing_at",
+                "ready_at",
+                "shipped_at",
+                "completed_at",
+                "return_method",
+                "return_initiated_at",
+                "return_shipped_at",
+                "return_received_at",
+                "carrier",
+                "tracking_number",
+                "tracking_url",
+                "notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "transaction_types",
+            "file": "transaction_types.jsonl",
+            "columns": [
+                "id",
+                "type",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 7
+        },
+        {
+            "name": "upload_tests",
+            "file": "upload_tests.jsonl",
+            "columns": [
+                "id",
+                "title",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "user_actions",
+            "file": "user_actions.jsonl",
+            "columns": [
+                "id",
+                "action",
+                "description",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "userroles",
+            "file": "userroles.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "guard_name",
+                "display_name",
+                "description",
+                "can_be_removed",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 5
+        },
+        {
+            "name": "model_has_roles",
+            "file": "model_has_roles.jsonl",
+            "columns": [
+                "role_id",
+                "model_type",
+                "model_id"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "users",
+            "file": "users.jsonl",
+            "columns": [
+                "id",
+                "employee_id",
+                "rating",
+                "role_id",
+                "first_name",
+                "last_name",
+                "gender",
+                "phone_number",
+                "birth_date",
+                "avatar_type",
+                "avatar_location",
+                "timezone",
+                "opt_in",
+                "last_login_at",
+                "last_login_ip",
+                "email",
+                "name",
+                "email_verified_at",
+                "password",
+                "two_factor_secret",
+                "two_factor_recovery_codes",
+                "remember_token",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "username",
+                "is_admin",
+                "is_client",
+                "role",
+                "nationality",
+                "driving_licence",
+                "street_address",
+                "street_address_plus",
+                "city",
+                "post_code"
+            ],
+            "rows": 24
+        },
+        {
+            "name": "club_members",
+            "file": "club_members.jsonl",
+            "columns": [
+                "id",
+                "full_name",
+                "email",
+                "phone",
+                "user_id",
+                "customer_id",
+                "make",
+                "model",
+                "year",
+                "vrm",
+                "dob_code",
+                "is_active",
+                "tc_agreed",
+                "passkey",
+                "created_at",
+                "updated_at",
+                "email_sent",
+                "ngn_partner_id",
+                "is_partner"
+            ],
+            "rows": 2639
+        },
+        {
+            "name": "club_member_purchases",
+            "file": "club_member_purchases.jsonl",
+            "columns": [
+                "id",
+                "date",
+                "club_member_id",
+                "percent",
+                "total",
+                "discount",
+                "is_redeemed",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "pos_invoice",
+                "branch_id",
+                "redeem_amount",
+                "price"
+            ],
+            "rows": 15306
+        },
+        {
+            "name": "club_member_redeem",
+            "file": "club_member_redeem.jsonl",
+            "columns": [
+                "id",
+                "club_member_id",
+                "date",
+                "redeem_total",
+                "note",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "pos_invoice",
+                "branch_id"
+            ],
+            "rows": 13299
+        },
+        {
+            "name": "club_member_spendings",
+            "file": "club_member_spendings.jsonl",
+            "columns": [
+                "id",
+                "date",
+                "club_member_id",
+                "total",
+                "paid_amount",
+                "is_paid",
+                "user_id",
+                "pos_invoice",
+                "branch_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 70
+        },
+        {
+            "name": "club_member_spending_payments",
+            "file": "club_member_spending_payments.jsonl",
+            "columns": [
+                "id",
+                "club_member_id",
+                "spending_id",
+                "date",
+                "received_total",
+                "pos_invoice",
+                "user_id",
+                "branch_id",
+                "note",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 4
+        },
+        {
+            "name": "contact_queries",
+            "file": "contact_queries.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "email",
+                "subject",
+                "phone",
+                "message",
+                "is_dealt",
+                "dealt_by_user_id",
+                "created_at",
+                "updated_at",
+                "notes"
+            ],
+            "rows": 99
+        },
+        {
+            "name": "delete_request_otps",
+            "file": "delete_request_otps.jsonl",
+            "columns": [
+                "id",
+                "purchase_id",
+                "otp_code",
+                "authorised_by",
+                "expires_at",
+                "is_used",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "email_jobs",
+            "file": "email_jobs.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "user_id",
+                "is_sent",
+                "sent_at",
+                "template_name",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "employee_schedules",
+            "file": "employee_schedules.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "off_day",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "finance_applications",
+            "file": "finance_applications.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "user_id",
+                "sold_by",
+                "is_posted",
+                "created_at",
+                "updated_at",
+                "deposit",
+                "notes",
+                "contract_date",
+                "first_instalment_date",
+                "weekly_instalment",
+                "is_monthly",
+                "motorbike_price",
+                "extra_items",
+                "extra",
+                "log_book_sent",
+                "is_cancelled",
+                "reason_of_cancellation",
+                "logbook_transfer_date",
+                "cancelled_at",
+                "is_used",
+                "is_used_extended",
+                "is_used_extended_custom",
+                "is_new_latest",
+                "is_used_latest",
+                "is_subscription",
+                "subscription_option",
+                "subs_payment_date"
+            ],
+            "rows": 305
+        },
+        {
+            "name": "contract_access",
+            "file": "contract_access.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "passcode",
+                "expires_at",
+                "application_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1208
+        },
+        {
+            "name": "contract_extra_items",
+            "file": "contract_extra_items.jsonl",
+            "columns": [
+                "id",
+                "application_id",
+                "name",
+                "price",
+                "quantity",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "customer_contracts",
+            "file": "customer_contracts.jsonl",
+            "columns": [
+                "id",
+                "application_id",
+                "customer_id",
+                "document_type_id",
+                "file_name",
+                "file_path",
+                "sent_private",
+                "file_format",
+                "document_number",
+                "valid_until",
+                "is_verified",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 929
+        },
+        {
+            "name": "judopay_cit_payment_sessions",
+            "file": "judopay_cit_payment_sessions.jsonl",
+            "columns": [
+                "id",
+                "subscription_id",
+                "user_id",
+                "judopay_payment_reference",
+                "amount",
+                "customer_email",
+                "customer_mobile",
+                "customer_name",
+                "card_holder_name",
+                "address1",
+                "address2",
+                "city",
+                "postcode",
+                "judopay_reference",
+                "judopay_receipt_id",
+                "judopay_paylink_url",
+                "card_token",
+                "expiry_date",
+                "status",
+                "is_active",
+                "consent_given_at",
+                "consent_ip_address",
+                "consent_terms_version",
+                "consent_content_sha256",
+                "sms_verification_sid",
+                "sms_verified_at",
+                "judopay_response",
+                "judopay_webhook_data",
+                "judopay_session_status",
+                "status_score",
+                "payment_completed_at",
+                "link_generated_at",
+                "customer_accessed_at",
+                "failure_reason",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 76
+        },
+        {
+            "name": "judopay_mit_payment_sessions",
+            "file": "judopay_mit_payment_sessions.jsonl",
+            "columns": [
+                "id",
+                "subscription_id",
+                "user_id",
+                "judopay_payment_reference",
+                "amount",
+                "order_reference",
+                "description",
+                "judopay_related_receipt_id",
+                "card_token_used",
+                "judopay_receipt_id",
+                "judopay_response",
+                "status",
+                "status_score",
+                "scheduled_for",
+                "payment_completed_at",
+                "attempt_no",
+                "failure_reason",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 495
+        },
+        {
+            "name": "judopay_recurring_holds",
+            "file": "judopay_recurring_holds.jsonl",
+            "columns": [
+                "id",
+                "scope_type",
+                "scope_id",
+                "is_active",
+                "created_by",
+                "updated_by",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "new_motorbikes",
+            "file": "new_motorbikes.jsonl",
+            "columns": [
+                "id",
+                "purchase_date",
+                "VRM",
+                "make",
+                "model",
+                "colour",
+                "engine",
+                "year",
+                "VIM",
+                "branch_id",
+                "user_id",
+                "status",
+                "is_vrm",
+                "is_migrated",
+                "migrated_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 7
+        },
+        {
+            "name": "ngn_campaign_referrals",
+            "file": "ngn_campaign_referrals.jsonl",
+            "columns": [
+                "id",
+                "ngn_campaign_id",
+                "referrer_club_member_id",
+                "referred_full_name",
+                "referred_phone",
+                "referred_reg_number",
+                "referral_code",
+                "validated",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 24
+        },
+        {
+            "name": "ngn_mit_queues",
+            "file": "ngn_mit_queues.jsonl",
+            "columns": [
+                "id",
+                "subscribable_id",
+                "invoice_number",
+                "invoice_date",
+                "mit_fire_date",
+                "mit_attempt",
+                "status",
+                "cleared",
+                "cleared_at",
+                "cleared_by",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 349
+        },
+        {
+            "name": "judopay_mit_queues",
+            "file": "judopay_mit_queues.jsonl",
+            "columns": [
+                "id",
+                "ngn_mit_queue_id",
+                "judopay_payment_reference",
+                "cleared",
+                "cleared_at",
+                "mit_fire_date",
+                "retry",
+                "fired",
+                "authorized_by",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 396
+        },
+        {
+            "name": "ngn_stock_movements",
+            "file": "ngn_stock_movements.jsonl",
+            "columns": [
+                "id",
+                "branch_id",
+                "transaction_date",
+                "product_id",
+                "in",
+                "out",
+                "transaction_type",
+                "user_id",
+                "ref_doc_no",
+                "remarks",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 8249
+        },
+        {
+            "name": "ngn_survey_responses",
+            "file": "ngn_survey_responses.jsonl",
+            "columns": [
+                "id",
+                "survey_id",
+                "customer_id",
+                "club_member_id",
+                "contact_name",
+                "contact_email",
+                "contact_phone",
+                "is_contact_opt_in",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 43
+        },
+        {
+            "name": "ngn_survey_answers",
+            "file": "ngn_survey_answers.jsonl",
+            "columns": [
+                "id",
+                "response_id",
+                "question_id",
+                "option_id",
+                "answer_text",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 129
+        },
+        {
+            "name": "otp_verifications",
+            "file": "otp_verifications.jsonl",
+            "columns": [
+                "id",
+                "club_member_id",
+                "otp_code",
+                "expires_at",
+                "is_used",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 5659
+        },
+        {
+            "name": "purchase_request",
+            "file": "purchase_request.jsonl",
+            "columns": [
+                "id",
+                "date",
+                "note",
+                "created_by",
+                "is_posted",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "purchase_requests",
+            "file": "purchase_requests.jsonl",
+            "columns": [
+                "id",
+                "date",
+                "note",
+                "created_by",
+                "is_posted",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "purchase_request_items",
+            "file": "purchase_request_items.jsonl",
+            "columns": [
+                "id",
+                "pr_id",
+                "color",
+                "year",
+                "chassis_no",
+                "reg_no",
+                "part_number",
+                "part_position",
+                "link_one",
+                "link_two",
+                "quantity",
+                "image",
+                "created_by",
+                "created_at",
+                "updated_at",
+                "brand_name_id",
+                "bike_model_id"
+            ],
+            "rows": 8
+        },
+        {
+            "name": "purchase_used_vehicles",
+            "file": "purchase_used_vehicles.jsonl",
+            "columns": [
+                "id",
+                "purchase_date",
+                "full_name",
+                "address",
+                "postcode",
+                "phone_number",
+                "email",
+                "make",
+                "year",
+                "colour",
+                "fuel_type",
+                "model",
+                "reg_no",
+                "current_mileage",
+                "vin",
+                "engine_number",
+                "price",
+                "deposit",
+                "outstanding",
+                "total_to_pay",
+                "account_name",
+                "sort_code",
+                "account_number",
+                "created_at",
+                "updated_at",
+                "user_id"
+            ],
+            "rows": 41
+        },
+        {
+            "name": "purchase_agreement_accesses",
+            "file": "purchase_agreement_accesses.jsonl",
+            "columns": [
+                "id",
+                "passcode",
+                "expires_at",
+                "purchase_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 123
+        },
+        {
+            "name": "renting_bookings",
+            "file": "renting_bookings.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "user_id",
+                "start_date",
+                "due_date",
+                "state",
+                "is_posted",
+                "created_at",
+                "updated_at",
+                "deposit",
+                "notes"
+            ],
+            "rows": 206
+        },
+        {
+            "name": "agreement_accesses",
+            "file": "agreement_accesses.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "passcode",
+                "expires_at",
+                "created_at",
+                "updated_at",
+                "booking_id"
+            ],
+            "rows": 197
+        },
+        {
+            "name": "booking_closing",
+            "file": "booking_closing.jsonl",
+            "columns": [
+                "id",
+                "booking_id",
+                "notice_details",
+                "notice_checked",
+                "collect_details",
+                "collect_date",
+                "collect_time",
+                "collect_checked",
+                "damages_checked",
+                "pcn_checked",
+                "pending_checked",
+                "deposit_checked",
+                "created_at",
+                "updated_at",
+                "deposit_refunded_at",
+                "deposit_refund_method",
+                "deposit_refund_proof_path",
+                "deposit_refund_proof_reference",
+                "deposit_refund_user_id",
+                "deposit_refund_send_email",
+                "deposit_refund_email_sent_at",
+                "collect_proceeded_anyway_user_id",
+                "collect_proceeded_anyway_at"
+            ],
+            "rows": 163
+        },
+        {
+            "name": "booking_invoices",
+            "file": "booking_invoices.jsonl",
+            "columns": [
+                "id",
+                "booking_id",
+                "invoice_date",
+                "amount",
+                "paid_date",
+                "state",
+                "notes",
+                "is_posted",
+                "is_paid",
+                "notified_at",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "deposit",
+                "is_whatsapp_sent",
+                "whatsapp_last_reminder_sent_at"
+            ],
+            "rows": 2099
+        },
+        {
+            "name": "customer_agreements",
+            "file": "customer_agreements.jsonl",
+            "columns": [
+                "id",
+                "booking_id",
+                "customer_id",
+                "document_type_id",
+                "file_name",
+                "file_path",
+                "sent_private",
+                "file_format",
+                "document_number",
+                "valid_until",
+                "is_verified",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 687
+        },
+        {
+            "name": "ngn_digital_invoices",
+            "file": "ngn_digital_invoices.jsonl",
+            "columns": [
+                "id",
+                "invoice_number",
+                "invoice_type",
+                "invoice_category",
+                "template",
+                "customer_id",
+                "customer_name",
+                "customer_email",
+                "customer_phone",
+                "motorbike_id",
+                "registration_number",
+                "vin",
+                "make",
+                "model",
+                "year",
+                "issue_date",
+                "due_date",
+                "total",
+                "amount",
+                "total_paid",
+                "booking_invoice_id",
+                "internal_notes",
+                "notes",
+                "status",
+                "created_by",
+                "created_at",
+                "updated_at",
+                "whatsapp"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "ngn_digital_invoice_items",
+            "file": "ngn_digital_invoice_items.jsonl",
+            "columns": [
+                "id",
+                "invoice_id",
+                "item_name",
+                "sku",
+                "quantity",
+                "price",
+                "discount",
+                "tax",
+                "total",
+                "notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "rental_terminate_accesses",
+            "file": "rental_terminate_accesses.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "booking_id",
+                "passcode",
+                "expire_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 16
+        },
+        {
+            "name": "renting_other_charges",
+            "file": "renting_other_charges.jsonl",
+            "columns": [
+                "id",
+                "booking_id",
+                "description",
+                "amount",
+                "is_paid",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 87
+        },
+        {
+            "name": "renting_other_charges_transactions",
+            "file": "renting_other_charges_transactions.jsonl",
+            "columns": [
+                "id",
+                "transaction_date",
+                "charges_id",
+                "transaction_type_id",
+                "payment_method_id",
+                "amount",
+                "user_id",
+                "notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 53
+        },
+        {
+            "name": "renting_pricings",
+            "file": "renting_pricings.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "user_id",
+                "iscurrent",
+                "weekly_price",
+                "update_date",
+                "minimum_deposit",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 36
+        },
+        {
+            "name": "renting_service_videos",
+            "file": "renting_service_videos.jsonl",
+            "columns": [
+                "id",
+                "booking_id",
+                "video_path",
+                "recorded_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 272
+        },
+        {
+            "name": "renting_transactions",
+            "file": "renting_transactions.jsonl",
+            "columns": [
+                "id",
+                "transaction_date",
+                "booking_id",
+                "invoice_id",
+                "transaction_type_id",
+                "payment_method_id",
+                "amount",
+                "user_id",
+                "notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1426
+        },
+        {
+            "name": "role_users",
+            "file": "role_users.jsonl",
+            "columns": [
+                "user_id",
+                "role_id"
+            ],
+            "rows": 34
+        },
+        {
+            "name": "sp_stock_movements",
+            "file": "sp_stock_movements.jsonl",
+            "columns": [
+                "id",
+                "sp_part_id",
+                "branch_id",
+                "transaction_date",
+                "in",
+                "out",
+                "transaction_type",
+                "user_id",
+                "ref_doc_no",
+                "remarks",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "stock_logs",
+            "file": "stock_logs.jsonl",
+            "columns": [
+                "id",
+                "description",
+                "color",
+                "picture",
+                "qty",
+                "created_at",
+                "updated_at",
+                "branch_id",
+                "user_id",
+                "sku"
+            ],
+            "rows": 679
+        },
+        {
+            "name": "support_conversations",
+            "file": "support_conversations.jsonl",
+            "columns": [
+                "id",
+                "uuid",
+                "customer_auth_id",
+                "service_booking_id",
+                "assigned_backpack_user_id",
+                "title",
+                "topic",
+                "status",
+                "last_message_at",
+                "first_customer_message_at",
+                "external_ai_session_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "support_messages",
+            "file": "support_messages.jsonl",
+            "columns": [
+                "id",
+                "conversation_id",
+                "sender_type",
+                "sender_customer_auth_id",
+                "sender_user_id",
+                "body",
+                "meta",
+                "read_at_customer",
+                "read_at_staff",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "support_attachments",
+            "file": "support_attachments.jsonl",
+            "columns": [
+                "id",
+                "message_id",
+                "disk",
+                "path",
+                "original_name",
+                "mime",
+                "size",
+                "uploaded_by_customer_auth_id",
+                "uploaded_by_user_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "upload_document_accesses",
+            "file": "upload_document_accesses.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "booking_id",
+                "passcode",
+                "expires_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 328
+        },
+        {
+            "name": "user_feedback",
+            "file": "user_feedback.jsonl",
+            "columns": [
+                "id",
+                "club_member_id",
+                "feedback_text",
+                "submitted_at",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "user_segments",
+            "file": "user_segments.jsonl",
+            "columns": [
+                "id",
+                "club_member_id",
+                "segment_type",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "user_sessions",
+            "file": "user_sessions.jsonl",
+            "columns": [
+                "id",
+                "club_member_id",
+                "login_time",
+                "logout_time",
+                "session_duration",
+                "pages_visited",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1536
+        },
+        {
+            "name": "users-old",
+            "file": "users-old.jsonl",
+            "columns": [
+                "id",
+                "first_name",
+                "last_name",
+                "gender",
+                "phone_number",
+                "birth_date",
+                "avatar_type",
+                "avatar_location",
+                "timezone",
+                "opt_in",
+                "last_login_at",
+                "last_login_ip",
+                "email",
+                "email_verified_at",
+                "password",
+                "two_factor_secret",
+                "two_factor_recovery_codes",
+                "remember_token",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "username",
+                "is_admin",
+                "is_client",
+                "nationality",
+                "driving_licence",
+                "street_address",
+                "street_address_plus",
+                "city",
+                "post_code"
+            ],
+            "rows": 36
+        },
+        {
+            "name": "inventory_histories",
+            "file": "inventory_histories.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "stockable_type",
+                "stockable_id",
+                "reference_type",
+                "reference_id",
+                "quantity",
+                "old_quantity",
+                "event",
+                "description",
+                "inventory_id",
+                "user_id"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "posts",
+            "file": "posts.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "title",
+                "description",
+                "body",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "user_addresses",
+            "file": "user_addresses.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "last_name",
+                "first_name",
+                "company_name",
+                "street_address",
+                "street_address_plus",
+                "zipcode",
+                "city",
+                "phone_number",
+                "is_default",
+                "type",
+                "country_id",
+                "user_id"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "users_geolocation_histories",
+            "file": "users_geolocation_histories.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "ip_api",
+                "extreme_ip_lookup",
+                "user_id",
+                "order_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "users_olds",
+            "file": "users_olds.jsonl",
+            "columns": [
+                "id",
+                "first_name",
+                "last_name",
+                "gender",
+                "phone_number",
+                "birth_date",
+                "avatar_type",
+                "avatar_location",
+                "timezone",
+                "opt_in",
+                "last_login_at",
+                "last_login_ip",
+                "email",
+                "email_verified_at",
+                "password",
+                "two_factor_secret",
+                "two_factor_recovery_codes",
+                "remember_token",
+                "username",
+                "is_admin",
+                "is_client",
+                "nationality",
+                "driving_licence",
+                "street_address",
+                "street_address_plus",
+                "city",
+                "post_code",
+                "created_at",
+                "updated_at",
+                "deleted_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "veh_notifications",
+            "file": "veh_notifications.jsonl",
+            "columns": [
+                "id",
+                "first_name",
+                "last_name",
+                "email",
+                "reg_no",
+                "phone",
+                "notify_email",
+                "notify_phone",
+                "enable",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 28
+        },
+        {
+            "name": "vehicle_delivery_orders",
+            "file": "vehicle_delivery_orders.jsonl",
+            "columns": [
+                "id",
+                "quote_date",
+                "pickup_date",
+                "vrm",
+                "full_name",
+                "phone_number",
+                "total_distance",
+                "surcharge",
+                "delivery_vehicle_type_id",
+                "branch_id",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "notes",
+                "email"
+            ],
+            "rows": 12
+        },
+        {
+            "name": "vehicle_delivery_orders_items",
+            "file": "vehicle_delivery_orders_items.jsonl",
+            "columns": [
+                "id",
+                "vehicle_delivery_order_id",
+                "pickup_point_coordinates_lat",
+                "pickup_point_coordinates_lon",
+                "drop_branch_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 12
+        },
+        {
+            "name": "vehicle_delivery_rates",
+            "file": "vehicle_delivery_rates.jsonl",
+            "columns": [
+                "id",
+                "base_fee",
+                "per_mile_fee",
+                "base_distance",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 1
+        },
+        {
+            "name": "vehicle_delivery_surcharges",
+            "file": "vehicle_delivery_surcharges.jsonl",
+            "columns": [
+                "id",
+                "type",
+                "percentage",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "vehicle_estimators",
+            "file": "vehicle_estimators.jsonl",
+            "columns": [
+                "id",
+                "referer_id",
+                "make",
+                "model",
+                "vrm",
+                "engine_size",
+                "mileage",
+                "vehicle_year",
+                "condition",
+                "base_price",
+                "calculated_value",
+                "like",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 93
+        },
+        {
+            "name": "vehicle_profiles",
+            "file": "vehicle_profiles.jsonl",
+            "columns": [
+                "id",
+                "name",
+                "is_internal",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "motorbikes",
+            "file": "motorbikes.jsonl",
+            "columns": [
+                "id",
+                "vehicle_profile_id",
+                "is_ebike",
+                "vin_number",
+                "make",
+                "model",
+                "year",
+                "engine",
+                "color",
+                "created_by",
+                "updated_by",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "co2_emissions",
+                "fuel_type",
+                "marked_for_export",
+                "type_approval",
+                "wheel_plan",
+                "month_of_first_registration",
+                "reg_no",
+                "date_of_last_v5c_issuance",
+                "branch_id"
+            ],
+            "rows": 2316
+        },
+        {
+            "name": "application_items",
+            "file": "application_items.jsonl",
+            "columns": [
+                "id",
+                "application_id",
+                "motorbike_id",
+                "user_id",
+                "is_posted",
+                "created_at",
+                "updated_at",
+                "app_id"
+            ],
+            "rows": 304
+        },
+        {
+            "name": "claim_motorbikes",
+            "file": "claim_motorbikes.jsonl",
+            "columns": [
+                "id",
+                "fullname",
+                "email",
+                "phone",
+                "motorbike_id",
+                "branch_id",
+                "user_id",
+                "notes",
+                "case_date",
+                "is_received",
+                "received_date",
+                "is_returned",
+                "returned_date",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 119
+        },
+        {
+            "name": "company_vehicles",
+            "file": "company_vehicles.jsonl",
+            "columns": [
+                "id",
+                "custodian",
+                "motorbike_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 8
+        },
+        {
+            "name": "customer_documents",
+            "file": "customer_documents.jsonl",
+            "columns": [
+                "id",
+                "id_deleted",
+                "customer_id",
+                "document_type_id",
+                "file_name",
+                "file_path",
+                "sent_private",
+                "file_format",
+                "document_number",
+                "valid_until",
+                "is_verified",
+                "created_at",
+                "updated_at",
+                "booking_id",
+                "motorbike_id"
+            ],
+            "rows": 113
+        },
+        {
+            "name": "document_change_requests",
+            "file": "document_change_requests.jsonl",
+            "columns": [
+                "id",
+                "customer_profile_id",
+                "customer_id",
+                "document_id",
+                "new_document_id",
+                "reason",
+                "status",
+                "reviewed_by",
+                "reviewed_at",
+                "review_notes",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "motorbike_annual_compliance",
+            "file": "motorbike_annual_compliance.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "year",
+                "mot_status",
+                "road_tax_status",
+                "insurance_status",
+                "created_at",
+                "updated_at",
+                "tax_due_date",
+                "insurance_due_date",
+                "mot_due_date"
+            ],
+            "rows": 2321
+        },
+        {
+            "name": "motorbike_images",
+            "file": "motorbike_images.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "image_path",
+                "alt_text",
+                "created_at",
+                "updated_at",
+                "deleted_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "motorbike_maintenance_logs",
+            "file": "motorbike_maintenance_logs.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "booking_id",
+                "user_id",
+                "cost",
+                "serviced_at",
+                "description",
+                "note",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 18
+        },
+        {
+            "name": "motorbike_registrations",
+            "file": "motorbike_registrations.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "registration_number",
+                "active",
+                "start_date",
+                "end_date",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 2316
+        },
+        {
+            "name": "motorbikes_cat_b",
+            "file": "motorbikes_cat_b.jsonl",
+            "columns": [
+                "id",
+                "dop",
+                "motorbike_id",
+                "notes",
+                "created_at",
+                "updated_at",
+                "branch_id"
+            ],
+            "rows": 2
+        },
+        {
+            "name": "motorbikes_repair",
+            "file": "motorbikes_repair.jsonl",
+            "columns": [
+                "id",
+                "arrival_date",
+                "motorbike_id",
+                "notes",
+                "is_repaired",
+                "repaired_date",
+                "is_returned",
+                "returned_date",
+                "created_at",
+                "updated_at",
+                "fullname",
+                "email",
+                "phone",
+                "branch_id",
+                "user_id"
+            ],
+            "rows": 148
+        },
+        {
+            "name": "motorbike_repair_observations",
+            "file": "motorbike_repair_observations.jsonl",
+            "columns": [
+                "id",
+                "motorbike_repair_id",
+                "observation_description",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 40
+        },
+        {
+            "name": "motorbike_repair_updates",
+            "file": "motorbike_repair_updates.jsonl",
+            "columns": [
+                "id",
+                "motorbike_repair_id",
+                "job_description",
+                "price",
+                "note",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 453
+        },
+        {
+            "name": "motorbikes_sale",
+            "file": "motorbikes_sale.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "condition",
+                "motorbike_id",
+                "created_at",
+                "updated_at",
+                "mileage",
+                "date_of_purchase",
+                "date_of_sale",
+                "price",
+                "engine",
+                "suspension",
+                "brakes",
+                "belt",
+                "electrical",
+                "tires",
+                "note",
+                "v5_available",
+                "is_sold",
+                "buyer_name",
+                "buyer_phone",
+                "buyer_email",
+                "buyer_address",
+                "image_one",
+                "image_two",
+                "image_three",
+                "image_four",
+                "accessories"
+            ],
+            "rows": 99
+        },
+        {
+            "name": "motorbike_sale_logs",
+            "file": "motorbike_sale_logs.jsonl",
+            "columns": [
+                "id",
+                "motorbike_id",
+                "motorbikes_sale_id",
+                "user_id",
+                "username",
+                "reg_no",
+                "is_sold",
+                "buyer_name",
+                "buyer_phone",
+                "buyer_email",
+                "buyer_address",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 37
+        },
+        {
+            "name": "motorbikes_sold",
+            "file": "motorbikes_sold.jsonl",
+            "columns": [
+                "id",
+                "listing_id",
+                "customer_name",
+                "phone_number",
+                "sold_price",
+                "address",
+                "note",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 5
+        },
+        {
+            "name": "pcn_cases",
+            "file": "pcn_cases.jsonl",
+            "columns": [
+                "id",
+                "pcn_number",
+                "date_of_contravention",
+                "date_of_letter_issued",
+                "time_of_contravention",
+                "motorbike_id",
+                "customer_id",
+                "isClosed",
+                "full_amount",
+                "reduced_amount",
+                "picture_url",
+                "note",
+                "council_link",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "is_police",
+                "is_whatsapp_sent",
+                "whatsapp_last_reminder_sent_at",
+                "is_sms_sent",
+                "sms_last_sent_at"
+            ],
+            "rows": 1155
+        },
+        {
+            "name": "pcn_case_updates",
+            "file": "pcn_case_updates.jsonl",
+            "columns": [
+                "id",
+                "case_id",
+                "update_date",
+                "is_appealed",
+                "is_paid_by_owner",
+                "is_paid_by_keeper",
+                "additional_fee",
+                "picture_url",
+                "note",
+                "is_transferred",
+                "user_id",
+                "created_at",
+                "updated_at",
+                "is_cancled"
+            ],
+            "rows": 2532
+        },
+        {
+            "name": "pcn_email_jobs",
+            "file": "pcn_email_jobs.jsonl",
+            "columns": [
+                "id",
+                "is_sent",
+                "sent_at",
+                "template_code",
+                "motorbike_id",
+                "customer_id",
+                "case_id",
+                "user_id",
+                "force_stop",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 686
+        },
+        {
+            "name": "pcn_tol_requests",
+            "file": "pcn_tol_requests.jsonl",
+            "columns": [
+                "id",
+                "pcn_case_id",
+                "update_id",
+                "request_date",
+                "status",
+                "full_path",
+                "letter_sent_at",
+                "note",
+                "created_at",
+                "updated_at",
+                "user_id"
+            ],
+            "rows": 3
+        },
+        {
+            "name": "recovered_motorbikes",
+            "file": "recovered_motorbikes.jsonl",
+            "columns": [
+                "id",
+                "case_date",
+                "user_id",
+                "branch_id",
+                "motorbike_id",
+                "notes",
+                "created_at",
+                "updated_at",
+                "returned_date"
+            ],
+            "rows": 20
+        },
+        {
+            "name": "renting_booking_items",
+            "file": "renting_booking_items.jsonl",
+            "columns": [
+                "id",
+                "booking_id",
+                "motorbike_id",
+                "user_id",
+                "weekly_rent",
+                "start_date",
+                "due_date",
+                "end_date",
+                "is_posted",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 198
+        },
+        {
+            "name": "booking_issuance_items",
+            "file": "booking_issuance_items.jsonl",
+            "columns": [
+                "id",
+                "booking_item_id",
+                "issued_by_user_id",
+                "current_mileage",
+                "is_video_recorded",
+                "accessories_checked",
+                "issuance_branch",
+                "created_at",
+                "updated_at",
+                "notes",
+                "is_insured"
+            ],
+            "rows": 690
+        },
+        {
+            "name": "repair_update_service",
+            "file": "repair_update_service.jsonl",
+            "columns": [
+                "id",
+                "update_id",
+                "service_id",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 28
+        },
+        {
+            "name": "vehicle_issuances",
+            "file": "vehicle_issuances.jsonl",
+            "columns": [
+                "id",
+                "customer_id",
+                "issue_date",
+                "user_id",
+                "branch_id",
+                "motorbike_id",
+                "notes",
+                "is_returned",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 110
+        },
+        {
+            "name": "attribute_value_product_attribute",
+            "file": "attribute_value_product_attribute.jsonl",
+            "columns": [
+                "id",
+                "attribute_value_id",
+                "product_attribute_id",
+                "product_custom_value"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "attribute_value_product_attributes",
+            "file": "attribute_value_product_attributes.jsonl",
+            "columns": [
+                "id",
+                "attribute_value_id",
+                "product_attribute_id",
+                "product_custom_value"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "categories",
+            "file": "categories.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "slug",
+                "description",
+                "position",
+                "is_enabled",
+                "seo_title",
+                "seo_description",
+                "parent_id"
+            ],
+            "rows": 5
+        },
+        {
+            "name": "order_items",
+            "file": "order_items.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "name",
+                "sku",
+                "product_type",
+                "product_id",
+                "quantity",
+                "unit_price_amount",
+                "order_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "order_refunds",
+            "file": "order_refunds.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "refund_reason",
+                "refund_amount",
+                "status",
+                "notes",
+                "order_id",
+                "user_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "order_shippings",
+            "file": "order_shippings.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "shipped_at",
+                "received_at",
+                "returned_at",
+                "tracking_number",
+                "tracking_number_url",
+                "voucher",
+                "order_id",
+                "carrier_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "orders",
+            "file": "orders.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "number",
+                "price_amount",
+                "status",
+                "currency",
+                "shipping_total",
+                "shipping_method",
+                "notes",
+                "parent_order_id",
+                "payment_method_id",
+                "shipping_address_id",
+                "user_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "product_attributes",
+            "file": "product_attributes.jsonl",
+            "columns": [
+                "id",
+                "product_id",
+                "attribute_id",
+                "stock_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "product_has_relations",
+            "file": "product_has_relations.jsonl",
+            "columns": [
+                "product_id",
+                "productable_type",
+                "productable_id",
+                "stock_id"
+            ],
+            "rows": 6
+        },
+        {
+            "name": "products",
+            "file": "products.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "name",
+                "slug",
+                "sku",
+                "barcode",
+                "description",
+                "security_stock",
+                "featured",
+                "is_visible",
+                "old_price_amount",
+                "price_amount",
+                "cost_amount",
+                "type",
+                "backorder",
+                "requires_shipping",
+                "published_at",
+                "seo_title",
+                "seo_description",
+                "weight_value",
+                "weight_unit",
+                "height_value",
+                "height_unit",
+                "width_value",
+                "width_unit",
+                "depth_value",
+                "depth_unit",
+                "volume_value",
+                "volume_unit",
+                "parent_id",
+                "brand_id",
+                "stock_id",
+                "image",
+                "images",
+                "category_id"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "sales",
+            "file": "sales.jsonl",
+            "columns": [
+                "id",
+                "user_id",
+                "product_id",
+                "brand_name",
+                "generic_name",
+                "category",
+                "orginal_price",
+                "sell_price",
+                "quantity",
+                "profit",
+                "total",
+                "created_at",
+                "updated_at"
+            ],
+            "rows": 0
+        },
+        {
+            "name": "users_geolocation_history",
+            "file": "users_geolocation_history.jsonl",
+            "columns": [
+                "id",
+                "created_at",
+                "updated_at",
+                "deleted_at",
+                "ip_api",
+                "extreme_ip_lookup",
+                "user_id",
+                "order_id"
+            ],
+            "rows": 0
+        }
+    ]
+}

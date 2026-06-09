@@ -18,7 +18,7 @@
             <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Step 1: Enter postcodes</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">From Postcode and To Postcode to calculate distance and proceed.</p>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div class=" grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
                     <flux:field>
                         <flux:label>From Postcode</flux:label>
                         <flux:input wire:model.defer="pickupPostcode" class="uppercase" placeholder="ENTER PICKUP POSTAL CODE" />
@@ -38,7 +38,7 @@
         @endif
 
         @if($step === 2)
-            <form wire:submit="submitOrder" class="space-y-5">
+            <form wire:submit="submitOrder" class="site-form space-y-5">
                 <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5">
                     <div class="flex items-center justify-between gap-2">
                         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Step 2: Complete your order</h2>
@@ -65,11 +65,17 @@
                 <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 space-y-4">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Bike Details</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <flux:field>
-                            <flux:label>Vehicle Pickup Date & Time</flux:label>
-                            <flux:input wire:model="pickUpDatetime" type="datetime-local" />
+                        <div class="md:col-span-2">
+                            <flux:label class="mb-2 block">Vehicle Pickup Date &amp; Time</flux:label>
+                            <x-site.booking-datetime-field
+                                date-model="pickUpDate"
+                                time-model="pickUpTime"
+                                date-label="Pickup date"
+                                time-label="Pickup time"
+                            />
+                            <flux:description>We are closed on Sundays.</flux:description>
                             <flux:error name="pickUpDatetime" />
-                        </flux:field>
+                        </div>
                         <flux:field>
                             <flux:label>Vehicle Registration Number</flux:label>
                             <flux:input wire:model="vrm" class="uppercase" />
@@ -96,7 +102,7 @@
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Additional Information</h3>
                     <flux:field>
                         <flux:label>Additional Note</flux:label>
-                        <flux:textarea wire:model="note" rows="4" placeholder="Include any additional information such as items received with the bike, etc." />
+                        <flux:textarea wire:model="note" rows="5" placeholder="Include any additional information such as items received with the bike, etc." />
                         <flux:error name="note" />
                     </flux:field>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Your Details</h3>
@@ -126,8 +132,6 @@
                 <li>🚚 <strong>Nationwide transport services JUST £249.99 anywhere in the England</strong></li>
                 <li>🕒 <strong>Serving the industry since 2018 with over 6 years of expertise</strong></li>
                 <li>🔒 <strong>Fully insured, safe, and reliable vehicle transport</strong></li>
-                <li>💰 <strong>Comprehensive coverage up to £100,000 per vehicle</strong></li>
-                <li>🌐 <strong>Offering both local and international transport solutions</strong></li>
                 <li>📝 <strong>Vehicle inspections performed at the time of collection</strong></li>
                 <li>🖥️ <strong>Convenient self-service admin portal for easy management</strong></li>
             </ul>

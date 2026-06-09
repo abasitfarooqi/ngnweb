@@ -18,6 +18,10 @@ class Show extends Component
 
     public $saleInfo = null;
 
+    public string $layoutMode = 'classic';
+
+    public $compliance = null;
+
     public string $name = '';
 
     public string $email = '';
@@ -40,14 +44,29 @@ class Show extends Component
             }
         } else {
             try {
-                $this->bike = Motorbike::with(['images', 'branch'])->findOrFail($id);
+                $this->bike = Motorbike::with([
+                    'images',
+                    'branch',
+                    'annualCompliances' => fn ($query) => $query->latest()->limit(1),
+                ])->findOrFail($id);
                 $this->saleInfo = DB::table('motorbikes_sale')
                     ->where('motorbike_id', $id)
                     ->where('is_sold', 0)
                     ->first();
+                $this->compliance = $this->bike->annualCompliances->first();
             } catch (\Exception $e) {
                 abort(404, 'Motorcycle not found');
             }
+        }
+
+        $requestedLayout = request()->query('layout');
+        $configuredLayout = (string) config('site.used_bike_detail_layout', 'classic');
+        $this->layoutMode = in_array($requestedLayout, ['classic', 'premium'], true)
+            ? (string) $requestedLayout
+            : (in_array($configuredLayout, ['classic', 'premium'], true) ? $configuredLayout : 'classic');
+
+        if ($this->isNew) {
+            $this->layoutMode = 'classic';
         }
 
         $customer = auth('customer')->user();
@@ -113,6 +132,95 @@ class Show extends Component
 
         session()->flash('enquiry_success', 'Enquiry received. Our team will contact you shortly.');
         $this->privacy = false;
+    }
+
+    /** @return list<string> */
+    public function galleryImages(): array
+    {
+        $urls = [];
+
+        if (! $this->isNew && $this->bike->images) {
+            foreach ($this->bike->images as $image) {
+                $url = $this->resolveImageUrl($image->url ?? '');
+                if ($url !== '') {
+                    $urls[] = $url;
+                }
+            }
+        }
+
+        if ($this->saleInfo) {
+            foreach (['image_one', 'image_two', 'image_three', 'image_four'] as $field) {
+                $raw = $this->saleInfo->{$field} ?? null;
+                if ($raw) {
+                    $url = $this->resolveImageUrl((string) $raw);
+                    if ($url !== '') {
+                        $urls[] = $url;
+                    }
+                }
+            }
+        }
+
+        return array_values(array_unique($urls));
+    }
+
+    public function regLastThree(): ?string
+    {
+        $reg = strtoupper(preg_replace('/\s+/', '', (string) ($this->bike->reg_no ?? '')));
+
+        return $reg !== '' ? substr($reg, -3) : null;
+    }
+
+    public function motStatusLabel(): ?string
+    {
+        if (! $this->compliance) {
+            return null;
+        }
+
+        $due = $this->compliance->mot_due_date;
+        if ($due) {
+            return \Carbon\Carbon::parse($due)->endOfDay()->isPast() ? 'Expired' : 'Valid';
+        }
+
+        $stored = trim((string) ($this->compliance->getAttributes()['mot_status'] ?? ''));
+
+        if ($stored === '') {
+            return null;
+        }
+
+        return strcasecmp($stored, 'Expired') === 0 ? 'Expired' : 'Valid';
+    }
+
+    public function firstRegistrationLabel(): ?string
+    {
+        $raw = trim((string) ($this->bike->month_of_first_registration ?? ''));
+
+        return $raw !== '' ? $raw : null;
+    }
+
+    public function accessoriesLabel(): ?string
+    {
+        $raw = trim((string) ($this->saleInfo?->accessories ?? ''));
+        if ($raw === '') {
+            $raw = trim((string) ($this->bike->accessories ?? ''));
+        }
+
+        if ($raw === '') {
+            return null;
+        }
+
+        return $this->formatAccessoriesText($raw);
+    }
+
+    private function formatAccessoriesText(string $raw): string
+    {
+        $text = preg_replace('/<br\s*\/?>/i', ', ', $raw) ?? $raw;
+        $text = preg_replace('/<\/p>/i', ', ', $text) ?? $text;
+        $text = strip_tags($text);
+        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = preg_replace('/\s*,\s*/', ', ', $text) ?? $text;
+        $text = preg_replace('/,+/', ',', $text) ?? $text;
+
+        return trim($text, " \t\n\r\0\x0B,");
     }
 
     public function resolveImageUrl(?string $rawPath): string

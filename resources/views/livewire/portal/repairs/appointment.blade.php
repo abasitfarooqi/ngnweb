@@ -15,7 +15,7 @@
         <flux:callout.text>We will confirm your date and time. If you need a quick question answered first, send a repair enquiry instead.</flux:callout.text>
     </flux:callout>
 
-    <form wire:submit.prevent="submit" class="space-y-6">
+    <form wire:submit.prevent="submit" class="site-form space-y-6">
         <flux:card class="p-6 space-y-6">
             <flux:field>
                 <flux:label>Service type *</flux:label>
@@ -62,7 +62,7 @@
 
             <flux:field>
                 <flux:label>Describe the issue</flux:label>
-                <flux:textarea wire:model="issue_description" rows="4" placeholder="Describe the problem, when it happens, what you have tried…" />
+                <flux:textarea wire:model="issue_description" rows="5" placeholder="Describe the problem, when it happens, what you have tried…" />
             </flux:field>
 
             <flux:separator />
@@ -72,7 +72,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <flux:field>
                         <flux:label>Date *</flux:label>
-                        <flux:date-picker wire:model="date_requested" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
+                        <x-site.booking-date-picker wire:model="date_requested" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
                         <flux:error name="date_requested" />
                     </flux:field>
                     <flux:field>

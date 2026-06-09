@@ -20,7 +20,7 @@
                 </flux:callout>
             @endif
 
-            <form wire:submit.prevent="submit" class="space-y-4">
+            <form wire:submit.prevent="submit" class="site-form space-y-4">
                 <flux:field>
                     <flux:label>Full Name *</flux:label>
                     <flux:input wire:model="name" />
@@ -62,7 +62,7 @@
 
                 <flux:field>
                     <flux:label>Message *</flux:label>
-                    <flux:textarea wire:model="message" rows="5" />
+                    <flux:textarea wire:model="message" rows="6" />
                     <flux:error name="message" />
                 </flux:field>
 

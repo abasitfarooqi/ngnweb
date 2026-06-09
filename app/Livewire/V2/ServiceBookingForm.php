@@ -2,6 +2,7 @@
 
 namespace App\Livewire\V2;
 
+use App\Rules\NotSunday;
 use Livewire\Attributes\Rule;
 use Livewire\Component;
 
@@ -25,7 +26,7 @@ class ServiceBookingForm extends Component
     #[Rule('required|in:basic,full,repairs,other')]
     public string $service_type = 'basic';
 
-    #[Rule('required|date|after:today')]
+    #[Rule(['required', 'date', 'after:today', new NotSunday])]
     public string $preferred_date = '';
 
     #[Rule('nullable|string|max:500')]

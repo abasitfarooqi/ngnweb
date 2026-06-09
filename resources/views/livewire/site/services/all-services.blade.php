@@ -20,7 +20,7 @@
             'icon' => 'shield-check',
             'title' => 'MOT Services',
             'image' => 'assets/images/services/MOT-BOOKING.jpg',
-            'alt' => 'Motorcycle MOT testing at NGN',
+            'alt' => 'Motorcycle MOT Booking at NGN',
             'teaser' => 'Qualified testers and mechanics at our South London workshop — your bike inspected to current standards with clear results.',
             'buttons' => [
                 ['href' => route('site.mot'), 'label' => 'MOT information', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
@@ -202,7 +202,7 @@
                 </ul>
                 <ul class="m-0 list-none space-y-2 p-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
                     <li><a href="{{ route('site.repairs.comparison') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Compare basic &amp; full</a></li>
-                    <li><a href="{{ route('site.mot') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">MOT testing</a></li>
+                    <li><a href="{{ route('site.mot') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">MOT Booking</a></li>
                 </ul>
                 <ul class="m-0 list-none space-y-2 p-0 text-sm font-semibold text-gray-700 dark:text-gray-300">
                     <li><a href="{{ route('site.contact.service-booking') }}" class="text-brand-red underline underline-offset-2 hover:text-brand-red-dark">Service booking page</a></li>

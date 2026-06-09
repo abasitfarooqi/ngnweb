@@ -28,7 +28,7 @@
             @endif
         </h2>
 
-        <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="space-y-5">
+        <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="site-form space-y-5">
             @if($portalRepairsEnquiry && $repairsEnquiryCompactMode)
                 <flux:field>
                     <flux:label>Enquiry type *</flux:label>
@@ -125,7 +125,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <flux:field>
                         <flux:label>Preferred Date *</flux:label>
-                        <flux:date-picker wire:model="preferredDate" min="{{ date('Y-m-d') }}" />
+                        <x-site.booking-date-picker wire:model="preferredDate" />
                         <flux:error name="preferredDate" />
                     </flux:field>
                     <flux:field>
@@ -155,7 +155,7 @@
 
             <flux:field>
                 <flux:label>{{ $notesLabel }}</flux:label>
-                <flux:textarea wire:model="message" rows="3" placeholder="Any specific issues or requirements?" />
+                <flux:textarea wire:model="message" rows="5" placeholder="Any specific issues or requirements?" />
             </flux:field>
 
             @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)

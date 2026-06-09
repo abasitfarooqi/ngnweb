@@ -2,8 +2,9 @@
 
 namespace App\Livewire\Site\Bikes;
 
-use App\Models\Motorbike;
 use App\Models\Motorcycle;
+use App\Support\UsedMotorbikeListing;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -11,77 +12,84 @@ class Index extends Component
 {
     use WithPagination;
 
-    public $filterType = 'all';
+    #[Url(as: 'filter', except: 'all')]
+    public string $filterType = 'all';
 
-    public $searchMake = '';
+    #[Url(except: '')]
+    public string $search = '';
 
-    public $minPrice = '';
+    #[Url(except: 'default')]
+    public string $sort = 'default';
 
-    public $maxPrice = '';
+    #[Url(except: 'available')]
+    public string $availability = 'available';
 
-    public function mount(): void
+    #[Url(except: '')]
+    public string $minPrice = '';
+
+    #[Url(except: '')]
+    public string $maxPrice = '';
+
+    public function setFilter(string $type): void
     {
-        $f = strtolower((string) request()->query('filter', ''));
-        if (in_array($f, ['used', 'new', 'all'], true)) {
-            $this->filterType = $f;
+        if (! in_array($type, ['all', 'new', 'used'], true)) {
+            return;
+        }
+
+        $this->filterType = $type;
+        $this->resetPage();
+    }
+
+    public function updated($property): void
+    {
+        if (in_array($property, ['search', 'sort', 'availability', 'minPrice', 'maxPrice'], true)) {
+            $this->resetPage();
         }
     }
 
-    public function setFilter($type)
+    public function resetFilters(): void
     {
-        $this->filterType = $type;
+        $this->search = '';
+        $this->sort = 'default';
+        $this->availability = 'available';
+        $this->minPrice = '';
+        $this->maxPrice = '';
         $this->resetPage();
     }
 
     public function render()
     {
         $newBikes = collect();
-        if (in_array($this->filterType, ['all', 'new'])) {
+        if (in_array($this->filterType, ['all', 'new'], true)) {
             try {
                 $q = Motorcycle::where('availability', 'for sale');
 
-                if ($this->searchMake) {
-                    $q->where('make', 'like', '%'.$this->searchMake.'%');
+                if ($this->search !== '' && $this->filterType === 'new') {
+                    $term = '%'.$this->search.'%';
+                    $q->where(function ($inner) use ($term) {
+                        $inner->where('make', 'like', $term)
+                            ->orWhere('model', 'like', $term);
+                    });
                 }
 
-                $newBikes = $q
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+                $newBikes = $q->orderByDesc('created_at')->get();
             } catch (\Exception $e) {
                 $newBikes = collect();
             }
         }
 
-        $usedBikes = collect();
-        if (in_array($this->filterType, ['all', 'used'])) {
+        $usedBikes = null;
+        if (in_array($this->filterType, ['all', 'used'], true)) {
             try {
-                $q = Motorbike::join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
-                    ->select(
-                        'motorbikes.*',
-                        'motorbikes_sale.price',
-                        'motorbikes_sale.image_one',
-                        'motorbikes_sale.mileage as sale_mileage',
-                        'motorbikes_sale.id as sale_id',
-                    )
-                    ->where('motorbikes_sale.is_sold', 0);
-
-                if ($this->searchMake) {
-                    $q->where('motorbikes.make', 'like', '%'.$this->searchMake.'%');
-                }
-
-                if ($this->minPrice) {
-                    $q->where('motorbikes_sale.price', '>=', $this->minPrice);
-                }
-
-                if ($this->maxPrice) {
-                    $q->where('motorbikes_sale.price', '<=', $this->maxPrice);
-                }
-
-                $usedBikes = $q
-                    ->orderBy('motorbikes.created_at', 'desc')
-                    ->get();
+                $usedBikes = UsedMotorbikeListing::query(
+                    $this->search,
+                    $this->sort,
+                    $this->availability,
+                    $this->minPrice,
+                    $this->maxPrice,
+                )->paginate(12);
             } catch (\Exception $e) {
-                $usedBikes = collect();
+                $usedBikes = null;
             }
         }
 

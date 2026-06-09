@@ -26,7 +26,7 @@
             <div>
                 <h3 class="text-sm font-bold uppercase tracking-wider text-gray-200 mb-4">Services</h3>
                 <ul class="space-y-2 text-sm text-gray-400">
-                    <li><a href="/mot" class="hover:text-white transition">MOT Testing</a></li>
+                    <li><a href="/mot" class="hover:text-white transition">MOT Booking</a></li>
                     <li><a href="/repairs" class="hover:text-white transition">Repairs & Servicing</a></li>
                     <li><a href="{{ route('rental-hire') }}" class="hover:text-white transition">Motorcycle Rentals</a></li>
                     <li><a href="/motorbikes" class="hover:text-white transition">Motorbikes For Sale</a></li>

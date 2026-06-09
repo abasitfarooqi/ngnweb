@@ -7,14 +7,14 @@
         </flux:callout>
     @endif
 
-    <form wire:submit.prevent="submit" class="space-y-6">
+    <form wire:submit.prevent="submit" class="site-form space-y-6">
         <flux:card class="p-6 space-y-6">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Appointment Details</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Date of Appointment *</flux:label>
-                    <flux:date-picker wire:model="date_of_appointment" min="{{ date('Y-m-d', strtotime('+1 day')) }}" />
+                    <x-site.booking-date-picker wire:model="date_of_appointment" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
                     <flux:error name="date_of_appointment" />
                 </flux:field>
                 <flux:field>

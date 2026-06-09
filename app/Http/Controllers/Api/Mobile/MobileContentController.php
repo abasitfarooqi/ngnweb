@@ -29,7 +29,7 @@ class MobileContentController extends Controller
                     'route' => '/all-services',
                     'children' => [
                         ['key' => 'all_services', 'label' => 'All services', 'route' => '/all-services'],
-                        ['key' => 'mot_testing', 'label' => 'MOT testing', 'route' => '/mot'],
+                        ['key' => 'mot_testing', 'label' => 'MOT Booking', 'route' => '/mot'],
                         ['key' => 'repairs_servicing', 'label' => 'Repairs and servicing', 'route' => '/repairs'],
                         ['key' => 'recovery_delivery', 'label' => 'Recovery and delivery', 'route' => '/motorcycle-delivery'],
                         ['key' => 'accident_management', 'label' => 'Accident management', 'route' => '/accident-management'],

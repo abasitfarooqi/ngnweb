@@ -18,7 +18,7 @@
     <flux:card class="p-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Call Back Request Form</h2>
 
-        <form wire:submit.prevent="submitRequest" class="space-y-5">
+        <form wire:submit.prevent="submitRequest" class="site-form space-y-5">
             <flux:field>
                 <flux:label>Full Name *</flux:label>
                 <flux:input wire:model="name" type="text" />
@@ -51,7 +51,7 @@
 
             <flux:field>
                 <flux:label>Message (Optional)</flux:label>
-                <flux:textarea wire:model="message" rows="3" placeholder="Tell us briefly what you need help with..." />
+                <flux:textarea wire:model="message" rows="5" placeholder="Tell us briefly what you need help with..." />
             </flux:field>
 
             <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">Request Call Back</flux:button>

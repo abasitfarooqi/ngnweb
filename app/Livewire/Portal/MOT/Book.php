@@ -5,6 +5,7 @@ namespace App\Livewire\Portal\MOT;
 use App\Models\Branch;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking;
+use App\Rules\NotSunday;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
@@ -43,15 +44,18 @@ class Book extends Component
         '16:30' => '04:30 PM',
     ];
 
-    protected $rules = [
-        'branch_id' => 'required|exists:branches,id',
-        'motorbike_reg_no' => 'required|string|min:2|max:10',
-        'motorbike_make' => 'required|string|min:2|max:50',
-        'motorbike_model' => 'required|string|min:2|max:50',
-        'date_of_appointment' => 'required|date|after:today',
-        'time_slot' => 'required',
-        'notes' => 'nullable|string|max:2000',
-    ];
+    protected function rules(): array
+    {
+        return [
+            'branch_id' => 'required|exists:branches,id',
+            'motorbike_reg_no' => 'required|string|min:2|max:10',
+            'motorbike_make' => 'required|string|min:2|max:50',
+            'motorbike_model' => 'required|string|min:2|max:50',
+            'date_of_appointment' => ['required', 'date', 'after:today', new NotSunday],
+            'time_slot' => 'required',
+            'notes' => 'nullable|string|max:2000',
+        ];
+    }
 
     public function mount()
     {

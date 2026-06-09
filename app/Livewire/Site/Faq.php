@@ -37,7 +37,7 @@ class Faq extends Component
         [
             'category' => 'MOT',
             'q' => 'How much does a motorcycle MOT cost?',
-            'a' => 'MOT testing starts from £29.65 (the DVSA maximum fee). We offer competitive pricing across all three of our branches in Catford, Tooting, and Sutton.',
+            'a' => 'MOT Booking starts from £29.65 (the DVSA maximum fee). We offer competitive pricing across all three of our branches in Catford, Tooting, and Sutton.',
         ],
         [
             'category' => 'MOT',
@@ -135,7 +135,7 @@ class Faq extends Component
         return view('livewire.site.faq')
             ->layout('components.layouts.public', [
                 'title' => 'FAQs – Motorcycle Rental, MOT, Repairs & Sales | NGN Motors',
-                'description' => 'Frequently asked questions about motorcycle rentals, MOT testing, repairs, servicing, finance, and the NGN Club at NGN Motors London.',
+                'description' => 'Frequently asked questions about motorcycle rentals, MOT Booking, repairs, servicing, finance, and the NGN Club at NGN Motors London.',
             ]);
     }
 }

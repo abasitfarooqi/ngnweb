@@ -4,6 +4,9 @@ return [
 
     'hours' => env('SITE_HOURS', 'Mon–Fri 9am–6pm · Sat 9am–3:45pm · Sun Closed'),
 
+    /** Used bike detail page: classic | premium. Override per visit with ?layout=premium */
+    'used_bike_detail_layout' => env('USED_BIKE_DETAIL_LAYOUT', 'classic'),
+
     'opening_hours' => [
         'monday'    => '9 am – 6 pm',
         'tuesday'   => '9 am – 6 pm',

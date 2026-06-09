@@ -1,0 +1,4 @@
+{"id":1,"survey_id":1,"question_text":"Which option do you prefer the most?","question_type":"single_choice","is_required":1,"order":1,"created_at":"2025-04-17 07:27:02","updated_at":"2025-04-17 07:27:02"}
+{"id":2,"survey_id":1,"question_text":"When are you looking to purchase or finance a motorcycle?","question_type":"single_choice","is_required":1,"order":2,"created_at":"2025-04-17 07:27:02","updated_at":"2025-04-17 07:27:02"}
+{"id":3,"survey_id":1,"question_text":"Would you like us to contact you with offers or more information?","question_type":"single_choice","is_required":1,"order":3,"created_at":"2025-04-17 07:27:02","updated_at":"2025-04-17 07:27:02"}
+{"id":4,"survey_id":2,"question_text":"TEST","question_type":"single_choice","is_required":1,"order":3,"created_at":"2025-04-18 12:30:57","updated_at":"2025-04-18 12:30:57"}

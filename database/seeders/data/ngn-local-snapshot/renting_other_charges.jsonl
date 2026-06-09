@@ -1,0 +1,87 @@
+{"id":1,"booking_id":12,"description":"Ripped the Seat(£20 discount included by TAHIR)","amount":"180.00","is_paid":1,"created_at":"2024-05-28 15:25:01","updated_at":"2024-06-20 14:40:49"}
+{"id":2,"booking_id":12,"description":"Side Panel Replace cost £150 total. £50 received out of £150","amount":"50.00","is_paid":1,"created_at":"2024-06-20 14:44:09","updated_at":"2024-06-20 14:44:21"}
+{"id":3,"booking_id":12,"description":"Side Panel Replace cost £150 total. £100 received out of £150.   Boss gives £50 discount","amount":"50.00","is_paid":1,"created_at":"2024-06-22 13:58:17","updated_at":"2024-06-22 13:58:46"}
+{"id":4,"booking_id":27,"description":"MT HELMET AND DELIVERY BAG","amount":"39.99","is_paid":1,"created_at":"2024-10-10 15:50:12","updated_at":"2024-10-17 10:19:48"}
+{"id":5,"booking_id":27,"description":"Delivery bag","amount":"15.00","is_paid":1,"created_at":"2024-10-17 10:27:12","updated_at":"2024-10-24 09:09:50"}
+{"id":6,"booking_id":29,"description":"Central Stand","amount":"120.00","is_paid":1,"created_at":"2024-11-13 13:27:05","updated_at":"2024-11-13 13:54:19"}
+{"id":7,"booking_id":30,"description":"RECOVERY CHARGES","amount":"35.00","is_paid":1,"created_at":"2024-11-14 12:20:50","updated_at":"2024-11-14 12:21:27"}
+{"id":8,"booking_id":30,"description":"EASY BLOCK KEY","amount":"50.00","is_paid":1,"created_at":"2024-11-14 12:21:15","updated_at":"2024-11-14 12:21:40"}
+{"id":9,"booking_id":30,"description":"£205 fob key ( paid from deposit )","amount":"205.00","is_paid":1,"created_at":"2024-11-16 11:00:05","updated_at":"2024-11-16 11:00:23"}
+{"id":10,"booking_id":29,"description":"FOB KEY","amount":"165.00","is_paid":0,"created_at":"2024-12-03 17:13:24","updated_at":"2024-12-03 17:13:24"}
+{"id":11,"booking_id":29,"description":"EASY BLOCK KEY","amount":"50.00","is_paid":0,"created_at":"2024-12-03 17:13:49","updated_at":"2024-12-03 17:13:49"}
+{"id":12,"booking_id":35,"description":"FRONT FENDER","amount":"40.00","is_paid":1,"created_at":"2024-12-10 12:13:24","updated_at":"2024-12-10 12:16:51"}
+{"id":13,"booking_id":35,"description":"FRONT FENDER","amount":"40.00","is_paid":1,"created_at":"2024-12-10 12:13:41","updated_at":"2024-12-30 13:41:32"}
+{"id":14,"booking_id":35,"description":"FRONT FENDER","amount":"30.00","is_paid":1,"created_at":"2024-12-10 12:14:00","updated_at":"2024-12-30 13:41:44"}
+{"id":15,"booking_id":41,"description":"FRONT FENDER","amount":"50.00","is_paid":1,"created_at":"2024-12-23 10:33:04","updated_at":"2024-12-23 10:34:37"}
+{"id":16,"booking_id":46,"description":"REMAINING DEPOSIT","amount":"15.00","is_paid":0,"created_at":"2024-12-30 15:51:39","updated_at":"2024-12-30 15:51:39"}
+{"id":17,"booking_id":46,"description":"Steering Yoke Assy NMAX 2021","amount":"200.00","is_paid":1,"created_at":"2024-12-31 10:39:46","updated_at":"2024-12-31 10:40:06"}
+{"id":18,"booking_id":46,"description":"Front Fender NMAX MATT BLUE","amount":"110.00","is_paid":1,"created_at":"2024-12-31 10:41:36","updated_at":"2024-12-31 11:39:13"}
+{"id":19,"booking_id":46,"description":"Steering Bearing NMAX","amount":"80.00","is_paid":1,"created_at":"2024-12-31 10:42:31","updated_at":"2024-12-31 11:39:26"}
+{"id":20,"booking_id":46,"description":"Forks Pair NMAX","amount":"250.00","is_paid":1,"created_at":"2024-12-31 10:43:11","updated_at":"2025-01-09 09:22:22"}
+{"id":21,"booking_id":46,"description":"Steering Yoke Assy NMAX 2021","amount":"10.00","is_paid":1,"created_at":"2024-12-31 10:44:17","updated_at":"2024-12-31 11:39:39"}
+{"id":22,"booking_id":54,"description":"The customer arrived with the right turn signal on the bike broken at the Tooting store, original yamaha nmax 2dp right turn signal, the customer will pay £45 now and £50 next week","amount":"95.00","is_paid":0,"created_at":"2025-01-28 16:56:04","updated_at":"2025-01-28 16:56:04"}
+{"id":23,"booking_id":54,"description":"EASY BLOCK KEY","amount":"180.00","is_paid":1,"created_at":"2025-01-28 18:05:05","updated_at":"2025-01-28 18:05:17"}
+{"id":24,"booking_id":54,"description":"Mirror","amount":"25.00","is_paid":0,"created_at":"2025-01-30 16:49:31","updated_at":"2025-01-30 16:49:31"}
+{"id":26,"booking_id":21,"description":"Front Fender B6H","amount":"45.00","is_paid":1,"created_at":"2025-02-10 14:51:00","updated_at":"2025-02-10 14:52:03"}
+{"id":27,"booking_id":21,"description":"Front Fender B6H","amount":"50.00","is_paid":1,"created_at":"2025-02-10 14:51:49","updated_at":"2025-02-18 16:36:43"}
+{"id":28,"booking_id":51,"description":"Phone Holder Arm","amount":"5.00","is_paid":1,"created_at":"2025-02-19 11:39:33","updated_at":"2025-02-19 11:40:04"}
+{"id":29,"booking_id":51,"description":"Mirror Bracket","amount":"30.00","is_paid":1,"created_at":"2025-02-19 11:39:54","updated_at":"2025-02-19 11:40:21"}
+{"id":30,"booking_id":57,"description":"EASY BLOCK","amount":"180.00","is_paid":1,"created_at":"2025-02-26 14:18:42","updated_at":"2025-02-26 14:19:00"}
+{"id":31,"booking_id":36,"description":"PCN- GX21225865","amount":"160.00","is_paid":0,"created_at":"2025-02-28 10:03:13","updated_at":"2025-02-28 10:03:13"}
+{"id":32,"booking_id":36,"description":"PCN- GX21169775","amount":"160.00","is_paid":0,"created_at":"2025-02-28 10:05:16","updated_at":"2025-02-28 10:05:16"}
+{"id":33,"booking_id":65,"description":"Body Cowling Headlight Panel Right B6H","amount":"110.00","is_paid":1,"created_at":"2025-04-23 17:34:06","updated_at":"2025-05-07 12:27:25"}
+{"id":34,"booking_id":81,"description":"IGNITION SET NMAX 2DP","amount":"135.00","is_paid":1,"created_at":"2025-04-28 16:12:44","updated_at":"2025-04-28 16:16:21"}
+{"id":35,"booking_id":81,"description":"EASY BLOCK 2DP","amount":"180.00","is_paid":1,"created_at":"2025-05-01 09:38:50","updated_at":"2025-05-01 09:39:03"}
+{"id":36,"booking_id":61,"description":"COVER L. FR. SIDE","amount":"134.00","is_paid":0,"created_at":"2025-05-05 14:27:20","updated_at":"2025-05-05 14:27:20"}
+{"id":37,"booking_id":61,"description":"COVER SET L. BODY","amount":"186.00","is_paid":0,"created_at":"2025-05-05 14:39:43","updated_at":"2025-05-05 14:39:43"}
+{"id":38,"booking_id":61,"description":"COVER L. FLOOR SIDE","amount":"132.00","is_paid":0,"created_at":"2025-05-05 14:40:42","updated_at":"2025-05-05 14:40:42"}
+{"id":39,"booking_id":61,"description":"Windshield","amount":"110.00","is_paid":0,"created_at":"2025-05-05 14:41:01","updated_at":"2025-05-05 14:41:01"}
+{"id":40,"booking_id":48,"description":"Central stand","amount":"110.00","is_paid":0,"created_at":"2025-05-05 17:49:15","updated_at":"2025-05-05 17:49:15"}
+{"id":41,"booking_id":48,"description":"Penalty Charge Notice","amount":"65.00","is_paid":0,"created_at":"2025-05-05 17:49:56","updated_at":"2025-05-05 17:49:56"}
+{"id":42,"booking_id":89,"description":"BIGBOSS 12MM CHAINLOCK - 1.2MM","amount":"60.00","is_paid":1,"created_at":"2025-05-07 16:18:17","updated_at":"2025-05-14 15:17:53"}
+{"id":43,"booking_id":38,"description":"LEFT COWLING B6H","amount":"110.00","is_paid":0,"created_at":"2025-05-21 15:29:30","updated_at":"2025-05-21 15:29:30"}
+{"id":44,"booking_id":96,"description":"FENDER","amount":"85.00","is_paid":1,"created_at":"2025-05-21 16:31:54","updated_at":"2025-05-21 16:32:19"}
+{"id":45,"booking_id":78,"description":"WEATHER RESISTANT BIKE MOUNT","amount":"15.00","is_paid":1,"created_at":"2025-07-02 10:18:09","updated_at":"2025-07-07 15:32:35"}
+{"id":46,"booking_id":98,"description":"FUEL REMOVAL SCOOTER","amount":"60.00","is_paid":1,"created_at":"2025-07-09 15:16:48","updated_at":"2025-07-09 15:21:15"}
+{"id":47,"booking_id":51,"description":"EASY BLOCK","amount":"180.00","is_paid":1,"created_at":"2025-07-14 17:12:12","updated_at":"2025-07-14 17:12:30"}
+{"id":48,"booking_id":51,"description":"Premium Top Box","amount":"170.00","is_paid":1,"created_at":"2025-07-14 17:13:26","updated_at":"2025-07-14 17:14:07"}
+{"id":49,"booking_id":51,"description":"Windshield","amount":"110.00","is_paid":1,"created_at":"2025-07-14 17:16:29","updated_at":"2025-07-18 12:17:45"}
+{"id":50,"booking_id":51,"description":"Wireless Phone Holder M11-A","amount":"50.00","is_paid":1,"created_at":"2025-07-14 17:17:03","updated_at":"2025-07-26 11:43:31"}
+{"id":51,"booking_id":51,"description":"DOUBLE SEAT ASSY","amount":"220.00","is_paid":1,"created_at":"2025-07-14 17:17:32","updated_at":"2025-08-09 13:04:41"}
+{"id":52,"booking_id":51,"description":"Left Mirror","amount":"15.00","is_paid":1,"created_at":"2025-07-14 17:18:17","updated_at":"2025-07-26 11:43:45"}
+{"id":53,"booking_id":113,"description":"wrwrg5tb","amount":"0.00","is_paid":1,"created_at":"2025-07-23 13:14:35","updated_at":"2025-07-23 13:14:46"}
+{"id":54,"booking_id":99,"description":"DEPOSIT FOR DAMAGES","amount":"100.00","is_paid":1,"created_at":"2025-08-29 15:31:50","updated_at":"2025-08-29 15:32:04"}
+{"id":55,"booking_id":99,"description":"DAMAGES","amount":"260.00","is_paid":1,"created_at":"2025-08-30 13:41:51","updated_at":"2025-08-30 13:42:04"}
+{"id":56,"booking_id":107,"description":"Phone Holder MOUNT","amount":"15.00","is_paid":1,"created_at":"2025-09-01 13:11:54","updated_at":"2025-11-24 16:49:06"}
+{"id":57,"booking_id":99,"description":"Under bracket Comp","amount":"220.00","is_paid":1,"created_at":"2025-09-01 16:31:23","updated_at":"2025-09-01 16:31:36"}
+{"id":58,"booking_id":53,"description":"Front Fender","amount":"167.00","is_paid":0,"created_at":"2025-09-23 10:17:34","updated_at":"2025-09-23 10:17:34"}
+{"id":59,"booking_id":99,"description":"Headlight","amount":"150.00","is_paid":1,"created_at":"2025-09-23 10:25:39","updated_at":"2025-09-23 15:48:52"}
+{"id":60,"booking_id":99,"description":"DAMAGES","amount":"438.00","is_paid":1,"created_at":"2025-09-23 15:49:08","updated_at":"2025-09-23 15:49:19"}
+{"id":61,"booking_id":134,"description":"DISK LOCK","amount":"7.00","is_paid":0,"created_at":"2025-10-22 14:24:20","updated_at":"2025-10-22 14:24:20"}
+{"id":62,"booking_id":89,"description":"LS2 OF616 AIRFLOW 2 XL","amount":"65.99","is_paid":1,"created_at":"2025-10-23 15:58:42","updated_at":"2025-11-22 16:00:33"}
+{"id":63,"booking_id":89,"description":"T-COM BLUETOOTH","amount":"50.00","is_paid":1,"created_at":"2025-10-23 15:59:02","updated_at":"2025-11-22 16:00:49"}
+{"id":64,"booking_id":145,"description":"0","amount":"0.00","is_paid":0,"created_at":"2025-11-13 10:58:06","updated_at":"2025-11-13 10:58:06"}
+{"id":65,"booking_id":89,"description":"Rainseal","amount":"10.00","is_paid":0,"created_at":"2025-11-22 16:01:26","updated_at":"2025-11-22 16:01:26"}
+{"id":66,"booking_id":159,"description":"0","amount":"0.00","is_paid":0,"created_at":"2025-12-18 10:19:42","updated_at":"2025-12-18 10:19:42"}
+{"id":67,"booking_id":147,"description":"0","amount":"0.00","is_paid":0,"created_at":"2025-12-31 10:59:01","updated_at":"2025-12-31 10:59:01"}
+{"id":68,"booking_id":141,"description":"Windscreen damaged","amount":"130.00","is_paid":1,"created_at":"2026-01-13 11:19:58","updated_at":"2026-04-16 14:30:45"}
+{"id":69,"booking_id":168,"description":"DAMAGES","amount":"180.00","is_paid":0,"created_at":"2026-01-15 10:08:23","updated_at":"2026-01-15 10:08:23"}
+{"id":70,"booking_id":177,"description":"Battery","amount":"550.00","is_paid":0,"created_at":"2026-02-06 13:33:58","updated_at":"2026-02-06 13:33:58"}
+{"id":71,"booking_id":177,"description":"Charger","amount":"85.00","is_paid":0,"created_at":"2026-02-06 13:34:40","updated_at":"2026-02-06 13:34:40"}
+{"id":72,"booking_id":177,"description":"Headlight","amount":"255.00","is_paid":0,"created_at":"2026-02-06 13:35:09","updated_at":"2026-02-06 13:35:09"}
+{"id":73,"booking_id":107,"description":"Front Fender","amount":"110.00","is_paid":0,"created_at":"2026-02-17 14:24:39","updated_at":"2026-02-17 14:24:39"}
+{"id":74,"booking_id":176,"description":"Recovery Charges","amount":"100.00","is_paid":0,"created_at":"2026-02-19 11:33:00","updated_at":"2026-02-19 11:33:00"}
+{"id":75,"booking_id":176,"description":"Mechanic labour","amount":"55.99","is_paid":0,"created_at":"2026-02-19 11:33:27","updated_at":"2026-02-19 11:33:27"}
+{"id":76,"booking_id":194,"description":"testing","amount":"1000.00","is_paid":0,"created_at":"2026-03-06 13:40:52","updated_at":"2026-03-06 13:40:52"}
+{"id":77,"booking_id":194,"description":"testing","amount":"300.00","is_paid":0,"created_at":"2026-03-06 13:41:17","updated_at":"2026-03-06 13:41:17"}
+{"id":78,"booking_id":194,"description":"test","amount":"123.00","is_paid":0,"created_at":"2026-03-06 14:29:23","updated_at":"2026-03-06 14:29:23"}
+{"id":79,"booking_id":155,"description":"DAMAGES ON BIKE","amount":"382.74","is_paid":0,"created_at":"2026-03-09 14:04:21","updated_at":"2026-03-09 14:04:21"}
+{"id":80,"booking_id":155,"description":"Damage","amount":"282.74","is_paid":0,"created_at":"2026-03-10 15:01:33","updated_at":"2026-03-10 15:01:33"}
+{"id":81,"booking_id":189,"description":"Broken storage box","amount":"0.00","is_paid":0,"created_at":"2026-03-20 15:58:53","updated_at":"2026-03-20 15:58:53"}
+{"id":82,"booking_id":210,"description":"MT GENESIS XL","amount":"80.99","is_paid":1,"created_at":"2026-04-06 14:38:47","updated_at":"2026-04-08 17:18:22"}
+{"id":83,"booking_id":141,"description":"Body Front Under 1 SMX","amount":"112.91","is_paid":1,"created_at":"2026-04-16 14:28:52","updated_at":"2026-04-16 14:31:01"}
+{"id":84,"booking_id":141,"description":"Mole Side Cover 1","amount":"106.37","is_paid":1,"created_at":"2026-04-16 14:29:16","updated_at":"2026-04-16 14:31:16"}
+{"id":85,"booking_id":141,"description":"Delivery charges","amount":"10.00","is_paid":1,"created_at":"2026-04-16 14:29:34","updated_at":"2026-04-16 14:31:29"}
+{"id":86,"booking_id":141,"description":"Mechanic labour","amount":"82.75","is_paid":1,"created_at":"2026-04-16 14:30:29","updated_at":"2026-04-16 14:31:45"}
+{"id":87,"booking_id":196,"description":"REMOTE CONTROL UNI","amount":"220.00","is_paid":0,"created_at":"2026-04-17 17:21:38","updated_at":"2026-04-17 17:21:38"}
+{"id":88,"booking_id":196,"description":"FOB Key & Coding","amount":"155.99","is_paid":0,"created_at":"2026-04-17 17:22:13","updated_at":"2026-04-17 17:22:13"}

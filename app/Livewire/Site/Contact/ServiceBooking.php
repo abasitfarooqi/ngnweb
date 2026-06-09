@@ -6,6 +6,7 @@ use App\Http\Controllers\MailController;
 use App\Models\Branch;
 use App\Models\ServiceBooking as ServiceBookingModel;
 use App\Models\SupportConversation;
+use App\Rules\NotSunday;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -347,7 +348,12 @@ class ServiceBooking extends Component
                 ...(($this->rentalCompactMode || $this->repairsEnquiryCompactMode) ? [] : [Rule::exists('branches', 'id')]),
             ],
             'serviceType' => $serviceRule,
-            'preferredDate' => [$this->requiresScheduleSelection ? 'required' : 'nullable', 'date', 'after_or_equal:today'],
+            'preferredDate' => array_values(array_filter([
+                $this->requiresScheduleSelection ? 'required' : 'nullable',
+                'date',
+                'after_or_equal:today',
+                new NotSunday,
+            ])),
             'preferredTime' => [$this->requiresScheduleSelection ? 'required' : 'nullable', 'date_format:H:i'],
             'cookiePolicy' => [($this->rentalCompactMode || $this->repairsEnquiryCompactMode) ? 'nullable' : 'accepted'],
         ];

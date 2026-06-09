@@ -71,6 +71,7 @@
     <flux:toast />
     @fluxScripts
     @livewireScripts
+    @include('components.partials.chatbot')
     @stack('scripts')
 </body>
 </html>
