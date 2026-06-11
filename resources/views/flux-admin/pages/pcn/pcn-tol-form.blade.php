@@ -22,8 +22,13 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="PCN case update ID" required :error="$errors->first('form.update_id')">
-                    <flux:input type="number" wire:model="form.update_id" placeholder="Update record ID" />
+                    <flux:input type="number" wire:model.live.debounce.300ms="form.update_id" placeholder="Update record ID" />
                 </x-flux-admin::field-group>
+                @if($updateDisplay !== '')
+                    <div class="sm:col-span-2 border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
+                        {{ $updateDisplay }}
+                    </div>
+                @endif
                 <x-flux-admin::field-group label="Request date" required :error="$errors->first('form.request_date')">
                     <flux:input type="date" wire:model="form.request_date" />
                 </x-flux-admin::field-group>

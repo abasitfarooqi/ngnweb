@@ -29,6 +29,8 @@ class MotorbikesSale extends Model
         'buyer_email',
         'buyer_address',
         'mileage',
+        'date_of_purchase',
+        'date_of_sale',
         'price',
         'engine',
         'suspension',
@@ -39,6 +41,10 @@ class MotorbikesSale extends Model
         'note',
         'v5_available',
         'accessories',
+        'image_one',
+        'image_two',
+        'image_three',
+        'image_four',
         'user_id',
     ];
 
@@ -127,7 +133,8 @@ class MotorbikesSale extends Model
             // 🔹 Track is_sold and buyer info (only when is_sold changed or when sold and buyer info changed)
             $buyerChanged = $model->wasChanged('buyer_name') || $model->wasChanged('buyer_phone') || $model->wasChanged('buyer_email') || $model->wasChanged('buyer_address');
             if ($model->wasChanged('is_sold') || ($model->is_sold && $buyerChanged)) {
-                $user = backpack_user();
+                $user = function_exists('backpack_user') ? backpack_user() : null;
+                $user ??= auth()->user();
 
                 \App\Models\MotorbikeSaleLog::updateOrCreate(
                     [

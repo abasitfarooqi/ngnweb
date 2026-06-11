@@ -6,6 +6,12 @@
         </flux:button>
     </div>
 
+    @if (session()->has('success'))
+        <flux:callout variant="success" icon="check-circle">
+            <flux:callout.text>{{ session('success') }}</flux:callout.text>
+        </flux:callout>
+    @endif
+
     @if($bookings->isEmpty())
         <flux:card class="p-12 text-center">
             <flux:icon name="calendar" class="h-12 w-12 text-gray-400 mx-auto mb-3" />
@@ -31,13 +37,24 @@
                                 <p class="text-gray-600 dark:text-gray-400">Customer: <strong class="text-gray-900 dark:text-white">{{ $booking->customer_name }}</strong></p>
                                 <p class="text-gray-600 dark:text-gray-400">
                                     Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->date_of_appointment)->format('d M Y') }}</strong>
-                                    at <strong class="text-gray-900 dark:text-white">{{ $booking->time_slot }}</strong>
+                                    at <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i') }}</strong>
                                 </p>
                                 <p class="text-gray-600 dark:text-gray-400">Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->branch->name ?? 'N/A' }}</strong></p>
                             </div>
                             @if($booking->notes)
                                 <div class="mt-3 p-3 bg-gray-50 dark:bg-gray-900/30 border border-gray-200 dark:border-gray-700">
                                     <p class="text-sm text-gray-700 dark:text-gray-300"><strong>Notes:</strong> {{ $booking->notes }}</p>
+                                </div>
+                            @endif
+                            @if(! in_array(strtolower((string) $booking->status), ['cancelled', 'completed'], true))
+                                <div class="mt-4">
+                                    <flux:button
+                                        variant="outline"
+                                        size="sm"
+                                        icon="x-circle"
+                                        wire:click="cancelMotBooking({{ $booking->id }})"
+                                        wire:confirm="Cancel this MOT booking? This releases the reserved slot."
+                                    >Cancel booking</flux:button>
                                 </div>
                             @endif
                             @if($booking->test_result)

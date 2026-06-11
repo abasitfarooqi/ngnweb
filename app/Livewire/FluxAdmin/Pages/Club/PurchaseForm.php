@@ -19,6 +19,8 @@ class PurchaseForm extends Component
 
     public array $form = [];
 
+    public bool $autoDiscount = true;
+
     public function mount(?ClubMemberPurchase $purchase = null): void
     {
         $this->resetErrorBag();
@@ -30,6 +32,37 @@ class PurchaseForm extends Component
             $this->form['date'] = $this->purchase->date ? Carbon::parse($this->purchase->date)->format('Y-m-d') : null;
         } else {
             $this->form = ['date' => now()->toDateString(), 'is_redeemed' => false];
+        }
+
+        $this->recalculateDiscount();
+    }
+
+    public function updatedFormPercent(): void
+    {
+        $this->recalculateDiscount();
+    }
+
+    public function updatedFormTotal(): void
+    {
+        $this->recalculateDiscount();
+    }
+
+    public function updatedAutoDiscount(): void
+    {
+        $this->recalculateDiscount();
+    }
+
+    protected function recalculateDiscount(): void
+    {
+        if (! $this->autoDiscount) {
+            return;
+        }
+
+        $percent = is_numeric($this->form['percent'] ?? null) ? (float) $this->form['percent'] : null;
+        $total = is_numeric($this->form['total'] ?? null) ? (float) $this->form['total'] : null;
+
+        if ($percent !== null && $total !== null) {
+            $this->form['discount'] = number_format(($percent / 100) * $total, 2, '.', '');
         }
     }
 

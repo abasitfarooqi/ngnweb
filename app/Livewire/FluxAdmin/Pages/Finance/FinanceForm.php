@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Finance;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Customer;
 use App\Models\FinanceApplication;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -38,6 +39,7 @@ class FinanceForm extends Component
                     }
                 }
             }
+            $attrs['contract_type'] = $this->resolveContractType($application);
             $this->form = $attrs;
             $this->customerSearch = $application->customer
                 ? $application->customer->first_name . ' ' . $application->customer->last_name
@@ -52,17 +54,23 @@ class FinanceForm extends Component
                 'contract_date'           => now()->format('Y-m-d'),
                 'first_instalment_date'   => $nextFriday->format('Y-m-d'),
                 'is_used'                 => false,
+                'is_used_extended_custom' => false,
                 'is_new_latest'           => false,
                 'is_used_latest'          => false,
-                'is_used_extended'        => false,
-                'is_used_extended_custom' => false,
                 'is_subscription'         => false,
+                'subscription_option'     => 'A',
                 'is_monthly'              => false,
                 'is_posted'               => false,
                 'is_cancelled'            => false,
                 'log_book_sent'           => false,
+                'contract_type'           => '',
             ];
         }
+    }
+
+    public function updatedFormContractType(?string $value): void
+    {
+        $this->applyContractTypeSelection((string) ($value ?? ''));
     }
 
     public function updatingCustomerSearch(): void
@@ -99,21 +107,50 @@ class FinanceForm extends Component
 
     public function setContractType(string $type): void
     {
-        $all = ['is_used', 'is_new_latest', 'is_used_latest', 'is_used_extended', 'is_used_extended_custom', 'is_subscription'];
-        foreach ($all as $t) {
-            $this->form[$t] = ($t === $type);
+        $this->form['contract_type'] = $type;
+        $this->applyContractTypeSelection($type);
+    }
+
+    protected function applyContractTypeSelection(string $type): void
+    {
+        $all = ['is_used', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest', 'is_subscription'];
+        foreach ($all as $flag) {
+            $this->form[$flag] = ($flag === $type);
         }
+
+        if ($type !== 'is_subscription') {
+            $this->form['subscription_option'] = null;
+        } elseif (empty($this->form['subscription_option'])) {
+            $this->form['subscription_option'] = 'A';
+        }
+
+        if ($type !== 'is_used') {
+            $this->form['is_monthly'] = false;
+        }
+    }
+
+    protected function resolveContractType(FinanceApplication $application): string
+    {
+        return match (true) {
+            (bool) $application->is_subscription => 'is_subscription',
+            (bool) $application->is_new_latest => 'is_new_latest',
+            (bool) $application->is_used_latest => 'is_used_latest',
+            (bool) $application->is_used_extended_custom => 'is_used_extended_custom',
+            (bool) $application->is_used => 'is_used',
+            default => '',
+        };
     }
 
     protected function formRules(): array
     {
         return [
             'form.customer_id'              => ['required', 'integer', 'exists:customers,id'],
-            'form.contract_date'            => ['nullable', 'date'],
+            'form.contract_type'            => ['required', Rule::in(['is_used', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest', 'is_subscription'])],
+            'form.contract_date'            => ['required', 'date'],
             'form.first_instalment_date'    => ['nullable', 'date'],
-            'form.motorbike_price'          => ['nullable', 'numeric', 'min:0'],
-            'form.weekly_instalment'        => ['nullable', 'numeric', 'min:0'],
-            'form.deposit'                  => ['nullable', 'numeric', 'min:0'],
+            'form.motorbike_price'          => ['required', 'numeric', 'min:0'],
+            'form.weekly_instalment'        => ['required', 'numeric', 'min:0'],
+            'form.deposit'                  => ['required', 'numeric', 'min:0'],
             'form.extra'                    => ['nullable', 'numeric', 'min:0'],
             'form.extra_items'              => ['nullable', 'string'],
             'form.notes'                    => ['nullable', 'string'],
@@ -129,6 +166,7 @@ class FinanceForm extends Component
             'form.is_cancelled'             => ['boolean'],
             'form.reason_of_cancellation'   => ['nullable', 'string'],
             'form.log_book_sent'            => ['boolean'],
+            'form.logbook_transfer_date'    => ['nullable', 'date'],
         ];
     }
 
@@ -136,6 +174,20 @@ class FinanceForm extends Component
     {
         $data = $this->validate($this->formRules());
         $payload = $data['form'];
+
+        $this->applyContractTypeSelection((string) ($payload['contract_type'] ?? ''));
+
+        foreach (['is_used', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest', 'is_subscription'] as $flag) {
+            $payload[$flag] = (bool) ($this->form[$flag] ?? false);
+        }
+        if (! $payload['is_subscription']) {
+            $payload['subscription_option'] = null;
+        }
+        if (empty($payload['log_book_sent'])) {
+            $payload['logbook_transfer_date'] = null;
+        }
+
+        unset($payload['contract_type']);
 
         if (empty($payload['user_id'])) {
             $payload['user_id'] = backpack_user()?->id;

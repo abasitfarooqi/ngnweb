@@ -62,6 +62,60 @@ class NgnDbSyncToolkit
     }
 
     /**
+     * Apply local schema supplements that are required by the application but not yet present in
+     * the inspected ngn_clean database. This keeps the sync plan and generated migrations aligned
+     * with the code paths that already write those columns.
+     *
+     * @param  array{database:string,tables:array<string,mixed>}  $schema
+     * @return array{database:string,tables:array<string,mixed>}
+     */
+    public static function applyLocalSchemaSupplements(array $schema): array
+    {
+        foreach (self::localSchemaSupplements() as $tableName => $supplement) {
+            if (! isset($schema['tables'][$tableName]) || ! is_array($schema['tables'][$tableName])) {
+                continue;
+            }
+
+            $table = $schema['tables'][$tableName];
+            $existingColumns = is_array($table['columns'] ?? null) ? array_values($table['columns']) : [];
+            $existingMeta = is_array($table['column_meta'] ?? null) ? $table['column_meta'] : [];
+
+            $added = false;
+            foreach ($supplement['columns'] as $columnName => $columnMeta) {
+                if (in_array($columnName, $existingColumns, true)) {
+                    continue;
+                }
+
+                $existingColumns[] = $columnName;
+                $existingMeta[$columnName] = [
+                    'column_type' => $columnMeta['column_type'],
+                    'is_nullable' => $columnMeta['is_nullable'],
+                    'column_default' => $columnMeta['column_default'],
+                    'extra' => $columnMeta['extra'] ?? '',
+                    'ordinal_position' => count($existingColumns),
+                ];
+                $added = true;
+            }
+
+            if (! $added) {
+                continue;
+            }
+
+            uasort(
+                $existingMeta,
+                static fn (array $a, array $b): int => (int) ($a['ordinal_position'] ?? 0) <=> (int) ($b['ordinal_position'] ?? 0)
+            );
+
+            $table['columns'] = $existingColumns;
+            $table['column_meta'] = $existingMeta;
+            $table['create_sql'] = self::appendColumnsToCreateSql($table['create_sql'], $supplement['columns']);
+            $schema['tables'][$tableName] = $table;
+        }
+
+        return $schema;
+    }
+
+    /**
      * @param  array{database:string,tables:array<string,mixed>}  $production
      * @param  array{database:string,tables:array<string,mixed>}  $local
      * @return array<string, mixed>
@@ -857,6 +911,221 @@ class NgnDbSyncToolkit
         $extra = strtolower((string) ($meta['extra'] ?? ''));
 
         return ! $nullable && $default === null && ! str_contains($extra, 'auto_increment');
+    }
+
+    /**
+     * @return array<string, array{columns:array<string, array{column_type:string,is_nullable:string,column_default:mixed,extra?:string}>}>
+     */
+    protected static function localSchemaSupplements(): array
+    {
+        return [
+            'branches' => [
+                'columns' => [
+                    'opening_hours' => [
+                        'column_type' => 'text',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                ],
+            ],
+            'club_members' => [
+                'columns' => [
+                    'customer_id' => [
+                        'column_type' => 'bigint unsigned',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                ],
+            ],
+            'customers' => [
+                'columns' => [
+                    'is_club' => [
+                        'column_type' => 'tinyint(1)',
+                        'is_nullable' => 'NO',
+                        'column_default' => '0',
+                        'extra' => '',
+                    ],
+                ],
+            ],
+            'document_types' => [
+                'columns' => [
+                    'is_mandatory' => [
+                        'column_type' => 'tinyint(1)',
+                        'is_nullable' => 'NO',
+                        'column_default' => '0',
+                        'extra' => '',
+                    ],
+                    'required_for' => [
+                        'column_type' => 'json',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'slug' => [
+                        'column_type' => 'varchar(255) COLLATE utf8mb4_unicode_ci',
+                        'is_nullable' => 'NO',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'sort_order' => [
+                        'column_type' => 'int',
+                        'is_nullable' => 'NO',
+                        'column_default' => '0',
+                        'extra' => '',
+                    ],
+                    'validation_rules' => [
+                        'column_type' => 'json',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                ],
+            ],
+            'ec_order_items' => [
+                'columns' => [
+                    'item_type' => [
+                        'column_type' => 'varchar(255) COLLATE utf8mb4_unicode_ci',
+                        'is_nullable' => 'NO',
+                        'column_default' => 'catalogue',
+                        'extra' => '',
+                    ],
+                    'part_number' => [
+                        'column_type' => 'varchar(255) COLLATE utf8mb4_unicode_ci',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'source_meta' => [
+                        'column_type' => 'json',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'sp_assembly_id' => [
+                        'column_type' => 'bigint unsigned',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'sp_part_id' => [
+                        'column_type' => 'bigint unsigned',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                ],
+            ],
+            'payments' => [
+                'columns' => [
+                    'pcn_case_id' => [
+                        'column_type' => 'bigint unsigned',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                ],
+            ],
+            'service_bookings' => [
+                'columns' => [
+                    'conversation_id' => [
+                        'column_type' => 'bigint unsigned',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'is_dealt' => [
+                        'column_type' => 'tinyint(1)',
+                        'is_nullable' => 'NO',
+                        'column_default' => '0',
+                        'extra' => '',
+                    ],
+                    'dealt_by_user_id' => [
+                        'column_type' => 'bigint unsigned',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                    'notes' => [
+                        'column_type' => 'text',
+                        'is_nullable' => 'YES',
+                        'column_default' => null,
+                        'extra' => '',
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @param  array<string, array{column_type:string,is_nullable:string,column_default:mixed,extra?:string}>  $columns
+     */
+    protected static function appendColumnsToCreateSql(string $createSql, array $columns): string
+    {
+        $sql = rtrim(trim($createSql), ';');
+        $lines = preg_split("/\r\n|\n|\r/", $sql);
+        if (! is_array($lines) || count($lines) < 2) {
+            throw new RuntimeException('Unexpected CREATE TABLE format.');
+        }
+
+        $header = array_shift($lines);
+        $tail = array_pop($lines);
+        if (! is_string($header) || ! is_string($tail)) {
+            throw new RuntimeException('Unexpected CREATE TABLE structure.');
+        }
+
+        $newColumnLines = [];
+        foreach ($columns as $columnName => $meta) {
+            $line = '`'.$columnName.'` '.$meta['column_type'];
+            $nullable = strtoupper((string) ($meta['is_nullable'] ?? 'YES')) === 'YES';
+            $default = $meta['column_default'] ?? null;
+            $extra = trim((string) ($meta['extra'] ?? ''));
+
+            if ($nullable) {
+                $line .= ' DEFAULT NULL';
+            } elseif ($default === null) {
+                $line .= ' NOT NULL';
+            } elseif (is_string($default)) {
+                $line .= ' NOT NULL DEFAULT '.self::sqlLiteral($default);
+            } else {
+                $line .= ' NOT NULL DEFAULT '.$default;
+            }
+
+            if ($extra !== '') {
+                $line .= ' '.$extra;
+            }
+
+            $newColumnLines[] = '  '.$line;
+        }
+
+        $insertAt = count($lines);
+        foreach ($lines as $index => $line) {
+            $trimmed = ltrim(trim((string) $line), ',');
+            if (! preg_match('/^`[^`]+`\s+/u', $trimmed)) {
+                $insertAt = $index;
+                break;
+            }
+        }
+
+        array_splice($lines, $insertAt, 0, $newColumnLines);
+
+        $rebuilt = $header."\n";
+        $lastIndex = count($lines) - 1;
+        foreach ($lines as $index => $line) {
+            $rebuilt .= rtrim((string) $line, ',').($index === $lastIndex ? '' : ',')."\n";
+        }
+        $rebuilt .= $tail;
+        if (! str_ends_with($rebuilt, ';')) {
+            $rebuilt .= ';';
+        }
+
+        return $rebuilt;
+    }
+
+    protected static function sqlLiteral(string $value): string
+    {
+        return "'".str_replace("'", "\\'", $value)."'";
     }
 
     /**

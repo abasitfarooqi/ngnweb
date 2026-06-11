@@ -8,6 +8,12 @@
         </div>
     </div>
 
+    @if (session()->has('success'))
+        <flux:callout variant="success" icon="check-circle">
+            <flux:callout.text>{{ session('success') }}</flux:callout.text>
+        </flux:callout>
+    @endif
+
     <div class="border-b border-gray-200 dark:border-gray-700">
         <nav class="-mb-px flex space-x-6">
             @foreach([
@@ -56,8 +62,19 @@
                             <div class="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                                 @if($booking->type === 'MOT')
                                     <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->vehicle_registration ?? 'N/A' }}</strong></p>
-                                    <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ $booking->source->time_slot ?? 'N/A' }}</strong></p>
+                                    <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->start ?? $booking->source->date_of_appointment)->format('H:i') }}</strong></p>
                                     <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch->name ?? 'N/A' }}</strong></p>
+                                    @if(! in_array(strtolower((string) $booking->status), ['cancelled', 'completed'], true))
+                                        <div class="mt-3">
+                                            <flux:button
+                                                variant="outline"
+                                                size="sm"
+                                                icon="x-circle"
+                                                wire:click="cancelMotBooking({{ $booking->source->id }})"
+                                                wire:confirm="Cancel this MOT booking? This releases the reserved slot."
+                                            >Cancel booking</flux:button>
+                                        </div>
+                                    @endif
                                 @elseif($booking->type === 'REPAIRS_APPOINTMENT')
                                     <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->registration_number ?? 'N/A' }}</strong></p>
                                     <p>Appointment: <strong class="text-gray-900 dark:text-white">{{ $booking->source->appointment_date ? \Carbon\Carbon::parse($booking->source->appointment_date)->format('d M Y H:i') : 'N/A' }}</strong></p>

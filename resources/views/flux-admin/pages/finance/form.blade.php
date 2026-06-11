@@ -57,18 +57,25 @@
             {{-- Contract type --}}
             <div class="mb-5">
                 <flux:label>Contract Type</flux:label>
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-1">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mt-1">
                     @foreach([
-                        'is_new_latest'   => 'New Latest Contract',
-                        'is_used_latest'  => 'Used Latest Contract',
-                        'is_subscription' => '12 Months Subscription',
+                        'is_used'                 => 'Used Vehicle',
+                        'is_used_extended_custom' => 'Used 18 Months',
+                        'is_new_latest'           => 'New Latest',
+                        'is_used_latest'          => 'Used Latest',
+                        'is_subscription'         => '12 Months Subscription',
                     ] as $key => $label)
-                        <label class="flex items-center gap-2 cursor-pointer border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm {{ !empty($form[$key]) ? 'bg-blue-50 border-blue-400 dark:bg-blue-950 dark:border-blue-500' : 'bg-white dark:bg-zinc-900' }}">
-                            <input type="radio" wire:click="setContractType('{{ $key }}')" {{ !empty($form[$key]) ? 'checked' : '' }} class="text-blue-600" />
+                        <label class="flex items-center gap-2 cursor-pointer border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm {{ ($form['contract_type'] ?? '') === $key ? 'bg-blue-50 border-blue-400 dark:bg-blue-950 dark:border-blue-500' : 'bg-white dark:bg-zinc-900' }}">
+                            <input type="radio"
+                                   name="contract_type"
+                                   value="{{ $key }}"
+                                   wire:model.live="form.contract_type"
+                                   class="text-blue-600" />
                             {{ $label }}
                         </label>
                     @endforeach
                 </div>
+                @error('form.contract_type') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -109,11 +116,33 @@
                 </x-flux-admin::field-group>
             </div>
 
+            @if(($form['contract_type'] ?? '') === 'is_subscription')
+                <div class="mt-4">
+                    <x-flux-admin::field-group label="Subscription option" :error="$errors->first('form.subscription_option')">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                            @foreach([
+                                'A' => 'Group A - £299.99/month',
+                                'B' => 'Group B - £399.99/month',
+                                'C' => 'Group C - £549.99/month',
+                                'D' => 'Group D - £649.99/month',
+                            ] as $value => $label)
+                                <label class="flex items-center gap-2 border border-zinc-200 px-3 py-2 text-sm dark:border-zinc-700 {{ ($form['subscription_option'] ?? null) === $value ? 'bg-blue-50 border-blue-400 dark:bg-blue-950 dark:border-blue-500' : 'bg-white dark:bg-zinc-900' }}">
+                                    <input type="radio" name="subscription_option" wire:model="form.subscription_option" value="{{ $value }}" />
+                                    {{ $label }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </x-flux-admin::field-group>
+                </div>
+            @endif
+
             <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <flux:checkbox wire:model="form.is_monthly" />
-                    Monthly billing
-                </label>
+                @if(($form['contract_type'] ?? '') === 'is_used')
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <flux:checkbox wire:model="form.is_monthly" />
+                        Monthly billing
+                    </label>
+                @endif
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <flux:checkbox wire:model="form.is_posted" />
                     Posted
@@ -123,6 +152,14 @@
                     Log book sent
                 </label>
             </div>
+
+            @if(!empty($form['log_book_sent']))
+                <div class="mt-4">
+                    <x-flux-admin::field-group label="Logbook transfer date" :error="$errors->first('form.logbook_transfer_date')">
+                        <flux:input type="date" wire:model="form.logbook_transfer_date" />
+                    </x-flux-admin::field-group>
+                </div>
+            @endif
         </div>
 
         @if($application && $application->exists)

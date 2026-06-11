@@ -202,6 +202,126 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', Dashboard::class)->name('flux-admin.dashboard');
 
+// Backpack-compatible Flux slugs. These keep the same URL shape as Backpack,
+// with only the prefix changed from `/ngn-admin` to `/flux-admin`.
+$backpackCrudAlias = function (
+    string $slug,
+    string $indexComponent,
+    ?string $formComponent = null,
+    string $parameter = 'id',
+    ?string $showComponent = null,
+): void {
+    Route::get('/'.$slug, $indexComponent)->name('flux-admin.backpack.'.$slug.'.index');
+
+    if ($formComponent) {
+        Route::get('/'.$slug.'/create', $formComponent)->name('flux-admin.backpack.'.$slug.'.create');
+        Route::get('/'.$slug.'/{'.$parameter.'}/edit', $formComponent)->name('flux-admin.backpack.'.$slug.'.edit');
+    }
+
+    if ($showComponent) {
+        Route::get('/'.$slug.'/{'.$parameter.'}', $showComponent)->name('flux-admin.backpack.'.$slug.'.show');
+    }
+};
+
+$backpackCrudAlias('user', UserIndex::class, UserForm::class, 'user', UserShow::class);
+$backpackCrudAlias('role', RoleIndex::class, RoleForm::class, 'role');
+$backpackCrudAlias('permission', PermissionIndex::class, PermissionForm::class, 'id');
+$backpackCrudAlias('finance-application', FinanceIndex::class, FinanceForm::class, 'application', FinanceShow::class);
+$backpackCrudAlias('application-item', ApplicationItemIndex::class, ApplicationItemForm::class, 'applicationItem');
+$backpackCrudAlias('customer', CustomerIndex::class, CustomerForm::class, 'customer', CustomerShow::class);
+Route::get('/pcn-case', PcnIndex::class)->name('flux-admin.backpack.pcn-case.index');
+Route::get('/pcn-case/create', PcnCreate::class)->name('flux-admin.backpack.pcn-case.create');
+Route::get('/pcn-case/{pcnCase}/edit', PcnEdit::class)->name('flux-admin.backpack.pcn-case.edit');
+Route::get('/pcn-case/{pcnCase}', PcnShow::class)->name('flux-admin.backpack.pcn-case.show');
+Route::get('/pcn-case-exp', PcnIndex::class)->name('flux-admin.backpack.pcn-case-exp.index');
+Route::get('/pcn-case-exp/create', PcnCreate::class)->name('flux-admin.backpack.pcn-case-exp.create');
+Route::get('/pcn-case-exp/{pcnCase}/edit', PcnEdit::class)->name('flux-admin.backpack.pcn-case-exp.edit');
+Route::get('/pcn-case-exp/{pcnCase}', PcnShow::class)->name('flux-admin.backpack.pcn-case-exp.show');
+$backpackCrudAlias('pcn-case-update', PcnUpdateIndex::class, PcnUpdateForm::class, 'id');
+$backpackCrudAlias('booking-invoice', BookingInvoiceIndex::class, BookingInvoiceForm::class, 'bookingInvoice');
+$backpackCrudAlias('contract-extra-item', ContractExtraItemIndex::class, ContractExtraItemForm::class, 'contractExtraItem');
+$backpackCrudAlias('employee-schedule', EmployeeScheduleIndex::class, EmployeeScheduleForm::class, 'employeeSchedule');
+$backpackCrudAlias('motorbike-annual-compliance', ComplianceIndex::class, ComplianceForm::class, 'compliance');
+$backpackCrudAlias('motorbike-annual-compliance-m', ComplianceIndex::class, ComplianceForm::class, 'compliance');
+$backpackCrudAlias('branch', BranchIndex::class, BranchForm::class, 'branch', BranchShow::class);
+$backpackCrudAlias('mot-booking', MotBookingIndex::class, MotBookingForm::class, 'motBooking');
+$backpackCrudAlias('calander', CalendarIndex::class, CalendarForm::class, 'calendarEvent');
+$backpackCrudAlias('company-vehicle', CompanyVehicleIndex::class, CompanyVehicleForm::class, 'companyVehicle');
+$backpackCrudAlias('vehicle-database', ComplianceIndex::class, ComplianceForm::class, 'compliance');
+$backpackCrudAlias('vehicle-notification', VehicleNotificationIndex::class, VehicleNotificationForm::class, 'vehicleNotification');
+$backpackCrudAlias('motorbike', MotorbikeIndex::class, MotorbikeForm::class, 'motorbike', MotorbikeShow::class);
+$backpackCrudAlias('motorbike-list', MotorbikeIndex::class, MotorbikeForm::class, 'motorbike', MotorbikeShow::class);
+$backpackCrudAlias('motorbike-repair', MotorbikeRepairIndex::class, MotorbikeRepairForm::class, 'motorbikeRepair');
+$backpackCrudAlias('motorbike-repair-update', MotorbikeRepairUpdateIndex::class, MotorbikeRepairUpdateIndex::class, 'motorbikeRepairUpdate');
+$backpackCrudAlias('claim-motorbike', VehicleClaimIndex::class, ClaimForm::class, 'claimMotorbike');
+$backpackCrudAlias('purchase-request', PurchaseRequestIndex::class, PurchaseRequestForm::class, 'purchaseRequest');
+$backpackCrudAlias('purchase-request-item', PurchaseRequestItemIndex::class, PurchaseRequestItemForm::class, 'purchaseRequestItem');
+$backpackCrudAlias('upload-document-access', UploadDocumentIndex::class, UploadDocumentForm::class, 'id');
+$backpackCrudAlias('create-stock-logs', InventoryStockMovementIndex::class);
+$backpackCrudAlias('recovered-motorbike', RecoveredMotorbikeIndex::class, RecoveredMotorbikeForm::class, 'recoveredMotorbike');
+$backpackCrudAlias('vehicle-issuance', VehicleIssuanceIndex::class, VehicleIssuanceForm::class, 'vehicleIssuance');
+$backpackCrudAlias('customer-document', CustomerDocumentIndex::class);
+$backpackCrudAlias('used-vehicle-seller', PurchaseUsedIndex::class, PurchaseUsedForm::class, 'purchaseUsed');
+$backpackCrudAlias('ngn-product', InventoryProductIndex::class, InventoryProductForm::class, 'product');
+$backpackCrudAlias('ngn-category', InventoryCategoryIndex::class, InventoryCategoryForm::class, 'category');
+$backpackCrudAlias('ngn-model', InventoryModelIndex::class, InventoryModelForm::class, 'inventoryModel');
+$backpackCrudAlias('ngn-brand', InventoryBrandIndex::class, InventoryBrandForm::class, 'brand');
+$backpackCrudAlias('ngn-career', CareerIndex::class, CareerForm::class, 'career');
+$backpackCrudAlias('ngn-stock-movement', InventoryStockMovementIndex::class);
+$backpackCrudAlias('ngn-inventory-management', InventoryStockMovementIndex::class);
+$backpackCrudAlias('ngn-product-management', InventoryProductIndex::class, InventoryProductForm::class, 'product');
+$backpackCrudAlias('ngn-stock-handler', InventoryProductIndex::class, InventoryProductForm::class, 'product');
+$backpackCrudAlias('sp-make', SpMakeIndex::class, SpMakeForm::class, 'spMake');
+$backpackCrudAlias('sp-model', SpModelIndex::class, SpModelForm::class, 'spModel');
+$backpackCrudAlias('sp-fitment', SpFitmentIndex::class, SpFitmentForm::class, 'spFitment');
+$backpackCrudAlias('sp-assembly', SpAssemblyIndex::class, SpAssemblyForm::class, 'spAssembly');
+$backpackCrudAlias('sp-part', SpPartIndex::class, SpPartForm::class, 'spPart');
+$backpackCrudAlias('sp-assembly-part', SpAssemblyPartIndex::class);
+$backpackCrudAlias('sp-stock-movement', SpStockMovementIndex::class);
+$backpackCrudAlias('sp-stock-handler', SpPartIndex::class, SpPartForm::class, 'spPart');
+$backpackCrudAlias('new-motorbike', NewMotorbikeIndex::class, NewMotorbikeForm::class, 'newMotorbike');
+$backpackCrudAlias('club-member', ClubIndex::class, ClubForm::class, 'clubMember', ClubShow::class);
+$backpackCrudAlias('club-member-purchase', ClubPurchaseIndex::class, ClubPurchaseForm::class, 'purchase');
+$backpackCrudAlias('club-member-spending', ClubSpendingIndex::class, ClubSpendingForm::class, 'spending');
+$backpackCrudAlias('club-member-redeem', ClubRedeemIndex::class, ClubRedeemForm::class, 'redeem');
+$backpackCrudAlias('club-member-spending-payment', ClubSpendingPaymentIndex::class, ClubSpendingPaymentForm::class, 'spendingPayment');
+$backpackCrudAlias('clubmembers-details', ClubMemberVehicleIndex::class);
+$backpackCrudAlias('motorbike-record-view', MotorbikeRecordViewIndex::class);
+$backpackCrudAlias('rental-terminate-access', RentalTerminateIndex::class, RentalTerminateForm::class, 'id');
+$backpackCrudAlias('ngn-partner', InventoryPartnerIndex::class, InventoryPartnerForm::class, 'partner');
+$backpackCrudAlias('blog-post', BlogPostIndex::class, BlogPostForm::class, 'blogPost');
+$backpackCrudAlias('blog-category', BlogCategoryIndex::class, BlogCategoryForm::class, 'blogCategory');
+$backpackCrudAlias('blog-tag', BlogTagIndex::class, BlogTagForm::class, 'blogTag');
+$backpackCrudAlias('motorbikes-sale', MotorbikeSaleIndex::class, MotorbikeSaleForm::class, 'motorbikesSale');
+$backpackCrudAlias('new-motorbikes-for-sale', MotorbikeForSaleIndex::class, ForSaleForm::class, 'motorcycle');
+$backpackCrudAlias('vehicle-delivery-order', VehicleDeliveryOrderIndex::class, VehicleDeliveryOrderForm::class, 'vehicleDeliveryOrder');
+$backpackCrudAlias('ec-order', EcOrderIndex::class, EcOrderForm::class, 'ecOrder');
+$backpackCrudAlias('survey', SurveyIndex::class, SurveyForm::class, 'survey');
+$backpackCrudAlias('survey-question', SurveyQuestionIndex::class, SurveyQuestionForm::class, 'surveyQuestion');
+$backpackCrudAlias('survey-option', SurveyOptionIndex::class, SurveyOptionForm::class, 'surveyOption');
+$backpackCrudAlias('survey-response', SurveyResponseIndex::class);
+$backpackCrudAlias('survey-answer', SurveyAnswerIndex::class);
+$backpackCrudAlias('contact-query', ContactQueryIndex::class, ContactQueryForm::class, 'contactQuery');
+$backpackCrudAlias('service-booking', ServiceBookingIndex::class, ServiceBookingForm::class, 'serviceBooking');
+$backpackCrudAlias('support-conversation', SupportConversationIndex::class, SupportConversationForm::class, 'supportConversation');
+$backpackCrudAlias('support-message', SupportMessageIndex::class, SupportMessageForm::class, 'supportMessage');
+$backpackCrudAlias('motorbike-delivery-order-enquiries', DeliveryEnquiryIndex::class, DeliveryEnquiryForm::class, 'deliveryEnquiry');
+$backpackCrudAlias('ip-restriction', IpRestrictionIndex::class, IpRestrictionForm::class, 'ipRestriction');
+$backpackCrudAlias('access-log', AccessLogIndex::class);
+$backpackCrudAlias('renting-service-video', ServiceVideoIndex::class, ServiceVideoForm::class, 'serviceVideo');
+$backpackCrudAlias('motorbike-available', MotorbikeIndex::class, MotorbikeForm::class, 'motorbike', MotorbikeShow::class);
+$backpackCrudAlias('ngn-digital-invoice', DigitalInvoiceIndex::class, DigitalInvoiceForm::class, 'digitalInvoice');
+$backpackCrudAlias('ngn-digital-invoice-item', DigitalInvoiceItemIndex::class, DigitalInvoiceItemForm::class, 'invoiceItem');
+$backpackCrudAlias('pcn-tol-request', PcnTolIndex::class, PcnTolForm::class, 'id');
+$backpackCrudAlias('dev-ngn-mit-queue', NgnMitQueueIndex::class, NgnMitQueueForm::class, 'id');
+$backpackCrudAlias('dev-judopay-subscription', JudopaySubscriptionIndex::class, JudopaySubscriptionForm::class, 'id');
+$backpackCrudAlias('dev-judopay-mit-queue', JudopayMitQueueIndex::class, JudopayMitQueueForm::class, 'id');
+$backpackCrudAlias('dev-club-otp', DevClubOtpIndex::class);
+Route::get('/ngn-renting-booking', AllBookingsIndex::class)->name('flux-admin.backpack.ngn-renting-booking.index');
+Route::get('/ngn-renting-booking/create', NewBookingWizard::class)->name('flux-admin.backpack.ngn-renting-booking.create');
+Route::get('/ngn-renting-booking/{booking}/edit', RentalShow::class)->name('flux-admin.backpack.ngn-renting-booking.edit');
+Route::get('/ngn-renting-booking/{booking}', RentalShow::class)->name('flux-admin.backpack.ngn-renting-booking.show');
+
 Route::get('/motorbikes', MotorbikeIndex::class)->name('flux-admin.motorbikes.index');
 Route::get('/motorbikes/create', MotorbikeForm::class)->name('flux-admin.motorbikes.create');
 Route::get('/motorbikes/{motorbike}/edit', MotorbikeForm::class)->name('flux-admin.motorbikes.edit');

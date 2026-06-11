@@ -1,9 +1,20 @@
 <div>
     <flux:heading size="xl" class="mb-6">Book MOT Appointment</flux:heading>
+    <flux:callout variant="info" icon="information-circle" class="mb-6">
+        <flux:callout.text>Catford only. Sundays are closed and reserved time slots are removed automatically for each booking date.</flux:callout.text>
+    </flux:callout>
 
     @if (session()->has('success'))
         <flux:callout variant="success" icon="check-circle" class="mb-6">
             <flux:callout.text>{{ session('success') }}</flux:callout.text>
+        </flux:callout>
+    @endif
+
+    @if($activeCustomerBooking)
+        <flux:callout variant="warning" icon="information-circle" class="mb-6">
+            <flux:callout.text>
+                You already have a pending booking for {{ $activeCustomerBooking['registration'] }} on {{ $activeCustomerBooking['date'] }} at {{ $activeCustomerBooking['time'] }}.
+            </flux:callout.text>
         </flux:callout>
     @endif
 
@@ -14,13 +25,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Date of Appointment *</flux:label>
-                    <x-site.booking-date-picker wire:model="date_of_appointment" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
+                    <x-site.booking-date-picker wire:model.live="date_of_appointment" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
                     <flux:error name="date_of_appointment" />
                 </flux:field>
                 <flux:field>
                     <flux:label>Time Slot *</flux:label>
                     <flux:select wire:model="time_slot" variant="listbox" placeholder="Select time slot">
-                        @foreach($timeSlots as $value => $label)
+                        @foreach($this->availableTimeSlots as $value => $label)
                             <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>
@@ -30,11 +41,7 @@
 
             <flux:field>
                 <flux:label>Branch Location *</flux:label>
-                <flux:select wire:model="branch_id" variant="listbox" searchable placeholder="Select a branch">
-                    @foreach($branches as $branch)
-                        <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
+                <flux:input value="Catford" disabled />
                 <flux:error name="branch_id" />
             </flux:field>
 

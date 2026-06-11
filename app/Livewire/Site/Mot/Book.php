@@ -2,95 +2,194 @@
 
 namespace App\Livewire\Site\Mot;
 
-use App\Models\Branch;
+use App\Http\Controllers\MailController;
+use App\Models\MOTBooking;
+use App\Models\ServiceBooking;
 use App\Rules\NotSunday;
-use Illuminate\Support\Facades\Mail;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class Book extends Component
 {
-    public $branches;
+    public string $branch_id = '';
 
-    public $selectedBranch = '';
+    public string $branchLabel = 'Catford';
 
-    public $regNo = '';
+    public string $regNo = '';
 
-    public $make = '';
+    public string $make = '';
 
-    public $model = '';
+    public string $model = '';
 
-    public $name = '';
+    public string $name = '';
 
-    public $email = '';
+    public string $email = '';
 
-    public $phone = '';
+    public string $phone = '';
 
-    public $preferredDate = '';
+    public string $preferredDate = '';
 
-    public $preferredTime = '';
+    public string $preferredTime = '';
 
-    public $notes = '';
+    public string $notes = '';
 
     /** Bumped after submit so Flux date-picker and selects remount empty. */
     public int $formNonce = 0;
 
-    protected function rules(): array
-    {
-        return [
-            'selectedBranch' => 'required|exists:branches,id',
-            'regNo' => 'required|string|min:2|max:10',
-            'name' => 'required|string|min:2',
-            'email' => 'required|email',
-            'phone' => 'required|string|min:10',
-            'preferredDate' => ['required', 'date', 'after:today', new NotSunday],
-            'preferredTime' => 'required',
-        ];
-    }
+    public array $timeSlots = [];
 
-    public function mount()
+    public function mount(): void
     {
-        $this->branches = Branch::where('name', 'like', '%Catford%')->get();
-        if ($catford = $this->branches->first()) {
-            $this->selectedBranch = (string) $catford->id;
+        $this->timeSlots = MOTBooking::motTimeSlots();
+
+        $catfordBranchId = MOTBooking::catfordBranchId();
+        if ($catfordBranchId) {
+            $this->branch_id = (string) $catfordBranchId;
+        }
+
+        $customerAuth = Auth::guard('customer')->user();
+        $profile = $customerAuth?->customer;
+        $fullName = trim((string) (($profile?->first_name ?? '').' '.($profile?->last_name ?? '')));
+        if ($fullName !== '') {
+            $this->name = $fullName;
+        }
+        if ($customerAuth?->email) {
+            $this->email = (string) $customerAuth->email;
+        }
+        if ($profile?->phone) {
+            $this->phone = (string) $profile->phone;
         }
     }
 
-    public function submitBooking()
+    protected function rules(): array
+    {
+        $catfordBranchId = MOTBooking::catfordBranchId();
+
+        return [
+            'branch_id' => array_values(array_filter([
+                'required',
+                'integer',
+                'exists:branches,id',
+                $catfordBranchId ? Rule::in([(string) $catfordBranchId, $catfordBranchId]) : null,
+            ])),
+            'regNo' => ['required', 'string', 'min:2', 'max:10'],
+            'name' => ['required', 'string', 'min:2'],
+            'email' => ['required', 'email'],
+            'phone' => ['required', 'string', 'min:10'],
+            'preferredDate' => ['required', 'date', 'after:today', new NotSunday],
+            'preferredTime' => array_values(array_filter([
+                'required',
+                'string',
+                Rule::in(array_keys($this->availableTimeSlots)),
+            ])),
+            'notes' => ['nullable', 'string', 'max:2000'],
+        ];
+    }
+
+    public function updatedPreferredDate(): void
+    {
+        if ($this->preferredTime !== '' && ! array_key_exists($this->preferredTime, $this->availableTimeSlots)) {
+            $this->preferredTime = '';
+        }
+    }
+
+    public function submitBooking(): void
     {
         $this->validate();
 
-        $branchName = optional($this->branches->firstWhere('id', (int) $this->selectedBranch))->name ?? 'Selected branch';
-        $mailPayload = [
-            'subject' => 'MOT booking request received - NGN Motors',
-            'heading' => 'MOT booking request received',
-            'greetingName' => $this->name,
-            'introLines' => [
-                'We have received your MOT booking request.',
-                'A member of our team will contact you shortly to confirm your appointment.',
-            ],
-            'details' => [
-                'Branch' => $branchName,
-                'Registration' => strtoupper($this->regNo),
-                'Vehicle' => trim($this->make.' '.$this->model),
-                'Preferred Date' => $this->preferredDate,
-                'Preferred Time' => $this->preferredTime,
-                'Phone' => $this->phone,
-                'Email' => $this->email,
-                'Notes' => $this->notes ?: 'N/A',
-            ],
-            'outroLines' => [
-                'Please reply to this email if you need to amend your preferred time.',
-            ],
-        ];
+        $customerAuth = Auth::guard('customer')->user();
+        $customerProfile = $customerAuth?->customer;
+        $customerName = trim((string) ($this->name ?: ($customerProfile?->first_name.' '.$customerProfile?->last_name)));
+        $customerName = $customerName !== '' ? $customerName : 'Portal customer';
+        $customerPhone = trim((string) ($this->phone ?: ($customerProfile?->phone ?? '')));
+        $customerEmail = trim((string) ($this->email ?: ($customerAuth?->email ?? '')));
+        $appointmentStart = MOTBooking::appointmentStart($this->preferredDate, $this->preferredTime);
+        $bookingNotes = implode("\n", array_filter([
+            'This made by website frontend user.',
+            'We are going to edit it later we made the process ahead.',
+            'Source: site.mot.book',
+            'Branch: Catford',
+            'Registration: '.strtoupper(trim($this->regNo)),
+            $this->make !== '' ? 'Make: '.trim($this->make) : null,
+            $this->model !== '' ? 'Model: '.trim($this->model) : null,
+            $this->notes !== '' ? 'Notes: '.trim($this->notes) : null,
+        ]));
 
-        try {
-            Mail::send('emails.templates.universal', $mailPayload, function ($message) {
-                $message
-                    ->to($this->email, $this->name)
-                    ->subject('MOT booking request received - NGN Motors');
-            });
-        } catch (\Throwable $e) {
-            report($e);
+        $slotTaken = MOTBooking::query()
+            ->where('branch_id', (int) $this->branch_id)
+            ->whereDate('date_of_appointment', $this->preferredDate)
+            ->where('start', $appointmentStart->toDateTimeString())
+            ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
+            ->exists();
+
+        if ($slotTaken) {
+            $this->addError('preferredTime', 'That time slot has already been reserved.');
+
+            return;
+        }
+
+        $serviceBookingId = null;
+
+        DB::transaction(function () use ($appointmentStart, $customerAuth, $customerName, $customerPhone, $customerEmail, $bookingNotes, &$serviceBookingId): void {
+            MOTBooking::query()->create([
+                'branch_id' => (int) $this->branch_id,
+                'vehicle_registration' => strtoupper(trim($this->regNo)),
+                'vehicle_chassis' => null,
+                'vehicle_color' => null,
+                'date_of_appointment' => $appointmentStart->toDateTimeString(),
+                'start' => $appointmentStart->toDateTimeString(),
+                'end' => $appointmentStart->toDateTimeString(),
+                'customer_name' => $customerName,
+                'customer_contact' => $customerPhone,
+                'customer_email' => $customerEmail,
+                'status' => MOTBooking::STATUS_PENDING,
+                'title' => null,
+                'notes' => $bookingNotes,
+                'all_day' => false,
+                'is_validate' => true,
+                'is_paid' => false,
+                'payment_method' => null,
+                'payment_notes' => null,
+                'user_id' => null,
+            ]);
+
+            $serviceBooking = ServiceBooking::query()->create([
+                'customer_id' => $customerAuth?->customer_id,
+                'customer_auth_id' => $customerAuth?->id,
+                'submission_context' => $customerAuth ? 'authenticated_customer' : 'guest',
+                'enquiry_type' => 'mot',
+                'service_type' => 'MOT website booking',
+                'subject' => 'MOT booking request',
+                'description' => implode(' | ', array_filter([
+                    'Reg: '.strtoupper(trim($this->regNo)),
+                    'Make: '.trim($this->make),
+                    'Model: '.trim($this->model),
+                    'Date: '.$this->preferredDate,
+                    'Time: '.$this->preferredTime,
+                    $this->notes !== '' ? 'Notes: '.trim($this->notes) : null,
+                    'Source: site.mot.book',
+                ])),
+                'requires_schedule' => true,
+                'booking_date' => $this->preferredDate,
+                'booking_time' => $this->preferredTime,
+                'status' => 'Pending',
+                'fullname' => $customerName,
+                'phone' => $customerPhone,
+                'reg_no' => strtoupper(trim($this->regNo)),
+                'email' => $customerEmail !== '' ? $customerEmail : null,
+            ]);
+
+            $serviceBookingId = $serviceBooking->id;
+        });
+
+        if ($serviceBookingId) {
+            $serviceBooking = ServiceBooking::query()->find($serviceBookingId);
+            if ($serviceBooking) {
+                app(MailController::class)->sendBookingConfirmation($serviceBooking);
+            }
         }
 
         session()->flash('success', 'MOT booking request received! We will contact you shortly to confirm.');
@@ -106,10 +205,62 @@ class Book extends Component
             'preferredTime',
             'notes',
         ]);
-        if ($catford = $this->branches->first()) {
-            $this->selectedBranch = (string) $catford->id;
+
+        $customerAuth = Auth::guard('customer')->user();
+        $profile = $customerAuth?->customer;
+        $fullName = trim((string) (($profile?->first_name ?? '').' '.($profile?->last_name ?? '')));
+        if ($fullName !== '') {
+            $this->name = $fullName;
+        }
+        if ($customerAuth?->email) {
+            $this->email = (string) $customerAuth->email;
+        }
+        if ($profile?->phone) {
+            $this->phone = (string) $profile->phone;
         }
         $this->formNonce++;
+    }
+
+    public function getAvailableTimeSlotsProperty(): array
+    {
+        if ($this->branch_id === '' || $this->preferredDate === '') {
+            return $this->timeSlots;
+        }
+
+        return MOTBooking::availableTimeSlotsForDate((int) $this->branch_id, $this->preferredDate);
+    }
+
+    public function getActiveCustomerBookingProperty(): ?array
+    {
+        $lookupEmail = trim((string) $this->email);
+        if ($lookupEmail === '') {
+            $lookupEmail = trim((string) Auth::guard('customer')->user()?->email);
+        }
+
+        if ($lookupEmail === '') {
+            return null;
+        }
+
+        $booking = MOTBooking::query()
+            ->with('branch:id,name')
+            ->whereRaw('LOWER(customer_email) = ?', [strtolower($lookupEmail)])
+            ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
+            ->whereDate('date_of_appointment', '>=', today())
+            ->orderBy('date_of_appointment')
+            ->first();
+
+        if (! $booking) {
+            return null;
+        }
+
+        return [
+            'id' => $booking->id,
+            'registration' => $booking->vehicle_registration,
+            'date' => Carbon::parse($booking->date_of_appointment)->format('d M Y'),
+            'time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+            'status' => $booking->status,
+            'branch' => $booking->branch?->name ?? 'Catford',
+        ];
     }
 
     public function render()

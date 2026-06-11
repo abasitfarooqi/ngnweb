@@ -8,10 +8,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class MOTBooking extends Model
 {
+    public const STATUS_PENDING = 'pending';
+    public const STATUS_AVAILABLE = 'available';
+    public const STATUS_COMPLETED = 'completed';
+    public const STATUS_CANCELLED = 'cancelled';
+    public const STATUS_BOOKED = 'booked';
+
     use CrudTrait;
     use HasFactory;
     use HasRoles;
@@ -98,19 +105,20 @@ class MOTBooking extends Model
         $this->save();
     }
 
-    public function markAsCancelled()
+    public function markAsCancelled(?string $note = null)
     {
         $this->status = 'cancelled';
+
+        if (is_string($note) && trim($note) !== '') {
+            $this->appendNotes(trim($note));
+        }
+
         $this->save();
     }
 
     public function setTitleAttribute($value)
     {
-        $user = $this->user;
-        $userName = $user ? trim($user->first_name.' '.$user->last_name) : null;
-        $userName = $userName ?: $this->user_id; // Use user_id if name is not available
-
-        $this->attributes['title'] = $this->status.' MOT '.$this->vehicle_registration.' '.$this->customer_name.' '.$this->customer_contact.' '.$this->customer_email.' - By Staff Name: '.$userName;
+        $this->attributes['title'] = $value ?: $this->buildTitle();
     }
 
     public function getFormattedDateOfAppointmentAttribute()
@@ -124,7 +132,9 @@ class MOTBooking extends Model
 
             $booking->vehicle_registration = strtoupper($booking->vehicle_registration);
 
-            if (! Motorbike::isRegNoExists($booking->vehicle_registration)) {
+            $needsVehicleLookup = $booking->isDirty('vehicle_registration') || ! $booking->exists;
+
+            if ($needsVehicleLookup && ! Motorbike::isRegNoExists($booking->vehicle_registration)) {
 
                 $booking->vehicle_registration = str_replace(' ', '', $booking->vehicle_registration);
 
@@ -218,13 +228,113 @@ class MOTBooking extends Model
 
             $booking->title = $booking->status.' MOT '.$booking->vehicle_registration.' '.$booking->customer_name.' '.$booking->customer_contact.' '.$booking->customer_email.' - By Staff Name: '.$userName;
 
-            \App::make(\App\Http\Controllers\Admin\MOTBookingCrudController::class)
-                ->generateAgreementAccess($booking);
+            if ($booking->status !== self::STATUS_CANCELLED) {
+                \App::make(\App\Http\Controllers\Admin\MOTBookingCrudController::class)
+                    ->generateAgreementAccess($booking);
+            }
         });
     }
 
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public static function motTimeSlots(): array
+    {
+        return [
+            '09:00' => '09:00 AM',
+            '09:30' => '09:30 AM',
+            '10:00' => '10:00 AM',
+            '10:30' => '10:30 AM',
+            '11:00' => '11:00 AM',
+            '11:30' => '11:30 AM',
+            '12:00' => '12:00 PM',
+            '12:30' => '12:30 PM',
+            '13:00' => '01:00 PM',
+            '13:30' => '01:30 PM',
+            '14:00' => '02:00 PM',
+            '14:30' => '02:30 PM',
+            '15:00' => '03:00 PM',
+            '15:30' => '03:30 PM',
+            '16:00' => '04:00 PM',
+            '16:30' => '04:30 PM',
+        ];
+    }
+
+    public static function catfordBranchId(): ?int
+    {
+        return Branch::query()
+            ->where('name', 'like', '%Catford%')
+            ->orderBy('id')
+            ->value('id');
+    }
+
+    public static function appointmentStart(string $date, string $time): Carbon
+    {
+        return Carbon::parse(trim($date.' '.$time));
+    }
+
+    public static function reservedTimeSlotsForDate(int $branchId, string $date, ?int $ignoreId = null): array
+    {
+        $query = static::query()
+            ->where('branch_id', $branchId)
+            ->whereDate('date_of_appointment', $date)
+            ->where('status', '!=', self::STATUS_CANCELLED);
+
+        if ($ignoreId !== null) {
+            $query->whereKeyNot($ignoreId);
+        }
+
+        return $query
+            ->get(['id', 'start'])
+            ->mapWithKeys(function (self $booking): array {
+                if (! $booking->start) {
+                    return [];
+                }
+
+                return [Carbon::parse($booking->start)->format('H:i') => $booking->id];
+            })
+            ->all();
+    }
+
+    public static function availableTimeSlotsForDate(int $branchId, string $date, ?int $ignoreId = null): array
+    {
+        $reserved = array_keys(self::reservedTimeSlotsForDate($branchId, $date, $ignoreId));
+
+        return array_filter(
+            self::motTimeSlots(),
+            fn (string $label, string $value): bool => ! in_array($value, $reserved, true),
+            ARRAY_FILTER_USE_BOTH
+        );
+    }
+
+    public function appendNotes(string $line): void
+    {
+        $line = trim($line);
+        if ($line === '') {
+            return;
+        }
+
+        $notes = trim((string) $this->notes);
+        $this->notes = $notes === '' ? $line : $notes."\n".$line;
+    }
+
+    public function buildTitle(): string
+    {
+        $staffName = trim((string) (($this->user?->first_name ?? '').' '.($this->user?->last_name ?? '')));
+        $source = $this->user_id
+            ? 'By Staff Name: '.($staffName !== '' ? $staffName : $this->user_id)
+            : 'By Website User';
+
+        return trim(implode(' ', array_filter([
+            $this->status ?: self::STATUS_PENDING,
+            'MOT',
+            strtoupper((string) $this->vehicle_registration),
+            $this->customer_name,
+            $this->customer_contact,
+            $this->customer_email,
+            $source,
+        ])));
     }
 }

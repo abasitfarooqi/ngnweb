@@ -17,6 +17,14 @@
         </flux:callout>
     @endif
 
+    @if($this->serviceType === 'MOT Booking Enquiry' && $this->activeCustomerBooking)
+        <flux:callout variant="warning" icon="information-circle" class="mb-6">
+            <flux:callout.text>
+                We already have a MOT booking for {{ $this->activeCustomerBooking['registration'] }} on {{ $this->activeCustomerBooking['date'] }} at {{ $this->activeCustomerBooking['time'] }}.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
     <flux:card class="p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
             @if($embeddedHeading)
@@ -72,15 +80,23 @@
             @endif
 
             @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
-                <flux:field>
-                    <flux:label>Select Branch</flux:label>
-                    <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch if preferred...">
-                        @foreach($branches as $branch)
-                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                    <flux:error name="selectedBranch" />
-                </flux:field>
+                @if($serviceType === 'MOT Booking Enquiry')
+                    <flux:field>
+                        <flux:label>Branch</flux:label>
+                        <flux:input value="Catford" disabled />
+                        <flux:error name="selectedBranch" />
+                    </flux:field>
+                @else
+                    <flux:field>
+                        <flux:label>Select Branch</flux:label>
+                        <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch if preferred...">
+                            @foreach($branches as $branch)
+                                <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:error name="selectedBranch" />
+                    </flux:field>
+                @endif
             @endif
 
             @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
@@ -125,28 +141,15 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <flux:field>
                         <flux:label>Preferred Date *</flux:label>
-                        <x-site.booking-date-picker wire:model="preferredDate" />
+                        <x-site.booking-date-picker wire:model.live="preferredDate" />
                         <flux:error name="preferredDate" />
                     </flux:field>
                     <flux:field>
                         <flux:label>Preferred Time *</flux:label>
                         <flux:select wire:model="preferredTime" variant="listbox" placeholder="Select time...">
-                            <flux:select.option value="10:00">10:00</flux:select.option>
-                            <flux:select.option value="10:30">10:30</flux:select.option>
-                            <flux:select.option value="11:00">11:00</flux:select.option>
-                            <flux:select.option value="11:30">11:30</flux:select.option>
-                            <flux:select.option value="12:00">12:00</flux:select.option>
-                            <flux:select.option value="12:30">12:30</flux:select.option>
-                            <flux:select.option value="13:00">13:00</flux:select.option>
-                            <flux:select.option value="13:30">13:30</flux:select.option>
-                            <flux:select.option value="14:00">14:00</flux:select.option>
-                            <flux:select.option value="14:30">14:30</flux:select.option>
-                            <flux:select.option value="15:00">15:00</flux:select.option>
-                            <flux:select.option value="15:30">15:30</flux:select.option>
-                            <flux:select.option value="16:00">16:00</flux:select.option>
-                            <flux:select.option value="16:30">16:30</flux:select.option>
-                            <flux:select.option value="17:00">17:00</flux:select.option>
-                            <flux:select.option value="17:30">17:30</flux:select.option>
+                            @foreach($this->availableTimeSlots as $timeValue => $timeLabel)
+                                <flux:select.option value="{{ $timeValue }}">{{ $timeLabel }}</flux:select.option>
+                            @endforeach
                         </flux:select>
                         <flux:error name="preferredTime" />
                     </flux:field>

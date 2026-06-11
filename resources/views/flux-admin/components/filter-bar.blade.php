@@ -23,8 +23,8 @@
 
         @if($showReset)
             <div class="min-w-0 w-full sm:max-w-[8rem] lg:w-auto">
-                <flux:button wire:click="resetFilters" variant="ghost" size="sm" class="!rounded-none w-full">
-                    Reset
+                <flux:button wire:click="resetFilters" variant="ghost" size="sm" icon="x-mark" class="!rounded-none w-full" title="Reset filters">
+                    <span>Reset</span>
                 </flux:button>
             </div>
         @endif

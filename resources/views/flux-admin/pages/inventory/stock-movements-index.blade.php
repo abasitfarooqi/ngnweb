@@ -17,10 +17,9 @@
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:select wire:model.live="filters.transaction_type" placeholder="Type">
                         <flux:select.option value="">Any type</flux:select.option>
-                        <flux:select.option value="purchase">Purchase</flux:select.option>
-                        <flux:select.option value="sale">Sale</flux:select.option>
-                        <flux:select.option value="transfer">Transfer</flux:select.option>
-                        <flux:select.option value="adjustment">Adjustment</flux:select.option>
+                        @foreach($transactionTypes as $value => $label)
+                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                        @endforeach
                     </flux:select>
                 </div>
             </x-flux-admin::filter-bar>
@@ -41,10 +40,12 @@
                     <flux:table.row wire:key="sm-{{ $r->id }}">
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->transaction_date ? \Carbon\Carbon::parse($r->transaction_date)->format('d M Y') : '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $branches->firstWhere('id', $r->branch_id)?->name ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">#{{ $r->product_id }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">
+                            {{ $r->product?->sku ? $r->product->sku.' · ' : '' }}{{ $r->product?->name ?? '#'.$r->product_id }}
+                        </flux:table.cell>
                         <flux:table.cell class="text-emerald-600 dark:text-emerald-400">{{ $r->in ?: '—' }}</flux:table.cell>
                         <flux:table.cell class="text-red-600 dark:text-red-400">{{ $r->out ?: '—' }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->transaction_type }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $transactionTypes[$r->transaction_type] ?? $r->transaction_type }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ $r->ref_doc_no }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
@@ -65,13 +66,6 @@
         <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
             <flux:heading size="lg">{{ $recordId ? 'Edit movement' : 'New stock movement' }}</flux:heading>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Branch" :error="$errors->first('formData.branch_id')" required>
-                    <flux:select wire:model="formData.branch_id" placeholder="— Select —">
-                        @foreach($branches as $b)
-                            <flux:select.option value="{{ $b->id }}">{{ $b->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Product" :error="$errors->first('formData.product_id')" required>
                     <flux:select wire:model="formData.product_id" placeholder="— Select —">
                         @foreach($products as $p)
@@ -83,19 +77,45 @@
                     <flux:input type="date" wire:model="formData.transaction_date" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Type" :error="$errors->first('formData.transaction_type')" required>
-                    <flux:select wire:model="formData.transaction_type">
-                        <flux:select.option value="purchase">Purchase</flux:select.option>
-                        <flux:select.option value="sale">Sale</flux:select.option>
-                        <flux:select.option value="transfer">Transfer</flux:select.option>
-                        <flux:select.option value="adjustment">Adjustment</flux:select.option>
+                    <flux:select wire:model.live="formData.transaction_type">
+                        @foreach($transactionTypes as $value => $label)
+                            <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
+                        @endforeach
                     </flux:select>
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="In (qty)" :error="$errors->first('formData.in')">
-                    <flux:input type="number" step="0.01" wire:model="formData.in" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Out (qty)" :error="$errors->first('formData.out')">
-                    <flux:input type="number" step="0.01" wire:model="formData.out" min="0" />
-                </x-flux-admin::field-group>
+                @if(($formData['transaction_type'] ?? null) === 'stock_transfer' && ! $recordId)
+                    <x-flux-admin::field-group label="From Branch" :error="$errors->first('formData.from_branch_id')" required>
+                        <flux:select wire:model="formData.from_branch_id" placeholder="— Select —">
+                            @foreach($branches as $b)
+                                <flux:select.option value="{{ $b->id }}">{{ $b->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </x-flux-admin::field-group>
+                    <x-flux-admin::field-group label="To Branch" :error="$errors->first('formData.to_branch_id')" required>
+                        <flux:select wire:model="formData.to_branch_id" placeholder="— Select —">
+                            @foreach($branches as $b)
+                                <flux:select.option value="{{ $b->id }}">{{ $b->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </x-flux-admin::field-group>
+                    <x-flux-admin::field-group label="Transfer Quantity" :error="$errors->first('formData.transfer_qty')" required>
+                        <flux:input type="number" step="0.01" wire:model="formData.transfer_qty" min="1" />
+                    </x-flux-admin::field-group>
+                @else
+                    <x-flux-admin::field-group label="Branch" :error="$errors->first('formData.branch_id')" required>
+                        <flux:select wire:model="formData.branch_id" placeholder="— Select —">
+                            @foreach($branches as $b)
+                                <flux:select.option value="{{ $b->id }}">{{ $b->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </x-flux-admin::field-group>
+                    <x-flux-admin::field-group label="In (qty)" :error="$errors->first('formData.in')">
+                        <flux:input type="number" step="0.01" wire:model="formData.in" min="0" />
+                    </x-flux-admin::field-group>
+                    <x-flux-admin::field-group label="Out (qty)" :error="$errors->first('formData.out')">
+                        <flux:input type="number" step="0.01" wire:model="formData.out" min="0" />
+                    </x-flux-admin::field-group>
+                @endif
             </div>
             <x-flux-admin::field-group label="Ref doc" :error="$errors->first('formData.ref_doc_no')">
                 <flux:input wire:model="formData.ref_doc_no" />

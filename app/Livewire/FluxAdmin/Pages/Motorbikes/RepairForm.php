@@ -6,7 +6,9 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Branch;
 use App\Models\Motorbike;
 use App\Models\MotorbikeRepair;
+use App\Models\MotorbikeRepairObservation;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -20,6 +22,8 @@ class RepairForm extends Component
     public ?MotorbikeRepair $motorbikeRepair = null;
 
     public array $form = [];
+
+    public array $observations = [];
 
     public string $motorbikeSearch = '';
     public array $motorbikeSuggestions = [];
@@ -43,13 +47,30 @@ class RepairForm extends Component
             }
             $this->form = $attrs;
             $this->motorbikeSearch = $motorbikeRepair->motorbike?->reg_no ?? '';
+            $this->observations = $motorbikeRepair->observations()
+                ->orderBy('id')
+                ->get(['observation_description'])
+                ->map(fn (MotorbikeRepairObservation $observation) => $observation->toArray())
+                ->all();
         } else {
             $this->form = [
                 'is_repaired'  => false,
                 'is_returned'  => false,
                 'arrival_date' => now()->format('Y-m-d'),
             ];
+            $this->observations = [];
         }
+    }
+
+    public function addObservation(): void
+    {
+        $this->observations[] = ['observation_description' => ''];
+    }
+
+    public function removeObservation(int $index): void
+    {
+        unset($this->observations[$index]);
+        $this->observations = array_values($this->observations);
     }
 
     public function updatingMotorbikeSearch(): void
@@ -74,6 +95,8 @@ class RepairForm extends Component
 
     public function save(): void
     {
+        $this->observations = array_values(array_filter($this->observations, fn (array $observation): bool => trim((string) ($observation['observation_description'] ?? '')) !== ''));
+
         $this->validate([
             'form.motorbike_id'  => ['required', 'integer'],
             'form.fullname'      => ['required', 'string', 'max:255'],
@@ -86,6 +109,8 @@ class RepairForm extends Component
             'form.is_returned'   => ['boolean'],
             'form.returned_date' => ['nullable', 'date'],
             'form.branch_id'     => ['nullable', 'integer'],
+            'observations'       => ['array'],
+            'observations.*.observation_description' => ['required', 'string', 'max:3000'],
         ]);
 
         $data = [
@@ -100,15 +125,28 @@ class RepairForm extends Component
             'is_returned'   => (bool) ($this->form['is_returned'] ?? false),
             'returned_date' => $this->form['returned_date'] ?? null,
             'branch_id'     => $this->form['branch_id'] ?? null,
+            'user_id'       => auth()->id(),
         ];
 
-        if ($this->motorbikeRepair && $this->motorbikeRepair->exists) {
-            $this->motorbikeRepair->update($data);
-            $this->dispatch('flux-admin:toast', type: 'success', message: 'Repair updated.');
-        } else {
-            MotorbikeRepair::create($data);
-            $this->dispatch('flux-admin:toast', type: 'success', message: 'Repair created.');
-        }
+        DB::transaction(function () use ($data): void {
+            if ($this->motorbikeRepair && $this->motorbikeRepair->exists) {
+                $this->motorbikeRepair->update($data);
+                $repair = $this->motorbikeRepair->refresh();
+            } else {
+                $repair = MotorbikeRepair::create($data);
+                $this->motorbikeRepair = $repair;
+            }
+
+            $repair->observations()->delete();
+
+            foreach ($this->observations as $observation) {
+                $repair->observations()->create([
+                    'observation_description' => $observation['observation_description'],
+                ]);
+            }
+        });
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: $this->motorbikeRepair?->wasRecentlyCreated ? 'Repair created.' : 'Repair updated.');
 
         $this->redirect(route('flux-admin.motorbike-repairs.index'), navigate: true);
     }

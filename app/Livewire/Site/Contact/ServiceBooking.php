@@ -4,10 +4,13 @@ namespace App\Livewire\Site\Contact;
 
 use App\Http\Controllers\MailController;
 use App\Models\Branch;
+use App\Models\MOTBooking;
 use App\Models\ServiceBooking as ServiceBookingModel;
 use App\Models\SupportConversation;
 use App\Rules\NotSunday;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 
@@ -190,17 +193,33 @@ class ServiceBooking extends Component
             }
             $this->submitLabel = 'Send repair enquiry';
         }
+
+        if ($this->serviceType === 'MOT Booking Enquiry') {
+            $this->selectedBranch = (string) (MOTBooking::catfordBranchId() ?? $this->selectedBranch);
+        }
     }
 
     public function updatedServiceType(?string $value): void
     {
-        if (! in_array((string) $value, [
+        if ((string) $value === 'MOT Booking Enquiry') {
+            $this->selectedBranch = (string) (MOTBooking::catfordBranchId() ?? $this->selectedBranch);
+            if ($this->preferredTime !== '' && ! array_key_exists($this->preferredTime, $this->availableTimeSlots)) {
+                $this->preferredTime = '';
+            }
+        } elseif (! in_array((string) $value, [
             'MOT Booking Enquiry',
             'Accident Management Services Enquiry',
         ], true)) {
             $this->preferredDate = '';
             $this->preferredTime = '';
             $this->resetValidation(['preferredDate', 'preferredTime']);
+        }
+    }
+
+    public function updatedPreferredDate(): void
+    {
+        if ($this->preferredTime !== '' && ! array_key_exists($this->preferredTime, $this->availableTimeSlots)) {
+            $this->preferredTime = '';
         }
     }
 
@@ -217,6 +236,35 @@ class ServiceBooking extends Component
 
         $branch = $this->branches->firstWhere('id', (int) ($validated['selectedBranch'] ?: 0));
         $serviceTypeLabel = (string) $validated['serviceType'];
+        $customerAuth = Auth::guard('customer')->user();
+        $customerProfile = $customerAuth?->customer;
+        $resolvedEmail = trim((string) ($validated['email'] ?: ($customerAuth?->email ?? '')));
+        $resolvedPhone = trim((string) ($validated['phone'] ?: ($customerProfile?->phone ?? '')));
+        $resolvedName = trim((string) ($validated['name'] ?: (($customerProfile?->first_name ?? '').' '.($customerProfile?->last_name ?? ''))));
+        $resolvedName = $resolvedName !== '' ? $resolvedName : 'Portal customer';
+        $ownershipCustomerId = $customerAuth?->customer_id ?: $customerProfile?->id;
+
+        $isMotBooking = $serviceTypeLabel === 'MOT Booking Enquiry';
+        $motBookingId = null;
+        $serviceBooking = null;
+        $slotTaken = false;
+
+        if ($isMotBooking) {
+            $branchId = (int) (MOTBooking::catfordBranchId() ?? $validated['selectedBranch']);
+            $appointmentStart = MOTBooking::appointmentStart($validated['preferredDate'], $validated['preferredTime']);
+            $slotTaken = MOTBooking::query()
+                ->where('branch_id', $branchId)
+                ->whereDate('date_of_appointment', $validated['preferredDate'])
+                ->where('start', $appointmentStart->toDateTimeString())
+                ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
+                ->exists();
+
+            if ($slotTaken) {
+                $this->addError('preferredTime', 'That time slot has already been reserved.');
+
+                return;
+            }
+        }
 
         $descriptionBits = array_filter([
             $branch ? 'Branch: '.$branch->name : null,
@@ -226,13 +274,6 @@ class ServiceBooking extends Component
             'Message: '.($this->message ?: 'N/A'),
         ]);
 
-        $customerAuth = Auth::guard('customer')->user();
-        $customerProfile = $customerAuth?->customer;
-        $resolvedEmail = trim((string) ($validated['email'] ?: ($customerAuth?->email ?? '')));
-        $resolvedPhone = trim((string) ($validated['phone'] ?: ($customerProfile?->phone ?? '')));
-        $resolvedName = trim((string) ($validated['name'] ?: (($customerProfile?->first_name ?? '').' '.($customerProfile?->last_name ?? ''))));
-        $resolvedName = $resolvedName !== '' ? $resolvedName : 'Portal customer';
-        $ownershipCustomerId = $customerAuth?->customer_id ?: $customerProfile?->id;
         $conversation = null;
         if ($customerAuth) {
             $conversation = SupportConversation::query()->create([
@@ -243,32 +284,83 @@ class ServiceBooking extends Component
             ]);
         }
 
-        $booking = ServiceBookingModel::create([
-            'customer_id' => $ownershipCustomerId,
-            'customer_auth_id' => $customerAuth?->id,
-            'conversation_id' => $conversation?->id,
-            'submission_context' => $customerAuth ? 'authenticated_customer' : 'guest',
-            'enquiry_type' => ServiceBookingModel::inferEnquiryType($serviceTypeLabel, implode(' | ', $descriptionBits)),
-            'service_type' => $serviceTypeLabel,
-            'subject' => $serviceTypeLabel,
-            'description' => implode(' | ', $descriptionBits),
-            'requires_schedule' => $this->requiresScheduleSelection,
-            'booking_date' => $validated['preferredDate'] ?: null,
-            'booking_time' => $validated['preferredTime'] ?: null,
-            'status' => 'Pending',
-            'fullname' => $resolvedName,
-            'phone' => $resolvedPhone,
-            'reg_no' => $this->regNo ?: 'N/A',
-            'email' => $resolvedEmail !== '' ? $resolvedEmail : null,
-        ]);
+        DB::transaction(function () use (
+            $isMotBooking,
+            $customerAuth,
+            $conversation,
+            $ownershipCustomerId,
+            $serviceTypeLabel,
+            $descriptionBits,
+            $resolvedName,
+            $resolvedPhone,
+            $resolvedEmail,
+            $validated,
+            &$serviceBooking,
+            &$motBookingId
+        ): void {
+            if ($isMotBooking) {
+                $appointmentStart = MOTBooking::appointmentStart($validated['preferredDate'], $validated['preferredTime']);
+                $motBooking = MOTBooking::query()->create([
+                    'branch_id' => (int) (MOTBooking::catfordBranchId() ?? $validated['selectedBranch']),
+                    'vehicle_registration' => strtoupper(trim($this->regNo)),
+                    'vehicle_chassis' => null,
+                    'vehicle_color' => null,
+                    'date_of_appointment' => $appointmentStart->toDateTimeString(),
+                    'start' => $appointmentStart->toDateTimeString(),
+                    'end' => $appointmentStart->toDateTimeString(),
+                    'customer_name' => $resolvedName,
+                    'customer_contact' => $resolvedPhone,
+                    'customer_email' => $resolvedEmail !== '' ? $resolvedEmail : null,
+                    'status' => MOTBooking::STATUS_PENDING,
+                    'title' => null,
+                    'notes' => implode("\n", array_filter([
+                        'This made by website frontend user.',
+                        'We are going to edit it later we made the process ahead.',
+                        'Source: site.contact.service-booking',
+                        'Branch: Catford',
+                        'Registration: '.strtoupper(trim($this->regNo)),
+                        $this->make !== '' ? 'Make: '.trim($this->make) : null,
+                        $this->model !== '' ? 'Model: '.trim($this->model) : null,
+                        $this->message !== '' ? 'Notes: '.trim($this->message) : null,
+                    ])),
+                    'all_day' => false,
+                    'is_validate' => true,
+                    'is_paid' => false,
+                    'payment_method' => null,
+                    'payment_notes' => null,
+                    'user_id' => null,
+                ]);
 
-        if ($conversation) {
+                $motBookingId = $motBooking->id;
+            }
+
+            $serviceBooking = ServiceBookingModel::create([
+                'customer_id' => $ownershipCustomerId,
+                'customer_auth_id' => $customerAuth?->id,
+                'conversation_id' => $conversation?->id,
+                'submission_context' => $customerAuth ? 'authenticated_customer' : 'guest',
+                'enquiry_type' => ServiceBookingModel::inferEnquiryType($serviceTypeLabel, implode(' | ', $descriptionBits)),
+                'service_type' => $serviceTypeLabel,
+                'subject' => $serviceTypeLabel,
+                'description' => implode(' | ', $descriptionBits),
+                'requires_schedule' => $this->requiresScheduleSelection,
+                'booking_date' => $validated['preferredDate'] ?: null,
+                'booking_time' => $validated['preferredTime'] ?: null,
+                'status' => 'Pending',
+                'fullname' => $resolvedName,
+                'phone' => $resolvedPhone,
+                'reg_no' => $this->regNo ?: 'N/A',
+                'email' => $resolvedEmail !== '' ? $resolvedEmail : null,
+            ]);
+        });
+
+        if ($conversation && $serviceBooking) {
             $conversation->forceFill([
-                'service_booking_id' => $booking->id,
+                'service_booking_id' => $serviceBooking->id,
             ])->save();
         }
 
-        app(MailController::class)->sendBookingConfirmation($booking);
+        app(MailController::class)->sendBookingConfirmation($serviceBooking);
 
         $successMessage = 'Service booking request received. We will confirm your appointment shortly.';
         if ($this->repairsEnquiryCompactMode) {
@@ -302,6 +394,69 @@ class ServiceBooking extends Component
             'MOT Booking Enquiry',
             'Accident Management Services Enquiry',
         ], true);
+    }
+
+    public function getAvailableTimeSlotsProperty(): array
+    {
+        if ($this->serviceType === 'MOT Booking Enquiry') {
+            if ($this->selectedBranch === '' || $this->preferredDate === '') {
+                return MOTBooking::motTimeSlots();
+            }
+
+            return MOTBooking::availableTimeSlotsForDate((int) $this->selectedBranch, $this->preferredDate);
+        }
+
+        return [
+            '10:00' => '10:00',
+            '10:30' => '10:30',
+            '11:00' => '11:00',
+            '11:30' => '11:30',
+            '12:00' => '12:00',
+            '12:30' => '12:30',
+            '13:00' => '13:00',
+            '13:30' => '13:30',
+            '14:00' => '14:00',
+            '14:30' => '14:30',
+            '15:00' => '15:00',
+            '15:30' => '15:30',
+            '16:00' => '16:00',
+            '16:30' => '16:30',
+            '17:00' => '17:00',
+            '17:30' => '17:30',
+        ];
+    }
+
+    public function getActiveCustomerBookingProperty(): ?array
+    {
+        $lookupEmail = trim((string) $this->email);
+        if ($lookupEmail === '') {
+            $lookupEmail = trim((string) Auth::guard('customer')->user()?->email);
+        }
+
+        if ($lookupEmail === '') {
+            return null;
+        }
+
+        $booking = MOTBooking::query()
+            ->with('branch:id,name')
+            ->whereRaw('LOWER(customer_email) = ?', [strtolower($lookupEmail)])
+            ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
+            ->whereDate('date_of_appointment', '>=', today())
+            ->orderBy('date_of_appointment')
+            ->first();
+
+        if (! $booking) {
+            return null;
+        }
+
+        return [
+            'id' => $booking->id,
+            'registration' => $booking->vehicle_registration,
+            'date' => Carbon::parse($booking->date_of_appointment)->format('d M Y'),
+            'time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+            'status' => $booking->status,
+            'branch' => $booking->branch?->name ?? 'Catford',
+        ];
     }
 
     public function render()
@@ -343,10 +498,12 @@ class ServiceBooking extends Component
                 'string',
                 $portalContactFromProfile ? null : 'min:10',
             ])),
-            'selectedBranch' => [
-                'nullable',
-                ...(($this->rentalCompactMode || $this->repairsEnquiryCompactMode) ? [] : [Rule::exists('branches', 'id')]),
-            ],
+            'selectedBranch' => array_values(array_filter([
+                ($this->serviceType === 'MOT Booking Enquiry') ? 'required' : (($this->rentalCompactMode || $this->repairsEnquiryCompactMode) ? 'nullable' : 'nullable'),
+                'integer',
+                ($this->serviceType === 'MOT Booking Enquiry' || (! $this->rentalCompactMode && ! $this->repairsEnquiryCompactMode)) ? Rule::exists('branches', 'id') : null,
+                $this->serviceType === 'MOT Booking Enquiry' && MOTBooking::catfordBranchId() ? Rule::in([MOTBooking::catfordBranchId(), (string) MOTBooking::catfordBranchId()]) : null,
+            ])),
             'serviceType' => $serviceRule,
             'preferredDate' => array_values(array_filter([
                 $this->requiresScheduleSelection ? 'required' : 'nullable',

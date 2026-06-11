@@ -80,6 +80,31 @@
                 </x-flux-admin::field-group>
             </div>
 
+            <div class="mt-5 border-t border-zinc-200 pt-5 dark:border-zinc-800">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <h3 class="text-sm font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-300">Observation notes</h3>
+                    <flux:button type="button" size="sm" variant="subtle" icon="plus" wire:click="addObservation" class="!rounded-none">Add observation</flux:button>
+                </div>
+                <div class="space-y-3">
+                    @forelse($observations as $index => $observation)
+                        <div class="flex gap-2" wire:key="repair-observation-{{ $index }}">
+                            <div class="min-w-0 flex-1">
+                                <x-flux-admin::field-group label="Observation" :error="$errors->first('observations.'.$index.'.observation_description')">
+                                    <flux:textarea wire:model="observations.{{ $index }}.observation_description" rows="2" />
+                                </x-flux-admin::field-group>
+                            </div>
+                            <div class="pt-7">
+                                <flux:button type="button" size="sm" variant="ghost" icon="trash" wire:click="removeObservation({{ $index }})" class="!rounded-none text-red-600 dark:text-red-400">Remove</flux:button>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="border border-dashed border-zinc-300 p-4 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+                            No observation notes.
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
             <div class="mt-4 flex items-center gap-6">
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.is_repaired" class="accent-zinc-900 dark:accent-zinc-200"> Repaired

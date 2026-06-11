@@ -9,7 +9,7 @@
     </div>
 </div>
 
-<div class="bg-white dark:bg-gray-900 py-5 sticky top-0 z-30 border-b border-gray-200 dark:border-gray-800 shadow-sm">
+<div class="bg-white dark:bg-gray-900 py-5  top-0 z-30 border-b border-gray-200 dark:border-gray-800 shadow-sm">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
         <div class="flex flex-wrap gap-2">
             @foreach(['all' => 'All', 'new' => 'New', 'used' => 'Used'] as $val => $label)

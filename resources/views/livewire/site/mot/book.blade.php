@@ -15,6 +15,18 @@
         </flux:callout>
     @endif
 
+    <flux:callout variant="info" icon="information-circle" class="mb-6">
+        <flux:callout.text>Catford only. Sundays are closed and booked time slots cannot be selected again.</flux:callout.text>
+    </flux:callout>
+
+    @if($activeCustomerBooking)
+        <flux:callout variant="warning" icon="information-circle" class="mb-6">
+            <flux:callout.text>
+                We already have a MOT booking for {{ $activeCustomerBooking['registration'] }} on {{ $activeCustomerBooking['date'] }} at {{ $activeCustomerBooking['time'] }}.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
     <flux:card class="p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
         <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">MOT booking form</h2>
 
@@ -22,16 +34,8 @@
 
             <flux:field>
                 <flux:label>Branch</flux:label>
-                @if($branches->count() === 1)
-                    <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 py-2">{{ $branches->first()->name }}</p>
-                @else
-                    <flux:select wire:model="selectedBranch" variant="listbox" searchable placeholder="Choose a branch…">
-                        @foreach($branches as $branch)
-                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                @endif
-                <flux:error name="selectedBranch" />
+                <flux:input value="{{ $branchLabel }}" disabled />
+                <flux:error name="branch_id" />
             </flux:field>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -63,7 +67,7 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Email *</flux:label>
-                    <flux:input wire:model="email" type="email" />
+                    <flux:input wire:model.live="email" type="email" />
                     <flux:error name="email" />
                 </flux:field>
                 <flux:field>
@@ -76,13 +80,13 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <flux:field>
                     <flux:label>Preferred Date *</flux:label>
-                    <x-site.booking-date-picker wire:model="preferredDate" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
+                    <x-site.booking-date-picker wire:model.live="preferredDate" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
                     <flux:error name="preferredDate" />
                 </flux:field>
                 <flux:field>
                     <flux:label>Preferred Time *</flux:label>
                     <flux:select wire:model="preferredTime" variant="listbox" placeholder="Select time…">
-                        @foreach(['09:00'=>'09:00 AM','10:00'=>'10:00 AM','11:00'=>'11:00 AM','12:00'=>'12:00 PM','14:00'=>'02:00 PM','15:00'=>'03:00 PM','16:00'=>'04:00 PM','17:00'=>'05:00 PM'] as $val => $label)
+                        @foreach($this->availableTimeSlots as $val => $label)
                             <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>

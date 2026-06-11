@@ -5,7 +5,9 @@ namespace App\Livewire\Portal\Bookings;
 use App\Models\CustomerAppointments;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 
 class Index extends Component
@@ -15,6 +17,70 @@ class Index extends Component
     public function switchTab(string $tab): void
     {
         $this->activeTab = $tab;
+    }
+
+    public function cancelMotBooking(int $bookingId): void
+    {
+        $customerAuth = Auth::guard('customer')->user();
+        if (! $customerAuth) {
+            abort(403);
+        }
+
+        $email = strtolower(trim((string) ($customerAuth->email ?? '')));
+        $booking = MOTBooking::query()
+            ->with('branch:id,name')
+            ->whereKey($bookingId)
+            ->whereRaw('LOWER(customer_email) = ?', [$email])
+            ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
+            ->first();
+
+        if (! $booking) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Booking not found or already cancelled.');
+
+            return;
+        }
+
+        $booking->markAsCancelled("This canceled by website frontend user.\nWe are going to edit it later we made the process ahead.");
+
+        $mailPayload = [
+            'subject' => 'MOT booking cancelled - NGN Motors',
+            'heading' => 'MOT booking cancelled',
+            'greetingName' => trim((string) ($booking->customer_name ?: 'Customer')),
+            'introLines' => [
+                'Your MOT booking has been cancelled from the portal.',
+                'The reserved slot is now released and can be booked again.',
+            ],
+            'details' => [
+                'Branch' => $booking->branch?->name ?? 'Catford',
+                'Registration' => $booking->vehicle_registration,
+                'Preferred Date' => Carbon::parse($booking->date_of_appointment)->format('Y-m-d'),
+                'Preferred Time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+                'Status' => 'Cancelled',
+                'Notes' => $booking->notes ?: 'N/A',
+            ],
+            'outroLines' => [
+                'If you need to rebook, please submit a new MOT booking request.',
+            ],
+        ];
+
+        $inbox = config('mail.contact_inbox', 'customerservice@neguinhomotors.co.uk');
+
+        try {
+            if ($booking->customer_email) {
+                Mail::send('emails.templates.universal', $mailPayload, function ($message) use ($booking): void {
+                    $message->to($booking->customer_email, $booking->customer_name)->subject('MOT booking cancelled - NGN Motors');
+                });
+            }
+
+            Mail::send('emails.templates.universal', $mailPayload, function ($message) use ($inbox): void {
+                $message->to($inbox)->subject('MOT booking cancelled - NGN Motors');
+            });
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        session()->flash('success', 'MOT booking cancelled.');
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'MOT booking cancelled.');
     }
 
     public function render()
@@ -27,6 +93,7 @@ class Index extends Component
         $email = strtolower(trim((string) ($customerAuth->email ?? '')));
 
         $motBookings = MOTBooking::query()
+            ->with('branch:id,name')
             ->whereRaw('LOWER(customer_email) = ?', [$email])
             ->latest('date_of_appointment')
             ->get();

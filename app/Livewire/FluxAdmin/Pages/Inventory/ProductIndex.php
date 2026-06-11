@@ -12,7 +12,9 @@ use App\Models\NgnBrand;
 use App\Models\NgnCategory;
 use App\Models\NgnModel;
 use App\Models\NgnProduct;
+use App\Models\NgnStockMovement;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -33,6 +35,12 @@ class ProductIndex extends Component
     public bool $importUpdateZero = false;
 
     public $importFile;
+
+    protected array $branchIds = [
+        'catford_stock' => 1,
+        'tooting_stock' => 2,
+        'sutton_stock' => 3,
+    ];
 
     public function mount(): void
     {
@@ -113,6 +121,46 @@ class ProductIndex extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Stock imported successfully.');
     }
 
+    public function updateBranchStock(int $productId, string $field, mixed $value): void
+    {
+        $this->validate([
+            'importUpdateZero' => ['boolean'],
+        ]);
+
+        if (! array_key_exists($field, $this->branchIds)) {
+            abort(422, 'Invalid branch stock field.');
+        }
+
+        $targetStock = max(0, (int) $value);
+        $branchId = $this->branchIds[$field];
+
+        DB::transaction(function () use ($productId, $branchId, $targetStock): void {
+            $product = NgnProduct::query()->lockForUpdate()->findOrFail($productId);
+            $currentStock = $this->currentBranchStock($product->id, $branchId);
+            $difference = $targetStock - $currentStock;
+
+            if ($difference !== 0) {
+                NgnStockMovement::query()->create([
+                    'product_id' => $product->id,
+                    'branch_id' => $branchId,
+                    'in' => $difference > 0 ? $difference : 0,
+                    'out' => $difference < 0 ? abs($difference) : 0,
+                    'transaction_type' => $difference > 0 ? 'Stock Adjustment' : 'Shop Sale',
+                    'transaction_date' => now(),
+                    'user_id' => auth()->id(),
+                    'remarks' => 'Flux admin inline stock edit',
+                ]);
+            }
+
+            $product->forceFill([
+                'global_stock' => collect($this->branchIds)
+                    ->sum(fn (int $id): int => $this->currentBranchStock($product->id, $id)),
+            ])->save();
+        });
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Branch stock updated.');
+    }
+
     public function render()
     {
         $rows = $this->baseQuery()
@@ -130,6 +178,21 @@ class ProductIndex extends Component
     protected function baseQuery(): Builder
     {
         return NgnProduct::query()
+            ->select('ngn_products.*')
+            ->addSelect([
+                'catford_stock' => NgnStockMovement::query()
+                    ->selectRaw('COALESCE(SUM(`in`),0) - COALESCE(SUM(`out`),0)')
+                    ->whereColumn('product_id', 'ngn_products.id')
+                    ->where('branch_id', 1),
+                'tooting_stock' => NgnStockMovement::query()
+                    ->selectRaw('COALESCE(SUM(`in`),0) - COALESCE(SUM(`out`),0)')
+                    ->whereColumn('product_id', 'ngn_products.id')
+                    ->where('branch_id', 2),
+                'sutton_stock' => NgnStockMovement::query()
+                    ->selectRaw('COALESCE(SUM(`in`),0) - COALESCE(SUM(`out`),0)')
+                    ->whereColumn('product_id', 'ngn_products.id')
+                    ->where('branch_id', 3),
+            ])
             ->when($this->search, fn ($q, $v) => $q->where(fn ($q) => $q->where('name', 'like', "%{$v}%")->orWhere('sku', 'like', "%{$v}%")->orWhere('ean', 'like', "%{$v}%")))
             ->when($this->filter('brand_id'), fn ($q, $v) => $q->where('brand_id', $v))
             ->when($this->filter('category_id'), fn ($q, $v) => $q->where('category_id', $v))
@@ -145,9 +208,18 @@ class ProductIndex extends Component
             'SKU' => 'sku', 'EAN' => 'ean', 'Name' => 'name', 'Variation' => 'variation', 'Colour' => 'colour',
             'Brand' => fn ($r) => $r->brand?->name, 'Category' => fn ($r) => $r->category?->name, 'Model' => fn ($r) => $r->model?->name,
             'Normal price' => 'normal_price', 'POS price' => 'pos_price', 'VAT' => 'pos_vat',
+            'Catford stock' => 'catford_stock', 'Tooting stock' => 'tooting_stock', 'Sutton stock' => 'sutton_stock',
             'Global stock' => 'global_stock', 'Vatable' => fn ($r) => $r->vatable ? 'Yes' : 'No',
             'Oxford' => fn ($r) => $r->is_oxford ? 'Yes' : 'No', 'Dead' => fn ($r) => $r->dead ? 'Yes' : 'No',
             'Shop' => fn ($r) => $r->is_ecommerce ? 'Yes' : 'No',
         ];
+    }
+
+    protected function currentBranchStock(int $productId, int $branchId): int
+    {
+        $in = (int) NgnStockMovement::query()->where('product_id', $productId)->where('branch_id', $branchId)->sum('in');
+        $out = (int) NgnStockMovement::query()->where('product_id', $productId)->where('branch_id', $branchId)->sum('out');
+
+        return $in - $out;
     }
 }

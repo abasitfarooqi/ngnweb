@@ -30,13 +30,17 @@
                     <flux:input wire:model="form.pos_invoice" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Total (£)" required :error="$errors->first('form.total')">
-                    <flux:input type="number" step="0.01" wire:model="form.total" />
+                    <flux:input type="number" step="0.01" wire:model.live.debounce.300ms="form.total" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Percent (%)" :error="$errors->first('form.percent')">
-                    <flux:input type="number" step="0.01" wire:model="form.percent" />
+                    <flux:input type="number" step="0.01" wire:model.live.debounce.300ms="form.percent" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Discount (£)" :error="$errors->first('form.discount')">
-                    <flux:input type="number" step="0.01" wire:model="form.discount" />
+                    <flux:input type="number" step="0.01" wire:model="form.discount" :readonly="$autoDiscount" />
+                    <label class="mt-2 flex items-center gap-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                        <input type="checkbox" wire:model.live="autoDiscount" class="accent-zinc-900 dark:accent-zinc-200">
+                        Auto calculate discount
+                    </label>
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Redeem amount (£)" :error="$errors->first('form.redeem_amount')">
                     <flux:input type="number" step="0.01" wire:model="form.redeem_amount" />

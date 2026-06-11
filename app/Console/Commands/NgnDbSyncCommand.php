@@ -265,6 +265,24 @@ class NgnDbSyncCommand extends Command
         try {
             $productionSchema = NgnDbSyncToolkit::inspectSchema($production, $productionConfig['database'], (bool) $this->option('with-row-counts'));
             $localSchema = NgnDbSyncToolkit::inspectSchema($local, $localConfig['database'], (bool) $this->option('with-row-counts'));
+            $localBeforeSupplements = $localSchema;
+            $localSchema = NgnDbSyncToolkit::applyLocalSchemaSupplements($localSchema);
+            $supplementedTables = [];
+            foreach ($localSchema['tables'] ?? [] as $tableName => $tableMeta) {
+                $beforeColumns = $localBeforeSupplements['tables'][$tableName]['columns'] ?? [];
+                $afterColumns = $tableMeta['columns'] ?? [];
+                $addedColumns = array_values(array_diff($afterColumns, $beforeColumns));
+                if ($addedColumns !== []) {
+                    $supplementedTables[$tableName] = $addedColumns;
+                }
+            }
+            if ($supplementedTables !== []) {
+                $parts = [];
+                foreach ($supplementedTables as $tableName => $columns) {
+                    $parts[] = $tableName.': '.implode(', ', $columns);
+                }
+                $this->warn('Local schema supplements applied: '.implode(' | ', $parts));
+            }
             $comparison = NgnDbSyncToolkit::compareSchemas($productionSchema, $localSchema);
         } catch (\Throwable $e) {
             $this->error('Schema inspection failed: '.$e->getMessage());

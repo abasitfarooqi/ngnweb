@@ -62,7 +62,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { shopAPI } from '@/services/api';
 
 export default {
@@ -82,7 +82,11 @@ export default {
     const errorMessage = ref('');
     const requiresSchedule = ref(false);
     const minDate = new Date().toISOString().split('T')[0];
-    const availableTimes = ref(['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00']);
+    const motAvailableTimes = ['09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30'];
+    const generalAvailableTimes = ['10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00'];
+    const availableTimes = computed(() => (
+      form.value.service_type === 'MOT Booking Enquiry' ? motAvailableTimes : generalAvailableTimes
+    ));
 
     const toggleBookingFields = () => {
       requiresSchedule.value = form.value.service_type === 'MOT Booking Enquiry' || form.value.service_type === 'Accident Management Services Enquiry';

@@ -21,6 +21,20 @@
     <style>[x-cloak]{display:none!important}</style>
     {{-- Flux admin: table row lines, toolbar controls (no rounded corners in toolbars per product preference). --}}
     <style>
+        .flux-admin-skip {
+            position: fixed;
+            left: 1rem;
+            top: .75rem;
+            z-index: 60;
+            transform: translateY(-150%);
+            background: rgb(24 24 27);
+            color: white;
+            padding: .5rem .75rem;
+            font-size: .875rem;
+            line-height: 1.25rem;
+            transition: transform .15s ease;
+        }
+        .flux-admin-skip:focus { transform: translateY(0); outline: 2px solid rgb(59 130 246); outline-offset: 2px; }
         .flux-admin-content [data-flux-table] tbody tr + tr td { box-shadow: inset 0 1px 0 0 rgb(228 228 231); }
         .dark .flux-admin-content [data-flux-table] tbody tr + tr td { box-shadow: inset 0 1px 0 0 rgb(63 63 70); }
         .flux-admin-toolbar [data-flux-input] input,
@@ -28,9 +42,30 @@
         .flux-admin-toolbar select[data-flux-control] { border-radius: 0 !important; }
         .flux-admin-toolbar [data-flux-field] { margin-bottom: 0; }
         .flux-admin-table-panel { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
+        .flux-admin-table-panel [data-flux-table] th,
+        .flux-admin-table-panel [data-flux-table] td { white-space: nowrap; }
+        .flux-admin-page-title {
+            overflow-wrap: anywhere;
+            letter-spacing: 0;
+        }
+        .flux-admin-actions [data-flux-button] {
+            min-height: 2rem;
+        }
+        .flux-admin-content input,
+        .flux-admin-content select,
+        .flux-admin-content textarea {
+            min-width: 0;
+        }
+        .flux-admin-content [data-flux-button]:focus-visible,
+        .flux-admin-content a:focus-visible,
+        body.flux-admin-app [data-flux-sidebar] a:focus-visible,
+        body.flux-admin-app [data-flux-sidebar] button:focus-visible {
+            outline: 2px solid rgb(59 130 246);
+            outline-offset: 2px;
+        }
         {{-- Sidebar host: belt-and-braces if any global rule or UA style fights Tailwind dark surface. --}}
         html.dark body.flux-admin-app [data-flux-sidebar] {
-            background-color: rgb(9 9 11);
+            background-color: rgb(18 18 20);
             color: rgb(244 244 245);
         }
         {{-- style.css reset sets div{background:transparent} unlayered, which beats @layer utilities on [data-flux-main]. Paint the right column here (unlayered) so dark mode matches the shell. --}}
@@ -51,24 +86,25 @@
         [data-flux-navlist-group][data-open] > button > div > svg.block,
         [data-flux-navlist-group] > button[data-open] > div > svg.block { display: none; }
 
-        {{-- Sidebar density: more comfortable padding and line-height for navlist items (user reported items look too small). --}}
-        body.flux-admin-app [data-flux-sidebar] [data-flux-navlist-item],
-        body.flux-admin-app [data-flux-sidebar] [data-flux-navlist-group] > button {
-            padding-top: .55rem;
-            padding-bottom: .55rem;
-            font-size: .875rem;
-            line-height: 1.25rem;
-            letter-spacing: .01em;
-        }
-        body.flux-admin-app [data-flux-sidebar] [data-flux-navlist-group] > div [data-flux-navlist-item] {
-            padding-top: .45rem;
-            padding-bottom: .45rem;
-        }
+        {{-- Sidebar redesign: clear left navigation with compact operations shortcuts and sectioned menus. --}}
         body.flux-admin-app [data-flux-sidebar] {
-            min-width: 16rem;
+            min-width: 18rem;
+            border-right-color: rgb(212 212 216);
+            background:
+                linear-gradient(180deg, rgb(255 255 255) 0%, rgb(250 250 250) 100%);
+            box-shadow: 1px 0 0 rgb(255 255 255 / .7) inset, 16px 0 36px rgb(24 24 27 / .06);
+        }
+        html.dark body.flux-admin-app [data-flux-sidebar] {
+            border-right-color: rgb(39 39 42);
+            background:
+                linear-gradient(180deg, rgb(24 24 27) 0%, rgb(18 18 20) 100%);
+            box-shadow: 1px 0 0 rgb(255 255 255 / .04) inset, 16px 0 36px rgb(0 0 0 / .32);
         }
         @media (min-width: 1024px) {
-            body.flux-admin-app [data-flux-sidebar] { min-width: 17rem; }
+            body.flux-admin-app [data-flux-sidebar] {
+                min-width: 19rem;
+                width: 19rem;
+            }
         }
         {{-- Ensure sidebar fills viewport height and inner navlist scrolls properly
              on both desktop (sticky) and mobile (stashable overlay). --}}
@@ -82,12 +118,205 @@
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
             overscroll-behavior-y: contain;
-        }    </style>
+            scrollbar-width: thin;
+            scrollbar-color: rgb(161 161 170) transparent;
+        }
+        body.flux-admin-app [data-flux-sidebar] [data-flux-navlist]::-webkit-scrollbar { width: .45rem; }
+        body.flux-admin-app [data-flux-sidebar] [data-flux-navlist]::-webkit-scrollbar-thumb {
+            background: rgb(161 161 170);
+            border-radius: 999px;
+        }
+        .flux-admin-brand {
+            margin: .75rem .75rem .5rem;
+            border: 1px solid rgb(228 228 231);
+            background: rgb(255 255 255);
+            padding: .75rem;
+            box-shadow: 0 1px 2px rgb(24 24 27 / .05);
+        }
+        html.dark .flux-admin-brand {
+            border-color: rgb(39 39 42);
+            background: rgb(9 9 11 / .72);
+            box-shadow: 0 1px 2px rgb(0 0 0 / .28);
+        }
+        .flux-admin-brand-mark {
+            display: flex;
+            height: 2.5rem;
+            width: 2.5rem;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgb(228 228 231);
+            background: rgb(250 250 250);
+        }
+        html.dark .flux-admin-brand-mark {
+            border-color: rgb(63 63 70);
+            background: rgb(24 24 27);
+        }
+        .flux-admin-quick-grid {
+            margin: 0 .75rem .75rem;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: .5rem;
+        }
+        .flux-admin-quick-link {
+            display: flex;
+            min-height: 3rem;
+            align-items: center;
+            gap: .55rem;
+            border: 1px solid rgb(228 228 231);
+            background: rgb(255 255 255);
+            padding: .55rem .65rem;
+            color: rgb(63 63 70);
+            font-size: .78rem;
+            font-weight: 650;
+            line-height: 1.1rem;
+            transition: border-color .15s ease, background-color .15s ease, color .15s ease, transform .15s ease;
+        }
+        .flux-admin-quick-link:hover {
+            transform: translateY(-1px);
+            border-color: rgb(16 185 129);
+            background: rgb(240 253 250);
+            color: rgb(20 83 45);
+        }
+        html.dark .flux-admin-quick-link {
+            border-color: rgb(39 39 42);
+            background: rgb(24 24 27);
+            color: rgb(212 212 216);
+        }
+        html.dark .flux-admin-quick-link:hover {
+            border-color: rgb(20 184 166);
+            background: rgb(19 78 74 / .34);
+            color: rgb(240 253 250);
+        }
+        .flux-admin-quick-icon {
+            display: inline-flex;
+            height: 1.65rem;
+            width: 1.65rem;
+            shrink: 0;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgb(228 228 231);
+            background: rgb(250 250 250);
+            color: rgb(9 9 11);
+        }
+        html.dark .flux-admin-quick-icon {
+            border-color: rgb(63 63 70);
+            background: rgb(9 9 11);
+            color: rgb(244 244 245);
+        }
+        .flux-admin-menu {
+            padding: .35rem .65rem .75rem;
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-item],
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button {
+            min-height: 2.25rem;
+            border-radius: .5rem;
+            padding: .52rem .7rem;
+            color: rgb(82 82 91);
+            font-size: .875rem;
+            font-weight: 560;
+            line-height: 1.2rem;
+            letter-spacing: 0;
+            transition: background-color .15s ease, color .15s ease, box-shadow .15s ease;
+        }
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-item],
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button {
+            color: rgb(212 212 216);
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-item]:hover,
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button:hover {
+            background: rgb(244 244 245);
+            color: rgb(24 24 27);
+        }
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-item]:hover,
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button:hover {
+            background: rgb(39 39 42);
+            color: rgb(255 255 255);
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-item][data-current],
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-item][aria-current="page"] {
+            background: rgb(20 184 166);
+            color: white;
+            box-shadow: 0 8px 18px rgb(20 184 166 / .22);
+        }
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-item][data-current],
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-item][aria-current="page"] {
+            background: rgb(20 184 166);
+            color: rgb(6 78 59);
+            box-shadow: 0 8px 18px rgb(20 184 166 / .18);
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] {
+            margin: .35rem 0;
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button {
+            border: 1px solid transparent;
+            color: rgb(39 39 42);
+            font-weight: 700;
+        }
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button {
+            color: rgb(244 244 245);
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group][data-open] > button,
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button[data-open] {
+            border-color: rgb(228 228 231);
+            background: rgb(255 255 255);
+            box-shadow: 0 1px 2px rgb(24 24 27 / .04);
+        }
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group][data-open] > button,
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button[data-open] {
+            border-color: rgb(63 63 70);
+            background: rgb(24 24 27);
+            box-shadow: 0 1px 2px rgb(0 0 0 / .22);
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > div {
+            margin: .25rem 0 .4rem .45rem;
+            border-left: 1px solid rgb(228 228 231);
+            padding-left: .45rem;
+        }
+        html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > div {
+            border-left-color: rgb(63 63 70);
+        }
+        body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > div [data-flux-navlist-item] {
+            min-height: 2rem;
+            padding-top: .42rem;
+            padding-bottom: .42rem;
+            font-size: .835rem;
+            font-weight: 520;
+        }
+        .flux-admin-sidebar-footer {
+            margin: .5rem .75rem .75rem;
+            border: 1px solid rgb(228 228 231);
+            background: rgb(255 255 255);
+            padding: .5rem;
+        }
+        html.dark .flux-admin-sidebar-footer {
+            border-color: rgb(39 39 42);
+            background: rgb(9 9 11 / .7);
+        }
+        @media (max-width: 767px) {
+            .flux-admin-content {
+                padding-left: .75rem !important;
+                padding-right: .75rem !important;
+            }
+            .flux-admin-page-title {
+                font-size: 1.375rem;
+                line-height: 1.75rem;
+            }
+            .flux-admin-table-panel [data-flux-table] {
+                font-size: .8125rem;
+            }
+            .flux-admin-toolbar {
+                position: sticky;
+                top: 0;
+                z-index: 5;
+            }
+        }
+    </style>
 </head>
 <body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row">
+    <a href="#flux-admin-main" class="flux-admin-skip">Skip to content</a>
 
     {{-- Sidebar: same dark surface as main canvas (no half-light / half-dark split). --}}
-    <flux:sidebar sticky stashable class="z-20 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:z-auto lg:min-h-screen lg:shrink-0">
+    <flux:sidebar sticky stashable class="flux-admin-sidebar z-20 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:z-auto lg:min-h-screen lg:shrink-0">
         <button
             type="button"
             class="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
@@ -98,14 +327,38 @@
         </button>
 
         {{-- Brand --}}
-        <a href="{{ route('flux-admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2">
-            <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-8 w-auto">
-            <span class="text-sm font-semibold tracking-tight text-zinc-900 dark:text-white">Flux Admin</span>
+        <a href="{{ route('flux-admin.dashboard') }}" class="flux-admin-brand flex items-center gap-3">
+            <span class="flux-admin-brand-mark">
+                <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-7 w-auto">
+            </span>
+            <span class="min-w-0">
+                <span class="block truncate text-sm font-bold text-zinc-950 dark:text-white">NGN Flux</span>
+                <span class="block truncate text-xs font-medium text-zinc-500 dark:text-zinc-400">Operations admin</span>
+            </span>
         </a>
+
+        <div class="flux-admin-quick-grid">
+            <a href="{{ route('flux-admin.new-booking.index') }}" class="flux-admin-quick-link">
+                <span class="flux-admin-quick-icon"><flux:icon name="calendar-days" class="h-4 w-4" /></span>
+                <span>Booking</span>
+            </a>
+            <a href="{{ route('flux-admin.mot-bookings.index') }}" class="flux-admin-quick-link">
+                <span class="flux-admin-quick-icon"><flux:icon name="clipboard-document-check" class="h-4 w-4" /></span>
+                <span>MOT</span>
+            </a>
+            <a href="{{ route('flux-admin.service-bookings.index') }}" class="flux-admin-quick-link">
+                <span class="flux-admin-quick-icon"><flux:icon name="wrench-screwdriver" class="h-4 w-4" /></span>
+                <span>Services</span>
+            </a>
+            <a href="{{ route('flux-admin.support-inbox.index') }}" class="flux-admin-quick-link">
+                <span class="flux-admin-quick-icon"><flux:icon name="inbox" class="h-4 w-4" /></span>
+                <span>Inbox</span>
+            </a>
+        </div>
 
         <flux:separator />
 
-        <flux:navlist class="min-h-0 flex-1 overflow-y-auto py-1">
+        <flux:navlist class="flux-admin-menu min-h-0  overflow-y-auto">
             <flux:navlist.item href="{{ route('flux-admin.dashboard') }}" icon="home" :current="request()->routeIs('flux-admin.dashboard*')">Dashboard</flux:navlist.item>
 
             @can('see-menu-ecommerce')
@@ -205,7 +458,7 @@
                     <flux:navlist.item href="{{ route('flux-admin.sp-assemblies.index') }}" :current="request()->routeIs('flux-admin.sp-assemblies.*')">Assemblies</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.sp-assembly-parts.index') }}" :current="request()->routeIs('flux-admin.sp-assembly-parts.*')">Assembly parts</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.sp-stock-movements.index') }}" :current="request()->routeIs('flux-admin.sp-stock-movements.*')">Stock movements</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-stock-movements.index') }}" :current="false">Stock handler (sp)</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.sp-parts.index') }}" :current="request()->routeIs('flux-admin.sp-parts.*')">Stock handler</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
@@ -326,12 +579,12 @@
         <flux:spacer />
 
         {{-- Theme toggle --}}
-        <div class="px-3 pb-2">
+        <div class="flux-admin-sidebar-footer">
             <button
                 type="button"
                 x-data
                 @click="window.ngnSetColourMode && window.ngnSetColourMode(document.documentElement.classList.contains('dark') ? 'light' : 'dark')"
-                class="flex items-center gap-2 w-full px-3 py-2 text-sm text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                class="flex w-full items-center gap-2 px-3 py-2 text-sm font-medium text-zinc-600 transition hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
             >
                 <svg class="w-4 h-4 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
                 <svg class="w-4 h-4 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -363,6 +616,22 @@
 
     {{-- Main column: min-w-0 stops wide tables from growing under the sidebar; overflow-y keeps scroll in this pane. --}}
     <div class="flux-admin-main-column flex min-h-dvh w-full min-w-0 flex-1 flex-col lg:min-h-screen">
+        <flux:header class="hidden shrink-0 items-center border-b border-zinc-200 bg-white px-6 py-3 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 lg:flex">
+            <div class="min-w-0">
+                <div class="text-xs font-medium uppercase text-zinc-500 dark:text-zinc-500">NGN Motors</div>
+                <div class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ $title ?? 'Flux Admin' }}</div>
+            </div>
+            <flux:spacer />
+            <div class="flex items-center gap-2">
+                <a href="{{ route('flux-admin.dashboard') }}">
+                    <flux:button size="sm" variant="ghost" icon="home" class="!rounded-none">Dashboard</flux:button>
+                </a>
+                <a href="/ngn-admin/dashboard">
+                    <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Backpack</flux:button>
+                </a>
+            </div>
+        </flux:header>
+
         <flux:header class="flex shrink-0 items-center border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 lg:hidden">
             <button
                 type="button"
@@ -377,7 +646,7 @@
             <flux:spacer />
         </flux:header>
 
-        <flux:main class="min-h-0 min-w-0 flex-1 overflow-y-auto bg-zinc-100 !p-0 dark:bg-zinc-950 dark:text-zinc-100">
+        <flux:main id="flux-admin-main" class="min-h-0 min-w-0 flex-1 overflow-y-auto bg-zinc-100 !p-0 dark:bg-zinc-950 dark:text-zinc-100">
             <div class="flux-admin-content mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                 {{ $slot }}
             </div>

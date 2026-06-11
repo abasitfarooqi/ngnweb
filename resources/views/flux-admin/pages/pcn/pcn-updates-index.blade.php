@@ -48,7 +48,7 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">£{{ number_format((float) $r->additional_fee, 2) }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.pcn-tol-requests.index').'?update_id='.$r->id" icon="document-text" class="!rounded-none">TOL</flux:button>
+                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.pcn-tol-requests.create').'?update_id='.$r->id" icon="document-text" class="!rounded-none">TOL</flux:button>
                                 <a href="{{ route('flux-admin.pcn-updates.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
                                 <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this PCN update?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
