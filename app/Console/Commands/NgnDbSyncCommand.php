@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Support\NgnDbSyncToolkit;
 use App\Support\ProdToLocalTableSync;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 
 class NgnDbSyncCommand extends Command
 {
@@ -16,9 +17,11 @@ class NgnDbSyncCommand extends Command
                             {--bootstrap-folder=database/migrations/ngn-sync/bootstrap : Full merged-schema migrations}
                             {--align-folder=database/migrations/ngn-sync/production-align : Production alignment migrations}
                             {--snapshot-folder=database/seeders/data/ngn-local-snapshot : Local snapshot folder}
+                            {--schema-source=target : Schema source for sync-production: target (default after bootstrap migrations) or local (legacy ngn_clean)}
                             {--prefer-case= : local or production when names differ only by case}
                             {--with-row-counts : Include per-table row counts in the comparison report}
                             {--with-local-snapshot : After production sync, also replay the local snapshot for local-only tables}
+                            {--skip-local-snapshot : Do not replay Database\\Seeders\\NgnLocalSnapshotSeeder after production sync}
                             {--force : Allow destructive overwrite actions on the target DB}';
 
     protected $description = 'Inspect production vs local ngn_clean, generate merged migrations, sync production data, and export/replay local snapshots.';
@@ -101,6 +104,98 @@ class NgnDbSyncCommand extends Command
             return 1;
         }
 
+        if ($this->schemaSource() === 'local') {
+            return $this->syncProductionUsingLegacyLocalSchema();
+        }
+
+        $productionConfig = $this->productionConfig();
+        if ($productionConfig === null) {
+            $this->error('Missing production credentials in SYNC_PROD_DB_*.');
+
+            return 1;
+        }
+
+        $targetConfig = $this->targetConfig();
+        if ($targetConfig === null) {
+            $this->error('Target DB config is invalid.');
+
+            return 1;
+        }
+
+        if ($this->sameDatabase($productionConfig, $targetConfig)) {
+            $this->error('Target database resolves to production. Refusing to overwrite.');
+
+            return 1;
+        }
+
+        $this->info('Step 1: running schema/bootstrap migrations from '.$this->bootstrapFolder());
+        if (! $this->runBootstrapMigrations()) {
+            return 1;
+        }
+
+        try {
+            $production = ProdToLocalTableSync::connectSource($productionConfig);
+            $target = ProdToLocalTableSync::connectTarget($targetConfig);
+        } catch (\Throwable $e) {
+            $this->error('DB connection failed: '.$e->getMessage());
+
+            return 1;
+        }
+
+        $this->info('Production DB: '.$productionConfig['host'].':'.$productionConfig['port'].'/'.$productionConfig['database']);
+        $this->info('Target DB: '.$targetConfig['host'].':'.$targetConfig['port'].'/'.$targetConfig['database']);
+
+        try {
+            $productionSchema = NgnDbSyncToolkit::inspectSchema($production, $productionConfig['database'], (bool) $this->option('with-row-counts'));
+            $targetSchema = NgnDbSyncToolkit::inspectSchema($target, $targetConfig['database'], (bool) $this->option('with-row-counts'));
+            $comparison = NgnDbSyncToolkit::compareSchemas($productionSchema, $targetSchema);
+        } catch (\Throwable $e) {
+            $this->error('Schema inspection failed: '.$e->getMessage());
+
+            return 1;
+        }
+
+        $report = NgnDbSyncToolkit::writeComparisonReport($comparison, $this->reportFolder());
+        $this->printComparisonSummary($comparison, $report['json'], $report['markdown']);
+
+        try {
+            $plan = NgnDbSyncToolkit::buildUnifiedPlan(
+                $productionSchema,
+                $targetSchema,
+                $comparison,
+                $this->preferCase()
+            );
+        } catch (\Throwable $e) {
+            $this->error($e->getMessage());
+
+            return 1;
+        }
+
+        try {
+            $target = ProdToLocalTableSync::connectTarget($targetConfig);
+            $result = NgnDbSyncToolkit::syncProductionIntoTarget($production, $target, $plan, $comparison);
+        } catch (\Throwable $e) {
+            $this->error('Production sync failed: '.$e->getMessage());
+
+            return 1;
+        }
+
+        $this->newLine();
+        $this->info('Production sync completed.');
+        $this->line('Tables recreated: '.$result['tables']);
+        $this->line('Rows copied: '.$result['rows']);
+
+        if (! $this->option('skip-local-snapshot')) {
+            return $this->replayLocalSnapshotSeeder();
+        }
+
+        $this->warn('Local snapshot replay skipped by option.');
+
+        return 0;
+    }
+
+    protected function syncProductionUsingLegacyLocalSchema(): int
+    {
         [$productionSchema, $localSchema, $comparison, $productionConfig, $targetConfig] = $this->inspectSchemas(withConfigs: true);
         if ($comparison === null || $productionSchema === null || $localSchema === null || $productionConfig === null || $targetConfig === null) {
             return 1;
@@ -163,6 +258,63 @@ class NgnDbSyncCommand extends Command
             $this->line('Local snapshot tables replayed: '.$snapshot['tables']);
             $this->line('Local snapshot rows replayed: '.$snapshot['rows']);
         }
+
+        return 0;
+    }
+
+    protected function runBootstrapMigrations(): bool
+    {
+        $folder = $this->bootstrapFolder();
+        $files = glob(rtrim($folder, '/').'/*.php') ?: [];
+        if ($files === []) {
+            $this->error('Bootstrap migration folder has no migration files: '.$folder);
+
+            return false;
+        }
+
+        $exitCode = Artisan::call('migrate', [
+            '--database' => $this->connectionName(),
+            '--path' => trim(str_replace(base_path(), '', $folder), '/'),
+            '--force' => true,
+        ]);
+        $output = trim(Artisan::output());
+        if ($output !== '') {
+            $this->line($output);
+        }
+
+        if ($exitCode !== 0) {
+            $this->error('Bootstrap migration step failed.');
+
+            return false;
+        }
+
+        return true;
+    }
+
+    protected function replayLocalSnapshotSeeder(): int
+    {
+        $this->info('Step 4: replaying Database\\Seeders\\NgnLocalSnapshotSeeder.');
+
+        config(['ngn_local_snapshot.target_connection' => $this->connectionName()]);
+        config(['ngn_local_snapshot.path' => $this->snapshotFolder()]);
+
+        $exitCode = Artisan::call('db:seed', [
+            '--database' => $this->connectionName(),
+            '--class' => 'Database\\Seeders\\NgnLocalSnapshotSeeder',
+            '--force' => true,
+        ]);
+        $output = trim(Artisan::output());
+        if ($output !== '') {
+            $this->line($output);
+        }
+
+        if ($exitCode !== 0) {
+            $this->error('Local snapshot seeder failed.');
+
+            return 1;
+        }
+
+        $this->info('Production sync and local snapshot replay finished.');
 
         return 0;
     }
@@ -438,6 +590,13 @@ class NgnDbSyncCommand extends Command
         $value = trim((string) $this->option('prefer-case'));
 
         return in_array($value, ['local', 'production'], true) ? $value : null;
+    }
+
+    protected function schemaSource(): string
+    {
+        $value = strtolower(trim((string) $this->option('schema-source')));
+
+        return $value === 'local' ? 'local' : 'target';
     }
 
     protected function absolutePath(string $path): string

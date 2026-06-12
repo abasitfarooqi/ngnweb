@@ -10,8 +10,17 @@ class NgnLocalSnapshotSeeder extends Seeder
 {
     public function run(): void
     {
-        $connection = (string) env('NGN_LOCAL_SNAPSHOT_TARGET_CONNECTION', config('database.default', 'mysql'));
-        $folder = base_path(trim((string) env('NGN_LOCAL_SNAPSHOT_PATH', 'database/seeders/data/ngn-local-snapshot'), '/'));
+        $connection = (string) config(
+            'ngn_local_snapshot.target_connection',
+            env('NGN_LOCAL_SNAPSHOT_TARGET_CONNECTION', config('database.default', 'mysql'))
+        );
+        $configuredFolder = (string) config(
+            'ngn_local_snapshot.path',
+            env('NGN_LOCAL_SNAPSHOT_PATH', 'database/seeders/data/ngn-local-snapshot')
+        );
+        $folder = str_starts_with($configuredFolder, '/')
+            ? $configuredFolder
+            : base_path(trim($configuredFolder, '/'));
 
         $target = $this->connectionConfig($connection);
         if ($target === null) {
@@ -26,7 +35,7 @@ class NgnLocalSnapshotSeeder extends Seeder
         } catch (\Throwable $e) {
             $this->command?->error('Snapshot seed failed: '.$e->getMessage());
 
-            return;
+            throw $e;
         }
 
         $this->command?->info('NGN local snapshot applied.');
