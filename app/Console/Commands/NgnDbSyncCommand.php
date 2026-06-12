@@ -128,6 +128,8 @@ class NgnDbSyncCommand extends Command
             return 1;
         }
 
+        $this->warnDestructiveProductionOverwrite(! $this->option('skip-local-snapshot'));
+
         $this->info('Step 1: running schema/bootstrap migrations from '.$this->bootstrapFolder());
         if (! $this->runBootstrapMigrations()) {
             return 1;
@@ -210,6 +212,8 @@ class NgnDbSyncCommand extends Command
             return 1;
         }
 
+        $this->warnDestructiveProductionOverwrite((bool) $this->option('with-local-snapshot'));
+
         try {
             $plan = NgnDbSyncToolkit::buildUnifiedPlan(
                 $productionSchema,
@@ -260,6 +264,15 @@ class NgnDbSyncCommand extends Command
         }
 
         return 0;
+    }
+
+    protected function warnDestructiveProductionOverwrite(bool $snapshotWillReplay): void
+    {
+        $this->warn('Destructive sync: target tables can be dropped/recreated or blanked.');
+        $this->warn('Production rows are copied into the target as-is, including primary key values.');
+        $this->warn($snapshotWillReplay
+            ? 'After production data copy, NgnLocalSnapshotSeeder will restore local-only snapshot data.'
+            : 'Local snapshot replay is disabled for this run.');
     }
 
     protected function runBootstrapMigrations(): bool
