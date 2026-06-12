@@ -4,7 +4,7 @@
     'delete' => null,
 ])
 
-<div class="flux-admin-actions flex flex-wrap items-center justify-end gap-1.5">
+<div class="flux-admin-actions flex flex-nowrap items-center justify-end gap-1.5">
     @if($view)
         <flux:button size="xs" variant="ghost" :href="$view" icon="eye" class="!rounded-none" title="View record" aria-label="View record">
             <span class="hidden sm:inline">View</span>

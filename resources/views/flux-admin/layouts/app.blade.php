@@ -42,11 +42,65 @@
         .flux-admin-toolbar select[data-flux-control] { border-radius: 0 !important; }
         .flux-admin-toolbar [data-flux-field] { margin-bottom: 0; }
         .flux-admin-table-panel { -webkit-overflow-scrolling: touch; overscroll-behavior-x: contain; }
-        .flux-admin-table-panel [data-flux-table] th,
-        .flux-admin-table-panel [data-flux-table] td { white-space: nowrap; }
+        .flux-admin-responsive-table {
+            min-width: 0;
+        }
+        body.flux-admin-app [data-flux-table] {
+            width: max-content;
+            min-width: 100%;
+            table-layout: auto;
+        }
+        body.flux-admin-app [data-flux-table] th,
+        body.flux-admin-app [data-flux-table] td {
+            white-space: nowrap;
+        }
+        body.flux-admin-app [data-flux-table] th:last-child,
+        body.flux-admin-app [data-flux-table] td:last-child {
+            position: sticky;
+            right: 0;
+            z-index: 20;
+            background-color: rgb(255 255 255);
+            box-shadow: -12px 0 16px -16px rgb(24 24 27 / .45), -1px 0 0 0 rgb(228 228 231);
+        }
+        .dark body.flux-admin-app [data-flux-table] th:last-child,
+        .dark body.flux-admin-app [data-flux-table] td:last-child {
+            background-color: rgb(9 9 11);
+            box-shadow: -12px 0 16px -16px rgb(0 0 0 / .65), -1px 0 0 0 rgb(63 63 70);
+        }
+        body.flux-admin-app [data-flux-table] th:last-child {
+            z-index: 25;
+        }
+        @media (max-width: 1535px) {
+            body.flux-admin-app [data-flux-table] > :is(thead, tbody) > tr > :nth-child(n + 11):not(:last-child) {
+                display: none;
+            }
+        }
+        @media (max-width: 1279px) {
+            body.flux-admin-app [data-flux-table] > :is(thead, tbody) > tr > :nth-child(n + 9):not(:last-child) {
+                display: none;
+            }
+        }
+        @media (max-width: 1023px) {
+            body.flux-admin-app [data-flux-table] > :is(thead, tbody) > tr > :nth-child(n + 7):not(:last-child) {
+                display: none;
+            }
+        }
+        @media (max-width: 767px) {
+            body.flux-admin-app [data-flux-table] > :is(thead, tbody) > tr > :nth-child(n + 5):not(:last-child) {
+                display: none;
+            }
+        }
+        @media (max-width: 639px) {
+            body.flux-admin-app [data-flux-table] > :is(thead, tbody) > tr > :nth-child(n + 3):not(:last-child) {
+                display: none;
+            }
+        }
         .flux-admin-page-title {
             overflow-wrap: anywhere;
             letter-spacing: 0;
+        }
+        .flux-admin-actions {
+            flex-shrink: 0;
         }
         .flux-admin-actions [data-flux-button] {
             min-height: 2rem;

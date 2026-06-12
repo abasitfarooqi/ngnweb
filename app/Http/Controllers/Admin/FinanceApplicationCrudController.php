@@ -306,9 +306,19 @@ class FinanceApplicationCrudController extends BaseCrudController
             'class' => 'form-group col-md-4',
         ]]);
 
-        CRUD::addField(['name' => 'motorbike_price', 'type' => 'number', 'label' => 'Motorbike Price', 'wrapper' => [
-            'class' => 'form-group col-md-4',
-        ]]);
+        CRUD::addField([
+            'name' => 'motorbike_price',
+            'type' => 'number',
+            'label' => 'Motorbike Price',
+            'wrapper' => [
+                'class' => 'form-group col-md-4',
+            ],
+            'attributes' => [
+                'step' => '0.01',
+                'min' => '0',
+                'inputmode' => 'decimal',
+            ],
+        ]);
 
         CRUD::addField([
             'name' => 'weekly_instalment',
@@ -326,17 +336,38 @@ class FinanceApplicationCrudController extends BaseCrudController
             ],
         ]);
 
-        CRUD::addField(['name' => 'deposit', 'type' => 'number', 'label' => 'Deposit', 'wrapper' => [
-            'class' => 'form-group col-md-4',
-        ]]);
+        CRUD::addField([
+            'name' => 'deposit',
+            'type' => 'number',
+            'label' => 'Deposit',
+            'wrapper' => [
+                'class' => 'form-group col-md-4',
+            ],
+            'attributes' => [
+                'step' => '0.01',
+                'min' => '0',
+                'inputmode' => 'decimal',
+            ],
+        ]);
 
         CRUD::addField(['name' => 'extra_items', 'type' => 'textarea', 'label' => 'Extra Items', 'hint' => 'All additional product, or serivces itemised here to justify EXTRA AMOUNT (if extra amount stated on extra amount option).', 'wrapper' => [
             'class' => 'form-group col-md-8',
         ]]);
 
-        CRUD::addField(['name' => 'extra', 'type' => 'number', 'label' => 'Extra Amount', 'hint' => 'all accessories total amount.', 'wrapper' => [
-            'class' => 'form-group col-md-4',
-        ]]);
+        CRUD::addField([
+            'name' => 'extra',
+            'type' => 'number',
+            'label' => 'Extra Amount',
+            'hint' => 'all accessories total amount.',
+            'wrapper' => [
+                'class' => 'form-group col-md-4',
+            ],
+            'attributes' => [
+                'step' => '0.01',
+                'min' => '0',
+                'inputmode' => 'decimal',
+            ],
+        ]);
 
         CRUD::addField(['name' => 'notes', 'type' => 'textarea', 'label' => 'Notes', 'hint' => 'Anything worth to note for that customer. FYI, that is not appear to customer at any place. (Internal only)']);
 
@@ -417,7 +448,7 @@ class FinanceApplicationCrudController extends BaseCrudController
             'hint' => 'First Link for Insurance and PCN related Contract',
             'default' => 1,
             'wrapper' => [
-                'class' => 'form-group col-md-6',
+                'class' => 'form-group  d-none',
             ],
         ]);
 
@@ -429,6 +460,22 @@ class FinanceApplicationCrudController extends BaseCrudController
             'default' => 0,
             'wrapper' => [
                 'class' => 'form-group col-md-6',
+            ],
+        ]);
+
+        CRUD::addField([
+            'name' => 'subs_payment_date',
+            'type' => 'number',
+            'label' => 'Payment day of month',
+            'hint' => 'Day of each month the customer will pay (1-31). For v6 latest contracts (subscription or standard).',
+            'attributes' => [
+                'min' => 1,
+                'max' => 31,
+                'placeholder' => 'e.g. 15',
+            ],
+            'wrapper' => [
+                'class' => 'form-group col-md-6',
+                'id' => 'subs-payment-date-wrapper',
             ],
         ]);
 
@@ -503,8 +550,9 @@ class FinanceApplicationCrudController extends BaseCrudController
 
         CRUD::addField(['name' => 'user_id', 'type' => 'hidden', 'default' => backpack_user()->id]);
 
-        // Include the JavaScript file to handle the field visibility logic (checkboxes.js already added in setupCreateOperation).
+        // Include the JavaScript file to handle the field visibility logic.
         Widget::add()->type('script')->content('assets/js/admin/forms/logbook-transfer.js');
+        Widget::add()->type('script')->content('assets/js/admin/forms/finance-application-checkboxes.js');
 
         $this->crud->addField([
             'name' => 'customer_id',
@@ -535,9 +583,19 @@ class FinanceApplicationCrudController extends BaseCrudController
             'class' => 'form-group col-md-4',
         ]]);
 
-        CRUD::addField(['name' => 'motorbike_price', 'type' => 'number', 'label' => 'Motorbike Price', 'wrapper' => [
-            'class' => 'form-group col-md-4',
-        ]]);
+        CRUD::addField([
+            'name' => 'motorbike_price',
+            'type' => 'number',
+            'label' => 'Motorbike Price',
+            'wrapper' => [
+                'class' => 'form-group col-md-4',
+            ],
+            'attributes' => [
+                'step' => '0.01',
+                'min' => '0',
+                'inputmode' => 'decimal',
+            ],
+        ]);
 
         CRUD::addField([
             'name' => 'weekly_instalment',
@@ -555,17 +613,38 @@ class FinanceApplicationCrudController extends BaseCrudController
             ],
         ]);
 
-        CRUD::addField(['name' => 'deposit', 'type' => 'number', 'label' => 'Deposit', 'wrapper' => [
-            'class' => 'form-group col-md-4',
-        ]]);
+        CRUD::addField([
+            'name' => 'deposit',
+            'type' => 'number',
+            'label' => 'Deposit',
+            'wrapper' => [
+                'class' => 'form-group col-md-4',
+            ],
+            'attributes' => [
+                'step' => '0.01',
+                'min' => '0',
+                'inputmode' => 'decimal',
+            ],
+        ]);
 
         CRUD::addField(['name' => 'extra_items', 'type' => 'textarea', 'label' => 'Extra Items', 'wrapper' => [
             'class' => 'form-group col-md-8',
         ]]);
 
-        CRUD::addField(['name' => 'extra', 'type' => 'number', 'label' => 'Extra Amount', 'hint' => 'all accessories total amount.', 'wrapper' => [
-            'class' => 'form-group col-md-4',
-        ]]);
+        CRUD::addField([
+            'name' => 'extra',
+            'type' => 'number',
+            'label' => 'Extra Amount',
+            'hint' => 'all accessories total amount.',
+            'wrapper' => [
+                'class' => 'form-group col-md-4',
+            ],
+            'attributes' => [
+                'step' => '0.01',
+                'min' => '0',
+                'inputmode' => 'decimal',
+            ],
+        ]);
 
         CRUD::addField(['name' => 'notes', 'type' => 'textarea', 'label' => 'Notes']);
 
@@ -650,7 +729,7 @@ class FinanceApplicationCrudController extends BaseCrudController
             'hint' => 'First Link for Insurance and PCN related Contract',
             'default' => 1,
             'wrapper' => [
-                'class' => 'form-group col-md-6',
+                'class' => 'form-group  d-none',
             ],
         ]);
 

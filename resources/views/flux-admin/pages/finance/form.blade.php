@@ -59,11 +59,12 @@
                 <flux:label>Contract Type</flux:label>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mt-1">
                     @foreach([
+                        'is_new'                  => 'New Motorcycle',
                         'is_used'                 => 'Used Vehicle',
+                        'is_used_extended'        => 'Used Extended',
                         'is_used_extended_custom' => 'Used 18 Months',
                         'is_new_latest'           => 'New Latest',
                         'is_used_latest'          => 'Used Latest',
-                        'is_subscription'         => '12 Months Subscription',
                     ] as $key => $label)
                         <label class="flex items-center gap-2 cursor-pointer border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm {{ ($form['contract_type'] ?? '') === $key ? 'bg-blue-50 border-blue-400 dark:bg-blue-950 dark:border-blue-500' : 'bg-white dark:bg-zinc-900' }}">
                             <input type="radio"
@@ -78,6 +79,17 @@
                 @error('form.contract_type') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
             </div>
 
+            <div class="mb-5 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                    <flux:checkbox wire:model.live="form.is_subscription" />
+                    12 Months Subscription
+                </label>
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                    <flux:checkbox wire:model="form.no_email" />
+                    No email
+                </label>
+            </div>
+
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Contract Date" :error="$errors->first('form.contract_date')">
                     <flux:input type="date" wire:model="form.contract_date" />
@@ -86,6 +98,12 @@
                 <x-flux-admin::field-group label="First Instalment Date" :error="$errors->first('form.first_instalment_date')">
                     <flux:input type="date" wire:model="form.first_instalment_date" />
                 </x-flux-admin::field-group>
+
+                @if(!empty($form['is_subscription']) || in_array(($form['contract_type'] ?? ''), ['is_new_latest', 'is_used_latest'], true))
+                    <x-flux-admin::field-group label="Payment day of month" :error="$errors->first('form.subs_payment_date')">
+                        <flux:input type="number" min="1" max="31" wire:model="form.subs_payment_date" placeholder="e.g. 15" />
+                    </x-flux-admin::field-group>
+                @endif
 
                 <x-flux-admin::field-group label="Motorbike Price (£)" :error="$errors->first('form.motorbike_price')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.motorbike_price" placeholder="0.00" />
@@ -116,7 +134,7 @@
                 </x-flux-admin::field-group>
             </div>
 
-            @if(($form['contract_type'] ?? '') === 'is_subscription')
+            @if(!empty($form['is_subscription']))
                 <div class="mt-4">
                     <x-flux-admin::field-group label="Subscription option" :error="$errors->first('form.subscription_option')">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
@@ -136,8 +154,52 @@
                 </div>
             @endif
 
+            <div class="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                <div class="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                        <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">Application Items</h3>
+                    </div>
+                    <flux:button type="button" size="xs" variant="ghost" icon="plus" wire:click="addItemRow" class="!rounded-none">Add item</flux:button>
+                </div>
+
+                <div class="space-y-3">
+                    @foreach($itemRows as $index => $item)
+                        <div class="grid grid-cols-1 gap-3 border border-zinc-200 p-3 dark:border-zinc-800 sm:grid-cols-[minmax(0,1fr)_auto_auto]" wire:key="application-item-row-{{ $index }}">
+                            <div>
+                                <flux:label>Motorbike</flux:label>
+                                <div class="relative">
+                                    <flux:input wire:model.live.debounce.300ms="motorbikeSearches.{{ $index }}"
+                                                placeholder="Search by reg, make, model or VIN..."
+                                                autocomplete="off" />
+                                    @if(!empty($motorbikeSuggestions[$index]))
+                                        <ul class="absolute z-50 mt-1 w-full max-h-56 overflow-y-auto border border-zinc-200 bg-white shadow-lg dark:border-zinc-700 dark:bg-zinc-900">
+                                            @foreach($motorbikeSuggestions[$index] as $suggestion)
+                                                <li wire:click="selectMotorbike({{ $index }}, {{ $suggestion['id'] }}, @js($suggestion['label']))"
+                                                    class="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">
+                                                    {{ $suggestion['label'] }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                                @error("itemRows.$index.motorbike_id") <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                            </div>
+
+                            <label class="flex items-center gap-2 text-sm sm:self-end sm:pb-2">
+                                <flux:checkbox wire:model="itemRows.{{ $index }}.is_posted" />
+                                Item posted
+                            </label>
+
+                            <div class="sm:self-end">
+                                <flux:button type="button" size="xs" variant="ghost" icon="trash" wire:click="removeItemRow({{ $index }})" class="!rounded-none text-red-600" />
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
             <div class="mt-4 grid grid-cols-2 sm:grid-cols-3 gap-3">
-                @if(($form['contract_type'] ?? '') === 'is_used')
+                @if(in_array(($form['contract_type'] ?? ''), ['is_new', 'is_used'], true))
                     <label class="flex items-center gap-2 text-sm cursor-pointer">
                         <flux:checkbox wire:model="form.is_monthly" />
                         Monthly billing
@@ -145,15 +207,17 @@
                 @endif
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <flux:checkbox wire:model="form.is_posted" />
-                    Posted
+                    Generate Contract
                 </label>
-                <label class="flex items-center gap-2 text-sm cursor-pointer">
-                    <flux:checkbox wire:model="form.log_book_sent" />
-                    Log book sent
-                </label>
+                @if($application && $application->exists)
+                    <label class="flex items-center gap-2 text-sm cursor-pointer">
+                        <flux:checkbox wire:model.live="form.log_book_sent" />
+                        Logbook V5C Transfer
+                    </label>
+                @endif
             </div>
 
-            @if(!empty($form['log_book_sent']))
+            @if($application && $application->exists && !empty($form['log_book_sent']))
                 <div class="mt-4">
                     <x-flux-admin::field-group label="Logbook transfer date" :error="$errors->first('form.logbook_transfer_date')">
                         <flux:input type="date" wire:model="form.logbook_transfer_date" />

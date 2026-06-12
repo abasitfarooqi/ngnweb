@@ -7,7 +7,7 @@
     'footer' => null,
 ])
 
-<div {{ $attributes->class('flex flex-col gap-4') }}>
+<div {{ $attributes->class('flex flex-col gap-4 flux-admin-responsive-table') }}>
     @if($title || $description || $actions)
         <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
             <div class="min-w-0">

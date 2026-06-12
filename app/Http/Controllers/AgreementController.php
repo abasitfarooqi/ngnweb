@@ -537,17 +537,6 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/finance-contract-latest-'.$tm.$rand_no.'.pdf');
 
-        // // SFTP upload
-        $absoluteLocalPath = storage_path('app/public/customers/' . $Booking->customer_id . '/finance-contract-latest-' . $tm . $rand_no . '.pdf');
-        \Log::info("📁 Local file saved at: " . $absoluteLocalPath);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info("📤 Actual remote mirror path: " . $success);
-
-        if (!$success) {
-            \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
-
         $data['pdf'] = $pdf;
 
         try {
@@ -568,16 +557,6 @@ class AgreementController extends Controller
             ])->setPaper('a4', 'portrait')
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-            // SFTP upload for battery safety leaflet
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/' . $Booking->customer_id . '/battery-safety-leaflet-' . $tm . $rand_no . '.pdf');
-            \Log::info("📁 Battery Safety Leaflet saved at: " . $batterySafetyAbsoluteLocalPath);
-            $batterySafetySuccess = $syncService->uploadFile($batterySafetyAbsoluteLocalPath);
-            \Log::info("📤 Battery Safety Leaflet remote mirror path: " . $batterySafetySuccess);
-
-            if (!$batterySafetySuccess) {
-                \Log::warning("Uploaded battery safety leaflet locally but failed to sync to remote domain: $batterySafetyAbsoluteLocalPath");
-            }
 
             // Send Battery Safety Leaflet PDF to customer only
             $batterySafetyData = [];
@@ -2997,7 +2976,9 @@ class AgreementController extends Controller
             return new BrowsershotPdfAdapter($resolvedView, $resolvedData);
         }
 
-        return Pdf::loadView($resolvedView, $resolvedData);
+        return Pdf::loadView($resolvedView, $resolvedData)
+            ->setOption('isRemoteEnabled', true)
+            ->setOption('isPhpEnabled', true);
     }
 
 }

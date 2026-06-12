@@ -40,7 +40,7 @@
             padding: 0px;
             margin: 0px;
             font-size: 11px;
-            background: url('{{ config('agreement.brand.pdf_watermark_remote') }}');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
             background-size: auto;
         }

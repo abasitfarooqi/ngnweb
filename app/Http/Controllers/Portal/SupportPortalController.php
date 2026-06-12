@@ -123,13 +123,15 @@ class SupportPortalController extends Controller
             ->where('customer_auth_id', $customerAuth->id)
             ->firstOrFail();
 
-        $latestMessageId = (int) (SupportMessage::query()
+        $latestMessage = SupportMessage::query()
             ->where('conversation_id', $conversation->id)
-            ->max('id') ?? 0);
+            ->latest('id')
+            ->first(['id', 'sender_type']);
 
         return response()
             ->json([
-                'latest_message_id' => $latestMessageId,
+                'latest_message_id' => (int) ($latestMessage?->id ?? 0),
+                'latest_sender_type' => $latestMessage?->sender_type,
             ])
             ->header('Cache-Control', 'no-store, private, must-revalidate')
             ->header('Pragma', 'no-cache');

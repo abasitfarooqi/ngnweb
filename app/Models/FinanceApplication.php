@@ -34,6 +34,7 @@ class FinanceApplication extends Model
         'logbook_transfer_date',
         'cancelled_at',
         'is_monthly',
+        'is_new',
         'is_used',
         'is_used_extended',
         'is_used_extended_custom',
@@ -41,6 +42,25 @@ class FinanceApplication extends Model
         'is_used_latest',
         'is_subscription',
         'subscription_option',
+        'subs_payment_date',
+    ];
+
+    protected $casts = [
+        'is_posted' => 'boolean',
+        'is_cancelled' => 'boolean',
+        'is_monthly' => 'boolean',
+        'is_new' => 'boolean',
+        'is_used' => 'boolean',
+        'is_used_extended' => 'boolean',
+        'is_used_extended_custom' => 'boolean',
+        'is_new_latest' => 'boolean',
+        'is_used_latest' => 'boolean',
+        'is_subscription' => 'boolean',
+        'log_book_sent' => 'boolean',
+        'motorbike_price' => 'decimal:2',
+        'deposit' => 'decimal:2',
+        'extra' => 'decimal:2',
+        'weekly_instalment' => 'decimal:2',
     ];
 
     public function judopaySubscription()
@@ -97,6 +117,10 @@ class FinanceApplication extends Model
         parent::boot();
 
         static::saved(function (FinanceApplication $financeApplication) {
+            if (request()->attributes->get('skip_finance_agreement_generation')) {
+                return;
+            }
+
             // Log the boolean flags explicitly
 
             \Log::info($financeApplication);

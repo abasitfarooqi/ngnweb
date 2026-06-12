@@ -1,8 +1,9 @@
 @php
-    $__wmLocal = (string) config('agreement.brand.pdf_watermark_local', '');
-    $__wmCssUrl = $__wmLocal !== ''
-        ? asset($__wmLocal)
-        : (string) config('agreement.brand.pdf_watermark_remote', '');
+    $__wmCssUrl = isset($agreementPdfWatermarkSrc) && $agreementPdfWatermarkSrc !== ''
+        ? (string) $agreementPdfWatermarkSrc
+        : ((string) config('agreement.brand.pdf_watermark_local', '') !== ''
+            ? asset((string) config('agreement.brand.pdf_watermark_local'))
+            : (string) config('agreement.brand.pdf_watermark_remote', ''));
 @endphp
 <style>
     /* Shared agreement signing: centred column, header row, signature modal (aligned with signature-contract-v6-merged; no rounded corners). */

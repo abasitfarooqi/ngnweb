@@ -23,6 +23,7 @@
             <div class="min-w-0 w-full sm:min-w-[12rem] sm:flex-1 lg:w-48 lg:flex-none">
                 <flux:select wire:model.live="contractType" placeholder="Contract type">
                     <flux:select.option value="">All Types</flux:select.option>
+                    <flux:select.option value="is_new">New Motorcycle</flux:select.option>
                     <flux:select.option value="is_used">Used</flux:select.option>
                     <flux:select.option value="is_new_latest">New Latest</flux:select.option>
                     <flux:select.option value="is_used_latest">Used Latest</flux:select.option>
@@ -108,6 +109,9 @@
                         <flux:table.cell>
                             @php
                                 $type = match(true) {
+                                    (bool) $app->is_new => 'New Motorcycle',
+                                    (bool) $app->is_new_latest && (bool) $app->is_subscription => 'New Latest + Subscription',
+                                    (bool) $app->is_used_latest && (bool) $app->is_subscription => 'Used Latest + Subscription',
                                     (bool) $app->is_subscription => 'Subscription',
                                     (bool) $app->is_new_latest => 'New Latest',
                                     (bool) $app->is_used_latest => 'Used Latest',

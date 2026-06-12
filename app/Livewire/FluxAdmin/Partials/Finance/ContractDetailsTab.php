@@ -20,6 +20,9 @@ class ContractDetailsTab extends Component
     public function getContractType(FinanceApplication $app): string
     {
         return match (true) {
+            (bool) $app->is_new => 'New Motorcycle',
+            (bool) $app->is_new_latest && (bool) $app->is_subscription => 'New Latest + Subscription',
+            (bool) $app->is_used_latest && (bool) $app->is_subscription => 'Used Latest + Subscription',
             (bool) $app->is_subscription => 'Subscription',
             (bool) $app->is_new_latest => 'New Latest',
             (bool) $app->is_used_latest => 'Used Latest',

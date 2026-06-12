@@ -102,20 +102,22 @@ class FinanceIndex extends Component
             'formData.customer_id'           => ['required', 'integer', 'exists:customers,id'],
             'formData.contract_date'          => ['nullable', 'date'],
             'formData.first_instalment_date'  => ['nullable', 'date'],
-            'formData.motorbike_price'        => ['nullable', 'numeric', 'min:0'],
-            'formData.weekly_instalment'      => ['nullable', 'numeric', 'min:0'],
-            'formData.deposit'                => ['nullable', 'numeric', 'min:0'],
-            'formData.extra'                  => ['nullable', 'numeric', 'min:0'],
+            'formData.motorbike_price'        => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
+            'formData.weekly_instalment'      => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
+            'formData.deposit'                => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
+            'formData.extra'                  => ['nullable', 'numeric', 'min:0', 'decimal:0,2'],
             'formData.extra_items'            => ['nullable', 'string'],
             'formData.notes'                  => ['nullable', 'string'],
             'formData.is_monthly'             => ['boolean'],
+            'formData.is_new'                 => ['boolean'],
             'formData.is_used'                => ['boolean'],
             'formData.is_new_latest'          => ['boolean'],
             'formData.is_used_latest'         => ['boolean'],
             'formData.is_used_extended'       => ['boolean'],
             'formData.is_used_extended_custom' => ['boolean'],
             'formData.is_subscription'        => ['boolean'],
-            'formData.subscription_option'    => ['nullable', 'string', 'max:50'],
+            'formData.subscription_option'    => ['nullable', \Illuminate\Validation\Rule::in(['A', 'B', 'C', 'D'])],
+            'formData.subs_payment_date'      => ['nullable', 'integer', 'min:1', 'max:31'],
             'formData.is_posted'              => ['boolean'],
             'formData.is_cancelled'           => ['boolean'],
             'formData.reason_of_cancellation' => ['nullable', 'string'],
@@ -128,6 +130,12 @@ class FinanceIndex extends Component
         // Only one contract type can be true at once; handled by the form toggle
         if (empty($attributes['user_id'])) {
             $attributes['user_id'] = backpack_user()?->id;
+        }
+        if (empty($attributes['is_subscription'])) {
+            $attributes['subscription_option'] = null;
+        }
+        if (empty($attributes['is_subscription']) && empty($attributes['is_new_latest']) && empty($attributes['is_used_latest'])) {
+            $attributes['subs_payment_date'] = null;
         }
 
         return $attributes;
@@ -144,12 +152,15 @@ class FinanceIndex extends Component
         $this->formData = [
             'contract_date'         => now()->format('Y-m-d'),
             'first_instalment_date' => now()->addDays(7 - date('N') + 5)->format('Y-m-d'),
+            'is_new'                => false,
             'is_used'               => false,
             'is_new_latest'         => false,
             'is_used_latest'        => false,
             'is_used_extended'      => false,
             'is_used_extended_custom' => false,
             'is_subscription'       => false,
+            'subscription_option'   => null,
+            'subs_payment_date'     => null,
             'is_monthly'            => false,
             'is_posted'             => false,
             'is_cancelled'          => false,
@@ -190,9 +201,17 @@ class FinanceIndex extends Component
 
     public function setContractType(string $type): void
     {
-        $all = ['is_used', 'is_new_latest', 'is_used_latest', 'is_used_extended', 'is_used_extended_custom', 'is_subscription'];
+        $all = ['is_new', 'is_used', 'is_new_latest', 'is_used_latest', 'is_used_extended', 'is_used_extended_custom', 'is_subscription'];
         foreach ($all as $t) {
             $this->formData[$t] = ($t === $type);
+        }
+        if ($type !== 'is_subscription') {
+            $this->formData['subscription_option'] = null;
+        } elseif (empty($this->formData['subscription_option'])) {
+            $this->formData['subscription_option'] = 'A';
+        }
+        if (! in_array($type, ['is_subscription', 'is_new_latest', 'is_used_latest'], true)) {
+            $this->formData['subs_payment_date'] = null;
         }
     }
 
@@ -242,6 +261,9 @@ class FinanceIndex extends Component
             'ID'                  => 'id',
             'Customer'            => fn ($r) => $r->customer ? $r->customer->first_name.' '.$r->customer->last_name : '',
             'Contract type'       => fn ($r) => match (true) {
+                (bool) $r->is_new                   => 'New Motorcycle',
+                (bool) $r->is_new_latest && (bool) $r->is_subscription => 'New Latest + Subscription',
+                (bool) $r->is_used_latest && (bool) $r->is_subscription => 'Used Latest + Subscription',
                 (bool) $r->is_subscription        => 'Subscription',
                 (bool) $r->is_new_latest          => 'New Latest',
                 (bool) $r->is_used_latest         => 'Used Latest',

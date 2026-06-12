@@ -7,6 +7,7 @@ use App\Models\SupportConversation;
 use App\Models\SupportMessage;
 use App\Models\User;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -28,7 +29,32 @@ class SupportInbox extends Component
 
     public string $newMessage = '';
 
-    public function mount(): void { $this->authorizeModule('see-menu-commons'); }
+    public int $latestCustomerMessageId = 0;
+
+    public function mount(): void
+    {
+        $this->authorizeModule('see-menu-commons');
+        $this->latestCustomerMessageId = $this->latestCustomerMessageId();
+    }
+
+    #[On('supportInboxRealtimeTick')]
+    public function refreshRealtimeState(): void
+    {
+        $latest = $this->latestCustomerMessageId();
+        if ($latest > $this->latestCustomerMessageId && $this->latestCustomerMessageId > 0) {
+            $this->dispatch('support:incoming-message');
+        }
+
+        $this->latestCustomerMessageId = $latest;
+
+        if ($this->selectedConversationId) {
+            SupportMessage::query()
+                ->where('conversation_id', $this->selectedConversationId)
+                ->where('sender_type', 'customer')
+                ->whereNull('read_at_staff')
+                ->update(['read_at_staff' => now()]);
+        }
+    }
 
     public function selectConversation(int $id): void
     {
@@ -71,6 +97,13 @@ class SupportInbox extends Component
         SupportConversation::where('id', $this->selectedConversationId)->update(['last_message_at' => now()]);
         $this->newMessage = '';
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Sent.');
+    }
+
+    protected function latestCustomerMessageId(): int
+    {
+        return (int) (SupportMessage::query()
+            ->where('sender_type', 'customer')
+            ->max('id') ?? 0);
     }
 
     public function render()

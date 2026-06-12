@@ -1,4 +1,6 @@
-<div class="space-y-4">
+<div class="space-y-4" wire:poll.1500ms="refreshRealtimeState">
+    <div id="support-admin-live-root" class="hidden"></div>
+
     <div class="flex items-center justify-between flex-wrap gap-3">
         <div>
             <flux:heading size="xl">Support inbox</flux:heading>

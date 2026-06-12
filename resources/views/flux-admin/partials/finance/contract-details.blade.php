@@ -84,6 +84,11 @@
         </div>
 
         <div>
+            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Payment Day</p>
+            <p class="text-sm text-zinc-900 dark:text-white mt-0.5">{{ $application->subs_payment_date ?? '—' }}</p>
+        </div>
+
+        <div>
             <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Extra Items (legacy)</p>
             <p class="text-sm text-zinc-900 dark:text-white mt-0.5">{{ $application->extra_items ?? '—' }}</p>
         </div>

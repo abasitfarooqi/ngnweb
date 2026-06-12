@@ -43,6 +43,56 @@ AlpineRuntime.data('homeRentalCarousel', (slideCount) => ({
 
 window.Alpine = AlpineRuntime;
 
+function unlockSupportNotificationAudio() {
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) {
+        return null;
+    }
+
+    if (!window.__supportNotificationAudioContext) {
+        window.__supportNotificationAudioContext = new AudioContextClass();
+    }
+
+    const context = window.__supportNotificationAudioContext;
+    if (context.state === 'suspended') {
+        context.resume().catch(() => {});
+    }
+
+    return context;
+}
+
+window.playSupportNotificationSound = function playSupportNotificationSound() {
+    const context = unlockSupportNotificationAudio();
+    if (!context || context.state === 'suspended') {
+        return;
+    }
+
+    const now = context.currentTime;
+    [880, 1174].forEach((frequency, index) => {
+        const oscillator = context.createOscillator();
+        const gain = context.createGain();
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(frequency, now + index * 0.11);
+        gain.gain.setValueAtTime(0.0001, now + index * 0.11);
+        gain.gain.exponentialRampToValueAtTime(0.12, now + index * 0.11 + 0.015);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + index * 0.11 + 0.16);
+        oscillator.connect(gain);
+        gain.connect(context.destination);
+        oscillator.start(now + index * 0.11);
+        oscillator.stop(now + index * 0.11 + 0.18);
+    });
+};
+
+['pointerdown', 'keydown', 'touchstart'].forEach((eventName) => {
+    window.addEventListener(eventName, unlockSupportNotificationAudio, { once: true, passive: true });
+});
+
+window.addEventListener('support:incoming-message', () => {
+    if (typeof window.playSupportNotificationSound === 'function') {
+        window.playSupportNotificationSound();
+    }
+});
+
 window.setupSupportConversationEcho = function setupSupportConversationEcho(conversationUuid, onIncoming) {
     if (!window.supportEchoEnabled || !window.Echo || !conversationUuid) {
         return () => {};
@@ -148,6 +198,7 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
             if (lid <= last) {
                 return;
             }
+            const shouldNotify = j.latest_sender_type === 'staff';
             last = lid;
             const sep2 = htmlUrl.includes('?') ? '&' : '?';
             const r2 = await fetch(`${htmlUrl}${sep2}_cb=${Date.now()}`, {
@@ -164,6 +215,9 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
             }
             panel.innerHTML = await r2.text();
             panel.scrollTop = panel.scrollHeight;
+            if (shouldNotify && typeof window.playSupportNotificationSound === 'function') {
+                window.playSupportNotificationSound();
+            }
         } catch (e) {
             /* ignore */
         }
@@ -181,11 +235,44 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
     }
 };
 
+function teardownSupportAdminRealtime() {
+    const s = window.__supportAdminRealtimeState;
+    if (!s) {
+        return;
+    }
+    if (typeof s.detachStaff === 'function') {
+        s.detachStaff();
+    }
+    window.__supportAdminRealtimeState = null;
+}
+
+window.bindSupportAdminRealtime = function bindSupportAdminRealtime() {
+    teardownSupportAdminRealtime();
+    const root = document.getElementById('support-admin-live-root');
+    if (!root) {
+        return;
+    }
+
+    const state = { detachStaff: null };
+    window.__supportAdminRealtimeState = state;
+
+    if (typeof window.setupSupportStaffEcho === 'function') {
+        state.detachStaff = window.setupSupportStaffEcho((payload) => {
+            if (payload && payload.sender_type === 'customer' && window.Livewire) {
+                window.Livewire.dispatch('supportInboxRealtimeTick');
+            }
+        });
+    }
+};
+
 // ngnSetColourMode: see resources/views/components/partials/theme-api.blade.php (loaded after @fluxAppearance).
 
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof window.bindSupportThreadRealtime === 'function') {
         window.bindSupportThreadRealtime();
+    }
+    if (typeof window.bindSupportAdminRealtime === 'function') {
+        window.bindSupportAdminRealtime();
     }
 });
 
@@ -202,6 +289,9 @@ document.addEventListener('livewire:navigated', function () {
     }
     if (typeof window.bindSupportThreadRealtime === 'function') {
         window.bindSupportThreadRealtime();
+    }
+    if (typeof window.bindSupportAdminRealtime === 'function') {
+        window.bindSupportAdminRealtime();
     }
 });
 

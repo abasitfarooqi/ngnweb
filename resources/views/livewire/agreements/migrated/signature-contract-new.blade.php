@@ -20,7 +20,7 @@
             margin: 0px;
             font-size: 11px;
             background-color: #f0f0f0;
-            background-image: url('{{ asset('assets/images/watermark/watermark.png') }}');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
             background-position: 0 0;
             background-size: auto;

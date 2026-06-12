@@ -62,8 +62,7 @@ class AppServiceProvider extends ServiceProvider
 
         View::composer('*', function (\Illuminate\View\View $view): void {
             $name = $view->name();
-            if (! str_starts_with($name, 'livewire.agreements.pdf.templates.')
-                && $name !== 'livewire.agreements.pdf.legacy-pdf-host') {
+            if (! str_starts_with($name, 'livewire.agreements.')) {
                 return;
             }
             $view->with(AgreementPdfViewAssets::composerVariables());

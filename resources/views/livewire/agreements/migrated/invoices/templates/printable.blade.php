@@ -11,7 +11,7 @@
             margin: 0;
             padding: 0;
             background-color: #fff;
-            background-image: url('https://neguinhomotors.co.uk/img/watermark.png');
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
             background-position: 0 0;
             background-size: auto;

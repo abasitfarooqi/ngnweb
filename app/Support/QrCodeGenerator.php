@@ -8,20 +8,17 @@ use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 
 /**
- * Generate QR code as PNG or SVG data URL using bacon/bacon-qr-code (Fortify dependency).
- * Prefers GD for PNG; falls back to SVG if GD is unavailable.
+ * Generate QR code as a data URL using bacon/bacon-qr-code.
+ * SVG is the default because it is stable across macOS, Windows, and Linux
+ * and avoids GD/libpng warnings in environments where GD is available.
  */
 class QrCodeGenerator
 {
     /**
-     * Generate a QR code and return as a data URL (PNG if GD available, else SVG).
+     * Generate a QR code and return as a data URL.
      */
     public static function dataUrl(string $content, int $size = 200): string
     {
-        if (extension_loaded('gd') && function_exists('gd_info')) {
-            return self::pngDataUrl($content, $size);
-        }
-
         return self::svgDataUrl($content, $size);
     }
 

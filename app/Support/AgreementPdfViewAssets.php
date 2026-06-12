@@ -32,10 +32,9 @@ final class AgreementPdfViewAssets
             $logoSrc = self::TRANSPARENT_PIXEL_PNG;
         }
 
-        $wmSrc = self::imageToDataUri($wmPath)
-            ?? self::tryFetchImageDataUri($wmRemote)
-            ?? self::syntheticPngWatermarkDataUri()
-            ?? self::TRANSPARENT_PIXEL_PNG;
+        $wmSrc = $wmPath !== ''
+            ? asset($wmRel)
+            : ($wmRemote !== '' ? $wmRemote : self::TRANSPARENT_PIXEL_PNG);
 
         return [
             'agreementPdfLogoSrc' => $logoSrc,
@@ -112,43 +111,4 @@ final class AgreementPdfViewAssets
         return 'data:'.$mime.';base64,'.base64_encode($binary);
     }
 
-    /**
-     * Seamlessly tileable 256×256 PNG so repeat has no gaps at page edges.
-     */
-    private static function syntheticPngWatermarkDataUri(): ?string
-    {
-        if (! function_exists('imagecreatetruecolor')) {
-            return null;
-        }
-
-        $s = 256;
-        $im = imagecreatetruecolor($s, $s);
-        if ($im === false) {
-            return null;
-        }
-
-        imagesavealpha($im, true);
-        $clear = imagecolorallocatealpha($im, 255, 255, 255, 127);
-        imagefill($im, 0, 0, $clear);
-        $stroke = imagecolorallocatealpha($im, 130, 138, 150, 110);
-
-        for ($y = 0; $y <= $s; $y += 32) {
-            imageline($im, 0, $y, $s, $y, $stroke);
-        }
-
-        for ($x = 0; $x <= $s; $x += 32) {
-            imageline($im, $x, 0, $x, $s, $stroke);
-        }
-
-        ob_start();
-        imagepng($im, null, 9);
-        $png = ob_get_clean();
-        imagedestroy($im);
-
-        if ($png === false || $png === '') {
-            return null;
-        }
-
-        return 'data:image/png;base64,'.base64_encode($png);
-    }
 }

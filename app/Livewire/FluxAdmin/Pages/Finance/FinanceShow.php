@@ -23,6 +23,9 @@ class FinanceShow extends Component
     public function getContractType(): string
     {
         return match (true) {
+            (bool) $this->application->is_new => 'New Motorcycle',
+            (bool) $this->application->is_new_latest && (bool) $this->application->is_subscription => 'New Latest + Subscription',
+            (bool) $this->application->is_used_latest && (bool) $this->application->is_subscription => 'Used Latest + Subscription',
             (bool) $this->application->is_subscription => 'Subscription',
             (bool) $this->application->is_new_latest => 'New Latest',
             (bool) $this->application->is_used_latest => 'Used Latest',

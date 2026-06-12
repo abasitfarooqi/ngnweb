@@ -24,6 +24,44 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const insurancePCNCheckbox = insurancePCNWrapper ? insurancePCNWrapper.querySelector('input.form-check-input[type="checkbox"]') : null;
 
+    const subscriptionWrapper = document.querySelector('.form-group[bp-field-name="is_subscription"]');
+    const subscriptionCheckbox = subscriptionWrapper ? subscriptionWrapper.querySelector('input.form-check-input[type="checkbox"]') : null;
+    const subscriptionOptionWrapper = document.querySelector('#subscription-option-wrapper');
+    const subsPaymentDateWrapper = document.querySelector('#subs-payment-date-wrapper');
+    const subscriptionOptionRadios = subscriptionOptionWrapper ? subscriptionOptionWrapper.querySelectorAll('input[type="radio"][name="subscription_option"]') : null;
+
+    const isNewLatestCheckbox = isNewLatestWrapper ? isNewLatestWrapper.querySelector('input.form-check-input[type="checkbox"]') : null;
+    const isUsedLatestCheckbox = isUsedLatestWrapper ? isUsedLatestWrapper.querySelector('input.form-check-input[type="checkbox"]') : null;
+
+    function isV6LatestContractSelected() {
+        return (isNewLatestCheckbox && isNewLatestCheckbox.checked)
+            || (isUsedLatestCheckbox && isUsedLatestCheckbox.checked);
+    }
+
+    function shouldShowPaymentDateField() {
+        return isV6LatestContractSelected()
+            || (subscriptionCheckbox && subscriptionCheckbox.checked);
+    }
+
+    function togglePaymentDateField() {
+        if (subsPaymentDateWrapper) {
+            subsPaymentDateWrapper.style.display = shouldShowPaymentDateField() ? 'block' : 'none';
+        }
+    }
+
+    function toggleSubscriptionOptions() {
+        const isChecked = subscriptionCheckbox && subscriptionCheckbox.checked;
+
+        if (subscriptionOptionWrapper) {
+            subscriptionOptionWrapper.style.display = isChecked ? 'block' : 'none';
+            if (!isChecked && subscriptionOptionRadios) {
+                subscriptionOptionRadios.forEach(radio => {
+                    radio.checked = false;
+                });
+            }
+        }
+    }
+
     // Create or find the status label container below checkboxes
     let statusContainer = document.querySelector('#contractTypeStatus');
     if (!statusContainer) {
@@ -103,6 +141,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
         updateStatusLabel();
+        togglePaymentDateField();
     }
 
     function enforceSingleChecked(checkedCheckbox) {
@@ -130,7 +169,14 @@ document.addEventListener('DOMContentLoaded', function () {
         insurancePCNCheckbox.addEventListener('change', updateStatusLabel);
     }
 
-    // Initialise
+    if (subscriptionCheckbox) {
+        subscriptionCheckbox.addEventListener('change', function () {
+            toggleSubscriptionOptions();
+            togglePaymentDateField();
+        });
+    }
+
+    // Initialise contract type checkboxes
     if (originallyChecked.length === 1) {
         enforceSingleChecked(originallyChecked[0]);
     } else {
@@ -138,38 +184,6 @@ document.addEventListener('DOMContentLoaded', function () {
         syncHiddenInputs();
     }
 
-    // Subscription contract logic - Following the same pattern as checkboxes above
-    const subscriptionWrapper = document.querySelector('.form-group[bp-field-name="is_subscription"]');
-    const subscriptionCheckbox = subscriptionWrapper ? subscriptionWrapper.querySelector('input.form-check-input[type="checkbox"]') : null;
-    const subscriptionOptionWrapper = document.querySelector('#subscription-option-wrapper');
-    const subscriptionOptionRadios = subscriptionOptionWrapper ? subscriptionOptionWrapper.querySelectorAll('input[type="radio"][name="subscription_option"]') : null;
-
-
-    function toggleSubscriptionOptions() {
-        const isChecked = subscriptionCheckbox && subscriptionCheckbox.checked;
-        
-        if (subscriptionOptionWrapper) {
-            subscriptionOptionWrapper.style.display = isChecked ? 'block' : 'none';
-            if (!isChecked && subscriptionOptionRadios) {
-                subscriptionOptionRadios.forEach(radio => {
-                    radio.checked = false;
-                });
-            }
-        }
-    }
-
-    // Subscription option radio buttons work independently - no automatic updates to weekly instalment
-
-    // Handle subscription checkbox change
-    if (subscriptionCheckbox) {
-        toggleSubscriptionOptions();
-        subscriptionCheckbox.addEventListener('change', function() {
-            toggleSubscriptionOptions();
-        });
-    }
-
-    // Handle initial state if subscription is already checked
-    if (subscriptionCheckbox && subscriptionCheckbox.checked) {
-        toggleSubscriptionOptions();
-    }
+    toggleSubscriptionOptions();
+    togglePaymentDateField();
 });
