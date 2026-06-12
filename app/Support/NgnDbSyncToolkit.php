@@ -174,7 +174,9 @@ class NgnDbSyncToolkit
 
             $columnComparison = self::compareColumns(
                 is_array($prodMeta) ? $prodMeta : null,
-                is_array($localMeta) ? $localMeta : null
+                is_array($localMeta) ? $localMeta : null,
+                $status,
+                (string) ($localTable ?? $productionTable ?? $logicalKey)
             );
 
             if ($columnComparison['local_only'] !== []) {
@@ -212,6 +214,7 @@ class NgnDbSyncToolkit
                 'columns_only_in_local' => $columnComparison['local_only'],
                 'definition_mismatches' => $columnComparison['definition_mismatches'],
                 'production_sync_blockers' => $columnComparison['production_sync_blockers'],
+                'production_sync_defaults' => $columnComparison['production_sync_defaults'],
             ];
         }
 
@@ -614,21 +617,38 @@ class NgnDbSyncToolkit
                     $table['production_columns'],
                     $table['columns']
                 );
+                $defaults = self::productionReplayDefaultsForTable(
+                    $resolvedName,
+                    $table['production_columns'],
+                    $table['columns'],
+                    $comparisonTable['production_sync_defaults'] ?? []
+                );
 
-                if ($map === []) {
+                if ($map === [] && $defaults === []) {
                     $syncedTables++;
                     continue;
                 }
 
                 $sourceColumns = array_keys($map);
                 $targetColumns = array_values($map);
+                foreach ($defaults as $column => $resolver) {
+                    if (! in_array($column, $targetColumns, true)) {
+                        $targetColumns[] = $column;
+                    }
+                    foreach (self::sourceColumnsForReplayDefault($resolvedName, $column, $table['production_columns']) as $sourceColumn) {
+                        if (! in_array($sourceColumn, $sourceColumns, true)) {
+                            $sourceColumns[] = $sourceColumn;
+                        }
+                    }
+                }
                 $rowCount = self::copyTableRows(
                     $production,
                     (string) $table['production_table'],
                     $sourceColumns,
                     $target,
                     $resolvedName,
-                    $targetColumns
+                    $targetColumns,
+                    $defaults
                 );
 
                 $syncedTables++;
@@ -790,10 +810,11 @@ class NgnDbSyncToolkit
      *     production_only:list<string>,
      *     local_only:list<string>,
      *     definition_mismatches:list<array{production:string,local:string,difference:string}>,
-     *     production_sync_blockers:list<array{column:string,reason:string}>
+     *     production_sync_blockers:list<array{column:string,reason:string}>,
+     *     production_sync_defaults:list<array{column:string,reason:string}>
      * }
      */
-    protected static function compareColumns(?array $production, ?array $local): array
+    protected static function compareColumns(?array $production, ?array $local, string $tableStatus, string $tableName): array
     {
         $prodColumns = $production['columns'] ?? [];
         $localColumns = $local['columns'] ?? [];
@@ -807,6 +828,8 @@ class NgnDbSyncToolkit
         $localOnly = [];
         $definitionMismatches = [];
         $syncBlockers = [];
+        $syncDefaults = [];
+        $validateProductionReplay = $tableStatus === 'shared';
 
         foreach ($logicalKeys as $logicalKey) {
             $prodNames = $prodMap[$logicalKey] ?? [];
@@ -818,11 +841,19 @@ class NgnDbSyncToolkit
                 if ($localName !== null) {
                     $localOnly[] = $localName;
                     $meta = $local['column_meta'][$localName] ?? null;
-                    if (is_array($meta) && self::isRequiredWithoutDefault($meta)) {
-                        $syncBlockers[] = [
-                            'column' => $localName,
-                            'reason' => 'column is local-only, NOT NULL, and has no default for production row replay',
-                        ];
+                    if ($validateProductionReplay && is_array($meta) && self::isRequiredWithoutDefault($meta)) {
+                        $defaultReason = self::productionReplayDefaultReason($tableName, $localName, $prodColumns);
+                        if ($defaultReason !== null) {
+                            $syncDefaults[] = [
+                                'column' => $localName,
+                                'reason' => $defaultReason,
+                            ];
+                        } else {
+                            $syncBlockers[] = [
+                                'column' => $localName,
+                                'reason' => 'column is local-only, NOT NULL, and has no default for production row replay',
+                            ];
+                        }
                     }
                 }
 
@@ -860,6 +891,7 @@ class NgnDbSyncToolkit
             'local_only' => $localOnly,
             'definition_mismatches' => $definitionMismatches,
             'production_sync_blockers' => $syncBlockers,
+            'production_sync_defaults' => $syncDefaults,
         ];
     }
 
@@ -1670,9 +1702,98 @@ PHP;
         return $map;
     }
 
+    protected static function productionReplayDefaultReason(string $table, string $column, array $productionColumns): ?string
+    {
+        if (strtolower($table) === 'document_types' && strtolower($column) === 'slug') {
+            $available = array_map('strtolower', $productionColumns);
+            if (array_intersect($available, ['name', 'code', 'id']) !== []) {
+                return 'generated from production name/code/id during temporary production replay; snapshot seeder restores canonical local values afterward';
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param  list<string>  $productionColumns
+     * @param  list<string>  $targetColumns
+     * @param  list<array{column:string,reason:string}>  $defaultMetadata
+     * @return array<string, callable(array<string,mixed>):mixed>
+     */
+    protected static function productionReplayDefaultsForTable(
+        string $table,
+        array $productionColumns,
+        array $targetColumns,
+        array $defaultMetadata
+    ): array {
+        $targetMap = self::namesByLower($targetColumns);
+        $defaults = [];
+
+        foreach ($defaultMetadata as $default) {
+            $column = (string) ($default['column'] ?? '');
+            if ($column === '') {
+                continue;
+            }
+
+            $targetColumn = $targetMap[strtolower($column)][0] ?? null;
+            if (! is_string($targetColumn)) {
+                continue;
+            }
+
+            if (strtolower($table) === 'document_types' && strtolower($targetColumn) === 'slug') {
+                $defaults[$targetColumn] = static fn (array $row): string => self::slugDefaultFromRow($row);
+            }
+        }
+
+        return $defaults;
+    }
+
+    /**
+     * @return list<string>
+     */
+    protected static function sourceColumnsForReplayDefault(string $table, string $column, array $productionColumns): array
+    {
+        if (strtolower($table) !== 'document_types' || strtolower($column) !== 'slug') {
+            return [];
+        }
+
+        $needed = [];
+        $productionMap = self::namesByLower($productionColumns);
+        foreach (['name', 'code', 'id'] as $sourceColumn) {
+            $actual = $productionMap[$sourceColumn][0] ?? null;
+            if (is_string($actual)) {
+                $needed[] = $actual;
+            }
+        }
+
+        return $needed;
+    }
+
+    /**
+     * @param  array<string,mixed>  $row
+     */
+    protected static function slugDefaultFromRow(array $row): string
+    {
+        $source = null;
+        foreach (['name', 'code', 'id'] as $column) {
+            if (isset($row[$column]) && trim((string) $row[$column]) !== '') {
+                $source = (string) $row[$column];
+                break;
+            }
+        }
+
+        $source ??= 'document-type';
+        $slug = strtolower(trim($source));
+        $slug = preg_replace('/[^a-z0-9]+/i', '-', $slug) ?? $slug;
+        $slug = trim($slug, '-');
+
+        return $slug !== '' ? $slug : 'document-type';
+    }
+
     /**
      * @param  list<string>  $sourceColumns
      * @param  list<string>  $targetColumns
+     * @param  array<string, callable(array<string,mixed>):mixed>  $targetDefaults
      */
     protected static function copyTableRows(
         PDO $source,
@@ -1680,7 +1801,8 @@ PHP;
         array $sourceColumns,
         PDO $target,
         string $targetTable,
-        array $targetColumns
+        array $targetColumns,
+        array $targetDefaults = []
     ): int {
         $sourceList = implode(',', array_map([ProdToLocalTableSync::class, 'qid'], $sourceColumns));
         $targetList = implode(',', array_map([ProdToLocalTableSync::class, 'qid'], $targetColumns));
@@ -1691,13 +1813,30 @@ PHP;
 
         $count = 0;
         $statement = $source->query('SELECT '.$sourceList.' FROM '.ProdToLocalTableSync::qid($sourceTable));
-        while ($row = $statement->fetch(PDO::FETCH_NUM)) {
-            foreach ($row as $index => $value) {
-                if (is_string($value)) {
-                    $row[$index] = ProdToLocalTableSync::sanitizeUtf8ForMysql($value);
+        while ($sourceRow = $statement->fetch(PDO::FETCH_ASSOC)) {
+            $insertRow = [];
+            foreach ($targetColumns as $index => $targetColumn) {
+                $sourceColumn = $sourceColumns[$index] ?? null;
+                $usesDefault = array_key_exists($targetColumn, $targetDefaults);
+                $value = $usesDefault
+                    ? $targetDefaults[$targetColumn]
+                    : (
+                        is_string($sourceColumn) && array_key_exists($sourceColumn, $sourceRow)
+                            ? $sourceRow[$sourceColumn]
+                            : null
+                    );
+
+                if ($usesDefault && is_callable($value)) {
+                    $value = $value($sourceRow);
                 }
+
+                if (is_string($value)) {
+                    $value = ProdToLocalTableSync::sanitizeUtf8ForMysql($value);
+                }
+
+                $insertRow[] = $value;
             }
-            $insert->execute($row);
+            $insert->execute($insertRow);
             $count++;
         }
 
