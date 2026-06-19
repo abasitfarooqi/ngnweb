@@ -36,6 +36,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        $this->loadMigrationsFrom(database_path('migrations/LatestMigrationFiles/bootstrap'));
+        $this->loadMigrationsFrom(database_path('migrations/LatestMigrationFiles'));
+
         // Customer portal accounts must never use the staff `verification.verify` URL from
         // Illuminate\Auth\Notifications\VerifyEmail (that flow redirects to ngn-admin).
         VerifyEmail::createUrlUsing(function ($notifiable) {

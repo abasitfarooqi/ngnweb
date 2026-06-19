@@ -847,6 +847,8 @@ class FinanceApplicationCrudController extends BaseCrudController
 
                     Mail::to($data['email'])->send(new LogBookTransferMail($data));
                 }
+            } elseif ($financeApplication->log_book_sent == false && $financeApplication->log_book_sent == null) {
+                return;
             } else {
                 $customer = $financeApplication->customer;
                 if (! $customer) {

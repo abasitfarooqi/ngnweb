@@ -60,7 +60,7 @@ class ExportNgnCleanSchemaCommand extends Command
 
         $this->info('Exported '.$result['tables'].' tables.');
         $this->line('Commit database/schema/ngn-clean/ then deploy.');
-        $this->line('On any server: php artisan db:sync-prod-to-connected --schema-snapshot --deep-clone --force');
+        $this->line('On any server: php artisan cloudways-to-digital-ocean:sync-data');
 
         return 0;
     }

@@ -1,0 +1,53 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+
+/** Canonical table from merged production + local schema (`ngn_production_newsync`). */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        if (Schema::hasTable('orders')) {
+            return;
+        }
+
+        DB::statement('SET FOREIGN_KEY_CHECKS=0');
+        DB::unprepared(<<<'SQL'
+CREATE TABLE `orders` (
+  `id` bigint unsigned NOT NULL AUTO_INCREMENT,
+  `created_at` timestamp NULL DEFAULT NULL,
+  `updated_at` timestamp NULL DEFAULT NULL,
+  `deleted_at` timestamp NULL DEFAULT NULL,
+  `number` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `price_amount` int DEFAULT NULL,
+  `status` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `currency` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `shipping_total` int DEFAULT NULL,
+  `shipping_method` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `notes` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `parent_order_id` bigint unsigned DEFAULT NULL,
+  `payment_method_id` bigint unsigned DEFAULT NULL,
+  `shipping_address_id` bigint unsigned DEFAULT NULL,
+  `user_id` bigint unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `orders_parent_order_id_index` (`parent_order_id`),
+  KEY `orders_payment_method_id_index` (`payment_method_id`),
+  KEY `orders_shipping_address_id_index` (`shipping_address_id`),
+  KEY `orders_user_id_index` (`user_id`),
+  CONSTRAINT `orders_parent_order_id_foreign` FOREIGN KEY (`parent_order_id`) REFERENCES `orders` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `orders_payment_method_id_foreign` FOREIGN KEY (`payment_method_id`) REFERENCES `payment_methods` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `orders_shipping_address_id_foreign` FOREIGN KEY (`shipping_address_id`) REFERENCES `user_addresses` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `orders_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users-old` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+SQL
+        );
+        DB::statement('SET FOREIGN_KEY_CHECKS=1');
+    }
+
+    public function down(): void
+    {
+        // Manual rollback only.
+    }
+};
