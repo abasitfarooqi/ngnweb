@@ -35,14 +35,24 @@
             @endif
         </div>
         <div class="flex flex-wrap gap-2">
+            @if($lifecycleStatus === 'intake' && count($missing) === 0)
+                <button
+                    wire:click="activateRentalToday"
+                    wire:confirm="All required documents are approved. Activate this rental for today?"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                >
+                    Documents received — start rental today
+                </button>
+            @elseif($lifecycleStatus === 'intake' && count($missing) > 0)
+                <span class="text-xs text-amber-700 dark:text-amber-300 self-center">{{ count($missing) }} mandatory document(s) still pending approval.</span>
+            @endif
             @if(in_array($booking->state, ['Awaiting Documents & Payment', 'Awaiting Documents']))
                 <button
                     wire:click="markDocumentsComplete"
                     wire:confirm="Have all documents been thoroughly reviewed and verified?"
                     class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
                 >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    Documents Complete
+                    Documents complete (state only)
                 </button>
             @endif
             <button
@@ -53,6 +63,19 @@
                 Generate Upload Link
             </button>
         </div>
+    </div>
+
+    {{-- Required document checklist --}}
+    <div class="mx-4 mt-4 border border-zinc-200 dark:border-zinc-700">
+        <div class="px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 text-xs font-bold uppercase tracking-wide text-zinc-500">Mandatory documents</div>
+        <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
+            @foreach($checklist as $item)
+                <li class="flex items-center justify-between px-4 py-2 text-sm">
+                    <span>{{ $item['name'] }}</span>
+                    <flux:badge size="sm" :color="$item['approved'] ? 'emerald' : 'amber'">{{ $item['approved'] ? 'Approved' : 'Pending' }}</flux:badge>
+                </li>
+            @endforeach
+        </ul>
     </div>
 
     {{-- Documents table --}}

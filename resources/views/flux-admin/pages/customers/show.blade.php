@@ -24,6 +24,9 @@
                     class="px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition {{ $activeTab === $key ? 'border-zinc-900 dark:border-white text-zinc-900 dark:text-white' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600' }}"
                 >
                     {{ $label }}
+                    @if(isset($tabCounts[$key]))
+                        <span class="ml-1 text-xs opacity-70">({{ $tabCounts[$key] }})</span>
+                    @endif
                 </button>
             @endforeach
         </nav>

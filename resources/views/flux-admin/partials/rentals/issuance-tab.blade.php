@@ -201,4 +201,41 @@
             </div>
         </div>
     @endif
+
+    {{-- Video upload & maintenance logs --}}
+    <div class="border-t border-zinc-200 dark:border-zinc-700 p-4 md:p-6 space-y-6">
+        <div>
+            <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-2">Service video</h4>
+            <input type="file" wire:model="videoFile" accept="video/*" class="text-sm" />
+            @error('videoFile') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+            <flux:button size="sm" class="mt-2" wire:click="uploadVideo" wire:loading.attr="disabled">Upload video</flux:button>
+            @if($videos->isNotEmpty())
+                <ul class="mt-3 text-xs text-zinc-500 space-y-1">
+                    @foreach($videos as $video)
+                        <li wire:key="vid-{{ $video->id }}">{{ basename($video->video_path) }} — {{ $video->recorded_at?->format('d M Y H:i') }}</li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+
+        @if($activeItem)
+            <div>
+                <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-2">Maintenance log</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
+                    <input wire:model="logDescription" type="text" placeholder="Description" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
+                    <input wire:model="logCost" type="number" step="0.01" min="0" placeholder="Cost (£)" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
+                    <input wire:model="logServicedAt" type="date" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
+                    <input wire:model="logNote" type="text" placeholder="Note (optional)" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
+                </div>
+                <flux:button size="sm" wire:click="addMaintenanceLog">Save maintenance log</flux:button>
+                @if($maintenanceLogs->isNotEmpty())
+                    <ul class="mt-3 text-xs text-zinc-500 space-y-1">
+                        @foreach($maintenanceLogs as $log)
+                            <li wire:key="ml-{{ $log->id }}">{{ $log->serviced_at?->format('d M Y') }} — {{ $log->description }} (£{{ number_format((float) $log->cost, 2) }})</li>
+                        @endforeach
+                    </ul>
+                @endif
+            </div>
+        @endif
+    </div>
 </div>

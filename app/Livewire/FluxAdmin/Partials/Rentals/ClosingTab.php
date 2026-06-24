@@ -4,38 +4,35 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
-use App\Models\PcnCase;
+use App\Models\MotorbikeMaintenanceLog;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingOtherCharge;
+use App\Models\RentingServiceVideo;
+use App\Support\RentalBookingLifecycle;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Lazy]
 class ClosingTab extends Component
 {
+    use WithFileUploads;
+
     public int $bookingId;
 
-    // Step 1 — Notice Period
     public string $noticeDetails = '';
     public bool $noticeChecked = false;
 
-    // Step 2 — Collect Motorbike
     public string $collectDetails = '';
     public string $collectDate = '';
     public string $collectTime = '';
     public bool $collectChecked = false;
+    public bool $proceedAnyway = false;
 
-    // Step 3 — Damages: read-only totals, just checkbox
     public bool $damagesChecked = false;
-
-    // Step 4 — PCN: read-only totals, just checkbox
     public bool $pcnChecked = false;
-
-    // Step 5 — Pending Rent: read-only totals, just checkbox
     public bool $pendingChecked = false;
-
-    // Step 6 — Deposit Return
     public bool $depositChecked = false;
 
     public ?string $flashMessage = null;
@@ -64,7 +61,6 @@ class ClosingTab extends Component
         return view('flux-admin.partials.loading-placeholder');
     }
 
-    // Step 1
     public function saveNoticePeriod(): void
     {
         $this->validate(['noticeChecked' => 'accepted'], [
@@ -80,38 +76,47 @@ class ClosingTab extends Component
         $this->flashType    = 'success';
     }
 
-    // Step 2
     public function saveCollectMotorbike(): void
     {
+        $unpaidRent = BookingInvoice::where('booking_id', $this->bookingId)
+            ->where('is_paid', false)
+            ->where('invoice_date', '<=', now())
+            ->sum('amount');
+
+        if ($unpaidRent > 0 && ! $this->proceedAnyway) {
+            $this->flashMessage = 'There is still £'.number_format($unpaidRent, 2).' unpaid rent. Tick proceed anyway or clear invoices first.';
+            $this->flashType    = 'error';
+
+            return;
+        }
+
         $this->validate(['collectChecked' => 'accepted'], [
             'collectChecked.accepted' => 'Please tick the checkbox to confirm motorbike collected.',
         ]);
 
-        BookingClosing::updateOrCreate(
-            ['booking_id' => $this->bookingId],
+        $booking = RentingBooking::findOrFail($this->bookingId);
+        $item = RentingBookingItem::where('booking_id', $this->bookingId)
+            ->whereNull('end_date')
+            ->latest()
+            ->firstOrFail();
+
+        app(RentalBookingLifecycle::class)->endRental(
+            $booking,
+            $item,
             [
                 'collect_details' => $this->collectDetails,
                 'collect_date'    => $this->collectDate ?: null,
                 'collect_time'    => $this->collectTime ?: null,
                 'collect_checked' => $this->collectChecked,
-            ]
+            ],
+            $this->proceedAnyway
         );
 
-        // Set end_date on the active booking item
-        $item = RentingBookingItem::where('booking_id', $this->bookingId)
-            ->whereNull('end_date')
-            ->latest()
-            ->first();
-
-        if ($item) {
-            $item->update(['end_date' => $this->collectDate ?: now()->toDateString()]);
-        }
-
-        $this->flashMessage = 'Motorbike collection recorded.';
+        $this->flashMessage = 'Motorbike collection recorded — rental ended.';
         $this->flashType    = 'success';
+        $this->dispatch('rental-updated');
     }
 
-    // Step 3
     public function saveDamagesCost(): void
     {
         $this->validate(['damagesChecked' => 'accepted'], [
@@ -127,7 +132,6 @@ class ClosingTab extends Component
         $this->flashType    = 'success';
     }
 
-    // Step 4
     public function savePcnPendings(): void
     {
         $this->validate(['pcnChecked' => 'accepted'], [
@@ -143,7 +147,6 @@ class ClosingTab extends Component
         $this->flashType    = 'success';
     }
 
-    // Step 5
     public function savePendingRent(): void
     {
         $unpaidRent = BookingInvoice::where('booking_id', $this->bookingId)
@@ -171,7 +174,6 @@ class ClosingTab extends Component
         $this->flashType    = 'success';
     }
 
-    // Step 6
     public function saveDepositReturn(): void
     {
         $this->validate(['depositChecked' => 'accepted'], [
@@ -191,13 +193,12 @@ class ClosingTab extends Component
     {
         $booking = RentingBooking::findOrFail($this->bookingId);
 
-        // Additional charges summary
-        $totalAdditional  = RentingOtherCharge::where('booking_id', $this->bookingId)->sum('amount');
-        $paidAdditional   = RentingOtherCharge::where('booking_id', $this->bookingId)->where('is_paid', true)->sum('amount');
+        $totalAdditional = RentingOtherCharge::where('booking_id', $this->bookingId)->sum('amount');
+        $paidAdditional  = RentingOtherCharge::where('booking_id', $this->bookingId)
+            ->where('is_paid', true)
+            ->sum('amount');
 
-        // PCN summary — outstanding (not closed) PCN for this booking's motorbike
-        $pcnTotal    = 0;
-        $pcnReceived = 0;
+        $pcnTotal = 0;
         $latestItem = RentingBookingItem::where('booking_id', $this->bookingId)
             ->whereNotNull('motorbike_id')
             ->latest()
@@ -209,19 +210,18 @@ class ClosingTab extends Component
                 ->sum('full_amount') ?? 0;
         }
 
-        // Pending rent
         $pendingRent = BookingInvoice::where('booking_id', $this->bookingId)
             ->where('is_paid', false)
             ->where('invoice_date', '<=', now())
             ->sum('amount');
 
         return view('flux-admin.partials.rentals.closing-tab', [
-            'booking'          => $booking,
-            'totalAdditional'  => (float) $totalAdditional,
-            'paidAdditional'   => (float) $paidAdditional,
-            'pcnTotal'         => (float) $pcnTotal,
-            'pcnReceived'      => (float) $pcnReceived,
-            'pendingRent'      => (float) $pendingRent,
+            'booking'         => $booking,
+            'totalAdditional' => (float) $totalAdditional,
+            'paidAdditional'  => (float) $paidAdditional,
+            'pcnTotal'        => (float) $pcnTotal,
+            'pcnReceived'     => 0.0,
+            'pendingRent'     => (float) $pendingRent,
         ]);
     }
 }

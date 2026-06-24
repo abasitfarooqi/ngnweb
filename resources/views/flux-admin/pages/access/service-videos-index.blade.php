@@ -35,22 +35,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit video record' : 'New video record' }}</flux:heading>
-            <x-flux-admin::field-group label="Booking ID" :error="$errors->first('formData.booking_id')" required>
-                <flux:input type="number" wire:model="formData.booking_id" placeholder="e.g. 1234" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Video path" :error="$errors->first('formData.video_path')">
-                <flux:input wire:model="formData.video_path" placeholder="renting_service_videos/filename.mp4" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Recorded at" :error="$errors->first('formData.recorded_at')">
-                <flux:input type="date" wire:model="formData.recorded_at" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

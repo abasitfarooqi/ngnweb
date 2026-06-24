@@ -7,7 +7,12 @@
 
 <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
     <div class="min-w-0 w-full lg:flex-1">
-        <flux:input wire:model.live.debounce.300ms="{{ $searchModel }}" placeholder="{{ $searchPlaceholder }}" variant="filled" />
+        <flux:input
+            wire:model.live.debounce.300ms="{{ $searchModel }}"
+            icon="magnifying-glass"
+            placeholder="{{ $searchPlaceholder }}"
+            variant="outline"
+        />
     </div>
 
     <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">

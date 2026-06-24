@@ -55,35 +55,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit message' : 'New message' }}</flux:heading>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <x-flux-admin::field-group label="Conversation ID" :error="$errors->first('formData.conversation_id')" required>
-                    <flux:input type="number" wire:model="formData.conversation_id" placeholder="e.g. 5" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Sender type" :error="$errors->first('formData.sender_type')" required>
-                    <flux:select wire:model="formData.sender_type">
-                        <flux:select.option value="staff">Staff</flux:select.option>
-                        <flux:select.option value="customer">Customer</flux:select.option>
-                    </flux:select>
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Body" :error="$errors->first('formData.body')" required>
-                <flux:textarea wire:model="formData.body" rows="3" placeholder="Message body…" />
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <x-flux-admin::field-group label="Sender user ID (staff)" :error="$errors->first('formData.sender_user_id')">
-                    <flux:input type="number" wire:model="formData.sender_user_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Sender customer auth ID" :error="$errors->first('formData.sender_customer_auth_id')">
-                    <flux:input type="number" wire:model="formData.sender_customer_auth_id" />
-                </x-flux-admin::field-group>
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

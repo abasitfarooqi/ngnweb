@@ -34,19 +34,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit company vehicle' : 'Assign vehicle' }}</flux:heading>
-            <x-flux-admin::field-group label="Custodian" :error="$errors->first('formData.custodian')" required>
-                <flux:input wire:model="formData.custodian" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Motorbike ID" :error="$errors->first('formData.motorbike_id')" required>
-                <flux:input type="number" wire:model="formData.motorbike_id" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

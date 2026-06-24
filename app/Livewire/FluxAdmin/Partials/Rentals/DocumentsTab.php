@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 use App\Models\BookingInvoice;
 use App\Models\CustomerDocument;
 use App\Models\RentingBooking;
+use App\Support\RentalBookingLifecycle;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -22,22 +23,28 @@ class DocumentsTab extends Component
         return view('flux-admin.partials.loading-placeholder');
     }
 
-    public function markDocumentsComplete(): void
+    public function activateRentalToday(): void
     {
         $booking = RentingBooking::findOrFail($this->bookingId);
 
-        if ($booking->state === 'Awaiting Documents & Payment') {
-            $booking->update(['state' => 'Awaiting Payment']);
-            $this->flashMessage = 'Documents marked as complete. Booking now awaiting payment.';
+        try {
+            app(RentalBookingLifecycle::class)->activateRental($booking);
+            app(RentalBookingLifecycle::class)->confirmDocuments($booking->fresh());
+            $this->flashMessage = 'Documents received — rental activated for today.';
             $this->flashType = 'success';
-        } elseif ($booking->state === 'Awaiting Documents') {
-            $booking->update(['state' => 'Completed']);
-            $this->flashMessage = 'Documents marked as complete. Booking state set to Completed.';
-            $this->flashType = 'success';
-        } else {
-            $this->flashMessage = 'Documents are already confirmed for this booking (state: '.$booking->state.').';
-            $this->flashType = 'info';
+            $this->dispatch('rental-updated');
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
         }
+    }
+
+    public function markDocumentsComplete(): void
+    {
+        $booking = RentingBooking::findOrFail($this->bookingId);
+        app(RentalBookingLifecycle::class)->confirmDocuments($booking);
+        $this->flashMessage = 'Document step confirmed. State: '.$booking->fresh()->state;
+        $this->flashType = 'success';
     }
 
     public function generateDocumentLink(): void
@@ -59,6 +66,9 @@ class DocumentsTab extends Component
     public function render()
     {
         $booking = RentingBooking::with('customer')->findOrFail($this->bookingId);
+        $lifecycle = app(RentalBookingLifecycle::class);
+        $checklist = $lifecycle->documentChecklist($booking);
+        $missing = $lifecycle->missingRequiredDocuments($booking);
 
         $documents = CustomerDocument::with('documentType')
             ->where(function ($q) use ($booking) {
@@ -76,6 +86,9 @@ class DocumentsTab extends Component
         return view('flux-admin.partials.rentals.documents-tab', [
             'booking'              => $booking,
             'documents'            => $documents,
+            'checklist'            => $checklist,
+            'missing'              => $missing,
+            'lifecycleStatus'      => $lifecycle->lifecycleStatus($booking),
             'pendingInvoiceAmount' => $pendingInvoiceAmount,
         ]);
     }

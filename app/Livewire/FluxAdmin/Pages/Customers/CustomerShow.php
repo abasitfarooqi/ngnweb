@@ -3,6 +3,9 @@
 namespace App\Livewire\FluxAdmin\Pages\Customers;
 
 use App\Models\Customer;
+use App\Models\FinanceApplication;
+use App\Models\PcnCase;
+use App\Models\RentingBooking;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -31,6 +34,14 @@ class CustomerShow extends Component
 
     public function render()
     {
-        return view('flux-admin.pages.customers.show');
+        $id = $this->customer->id;
+
+        $tabCounts = [
+            'bookings' => RentingBooking::where('customer_id', $id)->count(),
+            'finance'  => FinanceApplication::where('customer_id', $id)->count(),
+            'pcn'      => PcnCase::where('customer_id', $id)->count(),
+        ];
+
+        return view('flux-admin.pages.customers.show', compact('tabCounts'));
     }
 }

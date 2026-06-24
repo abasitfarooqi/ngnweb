@@ -3,11 +3,9 @@
 namespace App\Livewire\FluxAdmin\Pages\SpareParts;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
-use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\Branch;
-use App\Models\SpPart;
 use App\Models\SpStockMovement;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
@@ -19,9 +17,10 @@ use Livewire\WithPagination;
 #[Title('Spare parts — Stock movements')]
 class StockMovementIndex extends Component
 {
-    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
-
-    public bool $showForm = false;
+    use WithAuthorization;
+    use WithDataTable;
+    use WithExport;
+    use WithPagination;
 
     public function mount(): void
     {
@@ -29,54 +28,6 @@ class StockMovementIndex extends Component
         $this->exportable = true;
         $this->exportFilename = 'sp-stock-movements';
         $this->sortField = 'transaction_date';
-    }
-
-    protected function formModel(): string { return SpStockMovement::class; }
-
-    protected function formRules(): array
-    {
-        return [
-            'formData.branch_id' => ['required', 'integer', 'exists:branches,id'],
-            'formData.sp_part_id' => ['required', 'integer', 'exists:sp_parts,id'],
-            'formData.transaction_date' => ['required', 'date'],
-            'formData.transaction_type' => ['required', 'string', 'max:50'],
-            'formData.in' => ['nullable', 'numeric', 'min:0'],
-            'formData.out' => ['nullable', 'numeric', 'min:0'],
-            'formData.ref_doc_no' => ['nullable', 'string', 'max:120'],
-            'formData.remarks' => ['nullable', 'string'],
-        ];
-    }
-
-    public function openCreate(): void
-    {
-        $this->resetValidation();
-        $this->recordId = null;
-        $this->formData = [
-            'transaction_date' => now()->toDateString(),
-            'transaction_type' => 'purchase',
-            'in' => 0,
-            'out' => 0,
-            'user_id' => auth()->id(),
-        ];
-        $this->showForm = true;
-    }
-
-    public function openEdit(int $id): void
-    {
-        $this->resetValidation();
-        $this->fillFromModel(SpStockMovement::findOrFail($id));
-        if (! empty($this->formData['transaction_date'])) {
-            $this->formData['transaction_date'] = \Carbon\Carbon::parse($this->formData['transaction_date'])->format('Y-m-d');
-        }
-        $this->showForm = true;
-    }
-
-    public function saveForm(): void
-    {
-        $this->formData['user_id'] = $this->formData['user_id'] ?? auth()->id();
-        $this->save();
-        $this->showForm = false;
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Movement saved.');
     }
 
     public function delete(int $id): void
@@ -93,9 +44,8 @@ class StockMovementIndex extends Component
             ->paginate($this->perPage);
 
         $branches = Branch::query()->orderBy('name')->get(['id', 'name']);
-        $parts = SpPart::query()->orderBy('part_number')->limit(500)->get(['id', 'part_number', 'name']);
 
-        return view('flux-admin.pages.spare-parts.stock-movements-index', compact('rows', 'branches', 'parts'));
+        return view('flux-admin.pages.spare-parts.stock-movements-index', compact('rows', 'branches'));
     }
 
     protected function baseQuery(): Builder

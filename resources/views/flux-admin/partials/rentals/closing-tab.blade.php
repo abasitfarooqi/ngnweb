@@ -89,6 +89,13 @@
                             />
                         </div>
                     </div>
+                    @if($pendingRent > 0)
+                        <p class="text-xs text-amber-600 dark:text-amber-400 mb-2">Outstanding rent: £{{ number_format($pendingRent, 2) }}. Clear invoices or proceed anyway.</p>
+                        <label class="flex items-center gap-2 cursor-pointer mb-3">
+                            <input wire:model="proceedAnyway" type="checkbox" class="w-5 h-5 accent-amber-600" />
+                            <span class="text-sm text-zinc-700 dark:text-zinc-300">Proceed anyway (unpaid rent logged)</span>
+                        </label>
+                    @endif
                     <div class="flex items-center gap-4 mb-3">
                         <label class="flex items-center gap-2 cursor-pointer">
                             <input wire:model="collectChecked" type="checkbox" class="w-5 h-5 accent-emerald-600" />

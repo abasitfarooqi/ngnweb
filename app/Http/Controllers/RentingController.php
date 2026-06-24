@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Support\QrCodeGenerator;
+use App\Support\RentalBookingLifecycle;
 
 class RentingController extends Controller
 {
@@ -166,44 +167,16 @@ class RentingController extends Controller
 
     public function payOtherCharges(Request $request)
     {
-        DB::beginTransaction();
-
         try {
-    
+            $request->validate(['charges_id' => 'required']);
+            $otherCharge = RentingOtherCharge::findOrFail($request->charges_id);
+            $result = app(RentalBookingLifecycle::class)->payOtherCharge(
+                (int) $otherCharge->id,
+                $request->input('payment_method_id') ? (int) $request->input('payment_method_id') : null
+            );
 
-            $validatedData = $request->validate([
-                'charges_id' => 'required',
-            ]);
-
-            $id = $request->charges_id;
-
-            $otherCharge = RentingOtherCharge::findOrFail($id);
-            \Log::info('Other Charge: ', ['otherCharge' => $otherCharge]);
-
-            $otherCharge->is_paid = true;
-            $otherCharge->save();
-
-            $transactionType = TransactionType::where('type', 'Damage Fee')->firstOrFail();
-            $paymentmethods = PaymentMethod::where('title', 'Cash')->firstOrFail();
-
-            $transaction = new RentingOtherChargesTransaction([
-                'transaction_date' => now(),
-                'charges_id' => $otherCharge->id,
-                'transaction_type_id' => $transactionType->id,
-                'payment_method_id' => $paymentmethods->id,
-                'amount' => $otherCharge->amount,
-                'user_id' => auth()->id(),
-                'notes' => 'Other charge paid',
-            ]);
-
-            $transaction->save();
-
-            DB::commit();
-
-            // NEW EMAIL NOTIFICATION THAT FOR CHARGE ADDITIONAL AMOUNT
             $Booking = $otherCharge->booking()->firstOrFail();
             $Customer = $Booking->customer()->firstOrFail();
-
             $data['email'] = [$Customer->email, 'customerservice@neguinhomotors.co.uk'];
             $data['title'] = 'Rental Other Charges Receipt';
             $data['body'] = 'Find your payment details:';
@@ -220,18 +193,10 @@ class RentingController extends Controller
             } catch (Exception $e) {
                 Log::error('Failed to send email: '.$e->getMessage());
             }
-            // NEW EMAIL NOTIFICATION THAT FOR CHARGE ADDITIONAL AMOUNT
 
-            return response()->json([
-                'transaction' => $transaction,
-            ]);
-        } catch (\Exception $e) {
-            DB::rollback();
-            \Log::error($e);
-
-            return response()->json([
-                'error' => 'An error occurred while processing the request.',
-            ], 500);
+            return response()->json($result);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
@@ -438,28 +403,14 @@ class RentingController extends Controller
 
     public function docConfirm(Request $request)
     {
-        \Log::info('Document Confirmed.');
-        $bookingId = $request->booking_id;
-        \Log::info('Booking ID: '.$bookingId);
-
-        $booking = RentingBooking::where('id', $bookingId)->first();
-        \Log::info('Booking: '.$booking);
-        $booking->save();
-        if ($booking->state == 'Awaiting Documents & Payment') {
-            $booking->state = 'Awaiting Payment';
-            $booking->save();
-            // }else if ($booking->state == 'Awaiting Payment') {
-            //     $booking->state = 'Completed';
-            //     $booking->save();
-        } elseif ($booking->state == 'Awaiting Documents') {
-            $booking->state = 'Completed';
-            $booking->save();
-        }
+        $booking = RentingBooking::findOrFail($request->booking_id);
+        $result = app(RentalBookingLifecycle::class)->confirmDocuments($booking);
 
         return response()->json([
             'success' => true,
             'booking_id' => $booking->id,
             'status' => 'success',
+            'state' => $result['state'],
             'message' => 'Booking updated successfully',
         ]);
     }
@@ -507,11 +458,8 @@ class RentingController extends Controller
     // 7.2 - Collect Motorbike
     public function collectMotorbike(Request $request)
     {
-        // Convert isChecked to a boolean value
         $request->merge(['isChecked' => filter_var($request->input('isChecked'), FILTER_VALIDATE_BOOLEAN)]);
         $request->merge(['proceed_anyway' => filter_var($request->input('proceed_anyway'), FILTER_VALIDATE_BOOLEAN)]);
-
-        \Log::info('Incoming request data:', $request->all());
 
         try {
             $validatedData = $request->validate([
@@ -524,55 +472,27 @@ class RentingController extends Controller
                 'proceed_anyway' => 'sometimes|boolean',
             ]);
 
-            $updateData = [
-                'collect_details' => $validatedData['collectDetails'],
-                'collect_date' => $validatedData['collectDate'],
-                'collect_time' => $validatedData['collectTime'],
-                'collect_checked' => $validatedData['isChecked'],
-            ];
-            if (! empty($validatedData['proceed_anyway'])) {
-                $updateData['collect_proceeded_anyway_user_id'] = auth()->id();
-                $updateData['collect_proceeded_anyway_at'] = now();
-            }
-            $bookingClosing = BookingClosing::updateOrCreate(
-                ['booking_id' => $validatedData['booking_id']],
-                $updateData
-            );
-
-            //    protected $table = 'renting_booking_items';
-            // protected $fillable = [
-            //     'booking_id',
-            //     'motorbike_id',
-            //     'user_id',
-            //     'weekly_rent',
-            //     'start_date',
-            //     'due_date',
-            //     'end_date',
-            //     'is_posted',
-            // ];
-
-            // where booking_id = $validatedData['booking_id']
+            $booking = RentingBooking::findOrFail($validatedData['booking_id']);
             $bookingItem = RentingBookingItem::where('booking_id', $validatedData['booking_id'])
                 ->where('id', $validatedData['booking_item_id'])
-                ->first();
+                ->firstOrFail();
 
-            $bookingItem->end_date = now();
-            $bookingItem->updated_at = now();
+            $closing = app(RentalBookingLifecycle::class)->endRental(
+                $booking,
+                $bookingItem,
+                [
+                    'collect_details' => $validatedData['collectDetails'],
+                    'collect_date' => $validatedData['collectDate'],
+                    'collect_time' => $validatedData['collectTime'],
+                    'collect_checked' => $validatedData['isChecked'],
+                ],
+                ! empty($validatedData['proceed_anyway'])
+            );
 
-            $bookingItem->save();
-
-            $booking = RentingBooking::where('id', $validatedData['booking_id'])->first();
-            $booking->updated_at = now();
-            $booking->save();
-
-            return response()->json(['success' => true, 'data' => $bookingClosing]);
+            return response()->json(['success' => true, 'data' => $closing]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            \Log::error('Validation errors:', $e->errors());
-
             return response()->json(['success' => false, 'errors' => $e->errors()], 422);
-        } catch (\Exception $e) {
-            \Log::error('Exception:', ['message' => $e->getMessage(), 'trace' => $e->getTrace()]);
-
+        } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
@@ -1594,423 +1514,57 @@ class RentingController extends Controller
         }
 
         if (empty($amountReceived)) {
-
-            \Log::error('Amount received is null or empty');
-
             return response()->json(['error' => 'Amount not in Correct Format '.$amountReceived], 400);
         }
 
         if ($amountReceived <= 0) {
-
-            \Log::error('Invalid amount received: '.$amountReceived);
-
             return response()->json(['error' => 'Invalid amount received'], 400);
         }
 
-        DB::beginTransaction();
-
-        \Log::info('Transaction started', [$request->all()]);
-
         try {
+            $result = app(RentalBookingLifecycle::class)->recordPayment(
+                (int) $bookingId,
+                (int) $invoiceId,
+                (int) $paymentMethodId,
+                (float) $amountReceived
+            );
+
             $booking = RentingBooking::findOrFail($bookingId);
-            $invoice = BookingInvoice::where('booking_id', $bookingId)
-                ->where('id', $invoiceId)
-                ->firstOrFail();
 
-            // check anomaly: unpaid invoice
-            $pendingInvoices = BookingInvoice::where('booking_id', $bookingId)
-                ->where(function ($query) {
-                    $query->where('is_paid', false)
-                        ->orWhere('is_posted', false);
-                })->count();
+            return response()->json(array_merge($result, [
+                'start_date' => $booking->start_date,
+                'deposit' => (float) $booking->deposit,
+                'weekly' => (float) optional($booking->rentingBookingItems()->first())->weekly_rent,
+                'total' => (float) $result['balance'],
+                'paid' => (float) $amountReceived,
+            ]));
+        } catch (\Throwable $e) {
+            $status = str_contains($e->getMessage(), 'pending invoices') ? 200 : 400;
 
-            if ($pendingInvoices === 0) {
-                DB::rollBack();
-
-                return response()->json([
-                    'message' => 'No pending invoices found. Payment already completed for this booking.',
-                    'success' => false,
-                    '',
-                ], 200);
-            }
-
-            \Log::info('Pending invoices count: '.$pendingInvoices);
-
-            if ($invoice->is_paid) {
-                DB::rollBack();
-
-                return response()->json(['error' => 'This invoice is already marked as paid.'], 400);
-            }
-
-            if ($invoice->amount <= 0) {
-                DB::rollBack();
-
-                return response()->json(['error' => 'Invoice amount is zero or negative.'], 400);
-            }
-
-            $totalPayableDue = $invoice->amount;
-
-            $totalReceived = $booking->transactions($invoice->id)->sum('amount') ?? 0;
-
-            $CurrentRemainingBalance = $totalPayableDue - $totalReceived;
-
-            \Log::info('Total due: '.$totalPayableDue);
-            \Log::info('Total received: '.$totalReceived);
-            \Log::info('Amount received: '.$amountReceived);
-            \Log::info('Current Remaining balance: '.$CurrentRemainingBalance);
-
-            if ($amountReceived > $CurrentRemainingBalance) {
-                \Log::error('Amount received is greater than the remaining balance');
-                DB::rollBack();
-
-                return response()->json(['error' => 'Amount received is greater than the remaining balance.'], 400);
-            }
-
-            // Most checks are done, now we can proceed with the payment
-            if ($CurrentRemainingBalance > 0 && $CurrentRemainingBalance >= $amountReceived) {
-
-                \Log::info('Processing payment');
-
-                RentingBookingItem::where('booking_id', $bookingId)->update(['is_posted' => true]);
-
-                // FULL PAY or SECOND ATTEMPT TO PAY REMAINING BALANCE IN FULL
-                if ($CurrentRemainingBalance == $amountReceived) {
-
-                    $transaction = new RentingTransaction([
-                        'transaction_date' => now(),
-                        'booking_id' => $bookingId,
-                        'invoice_id' => $invoice->id,
-                        'transaction_type_id' => 7,
-                        'payment_method_id' => $paymentMethodId,
-                        'amount' => $amountReceived,
-                        'user_id' => auth()->id(),
-                        'notes' => 'Full payment received',
-                    ]);
-
-                    $transaction->save();
-
-                    $invoice->is_paid = true;
-                    $invoice->is_posted = true;
-                    $invoice->paid_date = now();
-                    $invoice->state = 'Completed';
-                    $invoice->updated_at = now();
-                    $invoice->notes = 'Invoice paid in full';
-                    $invoice->save();
-                    \Log::info('Invoice fully paid');
-
-                    // more than one invoice find having is_posted true just count
-                    $pendingInvoices = BookingInvoice::where('booking_id', $bookingId)
-                        ->where(function ($query) {
-                            $query->where('is_posted', true);
-                        })->count();
-
-                    \Log::info('count of all posted invoices against booking id:'.$bookingId.' '.$pendingInvoices);
-
-                    // if $pendingInvoice > 1
-                    if ($pendingInvoices > 1) {
-                        $rentingbooking = RentingBooking::findOrFail($bookingId);
-                        if ($rentingbooking->state == 'Awaiting Documents & Payment') {
-                            $rentingbooking->state = 'Awaiting Documents';
-                            $rentingbooking->due_date = $rentingbooking->due_date->addWeek();
-                            $rentingbooking->save();
-                        } elseif ($rentingbooking->state == 'Awaiting Payment') {
-                            $rentingbooking->state = 'Completed';
-                            $rentingbooking->due_date = $rentingbooking->due_date->addWeek();
-                            $rentingbooking->save();
-                        } else {
-                            $rentingbooking->due_date = $rentingbooking->due_date->addWeek();
-                            $rentingbooking->save();
-                        }
-                    } elseif ($pendingInvoices == 1) {
-                        $rentingbooking = RentingBooking::findOrFail($bookingId);
-                        if ($rentingbooking->state == 'Awaiting Documents & Payment') {
-                            $rentingbooking->state = 'Awaiting Documents';
-                            $rentingbooking->save();
-                        } elseif ($rentingbooking->state == 'Awaiting Payment') {
-                            $rentingbooking->state = 'Completed';
-                            $rentingbooking->save();
-                        }
-                    }
-
-                    // $rentingbooking = RentingBooking::findOrFail($bookingId);
-                    // if ($rentingbooking->state == 'Awaiting Documents & Payment') {
-                    //     $rentingbooking->state = 'Awaiting Documents';
-                    //     $rentingbooking->save();
-                    // } else if ($rentingbooking->state == 'Awaiting Payment') {
-                    //     $rentingbooking->state = 'Completed';
-                    //     $rentingbooking->save();
-                    // }
-
-                    \Log::info('Transaction saved: '.$transaction->id);
-                    DB::commit();
-
-                    // MAIL FUNCTIONALITY - FULL PAYMENT - could be second attempt
-                    $Booking = RentingBooking::findOrFail($bookingId);
-                    $Customer = Customer::findOrFail($Booking->customer_id);
-
-                    $data['email'] = [$Customer->email, 'customerservice@neguinhomotors.co.uk'];
-                    $data['title'] = 'Hire Payment Receipt';
-                    $data['body'] = 'Find your payment details:';
-
-                    $data['booking_id'] = $bookingId;
-                    $data['invoice_id'] = $invoice->id;
-                    $data['invoice_date'] = $invoice->invoice_date;
-                    $data['transaction_id'] = $transaction->id;
-                    $data['transaction_date'] = $transaction->transaction_date;
-                    $data['payment_method'] = PaymentMethod::findOrFail($paymentMethodId)->title;
-                    $data['amount'] = $amountReceived;
-                    $data['customer_name'] = trim($Customer->first_name.' '.$Customer->last_name);
-                    $data['registration_number'] = optional($Booking->rentingBookingItems()->with('motorbike')->first()?->motorbike)->reg_no;
-                    $data['invoice_amount'] = (float) $invoice->amount;
-                    $data['remaining_balance'] = 0.00;
-                    $data['invoice_status_label'] = 'Paid in full';
-                    $data['receipt_message'] = 'We have received your payment and this invoice is now marked as paid in full.';
-
-                    // IF PDF IS NEEDED
-                    // $pdf = Pdf::loadView('pdf.test',[
-                    //     'today' => $toDay,
-                    //     'SIGFILE'=>$fileName,
-                    //     'booking' => $Booking,
-                    //     'customer' => $Customer,
-                    //     'motorbike' => $Motorbike,
-                    //     'bookingItem' => $BookingItems,
-                    //     'user_name' => $Booking->user->first_name . ' ' . $Booking->user->last_name
-                    //     ])->setPaper('a4', 'portrait')
-                    //     ->save(storage_path("app/customers/".$Booking->customer_id."/rental-agreement-" . time() . rand(1, 99999) . '.pdf'));
-                    // $data["pdf"] = $pdf;
-
-                    try {
-                        Mail::to($data['email'])->send(new RentalPaymentReceipt($data));
-                    } catch (Exception $e) {
-                        Log::error('Failed to send email: '.$e->getMessage());
-                        // return response()->json(['error' => 'Failed to send email, please check the email address and try again.'], 400);
-                    }
-                    // MAIL FUNCTIONALITY - END
-
-                    \Log::info('Transaction committed full or remaining as full.');
-
-                    \Log::info('Booking updated successfully', [
-                        'success' => true,
-                        'transaction_id' => $transaction->id,
-                        'state' => 'Completed Awaiting Documents',
-                        'start_date' => $booking->start_date,
-                        'is_posted' => 1,
-                        'message' => 'Payment processed successfully.',
-                        'deposit' => (float) $booking->deposit,
-                        'weekly' => (float) $booking->weekly_rent,
-                        'total' => (float) $CurrentRemainingBalance,
-                        'paid' => (float) $amountReceived,
-                        'balance' => (float) $CurrentRemainingBalance - (float) $amountReceived,
-                    ]);
-
-                    return response()->json([
-                        'success' => true,
-                        'transaction_id' => $transaction->id,
-                        'state' => 'Completed Awaiting Documents',
-                        'start_date' => $booking->start_date,
-                        'is_posted' => 1,
-                        'message' => 'Payment processed successfully.',
-                        'deposit' => (float) $booking->deposit,
-                        'weekly' => (float) $booking->weekly_rent,
-                        'total' => (float) $CurrentRemainingBalance,
-                        'paid' => (float) $amountReceived,
-                        'balance' => (float) $CurrentRemainingBalance - (float) $amountReceived,
-                    ]);
-                } elseif ($CurrentRemainingBalance > $amountReceived) {
-
-                    $transaction = new RentingTransaction([
-                        'transaction_date' => now(),
-                        'booking_id' => $bookingId,
-                        'invoice_id' => $invoice->id,
-                        'transaction_type_id' => 7,
-                        'payment_method_id' => $paymentMethodId,
-                        'amount' => $amountReceived,
-                        'user_id' => auth()->id(),
-                        'notes' => 'Partial payment received',
-                    ]);
-                    $transaction->save();
-
-                    $invoice->is_paid = false;
-                    // $invoice->is_posted = false; // partial payment faking fake invoce (because eash invoice has to be is_posted=true to get paid or processed)
-                    $invoice->state = 'Awaiting Payment';
-                    $invoice->save();
-                    \Log::info('Invoice Awaiting Payment');
-
-                    \Log::info('Transaction saved: '.$transaction->id);
-                    DB::commit();
-
-                    // MAIL FUNCTIONALITY - FULL PAYMENT - could be second attempt
-                    $Booking = RentingBooking::findOrFail($bookingId);
-                    $Customer = Customer::findOrFail($Booking->customer_id);
-
-                    $data['email'] = [$Customer->email, 'customerservice@neguinhomotors.co.uk'];
-                    $data['title'] = 'Hire Payment Receipt';
-                    $data['body'] = 'Find your payment details:';
-
-                    $data['booking_id'] = $bookingId;
-                    $data['invoice_id'] = $invoice->id;
-                    $data['invoice_date'] = $invoice->invoice_date;
-                    $data['transaction_id'] = $transaction->id;
-                    $data['transaction_date'] = $transaction->transaction_date;
-                    $data['payment_method'] = PaymentMethod::findOrFail($paymentMethodId)->title;
-                    $data['amount'] = $amountReceived;
-                    $data['customer_name'] = trim($Customer->first_name.' '.$Customer->last_name);
-                    $data['registration_number'] = optional($Booking->rentingBookingItems()->with('motorbike')->first()?->motorbike)->reg_no;
-                    $data['invoice_amount'] = (float) $invoice->amount;
-                    $data['remaining_balance'] = max((float) ($CurrentRemainingBalance - $amountReceived), 0.00);
-                    $data['invoice_status_label'] = 'Part-paid';
-                    $data['receipt_message'] = 'We have received your payment, but there is still an outstanding balance remaining on this invoice.';
-
-                    try {
-                        Mail::to($data['email'])->send(new RentalPaymentReceipt($data));
-                    } catch (Exception $e) {
-                        Log::error('Failed to send email: '.$e->getMessage());
-                        // return response()->json(['error' => 'Failed to send email, please check the email address and try again.'], 400);
-                    }
-                    // MAIL FUNCTIONALITY - END
-
-                    \Log::info('Transaction committed');
-
-                    \Log::info('Booking updated successfully', [
-                        'success' => true,
-                        'transaction_id' => $transaction->id,
-                        'state' => $booking->state,
-                        'start_date' => $booking->start_date,
-                        'is_posted' => $booking->is_posted,
-                        'message' => 'Payment processed successfully.',
-                        'deposit' => (float) $booking->deposit,
-                        'weekly' => (float) $booking->weekly_rent,
-                        'total' => (float) $CurrentRemainingBalance,
-                        'paid' => (float) $amountReceived,
-                        'balance' => (float) $CurrentRemainingBalance - (float) $amountReceived,
-                    ]);
-
-                    return response()->json([
-                        'success' => true,
-                        'transaction_id' => $transaction->id,
-                        'state' => $booking->state,
-                        'start_date' => $booking->start_date,
-                        'is_posted' => $booking->is_posted,
-                        'message' => 'Payment processed successfully.',
-                        'deposit' => (float) $booking->deposit,
-                        'weekly' => (float) $booking->weekly_rent,
-                        'total' => (float) $CurrentRemainingBalance,
-                        'paid' => (float) $amountReceived,
-                        'balance' => (float) $CurrentRemainingBalance - (float) $amountReceived,
-                    ]);
-                } else {
-                    DB::rollBack();
-                    \Log::error('Amount is more than Balance');
-
-                    return response()->json(['error' => 'Amount is more than Balance'], 400);
-                }
-            } elseif ($CurrentRemainingBalance == 0) {
-                DB::rollBack();
-                \Log::error('Amount is Received before');
-
-                return response()->json(['error' => 'Amount is Received'], 400);
-            } else {
-                DB::rollBack();
-                \Log::error('Other Condition');
-
-                return response()->json(['error' => 'Amount is less than Balance'], 400);
-            }
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('Transaction rolled back due to error: '.$e->getMessage());
-
-            return response()->json(['error' => 'An error occurred while updating the booking.', 'exception' => $e->getMessage()], 500);
+            return response()->json([
+                'error' => $e->getMessage(),
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], $status === 200 ? 200 : ($e instanceof \InvalidArgumentException ? 400 : 400));
         }
     }
 
+
     public function reverseInvoicePayment(Request $request, $invoiceId)
     {
-        $backpackUserId = $this->resolveAuditUserId();
-        $authUserId = optional(auth()->user())->id;
-
-        DB::beginTransaction();
-
         try {
             $invoice = BookingInvoice::with('booking')->findOrFail($invoiceId);
-            $latestTransaction = RentingTransaction::where('invoice_id', $invoice->id)
-                ->orderByDesc('id')
-                ->first();
+            $result = app(RentalBookingLifecycle::class)->reversePayment(
+                $invoice,
+                $this->resolveAuditUserId()
+            );
 
-            if (! $latestTransaction) {
-                DB::rollBack();
-
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No payment transaction found for this invoice.',
-                ], 404);
-            }
-
-            $booking = $invoice->booking;
-            $customer = Customer::findOrFail($booking->customer_id);
-
-            $reversedTransactionId = $latestTransaction->id;
-            $reversedAmount = (float) $latestTransaction->amount;
-            $latestTransaction->delete();
-
-            $remainingPaid = RentingTransaction::where('invoice_id', $invoice->id)->sum('amount');
-
-            $invoice->is_paid = false;
-            $invoice->paid_date = null;
-            $invoice->state = 'Awaiting Payment';
-            $invoice->notes = 'Payment reversed by staff'.($backpackUserId ? ' (backpack user ID: '.$backpackUserId.')' : '');
-            $invoice->save();
-
-            $auditContext = [
-                'invoice_id' => $invoice->id,
-                'booking_id' => $booking->id,
-                'customer_id' => $customer->id,
-                'customer_email' => $customer->email,
-                'deleted_transaction_id' => $reversedTransactionId,
-                'deleted_transaction_amount' => $reversedAmount,
-                'remaining_paid_for_invoice' => (float) $remainingPaid,
-                'backpack_user_id' => $backpackUserId,
-                'auth_user_id' => $authUserId,
-                'ip_address' => $request->ip(),
-                'user_agent' => $request->userAgent(),
-            ];
-            $this->writeReverseInvoiceAudit('rental_invoice_payment_reversed', $auditContext);
-
-            DB::commit();
-
-            $mailData = [
-                'email' => [$customer->email, 'customerservice@neguinhomotors.co.uk'],
-                'customer_name' => trim($customer->first_name.' '.$customer->last_name),
-                'weekly_rent' => number_format((float) $invoice->amount, 2),
-                'invoice_amount' => (float) $invoice->amount,
-                'registration_number' => optional($booking->rentingBookingItems()->with('motorbike')->first()?->motorbike)->reg_no,
-                'invoice_date' => $invoice->invoice_date,
-                'invoice_id' => $invoice->id,
-                'booking_id' => $booking->id,
-                'reversed_amount' => number_format($reversedAmount, 2),
-            ];
-
-            try {
-                Mail::to($mailData['email'])->send(new RentalPaymentReversedNotice($mailData));
-            } catch (Exception $e) {
-                Log::error('Failed to send reverse payment email: '.$e->getMessage(), [
-                    'invoice_id' => $invoice->id,
-                    'booking_id' => $booking->id,
-                ]);
-            }
-
-            return response()->json([
-                'success' => true,
-                'invoice_id' => $invoice->id,
-                'deleted_transaction_id' => $reversedTransactionId,
-                'remaining_paid' => (float) $remainingPaid,
-                'message' => 'Invoice payment reversed successfully.',
-            ]);
-        } catch (Exception $e) {
-            DB::rollBack();
+            return response()->json($result);
+        } catch (\Throwable $e) {
             $this->writeReverseInvoiceAudit('rental_invoice_payment_reverse_failed', [
                 'invoice_id' => $invoiceId,
-                'backpack_user_id' => $backpackUserId,
-                'auth_user_id' => $authUserId,
+                'backpack_user_id' => $this->resolveAuditUserId(),
+                'auth_user_id' => optional(auth()->user())->id,
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
                 'error' => $e->getMessage(),
@@ -2018,16 +1572,14 @@ class RentingController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to reverse invoice payment.',
-                'error' => $e->getMessage(),
-            ], 500);
+                'message' => $e->getMessage(),
+            ], str_contains($e->getMessage(), 'No payment') ? 404 : 500);
         }
     }
 
     // 4.3.2 - Update Record Upon Rental Agreement Generation for Signature
     public function startbooking(Request $request, $bookingId)
     {
-        DB::beginTransaction();
         try {
             $resolvedBookingId = $bookingId ?: $request->input('booking_id');
             if (! $resolvedBookingId) {
@@ -2038,53 +1590,16 @@ class RentingController extends Controller
             }
 
             $booking = RentingBooking::findOrFail($resolvedBookingId);
+            $result = app(RentalBookingLifecycle::class)->activateRental($booking, force: true);
 
-            if ($booking->state === 'DRAFT') {
-                $booking->state = 'Awaiting Documents & Payment';
-            }
-            if (! $booking->is_posted) {
-                $booking->is_posted = true;
-            }
-            $booking->save();
-            \Log::info('Booking updated: '.$booking->id);
-
-            $RentingbookingItems = RentingBookingItem::where('booking_id', $resolvedBookingId)->get();
-            foreach ($RentingbookingItems as $RentingbookingItem) {
-                if (! $RentingbookingItem->is_posted) {
-                    $RentingbookingItem->is_posted = true;
-                    $RentingbookingItem->save();
-                }
-            }
-            \Log::info('Booking Item updated', [$RentingbookingItems]);
-
-            $BookingInvoices = BookingInvoice::where('booking_id', $resolvedBookingId)->get();
-            foreach ($BookingInvoices as $BookingInvoice) {
-                $BookingInvoice->is_paid = false;
-                $BookingInvoice->state = 'Awaiting Payment';
-                $BookingInvoice->is_posted = true;
-                $BookingInvoice->notes = 'Invoice created as unpaid';
-                $BookingInvoice->save();
-            }
-            \Log::info('Booking Invoice updated', [$BookingInvoices]);
-
-            DB::commit();
-
-            return response()->json([
+            return response()->json(array_merge($result, [
                 'success' => true,
-                'booking_id' => $booking->id,
-                'status' => $booking->state,
-                'state' => $booking->state,
-                'is_posted' => (bool) $booking->is_posted,
-                'message' => 'Booking updated successfully',
-            ]);
-        } catch (\Exception $e) {
-            DB::rollBack();
-            \Log::error('startbooking failed: '.$e->getMessage());
-
+                'status' => $result['state'],
+            ]));
+        } catch (\Throwable $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to start booking',
-                'error' => $e->getMessage(),
+                'message' => $e->getMessage(),
             ], 500);
         }
     }
@@ -2154,7 +1669,20 @@ class RentingController extends Controller
     // /admin/renting/bookings/{bookingId}/cancel
     public function cancelBooking(Request $request, $bookingId)
     {
-        //
+        try {
+            $booking = RentingBooking::findOrFail($bookingId);
+            app(RentalBookingLifecycle::class)->abortUnposted($booking);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Unposted intake removed.',
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 400);
+        }
     }
 
     // 1.0.1 - getMotorbikePrice get the motorbike price check by motorbike_id

@@ -3,7 +3,6 @@
 namespace App\Livewire\FluxAdmin\Pages\Inventory;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
-use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\OxfordProducts;
@@ -17,61 +16,16 @@ use Livewire\WithPagination;
 #[Title('Oxford products — Flux Admin')]
 class OxfordProductIndex extends Component
 {
-    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
-
-    public bool $showForm = false;
+    use WithAuthorization;
+    use WithDataTable;
+    use WithExport;
+    use WithPagination;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-commons');
         $this->exportable = true;
         $this->exportFilename = 'oxford-products';
-    }
-
-    protected function formModel(): string { return OxfordProducts::class; }
-
-    protected function formRules(): array
-    {
-        return [
-            'formData.sku'          => ['required', 'string', 'max:100'],
-            'formData.description'  => ['nullable', 'string', 'max:500'],
-            'formData.ean'          => ['nullable', 'string', 'max:50'],
-            'formData.brand'        => ['nullable', 'string', 'max:120'],
-            'formData.supplier'     => ['nullable', 'string', 'max:120'],
-            'formData.supplier_code' => ['nullable', 'string', 'max:100'],
-            'formData.rrp_inc_vat'  => ['nullable', 'numeric', 'min:0'],
-            'formData.rrp_less_vat' => ['nullable', 'numeric', 'min:0'],
-            'formData.cost_price'   => ['nullable', 'numeric', 'min:0'],
-            'formData.stock'        => ['nullable', 'integer'],
-            'formData.catford_stock' => ['nullable', 'integer'],
-            'formData.colour'       => ['nullable', 'string', 'max:100'],
-            'formData.variation'    => ['nullable', 'string', 'max:100'],
-            'formData.vatable'      => ['nullable', 'boolean'],
-            'formData.obsolete'     => ['nullable', 'boolean'],
-            'formData.dead'         => ['nullable', 'boolean'],
-        ];
-    }
-
-    public function openCreate(): void
-    {
-        $this->resetValidation();
-        $this->recordId = null;
-        $this->formData = [];
-        $this->showForm = true;
-    }
-
-    public function openEdit(int $id): void
-    {
-        $this->resetValidation();
-        $this->fillFromModel(OxfordProducts::findOrFail($id));
-        $this->showForm = true;
-    }
-
-    public function saveForm(): void
-    {
-        $this->save();
-        $this->showForm = false;
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
     }
 
     public function delete(int $id): void

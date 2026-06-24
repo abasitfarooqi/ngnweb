@@ -12,7 +12,7 @@ use App\Models\CustomerAuth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Mail;
+use App\Support\CustomerPortalCredentialIssuer;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
@@ -22,14 +22,12 @@ class CustomerAuthController extends Controller
 {
     private function normaliseEmail(?string $email): string
     {
-        return strtolower(trim((string) $email));
+        return CustomerPortalCredentialIssuer::normaliseEmail($email);
     }
 
     private function normalisePhone(?string $phone): string
     {
-        $normalised = preg_replace('/\s+/', '', trim((string) $phone));
-
-        return (string) preg_replace('/^\+44/', '0', $normalised);
+        return CustomerPortalCredentialIssuer::normalisePhone($phone);
     }
 
     protected function issueApiToken(CustomerAuth $customerAuth, Request $request): string
@@ -199,38 +197,10 @@ class CustomerAuthController extends Controller
     public function sendPortalCredentials(Request $request, int $customerId)
     {
         $customer = Customer::findOrFail($customerId);
-        $email = $this->normaliseEmail($customer->email);
-        $phone = $this->normalisePhone($customer->phone);
 
-        $temporaryPassword = (string) random_int(10000000, 99999999);
-        $auth = CustomerAuth::firstOrCreate(
-            ['email' => $email],
-            [
-                'customer_id' => $customer->id,
-                'password' => Hash::make($temporaryPassword),
-            ]
-        );
-
-        if (! $auth->customer_id) {
-            $auth->customer_id = $customer->id;
-            $auth->save();
+        if (! CustomerPortalCredentialIssuer::issueAndNotify($customer)) {
+            return back()->with('error', 'Customer has no email address.');
         }
-
-        $customer->is_register = true;
-        $customer->save();
-
-        try {
-            Mail::raw(
-                "Welcome to NGN customer portal.\n\nLogin email: {$email}\nTemporary password: {$temporaryPassword}\nPortal: ".url('/login')."\n\nPlease change your password after login.",
-                function ($message) use ($email): void {
-                    $message->to($email)->subject('Your NGN Portal Access Credentials');
-                }
-            );
-        } catch (\Throwable $e) {
-            \Log::warning('Failed to send portal credentials email', ['customer_id' => $customer->id, 'error' => $e->getMessage()]);
-        }
-
-        app(\App\Http\Controllers\SMSController::class)->sendSms($phone, "NGN Portal login\nEmail: {$email}\nPassword: {$temporaryPassword}\n".url('/login'));
 
         return back()->with('success', 'Portal credentials sent to customer email and phone.');
     }

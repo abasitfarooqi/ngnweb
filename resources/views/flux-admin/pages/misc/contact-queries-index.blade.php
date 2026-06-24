@@ -43,27 +43,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[700px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">Edit contact query</flux:heading>
-
-            <x-flux-admin::field-group label="Subject" :error="$errors->first('formData.subject')">
-                <flux:input wire:model="formData.subject" />
-            </x-flux-admin::field-group>
-
-            <x-flux-admin::field-group label="Internal notes" :error="$errors->first('formData.notes')">
-                <flux:textarea wire:model="formData.notes" rows="4" placeholder="Admin notes only…" />
-            </x-flux-admin::field-group>
-
-            <div class="flex items-center gap-2">
-                <flux:checkbox wire:model="formData.is_dealt" id="cq_is_dealt" />
-                <label for="cq_is_dealt" class="text-sm text-zinc-700 dark:text-zinc-300">Mark as dealt</label>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

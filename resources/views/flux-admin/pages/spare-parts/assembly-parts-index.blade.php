@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Spare parts · Assembly parts" description="Individual parts belonging to assemblies.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New entry</flux:button>
+            <a href="{{ route('flux-admin.sp-assembly-parts.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New entry</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search part # or name…">
@@ -35,9 +37,11 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->price_override !== null ? '£'.number_format((float) $r->price_override, 2) : '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->stock_override ?? '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
-                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.sp-assembly-parts.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -49,44 +53,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit entry' : 'New entry' }}</flux:heading>
-            <x-flux-admin::field-group label="Assembly" :error="$errors->first('formData.assembly_id')" required>
-                <flux:select wire:model="formData.assembly_id" placeholder="— Select —">
-                    @foreach($assemblies as $a)
-                        <flux:select.option value="{{ $a->id }}">{{ $a->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Part" :error="$errors->first('formData.part_id')" required>
-                <flux:select wire:model="formData.part_id" placeholder="— Select —">
-                    @foreach($parts as $p)
-                        <flux:select.option value="{{ $p->id }}">{{ $p->part_number }} · {{ $p->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Qty used" :error="$errors->first('formData.qty_used')" required>
-                    <flux:input type="number" wire:model="formData.qty_used" min="1" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Sort order" :error="$errors->first('formData.sort_order')">
-                    <flux:input type="number" wire:model="formData.sort_order" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Price override" :error="$errors->first('formData.price_override')">
-                    <flux:input type="number" step="0.01" wire:model="formData.price_override" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Stock override" :error="$errors->first('formData.stock_override')">
-                    <flux:input type="number" step="0.01" wire:model="formData.stock_override" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Note override" :error="$errors->first('formData.note_override')">
-                <flux:textarea wire:model="formData.note_override" rows="2" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

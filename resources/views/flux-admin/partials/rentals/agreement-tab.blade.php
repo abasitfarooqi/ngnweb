@@ -1,4 +1,33 @@
 <div>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-zinc-200 dark:border-zinc-700">
+        <div>
+            <p class="text-sm font-semibold text-zinc-900 dark:text-white">Rental agreement</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate a signing link and QR code for the customer.</p>
+        </div>
+        <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled">
+            Generate agreement &amp; QR
+        </flux:button>
+    </div>
+
+    @if($flashMessage)
+        <div class="mx-4 mt-4 p-3 text-sm font-medium border
+            {{ $flashType === 'success' ? 'border-emerald-400 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300' : 'border-red-400 bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300' }}">
+            {{ $flashMessage }}
+        </div>
+    @endif
+
+    @if($agreementUrl)
+        <div class="mx-4 mt-4 p-4 border border-zinc-200 dark:border-zinc-700">
+            <p class="text-xs font-bold text-zinc-500 mb-2">Latest agreement link</p>
+            <a href="{{ $agreementUrl }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 break-all hover:underline">{{ $agreementUrl }}</a>
+            @if($qrImage)
+                <div class="mt-3">
+                    <img src="{{ $qrImage }}" alt="Agreement QR code" class="w-48 h-48 border border-zinc-200 dark:border-zinc-700" />
+                </div>
+            @endif
+        </div>
+    @endif
+
     @if($agreements->isNotEmpty())
         <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
             @foreach($agreements as $agreement)
@@ -37,7 +66,7 @@
     @else
         <div class="p-8 text-center">
             <flux:icon name="document-text" variant="outline" class="w-8 h-8 mx-auto text-zinc-400 dark:text-zinc-500 mb-3" />
-            <p class="text-sm text-zinc-500 dark:text-zinc-400">No agreement access records found for this booking.</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400">No agreement access records yet. Generate one above.</p>
         </div>
     @endif
 </div>

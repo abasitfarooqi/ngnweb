@@ -1,3 +1,12 @@
+@props([
+    'type' => 'line',
+    'labels' => [],
+    'datasets' => [],
+    'options' => [],
+    'canvasId' => 'flux-chart',
+    'height' => '320px',
+])
+
 <div
     wire:ignore
     x-data="fluxChart({

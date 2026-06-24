@@ -151,8 +151,142 @@ body.flux-admin-app textarea:invalid {
 /* Flux-admin form field consistency */
 body.flux-admin-app [data-flux-input] input,
 body.flux-admin-app [data-flux-input] select,
-body.flux-admin-app [data-flux-input] textarea {
+body.flux-admin-app [data-flux-input] textarea,
+body.flux-admin-app [data-flux-textarea] textarea,
+body.flux-admin-app [data-flux-select-button],
+body.flux-admin-app [data-flux-date-picker-button] {
     border-radius: 0 !important;
+}
+
+/* Flux Admin — shared form + filter controls (light / dark, icon spacing, dropdowns) */
+body.flux-admin-app .flux-admin-content [data-flux-control],
+body.flux-admin-app .flux-admin-toolbar [data-flux-control],
+body.flux-admin-app .flux-admin-content [data-flux-select-button],
+body.flux-admin-app .flux-admin-toolbar [data-flux-select-button],
+body.flux-admin-app .flux-admin-content [data-flux-date-picker-button],
+body.flux-admin-app .flux-admin-toolbar [data-flux-date-picker-button] {
+    min-height: 2.5rem;
+    border: 1px solid rgb(212 212 216) !important;
+    background-color: rgb(255 255 255) !important;
+    color: rgb(24 24 27) !important;
+    box-shadow: none !important;
+}
+
+html.dark body.flux-admin-app .flux-admin-content [data-flux-control],
+html.dark body.flux-admin-app .flux-admin-toolbar [data-flux-control],
+html.dark body.flux-admin-app .flux-admin-content [data-flux-select-button],
+html.dark body.flux-admin-app .flux-admin-toolbar [data-flux-select-button],
+html.dark body.flux-admin-app .flux-admin-content [data-flux-date-picker-button],
+html.dark body.flux-admin-app .flux-admin-toolbar [data-flux-date-picker-button] {
+    border-color: rgb(63 63 70) !important;
+    background-color: rgb(24 24 27) !important;
+    color: rgb(244 244 245) !important;
+}
+
+body.flux-admin-app .flux-admin-content [data-flux-control]::placeholder,
+body.flux-admin-app .flux-admin-toolbar [data-flux-control]::placeholder {
+    color: rgb(113 113 122);
+    opacity: 1;
+}
+
+html.dark body.flux-admin-app .flux-admin-content [data-flux-control]::placeholder,
+html.dark body.flux-admin-app .flux-admin-toolbar [data-flux-control]::placeholder {
+    color: rgb(161 161 170);
+}
+
+/* Leading icons must not overlap placeholder / value text */
+body.flux-admin-app [data-flux-input]:has(> .absolute svg, > .absolute [data-flux-icon]) input[data-flux-control] {
+    padding-left: 2.5rem !important;
+}
+
+body.flux-admin-app [data-flux-input] > .absolute.start-0 {
+    width: 2.5rem;
+    justify-content: center;
+    padding-inline-start: 0 !important;
+}
+
+/* Search inside Flux select dropdowns */
+body.flux-admin-app [data-flux-select-search] input {
+    min-height: 2.5rem;
+    padding-left: 2.25rem !important;
+    padding-right: 2.25rem !important;
+    border: 0 !important;
+    border-bottom: 1px solid rgb(228 228 231) !important;
+    background-color: rgb(255 255 255) !important;
+    color: rgb(24 24 27) !important;
+}
+
+html.dark body.flux-admin-app [data-flux-select-search] input {
+    border-bottom-color: rgb(63 63 70) !important;
+    background-color: rgb(39 39 42) !important;
+    color: rgb(244 244 245) !important;
+}
+
+body.flux-admin-app [data-flux-select-search] > .absolute.start-0 {
+    width: 2.25rem;
+    justify-content: center;
+    padding-inline-start: 0 !important;
+}
+
+/* Dropdown panels */
+body.flux-admin-app [data-flux-options] {
+    border-radius: 0 !important;
+    border-color: rgb(212 212 216) !important;
+    background-color: rgb(255 255 255) !important;
+    color: rgb(24 24 27) !important;
+}
+
+html.dark body.flux-admin-app [data-flux-options] {
+    border-color: rgb(63 63 70) !important;
+    background-color: rgb(39 39 42) !important;
+    color: rgb(244 244 245) !important;
+}
+
+body.flux-admin-app [data-flux-label] {
+    color: rgb(63 63 70);
+}
+
+html.dark body.flux-admin-app [data-flux-label] {
+    color: rgb(212 212 216);
+}
+
+body.flux-admin-app .flux-admin-content [data-flux-control]:focus-visible,
+body.flux-admin-app .flux-admin-toolbar [data-flux-control]:focus-visible,
+body.flux-admin-app .flux-admin-content [data-flux-select-button]:focus-visible,
+body.flux-admin-app .flux-admin-toolbar [data-flux-select-button]:focus-visible {
+    outline: 2px solid rgb(20 184 166);
+    outline-offset: 0;
+    border-color: rgb(20 184 166) !important;
+}
+
+/* Keep native invalid styling off until Flux marks the field invalid */
+body.flux-admin-app input:invalid:not([data-invalid]),
+body.flux-admin-app select:invalid:not([data-invalid]),
+body.flux-admin-app textarea:invalid:not([data-invalid]) {
+    border-color: rgb(212 212 216) !important;
+    box-shadow: none !important;
+}
+
+html.dark body.flux-admin-app input:invalid:not([data-invalid]),
+html.dark body.flux-admin-app select:invalid:not([data-invalid]),
+html.dark body.flux-admin-app textarea:invalid:not([data-invalid]) {
+    border-color: rgb(63 63 70) !important;
+}
+
+body.flux-admin-app .flux-admin-toolbar [data-flux-field],
+body.flux-admin-app .flux-admin-content form [data-flux-field] {
+    margin-bottom: 0;
+}
+
+body.flux-admin-app .flux-admin-content form [data-flux-field] + [data-flux-field],
+body.flux-admin-app .flux-admin-content form .grid [data-flux-field] {
+    margin-bottom: 0;
+}
+
+body.flux-admin-app textarea[data-flux-control] {
+    min-height: 6rem;
+    padding-top: 0.625rem;
+    padding-bottom: 0.625rem;
 }
 
 /* Ensure error message text is consistent */

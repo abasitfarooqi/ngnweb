@@ -2,7 +2,9 @@
     <x-flux-admin::data-table title="Spare parts · Stock movements" description="In/out ledger for spare-part inventory.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New movement</flux:button>
+            <a href="{{ route('flux-admin.sp-stock-movements.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New movement</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search ref doc or remarks…">
@@ -50,9 +52,11 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->transaction_type }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ $r->ref_doc_no }}</flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
-                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this movement?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.sp-stock-movements.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this movement?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -64,52 +68,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit movement' : 'New stock movement' }}</flux:heading>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Branch" :error="$errors->first('formData.branch_id')" required>
-                    <flux:select wire:model="formData.branch_id" placeholder="— Select —">
-                        @foreach($branches as $b)
-                            <flux:select.option value="{{ $b->id }}">{{ $b->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Part" :error="$errors->first('formData.sp_part_id')" required>
-                    <flux:select wire:model="formData.sp_part_id" placeholder="— Select —">
-                        @foreach($parts as $p)
-                            <flux:select.option value="{{ $p->id }}">{{ $p->part_number }} · {{ $p->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Date" :error="$errors->first('formData.transaction_date')" required>
-                    <flux:input type="date" wire:model="formData.transaction_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Type" :error="$errors->first('formData.transaction_type')" required>
-                    <flux:select wire:model="formData.transaction_type">
-                        <flux:select.option value="purchase">Purchase</flux:select.option>
-                        <flux:select.option value="sale">Sale</flux:select.option>
-                        <flux:select.option value="transfer">Transfer</flux:select.option>
-                        <flux:select.option value="adjustment">Adjustment</flux:select.option>
-                    </flux:select>
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="In (qty)" :error="$errors->first('formData.in')">
-                    <flux:input type="number" step="0.01" wire:model="formData.in" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Out (qty)" :error="$errors->first('formData.out')">
-                    <flux:input type="number" step="0.01" wire:model="formData.out" min="0" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Ref doc" :error="$errors->first('formData.ref_doc_no')">
-                <flux:input wire:model="formData.ref_doc_no" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Remarks" :error="$errors->first('formData.remarks')">
-                <flux:textarea wire:model="formData.remarks" rows="2" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

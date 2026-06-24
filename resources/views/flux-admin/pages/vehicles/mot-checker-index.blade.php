@@ -48,22 +48,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[520px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit subscriber' : 'Add subscriber' }}</flux:heading>
-            <x-flux-admin::field-group label="Vehicle registration" :error="$errors->first('formData.vehicle_registration')" required>
-                <flux:input wire:model="formData.vehicle_registration" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="MOT due date" :error="$errors->first('formData.mot_due_date')" required>
-                <flux:input type="date" wire:model="formData.mot_due_date" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Email" :error="$errors->first('formData.email')" required>
-                <flux:input type="email" wire:model="formData.email" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

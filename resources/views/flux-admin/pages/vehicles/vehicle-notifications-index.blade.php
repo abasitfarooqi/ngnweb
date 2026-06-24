@@ -50,37 +50,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit subscription' : 'New subscription' }}</flux:heading>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="First name" :error="$errors->first('formData.first_name')" required>
-                    <flux:input wire:model="formData.first_name" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Last name" :error="$errors->first('formData.last_name')" required>
-                    <flux:input wire:model="formData.last_name" />
-                </x-flux-admin::field-group>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Email" :error="$errors->first('formData.email')">
-                    <flux:input type="email" wire:model="formData.email" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Phone" :error="$errors->first('formData.phone')">
-                    <flux:input wire:model="formData.phone" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Registration" :error="$errors->first('formData.reg_no')">
-                <flux:input wire:model="formData.reg_no" />
-            </x-flux-admin::field-group>
-            <div class="flex flex-wrap gap-4">
-                <flux:checkbox wire:model="formData.notify_email" label="Notify by email" />
-                <flux:checkbox wire:model="formData.notify_phone" label="Notify by phone" />
-                <flux:checkbox wire:model="formData.enable" label="Active" />
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

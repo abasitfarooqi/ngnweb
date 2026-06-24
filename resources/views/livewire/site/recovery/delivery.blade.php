@@ -130,7 +130,7 @@
             <p class="mt-2 text-gray-700 dark:text-gray-300">We’ll collect your motorcycle at no extra cost when you book repairs at any of our professional workshops. Save money while getting expert service - let us handle both pickup and repairs for a seamless experience.</p>
             <ul class="mt-4 space-y-2 text-gray-700 dark:text-gray-300">
                 <li>🚚 <strong>Nationwide transport services JUST £249.99 anywhere in the England</strong></li>
-                <li>🕒 <strong>Serving the industry since 2018 with over 6 years of expertise</strong></li>
+                <li>🕒 <strong>Serving the industry since 2018 with over 8 years of expertise</strong></li>
                 <li>🔒 <strong>Fully insured, safe, and reliable vehicle transport</strong></li>
                 <li>📝 <strong>Vehicle inspections performed at the time of collection</strong></li>
                 <li>🖥️ <strong>Convenient self-service admin portal for easy management</strong></li>

@@ -1,7 +1,9 @@
 <div>
     <x-flux-admin::data-table title="Repair updates" description="Individual jobs/line items attached to motorbike repairs.">
         <x-slot:actions>
-            <flux:button size="sm" variant="primary" icon="plus" wire:click="openCreate" class="!rounded-none">New update</flux:button>
+            <a href="{{ route('flux-admin.motorbike-repair-updates.create') }}" wire:navigate>
+                <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New update</flux:button>
+            </a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search description or repair ID…">
@@ -30,9 +32,11 @@
                         <flux:table.cell class="text-zinc-900 dark:text-white font-semibold">£{{ number_format((float) $r->price, 2) }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 max-w-sm truncate">{{ $r->note ?: '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" wire:click="openEdit({{ $r->id }})" icon="pencil-square" class="!rounded-none">Edit</flux:button>
-                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this update?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.motorbike-repair-updates.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this update?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>
@@ -44,42 +48,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit update' : 'New repair update' }}</flux:heading>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Motorbike repair ID" :error="$errors->first('formData.motorbike_repair_id')" required>
-                    <flux:input type="number" wire:model="formData.motorbike_repair_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Price (£)" :error="$errors->first('formData.price')" required>
-                    <flux:input type="number" step="0.01" wire:model="formData.price" min="0" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Job description" :error="$errors->first('formData.job_description')" required>
-                <flux:textarea wire:model="formData.job_description" rows="3" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Services" :error="$errors->first('formData.services')">
-                <div class="max-h-52 overflow-y-auto border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-950">
-                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                        @foreach($services as $service)
-                            <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                                <input type="checkbox" value="{{ $service->id }}" wire:model="formData.services" class="accent-zinc-900 dark:accent-zinc-200">
-                                <span class="min-w-0 flex-1 truncate">{{ $service->name }}</span>
-                                @if($service->price)
-                                    <span class="text-xs text-zinc-500 dark:text-zinc-400">£{{ number_format((float) $service->price, 2) }}</span>
-                                @endif
-                            </label>
-                        @endforeach
-                    </div>
-                </div>
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Note" :error="$errors->first('formData.note')">
-                <flux:textarea wire:model="formData.note" rows="2" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

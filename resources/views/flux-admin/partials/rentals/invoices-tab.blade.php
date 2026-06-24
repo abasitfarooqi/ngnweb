@@ -6,12 +6,13 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Payment Method <span class="text-red-500">*</span></label>
-                    <select wire:model="paymentMethod" class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
+                    <select wire:model="paymentMethodId" class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
                         <option value="">— Select Method —</option>
-                        <option value="Cash">Cash</option>
-                        <option value="Card">Card</option>
+                        @foreach($paymentMethods as $method)
+                            <option value="{{ $method->id }}">{{ $method->title }}</option>
+                        @endforeach
                     </select>
-                    @error('paymentMethod') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                    @error('paymentMethodId') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Amount Received (£) <span class="text-red-500">*</span></label>
@@ -111,7 +112,11 @@
                                         class="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold bg-brand-red hover:opacity-90 text-white transition"
                                     >Pay</button>
                                 @else
-                                    <span class="text-xs text-zinc-400">Paid</span>
+                                    <button
+                                        wire:click="reversePayment({{ $invoice->id }})"
+                                        wire:confirm="Reverse the latest payment on this invoice?"
+                                        class="inline-flex items-center gap-1 px-2 py-1 text-xs font-semibold border border-zinc-300 dark:border-zinc-600 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-50 dark:hover:bg-zinc-800 transition"
+                                    >Reverse</button>
                                 @endif
                             </flux:table.cell>
                         </flux:table.row>

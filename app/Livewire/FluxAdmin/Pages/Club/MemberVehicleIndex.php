@@ -3,7 +3,6 @@
 namespace App\Livewire\FluxAdmin\Pages\Club;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
-use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\ClubMember;
@@ -17,9 +16,10 @@ use Livewire\WithPagination;
 #[Title('Club member vehicles — Flux Admin')]
 class MemberVehicleIndex extends Component
 {
-    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
-
-    public bool $showForm = false;
+    use WithAuthorization;
+    use WithDataTable;
+    use WithExport;
+    use WithPagination;
 
     public function mount(): void
     {
@@ -28,32 +28,6 @@ class MemberVehicleIndex extends Component
         $this->exportFilename = 'club-member-vehicles';
         $this->sortField = 'full_name';
         $this->sortDirection = 'asc';
-    }
-
-    protected function formModel(): string { return ClubMember::class; }
-
-    protected function formRules(): array
-    {
-        return [
-            'formData.vrm' => ['nullable', 'string', 'max:20'],
-            'formData.make' => ['nullable', 'string', 'max:120'],
-            'formData.model' => ['nullable', 'string', 'max:120'],
-            'formData.year' => ['nullable', 'integer', 'min:1900', 'max:2100'],
-        ];
-    }
-
-    public function openEdit(int $id): void
-    {
-        $this->resetValidation();
-        $this->fillFromModel(ClubMember::findOrFail($id));
-        $this->showForm = true;
-    }
-
-    public function saveForm(): void
-    {
-        $this->save();
-        $this->showForm = false;
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
     }
 
     public function render()

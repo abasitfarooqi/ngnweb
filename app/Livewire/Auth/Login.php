@@ -2,7 +2,10 @@
 
 namespace App\Livewire\Auth;
 
+use App\Models\CustomerAuth;
+use App\Support\CustomerPortalCredentialIssuer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Livewire\Component;
 
 class Login extends Component
@@ -26,10 +29,18 @@ class Login extends Component
             'password' => ['required'],
         ]);
 
-        if (!Auth::guard('customer')->attempt(['email' => $this->email, 'password' => $this->password], $this->remember)) {
+        $email = CustomerPortalCredentialIssuer::normaliseEmail($this->email);
+        $user = CustomerAuth::query()
+            ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+            ->first();
+
+        if (! $user || ! Hash::check($this->password, (string) $user->password)) {
             $this->addError('email', 'These credentials do not match our records.');
+
             return;
         }
+
+        Auth::guard('customer')->login($user, $this->remember);
 
         request()->session()->regenerate();
 

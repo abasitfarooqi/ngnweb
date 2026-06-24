@@ -38,32 +38,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit recovery record' : 'New recovery record' }}</flux:heading>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Case date" :error="$errors->first('formData.case_date')" required>
-                    <flux:input type="date" wire:model="formData.case_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Motorbike ID" :error="$errors->first('formData.motorbike_id')" required>
-                    <flux:input type="number" wire:model="formData.motorbike_id" />
-                </x-flux-admin::field-group>
-            </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Branch ID" :error="$errors->first('formData.branch_id')">
-                    <flux:input type="number" wire:model="formData.branch_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Returned date" :error="$errors->first('formData.returned_date')">
-                    <flux:input type="date" wire:model="formData.returned_date" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Notes" :error="$errors->first('formData.notes')">
-                <flux:textarea wire:model="formData.notes" rows="3" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

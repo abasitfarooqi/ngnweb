@@ -42,31 +42,4 @@
         <x-slot:footer>{{ $items->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[28rem] !rounded-none">
-        <div class="space-y-6">
-            <div>
-                <flux:heading size="lg">{{ $recordId ? 'Edit extra item' : 'New extra item' }}</flux:heading>
-            </div>
-            <form wire:submit="saveForm" class="space-y-4" novalidate>
-                <x-flux-admin::field-group label="Application ID" required :error="$errors->first('formData.application_id')">
-                    <flux:input type="number" wire:model="formData.application_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Name" required :error="$errors->first('formData.name')">
-                    <flux:input wire:model="formData.name" />
-                </x-flux-admin::field-group>
-                <div class="grid grid-cols-2 gap-3">
-                    <x-flux-admin::field-group label="Price" required :error="$errors->first('formData.price')">
-                        <flux:input type="number" step="0.01" wire:model="formData.price" />
-                    </x-flux-admin::field-group>
-                    <x-flux-admin::field-group label="Quantity" required :error="$errors->first('formData.quantity')">
-                        <flux:input type="number" wire:model="formData.quantity" />
-                    </x-flux-admin::field-group>
-                </div>
-                <div class="flex justify-end gap-2">
-                    <flux:button variant="ghost" type="button" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                    <flux:button variant="primary" type="submit" class="!rounded-none">Save</flux:button>
-                </div>
-            </form>
-        </div>
-    </flux:modal>
 </div>

@@ -50,29 +50,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[680px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">New conversation</flux:heading>
-            <x-flux-admin::field-group label="Title" :error="$errors->first('formData.title')">
-                <flux:input wire:model="formData.title" placeholder="Subject of the conversation" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Topic" :error="$errors->first('formData.topic')">
-                <flux:input wire:model="formData.topic" placeholder="e.g. billing, repairs" />
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Status" :error="$errors->first('formData.status')" required>
-                <flux:select wire:model="formData.status">
-                    <flux:select.option value="open">Open</flux:select.option>
-                    <flux:select.option value="closed">Closed</flux:select.option>
-                    <flux:select.option value="archived">Archived</flux:select.option>
-                </flux:select>
-            </x-flux-admin::field-group>
-            <x-flux-admin::field-group label="Customer auth ID" :error="$errors->first('formData.customer_auth_id')">
-                <flux:input type="number" wire:model="formData.customer_auth_id" placeholder="Optional" />
-            </x-flux-admin::field-group>
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

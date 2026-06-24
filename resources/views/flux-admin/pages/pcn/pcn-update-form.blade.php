@@ -2,7 +2,7 @@
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-1">
-                <a href="{{ route('flux-admin.pcn-updates.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200 transition">PCN updates</a>
+                <a href="{{ route('flux-admin.pcn-updates.index') }}" class="transition hover:text-zinc-700 dark:hover:text-zinc-200" wire:navigate>PCN case updates</a>
                 <span>/</span>
                 <span>{{ $recordId ? 'Edit' : 'New' }}</span>
             </div>

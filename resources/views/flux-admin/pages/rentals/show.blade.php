@@ -1,14 +1,47 @@
 <div>
+    @if($flashMessage)
+        <div class="mb-4 border px-4 py-3 text-sm font-medium
+            {{ $flashType === 'success' ? 'border-emerald-300 bg-emerald-50 text-emerald-800 dark:border-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-200' : 'border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-900/30 dark:text-red-200' }}">
+            {{ $flashMessage }}
+        </div>
+    @endif
+
+    @php
+        $lifecycleBadge = match ($lifecycle) {
+            'active' => ['label' => 'Active rental', 'color' => 'emerald'],
+            'ended' => ['label' => 'Ended', 'color' => 'zinc'],
+            default => ['label' => 'Intake (unposted)', 'color' => 'amber'],
+        };
+    @endphp
+
     <x-flux-admin::summary-header
         :title="'Booking #' . $booking->id"
         :subtitle="$booking->customer ? ($booking->customer->first_name . ' ' . $booking->customer->last_name) : 'No customer'"
         :badges="[
+            $lifecycleBadge,
             ['label' => ucfirst($booking->state ?? 'N/A'), 'color' => str_contains($booking->state ?? '', 'Issued') ? 'emerald' : (str_contains($booking->state ?? '', 'Await') ? 'amber' : 'zinc')],
-            ['label' => $booking->is_posted ? 'Posted' : 'Draft', 'color' => $booking->is_posted ? 'green' : 'amber'],
         ]"
-        :backUrl="route('flux-admin.rentals.index')"
-        backLabel="Back to Rentals"
+        :backUrl="route('flux-admin.bookings-management.index')"
+        backLabel="Back to bookings"
     >
+        <x-slot:actions>
+            @if($lifecycle === 'intake')
+                @if($missingDocs === 0)
+                    <flux:button size="sm" variant="primary" wire:click="activateRental" wire:confirm="Activate this rental for today? All required documents are approved.">
+                        Activate rental
+                    </flux:button>
+                @else
+                    <flux:button size="sm" variant="primary" wire:click="$set('activeTab', 'documents')">
+                        {{ $missingDocs }} doc(s) pending
+                    </flux:button>
+                @endif
+                <flux:button size="sm" variant="danger" wire:click="abortIntake" wire:confirm="Remove this unposted intake? This cannot be undone.">
+                    Abort intake
+                </flux:button>
+            @elseif($lifecycle === 'active')
+                <flux:button size="sm" variant="ghost" wire:click="$set('activeTab', 'closing')">End rental</flux:button>
+            @endif
+        </x-slot:actions>
         <x-slot:stats>
             <div>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400">Start Date</p>

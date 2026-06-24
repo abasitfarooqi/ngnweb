@@ -27,6 +27,15 @@
                 <p class="text-xs text-zinc-500 dark:text-zinc-400">Items</p>
                 <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $application->items->count() }}</p>
             </div>
+            @if($application->customer_id)
+                <div>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Customer</p>
+                    <x-flux-admin::entity-link
+                        :href="route('flux-admin.customers.show', $application->customer_id)"
+                        :label="trim($application->customer->first_name . ' ' . $application->customer->last_name)"
+                    />
+                </div>
+            @endif
         </x-slot:stats>
     </x-flux-admin::summary-header>
 

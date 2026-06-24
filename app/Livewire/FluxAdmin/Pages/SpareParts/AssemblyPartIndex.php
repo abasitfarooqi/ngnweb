@@ -3,11 +3,9 @@
 namespace App\Livewire\FluxAdmin\Pages\SpareParts;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
-use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\SpAssembly;
 use App\Models\SpAssemblyPart;
-use App\Models\SpPart;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -17,50 +15,13 @@ use Livewire\WithPagination;
 #[Title('Spare parts — Assembly parts')]
 class AssemblyPartIndex extends Component
 {
-    use WithAuthorization, WithCrudForm, WithDataTable, WithPagination;
+    use WithAuthorization;
+    use WithDataTable;
+    use WithPagination;
 
-    public bool $showForm = false;
-
-    public function mount(): void { $this->authorizeModule('see-menu-commons'); }
-
-    protected function formModel(): string { return SpAssemblyPart::class; }
-
-    protected function formRules(): array
+    public function mount(): void
     {
-        return [
-            'formData.assembly_id' => ['required', 'integer', 'exists:sp_assemblies,id'],
-            'formData.part_id' => ['required', 'integer', 'exists:sp_parts,id'],
-            'formData.qty_used' => ['required', 'integer', 'min:1'],
-            'formData.sort_order' => ['nullable', 'integer', 'min:0'],
-            'formData.note_override' => ['nullable', 'string'],
-            'formData.price_override' => ['nullable', 'numeric', 'min:0'],
-            'formData.stock_override' => ['nullable', 'numeric', 'min:0'],
-        ];
-    }
-
-    public function openCreate(): void
-    {
-        $this->resetValidation();
-        $this->recordId = null;
-        $this->formData = ['qty_used' => 1, 'sort_order' => 0];
-        $this->showForm = true;
-    }
-
-    public function openEdit(int $id): void
-    {
-        $this->resetValidation();
-        $this->fillFromModel(SpAssemblyPart::findOrFail($id));
-        $this->showForm = true;
-    }
-
-    public function saveForm(): void
-    {
-        foreach (['price_override', 'stock_override'] as $k) {
-            if (isset($this->formData[$k]) && $this->formData[$k] === '') { $this->formData[$k] = null; }
-        }
-        $this->save();
-        $this->showForm = false;
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Saved.');
+        $this->authorizeModule('see-menu-commons');
     }
 
     public function delete(int $id): void
@@ -79,8 +40,7 @@ class AssemblyPartIndex extends Component
             ->paginate($this->perPage);
 
         $assemblies = SpAssembly::query()->orderByDesc('id')->limit(500)->get(['id', 'name']);
-        $parts = SpPart::query()->orderBy('part_number')->limit(1000)->get(['id', 'part_number', 'name']);
 
-        return view('flux-admin.pages.spare-parts.assembly-parts-index', compact('rows', 'assemblies', 'parts'));
+        return view('flux-admin.pages.spare-parts.assembly-parts-index', compact('rows', 'assemblies'));
     }
 }

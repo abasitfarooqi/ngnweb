@@ -55,7 +55,7 @@ class Index extends Component
 
     public function rendered(): void
     {
-        if (request()->has('service') || request()->fragment() === 'enquiry') {
+        if (request()->has('service')) {
             $this->js("document.getElementById('enquiry')?.scrollIntoView({ behavior: 'smooth', block: 'start' })");
         }
     }

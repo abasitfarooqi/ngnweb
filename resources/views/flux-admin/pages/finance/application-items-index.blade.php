@@ -49,39 +49,4 @@
         <x-slot:footer>{{ $items->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[720px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit application item' : 'New application item' }}</flux:heading>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <x-flux-admin::field-group label="Application ID" required :error="$errors->first('formData.application_id')">
-                    <flux:input type="number" wire:model="formData.application_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Motorbike ID" required :error="$errors->first('formData.motorbike_id')">
-                    <flux:input type="number" wire:model="formData.motorbike_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Start date" :error="$errors->first('formData.start_date')">
-                    <flux:input type="date" wire:model="formData.start_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Due date" :error="$errors->first('formData.due_date')">
-                    <flux:input type="date" wire:model="formData.due_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="End date" :error="$errors->first('formData.end_date')">
-                    <flux:input type="date" wire:model="formData.end_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Weekly instalment (£)" :error="$errors->first('formData.weekly_instalment')">
-                    <flux:input type="number" step="0.01" min="0" wire:model="formData.weekly_instalment" />
-                </x-flux-admin::field-group>
-            </div>
-
-            <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <input type="checkbox" wire:model="formData.is_posted" class="accent-zinc-900 dark:accent-zinc-200"> Mark as posted
-            </label>
-
-            <div class="flex justify-end gap-2 pt-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

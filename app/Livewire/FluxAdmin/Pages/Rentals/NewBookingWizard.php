@@ -162,7 +162,7 @@ class NewBookingWizard extends Component
         $this->createdBookingId = $bookingId;
         $this->docUploadLink = url('/generate-docs-upload-link-access/' . $this->customerId) . '?booking_id=' . $bookingId;
         $this->step = 6;
-        session()->flash('status', 'Booking #' . $bookingId . ' created. Send the document upload link or open the booking to verify uploads.');
+        session()->flash('status', 'Booking #' . $bookingId . ' created as same-day intake. Activate it from the Documents tab when all documents are received.');
     }
 
     public function render()

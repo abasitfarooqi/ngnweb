@@ -25,6 +25,8 @@ class BookingClosing extends Model
         'pcn_checked',
         'pending_checked',
         'deposit_checked',
+        'collect_proceeded_anyway_user_id',
+        'collect_proceeded_anyway_at',
     ];
 
     public function booking()

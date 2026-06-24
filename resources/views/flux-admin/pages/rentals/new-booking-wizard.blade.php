@@ -220,7 +220,7 @@
         <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
             <div class="lg:col-span-2 border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <h2 class="mb-2 text-lg font-semibold text-zinc-900 dark:text-white">Required documents</h2>
-                <p class="mb-4 text-sm text-zinc-500 dark:text-zinc-400">The booking will be created in DRAFT. Verify or collect these after creation on the booking detail page.</p>
+                <p class="mb-4 text-sm text-zinc-500 dark:text-zinc-400">Same-day intake — the rental activates when all mandatory documents are received today.</p>
 
                 <ul class="mb-4 space-y-2 text-sm">
                     @foreach (['Driving licence (DVLA)', 'Proof of address', 'Passport / ID', 'Insurance certificate', 'Signed rental agreement'] as $doc)
@@ -254,7 +254,7 @@
         <div class="border border-emerald-200 bg-emerald-50 p-8 text-center dark:border-emerald-900 dark:bg-emerald-950">
             <flux:icon name="check-circle" class="mx-auto h-12 w-12 text-emerald-600 dark:text-emerald-400" />
             <h2 class="mt-3 text-xl font-semibold text-emerald-900 dark:text-emerald-100">Booking #{{ $createdBookingId }} created</h2>
-            <p class="mt-1 text-sm text-emerald-800 dark:text-emerald-200">Open the booking to verify documents, collect signature and post invoices.</p>
+            <p class="mt-1 text-sm text-emerald-800 dark:text-emerald-200">Open the booking Documents tab to collect uploads and activate the rental for today.</p>
 
             @if ($sendDocUploadLink && $docUploadLink)
                 <div class="mx-auto mt-4 max-w-xl border border-emerald-300 bg-white p-3 text-left text-xs dark:border-emerald-800 dark:bg-zinc-900">
@@ -264,7 +264,7 @@
             @endif
 
             <div class="mt-5 flex flex-wrap items-center justify-center gap-3">
-                <flux:button variant="primary" href="{{ route('flux-admin.rentals.show', $createdBookingId) }}" wire:navigate>Open booking</flux:button>
+                <flux:button variant="primary" href="{{ route('flux-admin.rentals.show', $createdBookingId) }}?tab=documents" wire:navigate>Open documents tab</flux:button>
                 <flux:button variant="ghost" href="{{ route('flux-admin.new-booking.index') }}" wire:navigate>Create another</flux:button>
             </div>
         </div>

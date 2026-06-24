@@ -44,42 +44,4 @@
         <x-slot:footer>{{ $rows->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <flux:modal wire:model.self="showForm" class="md:w-[640px]">
-        <form wire:submit.prevent="saveForm" class="space-y-4" novalidate>
-            <flux:heading size="lg">{{ $recordId ? 'Edit item' : 'New invoice item' }}</flux:heading>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Invoice ID" :error="$errors->first('formData.invoice_id')" required>
-                    <flux:input type="number" wire:model="formData.invoice_id" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="SKU" :error="$errors->first('formData.sku')">
-                    <flux:input wire:model="formData.sku" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Item name" :error="$errors->first('formData.item_name')" required>
-                <flux:input wire:model="formData.item_name" />
-            </x-flux-admin::field-group>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <x-flux-admin::field-group label="Quantity" :error="$errors->first('formData.quantity')" required>
-                    <flux:input type="number" step="0.01" wire:model="formData.quantity" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Price (£)" :error="$errors->first('formData.price')" required>
-                    <flux:input type="number" step="0.01" wire:model="formData.price" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Discount" :error="$errors->first('formData.discount')">
-                    <flux:input type="number" step="0.01" wire:model="formData.discount" min="0" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Tax" :error="$errors->first('formData.tax')">
-                    <flux:input type="number" step="0.01" wire:model="formData.tax" min="0" />
-                </x-flux-admin::field-group>
-            </div>
-            <x-flux-admin::field-group label="Notes" :error="$errors->first('formData.notes')">
-                <flux:textarea wire:model="formData.notes" rows="2" />
-            </x-flux-admin::field-group>
-            <flux:callout icon="information-circle">Total is auto-calculated as <span class="font-mono">(qty × price) − discount + tax</span>.</flux:callout>
-            <div class="flex justify-end gap-2">
-                <flux:button type="button" variant="ghost" wire:click="$set('showForm', false)" class="!rounded-none">Cancel</flux:button>
-                <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
-            </div>
-        </form>
-    </flux:modal>
 </div>

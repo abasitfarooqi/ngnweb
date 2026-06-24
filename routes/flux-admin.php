@@ -5,6 +5,7 @@ use App\Livewire\FluxAdmin\Pages\Branches\BranchShow;
 use App\Livewire\FluxAdmin\Pages\Club\ClubForm;
 use App\Livewire\FluxAdmin\Pages\Club\ClubIndex;
 use App\Livewire\FluxAdmin\Pages\Club\ClubShow;
+use App\Livewire\FluxAdmin\Pages\Customers\AppointmentForm;
 use App\Livewire\FluxAdmin\Pages\Customers\AppointmentIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\CustomerForm;
 use App\Livewire\FluxAdmin\Pages\Customers\CustomerIndex;
@@ -12,6 +13,8 @@ use App\Livewire\FluxAdmin\Pages\Customers\CustomerShow;
 use App\Livewire\FluxAdmin\Pages\Customers\DocumentIndex as CustomerDocumentIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\DocumentReview as CustomerDocumentReview;
 use App\Livewire\FluxAdmin\Pages\Dashboard;
+use App\Livewire\FluxAdmin\Pages\GlobalSearchIndex;
+use App\Livewire\FluxAdmin\Pages\Modules\ModuleHub;
 use App\Livewire\FluxAdmin\Pages\Finance\AgreementAccessForm;
 use App\Livewire\FluxAdmin\Pages\Finance\AgreementAccessIndex;
 use App\Livewire\FluxAdmin\Pages\Finance\ApplicationItemIndex;
@@ -84,6 +87,8 @@ use App\Livewire\FluxAdmin\Pages\Club\SpendingPaymentIndex as ClubSpendingPaymen
 use App\Livewire\FluxAdmin\Pages\Inventory\BrandIndex as InventoryBrandIndex;
 use App\Livewire\FluxAdmin\Pages\Inventory\CategoryIndex as InventoryCategoryIndex;
 use App\Livewire\FluxAdmin\Pages\Inventory\ModelIndex as InventoryModelIndex;
+use App\Livewire\FluxAdmin\Pages\Inventory\InventoryStockMovementForm;
+use App\Livewire\FluxAdmin\Pages\Inventory\OxfordProductForm;
 use App\Livewire\FluxAdmin\Pages\Inventory\OxfordProductIndex;
 use App\Livewire\FluxAdmin\Pages\Inventory\PartnerIndex as InventoryPartnerIndex;
 use App\Livewire\FluxAdmin\Pages\Inventory\ProductIndex as InventoryProductIndex;
@@ -92,7 +97,9 @@ use App\Livewire\FluxAdmin\Pages\Inventory\PurchaseRequestIndex;
 use App\Livewire\FluxAdmin\Pages\Inventory\PurchaseRequestItemIndex;
 use App\Livewire\FluxAdmin\Pages\Inventory\StockMovementIndex as InventoryStockMovementIndex;
 use App\Livewire\FluxAdmin\Pages\SpareParts\AssemblyIndex as SpAssemblyIndex;
+use App\Livewire\FluxAdmin\Pages\SpareParts\AssemblyPartForm;
 use App\Livewire\FluxAdmin\Pages\SpareParts\AssemblyPartIndex as SpAssemblyPartIndex;
+use App\Livewire\FluxAdmin\Pages\SpareParts\SpStockMovementForm;
 use App\Livewire\FluxAdmin\Pages\SpareParts\FitmentIndex as SpFitmentIndex;
 use App\Livewire\FluxAdmin\Pages\SpareParts\MakeIndex as SpMakeIndex;
 use App\Livewire\FluxAdmin\Pages\SpareParts\PartIndex as SpPartIndex;
@@ -112,6 +119,7 @@ use App\Livewire\FluxAdmin\Pages\Access\UploadDocumentIndex;
 use App\Livewire\FluxAdmin\Pages\Club\RedeemIndex as ClubRedeemIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\DigitalInvoiceItemIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\DsOrderItemIndex;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairUpdateForm;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairUpdateIndex as MotorbikeRepairUpdateIndex;
 use App\Livewire\FluxAdmin\Pages\Judopay\RecurringIndex as JudopayRecurringIndex;
 use App\Livewire\FluxAdmin\Pages\Misc\CalendarIndex;
@@ -126,6 +134,7 @@ use App\Livewire\FluxAdmin\Pages\Vehicles\MotCheckerIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\MotStatsIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\VehicleDeliveryOrderIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeRecordViewIndex;
+use App\Livewire\FluxAdmin\Pages\Club\MemberVehicleForm;
 use App\Livewire\FluxAdmin\Pages\Club\MemberVehicleIndex as ClubMemberVehicleIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\ActiveBookingsSummary;
 use App\Livewire\FluxAdmin\Pages\Judopay\MitDashboard as JudopayMitDashboard;
@@ -201,6 +210,9 @@ use App\Livewire\FluxAdmin\Pages\Vehicles\VehicleNotificationForm;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', Dashboard::class)->name('flux-admin.dashboard');
+Route::get('/search', GlobalSearchIndex::class)->name('flux-admin.search');
+
+Route::get('/modules/{module}', ModuleHub::class)->name('flux-admin.modules.show');
 
 // Backpack-compatible Flux slugs. These keep the same URL shape as Backpack,
 // with only the prefix changed from `/ngn-admin` to `/flux-admin`.
@@ -252,7 +264,7 @@ $backpackCrudAlias('vehicle-notification', VehicleNotificationIndex::class, Vehi
 $backpackCrudAlias('motorbike', MotorbikeIndex::class, MotorbikeForm::class, 'motorbike', MotorbikeShow::class);
 $backpackCrudAlias('motorbike-list', MotorbikeIndex::class, MotorbikeForm::class, 'motorbike', MotorbikeShow::class);
 $backpackCrudAlias('motorbike-repair', MotorbikeRepairIndex::class, MotorbikeRepairForm::class, 'motorbikeRepair');
-$backpackCrudAlias('motorbike-repair-update', MotorbikeRepairUpdateIndex::class, MotorbikeRepairUpdateIndex::class, 'motorbikeRepairUpdate');
+$backpackCrudAlias('motorbike-repair-update', MotorbikeRepairUpdateIndex::class, RepairUpdateForm::class, 'motorbikeRepairUpdate');
 $backpackCrudAlias('claim-motorbike', VehicleClaimIndex::class, ClaimForm::class, 'claimMotorbike');
 $backpackCrudAlias('purchase-request', PurchaseRequestIndex::class, PurchaseRequestForm::class, 'purchaseRequest');
 $backpackCrudAlias('purchase-request-item', PurchaseRequestItemIndex::class, PurchaseRequestItemForm::class, 'purchaseRequestItem');
@@ -370,6 +382,8 @@ Route::get('/ip-restrictions', IpRestrictionIndex::class)->name('flux-admin.ip-r
 
 // Phase 6 — Customer sub-CRUDs
 Route::get('/customer-appointments', AppointmentIndex::class)->name('flux-admin.customer-appointments.index');
+Route::get('/customer-appointments/create', AppointmentForm::class)->name('flux-admin.customer-appointments.create');
+Route::get('/customer-appointments/{customerAppointment}/edit', AppointmentForm::class)->name('flux-admin.customer-appointments.edit');
 Route::get('/customer-documents', CustomerDocumentIndex::class)->name('flux-admin.customer-documents.index');
 Route::get('/customer-documents/{document}/review', CustomerDocumentReview::class)->name('flux-admin.customer-documents.review');
 
@@ -490,7 +504,11 @@ Route::get('/inventory-models', InventoryModelIndex::class)->name('flux-admin.in
 Route::get('/inventory-products', InventoryProductIndex::class)->name('flux-admin.inventory-products.index');
 Route::get('/inventory-partners', InventoryPartnerIndex::class)->name('flux-admin.inventory-partners.index');
 Route::get('/inventory-stock-movements', InventoryStockMovementIndex::class)->name('flux-admin.inventory-stock-movements.index');
+Route::get('/inventory-stock-movements/create', InventoryStockMovementForm::class)->name('flux-admin.inventory-stock-movements.create');
+Route::get('/inventory-stock-movements/{ngnStockMovement}/edit', InventoryStockMovementForm::class)->name('flux-admin.inventory-stock-movements.edit');
 Route::get('/oxford-products', OxfordProductIndex::class)->name('flux-admin.oxford-products.index');
+Route::get('/oxford-products/create', OxfordProductForm::class)->name('flux-admin.oxford-products.create');
+Route::get('/oxford-products/{oxfordProduct}/edit', OxfordProductForm::class)->name('flux-admin.oxford-products.edit');
 Route::get('/purchase-requests', PurchaseRequestIndex::class)->name('flux-admin.purchase-requests.index');
 Route::get('/purchase-requests/create', PurchaseRequestForm::class)->name('flux-admin.purchase-requests.create');
 Route::get('/purchase-requests/{purchaseRequest}/edit', PurchaseRequestForm::class)->name('flux-admin.purchase-requests.edit');
@@ -502,8 +520,12 @@ Route::get('/sp-models', SpModelIndex::class)->name('flux-admin.sp-models.index'
 Route::get('/sp-fitments', SpFitmentIndex::class)->name('flux-admin.sp-fitments.index');
 Route::get('/sp-assemblies', SpAssemblyIndex::class)->name('flux-admin.sp-assemblies.index');
 Route::get('/sp-assembly-parts', SpAssemblyPartIndex::class)->name('flux-admin.sp-assembly-parts.index');
+Route::get('/sp-assembly-parts/create', AssemblyPartForm::class)->name('flux-admin.sp-assembly-parts.create');
+Route::get('/sp-assembly-parts/{spAssemblyPart}/edit', AssemblyPartForm::class)->name('flux-admin.sp-assembly-parts.edit');
 Route::get('/sp-parts', SpPartIndex::class)->name('flux-admin.sp-parts.index');
 Route::get('/sp-stock-movements', SpStockMovementIndex::class)->name('flux-admin.sp-stock-movements.index');
+Route::get('/sp-stock-movements/create', SpStockMovementForm::class)->name('flux-admin.sp-stock-movements.create');
+Route::get('/sp-stock-movements/{spStockMovement}/edit', SpStockMovementForm::class)->name('flux-admin.sp-stock-movements.edit');
 
 // Phase 16 — Judopay & recurring billing
 Route::get('/judopay-subscriptions', JudopaySubscriptionIndex::class)->name('flux-admin.judopay-subscriptions.index');
@@ -529,6 +551,8 @@ Route::get('/service-videos/{serviceVideo}/edit', ServiceVideoForm::class)->name
 
 // Phase 19 — Remaining sub-CRUDs
 Route::get('/motorbike-repair-updates', MotorbikeRepairUpdateIndex::class)->name('flux-admin.motorbike-repair-updates.index');
+Route::get('/motorbike-repair-updates/create', RepairUpdateForm::class)->name('flux-admin.motorbike-repair-updates.create');
+Route::get('/motorbike-repair-updates/{motorbikeRepairUpdate}/edit', RepairUpdateForm::class)->name('flux-admin.motorbike-repair-updates.edit');
 Route::get('/ds-order-items', DsOrderItemIndex::class)->name('flux-admin.ds-order-items.index');
 Route::get('/ds-order-items/create', DsOrderItemForm::class)->name('flux-admin.ds-order-items.create');
 Route::get('/ds-order-items/{dsOrderItem}/edit', DsOrderItemForm::class)->name('flux-admin.ds-order-items.edit');
@@ -562,6 +586,7 @@ Route::get('/support-inbox', SupportInbox::class)->name('flux-admin.support-inbo
 // Phase 21 — Final parity pages
 Route::get('/vehicle-history', MotorbikeRecordViewIndex::class)->name('flux-admin.vehicle-history.index');
 Route::get('/club-member-vehicles', ClubMemberVehicleIndex::class)->name('flux-admin.club-member-vehicles.index');
+Route::get('/club-member-vehicles/{clubMember}/edit', MemberVehicleForm::class)->name('flux-admin.club-member-vehicles.edit');
 Route::get('/active-bookings-summary', ActiveBookingsSummary::class)->name('flux-admin.active-bookings-summary.index');
 Route::get('/judopay-mit-dashboard', JudopayMitDashboard::class)->name('flux-admin.judopay-mit-dashboard.index');
 Route::get('/judopay-weekly-queue', JudopayWeeklyMitQueueIndex::class)->name('flux-admin.judopay-weekly-queue.index');

@@ -81,4 +81,6 @@
             </a>
         </div>
     </div>
+
+    @include('flux-admin.partials.dashboard-legacy', ['legacy' => $legacy])
 </div>
