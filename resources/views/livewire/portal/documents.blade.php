@@ -39,6 +39,11 @@
 
     @if($activeTab === 'rental')
         <div class="space-y-4">
+            @if($rentalBookingId)
+                <flux:callout variant="info" icon="information-circle" class="mb-4">
+                    <flux:callout.text>Uploads on this page are linked to rental booking <strong>#{{ $rentalBookingId }}</strong>. Our team will review them on your booking.</flux:callout.text>
+                </flux:callout>
+            @endif
             <flux:card class="p-6 mb-4">
                 <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Rental and general documents</h3>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Includes rental requirements and any general document types not classed as finance.</p>
@@ -56,19 +61,14 @@
                         @foreach($rentalAndGeneralDocs as $docType)
                             @php
                                 $uploaded = $uploadedByType[$docType->id] ?? null;
-                                $status   = $uploaded ? ($uploaded->status ?? 'pending_review') : 'missing';
+                                $status = $documentLifecycle->resolveCustomerDocumentStatus($uploaded);
                                 $badgeColor = match($status) {
-                                    'approved'       => 'green',
+                                    'approved' => 'green',
                                     'pending_review' => 'yellow',
-                                    'rejected'       => 'red',
-                                    default          => 'zinc',
+                                    'rejected' => 'red',
+                                    default => 'zinc',
                                 };
-                                $statusLabel = match($status) {
-                                    'approved'       => 'Approved',
-                                    'pending_review' => 'Under Review',
-                                    'rejected'       => 'Rejected',
-                                    default          => 'Missing',
-                                };
+                                $statusLabel = $documentLifecycle->documentStatusLabel($status);
                             @endphp
                             <div class="flex items-start sm:items-center justify-between gap-3 p-4 border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
                                 <div class="flex-1 min-w-0">

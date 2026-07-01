@@ -71,7 +71,7 @@ class ContractAccessIndex extends Component
     public function render()
     {
         $rows = $this->baseQuery()
-            ->with(['customer:id,first_name,last_name,email'])
+            ->with(['customer:id,first_name,last_name,email', 'application'])
             ->orderByDesc('id')
             ->paginate($this->perPage);
 

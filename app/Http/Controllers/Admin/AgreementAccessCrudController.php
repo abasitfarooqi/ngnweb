@@ -31,11 +31,29 @@ class AgreementAccessCrudController extends BaseCrudController
         CRUD::orderBy('id', 'desc');
 
         $this->crud->addColumn([
-            'name' => 'link_html',
-            'label' => 'Rental Agreement Link',
+            'name' => 'rental_agreement_standard',
+            'label' => 'Rental v6 Standard',
             'type' => 'closure',
             'function' => function ($entry) {
-                $url = url("/rental-agreement/{$entry->customer_id}/{$entry->passcode}");
+                $url = route('agreement.show.v6', [
+                    'customer_id' => $entry->customer_id,
+                    'passcode' => $entry->passcode,
+                ]);
+
+                return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
+            },
+            'escaped' => false,
+        ]);
+
+        $this->crud->addColumn([
+            'name' => 'rental_agreement_ins',
+            'label' => 'Rental v6 Insurance/PCN',
+            'type' => 'closure',
+            'function' => function ($entry) {
+                $url = route('agreement.show.ins.v6', [
+                    'customer_id' => $entry->customer_id,
+                    'passcode' => $entry->passcode,
+                ]);
 
                 return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
             },

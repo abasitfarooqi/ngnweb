@@ -36,6 +36,24 @@
             </div>
         </div>
 
+        @if($recordId)
+            <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+                <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Contract URLs</h2>
+                @if(!empty($contractLinks))
+                    <div class="grid grid-cols-1 gap-4">
+                        <x-flux-admin::field-group label="Standard contract">
+                            <flux:input readonly value="{{ $contractLinks['standard'] ?? '' }}" />
+                        </x-flux-admin::field-group>
+                        <x-flux-admin::field-group label="Insurance/PCN contract">
+                            <flux:input readonly value="{{ $contractLinks['ins'] ?? '' }}" />
+                        </x-flux-admin::field-group>
+                    </div>
+                @else
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">No latest contract type on the linked application — obsolete links are not shown.</p>
+                @endif
+            </div>
+        @endif
+
         <div class="flex justify-end gap-3 pt-2">
             <a href="{{ route('flux-admin.contract-access.index') }}">
                 <flux:button type="button" variant="ghost" class="!rounded-none">Cancel</flux:button>

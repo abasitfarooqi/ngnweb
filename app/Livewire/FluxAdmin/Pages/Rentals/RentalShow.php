@@ -6,7 +6,6 @@ use App\Models\RentingBooking;
 use App\Support\RentalBookingLifecycle;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
-use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 

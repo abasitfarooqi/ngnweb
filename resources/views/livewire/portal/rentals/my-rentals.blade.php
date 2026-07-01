@@ -136,6 +136,13 @@
                         </div>
 
                         <div x-show="tab === 'documents'" x-cloak>
+                            <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
+                                <p class="text-sm text-gray-500">Upload driving licence, proof of address, insurance, and other rental documents.</p>
+                                <a href="{{ route('account.documents', ['tab' => 'rental', 'booking_id' => $booking->id]) }}"
+                                    class="text-xs font-semibold uppercase tracking-wide text-brand-red hover:underline">
+                                    Upload documents for this booking
+                                </a>
+                            </div>
                             @if($bookingAgreements->isEmpty())
                                 <p class="text-sm text-gray-500">No rental agreement files are on record for this booking yet.</p>
                             @else

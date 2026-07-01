@@ -22,6 +22,9 @@ class RentingBooking extends Model
         'due_date',
         'state',
         'is_posted',
+        'notes',
+        'intake_step',
+        'intake_meta',
     ];
 
     protected $casts = [
@@ -29,6 +32,8 @@ class RentingBooking extends Model
         'start_date' => 'datetime',
         'due_date' => 'datetime',
         'is_posted' => 'boolean',
+        'intake_step' => 'integer',
+        'intake_meta' => 'array',
     ];
 
     public function judopaySubscription(): MorphOne

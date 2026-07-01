@@ -57,7 +57,7 @@ class RentingController extends Controller
             'expires_at' => $expiresAt,
         ]);
 
-        $url = route('agreement.show', ['customer_id' => $customer_id, 'passcode' => $passcode]);
+        $url = route('agreement.show.ins.v6', ['customer_id' => $customer_id, 'passcode' => $passcode]);
 
         if ($access) {
 

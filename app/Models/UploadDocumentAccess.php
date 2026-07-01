@@ -20,6 +20,10 @@ class UploadDocumentAccess extends Model
         'expires_at',
     ];
 
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
     protected $appends = ['link_html'];
 
     public function customer()

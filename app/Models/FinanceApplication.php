@@ -112,9 +112,29 @@ class FinanceApplication extends Model
         return $this->hasMany(CustomerContract::class, 'application_id');
     }
 
+    public function hasLatestContractType(): bool
+    {
+        return (bool) $this->is_new_latest || (bool) $this->is_used_latest;
+    }
+
+    public function usesObsoleteContractFlags(): bool
+    {
+        return (bool) $this->is_used
+            || (bool) $this->is_used_extended
+            || (bool) $this->is_used_extended_custom;
+    }
+
     protected static function boot()
     {
         parent::boot();
+
+        static::saving(function (FinanceApplication $financeApplication) {
+            if ($financeApplication->hasLatestContractType()) {
+                $financeApplication->is_used = false;
+                $financeApplication->is_used_extended = false;
+                $financeApplication->is_used_extended_custom = false;
+            }
+        });
 
         static::saved(function (FinanceApplication $financeApplication) {
             if (request()->attributes->get('skip_finance_agreement_generation')) {

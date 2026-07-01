@@ -18,7 +18,7 @@ class SigningAccessTab extends Component
 
     public function render()
     {
-        $accesses = ContractAccess::with('customer')
+        $accesses = ContractAccess::with(['customer', 'application'])
             ->where('application_id', $this->applicationId)
             ->orderByDesc('id')
             ->get();

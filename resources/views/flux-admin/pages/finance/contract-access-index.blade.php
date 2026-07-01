@@ -25,7 +25,16 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->expires_at ? \Carbon\Carbon::parse($r->expires_at)->format('d M Y H:i') : '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <flux:button size="xs" variant="ghost" :href="'https://neguinhomotors.co.uk/sale-ins-latest/'.$r->customer_id.'/'.$r->passcode" target="_blank" icon="link" class="!rounded-none">Link</flux:button>
+                                @php
+                                    $contractUrl = $r->application
+                                        ? \App\Services\FinanceContractLinkResolver::primaryUrl($r->application, $r->passcode)
+                                        : null;
+                                @endphp
+                                @if($contractUrl)
+                                    <flux:button size="xs" variant="ghost" :href="$contractUrl" target="_blank" icon="link" class="!rounded-none">Link</flux:button>
+                                @else
+                                    <span class="text-xs text-zinc-400">Obsolete</span>
+                                @endif
                                 <a href="{{ route('flux-admin.contract-access.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
                                 <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this contract link?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>

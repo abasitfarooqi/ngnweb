@@ -1,0 +1,253 @@
+<?php
+
+namespace App\Support;
+
+use App\Models\BookingInvoice;
+use App\Models\RentingBooking;
+use App\Models\RentingBookingItem;
+use App\Models\RentingPricing;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
+use InvalidArgumentException;
+use RuntimeException;
+
+class RentalIntakeDraft
+{
+    public const MAX_STEP = 6;
+
+    /** @return array<string, mixed> */
+    public function load(int $bookingId, int $userId): array
+    {
+        $booking = $this->findOwnedDraft($bookingId, $userId);
+        $item = RentingBookingItem::query()
+            ->where('booking_id', $booking->id)
+            ->orderBy('id')
+            ->first();
+        $invoice = BookingInvoice::query()
+            ->where('booking_id', $booking->id)
+            ->orderBy('id')
+            ->first();
+
+        $meta = is_array($booking->intake_meta) ? $booking->intake_meta : [];
+
+        return [
+            'booking'          => $booking,
+            'item'             => $item,
+            'invoice'          => $invoice,
+            'step'             => (int) ($booking->intake_step ?? 2),
+            'motorbikeId'      => $item?->motorbike_id,
+            'customerId'       => $booking->customer_id,
+            'weeklyRent'       => $item ? (float) $item->weekly_rent : null,
+            'deposit'          => (float) $booking->deposit,
+            'startDate'        => $booking->start_date?->toDateString() ?? now()->toDateString(),
+            'notes'            => (string) ($booking->notes ?? ''),
+            'termsAccepted'    => (bool) ($meta['terms_accepted'] ?? false),
+            'paymentMethod'    => (string) ($meta['payment_method'] ?? 'cash'),
+            'initialPayment'   => (float) ($meta['initial_payment'] ?? 0),
+            'sendDocUploadLink'=> (bool) ($meta['send_doc_upload_link'] ?? true),
+        ];
+    }
+
+    public function findResumableForUser(int $userId): ?RentingBooking
+    {
+        return RentingBooking::query()
+            ->where('user_id', $userId)
+            ->where('state', 'DRAFT')
+            ->where('is_posted', false)
+            ->whereNotNull('intake_step')
+            ->where('intake_step', '<', self::MAX_STEP)
+            ->where('updated_at', '>=', now()->subDays(7))
+            ->latest('updated_at')
+            ->first();
+    }
+
+    /**
+     * @param  array{
+     *     motorbike_id:int,
+     *     customer_id:int,
+     *     start_date?:string,
+     *     weekly_rent?:float|null,
+     *     deposit?:float,
+     *     notes?:string|null,
+     *     terms_accepted?:bool,
+     *     payment_method?:string,
+     *     initial_payment?:float,
+     *     send_doc_upload_link?:bool,
+     * }  $data
+     */
+    public function persist(
+        ?int $bookingId,
+        int $userId,
+        int $step,
+        array $data,
+    ): int {
+        if ($step < 2 || $step > self::MAX_STEP) {
+            throw new InvalidArgumentException('Intake step must be between 2 and '.self::MAX_STEP.'.');
+        }
+
+        return DB::transaction(function () use ($bookingId, $userId, $step, $data) {
+            $start = Carbon::parse($data['start_date'] ?? now()->toDateString())->startOfDay();
+            $due = (clone $start)->addDays(7);
+            $weeklyRent = $this->resolveWeeklyRent(
+                (int) $data['motorbike_id'],
+                isset($data['weekly_rent']) ? (float) $data['weekly_rent'] : null,
+            );
+            $deposit = (float) ($data['deposit'] ?? 0);
+            $meta = [
+                'terms_accepted'       => (bool) ($data['terms_accepted'] ?? false),
+                'payment_method'       => (string) ($data['payment_method'] ?? 'cash'),
+                'initial_payment'      => (float) ($data['initial_payment'] ?? 0),
+                'send_doc_upload_link' => (bool) ($data['send_doc_upload_link'] ?? true),
+            ];
+
+            if ($bookingId) {
+                $booking = $this->findOwnedDraft($bookingId, $userId);
+                $booking->update([
+                    'customer_id'  => $data['customer_id'],
+                    'start_date'   => $start->toDateString(),
+                    'due_date'     => $due->toDateString(),
+                    'deposit'      => $deposit,
+                    'notes'        => ($data['notes'] ?? '') !== '' ? $data['notes'] : null,
+                    'intake_step'  => $step,
+                    'intake_meta'  => $meta,
+                ]);
+
+                $item = RentingBookingItem::query()
+                    ->where('booking_id', $booking->id)
+                    ->orderBy('id')
+                    ->first();
+
+                if ($item) {
+                    $item->update([
+                        'motorbike_id' => $data['motorbike_id'],
+                        'weekly_rent'  => $weeklyRent,
+                        'start_date'   => $start->toDateString(),
+                        'due_date'     => $due->toDateString(),
+                    ]);
+                } else {
+                    RentingBookingItem::create([
+                        'booking_id'   => $booking->id,
+                        'motorbike_id' => $data['motorbike_id'],
+                        'user_id'      => $userId,
+                        'weekly_rent'  => $weeklyRent,
+                        'start_date'   => $start->toDateString(),
+                        'due_date'     => $due->toDateString(),
+                        'is_posted'    => false,
+                    ]);
+                }
+
+                $invoice = BookingInvoice::query()
+                    ->where('booking_id', $booking->id)
+                    ->orderBy('id')
+                    ->first();
+
+                $invoiceAmount = $weeklyRent + ($deposit > 0 ? $deposit : 0);
+
+                if ($invoice) {
+                    $invoice->update([
+                        'invoice_date' => $start->toDateString(),
+                        'amount'       => $invoiceAmount,
+                        'deposit'      => $deposit > 0 ? $deposit : 0,
+                    ]);
+                } else {
+                    BookingInvoice::create([
+                        'booking_id'   => $booking->id,
+                        'user_id'      => $userId,
+                        'invoice_date' => $start->toDateString(),
+                        'amount'       => $invoiceAmount,
+                        'deposit'      => $deposit > 0 ? $deposit : 0,
+                        'state'        => 'weekly',
+                        'is_posted'    => false,
+                        'is_paid'      => false,
+                    ]);
+                }
+
+                return $booking->id;
+            }
+
+            $booking = RentingBooking::create([
+                'customer_id' => $data['customer_id'],
+                'user_id'     => $userId,
+                'start_date'  => $start->toDateString(),
+                'due_date'    => $due->toDateString(),
+                'state'       => 'DRAFT',
+                'is_posted'   => false,
+                'deposit'     => $deposit,
+                'notes'       => ($data['notes'] ?? '') !== '' ? $data['notes'] : null,
+                'intake_step' => $step,
+                'intake_meta' => $meta,
+            ]);
+
+            RentingBookingItem::create([
+                'booking_id'   => $booking->id,
+                'motorbike_id' => $data['motorbike_id'],
+                'user_id'      => $userId,
+                'weekly_rent'  => $weeklyRent,
+                'start_date'   => $start->toDateString(),
+                'due_date'     => $due->toDateString(),
+                'is_posted'    => false,
+            ]);
+
+            BookingInvoice::create([
+                'booking_id'   => $booking->id,
+                'user_id'      => $userId,
+                'invoice_date' => $start->toDateString(),
+                'amount'       => $weeklyRent + ($deposit > 0 ? $deposit : 0),
+                'deposit'      => $deposit > 0 ? $deposit : 0,
+                'state'        => 'weekly',
+                'is_posted'    => false,
+                'is_paid'      => false,
+            ]);
+
+            return $booking->id;
+        });
+    }
+
+    public function complete(int $bookingId, int $userId): void
+    {
+        $booking = $this->findOwnedDraft($bookingId, $userId);
+        $booking->update([
+            'intake_step' => self::MAX_STEP,
+            'intake_meta' => null,
+        ]);
+    }
+
+    public function discard(int $bookingId, int $userId): void
+    {
+        $booking = $this->findOwnedDraft($bookingId, $userId);
+        app(RentalBookingLifecycle::class)->abortUnposted($booking);
+    }
+
+    private function findOwnedDraft(int $bookingId, int $userId): RentingBooking
+    {
+        $booking = RentingBooking::query()->find($bookingId);
+
+        if (! $booking) {
+            throw new RuntimeException('Draft booking not found.');
+        }
+
+        if ((int) $booking->user_id !== $userId) {
+            throw new RuntimeException('You do not have access to this draft booking.');
+        }
+
+        if ($booking->is_posted || $booking->state !== 'DRAFT') {
+            throw new RuntimeException('This booking is no longer an intake draft.');
+        }
+
+        return $booking;
+    }
+
+    private function resolveWeeklyRent(int $motorbikeId, ?float $weeklyRent): float
+    {
+        if ($weeklyRent !== null && $weeklyRent > 0) {
+            return $weeklyRent;
+        }
+
+        $pricing = RentingPricing::query()
+            ->where('motorbike_id', $motorbikeId)
+            ->where('iscurrent', true)
+            ->value('weekly_price');
+
+        return $pricing !== null && (float) $pricing > 0 ? (float) $pricing : 0.0;
+    }
+}

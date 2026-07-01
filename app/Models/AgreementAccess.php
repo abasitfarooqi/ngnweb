@@ -27,19 +27,30 @@ class AgreementAccess extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    public static function rentalUrlsFor(int $customerId, string $passcode): array
+    {
+        $params = ['customer_id' => $customerId, 'passcode' => $passcode];
+
+        return [
+            'standard' => route('agreement.show.v6', $params),
+            'ins' => route('agreement.show.ins.v6', $params),
+        ];
+    }
+
+    public function rentalAgreementUrls(): array
+    {
+        return self::rentalUrlsFor($this->customer_id, $this->passcode);
+    }
+
     public function getLinkHtmlAttribute()
     {
-        $url = url("/agreement/{$this->customer_id}/{$this->passcode}");
-        $link = '<a href="'.$url.'" target="_blank">'.$url.'</a>';
-        \Log::info('Generated Link: '.$link); // Log the generated link
+        $url = $this->rentalAgreementUrls()['ins'];
 
-        return $link;
+        return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
     }
 
     public function getLink()
     {
-        $url = url("/agreement/{$this->customer_id}/{$this->passcode}");
-
-        return $url;
+        return $this->rentalAgreementUrls()['ins'];
     }
 }

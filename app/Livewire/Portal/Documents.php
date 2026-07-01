@@ -7,7 +7,9 @@ use App\Models\CustomerAgreement;
 use App\Models\CustomerContract;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
+use App\Models\RentingBooking;
 use App\Support\CustomerDocumentStorage;
+use App\Support\RentalBookingLifecycle;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
@@ -32,6 +34,8 @@ class Documents extends Component
 
     public ?array $lastUploadReceipt = null;
 
+    public ?int $rentalBookingId = null;
+
     public function mount(): void
     {
         $tab = strtolower((string) request()->query('tab', 'rental'));
@@ -40,6 +44,17 @@ class Documents extends Component
         }
         if (in_array($tab, ['rental', 'finance'], true)) {
             $this->activeTab = $tab;
+        }
+
+        $bookingId = request()->integer('booking_id') ?: null;
+        if ($bookingId) {
+            $customerId = $this->getPortalCustomerId();
+            $ownsBooking = $customerId && RentingBooking::query()
+                ->where('id', $bookingId)
+                ->where('customer_id', $customerId)
+                ->exists();
+
+            $this->rentalBookingId = $ownsBooking ? $bookingId : null;
         }
     }
 
@@ -203,6 +218,12 @@ class Documents extends Component
             ];
             if (Schema::hasColumn('customer_documents', 'status')) {
                 $attributes['status'] = 'pending_review';
+            } elseif (Schema::hasColumn('customer_documents', 'is_verified')) {
+                $attributes['is_verified'] = false;
+            }
+
+            if ($this->rentalBookingId && Schema::hasColumn('customer_documents', 'booking_id')) {
+                $attributes['booking_id'] = $this->rentalBookingId;
             }
 
             \Log::info('Portal Documents::submitDocumentUpload saving db row', [
@@ -338,6 +359,7 @@ class Documents extends Component
 
         $missingRentalMandatory = $rentalMandatoryIds->filter(fn ($id) => ! $uploadedByType->has($id))->values();
         $missingFinanceMandatory = $financeMandatoryIds->filter(fn ($id) => ! $uploadedByType->has($id))->values();
+        $documentLifecycle = app(RentalBookingLifecycle::class);
 
         return view('livewire.portal.documents', compact(
             'rentalAndGeneralDocs',
@@ -351,7 +373,8 @@ class Documents extends Component
             'profile',
             'customerId',
             'missingRentalMandatory',
-            'missingFinanceMandatory'
+            'missingFinanceMandatory',
+            'documentLifecycle',
         ))
             ->layout('components.layouts.portal', ['title' => 'My Documents | My Account']);
     }

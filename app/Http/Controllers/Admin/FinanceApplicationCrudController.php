@@ -12,6 +12,7 @@ use App\Models\Contract;
 use App\Models\ContractAccess;
 use App\Models\Customer;
 use App\Models\Motorbike;
+use App\Services\FinanceContractLinkResolver;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
 use Carbon\Carbon;
@@ -856,71 +857,30 @@ class FinanceApplicationCrudController extends BaseCrudController
                 }
 
                 $passcode = Str::random(12);
-                $expiresAt = now()->addDays(1);
+                $isInsuranceOrPcn = request()->has('insurance_pcn')
+                    ? request()->boolean('insurance_pcn')
+                    : true;
+                $url = FinanceContractLinkResolver::primaryUrl($financeApplication, $passcode, $isInsuranceOrPcn);
+
+                if (! $url) {
+                    Log::warning('Finance contract link skipped: no latest contract type selected', [
+                        'application_id' => $financeApplication->id,
+                        'is_used' => $financeApplication->is_used,
+                        'is_used_extended' => $financeApplication->is_used_extended,
+                        'is_used_extended_custom' => $financeApplication->is_used_extended_custom,
+                        'is_new_latest' => $financeApplication->is_new_latest,
+                        'is_used_latest' => $financeApplication->is_used_latest,
+                    ]);
+
+                    return;
+                }
 
                 $access = ContractAccess::create([
                     'customer_id' => $financeApplication->customer_id,
                     'application_id' => $financeApplication->id,
                     'passcode' => $passcode,
-                    'expires_at' => $expiresAt,
+                    'expires_at' => now()->addDays(1),
                 ]);
-
-                // Get insurance/PCN status (needed for both subscription and regular contracts)
-                $isInsuranceOrPCN = request()->boolean('insurance_pcn');
-                $isMonthly = request()->boolean('is_monthly');
-
-                // Existing contract type logic
-                // $contractType = request()->input('contract_type');
-
-                if (request()->input('is_new')) {
-                    if ($isInsuranceOrPCN) {
-                        $url = route('finance.ins.show.5m.extended', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    } else {
-                        $url = route('finance.show', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    }
-                } elseif ($financeApplication->is_used) {
-                    if ($isInsuranceOrPCN) {
-                        $url = route('finance.ins.show.5m.extended', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    } else {
-                        $url = route('finance.show', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    }
-                } elseif ($financeApplication->is_used_extended_custom) {
-                    if ($isInsuranceOrPCN) {
-                        $url = route('finance.ins.show.5m.extended', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    } else {
-                        $url = route('finance.ins.show.18m.extended.custom', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    }
-                    // ===== NEW LATEST CONTRACT LOGIC =====
-                } elseif ($financeApplication->is_new_latest) {
-                    // Check if subscription is enabled for new latest
-                    if ($financeApplication->is_subscription) {
-                        if ($isInsuranceOrPCN) {
-                            $url = route('finance.ins.show.merged.new', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                        } else {
-                            $url = route('finance.show.merged.new', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                        }
-                    } else {
-                        $url = $isInsuranceOrPCN
-                            ? route('finance.ins.show.latest', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode])
-                            : route('finance.show.latest', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    }
-                } elseif ($financeApplication->is_used_latest) {
-                    // Check if subscription is enabled for used latest
-                    if ($financeApplication->is_subscription) {
-                        if ($isInsuranceOrPCN) {
-                            $url = route('finance.ins.show.merged.used', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                        } else {
-                            $url = route('finance.show.merged.used', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                        }
-                    } else {
-                        $url = $isInsuranceOrPCN
-                            ? route('finance.ins.show.used.latest', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode])
-                            : route('finance.show.used.latest', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                    }
-                } else {
-                    // fallback
-                    $url = route('finance.show', ['customer_id' => $financeApplication->customer_id, 'passcode' => $passcode]);
-                }
 
                 if ($access) {
                     $qrBase64 = '';

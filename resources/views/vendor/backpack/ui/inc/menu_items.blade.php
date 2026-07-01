@@ -111,7 +111,7 @@
 </x-backpack::menu-dropdown>
 
 <x-backpack::menu-dropdown title="WEBSITE" icon="las la-chevron-circle-down">
-    <x-backpack::menu-dropdown-item title="Vehicle Sale Add / Edit" icon="la la-motorcycle" :link="backpack_url('motorbikes-sale')" />
+    <x-backpack::menu-dropdown-item title="Used Motorcycle Sale" icon="la la-motorcycle" :link="backpack_url('motorbikes-sale')" />
 </x-backpack::menu-dropdown>
 
 

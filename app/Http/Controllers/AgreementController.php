@@ -26,6 +26,7 @@ use App\Models\RentalTerminateAccess;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\UploadDocumentAccess;
+use App\Support\DocumentUploadAccessGenerator;
 use Carbon\Carbon;
 use DateTime;
 // use File;
@@ -67,7 +68,10 @@ class AgreementController extends Controller
             ->orderBy('agreement_accesses.created_at', 'desc')
             ->get()
             ->map(function ($access) {
-                $access->link = url("/agreement/{$access->customer_id}/{$access->passcode}");
+                $urls = AgreementAccess::rentalUrlsFor($access->customer_id, $access->passcode);
+                $access->link = $urls['ins'];
+                $access->link_standard = $urls['standard'];
+                $access->link_ins = $urls['ins'];
                 $access->name = $access->first_name.' '.$access->last_name;
 
                 return $access;
@@ -110,8 +114,7 @@ class AgreementController extends Controller
             'expires_at' => $expiresAt,
         ]);
 
-        // $url = route('agreement.show', ['customer_id' => $customer_id, 'passcode' => $passcode]);
-        $url = route('agreement.show.ins.5m.extended', ['customer_id' => $customer_id, 'passcode' => $passcode]);
+        $url = route('agreement.show.ins.v6', ['customer_id' => $customer_id, 'passcode' => $passcode]);
 
         if ($access) {
 
@@ -156,61 +159,38 @@ class AgreementController extends Controller
     // 4.2.3 - Upload Documents Link Generation >>> //
     public function generateDocumentUploadAccess($customer_id)
     {
-        \Log::info('Generating Document Upload Link'.$customer_id);
         $booking_id = request()->query('booking_id');
-        \Log::info('Booking ID: '.$booking_id);
+
         if (! $booking_id) {
-            return response()->json([
-                'message' => 'Unauthorized access',
-            ], 400);
-        }
-        $rentingBooking = RentingBooking::with('customer')->findOrFail($booking_id);
-        $customer = $rentingBooking->customer;
-        if (! $customer) {
-            abort(404, 'Customer not found');
-        }
-        \Log::info('Customer Obj: ', [$customer]);
-        $passcode = Str::random(12);
-        $expiresAt = now()->addDays(1);
-        $access = UploadDocumentAccess::create([
-            'customer_id' => $customer_id,
-            'booking_id' => $booking_id,
-            'passcode' => $passcode,
-            'expires_at' => $expiresAt,
-        ]);
-
-        $url = route('uploaddoc.showUploadDocPage.show', ['customer_id' => $customer_id, 'passcode' => $passcode]);
-
-        if ($access) {
-
-            $data['email'] = [$customer->email, 'customerservice@neguinhomotors.co.uk'];
-            $data['title'] = 'Documents Upload';
-            $data['body'] = 'Dear valued customer,
-
-            We kindly request your attention to finalize your booking with Neguinho Motors. To proceed, please click the following link to upload all pending documents: '.$url.'
-
-            Completing this step is essential to move forward. Thank you for choosing Neguinho Motors for your motorcycle rental needs.';
-
-            $mailData = [
-                'title' => $data['title'],
-                'body' => $data['body'],
-                'url' => $url,
-            ];
-
-            try {
-                Mail::to($data['email'])->send(new CustomerDocumentRequest($mailData));
-            } catch (Exception $e) {
-
-                Log::error(__FILE__.' at line '.__LINE__.'Failed to send email: '.$e->getMessage());
-
-                return response()->json(['error' => 'Failed to send email, please check the email address and try again.'], 400);
+            if (request()->expectsJson()) {
+                return response()->json(['message' => 'booking_id is required.'], 400);
             }
 
+            abort(400, 'booking_id is required.');
+        }
+
+        try {
+            $result = app(DocumentUploadAccessGenerator::class)->create(
+                (int) $customer_id,
+                (int) $booking_id,
+                sendEmail: true,
+            );
+        } catch (InvalidArgumentException|RuntimeException $e) {
+            if (request()->expectsJson()) {
+                return response()->json(['error' => $e->getMessage()], 400);
+            }
+
+            abort(400, $e->getMessage());
+        }
+
+        if (request()->expectsJson()) {
             return response()->json([
-                'success' => true,
-                'uploadLink' => $url,
+                'success'    => true,
+                'uploadLink' => $result['uploadLink'],
             ]);
         }
+
+        return redirect()->away($result['uploadLink']);
     }
 
     public function showV6(Request $request, $customer_id, $passcode)
@@ -1865,25 +1845,26 @@ class AgreementController extends Controller
 
     public function showUploadDocPage(Request $request, $customer_id, $passcode)
     {
-        $access = UploadDocumentAccess::where('customer_id', $customer_id)
+        $access = UploadDocumentAccess::query()
+            ->where('customer_id', $customer_id)
             ->where('passcode', $passcode)
             ->where('expires_at', '>', now())
             ->first();
+
         if (! $access) {
-            abort(403, 'Unauthorized access or the link has expired.');
+            abort(403, 'This upload link has expired or is invalid. Ask us to generate a fresh link from your booking.');
         }
+
         $toDay = new DateTime;
         $today = Carbon::parse($toDay)->format('d/m/Y');
         $SIGFILE = '#';
-        $booking = Rentingbooking::findOrFail($access->booking_id);
-        
+        $booking = RentingBooking::with('user')->findOrFail($access->booking_id);
         $customer = Customer::findOrFail($booking->customer_id);
-        
-        $bookingItem = RentingbookingItem::where('booking_id', $booking->id)->first();
-        
-        $motorbike = Motorbike::where('id', $bookingItem->motorbike_id)->first();
-        
-        $user_name = $booking->user->first_name.' '.$booking->user->last_name;
+        $bookingItem = RentingBookingItem::where('booking_id', $booking->id)->first();
+        $motorbike = $bookingItem ? Motorbike::find($bookingItem->motorbike_id) : null;
+        $user_name = $booking->user
+            ? trim($booking->user->first_name.' '.$booking->user->last_name)
+            : 'NGN';
 
         return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',

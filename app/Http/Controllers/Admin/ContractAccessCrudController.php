@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Requests\ContractAccessRequest;
+use App\Services\FinanceContractLinkResolver;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 
@@ -40,6 +41,7 @@ class ContractAccessCrudController extends BaseCrudController
      */
     protected function setupListOperation()
     {
+        $this->crud->query->with('application');
         CRUD::addColumn([
             'name' => 'id',
             'type' => 'text',
@@ -72,6 +74,26 @@ class ContractAccessCrudController extends BaseCrudController
             'label' => 'Expires At',
         ]);
         CRUD::enableExportButtons();
+
+        $this->crud->addColumn([
+            'name' => 'contract_link',
+            'label' => 'Contract link',
+            'type' => 'closure',
+            'function' => function ($entry) {
+                $application = $entry->application;
+                if (! $application) {
+                    return '<span class="text-muted">No application</span>';
+                }
+
+                $url = FinanceContractLinkResolver::primaryUrl($application, $entry->passcode);
+                if (! $url) {
+                    return '<span class="text-muted">Obsolete — no latest type</span>';
+                }
+
+                return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
+            },
+            'escaped' => false,
+        ]);
     }
 
     /**
@@ -112,15 +134,40 @@ class ContractAccessCrudController extends BaseCrudController
     {
         $this->setupCreateOperation();
 
-        CRUD::addField([
-            'name' => 'contract_link',
-            'label' => 'Contract Link',
-            'type' => 'text',
-            'value' => 'https://neguinhomotors.co.uk/sale-ins-latest/'.$this->crud->getCurrentEntry()->customer_id.'/'.$this->crud->getCurrentEntry()->passcode,
-            'attributes' => [
-                'readonly' => 'readonly',
-            ],
-        ]);
+        $entry = $this->crud->getCurrentEntry();
+        $application = $entry->application;
+        $links = $application
+            ? FinanceContractLinkResolver::resolve($application, $entry->passcode)
+            : null;
+
+        if ($links) {
+            foreach ([
+                'standard' => 'Standard contract link',
+                'ins' => 'Insurance/PCN contract link',
+            ] as $key => $label) {
+                CRUD::addField([
+                    'name' => 'link_'.$key,
+                    'label' => $label,
+                    'type' => 'text',
+                    'value' => $links[$key],
+                    'attributes' => [
+                        'readonly' => 'readonly',
+                    ],
+                    'fake' => true,
+                ]);
+            }
+        } else {
+            CRUD::addField([
+                'name' => 'link_obsolete',
+                'label' => 'Contract link',
+                'type' => 'text',
+                'value' => 'No latest contract type on linked application — obsolete links are not shown.',
+                'attributes' => [
+                    'readonly' => 'readonly',
+                ],
+                'fake' => true,
+            ]);
+        }
 
     }
 }

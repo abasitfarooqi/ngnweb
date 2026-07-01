@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Finance;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\ContractAccess;
+use App\Services\FinanceContractLinkResolver;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -18,6 +19,8 @@ class ContractAccessForm extends Component
 
     public array $form = [];
 
+    public array $contractLinks = [];
+
     public function mount(?int $id = null): void
     {
         $this->resetErrorBag();
@@ -25,8 +28,11 @@ class ContractAccessForm extends Component
 
         if ($id) {
             $this->recordId = $id;
-            $record         = ContractAccess::findOrFail($id);
+            $record         = ContractAccess::with('application')->findOrFail($id);
             $this->form     = $record->getAttributes();
+            $this->contractLinks = $record->application
+                ? (FinanceContractLinkResolver::resolve($record->application, $record->passcode) ?? [])
+                : [];
 
             if (! empty($this->form['expires_at'])) {
                 try {

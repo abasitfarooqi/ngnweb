@@ -558,8 +558,8 @@
                 </flux:navlist.group>
 
                 <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbike-sales.*','flux-admin.motorbike-for-sale.*')" heading="Website">
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-sales.index') }}" :current="request()->routeIs('flux-admin.motorbike-sales.*')">Vehicle sale add / edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-for-sale.index') }}" :current="request()->routeIs('flux-admin.motorbike-for-sale.*')">For sale catalogue</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.motorbike-sales.index') }}" :current="request()->routeIs('flux-admin.motorbike-sales.*')">Used Motorcycle Sale</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.motorbike-for-sale.index') }}" :current="request()->routeIs('flux-admin.motorbike-for-sale.*')">Brand New vehicles</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 

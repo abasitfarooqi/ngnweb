@@ -12,10 +12,11 @@
     {{-- Document link display --}}
     @if($docUploadLink)
         <div class="mx-4 mt-3 p-3 border border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700">
-            <p class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">DOCUMENT UPLOAD LINK — Share with customer:</p>
+            <p class="text-xs font-bold text-amber-800 dark:text-amber-300 mb-1">CUSTOMER UPLOAD LINK — public, no login (valid {{ \App\Support\DocumentUploadAccessGenerator::LINK_VALID_DAYS }} days):</p>
             <div class="flex items-center gap-2">
                 <code class="text-xs bg-white dark:bg-zinc-800 border border-zinc-300 dark:border-zinc-600 px-2 py-1 flex-1 break-all">{{ $docUploadLink }}</code>
                 <flux:button size="xs" variant="ghost" icon="clipboard" x-on:click="navigator.clipboard.writeText('{{ $docUploadLink }}')">Copy</flux:button>
+                <flux:button size="xs" variant="ghost" href="{{ $docUploadLink }}" target="_blank" icon="arrow-top-right-on-square">Open</flux:button>
             </div>
         </div>
     @endif
@@ -56,12 +57,21 @@
                 </button>
             @endif
             <button
-                wire:click="generateDocumentLink"
+                wire:click="generateDocumentLink(false)"
                 class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold bg-brand-red hover:opacity-90 text-white transition"
             >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                Generate Upload Link
+                {{ $docUploadLink ? 'Refresh link' : 'Generate upload link' }}
             </button>
+            @if($docUploadLink)
+                <button
+                    type="button"
+                    wire:click="generateDocumentLink(true)"
+                    class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold border border-zinc-300 bg-white text-zinc-800 transition dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-200"
+                >
+                    New passcode
+                </button>
+            @endif
         </div>
     </div>
 
@@ -70,9 +80,23 @@
         <div class="px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 text-xs font-bold uppercase tracking-wide text-zinc-500">Mandatory documents</div>
         <ul class="divide-y divide-zinc-200 dark:divide-zinc-700">
             @foreach($checklist as $item)
-                <li class="flex items-center justify-between px-4 py-2 text-sm">
+                @php
+                    $badgeColor = match($item['status']) {
+                        'approved' => 'emerald',
+                        'pending_review' => 'amber',
+                        'rejected' => 'red',
+                        default => 'zinc',
+                    };
+                @endphp
+                <li class="flex items-center justify-between gap-3 px-4 py-2 text-sm">
                     <span>{{ $item['name'] }}</span>
-                    <flux:badge size="sm" :color="$item['approved'] ? 'emerald' : 'amber'">{{ $item['approved'] ? 'Approved' : 'Pending' }}</flux:badge>
+                    <div class="flex items-center gap-2">
+                        <flux:badge size="sm" :color="$badgeColor">{{ $item['status_label'] }}</flux:badge>
+                        @if($item['document_id'] && $item['status'] === 'pending_review')
+                            <flux:button size="xs" variant="primary" wire:click="approveDocument({{ $item['document_id'] }})">Approve</flux:button>
+                            <flux:button size="xs" variant="danger" wire:click="requestReupload({{ $item['document_id'] }})" wire:confirm="Ask the customer to upload this document again?">Re-upload</flux:button>
+                        @endif
+                    </div>
                 </li>
             @endforeach
         </ul>
@@ -89,7 +113,7 @@
                     <flux:table.column>Doc Number</flux:table.column>
                     <flux:table.column>Valid Until</flux:table.column>
                     <flux:table.column>Uploaded</flux:table.column>
-                    <flux:table.column>&nbsp;</flux:table.column>
+                    <flux:table.column>Actions</flux:table.column>
                 </flux:table.columns>
                 <flux:table.rows>
                     @forelse($documents as $doc)
@@ -98,33 +122,42 @@
                             <flux:table.cell class="text-sm">{{ $doc->documentType?->name ?? '—' }}</flux:table.cell>
                             <flux:table.cell>
                                 @php
-                                    $statusColor = match($doc->status ?? '') {
+                                    $statusColor = match($doc->review_status ?? 'missing') {
                                         'approved' => 'emerald',
                                         'rejected' => 'red',
                                         'pending_review' => 'amber',
-                                        'uploaded' => 'blue',
                                         default => 'zinc',
                                     };
                                 @endphp
-                                <flux:badge size="sm" :color="$statusColor">{{ ucfirst(str_replace('_', ' ', $doc->status ?? 'unknown')) }}</flux:badge>
-                                @if($doc->is_verified)
-                                    <flux:badge size="sm" color="emerald" class="ml-1">Verified</flux:badge>
+                                <flux:badge size="sm" :color="$statusColor">{{ $doc->review_status_label ?? 'Unknown' }}</flux:badge>
+                                @if(($doc->status ?? null) && ($doc->status !== ($doc->review_status ?? null)))
+                                    <span class="ml-1 text-[10px] text-zinc-400">({{ str_replace('_', ' ', $doc->status) }})</span>
                                 @endif
                             </flux:table.cell>
                             <flux:table.cell class="font-mono text-xs">{{ $doc->document_number ?? '—' }}</flux:table.cell>
                             <flux:table.cell class="text-xs">{{ $doc->valid_until ? \Carbon\Carbon::parse($doc->valid_until)->format('d M Y') : '—' }}</flux:table.cell>
                             <flux:table.cell class="text-xs text-zinc-500">{{ $doc->created_at?->format('d M Y') ?? '—' }}</flux:table.cell>
                             <flux:table.cell>
-                                @if($doc->file_url)
-                                    <flux:button size="xs" variant="ghost" icon="eye" href="{{ $doc->file_url }}" target="_blank">View</flux:button>
-                                @else
-                                    <span class="text-xs text-zinc-400">No file</span>
-                                @endif
+                                <div class="flex flex-wrap gap-1">
+                                    @if($doc->review_status === 'pending_review')
+                                        <flux:button size="xs" variant="primary" wire:click="approveDocument({{ $doc->id }})">Approve</flux:button>
+                                        <flux:button size="xs" variant="danger" wire:click="requestReupload({{ $doc->id }})">Re-upload</flux:button>
+                                    @elseif($doc->review_status === 'approved')
+                                        <flux:button size="xs" variant="ghost" wire:click="markPendingReview({{ $doc->id }})">Undo</flux:button>
+                                    @elseif($doc->review_status === 'rejected')
+                                        <flux:button size="xs" variant="ghost" wire:click="markPendingReview({{ $doc->id }})">Clear</flux:button>
+                                    @endif
+                                    @if($doc->file_url)
+                                        <flux:button size="xs" variant="ghost" icon="eye" href="{{ $doc->file_url }}" target="_blank">View</flux:button>
+                                    @else
+                                        <span class="text-xs text-zinc-400 self-center">No file</span>
+                                    @endif
+                                </div>
                             </flux:table.cell>
                         </flux:table.row>
                     @empty
                         <flux:table.row>
-                            <flux:table.cell colspan="7" class="py-10 text-center">
+                                <flux:table.cell colspan="7" class="py-10 text-center">
                                 <div class="flex flex-col items-center gap-2">
                                     <flux:icon name="document" variant="outline" class="w-8 h-8 text-zinc-400" />
                                     <p class="text-sm text-zinc-500 dark:text-zinc-400">No documents found for this booking or customer.</p>
@@ -144,8 +177,9 @@
     <div class="p-4 border-t border-zinc-200 dark:border-zinc-700">
         <p class="text-xs text-zinc-500 dark:text-zinc-400 italic">
             <strong class="text-zinc-700 dark:text-zinc-300">Note:</strong>
-            Before marking documents complete, ensure the insurance policy and certificates are valid and cover the relevant period.
-            Cross-reference all documents with the customer's details for accuracy.
+            Customers can upload via the public link above (no login) or from the customer portal
+            <a href="{{ route('account.documents', ['tab' => 'rental', 'booking_id' => $booking->id]) }}" class="underline" target="_blank">My Documents</a>.
+            Approve or request re-upload before activating the rental.
         </p>
     </div>
 </div>

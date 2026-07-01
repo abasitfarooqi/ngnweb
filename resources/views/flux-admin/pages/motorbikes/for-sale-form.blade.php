@@ -2,7 +2,7 @@
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-1">
-                <a href="{{ route('flux-admin.motorbike-for-sale.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200 transition">For sale catalogue</a>
+                <a href="{{ route('flux-admin.motorbike-for-sale.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200 transition">Brand New vehicles</a>
                 <span>/</span>
                 <span>{{ $motorcycle && $motorcycle->exists ? 'Edit' : 'New' }}</span>
             </div>

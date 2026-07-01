@@ -23,6 +23,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 use InvalidArgumentException;
 use RuntimeException;
@@ -54,40 +55,128 @@ class RentalBookingLifecycle
         return self::STATUS_ACTIVE;
     }
 
-    /** @return array<int, array{name: string, slug: string, approved: bool}> */
+    /** @return array<int, array{id:int, name:string, slug:string, approved:bool, status:string, document_id:?int, status_label:string}> */
     public function documentChecklist(RentingBooking $booking): array
     {
         $booking->loadMissing('customer');
-        $types = DocumentType::query()
-            ->where('is_mandatory', true)
-            ->whereJsonContains('required_for', 'rental')
-            ->orderBy('sort_order')
-            ->get();
 
-        $approvedTypeIds = CustomerDocument::query()
+        $typesQuery = DocumentType::query()->orderBy('sort_order');
+
+        if (Schema::hasColumn('document_types', 'is_mandatory') || Schema::hasColumn('document_types', 'is_required')) {
+            $typesQuery->where(function ($q) {
+                if (Schema::hasColumn('document_types', 'is_mandatory')) {
+                    $q->where('is_mandatory', true);
+                }
+                if (Schema::hasColumn('document_types', 'is_required')) {
+                    $q->orWhere('is_required', true);
+                }
+            });
+        }
+
+        if (Schema::hasColumn('document_types', 'required_for')) {
+            $typesQuery->where(function ($q) {
+                $q->whereJsonContains('required_for', 'rental')
+                    ->orWhereNull('required_for');
+            });
+        }
+
+        if (Schema::hasColumn('document_types', 'is_motorbike')) {
+            $typesQuery->where('is_motorbike', false);
+        }
+
+        if (Schema::hasColumn('document_types', 'is_active')) {
+            $typesQuery->where('is_active', true);
+        }
+
+        $types = $typesQuery->get();
+
+        $documentsByType = CustomerDocument::query()
             ->where('customer_id', $booking->customer_id)
             ->where(function ($q) use ($booking) {
                 $q->where('booking_id', $booking->id)
                     ->orWhereNull('booking_id');
             })
-            ->where('status', 'approved')
-            ->pluck('document_type_id')
-            ->unique()
-            ->all();
+            ->orderByDesc('id')
+            ->get()
+            ->unique('document_type_id')
+            ->keyBy('document_type_id');
 
-        return $types->map(fn (DocumentType $type) => [
-            'id'       => $type->id,
-            'name'     => $type->name,
-            'slug'     => $type->slug,
-            'approved' => in_array($type->id, $approvedTypeIds, true),
-        ])->values()->all();
+        return $types->map(function (DocumentType $type) use ($documentsByType) {
+            $document = $documentsByType->get($type->id);
+            $status = $this->resolveCustomerDocumentStatus($document);
+
+            return [
+                'id'            => $type->id,
+                'name'          => $type->name,
+                'slug'          => $type->slug,
+                'approved'      => $status === 'approved',
+                'status'        => $status,
+                'status_label'  => $this->documentStatusLabel($status),
+                'document_id'   => $document?->id,
+            ];
+        })->values()->all();
+    }
+
+    public function resolveCustomerDocumentStatus(?CustomerDocument $document): string
+    {
+        if (! $document || ! $document->file_path) {
+            return 'missing';
+        }
+
+        if (Schema::hasColumn('customer_documents', 'status')) {
+            return match ((string) $document->status) {
+                'approved' => 'approved',
+                'rejected' => 'rejected',
+                'uploaded', 'pending_review' => 'pending_review',
+                default => 'pending_review',
+            };
+        }
+
+        return $document->is_verified ? 'approved' : 'pending_review';
+    }
+
+    public function documentStatusLabel(string $status): string
+    {
+        return match ($status) {
+            'approved' => 'Approved',
+            'rejected' => 'Re-upload requested',
+            'pending_review' => 'Awaiting review',
+            default => 'Not uploaded',
+        };
+    }
+
+    public function setCustomerDocumentReviewStatus(CustomerDocument $document, string $status): void
+    {
+        if (! in_array($status, ['approved', 'rejected', 'pending_review'], true)) {
+            throw new InvalidArgumentException('Invalid document review status.');
+        }
+
+        $payload = [];
+
+        if (Schema::hasColumn('customer_documents', 'status')) {
+            $payload['status'] = $status;
+        }
+
+        if (Schema::hasColumn('customer_documents', 'is_verified')) {
+            $payload['is_verified'] = $status === 'approved';
+        }
+
+        if (Schema::hasColumn('customer_documents', 'rejection_reason') && $status !== 'rejected') {
+            $payload['rejection_reason'] = null;
+        }
+
+        if ($payload === []) {
+            throw new RuntimeException('This database cannot store document review status yet.');
+        }
+
+        $document->update($payload);
     }
 
     /** @return list<string> */
     public function missingRequiredDocuments(RentingBooking $booking): array
     {
         return collect($this->documentChecklist($booking))
-            ->reject(fn (array $row) => $row['approved'])
+            ->reject(fn (array $row) => $row['status'] === 'approved')
             ->pluck('name')
             ->values()
             ->all();
@@ -398,7 +487,7 @@ class RentalBookingLifecycle
             'expires_at'  => $expiresAt,
         ]);
 
-        $url = route('agreement.show.ins.5m.extended', [
+        $url = route('agreement.show.ins.v6', [
             'customer_id' => $customerId,
             'passcode'    => $passcode,
         ]);

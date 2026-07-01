@@ -267,7 +267,24 @@ window.bindSupportAdminRealtime = function bindSupportAdminRealtime() {
 
 // ngnSetColourMode: see resources/views/components/partials/theme-api.blade.php (loaded after @fluxAppearance).
 
+function ngnStartAlpineIfNeeded() {
+    if (window.__ngnAlpineStarted) {
+        return;
+    }
+
+    // Livewire 3 bundles Alpine and must start it. Starting Alpine in app.js first breaks wire:submit
+    // (forms fall back to a GET against /livewire-…/update).
+    if (document.querySelector('[wire\\:id]') || window.Livewire) {
+        return;
+    }
+
+    AlpineRuntime.start();
+    window.__ngnAlpineStarted = true;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+    ngnStartAlpineIfNeeded();
+
     if (typeof window.bindSupportThreadRealtime === 'function') {
         window.bindSupportThreadRealtime();
     }
@@ -295,6 +312,3 @@ document.addEventListener('livewire:navigated', function () {
     }
 });
 
-if (!hadAlpineAlready) {
-    AlpineRuntime.start();
-}

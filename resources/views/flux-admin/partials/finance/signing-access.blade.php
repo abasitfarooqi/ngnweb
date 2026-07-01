@@ -34,6 +34,23 @@
                             </p>
                         </div>
                     </div>
+                    @php
+                        $contractLinks = $access->application
+                            ? \App\Services\FinanceContractLinkResolver::resolve($access->application, $access->passcode)
+                            : null;
+                    @endphp
+                    @if($contractLinks)
+                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Standard</p>
+                                <a href="{{ $contractLinks['standard'] }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $contractLinks['standard'] }}</a>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Insurance/PCN</p>
+                                <a href="{{ $contractLinks['ins'] }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $contractLinks['ins'] }}</a>
+                            </div>
+                        </div>
+                    @endif
                 </div>
             @endforeach
         </div>

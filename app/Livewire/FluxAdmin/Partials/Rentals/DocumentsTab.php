@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 use App\Models\BookingInvoice;
 use App\Models\CustomerDocument;
 use App\Models\RentingBooking;
+use App\Support\DocumentUploadAccessGenerator;
 use App\Support\RentalBookingLifecycle;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -15,12 +16,25 @@ class DocumentsTab extends Component
     public int $bookingId;
 
     public ?string $docUploadLink = null;
+
     public ?string $flashMessage = null;
+
     public ?string $flashType = null;
 
     public function placeholder()
     {
         return view('flux-admin.partials.loading-placeholder');
+    }
+
+    public function mount(int $bookingId): void
+    {
+        $this->bookingId = $bookingId;
+        $booking = RentingBooking::query()->find($bookingId);
+
+        if ($booking?->customer_id) {
+            $this->docUploadLink = app(DocumentUploadAccessGenerator::class)
+                ->findActiveLink((int) $booking->customer_id, $bookingId);
+        }
     }
 
     public function activateRentalToday(): void
@@ -47,7 +61,7 @@ class DocumentsTab extends Component
         $this->flashType = 'success';
     }
 
-    public function generateDocumentLink(): void
+    public function generateDocumentLink(bool $forceNew = false): void
     {
         $booking = RentingBooking::with('customer')->findOrFail($this->bookingId);
 
@@ -58,9 +72,58 @@ class DocumentsTab extends Component
             return;
         }
 
-        $this->docUploadLink = url('/generate-docs-upload-link-access/'.$booking->customer_id).'?booking_id='.$this->bookingId;
-        $this->flashMessage = 'Document upload link generated. Share this link with the customer.';
+        try {
+            $result = app(DocumentUploadAccessGenerator::class)->create(
+                (int) $booking->customer_id,
+                $this->bookingId,
+                sendEmail: false,
+                forceNew: $forceNew,
+            );
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $this->docUploadLink = $result['uploadLink'];
+        $this->flashMessage = $result['reused']
+            ? 'Active customer upload link restored (valid '.DocumentUploadAccessGenerator::LINK_VALID_DAYS.' days).'
+            : 'New customer upload link created (valid '.DocumentUploadAccessGenerator::LINK_VALID_DAYS.' days).';
         $this->flashType = 'success';
+    }
+
+    public function approveDocument(int $documentId): void
+    {
+        $this->reviewDocument($documentId, 'approved', 'Document approved.');
+    }
+
+    public function requestReupload(int $documentId): void
+    {
+        $this->reviewDocument($documentId, 'rejected', 'Re-upload requested — customer can replace this document.');
+    }
+
+    public function markPendingReview(int $documentId): void
+    {
+        $this->reviewDocument($documentId, 'pending_review', 'Document marked as awaiting review.');
+    }
+
+    private function reviewDocument(int $documentId, string $status, string $message): void
+    {
+        $booking = RentingBooking::findOrFail($this->bookingId);
+        $document = CustomerDocument::query()
+            ->where('id', $documentId)
+            ->where('customer_id', $booking->customer_id)
+            ->firstOrFail();
+
+        try {
+            app(RentalBookingLifecycle::class)->setCustomerDocumentReviewStatus($document, $status);
+            $this->flashMessage = $message;
+            $this->flashType = 'success';
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+        }
     }
 
     public function render()
@@ -71,12 +134,19 @@ class DocumentsTab extends Component
         $missing = $lifecycle->missingRequiredDocuments($booking);
 
         $documents = CustomerDocument::with('documentType')
+            ->where('customer_id', $booking->customer_id)
             ->where(function ($q) use ($booking) {
-                $q->where('customer_id', $booking->customer_id)
-                    ->orWhere('booking_id', $this->bookingId);
+                $q->where('booking_id', $this->bookingId)
+                    ->orWhereNull('booking_id');
             })
             ->orderByDesc('created_at')
-            ->get();
+            ->get()
+            ->map(function (CustomerDocument $doc) use ($lifecycle) {
+                $doc->review_status = $lifecycle->resolveCustomerDocumentStatus($doc);
+                $doc->review_status_label = $lifecycle->documentStatusLabel($doc->review_status);
+
+                return $doc;
+            });
 
         $pendingInvoiceAmount = BookingInvoice::where('booking_id', $this->bookingId)
             ->where('is_paid', false)

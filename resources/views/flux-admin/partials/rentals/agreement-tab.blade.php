@@ -50,15 +50,27 @@
                             </p>
                         </div>
                     </div>
-                    <div class="mt-4">
-                        <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Agreement Link</p>
-                        <a
-                            href="{{ url('/agreement/' . $agreement->customer_id . '/' . $agreement->passcode) }}"
-                            target="_blank"
-                            class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                        >
-                            {{ url('/agreement/' . $agreement->customer_id . '/' . $agreement->passcode) }}
-                        </a>
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Standard agreement</p>
+                            <a
+                                href="{{ route('agreement.show.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}"
+                                target="_blank"
+                                class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+                            >
+                                {{ route('agreement.show.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}
+                            </a>
+                        </div>
+                        <div>
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Insurance/PCN agreement</p>
+                            <a
+                                href="{{ route('agreement.show.ins.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}"
+                                target="_blank"
+                                class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
+                            >
+                                {{ route('agreement.show.ins.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}
+                            </a>
+                        </div>
                     </div>
                 </div>
             @endforeach

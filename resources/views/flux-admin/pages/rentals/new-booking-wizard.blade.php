@@ -13,6 +13,25 @@
         </div>
     @endif
 
+    @if ($resumableDraftId && ! $draftBookingId)
+        <div class="mb-4 flex flex-col gap-3 border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100 sm:flex-row sm:items-center sm:justify-between">
+            <span>You have an intake draft <strong>#{{ $resumableDraftId }}</strong> in progress.</span>
+            <div class="flex flex-wrap gap-2">
+                <flux:button size="sm" variant="primary" wire:click="resumeDraft({{ $resumableDraftId }})">Continue draft</flux:button>
+                <flux:button size="sm" variant="ghost" wire:click="discardDraft">Discard &amp; start fresh</flux:button>
+            </div>
+        </div>
+    @endif
+
+    @if ($draftBookingId && $step < 6)
+        <div class="mb-4 flex flex-col gap-3 border border-zinc-300 bg-zinc-50 px-4 py-3 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200 sm:flex-row sm:items-center sm:justify-between">
+            <span>Intake draft <strong>#{{ $draftBookingId }}</strong> — saved as you go. Refresh or return via this link to continue.</span>
+            <flux:button size="sm" variant="ghost" wire:click="discardDraft" wire:confirm="Discard this draft and all linked intake rows?">Cancel draft</flux:button>
+        </div>
+    @endif
+
+    @error('draft') <p class="mb-4 text-sm text-red-600">{{ $message }}</p> @enderror
+
     {{-- Stepper --}}
     <nav class="mb-6 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
         @foreach ([1 => 'Motorbike', 2 => 'Customer', 3 => 'Terms', 4 => 'Payment', 5 => 'Documents', 6 => 'Done'] as $n => $label)
@@ -60,7 +79,7 @@
                                     @if($m->weekly_rent !== null && (float) $m->weekly_rent > 0)
                                         £{{ number_format((float) $m->weekly_rent, 2) }}
                                     @else
-                                        <span class="text-xs text-amber-600 dark:text-amber-400">set on step 3</span>
+                                        <span class="text-xs text-amber-600 dark:text-amber-400">set on step 4</span>
                                     @endif
                                 </flux:table.cell>
                                 <flux:table.cell>
@@ -143,15 +162,14 @@
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">Rental terms</h2>
 
                 <form wire:submit.prevent="confirmTerms" class="grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
-                    <flux:input type="date" label="Start date" wire:model="startDate" />
-                    <flux:input type="number" step="0.01" min="0" label="Weekly rent (£)" wire:model="weeklyRent" description="{{ ($weeklyRent ?? 0) > 0 ? 'Pricing loaded from the bike.' : 'No pricing set — enter the agreed rate.' }}" />
+                    <flux:input type="date" label="Start date" wire:model="startDate" class="sm:col-span-2" />
                     <div class="sm:col-span-2">
                         <flux:textarea label="Notes (optional)" wire:model="notes" rows="3" placeholder="Collection site, accessories, agreed extras…" />
                     </div>
                     <div class="sm:col-span-2 border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-800 dark:bg-zinc-950">
                         <h3 class="mb-2 text-sm font-semibold text-zinc-900 dark:text-white">Terms &amp; conditions</h3>
                         <ul class="mb-3 list-disc space-y-1 pl-5 text-xs text-zinc-600 dark:text-zinc-400">
-                            <li>Weekly rent is billed each week from the start date.</li>
+                            <li>Weekly rent is agreed on the payment step and stored on the booking item.</li>
                             <li>Motorbike must be returned in the condition it was issued, with all accessories.</li>
                             <li>Damage, PCNs and additional charges are the customer's responsibility.</li>
                             <li>Booking is created in <strong>DRAFT</strong> and becomes active once documents and payment are confirmed.</li>
@@ -180,6 +198,8 @@
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">Initial payment</h2>
 
                 <form wire:submit.prevent="confirmPayment" class="grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
+                    <flux:input type="number" step="0.01" min="0.01" label="Weekly rent (£)" wire:model="weeklyRent" description="{{ ($weeklyRent ?? 0) > 0 ? 'Default from bike pricing — adjust if agreed otherwise.' : 'No pricing on file — enter the agreed weekly rate.' }}" />
+                    @error('weeklyRent') <p class="sm:col-span-2 text-sm text-red-600">{{ $message }}</p> @enderror
                     <flux:input type="number" step="0.01" min="0" label="Deposit (£)" wire:model="deposit" />
                     <flux:input type="number" step="0.01" min="0" label="Initial payment received (£)" wire:model="initialPayment" description="Marks deposit as paid when ≥ deposit amount." />
                     <flux:select label="Payment method" wire:model="paymentMethod">
@@ -258,7 +278,7 @@
 
             @if ($sendDocUploadLink && $docUploadLink)
                 <div class="mx-auto mt-4 max-w-xl border border-emerald-300 bg-white p-3 text-left text-xs dark:border-emerald-800 dark:bg-zinc-900">
-                    <div class="font-semibold text-emerald-900 dark:text-emerald-200">Document upload link (share with customer):</div>
+                    <div class="font-semibold text-emerald-900 dark:text-emerald-200">Customer document upload page (share this link):</div>
                     <a href="{{ $docUploadLink }}" target="_blank" class="break-all text-emerald-700 underline dark:text-emerald-300">{{ $docUploadLink }}</a>
                 </div>
             @endif

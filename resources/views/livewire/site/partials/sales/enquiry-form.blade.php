@@ -27,7 +27,7 @@
         </flux:callout>
     @endif
 
-    <form wire:submit.prevent="{{ $submitAction }}" class="site-form space-y-3">
+    <form wire:submit.prevent="submitEnquiry" class="site-form space-y-3" wire:key="sales-enquiry-form">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
             <flux:field class="w-full">
                 <flux:label>Full name</flux:label>
@@ -70,7 +70,7 @@
         </label>
         <flux:error name="privacy" />
 
-        <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+        <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
             {{ $submitButtonLabel }}
         </flux:button>
     </form>
