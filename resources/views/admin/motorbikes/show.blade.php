@@ -1,0 +1,1 @@
+../../livewire/agreements/migrated/admin/motorbikes/show.blade.php

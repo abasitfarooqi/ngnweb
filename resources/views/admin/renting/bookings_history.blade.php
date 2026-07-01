@@ -1,0 +1,1 @@
+../../livewire/agreements/migrated/admin/renting/bookings_history.blade.php

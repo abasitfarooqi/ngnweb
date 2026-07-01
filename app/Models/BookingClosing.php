@@ -29,9 +29,18 @@ class BookingClosing extends Model
         'collect_proceeded_anyway_at',
     ];
 
+    protected $casts = [
+        'collect_proceeded_anyway_at' => 'datetime',
+    ];
+
     public function booking()
     {
         return $this->belongsTo(RentingBooking::class);
+    }
+
+    public function collectProceededAnywayUser()
+    {
+        return $this->belongsTo(User::class, 'collect_proceeded_anyway_user_id');
     }
 
     public function getNoticeCheckedAttribute($value)

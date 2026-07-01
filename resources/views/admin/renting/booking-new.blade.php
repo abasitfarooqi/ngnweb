@@ -1,0 +1,1 @@
+../../livewire/agreements/migrated/admin/renting/booking-new.blade.php

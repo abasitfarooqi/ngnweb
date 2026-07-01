@@ -1747,44 +1747,38 @@ class RentingController extends Controller
     }
 
     // The function that respond to get reuest to display the new booking page
-    public function renting_booking_new()
+    /** @return array{motorbikes: \Illuminate\Support\Collection, customers: \Illuminate\Database\Eloquent\Collection, documentTypes: \Illuminate\Database\Eloquent\Collection} */
+    public function bookingNewPageData(): array
     {
-        \Log::info('New Booking Page Requested.');
-
-        try {
-            $motorbikes = DB::table('motorbikes as MB')
-                ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
-                ->rightJoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
-                ->leftJoin('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
-                ->select(
-                    'MB.id as MOTORBIKE_ID',
-                    'MB.make as MAKE',
-                    'MB.model as MODEL',
-                    'MB.year as YEAR',
-                    'MB.engine as ENGINE',
-                    'MB.color as COLOR',
-                    'MB.is_ebike as IS_EBIKE',
-                    'MR.registration_number as REG_NO',
-                    DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
-                    DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
-                    'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
-                    'MC.insurance_status as INSURANCE_STATUS'
-                )
-                ->where('MB.vehicle_profile_id', 1)
-                ->where('RP.iscurrent', true)
-
-                // Availability check (same for bike + e-bike)
-                ->whereNotExists(function ($query) {
-                    $query->select(DB::raw(1))
-                        ->from('renting_booking_items')
-                        ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
-                        ->where('renting_booking_items.is_posted', true)
-                        ->whereNull('renting_booking_items.end_date');
-                })
-
-                // Compliance rules
-                ->where(function ($q) {
-                    $q->where('MB.is_ebike', true) // e-bike → always allowed
+        $motorbikes = DB::table('motorbikes as MB')
+            ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
+            ->rightJoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
+            ->leftJoin('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
+            ->select(
+                'MB.id as MOTORBIKE_ID',
+                'MB.make as MAKE',
+                'MB.model as MODEL',
+                'MB.year as YEAR',
+                'MB.engine as ENGINE',
+                'MB.color as COLOR',
+                'MB.is_ebike as IS_EBIKE',
+                'MR.registration_number as REG_NO',
+                DB::raw("CONCAT(COALESCE(MC.mot_status,''), IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
+                DB::raw("CONCAT(COALESCE(MC.road_tax_status,''), IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
+                'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
+                'MC.insurance_status as INSURANCE_STATUS'
+            )
+            ->where('MB.vehicle_profile_id', 1)
+            ->where('RP.iscurrent', true)
+            ->whereNotExists(function ($query) {
+                $query->select(DB::raw(1))
+                    ->from('renting_booking_items')
+                    ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
+                    ->where('renting_booking_items.is_posted', true)
+                    ->whereNull('renting_booking_items.end_date');
+            })
+            ->where(function ($q) {
+                $q->where('MB.is_ebike', true)
                     ->orWhere(function ($q2) {
                         $q2->where('MB.is_ebike', false)
                             ->where('MC.road_tax_status', 'Taxed')
@@ -1793,82 +1787,30 @@ class RentingController extends Controller
                                     ->orWhere('MC.mot_status', 'No details held by DVLA');
                             });
                     });
-                })
-                ->get();
+            })
+            ->get();
 
-            $customers = Customer::all();
+        return [
+            'motorbikes' => $motorbikes,
+            'customers' => Customer::all(),
+            'documentTypes' => DocumentType::all(),
+        ];
+    }
 
+    public function renting_booking_new()
+    {
+        \Log::info('New Booking Page Requested.');
+
+        try {
+            $data = $this->bookingNewPageData();
         } catch (\Exception $e) {
             \Log::error('Error: '.$e->getMessage());
+
             return response()->json(['error' => 'An error occurred'], 500);
         }
 
-        $documentTypes = DocumentType::all();
-
-        return view('admin.renting.booking-new', compact(
-            'motorbikes',
-            'customers',
-            'documentTypes'
-        ));
+        return view('admin.renting.booking-new', $data);
     }
-
-    // public function renting_booking_new()
-    // {
-    //     \Log::info('New Booking Page Requested.');
-
-    //     try {
-    //         $motorbikes = DB::table('motorbikes as MB')
-    //             ->join('motorbike_registrations as MR', 'MB.id', '=', 'MR.motorbike_id')
-    //             ->join('motorbike_annual_compliance as MC', 'MC.motorbike_id', '=', 'MB.id')
-    //             ->rightjoin('renting_pricings as RP', 'RP.motorbike_id', '=', 'MB.id')
-    //             ->select(
-    //                 'MB.id as MOTORBIKE_ID',
-    //                 'MB.make as MAKE',
-    //                 'MB.model as MODEL',
-    //                 'MB.year as YEAR',
-    //                 'MB.engine as ENGINE',
-    //                 'MB.color as COLOR',
-    //                 'MR.registration_number as REG_NO',
-    //                 DB::raw("CONCAT(MC.mot_status, IFNULL(CONCAT(' ', MC.mot_due_date), '')) as MOT_STATUS"),
-    //                 DB::raw("CONCAT(MC.road_tax_status, IFNULL(CONCAT(' ', MC.tax_due_date), '')) as ROAD_TAX_STATUS"),
-    //                 'MC.road_tax_status as ROAD_TAX_STATUS_FLAG',
-    //                 'MC.insurance_status as INSURANCE_STATUS'
-    //             )
-    //             ->where('MB.vehicle_profile_id', 1)
-    //             ->where(function ($query) {
-    //                 $query->where('MC.road_tax_status', 'Taxed')
-    //                     ->where(function ($subQuery) {
-    //                         $subQuery->where('MC.mot_status', 'Valid')
-    //                             ->orWhere('MC.mot_status', 'No details held by DVLA');
-    //                     });
-    //             })
-    //             ->whereNotExists(function ($query) {
-    //                 $query->select(DB::raw(1))
-    //                     ->from('renting_booking_items')
-    //                     ->whereColumn('renting_booking_items.motorbike_id', 'MB.id')
-    //                     ->where('renting_booking_items.is_posted', true)->where('renting_booking_items.end_date', null);
-    //             })->where('RP.iscurrent', true)
-    //             ->get();
-
-    //         $customers = Customer::all();
-
-    //     } catch (\Exception $e) {
-    //         \Log::error('Error: '.$e->getMessage());
-    //         // ERRRO CATCH RELATED SQL
-    //         \Log::error('SQL: '.DB::getQueryLog());
-
-    //         return response()->json(['error' => 'An error occurred while fetching motorbikes'], 500);
-    //     }
-
-    //     $documentTypes = DocumentType::all();
-
-    //     return view('admin.renting.booking-new', [
-    //         'motorbikes' => $motorbikes,
-    //         'customers' => $customers,
-    //         'documentTypes' => $documentTypes,
-    //     ]);
-
-    // }
 
     // 1.0.1 - Realtime check for Motorbike Availability
     public function checkMotorbikeAvailability(Request $request)

@@ -4,6 +4,7 @@ return [
 
     'paths' => [
         resource_path('views'),
+        resource_path('views/livewire/agreements/migrated'),
     ],
 
     'compiled' => env(

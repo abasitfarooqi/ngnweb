@@ -23,7 +23,7 @@
                 </a>
             </div>
             <div class="col-md-4 col-xl-3">
-                <a href="{{ route('page.rental_operations.bookings_management') }}" class="text-decoration-none">
+                <a href="{{ route('admin.renting.bookings') }}" class="text-decoration-none">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-1">Bookings Management</h5>
@@ -33,7 +33,7 @@
                 </a>
             </div>
             <div class="col-md-4 col-xl-3">
-                <a href="{{ route('page.rental_operations.inactive_bookings') }}" class="text-decoration-none">
+                <a href="{{ route('admin.renting.bookings.inactive') }}" class="text-decoration-none">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-1">Inactive Bookings</h5>
@@ -43,7 +43,7 @@
                 </a>
             </div>
             <div class="col-md-4 col-xl-3">
-                <a href="{{ route('page.rental_operations.all_bookings') }}" class="text-decoration-none">
+                <a href="{{ route('admin.renting.bookings.history') }}" class="text-decoration-none">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-1">All Bookings</h5>
@@ -53,7 +53,7 @@
                 </a>
             </div>
             <div class="col-md-4 col-xl-3">
-                <a href="{{ route('page.rental_operations.booking_invoice_dates') }}" class="text-decoration-none">
+                <a href="{{ route('admin.renting.invoice.dates.all') }}" class="text-decoration-none">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-1">Booking Invoice Dates</h5>
@@ -63,7 +63,27 @@
                 </a>
             </div>
             <div class="col-md-4 col-xl-3">
-                <a href="{{ route('page.rental_operations.change_booking_start_date') }}" class="text-decoration-none">
+                <a href="{{ route('admin.motorbikes.pricing') }}" class="text-decoration-none">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">Motorbike Pricing</h5>
+                            <p class="text-muted mb-0">Weekly rent and deposit for rental fleet.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-xl-3">
+                <a href="{{ route('admin.renting.bookings.ended-with-pendings') }}" class="text-decoration-none">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <h5 class="card-title mb-1">Ended with pendings</h5>
+                            <p class="text-muted mb-0">Closed bookings where collection proceeded anyway.</p>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 col-xl-3">
+                <a href="{{ route('admin.renting.bookings.showUpdateStartDateForm') }}" class="text-decoration-none">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-1">Change Booking Start Date</h5>

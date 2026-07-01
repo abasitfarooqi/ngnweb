@@ -1,0 +1,1 @@
+../../livewire/agreements/migrated/admin/renting/ended-with-pendings-bookings.blade.php

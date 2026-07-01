@@ -1,0 +1,1 @@
+../../livewire/agreements/migrated/admin/renting/summary-view.blade.php

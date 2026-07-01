@@ -618,6 +618,7 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
         // Bookings list / static paths (must be before /bookings/{bookingId})
         Route::get('/bookings', [RentingController::class, 'renting_bookings'])->name('admin.renting.bookings');
         Route::get('/bookings/inactive', [RentingController::class, 'inactive_renting_bookings'])->name('admin.renting.bookings.inactive');
+        Route::get('/bookings/ended-with-pendings', [RentingController::class, 'endedWithPendingsBookings'])->name('admin.renting.bookings.ended-with-pendings');
         Route::get('/bookings/new', [RentingController::class, 'renting_booking_new'])->name('admin.renting.booking.new');
         Route::post('/bookings/motorbike-pricing', [RentingController::class, 'getMotorbikeInvoices'])->name('admin.motorbike.pricing');
         Route::get('/bookings/history', [RentingController::class, 'all_renting_bookings'])->name('admin.renting.bookings.history');

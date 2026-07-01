@@ -101,6 +101,9 @@
                                 <a href="/admin/renting/bookings/inactive">Inactive Bookings</a>
                             </li>
                             <li>
+                                <a href="/admin/renting/bookings/ended-with-pendings">Ended with pendings</a>
+                            </li>
+                            <li>
                                 <a href="/admin/renting/bookings/history">Booking Details</a>
                             </li>
                             <li>

@@ -215,6 +215,7 @@ Route::group([
     Route::get('rental-operations/new-booking', [RentalOperationsController::class, 'newBooking'])->name('page.rental_operations.new_booking');
     Route::get('rental-operations/bookings-management', [RentalOperationsController::class, 'bookingsManagement'])->name('page.rental_operations.bookings_management');
     Route::get('rental-operations/inactive-bookings', [RentalOperationsController::class, 'inactiveBookings'])->name('page.rental_operations.inactive_bookings');
+    Route::get('rental-operations/ended-with-pendings', [RentalOperationsController::class, 'endedWithPendingsBookings'])->name('page.rental_operations.ended_with_pendings');
     Route::match(['get', 'post'], 'rental-operations/all-bookings', [RentalOperationsController::class, 'allBookings'])->name('page.rental_operations.all_bookings');
     Route::get('rental-operations/booking-invoice-dates', [RentalOperationsController::class, 'bookingInvoiceDates'])->name('page.rental_operations.booking_invoice_dates');
     Route::get('rental-operations/change-booking-start-date', [RentalOperationsController::class, 'changeBookingStartDate'])->name('page.rental_operations.change_booking_start_date');

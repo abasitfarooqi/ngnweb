@@ -15,6 +15,7 @@ use App\Models\RentingOtherCharge;
 use App\Models\RentingOtherChargesTransaction;
 use App\Models\RentingServiceVideo;
 use App\Models\RentingTransaction;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Log;
@@ -55,29 +56,34 @@ class RentalOperationsController extends Controller
         ]));
     }
 
-    public function bookingsManagement()
+    public function bookingsManagement(): RedirectResponse
     {
-        return app(LegacyRentingController::class)->renting_bookings();
+        return redirect()->route('admin.renting.bookings');
     }
 
-    public function inactiveBookings()
+    public function inactiveBookings(): RedirectResponse
     {
-        return app(LegacyRentingController::class)->inactive_renting_bookings();
+        return redirect()->route('admin.renting.bookings.inactive');
     }
 
-    public function allBookings(Request $request)
+    public function endedWithPendingsBookings(): RedirectResponse
     {
-        return app(LegacyRentingController::class)->all_renting_bookings($request);
+        return redirect()->route('admin.renting.bookings.ended-with-pendings');
     }
 
-    public function bookingInvoiceDates(Request $request)
+    public function allBookings(Request $request): RedirectResponse
     {
-        return app(LegacyRentingController::class)->invoiceDatesAllView($request);
+        return redirect()->route('admin.renting.bookings.history', $request->query());
     }
 
-    public function changeBookingStartDate()
+    public function bookingInvoiceDates(Request $request): RedirectResponse
     {
-        return app(LegacyRentingController::class)->showUpdateStartDateForm();
+        return redirect()->route('admin.renting.invoice.dates.all', $request->query());
+    }
+
+    public function changeBookingStartDate(): RedirectResponse
+    {
+        return redirect()->route('admin.renting.bookings.showUpdateStartDateForm');
     }
 
     public function bookingDetails(int $bookingId)

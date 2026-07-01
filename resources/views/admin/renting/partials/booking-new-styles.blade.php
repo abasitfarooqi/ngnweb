@@ -1,0 +1,1 @@
+../../../livewire/agreements/migrated/admin/renting/partials/booking-new-styles.blade.php

@@ -74,6 +74,9 @@ class AppServiceProvider extends ServiceProvider
         // Ensure default view paths are included
         View::addLocation(resource_path('views'));
 
+        // Legacy admin blades moved under livewire/agreements/migrated (RentingController still uses admin.* names).
+        View::addLocation(resource_path('views/livewire/agreements/migrated'));
+
         // Add error view path explicitly
         View::addLocation(resource_path('views/errors'));
 

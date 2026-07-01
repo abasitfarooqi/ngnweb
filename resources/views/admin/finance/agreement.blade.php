@@ -1,0 +1,1 @@
+../../livewire/agreements/migrated/admin/finance/agreement.blade.php

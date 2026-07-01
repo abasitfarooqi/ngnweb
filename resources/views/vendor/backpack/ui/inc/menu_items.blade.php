@@ -18,12 +18,13 @@
 <x-backpack::menu-dropdown title="RENTALS" icon="las la-chevron-circle-down">
     <x-backpack::menu-dropdown-item title="Rental Operations" icon="la la-columns" :link="backpack_url('rental-operations')" />
     <x-backpack::menu-dropdown-item title="New Booking" icon="la la-plus" :link="route('page.rental_operations.new_booking')" />
-    <x-backpack::menu-dropdown-item title="Bookings Management" icon="la la-list" :link="route('page.rental_operations.bookings_management')" />
-    <x-backpack::menu-dropdown-item title="Motorbike Pricing" icon="la la-pound-sign" :link="backpack_url('../admin/renting/motorbikes/pricing')" />
-    <x-backpack::menu-dropdown-item title="Inactive Bookings" icon="la la-toggle-off" :link="route('page.rental_operations.inactive_bookings')" />
-    <x-backpack::menu-dropdown-item title="All Bookings" icon="la la-table" :link="route('page.rental_operations.all_bookings')" />
-    <x-backpack::menu-dropdown-item title="Booking Invoice Dates" icon="la la-calendar" :link="route('page.rental_operations.booking_invoice_dates')" />
-    <x-backpack::menu-dropdown-item title="Change Booking Start Date" icon="la la-edit" :link="route('page.rental_operations.change_booking_start_date')" />
+    <x-backpack::menu-dropdown-item title="Bookings Management" icon="la la-list" :link="route('admin.renting.bookings')" />
+    <x-backpack::menu-dropdown-item title="Motorbike Pricing" icon="la la-pound-sign" :link="route('admin.motorbikes.pricing')" />
+    <x-backpack::menu-dropdown-item title="Inactive Bookings" icon="la la-toggle-off" :link="route('admin.renting.bookings.inactive')" />
+    <x-backpack::menu-dropdown-item title="Ended with pendings" icon="la la-exclamation-circle" :link="route('admin.renting.bookings.ended-with-pendings')" />
+    <x-backpack::menu-dropdown-item title="All Bookings" icon="la la-table" :link="route('admin.renting.bookings.history')" />
+    <x-backpack::menu-dropdown-item title="Booking Invoice Dates" icon="la la-calendar" :link="route('admin.renting.invoice.dates.all')" />
+    <x-backpack::menu-dropdown-item title="Change Booking Start Date" icon="la la-edit" :link="route('admin.renting.bookings.showUpdateStartDateForm')" />
     <x-backpack::menu-dropdown-item title="Add New Vehicle" icon="las la-money-bill" :link="backpack_url('renting-pricing')" />
     <x-backpack::menu-dropdown-item title="Document Expire Date" icon="las la-external-link-alt" :link="backpack_url('upload-document-access')" />
     <x-backpack::menu-dropdown-item title="Signature Expire Date" icon="la la-puzzle-piece" :link="backpack_url('agreement-access')" />

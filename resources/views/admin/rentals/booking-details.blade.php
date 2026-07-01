@@ -22,8 +22,8 @@
                         <div class="small text-muted">Start: {{ optional($booking->start_date)->format('d M Y H:i') }}</div>
                         <div class="small text-muted">Due: {{ optional($booking->due_date)->format('d M Y H:i') }}</div>
                         <div class="mt-3 d-flex flex-wrap gap-2">
-                            <a href="{{ route('page.rental_operations.bookings_management') }}" class="btn btn-sm btn-outline-primary">Open Legacy Management</a>
-                            <a href="{{ route('page.rental_operations.booking_invoice_dates') }}" class="btn btn-sm btn-outline-secondary">Invoice Dates</a>
+                            <a href="{{ route('admin.renting.bookings') }}" class="btn btn-sm btn-outline-primary">Open Legacy Management</a>
+                            <a href="{{ route('admin.renting.invoice.dates.all') }}" class="btn btn-sm btn-outline-secondary">Invoice Dates</a>
                         </div>
                     </div>
                 </div>
