@@ -33,6 +33,11 @@ class CustomerDocument extends Model
         'reviewed_at',
     ];
 
+    protected $casts = [
+        'reviewed_at' => 'datetime',
+        'is_verified' => 'boolean',
+    ];
+
     protected static function booted(): void
     {
         static::saving(function (CustomerDocument $doc): void {
@@ -51,9 +56,8 @@ class CustomerDocument extends Model
             }
 
             if (in_array($status, ['approved', 'rejected'], true)
-                && function_exists('backpack_auth')
-                && backpack_auth()->check()) {
-                $doc->reviewer_id = backpack_user()?->id;
+                && auth()->check()) {
+                $doc->reviewer_id = auth()->id();
                 $doc->reviewed_at = now();
             }
         });

@@ -61,6 +61,11 @@ class RentalIndex extends Component
         $this->resetPage();
     }
 
+    public function openBooking(int $bookingId): void
+    {
+        $this->redirectRoute('flux-admin.rentals.show', $bookingId, navigate: true);
+    }
+
     protected function rowsQuery(): Builder
     {
         $invoiceSummary = BookingInvoice::query()

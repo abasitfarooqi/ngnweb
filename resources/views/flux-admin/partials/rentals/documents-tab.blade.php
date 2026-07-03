@@ -9,6 +9,16 @@
         </div>
     @endif
 
+    @if(($newUploadCount ?? 0) > 0)
+        <div class="mx-4 mt-3 p-3 border border-sky-400 bg-sky-50 text-sm text-sky-900 dark:bg-sky-900/20 dark:border-sky-700 dark:text-sky-200">
+            <strong>{{ $newUploadCount }}</strong> document{{ $newUploadCount === 1 ? '' : 's' }} uploaded or replaced since your last review — please check below.
+        </div>
+    @elseif(($pendingReviewCount ?? 0) > 0)
+        <div class="mx-4 mt-3 p-3 border border-amber-400 bg-amber-50 text-sm text-amber-900 dark:bg-amber-900/20 dark:border-amber-700 dark:text-amber-200">
+            <strong>{{ $pendingReviewCount }}</strong> document{{ $pendingReviewCount === 1 ? '' : 's' }} awaiting your review.
+        </div>
+    @endif
+
     {{-- Document link display --}}
     @if($docUploadLink)
         <div class="mx-4 mt-3 p-3 border border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700">
@@ -128,8 +138,14 @@
                                         'pending_review' => 'amber',
                                         default => 'zinc',
                                     };
+                                    $isNewUpload = ($doc->review_status ?? '') === 'pending_review'
+                                        && $doc->updated_at
+                                        && (! $doc->reviewed_at || $doc->updated_at->gt($doc->reviewed_at));
                                 @endphp
                                 <flux:badge size="sm" :color="$statusColor">{{ $doc->review_status_label ?? 'Unknown' }}</flux:badge>
+                                @if($isNewUpload)
+                                    <flux:badge size="sm" color="sky" class="ml-1">New upload</flux:badge>
+                                @endif
                                 @if(($doc->status ?? null) && ($doc->status !== ($doc->review_status ?? null)))
                                     <span class="ml-1 text-[10px] text-zinc-400">({{ str_replace('_', ' ', $doc->status) }})</span>
                                 @endif
@@ -179,7 +195,7 @@
             <strong class="text-zinc-700 dark:text-zinc-300">Note:</strong>
             Customers can upload via the public link above (no login) or from the customer portal
             <a href="{{ route('account.documents', ['tab' => 'rental', 'booking_id' => $booking->id]) }}" class="underline" target="_blank">My Documents</a>.
-            Approve or request re-upload before activating the rental.
+            Approve or request re-upload before activating the rental. Customers receive an email when a document is approved or when re-upload is requested; they see the same status in their account and on the upload link.
         </p>
     </div>
 </div>

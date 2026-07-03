@@ -823,7 +823,7 @@ class FinanceApplicationCrudController extends BaseCrudController
                 return;
             }
 
-            if ($financeApplication->log_book_sent && $financeApplication->log_book_sent !== null) {
+            if ($financeApplication->log_book_sent) {
 
                 $aa = ApplicationItem::where('application_id', $financeApplication->id)->first();
                 $motorbike = Motorbike::find($aa->motorbike_id);
@@ -848,8 +848,6 @@ class FinanceApplicationCrudController extends BaseCrudController
 
                     Mail::to($data['email'])->send(new LogBookTransferMail($data));
                 }
-            } elseif ($financeApplication->log_book_sent == false && $financeApplication->log_book_sent == null) {
-                return;
             } else {
                 $customer = $financeApplication->customer;
                 if (! $customer) {
@@ -884,8 +882,11 @@ class FinanceApplicationCrudController extends BaseCrudController
 
                 if ($access) {
                     $qrBase64 = '';
+                    $skipEmail = request()->boolean('no_email', true);
 
-                    if (request()->input('no_email')) {
+                    if ($skipEmail) {
+                        \Alert::success('Contract link generated (no email sent): '.$url)->flash();
+
                         return response()->json([
                             'qrImage' => $qrBase64,
                             'url' => $url,
@@ -941,6 +942,8 @@ class FinanceApplicationCrudController extends BaseCrudController
                             }
                             throw new \Exception('Email sending failed. Please try again later.', 0, $e);
                         }
+
+                        \Alert::success('Contract link generated and emailed to customer: '.$url)->flash();
 
                         return response()->json([
                             'qrImage' => $qrBase64,

@@ -1,0 +1,81 @@
+[2026-07-03 11:26:11] local.INFO: Portal: Available Motorbikes Requested.  
+[2026-07-03 11:26:20] local.INFO: Portal: Available Motorbikes Requested.  
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload called {"uploading_for":1,"has_file":true} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload customer guard resolved {"has_customer_auth":true,"has_profile":true,"customer_auth_id":11} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload customer id resolved {"customer_id":220} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload storing file {"path":"customer-documents/b6797fbe-378e-4e86-b7f9-97e9a43f26ee.png"} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload file stored locally {"path":"customer-documents/b6797fbe-378e-4e86-b7f9-97e9a43f26ee.png"} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload saving db row {"customer_id":220,"document_type_id":1} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload db row saved {"document_id":866} 
+[2026-07-03 11:29:00] local.INFO: customer_document_uploaded_for_review {"document_id":866,"customer_id":220,"booking_id":250,"document_type":"Licence Front","file_name":"Screenshot 2026-06-29 at 14.43.56.png","customer_email":"a.basit.cse@gmail.com"} 
+[2026-07-03 11:29:00] local.INFO: Portal Documents::submitDocumentUpload deleting old file {"old_path":"customer-documents/13764968-ffff-4b70-8b1f-8be89c2e6ff6.png"} 
+[2026-07-03 11:29:01] local.INFO: Portal Documents::submitDocumentUpload queued delayed spaces job {"document_id":866} 
+[2026-07-03 11:29:01] local.INFO: Portal Documents::submitDocumentUpload immediate spaces sync result {"path":"customer-documents/b6797fbe-378e-4e86-b7f9-97e9a43f26ee.png","synced_now":true} 
+[2026-07-03 11:29:01] local.INFO: Portal Documents::submitDocumentUpload completed successfully {"document_id":866} 
+[2026-07-03 11:29:29] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 11:29:32] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 11:29:34] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 11:29:36] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 11:29:37] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload called {"uploading_for":4,"has_file":true} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload customer guard resolved {"has_customer_auth":true,"has_profile":true,"customer_auth_id":11} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload customer id resolved {"customer_id":220} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload storing file {"path":"customer-documents/917aab4b-396d-4447-8224-769974eea2c8.rtf"} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload file stored locally {"path":"customer-documents/917aab4b-396d-4447-8224-769974eea2c8.rtf"} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload saving db row {"customer_id":220,"document_type_id":4} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload db row saved {"document_id":867} 
+[2026-07-03 11:30:37] local.INFO: customer_document_uploaded_for_review {"document_id":867,"customer_id":220,"booking_id":null,"document_type":"Proof of Address","file_name":"idk.rtf","customer_email":"a.basit.cse@gmail.com"} 
+[2026-07-03 11:30:37] local.INFO: Portal Documents::submitDocumentUpload queued delayed spaces job {"document_id":867} 
+[2026-07-03 11:30:38] local.INFO: Portal Documents::submitDocumentUpload immediate spaces sync result {"path":"customer-documents/917aab4b-396d-4447-8224-769974eea2c8.rtf","synced_now":true} 
+[2026-07-03 11:30:38] local.INFO: Portal Documents::submitDocumentUpload completed successfully {"document_id":867} 
+[2026-07-03 11:30:44] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 11:31:41] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:06] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:12] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:12] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:13] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:14] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:16] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:40] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:40] local.INFO: {"user_id":"93","customer_id":"220","contract_date":"2026-07-03T12:02:16","first_instalment_date":"2026-07-10","motorbike_price":"200.00","weekly_instalment":"20.00","deposit":"20.00","extra_items":null,"extra":null,"notes":null,"is_new":false,"is_used":false,"is_used_extended_custom":false,"is_new_latest":true,"is_used_latest":false,"is_monthly":false,"is_posted":true,"is_subscription":true,"subs_payment_date":"15","subscription_option":"A","log_book_sent":false,"is_used_extended":false,"updated_at":"2026-07-03T11:02:40.000000Z","created_at":"2026-07-03T11:02:40.000000Z","id":352}  
+[2026-07-03 12:02:40] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:49] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:02:49] local.INFO: {"id":352,"customer_id":"220","user_id":"93","sold_by":null,"is_new":false,"is_posted":true,"created_at":"2026-07-03T11:02:40.000000Z","updated_at":"2026-07-03T11:02:49.000000Z","deposit":"20.00","notes":null,"contract_date":"2026-07-03T12:02:16","first_instalment_date":"2026-07-10","weekly_instalment":"20.00","is_monthly":false,"motorbike_price":"200.00","extra_items":null,"extra":null,"log_book_sent":false,"is_cancelled":false,"reason_of_cancellation":null,"logbook_transfer_date":null,"cancelled_at":null,"is_used":false,"is_used_extended":false,"is_used_extended_custom":false,"is_new_latest":true,"is_used_latest":false,"is_subscription":true,"subscription_option":"A","subs_payment_date":"15"}  
+[2026-07-03 12:02:49] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:10] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:10] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:13] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:14] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:15] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:16] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:17] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:36] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:03:36] local.INFO: {"id":352,"customer_id":"220","user_id":"93","sold_by":null,"is_new":false,"is_posted":true,"created_at":"2026-07-03T11:02:40.000000Z","updated_at":"2026-07-03T11:03:36.000000Z","deposit":"20.00","notes":null,"contract_date":"2026-07-03T12:02:16","first_instalment_date":"2026-07-10","weekly_instalment":"20.00","is_monthly":false,"motorbike_price":"200.00","extra_items":null,"extra":null,"log_book_sent":false,"is_cancelled":false,"reason_of_cancellation":null,"logbook_transfer_date":null,"cancelled_at":null,"is_used":false,"is_used_extended":false,"is_used_extended_custom":false,"is_new_latest":true,"is_used_latest":false,"is_subscription":true,"subscription_option":"A","subs_payment_date":"15"}  
+[2026-07-03 12:03:36] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:05:57] local.ERROR: PHP Parse error: Syntax error, unexpected T_OBJECT_OPERATOR on line 15 {"exception":"[object] (Psy\\Exception\\ParseErrorException(code: 0): PHP Parse error: Syntax error, unexpected T_OBJECT_OPERATOR on line 15 at /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Exception/ParseErrorException.php:44)
+[stacktrace]
+#0 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/CodeCleaner.php(488): Psy\\Exception\\ParseErrorException::fromParseError(Object(PhpParser\\Error))
+#1 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/CodeCleaner.php(269): Psy\\CodeCleaner->parse('<?php \\n$app = A...', false)
+#2 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Shell.php(1059): Psy\\CodeCleaner->clean(Array, false)
+#3 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Shell.php(1092): Psy\\Shell->addCode('\\n$app = App\\\\Mod...', true)
+#4 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Shell.php(1640): Psy\\Shell->setCode('\\n$app = App\\\\Mod...', true)
+#5 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/tinker/src/Console/TinkerCommand.php(77): Psy\\Shell->execute('\\n$app = App\\\\Mod...')
+#6 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#7 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#8 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#12 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Command/Command.php(341): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Application.php(1117): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Application.php(356): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Application.php(195): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 /Users/abdulbasit/NGNWEBTONGN/artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+"} 
+[2026-07-03 12:08:34] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:08:38] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:08:38] local.INFO: {"id":352,"customer_id":"220","user_id":"93","sold_by":null,"is_new":false,"is_posted":true,"created_at":"2026-07-03T11:02:40.000000Z","updated_at":"2026-07-03T11:08:38.000000Z","deposit":"20.00","notes":null,"contract_date":"2026-07-03T12:02:16","first_instalment_date":"2026-07-10","weekly_instalment":"20.00","is_monthly":false,"motorbike_price":"200.00","extra_items":null,"extra":null,"log_book_sent":false,"is_cancelled":false,"reason_of_cancellation":null,"logbook_transfer_date":null,"cancelled_at":null,"is_used":false,"is_used_extended":false,"is_used_extended_custom":false,"is_new_latest":true,"is_used_latest":false,"is_subscription":true,"subscription_option":"A","subs_payment_date":"15"}  
+[2026-07-03 12:08:38] local.INFO: Detected IP address: 127.0.0.1  

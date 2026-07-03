@@ -6,9 +6,12 @@ use App\Models\Customer;
 use App\Models\CustomerAgreement;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
+use App\Support\CustomerDocumentReviewNotifier;
+use App\Support\RentalBookingLifecycle;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class CustomerController extends Controller
@@ -286,12 +289,7 @@ class CustomerController extends Controller
 
         $path = $file->storeAs("customers/{$customer_id}/documents", $filename);
 
-        // $path = $file->storeAs("customers/{$customer_id}/documents", $filename, 'public');
-
-        // Insert document details into customer_documents table
-        $customerDocument = new CustomerDocument([
-            'customer_id' => $customer_id,
-            'document_type_id' => $documentType->id,
+        $attributes = [
             'file_name' => $filename,
             'file_path' => $path,
             'file_format' => $extension,
@@ -300,9 +298,25 @@ class CustomerController extends Controller
             'is_verified' => false,
             'motorbike_id' => $motorbikeID,
             'booking_id' => $bookingID,
-        ]);
+        ];
 
-        $customerDocument->save();
+        if (Schema::hasColumn('customer_documents', 'status')) {
+            $attributes['status'] = 'pending_review';
+        }
+
+        if (Schema::hasColumn('customer_documents', 'rejection_reason')) {
+            $attributes['rejection_reason'] = null;
+        }
+
+        $customerDocument = CustomerDocument::updateOrCreate(
+            [
+                'customer_id' => $customer_id,
+                'document_type_id' => $documentType->id,
+            ],
+            $attributes
+        );
+
+        app(CustomerDocumentReviewNotifier::class)->logStaffUpload($customerDocument);
 
         \Log::info("Document stored at: {$path}");
 
@@ -385,47 +399,105 @@ class CustomerController extends Controller
 
     public function uploadLeftDocumentViaLink(Request $request)
     {
-        $customerId = $request->customer_id; // Get customer_id from request
+        $customerId = (int) $request->customer_id;
+        $lifecycle = app(RentalBookingLifecycle::class);
 
-        $query = DB::table('document_types as DT')
-            ->select(
-                'DT.id',
-                'DT.name',
-                'DT.code',
-                'DT.is_active',
-                'DT.is_required',
-                'CD.customer_id',
-                'CD.file_name',
-                'CD.file_path',
-                'CD.is_verified'
-            )
-            ->leftJoin('customer_documents AS CD', function ($join) use ($customerId) {
-                $join->on('DT.id', '=', 'CD.document_type_id')
-                    ->where('CD.customer_id', '=', $customerId)
-                    ->where('CD.id_deleted', '=', false);
-            })
+        $types = DocumentType::query()
             ->where(function ($q) {
-                $q->where('DT.is_motorbike', '=', false) // normal customer docs
-                    ->orWhere('DT.id', '=', 14);          // include “Other Document (person)”
+                $q->where('is_motorbike', false)
+                    ->orWhere('id', 14);
             })
-            ->where('DT.name', '!=', 'Rental Agreement') // exclude rental agreement
-            ->where('DT.code', '!=', 'loyalty_scheme_policy') // exclude loyalty scheme policy
+            ->where('name', '!=', 'Rental Agreement')
+            ->where('code', '!=', 'loyalty_scheme_policy')
+            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get();
 
-        return response()->json($query);
+        $documentsByType = CustomerDocument::query()
+            ->where('customer_id', $customerId)
+            ->where(function ($q) {
+                $q->whereNull('id_deleted')->orWhere('id_deleted', false);
+            })
+            ->orderByDesc('id')
+            ->get()
+            ->unique('document_type_id')
+            ->keyBy('document_type_id');
+
+        $rows = $types->map(function (DocumentType $type) use ($documentsByType, $lifecycle, $customerId) {
+            $document = $documentsByType->get($type->id);
+            $status = $lifecycle->resolveCustomerDocumentStatus($document);
+
+            return [
+                'id' => $type->id,
+                'name' => $type->name,
+                'code' => $type->code,
+                'is_active' => (bool) $type->is_active,
+                'is_required' => (bool) $type->is_required,
+                'customer_id' => $customerId,
+                'file_name' => $document?->file_name,
+                'file_path' => $document?->file_path,
+                'is_verified' => $status === 'approved',
+                'status' => $status,
+                'status_label' => $lifecycle->documentStatusLabel($status),
+                'rejection_reason' => $document?->rejection_reason,
+            ];
+        })->values();
+
+        return response()->json($rows);
     }
 
     // Route::post('/customers/documents/motorbikeleft', [CustomerController::class, 'uploadLeftMotorbikeDocumentViaLink'])->name('customers.motorbike.documents.left.link');
     public function uploadLeftMotorbikeDocumentViaLink(Request $request)
     {
-        $customerId = $request->customer_id;
+        $customerId = (int) $request->customer_id;
+        $bookingId = $request->filled('booking_id') ? (int) $request->booking_id : null;
+        $lifecycle = app(RentalBookingLifecycle::class);
 
-        $query = DB::table('document_types as DT')
-            ->select('DT.name', 'DT.code', 'DT.is_active', 'DT.is_required')
-            ->where('DT.is_motorbike', '=', true)
+        $types = DocumentType::query()
+            ->where('is_motorbike', true)
+            ->orderBy('sort_order')
+            ->orderBy('name')
             ->get();
 
-        return response()->json($query);
+        $documentsQuery = CustomerDocument::query()
+            ->where('customer_id', $customerId)
+            ->where(function ($q) {
+                $q->whereNull('id_deleted')->orWhere('id_deleted', false);
+            });
+
+        if ($bookingId) {
+            $documentsQuery->where(function ($q) use ($bookingId) {
+                $q->where('booking_id', $bookingId)->orWhereNull('booking_id');
+            });
+        }
+
+        $documentsByType = $documentsQuery
+            ->orderByDesc('id')
+            ->get()
+            ->unique('document_type_id')
+            ->keyBy('document_type_id');
+
+        $rows = $types->map(function (DocumentType $type) use ($documentsByType, $lifecycle, $customerId) {
+            $document = $documentsByType->get($type->id);
+            $status = $lifecycle->resolveCustomerDocumentStatus($document);
+
+            return [
+                'id' => $type->id,
+                'name' => $type->name,
+                'code' => $type->code,
+                'is_active' => (bool) $type->is_active,
+                'is_required' => (bool) $type->is_required,
+                'customer_id' => $customerId,
+                'file_name' => $document?->file_name,
+                'file_path' => $document?->file_path,
+                'is_verified' => $status === 'approved',
+                'status' => $status,
+                'status_label' => $lifecycle->documentStatusLabel($status),
+                'rejection_reason' => $document?->rejection_reason,
+            ];
+        })->values();
+
+        return response()->json($rows);
     }
 
     // 2.1.3.2 & 2.2.1 - booking-new.blade.php

@@ -153,6 +153,19 @@ class DocumentsTab extends Component
             ->where('invoice_date', '<=', now())
             ->sum('amount');
 
+        $pendingReviewCount = $documents->where('review_status', 'pending_review')->count();
+        $newUploadCount = $documents->filter(function (CustomerDocument $doc) {
+            if ($doc->review_status !== 'pending_review' || ! $doc->updated_at) {
+                return false;
+            }
+
+            if (! $doc->reviewed_at) {
+                return true;
+            }
+
+            return $doc->updated_at->gt($doc->reviewed_at);
+        })->count();
+
         return view('flux-admin.partials.rentals.documents-tab', [
             'booking'              => $booking,
             'documents'            => $documents,
@@ -160,6 +173,8 @@ class DocumentsTab extends Component
             'missing'              => $missing,
             'lifecycleStatus'      => $lifecycle->lifecycleStatus($booking),
             'pendingInvoiceAmount' => $pendingInvoiceAmount,
+            'pendingReviewCount'   => $pendingReviewCount,
+            'newUploadCount'       => $newUploadCount,
         ]);
     }
 }

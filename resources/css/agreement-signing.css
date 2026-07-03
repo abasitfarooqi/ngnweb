@@ -1,4 +1,4 @@
-/* Standalone agreement / contract signing pages (signed links). Matches site light/dark via prefers-color-scheme. No large corner radii. */
+/* Standalone agreement / contract signing pages (signed links). Light/dark via system preference or data-theme. No large corner radii. */
 
 .agreement-signing-page {
     min-height: 100vh;
@@ -6,23 +6,82 @@
     box-sizing: border-box;
     --agreement-bg: #f3f3f3;
     --agreement-fg: #111111;
+    --agreement-muted: #4b5563;
     --agreement-panel: #ececec;
     --agreement-border: #000000;
+    --agreement-input-bg: #ffffff;
     --agreement-banner-bg: #b91c1c;
     --agreement-banner-fg: #ffffff;
+    --agreement-alert-info-bg: #dbeafe;
+    --agreement-alert-info-fg: #1e3a8a;
+    --agreement-alert-danger-bg: #fee2e2;
+    --agreement-alert-danger-fg: #991b1b;
+    --agreement-badge-success-bg: #166534;
+    --agreement-badge-success-fg: #ecfdf5;
+    --agreement-badge-danger-bg: #991b1b;
+    --agreement-badge-danger-fg: #fef2f2;
     background-color: var(--agreement-bg);
     color: var(--agreement-fg);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+}
+
+.agreement-signing-page[data-theme="dark"] {
+    --agreement-bg: #111827;
+    --agreement-fg: #f3f4f6;
+    --agreement-muted: #9ca3af;
+    --agreement-panel: #1f2937;
+    --agreement-border: #374151;
+    --agreement-input-bg: #111827;
+    --agreement-banner-bg: #7f1d1d;
+    --agreement-banner-fg: #fef2f2;
+    --agreement-alert-info-bg: #1e3a5f;
+    --agreement-alert-info-fg: #dbeafe;
+    --agreement-alert-danger-bg: #450a0a;
+    --agreement-alert-danger-fg: #fecaca;
+    --agreement-badge-success-bg: #14532d;
+    --agreement-badge-success-fg: #dcfce7;
+    --agreement-badge-danger-bg: #7f1d1d;
+    --agreement-badge-danger-fg: #fecaca;
 }
 
 @media (prefers-color-scheme: dark) {
-    .agreement-signing-page {
+    .agreement-signing-page:not([data-theme="light"]) {
         --agreement-bg: #111827;
         --agreement-fg: #f3f4f6;
+        --agreement-muted: #9ca3af;
         --agreement-panel: #1f2937;
         --agreement-border: #374151;
+        --agreement-input-bg: #111827;
         --agreement-banner-bg: #7f1d1d;
         --agreement-banner-fg: #fef2f2;
+        --agreement-alert-info-bg: #1e3a5f;
+        --agreement-alert-info-fg: #dbeafe;
+        --agreement-alert-danger-bg: #450a0a;
+        --agreement-alert-danger-fg: #fecaca;
+        --agreement-badge-success-bg: #14532d;
+        --agreement-badge-success-fg: #dcfce7;
+        --agreement-badge-danger-bg: #7f1d1d;
+        --agreement-badge-danger-fg: #fecaca;
     }
+}
+
+.agreement-signing-page[data-theme="light"] {
+    --agreement-bg: #f3f3f3;
+    --agreement-fg: #111111;
+    --agreement-muted: #4b5563;
+    --agreement-panel: #ececec;
+    --agreement-border: #000000;
+    --agreement-input-bg: #ffffff;
+    --agreement-banner-bg: #b91c1c;
+    --agreement-banner-fg: #ffffff;
+    --agreement-alert-info-bg: #dbeafe;
+    --agreement-alert-info-fg: #1e3a8a;
+    --agreement-alert-danger-bg: #fee2e2;
+    --agreement-alert-danger-fg: #991b1b;
+    --agreement-badge-success-bg: #166534;
+    --agreement-badge-success-fg: #ecfdf5;
+    --agreement-badge-danger-bg: #991b1b;
+    --agreement-badge-danger-fg: #fef2f2;
 }
 
 .agreement-signing-page .container,
@@ -90,5 +149,243 @@
 .agreement-signing-page .modal.agreement-signature-modal-root .modal-content {
     background: var(--agreement-bg);
     color: var(--agreement-fg);
+}
+
+/* Theme toggle (public signing / upload pages) */
+.agreement-signing-page .agreement-theme-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    border: 1px solid var(--agreement-border);
+    background: var(--agreement-panel);
+    color: var(--agreement-fg);
+    border-radius: 0;
+    cursor: pointer;
+}
+
+.agreement-signing-page .agreement-theme-toggle:hover {
+    background: var(--agreement-bg);
+}
+
+.agreement-signing-page .agreement-theme-toggle svg {
+    width: 1.15rem;
+    height: 1.15rem;
+}
+
+.agreement-signing-page .agreement-theme-toggle .icon-sun {
+    display: none;
+}
+
+.agreement-signing-page .agreement-theme-toggle .icon-moon {
+    display: block;
+}
+
+.agreement-signing-page[data-theme="dark"] .agreement-theme-toggle .icon-sun {
+    display: block;
+}
+
+.agreement-signing-page[data-theme="dark"] .agreement-theme-toggle .icon-moon {
+    display: none;
+}
+
+.agreement-signing-page[data-theme="light"] .agreement-theme-toggle .icon-sun {
+    display: none;
+}
+
+.agreement-signing-page[data-theme="light"] .agreement-theme-toggle .icon-moon {
+    display: block;
+}
+
+@media (prefers-color-scheme: dark) {
+    .agreement-signing-page:not([data-theme="light"]):not([data-theme="dark"]) .agreement-theme-toggle .icon-sun {
+        display: block;
+    }
+
+    .agreement-signing-page:not([data-theme="light"]):not([data-theme="dark"]) .agreement-theme-toggle .icon-moon {
+        display: none;
+    }
+}
+
+.agreement-signing-page .upload-doc-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.agreement-signing-page .upload-doc-logo-light {
+    display: block;
+    max-width: 150px;
+    height: auto;
+}
+
+.agreement-signing-page .upload-doc-logo-dark {
+    display: none;
+    max-width: 150px;
+    height: auto;
+}
+
+.agreement-signing-page[data-theme="dark"] .upload-doc-logo-light {
+    display: none;
+}
+
+.agreement-signing-page[data-theme="dark"] .upload-doc-logo-dark {
+    display: block;
+}
+
+.agreement-signing-page[data-theme="light"] .upload-doc-logo-light {
+    display: block;
+}
+
+.agreement-signing-page[data-theme="light"] .upload-doc-logo-dark {
+    display: none;
+}
+
+@media (prefers-color-scheme: dark) {
+    .agreement-signing-page:not([data-theme="light"]):not([data-theme="dark"]) .upload-doc-logo-light {
+        display: none;
+    }
+
+    .agreement-signing-page:not([data-theme="light"]):not([data-theme="dark"]) .upload-doc-logo-dark {
+        display: block;
+    }
+}
+
+.agreement-signing-page .upload-doc-intro h1,
+.agreement-signing-page .upload-doc-intro h5 {
+    margin: 0 0 0.5rem;
+    color: var(--agreement-fg);
+}
+
+.agreement-signing-page .upload-doc-intro p {
+    margin: 0;
+    color: var(--agreement-muted);
+}
+
+.agreement-signing-page .upload-doc-panel {
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.agreement-signing-page .upload-doc-section-title {
+    margin: 0 0 1rem;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--agreement-fg);
+}
+
+.agreement-signing-page .document-upload {
+    margin-bottom: 0.75rem;
+}
+
+.agreement-signing-page .form-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    font-weight: 600;
+    color: var(--agreement-fg);
+}
+
+.agreement-signing-page .form-control {
+    display: block;
+    width: 100%;
+    padding: 0.45rem 0.6rem;
+    border: 1px solid var(--agreement-border);
+    border-radius: 0;
+    background: var(--agreement-input-bg);
+    color: var(--agreement-fg);
+}
+
+.agreement-signing-page .form-control::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    border: 1px solid var(--agreement-border);
+    border-radius: 0;
+    background: var(--agreement-panel);
+    color: var(--agreement-fg);
+    cursor: pointer;
+}
+
+.agreement-signing-page .text-muted {
+    color: var(--agreement-muted) !important;
+}
+
+.agreement-signing-page .upload-doc-alert {
+    padding: 0.65rem 0.85rem;
+    margin-bottom: 1rem;
+    border: 1px solid var(--agreement-border);
+    border-radius: 0;
+}
+
+.agreement-signing-page .upload-doc-alert-info {
+    background: var(--agreement-alert-info-bg);
+    color: var(--agreement-alert-info-fg);
+}
+
+.agreement-signing-page .upload-doc-alert-danger {
+    background: var(--agreement-alert-danger-bg);
+    color: var(--agreement-alert-danger-fg);
+}
+
+.agreement-signing-page .upload-doc-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    margin-bottom: 0.35rem;
+    border-radius: 0;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.agreement-signing-page .upload-doc-badge-success {
+    background: var(--agreement-badge-success-bg);
+    color: var(--agreement-badge-success-fg);
+}
+
+.agreement-signing-page .upload-doc-badge-danger {
+    background: var(--agreement-badge-danger-bg);
+    color: var(--agreement-badge-danger-fg);
+}
+
+.agreement-signing-page .upload-doc-badge-pending {
+    background: var(--agreement-alert-info-bg);
+    color: var(--agreement-alert-info-fg);
+}
+
+.agreement-signing-page .upload-doc-badge-reupload {
+    background: var(--agreement-badge-danger-bg);
+    color: var(--agreement-badge-danger-fg);
+    border: 1px solid var(--agreement-badge-danger-fg);
+}
+
+.agreement-signing-page .upload-doc-reupload-panel {
+    border: 2px solid var(--agreement-badge-danger-bg);
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    background: var(--agreement-alert-danger-bg);
+}
+
+.agreement-signing-page .upload-doc-reupload-text {
+    margin: 0.35rem 0 0.5rem;
+    font-size: 0.875rem;
+    color: var(--agreement-alert-danger-fg);
+    font-weight: 600;
+}
+
+.agreement-signing-page .upload-doc-banner-reupload {
+    margin-bottom: 1rem;
+}
+
+.agreement-signing-page .upload-doc-filename-muted {
+    opacity: 0.85;
+    font-size: 0.8125rem;
+}
+
+.agreement-signing-page .upload-doc-filename {
+    font-size: 0.875rem;
+    color: var(--agreement-muted);
+    word-break: break-word;
 }
 

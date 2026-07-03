@@ -113,7 +113,7 @@
                     <flux:table.row
                         wire:key="rental-{{ $row->booking_item_id }}"
                         class="cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-700/50"
-                        wire:click="$navigate('{{ route('flux-admin.rentals.show', $row->booking_id) }}')"
+                        wire:click="openBooking({{ $row->booking_id }})"
                     >
                         <flux:table.cell class="font-medium">#{{ $row->booking_id }}</flux:table.cell>
                         <flux:table.cell>{{ $row->first_name }} {{ $row->last_name }}</flux:table.cell>

@@ -145,7 +145,7 @@ class RentalBookingLifecycle
         };
     }
 
-    public function setCustomerDocumentReviewStatus(CustomerDocument $document, string $status): void
+    public function setCustomerDocumentReviewStatus(CustomerDocument $document, string $status, ?string $rejectionReason = null): void
     {
         if (! in_array($status, ['approved', 'rejected', 'pending_review'], true)) {
             throw new InvalidArgumentException('Invalid document review status.');
@@ -161,8 +161,16 @@ class RentalBookingLifecycle
             $payload['is_verified'] = $status === 'approved';
         }
 
-        if (Schema::hasColumn('customer_documents', 'rejection_reason') && $status !== 'rejected') {
-            $payload['rejection_reason'] = null;
+        if (Schema::hasColumn('customer_documents', 'rejection_reason')) {
+            $payload['rejection_reason'] = $status === 'rejected' ? $rejectionReason : null;
+        }
+
+        if (Schema::hasColumn('customer_documents', 'reviewer_id') && auth()->check()) {
+            $payload['reviewer_id'] = auth()->id();
+        }
+
+        if (Schema::hasColumn('customer_documents', 'reviewed_at') && in_array($status, ['approved', 'rejected'], true)) {
+            $payload['reviewed_at'] = now();
         }
 
         if ($payload === []) {
@@ -170,6 +178,10 @@ class RentalBookingLifecycle
         }
 
         $document->update($payload);
+
+        if (in_array($status, ['approved', 'rejected'], true)) {
+            app(CustomerDocumentReviewNotifier::class)->notifyCustomer($document->fresh(), $status);
+        }
     }
 
     /** @return list<string> */

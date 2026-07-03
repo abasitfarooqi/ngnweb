@@ -14,6 +14,20 @@
             <flux:callout.text>{{ session('error') }}</flux:callout.text>
         </flux:callout>
     @endif
+    @php
+        $reuploadRequired = $uploadedByType->filter(function ($doc) use ($documentLifecycle) {
+            return $documentLifecycle->resolveCustomerDocumentStatus($doc) === 'rejected';
+        });
+    @endphp
+    @if($reuploadRequired->isNotEmpty())
+        <flux:callout variant="danger" icon="exclamation-triangle" class="mb-5">
+            <flux:callout.text>
+                <strong>Action needed:</strong> we asked you to re-upload
+                {{ $reuploadRequired->count() === 1 ? $reuploadRequired->first()->documentType?->name : $reuploadRequired->count().' documents' }}.
+                Use <strong>Replace</strong> on the items marked <strong>Re-upload requested</strong> below.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
     @if($lastUploadReceipt)
         <flux:callout variant="success" icon="check-badge" class="mb-5">
             <flux:callout.text>
@@ -86,6 +100,9 @@
                                             Uploaded: {{ $uploaded->created_at->format('d M Y') }}
                                             @if($uploaded->valid_until) · Expires: {{ \Carbon\Carbon::parse($uploaded->valid_until)->format('d M Y') }} @endif
                                         </p>
+                                        @if($status === 'rejected' && $uploaded->rejection_reason)
+                                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">Reason: {{ $uploaded->rejection_reason }}</p>
+                                        @endif
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">
@@ -180,19 +197,14 @@
                         @foreach($financeDocs as $docType)
                             @php
                                 $uploaded = $uploadedByType[$docType->id] ?? null;
-                                $status   = $uploaded ? ($uploaded->status ?? 'pending_review') : 'missing';
+                                $status = $documentLifecycle->resolveCustomerDocumentStatus($uploaded);
                                 $badgeColor = match($status) {
-                                    'approved'       => 'green',
+                                    'approved' => 'green',
                                     'pending_review' => 'yellow',
-                                    'rejected'       => 'red',
-                                    default          => 'zinc',
+                                    'rejected' => 'red',
+                                    default => 'zinc',
                                 };
-                                $statusLabel = match($status) {
-                                    'approved'       => 'Approved',
-                                    'pending_review' => 'Under Review',
-                                    'rejected'       => 'Rejected',
-                                    default          => 'Missing',
-                                };
+                                $statusLabel = $documentLifecycle->documentStatusLabel($status);
                             @endphp
                             <div class="flex items-start sm:items-center justify-between gap-3 p-4 border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
                                 <div class="flex-1 min-w-0">
@@ -210,6 +222,9 @@
                                             Uploaded: {{ $uploaded->created_at->format('d M Y') }}
                                             @if($uploaded->valid_until) · Expires: {{ \Carbon\Carbon::parse($uploaded->valid_until)->format('d M Y') }} @endif
                                         </p>
+                                        @if($status === 'rejected' && $uploaded->rejection_reason)
+                                            <p class="text-xs text-red-600 dark:text-red-400 mt-1">Reason: {{ $uploaded->rejection_reason }}</p>
+                                        @endif
                                     @endif
                                 </div>
                                 <div class="flex items-center gap-2 flex-shrink-0">

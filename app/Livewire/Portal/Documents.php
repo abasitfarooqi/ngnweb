@@ -8,6 +8,7 @@ use App\Models\CustomerContract;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
 use App\Models\RentingBooking;
+use App\Support\CustomerDocumentReviewNotifier;
 use App\Support\CustomerDocumentStorage;
 use App\Support\RentalBookingLifecycle;
 use Illuminate\Support\Facades\Auth;
@@ -222,6 +223,10 @@ class Documents extends Component
                 $attributes['is_verified'] = false;
             }
 
+            if (Schema::hasColumn('customer_documents', 'rejection_reason')) {
+                $attributes['rejection_reason'] = null;
+            }
+
             if ($this->rentalBookingId && Schema::hasColumn('customer_documents', 'booking_id')) {
                 $attributes['booking_id'] = $this->rentalBookingId;
             }
@@ -235,6 +240,8 @@ class Documents extends Component
                 'document_type_id' => $this->uploadingFor,
             ], $attributes);
             \Log::info('Portal Documents::submitDocumentUpload db row saved', ['document_id' => $row->id]);
+
+            app(CustomerDocumentReviewNotifier::class)->logStaffUpload($row);
 
             if ($oldPath && $oldPath !== $path) {
                 \Log::info('Portal Documents::submitDocumentUpload deleting old file', ['old_path' => $oldPath]);
