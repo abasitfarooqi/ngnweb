@@ -294,6 +294,15 @@ class ProdNgnCleanSchemaReview
      * @param  array<string, mixed>  $meta
      * @param  list<string>  $orderedColumns
      */
+    public static function buildAddColumnStatement(string $table, string $column, array $meta, array $orderedColumns): string
+    {
+        return self::addColumnSql($table, $column, $meta, $orderedColumns);
+    }
+
+    /**
+     * @param  array<string, mixed>  $meta
+     * @param  list<string>  $orderedColumns
+     */
     protected static function addColumnSql(string $table, string $column, array $meta, array $orderedColumns): string
     {
         $qTable = ProdToLocalTableSync::qid($table);
