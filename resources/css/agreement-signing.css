@@ -378,6 +378,68 @@
     margin-bottom: 1rem;
 }
 
+.agreement-signing-loading {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    background: rgba(17, 24, 39, 0.94);
+    color: #f3f4f6;
+    text-align: center;
+    padding: 1.5rem;
+}
+
+.agreement-signing-loading[hidden] {
+    display: none !important;
+}
+
+.agreement-signing-loading--done {
+    background: rgba(22, 101, 52, 0.94);
+}
+
+.agreement-signing-spinner {
+    width: 42px;
+    height: 42px;
+    border: 3px solid #374151;
+    border-top-color: #f3f4f6;
+    border-radius: 50%;
+    animation: agreement-signing-spin 0.75s linear infinite;
+}
+
+.agreement-signing-loading--done .agreement-signing-spinner {
+    animation: none;
+    border-color: #bbf7d0;
+    border-top-color: #bbf7d0;
+}
+
+@keyframes agreement-signing-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.agreement-signing-loading-title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.agreement-signing-loading-hint,
+.agreement-signing-loading-elapsed {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #d1d5db;
+}
+
+.agreement-signing-page #success-message:not(:empty) {
+    color: #bbf7d0;
+    font-weight: 600;
+}
+
 .agreement-signing-page .upload-doc-filename-muted {
     opacity: 0.85;
     font-size: 0.8125rem;

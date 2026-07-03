@@ -348,7 +348,7 @@ label a{
             aria-hidden="true">
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content text-center">
-                    <form action="/signed/bookings/create-loyalty-scheme" method="POST">
+                    <form action="{{ route('loyalty.scheme.create') }}" method="POST">
                         @csrf
                         <div class="text-center">
                             <p class="mt-3 text-white" id="success-message"></p>

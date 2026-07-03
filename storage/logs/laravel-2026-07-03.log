@@ -79,3 +79,60 @@
 [2026-07-03 12:08:38] local.INFO: Detected IP address: 127.0.0.1  
 [2026-07-03 12:08:38] local.INFO: {"id":352,"customer_id":"220","user_id":"93","sold_by":null,"is_new":false,"is_posted":true,"created_at":"2026-07-03T11:02:40.000000Z","updated_at":"2026-07-03T11:08:38.000000Z","deposit":"20.00","notes":null,"contract_date":"2026-07-03T12:02:16","first_instalment_date":"2026-07-10","weekly_instalment":"20.00","is_monthly":false,"motorbike_price":"200.00","extra_items":null,"extra":null,"log_book_sent":false,"is_cancelled":false,"reason_of_cancellation":null,"logbook_transfer_date":null,"cancelled_at":null,"is_used":false,"is_used_extended":false,"is_used_extended_custom":false,"is_new_latest":true,"is_used_latest":false,"is_subscription":true,"subscription_option":"A","subs_payment_date":"15"}  
 [2026-07-03 12:08:38] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:56:38] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:56:38] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:56:44] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:56:45] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 12:56:50] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:02:12] local.ERROR: Allowed memory size of 134217728 bytes exhausted (tried to allocate 1413120 bytes) {"exception":"[object] (Symfony\\Component\\ErrorHandler\\Error\\FatalError(code: 0): Allowed memory size of 134217728 bytes exhausted (tried to allocate 1413120 bytes) at /Users/abdulbasit/NGNWEBTONGN/app/Support/AgreementPdfViewAssets.php:73)
+[stacktrace]
+#0 {main}
+"} 
+[2026-07-03 13:13:40] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:13:42] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:13:43] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:17:56] local.ERROR: PHP Parse error: Syntax error, unexpected T_STRING, expecting ')' on line 7 {"exception":"[object] (Psy\\Exception\\ParseErrorException(code: 0): PHP Parse error: Syntax error, unexpected T_STRING, expecting ')' on line 7 at /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Exception/ParseErrorException.php:44)
+[stacktrace]
+#0 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/CodeCleaner.php(488): Psy\\Exception\\ParseErrorException::fromParseError(Object(PhpParser\\Error))
+#1 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/CodeCleaner.php(269): Psy\\CodeCleaner->parse('<?php \\n$ctrl = ...', false)
+#2 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Shell.php(1059): Psy\\CodeCleaner->clean(Array, false)
+#3 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Shell.php(1092): Psy\\Shell->addCode('\\n$ctrl = app(Ap...', true)
+#4 /Users/abdulbasit/NGNWEBTONGN/vendor/psy/psysh/src/Shell.php(1640): Psy\\Shell->setCode('\\n$ctrl = app(Ap...', true)
+#5 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/tinker/src/Console/TinkerCommand.php(77): Psy\\Shell->execute('\\n$ctrl = app(Ap...')
+#6 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel\\Tinker\\Console\\TinkerCommand->handle()
+#7 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/Util.php(43): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#8 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure(Object(Closure))
+#9 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod(Object(Illuminate\\Foundation\\Application), Array, Object(Closure))
+#10 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Container/Container.php(799): Illuminate\\Container\\BoundMethod::call(Object(Illuminate\\Foundation\\Application), Array, Array, NULL)
+#11 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Console/Command.php(211): Illuminate\\Container\\Container->call(Array)
+#12 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Command/Command.php(341): Illuminate\\Console\\Command->execute(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#13 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Console/Command.php(180): Symfony\\Component\\Console\\Command\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Illuminate\\Console\\OutputStyle))
+#14 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Application.php(1117): Illuminate\\Console\\Command->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#15 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Application.php(356): Symfony\\Component\\Console\\Application->doRunCommand(Object(Laravel\\Tinker\\Console\\TinkerCommand), Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#16 /Users/abdulbasit/NGNWEBTONGN/vendor/symfony/console/Application.php(195): Symfony\\Component\\Console\\Application->doRun(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#17 /Users/abdulbasit/NGNWEBTONGN/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(198): Symfony\\Component\\Console\\Application->run(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#18 /Users/abdulbasit/NGNWEBTONGN/artisan(35): Illuminate\\Foundation\\Console\\Kernel->handle(Object(Symfony\\Component\\Console\\Input\\ArgvInput), Object(Symfony\\Component\\Console\\Output\\ConsoleOutput))
+#19 {main}
+"} 
+[2026-07-03 13:18:29] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:18:30] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:36:55] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:36:55] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:36:58] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:36:58] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:37:01] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:37:09] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:37:09] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:38:08] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:38:08] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:47:42] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:47:42] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:47:46] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:47:50] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:47:51] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:51:50] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:51:51] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:58:00] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 13:58:00] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 14:01:57] local.INFO: Detected IP address: 127.0.0.1  
+[2026-07-03 14:01:57] local.INFO: Detected IP address: 127.0.0.1  

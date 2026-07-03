@@ -1,7 +1,7 @@
-{{-- Dompdf: equal page inset via @page margin; watermark uses cover (no stretch); .watermark text overlays. --}}
+{{-- Dompdf: page inset via @page margin only — never body/wrapper padding (causes right/bottom bleed). --}}
 <style id="agreement-pdf-print-theme">
     @@page {
-        margin: 14px;
+        margin: 12mm 14mm;
     }
 
     html {
@@ -12,6 +12,8 @@
     body {
         margin: 0 !important;
         padding: 0 !important;
+        width: auto !important;
+        max-width: none !important;
         box-sizing: border-box !important;
         background-color: #f4f6f9 !important;
         color: #111827;
@@ -46,6 +48,22 @@
         background-position: center center !important;
         background-size: cover !important;
         background-origin: border-box !important;
+    }
+
+    table {
+        table-layout: fixed !important;
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
+    }
+
+    .table-con th,
+    .table-con td,
+    .fee-table th,
+    .fee-table td {
+        padding: 5px 6px !important;
+        word-wrap: break-word !important;
+        overflow-wrap: break-word !important;
     }
 
     .table-con th {

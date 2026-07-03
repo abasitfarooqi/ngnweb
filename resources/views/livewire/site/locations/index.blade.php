@@ -44,8 +44,7 @@
     <div class="mt-10 bg-gray-50 dark:bg-gray-800 p-6">
         <h3 class="font-bold text-gray-900 dark:text-white mb-3">Opening Hours</h3>
         <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 text-sm text-gray-600 dark:text-gray-400">
-            <div><span class="font-medium text-gray-900 dark:text-white">Monday–Friday</span><br>9:00am – 6:00pm</div>
-            <div><span class="font-medium text-gray-900 dark:text-white">Saturday</span><br>9:00am – 5:00pm</div>
+            <div><span class="font-medium text-gray-900 dark:text-white">Mon – Sat</span><br>9:00am – 6:00pm</div>
             <div><span class="font-medium text-gray-900 dark:text-white">Sunday</span><br>Closed</div>
         </div>
     </div>

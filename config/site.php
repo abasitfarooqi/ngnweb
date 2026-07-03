@@ -2,18 +2,18 @@
 
 return [
 
-    'hours' => env('SITE_HOURS', 'Mon–Fri 9am–6pm · Sat 9am–3:45pm · Sun Closed'),
+    'hours' => env('SITE_HOURS', 'Monday to Saturday, 9:00 AM – 6:00 PM · Sunday Closed'),
 
     /** Used bike detail page: classic | premium. Override per visit with ?layout=premium */
     'used_bike_detail_layout' => env('USED_BIKE_DETAIL_LAYOUT', 'classic'),
 
     'opening_hours' => [
-        'monday'    => '9 am – 6 pm',
-        'tuesday'   => '9 am – 6 pm',
-        'wednesday' => '9 am – 6 pm',
-        'thursday'  => '9 am – 6 pm',
-        'friday'    => '9 am – 6 pm',
-        'saturday'  => '9 am – 3:45 pm',
+        'monday'    => '9:00 AM – 6:00 PM',
+        'tuesday'   => '9:00 AM – 6:00 PM',
+        'wednesday' => '9:00 AM – 6:00 PM',
+        'thursday'  => '9:00 AM – 6:00 PM',
+        'friday'    => '9:00 AM – 6:00 PM',
+        'saturday'  => '9:00 AM – 6:00 PM',
         'sunday'    => 'Closed',
     ],
 

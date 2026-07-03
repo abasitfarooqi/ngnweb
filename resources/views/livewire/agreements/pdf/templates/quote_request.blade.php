@@ -68,6 +68,7 @@
 </head>
 
 <body>
+
     <div class="row">
         {{-- <div class="col-md-2">
             <img src="assets/images/logo-dark.png" alt="Neguinho Motors" width="20%">
@@ -145,6 +146,7 @@
         Email: thiago@neguinhomotors.co.uk; Tel: 0208 314 1498; Neguinho Motors Ltd; 9-13 Catford Hill; London; SE6 4NU; 
         Registered in England and Wales. <br> Company No.: 11600635; VAT No. 333852206; EORI number: GB333852206000
     </footer>
+
 </body>
 
 </html>

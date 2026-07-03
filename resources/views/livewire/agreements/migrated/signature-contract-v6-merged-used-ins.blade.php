@@ -1286,7 +1286,7 @@ label a{
             <div class="modal-dialog modal-fullscreen">
                 <div class="modal-content text-center">
                     <!-- <form action="/signed/bookings/create-new-contract" method="POST"> -->
-                    <form action="{{ ($booking->insurance_pcn ?? false) ? route('admin.finance.createMergedContractsIns') : route('admin.finance.createMergedContracts') }}" method="POST">
+                    <form action="{{ route('admin.finance.createMergedContractsIns') }}" method="POST" data-signing-pdf-count="5">
                         @csrf
                         <div class="text-center">
                             <p class="mt-3 text-white" id="success-message"></p>

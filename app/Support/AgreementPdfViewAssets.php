@@ -3,18 +3,26 @@
 namespace App\Support;
 
 /**
- * Resolves logo and watermark for agreement PDF Blade views so Dompdf receives
- * embeddable data URIs (local paths and remote https often fail otherwise).
+ * Resolves logo and watermark for agreement PDF Blade views.
+ * Logo: small data URI. Watermark: local absolute path (never HTTP — avoids
+ * php artisan serve deadlock and huge base64 memory use on repeat backgrounds).
  */
 final class AgreementPdfViewAssets
 {
     private const TRANSPARENT_PIXEL_PNG = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
 
+    /** @var array{agreementPdfLogoSrc: string, agreementPdfWatermarkSrc: string, agreementSigningWatermarkSrc: string}|null */
+    private static ?array $cached = null;
+
     /**
-     * @return array{agreementPdfLogoSrc: string, agreementPdfWatermarkSrc: string}
+     * @return array{agreementPdfLogoSrc: string, agreementPdfWatermarkSrc: string, agreementSigningWatermarkSrc: string}
      */
     public static function composerVariables(): array
     {
+        if (self::$cached !== null) {
+            return self::$cached;
+        }
+
         $brand = config('agreement.brand', []);
 
         $logoPath = self::publicPath((string) ($brand['pdf_logo_local'] ?? ''));
@@ -32,13 +40,18 @@ final class AgreementPdfViewAssets
             $logoSrc = self::TRANSPARENT_PIXEL_PNG;
         }
 
-        $wmSrc = $wmPath !== ''
+        $wmPdfSrc = self::localPathForDompdf($wmPath)
+            ?? self::tryFetchImageDataUri($wmRemote)
+            ?? self::TRANSPARENT_PIXEL_PNG;
+
+        $wmSigningSrc = $wmRel !== ''
             ? asset($wmRel)
             : ($wmRemote !== '' ? $wmRemote : self::TRANSPARENT_PIXEL_PNG);
 
-        return [
+        return self::$cached = [
             'agreementPdfLogoSrc' => $logoSrc,
-            'agreementPdfWatermarkSrc' => $wmSrc,
+            'agreementPdfWatermarkSrc' => $wmPdfSrc,
+            'agreementSigningWatermarkSrc' => $wmSigningSrc,
         ];
     }
 
@@ -49,9 +62,27 @@ final class AgreementPdfViewAssets
         return $relative === '' ? '' : public_path($relative);
     }
 
+    private static function localPathForDompdf(string $absolutePath): ?string
+    {
+        if ($absolutePath === '' || ! is_file($absolutePath) || ! is_readable($absolutePath)) {
+            return null;
+        }
+
+        $resolved = realpath($absolutePath);
+
+        return $resolved !== false
+            ? str_replace('\\', '/', $resolved)
+            : str_replace('\\', '/', $absolutePath);
+    }
+
     private static function imageToDataUri(string $absolutePath): ?string
     {
         if ($absolutePath === '' || ! is_file($absolutePath) || ! is_readable($absolutePath)) {
+            return null;
+        }
+
+        $size = filesize($absolutePath);
+        if ($size === false || $size > 256000) {
             return null;
         }
 
@@ -110,5 +141,4 @@ final class AgreementPdfViewAssets
 
         return 'data:'.$mime.';base64,'.base64_encode($binary);
     }
-
 }

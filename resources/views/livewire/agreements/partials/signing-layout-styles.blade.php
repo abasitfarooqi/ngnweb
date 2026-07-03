@@ -1,6 +1,6 @@
 @php
-    $__wmCssUrl = isset($agreementPdfWatermarkSrc) && $agreementPdfWatermarkSrc !== ''
-        ? (string) $agreementPdfWatermarkSrc
+    $__wmCssUrl = isset($agreementSigningWatermarkSrc) && $agreementSigningWatermarkSrc !== ''
+        ? (string) $agreementSigningWatermarkSrc
         : ((string) config('agreement.brand.pdf_watermark_local', '') !== ''
             ? asset((string) config('agreement.brand.pdf_watermark_local'))
             : (string) config('agreement.brand.pdf_watermark_remote', ''));

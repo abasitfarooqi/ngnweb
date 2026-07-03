@@ -66,8 +66,7 @@
             <div class="bg-zinc-800 border border-zinc-700 p-8">
                 <h3 class="font-black text-xl mb-4">Opening Hours</h3>
                 <dl class="space-y-2 text-sm">
-                    <div class="flex justify-between border-b border-zinc-700 pb-2"><dt class="text-zinc-400">Monday – Friday</dt><dd class="font-semibold">9:00am – 6:00pm</dd></div>
-                    <div class="flex justify-between border-b border-zinc-700 pb-2"><dt class="text-zinc-400">Saturday</dt><dd class="font-semibold">10:00am – 4:00pm</dd></div>
+                    <div class="flex justify-between border-b border-zinc-700 pb-2"><dt class="text-zinc-400">Mon – Sat</dt><dd class="font-semibold">9:00am – 6:00pm</dd></div>
                     <div class="flex justify-between"><dt class="text-zinc-400">Sunday</dt><dd class="text-zinc-500">Closed</dd></div>
                 </dl>
                 <div class="mt-6">

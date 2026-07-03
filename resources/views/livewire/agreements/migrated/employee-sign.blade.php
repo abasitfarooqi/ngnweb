@@ -4,6 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    @include('livewire.agreements.partials.signing-vite-assets')
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <title>Non-Disclosure Agreement</title>
     <style>
@@ -63,7 +64,7 @@
             </table>
         </div>
 
-        <form action="/signed/emp-nda/signed" method="POST">
+        <form action="{{ route('employee.nda') }}" method="POST">
             @csrf
             <h3 style='text-align:center; font-family: Arial, Helvetica, sans-serif'>Non-Disclosure Agreement (NDA) with
                 Enforceability Clause</h3>

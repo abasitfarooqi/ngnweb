@@ -40,6 +40,7 @@ use Illuminate\Support\Str;
 use Mail;
 use PDF;
 use App\Support\QrCodeGenerator;
+use App\Support\AgreementPdfGenerator;
 use App\Support\BrowsershotPdfAdapter;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
@@ -671,16 +672,6 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/finance-contract-ins-latest-'.$tm.$rand_no.'.pdf');
 
-        // Customer And Us Single PDF
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/finance-contract-ins-latest-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
-
-        if (! $success) {
-            \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         // Customer And Us Single Email Settings
         $data['title'] = 'Sale Contract Latest';
@@ -721,15 +712,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.$pdfFileName);
 
-            $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.$pdfFileName);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absoluteLocalPath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
 
-            if (! $success) {
-                \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-            }
 
             $less_terms_pdf_data[] = $less_terms_pdf;
         }
@@ -762,15 +745,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            // SFTP upload for battery safety leaflet
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            \Log::info('📁 Battery Safety Leaflet saved at: '.$batterySafetyAbsoluteLocalPath);
-            $batterySafetySuccess = $syncService->uploadFile($batterySafetyAbsoluteLocalPath);
-            \Log::info('📤 Battery Safety Leaflet remote mirror path: '.$batterySafetySuccess);
 
-            if (! $batterySafetySuccess) {
-                \Log::warning("Uploaded battery safety leaflet locally but failed to sync to remote domain: $batterySafetyAbsoluteLocalPath");
-            }
 
             // Send Battery Safety Leaflet PDF to customer only
             $batterySafetyData = [];
@@ -901,16 +876,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/finance-contract-ins-used-latest-'.$tm.$rand_no.'.pdf');
 
-        // SFTP upload
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/finance-contract-ins-used-latest-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
 
@@ -946,15 +912,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.$pdfFileName);
 
-            $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.$pdfFileName);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absoluteLocalPath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
 
-            if (! $success) {
-                \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-            }
 
             $less_terms_pdf_data[] = $less_terms_pdf;
         }
@@ -986,15 +944,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            // SFTP upload for battery safety leaflet
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            \Log::info('📁 Battery Safety Leaflet saved at: '.$batterySafetyAbsoluteLocalPath);
-            $batterySafetySuccess = $syncService->uploadFile($batterySafetyAbsoluteLocalPath);
-            \Log::info('📤 Battery Safety Leaflet remote mirror path: '.$batterySafetySuccess);
 
-            if (! $batterySafetySuccess) {
-                \Log::warning("Uploaded battery safety leaflet locally but failed to sync to remote domain: $batterySafetyAbsoluteLocalPath");
-            }
 
             // Send Battery Safety Leaflet PDF to customer only
             $batterySafetyData = [];
@@ -1125,16 +1075,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/finance-contract-used-latest-'.$tm.$rand_no.'.pdf');
 
-        // SFTP upload
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/finance-contract-used-latest-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
 
@@ -1157,15 +1098,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            // SFTP upload for battery safety leaflet
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            \Log::info('📁 Battery Safety Leaflet saved at: '.$batterySafetyAbsoluteLocalPath);
-            $batterySafetySuccess = $syncService->uploadFile($batterySafetyAbsoluteLocalPath);
-            \Log::info('📤 Battery Safety Leaflet remote mirror path: '.$batterySafetySuccess);
 
-            if (! $batterySafetySuccess) {
-                \Log::warning("Uploaded battery safety leaflet locally but failed to sync to remote domain: $batterySafetyAbsoluteLocalPath");
-            }
 
             // Send Battery Safety Leaflet PDF to customer only
             $batterySafetyData = [];
@@ -1455,10 +1388,6 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/finance-contract-latest-'.$tm.$rand_no.'.pdf');
 
-        // SFTP upload for sale contract
-        $saleAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/finance-contract-latest-'.$tm.$rand_no.'.pdf');
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $syncService->uploadFile($saleAbsoluteLocalPath);
 
         // 2. Generate Subscription Contract PDF
         $subscriptionPath = "customers/{$Booking->customer_id}/subscription-contract-".$tm.$rand_no.'.pdf';
@@ -1495,9 +1424,6 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/subscription-contract-'.$tm.$rand_no.'.pdf');
 
-        // SFTP upload for subscription contract
-        $subscriptionAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/subscription-contract-'.$tm.$rand_no.'.pdf');
-        $syncService->uploadFile($subscriptionAbsoluteLocalPath);
 
         // 3. Generate PCN PDFs (3 PDFs for company - always generate regardless of ins/non-ins)
         $contractStartDate = Carbon::parse($Booking->contract_date);
@@ -1533,8 +1459,6 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.$pdfFileName);
 
-            $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.$pdfFileName);
-            $syncService->uploadFile($absoluteLocalPath);
             $less_terms_pdf_data[] = $less_terms_pdf;
         }
 
@@ -1571,8 +1495,6 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            $syncService->uploadFile($batterySafetyAbsoluteLocalPath);
 
             $batterySafetyData = [];
             $batterySafetyData['email'] = [$Customer->email];
@@ -1679,9 +1601,6 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/finance-contract-ins-latest-'.$tm.$rand_no.'.pdf');
 
-        $saleAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/finance-contract-ins-latest-'.$tm.$rand_no.'.pdf');
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $syncService->uploadFile($saleAbsoluteLocalPath);
 
         // 2. Generate Subscription Contract PDF
         $subscriptionPath = "customers/{$Booking->customer_id}/subscription-contract-".$tm.$rand_no.'.pdf';
@@ -1718,8 +1637,6 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/subscription-contract-'.$tm.$rand_no.'.pdf');
 
-        $subscriptionAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/subscription-contract-'.$tm.$rand_no.'.pdf');
-        $syncService->uploadFile($subscriptionAbsoluteLocalPath);
 
         // 3. Generate PCN PDFs (3 PDFs for insurance contracts)
         $contractStartDate = Carbon::parse($Booking->contract_date);
@@ -1755,8 +1672,6 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.$pdfFileName);
 
-            $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.$pdfFileName);
-            $syncService->uploadFile($absoluteLocalPath);
             $less_terms_pdf_data[] = $less_terms_pdf;
         }
 
@@ -1793,8 +1708,6 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            $syncService->uploadFile($batterySafetyAbsoluteLocalPath);
 
             $batterySafetyData = [];
             $batterySafetyData['email'] = [$Customer->email];
@@ -1992,17 +1905,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/purchase-invoice-'.$tm.$rand_no.'.pdf');
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$purchase_id.'/purchase-invoice-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
 
@@ -2172,17 +2075,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/rental-agreement-'.$tm.$rand_no.'.pdf');
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/rental-agreement-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
 
         // 5m
@@ -2202,17 +2095,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath."/1st-{$pdf_name}-{$tm}{$rand_no}.pdf");
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id."/1st-{$pdf_name}-{$tm}{$rand_no}.pdf");
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $pdf2 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
@@ -2229,17 +2112,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath."/2nd-{$pdf_name}-{$tm}{$rand_no}.pdf");
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id."/2nd-{$pdf_name}-{$tm}{$rand_no}.pdf");
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $pdf3 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
@@ -2256,17 +2129,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath."/3rd-{$pdf_name}-{$tm}{$rand_no}.pdf");
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id."/3rd-{$pdf_name}-{$tm}{$rand_no}.pdf");
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
         $data['pdf1'] = $pdf1;
@@ -2455,17 +2318,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/rental-agreement-v6-'.$tm.$rand_no.'.pdf');
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/rental-agreement-v6-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
 
         // 5mnth copies
@@ -2485,17 +2338,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath."/1st-{$pdf_name}-{$tm}{$rand_no}.pdf");
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id."/1st-{$pdf_name}-{$tm}{$rand_no}.pdf");
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $pdf2 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
@@ -2512,17 +2355,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath."/2nd-{$pdf_name}-{$tm}{$rand_no}.pdf");
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id."/2nd-{$pdf_name}-{$tm}{$rand_no}.pdf");
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $pdf3 = $this->pdfLoadView($pdf_name, [
             'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
@@ -2539,17 +2372,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath."/3rd-{$pdf_name}-{$tm}{$rand_no}.pdf");
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id."/3rd-{$pdf_name}-{$tm}{$rand_no}.pdf");
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
         $data['pdf1'] = $pdf1;
@@ -2585,16 +2408,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            // SFTP upload for battery safety leaflet
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            \Log::info('📁 Battery Safety Leaflet saved at: '.$batterySafetyAbsoluteLocalPath);
-            $batterySafetySyncService = app(\App\Services\FtpSyncService::class);
-            $batterySafetySuccess = $batterySafetySyncService->uploadFile($batterySafetyAbsoluteLocalPath);
-            \Log::info('📤 Battery Safety Leaflet remote mirror path: '.$batterySafetySuccess);
 
-            if (! $batterySafetySuccess) {
-                \Log::warning("Uploaded battery safety leaflet locally but failed to sync to remote domain: $batterySafetyAbsoluteLocalPath");
-            }
 
             // Send Battery Safety Leaflet PDF to customer only
             $batterySafetyData = [];
@@ -2708,17 +2522,7 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf');
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // // --- SFTP Sync Logic ---
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
 
@@ -2747,16 +2551,7 @@ class AgreementController extends Controller
                 ->setOption('isPhpEnabled', true)
                 ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
 
-            // SFTP upload for battery safety leaflet
-            $batterySafetyAbsoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-            \Log::info('📁 Battery Safety Leaflet saved at: '.$batterySafetyAbsoluteLocalPath);
-            $batterySafetySyncService = app(\App\Services\FtpSyncService::class);
-            $batterySafetySuccess = $batterySafetySyncService->uploadFile($batterySafetyAbsoluteLocalPath);
-            \Log::info('📤 Battery Safety Leaflet remote mirror path: '.$batterySafetySuccess);
 
-            if (! $batterySafetySuccess) {
-                \Log::warning("Uploaded battery safety leaflet locally but failed to sync to remote domain: $batterySafetyAbsoluteLocalPath");
-            }
 
             // Send Battery Safety Leaflet PDF to customer only
             $batterySafetyData = [];
@@ -2906,16 +2701,8 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/loyalty-scheme-policy-'.$tm.$rand_no.'.pdf');
 
-        $absoluteLocalPath = storage_path('app/public/customers/'.$Booking->customer_id.'/loyalty-scheme-policy-'.$tm.$rand_no.'.pdf');
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
         
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absoluteLocalPath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-        }
 
         $data['pdf'] = $pdf;
 
@@ -2939,27 +2726,7 @@ class AgreementController extends Controller
     }
     private function pdfLoadView(string $view, array $data = []): mixed
     {
-        $templatesPrefix = 'livewire.agreements.pdf.templates.';
-        $resolvedView = str_starts_with($view, 'pdf.')
-            ? $templatesPrefix.substr($view, 4)
-            : $view;
-        $resolvedData = $data;
-
-        // Safety fallback for any PDF view not yet migrated.
-        if (! view()->exists($resolvedView)) {
-            $resolvedView = 'livewire.agreements.pdf.legacy-pdf-host';
-            $resolvedData = array_merge($data, ['legacyPdfView' => str_starts_with($view, 'pdf.')
-                ? $templatesPrefix.substr($view, 4)
-                : $view]);
-        }
-
-        if (config('agreement.pdf_engine', 'dompdf') === 'browsershot') {
-            return new BrowsershotPdfAdapter($resolvedView, $resolvedData);
-        }
-
-        return Pdf::loadView($resolvedView, $resolvedData)
-            ->setOption('isRemoteEnabled', true)
-            ->setOption('isPhpEnabled', true);
+        return AgreementPdfGenerator::loadView($view, $data);
     }
 
 }

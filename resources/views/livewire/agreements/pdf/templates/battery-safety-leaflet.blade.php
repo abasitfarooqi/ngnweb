@@ -11,8 +11,9 @@
         body {
             font-family: Arial, sans-serif;
             width: 100%;
-            padding: 0px;
-            margin: 0px;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
             font-size: 11px;
             background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-position: 0 0;
@@ -110,14 +111,16 @@
         {{ $customer->first_name ?? '' }}
         {{ $customer->last_name ?? '' }} | Battery Safety Leaflet
     </div>
+
+
     <div class="header" style="padding:1px;margin:0px">
         <table style="padding:0px !important;width: 100%;">
             <tr>
-                <td style="width: 20%;margin-left: 20px !important;">
+                <td style="width: 20%;">
                     <img src="{{ $agreementPdfLogoSrc }}"
                         alt="Neguinho Motors" width="100%" style="padding-top:10px">
                 </td>
-                <td style="width: 55%;padding: 10px 10px;">
+                <td style="width: 50%;padding: 10px 8px;">
                     <div class="address">
                         9-13 Catford Hill, <br>
                         London, SE6 4NU<br>
@@ -179,18 +182,9 @@
         </p>
     </div>
 
-    <script type="text/php">
-        if ( isset($pdf) ) {
-            $pdf->page_script('
-                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $size = 10;
-                $pageText = "Page " . $PAGE_NUM . " of " . $PAGE_COUNT;
-                $y = 15;
-                $x = 520;
-                $pdf->text($x, $y, $pageText, $font, $size);
-            ');
-        }
-    </script>
+    
+
+    @include('livewire.agreements.pdf.partials.pdf-page-script')
     <div class="footer"></div>
 </body>
 </html>

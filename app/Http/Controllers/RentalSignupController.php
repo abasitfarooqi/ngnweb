@@ -8,7 +8,7 @@ use App\Models\Motorcycle;
 use App\Models\Rental;
 use App\Models\RentalPayment;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\AgreementPdfGenerator;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -231,7 +231,7 @@ class RentalSignupController extends Controller
         $agreement = json_decode($agree);
 
         // Save PDF to file
-        $pdf = Pdf::loadView('livewire.agreements.pdf.templates.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay])
+        $pdf = AgreementPdfGenerator::loadView('livewire.agreements.pdf.templates.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay])
             ->setPaper('a4', 'portrait')
             ->save(public_path('rental-agreement-'.time().rand(1, 99999).'.pdf'));
 
@@ -240,7 +240,7 @@ class RentalSignupController extends Controller
         $data['title'] = 'Rental Agreement';
         $data['body'] = 'Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!';
 
-        $pdf = PDF::loadView('livewire.agreements.pdf.templates.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay]);
+        $pdf = AgreementPdfGenerator::loadView('livewire.agreements.pdf.templates.rental-agreement', ['agreement' => $agreement, 'u' => $u, 'toDay' => $toDay]);
         $data['pdf'] = $pdf;
 
         Mail::to($data['email'])->send(new RentalAgreement($data));

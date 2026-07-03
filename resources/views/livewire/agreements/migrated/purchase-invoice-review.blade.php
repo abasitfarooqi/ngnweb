@@ -245,7 +245,7 @@
     </div>
 
     <div class="container">
-        <form action="/signed/purchase-invoice/create-new-invoice" method="POST">
+        <form action="{{ route('admin.purchase.createNewInvoice') }}" method="POST">
             @csrf
             <p style="font-size: 12px; font-weight:bolder">Kindly, provide account details below:</p>
             <div class="row">

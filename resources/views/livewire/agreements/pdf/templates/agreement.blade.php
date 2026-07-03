@@ -13,8 +13,9 @@
         body {
             font-family: Arial, sans-serif;
             width: 100%;
-            padding: 0px;
-            margin: 0px;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
             font-size: 11px;
             background-color: #f4f6f9;
             background-image: url("{{ $agreementPdfWatermarkSrc }}");
@@ -84,14 +85,15 @@
         }
 
         .left-padding {
-            padding-left: 20px;
+            padding-left: 14px;
+            padding-right: 14px;
             margin: 0px;
-            padding-top: 2px;
-            padding-bottom: 2px;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         .hr-line {
-            width: 98%;
+            width: 100%;
             border: none;
             border-top: 0.4px dotted black;
         }
@@ -113,6 +115,8 @@
     <div class="watermark" style="letter-spacing: 1.7px">{{ $motorbike->reg_no }}
         {{ $customer->first_name }}
         {{ $motorbike->reg_no }} {{ $customer->first_name }}</div>
+
+
     <div class="header" style="padding:1px;margin:1px">
         <span style="font-size:7px">V1 Rev1</span>
         <table style="border:none !important;padding:1px;margin:1px">
@@ -121,7 +125,7 @@
                     <img src="{{ $agreementPdfLogoSrc }}"
                         alt="Neguinho Motors" width="85%">
                 </td>
-                <td style="width: 55%;padding: 10px 10px;">
+                <td style="width: 50%;padding: 10px 8px;">
                     <div class="address">
                         9-13 Catford Hill<br>
                         London, SE6 4NU<br>
@@ -1041,18 +1045,9 @@
         </div>
     </div>
 
-    <script type="text/php">
-            if ( isset($pdf) ) {
-                $pdf->page_script('
-                    $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                    $size = 10;
-                    $pageText = "Page " . $PAGE_NUM . " of " . $PAGE_COUNT;
-                    $y = 15;
-                    $x = 520;
-                    $pdf->text($x, $y, $pageText, $font, $size);
-                ');
-            }
-    </script>
+    
+
+    @include('livewire.agreements.pdf.partials.pdf-page-script')
 </body>
 
 </html>

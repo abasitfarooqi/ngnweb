@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Customer;
-use Barryvdh\DomPDF\Facade\Pdf;
+use App\Support\AgreementPdfGenerator;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -173,7 +173,7 @@ class CustomContractController extends Controller
 
         try {
             // Generate PDF using your existing template
-            $pdf = Pdf::loadView($pdfTemplate, [
+            $pdf = AgreementPdfGenerator::loadView($pdfTemplate, [
                 'contractStartDate' => $contractStartDate->format('d-F-Y H:i'),
                 'contractEndDate' => $contractEndDate->format('d-F-Y H:i'),
                 'today' => Carbon::parse($signingDate)->format('d/m/Y'),
@@ -221,7 +221,7 @@ class CustomContractController extends Controller
 
         try {
             // Generate PDF using your existing template
-            $pdf = Pdf::loadView($pdfTemplate, [
+            $pdf = AgreementPdfGenerator::loadView($pdfTemplate, [
                 'contractStartDate' => $contractStartDate->format('d-F-Y H:i'),
                 'contractEndDate' => $contractEndDate->format('d-F-Y H:i'),
                 'today' => Carbon::parse($signingDate)->format('d/m/Y'),
@@ -278,7 +278,7 @@ class CustomContractController extends Controller
             $fullPath = $pdfPath.'/'.$fileName;
 
             // Generate PDF using your existing template
-            $pdf = Pdf::loadView($pdfTemplate, [
+            $pdf = AgreementPdfGenerator::loadView($pdfTemplate, [
                 'contractStartDate' => $contractStartDate->format('d-F-Y H:i'),
                 'contractEndDate' => $contractEndDate->format('d-F-Y H:i'),
                 'today' => Carbon::parse($signingDate)->format('d/m/Y'),

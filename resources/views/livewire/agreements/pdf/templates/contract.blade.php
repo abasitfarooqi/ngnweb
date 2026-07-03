@@ -13,8 +13,9 @@
         body {
             font-family: Arial, sans-serif;
             width: 100%;
-            padding: 0px;
-            margin: 0px;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
             font-size: 11px;
             background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-position: 0 0;
@@ -82,14 +83,15 @@
         }
 
         .left-padding {
-            padding-left: 20px;
+            padding-left: 14px;
+            padding-right: 14px;
             margin: 0px;
-            padding-top: 2px;
-            padding-bottom: 2px;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         .hr-line {
-            width: 98%;
+            width: 100%;
             border: none;
             border-top: 0.4px dotted black;
         }
@@ -120,6 +122,8 @@
     <div class="watermark" style="letter-spacing: 1.7px">{{ $motorbike->reg_no }}
         {{ $customer->first_name }}
         {{ $customer->last_name }}</div>
+
+
     <div class="header" style="padding:1px;margin:1px">
         <table style="border:none !important;padding:1px;margin:1px">
             <tr>
@@ -488,18 +492,9 @@
 
     </div>
 
-    <script type="text/php">
-        if ( isset($pdf) ) {
-            $pdf->page_script('
-                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $size = 10;
-                $pageText = "Page " . $PAGE_NUM . " of " . $PAGE_COUNT;
-                $y = 15;
-                $x = 520;
-                $pdf->text($x, $y, $pageText, $font, $size);
-            ');
-        }
-    </script>
+    
+
+    @include('livewire.agreements.pdf.partials.pdf-page-script')
     <div class="footer">
         {{-- Page <span class="page-num"></span> of <span class="page-count"></span> --}}
     </div>

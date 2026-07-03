@@ -5,21 +5,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/responsive.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/colors/color1.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <!-- Favicon and touch icons  -->
     <link href="{{ url('/img/white-bg-ico.ico') }}" rel="shortcut icon">
     {{-- changed --}}
 
     <title>Motorcycle Rental Contract</title>
     <style>
-body {
+        .watermark {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 12px;
+            color: rgba(0, 0, 0, 0.1);
+            z-index: -1;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        body {
             font-family: Arial, sans-serif;
             width: 100%;
-            padding: 0px;
-            margin: 0px;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
             font-size: 11px;
             background-image: url("{{ $agreementPdfWatermarkSrc }}");
-            background-position: 0 0;
             background-repeat: repeat;
+            background-position: 0 0;
         }
 
         .header {
@@ -76,7 +94,7 @@ body {
         .td-cont{
             border: none;
             padding: 0px;
-            padding-left: 1px;
+            padding-left: 10px;
         }
 
         .attention {
@@ -87,14 +105,15 @@ body {
         }
 
         .left-padding {
-            padding-left: 20px;
+            padding-left: 14px;
+            padding-right: 14px;
             margin: 0px;
-            padding-top: 2px;
-            padding-bottom: 2px;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         .hr-line {
-            width: 98%;
+            width: 100%;
             border: none;
             border-top: 0.4px dotted black;
         }
@@ -137,7 +156,7 @@ body {
 </head>
 
 <body>
-    
+
     <div class="watermark" style="letter-spacing: 1.9px">
         {{ $motorbike->reg_no }} {{ $customer->first_name }}
         {{ $customer->last_name }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }}
@@ -151,14 +170,17 @@ body {
         {{ $customer->first_name }}
         {{ $customer->last_name }} | V6 Rev#0 | {{ $document_number }}
     </div>
+    
+
+
     <div class="header" style="padding:1px;margin:0px">
         <table style="padding:0px !important;width: 100%;">
             <tr>
-                <td style="width: 20%;margin-left: 20px !important;">
+                <td style="width: 20%;">
                     <img src="{{ $agreementPdfLogoSrc }}"
                         alt="Neguinho Motors" width="100%" style="padding-top:10px">
                 </td>
-                <td style="width: 55%;padding: 10px 10px;">
+                <td style="width: 50%;padding: 10px 8px;">
                     <div class="address">
                         9-13 Catford Hill, <br>
                         London, SE6 4NU<br>
@@ -211,7 +233,7 @@ body {
                     
             <table class="table-con" >
                 <tr class="no-border">
-                    <td class="td-cont" colspan="2" class="attention" style="padding-left:20px;">ATTENTION</td>
+                    <td class="td-cont" colspan="2" class="attention" style="padding-left:14px;padding-right:14px;">ATTENTION</td>
                 </tr>
                 <tr class="no-border">
                     <td class="td-cont" colspan="2" class="left-padding" >IN CASE OF ANY EMERGENCY CALL: 0203 409 5478 or 0208 314 1498</td>
@@ -1024,18 +1046,10 @@ body {
         </div>
     </div>
 
-    <script type="text/php">
-        if ( isset($pdf) ) {
-            $pdf->page_script('
-                $font = $fontMetrics->get_font("Arial, Helvetica, sans-serif", "normal");
-                $size = 10;
-                $pageText = "Page " . $PAGE_NUM . " of " . $PAGE_COUNT;
-                $y = 15;
-                $x = 520;
-                $pdf->text($x, $y, $pageText, $font, $size);
-            ');
-        }
-    </script>
+    
+
+    @include('livewire.agreements.pdf.partials.pdf-page-script')
+
     <div class="footer"></div>
 </body>
 </html>

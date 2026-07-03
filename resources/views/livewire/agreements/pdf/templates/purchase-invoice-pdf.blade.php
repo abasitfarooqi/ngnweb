@@ -39,8 +39,9 @@
         body {
             font-family: Arial, sans-serif;
             width: 100%;
-            padding: 0px;
-            margin: 0px;
+            max-width: 100%;
+            padding: 0;
+            margin: 0;
             font-size: 11px;
             background-image: url("{{ $agreementPdfWatermarkSrc }}");
             background-repeat: repeat;
@@ -103,14 +104,15 @@
         }
 
         .left-padding {
-            padding-left: 20px;
+            padding-left: 14px;
+            padding-right: 14px;
             margin: 0px;
-            padding-top: 2px;
-            padding-bottom: 2px;
+            padding-top: 4px;
+            padding-bottom: 4px;
         }
 
         .hr-line {
-            width: 98%;
+            width: 100%;
             border: none;
             border-top: 0.4px dotted black;
         }
@@ -120,6 +122,8 @@
 </head>
 
 <body>
+
+
 
     <div class="header" style="padding:1px;margin:1px; border: none !important">
         <span style="font-size:7px">V1 Rev#1</span>
@@ -291,6 +295,7 @@
     <div class="" style="text-align: center !important;margin:0;padding:0;">
         <p>Thank you</p>
     </div>
+
 
 </body>
 
