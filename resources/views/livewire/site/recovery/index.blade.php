@@ -1,5 +1,5 @@
 <div>
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Motorcycle Delivery & Recovery</h1>
         <p class="text-gray-300 text-lg mb-6">24/7 breakdown assistance across London & surrounding areas</p>
@@ -30,15 +30,15 @@
     <div class="max-w-3xl mx-auto">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Request Recovery</h2>
 
-        @if(session('success'))
-            <flux:callout variant="success" icon="check-circle" class="mb-5">
-                <flux:callout.text>{{ session('success') }}</flux:callout.text>
-            </flux:callout>
-        @endif
+        <x-site.form-panel>
+            @if(session('success'))
+                <flux:callout variant="success" icon="check-circle" class="mb-5">
+                    <flux:callout.text>{{ session('success') }}</flux:callout.text>
+                </flux:callout>
+            @endif
 
-        <flux:card class="p-8">
-            <form wire:submit="submitRequest" class="space-y-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <form wire:submit="submitRequest" class="site-form site-form-stack">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Your Name *</flux:label>
                         <flux:input wire:model="name" />
@@ -59,13 +59,13 @@
                         <flux:input wire:model="bikeReg" placeholder="AB12 CDE" class="uppercase" />
                         <flux:error name="bikeReg" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
                 <flux:field>
                     <flux:label>Pickup Address *</flux:label>
                     <flux:input wire:model="fromAddress" placeholder="Street, area or postcode" />
                     <flux:error name="fromAddress" />
                 </flux:field>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Destination Branch (optional)</flux:label>
                         <flux:select wire:model.live="branchId" variant="listbox" searchable placeholder="— or enter address below —">
@@ -81,7 +81,7 @@
                         <flux:input wire:model="toAddress" placeholder="Branch or any address" />
                         <flux:error name="toAddress" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
                 <flux:field>
                     <flux:label>Describe the Problem</flux:label>
                     <flux:textarea wire:model="message" rows="3" />
@@ -100,17 +100,17 @@
                     </ul>
                 </div>
 
-                <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
-                    <input type="checkbox" wire:model="terms" class="mt-1">
+                <label class="site-form-consent">
+                    <input type="checkbox" wire:model="terms">
                     <span>I agree to the recovery terms and conditions above, and confirm I am authorised for this motorcycle.</span>
                 </label>
                 <flux:error name="terms" />
-                <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+                <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                     Submit Recovery Request
                 </flux:button>
-                <p class="text-xs text-gray-500 text-center">For emergencies call us directly: <a href="tel:02083141498" class="text-brand-red hover:underline">0208 314 1498</a></p>
+                <p class="text-xs text-gray-500 text-center">For emergencies call us directly: <a href="tel:02083141498" class="text-brand-green hover:underline">0208 314 1498</a></p>
             </form>
-        </flux:card>
+        </x-site.form-panel>
     </div>
 </div>
 </div>

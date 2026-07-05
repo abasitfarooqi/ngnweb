@@ -9,7 +9,7 @@
         }
     }"
 >
-    <section class="bg-gray-950 text-white py-14 md:py-16">
+    <section class="site-page-hero py-14 md:py-16">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <p class="text-xs tracking-[0.2em] uppercase text-gray-400">Test page</p>
             <h1 class="mt-2 text-3xl md:text-5xl font-bold">NavixAI One-Page Service Hub</h1>
@@ -17,7 +17,7 @@
                 This page is isolated for testing. Existing site pages remain unchanged. Club member pages, shop and ecommerce flows are intentionally excluded.
             </p>
             <div class="mt-6 flex flex-wrap gap-3">
-                <flux:button href="{{ route('site.home') }}" variant="outline" class="border-white/30 text-white hover:bg-white/10 rounded-none">Main site home</flux:button>
+                <flux:button href="{{ route('site.home') }}" variant="outline" class="border-white/30 text-white hover:bg-white/10 dark:border-gray-900 dark:text-gray-900 dark:hover:bg-gray-900 dark:hover:text-white">Main site home</flux:button>
                 <flux:button type="button" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark rounded-none" x-on:click="scrollToEnquiry()">Jump to enquiry form</flux:button>
             </div>
         </div>
@@ -94,10 +94,13 @@
             <h2 class="text-2xl font-bold text-gray-900 dark:text-white">Branch context</h2>
             <div class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach ($branches as $branch)
-                    <div class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 rounded-none">
+                    <div class="border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden">
+                        <x-site.branch-logo-banner :alt="$branch['name'] . ' — NGN Motors'" />
+                        <div class="p-4">
                         <h3 class="font-bold text-gray-900 dark:text-white">{{ $branch['name'] }}</h3>
                         <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ $branch['address'] ?: 'Address available on locations page.' }}</p>
                         <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">{{ $branch['phone'] !== '' ? $branch['phone'] : 'Phone available on contact page.' }}</p>
+                        </div>
                     </div>
                 @endforeach
             </div>

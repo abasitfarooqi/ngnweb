@@ -39,7 +39,7 @@
     </flux:card>
 
     <flux:card class="p-4">
-        <form wire:submit.prevent="sendMessage" class="space-y-3">
+        <form wire:submit.prevent="sendMessage" class="site-form site-form-stack">
             <flux:field>
                 <flux:label>Message</flux:label>
                 <textarea

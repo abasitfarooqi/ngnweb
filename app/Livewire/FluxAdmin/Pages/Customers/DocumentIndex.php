@@ -7,6 +7,7 @@ use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\CustomerDocument;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -60,7 +61,7 @@ class DocumentIndex extends Component
                         });
                 });
             })
-            ->when($this->filter('status'), fn ($q, $v) => $q->where('status', $v))
+            ->when($this->filter('status') && Schema::hasColumn('customer_documents', 'status'), fn ($q, $v) => $q->where('status', $v))
             ->when($this->filter('verified') !== '', function ($q): void {
                 $q->where('is_verified', $this->filter('verified') === '1');
             })

@@ -129,6 +129,27 @@
                     <flux:textarea wire:model="form.reputation_note" rows="3" placeholder="Internal notes about this customer (not visible to customer)" />
                 </x-flux-admin::field-group>
             </div>
+
+            @if($customer && $customer->exists)
+                <div class="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-zinc-500 mb-2">Customer portal controls</h3>
+                    <p class="text-xs text-zinc-500 mb-3">
+                        Profile initialised: {{ $customer->profile_initialised_at?->format('d M Y H:i') ?? 'Not yet' }}
+                    </p>
+                    <div class="flex flex-wrap gap-2">
+                        @if($customer->profile_initialised_at && ! ($form['profile_editing_unlocked'] ?? false))
+                            <flux:button type="button" size="sm" variant="primary" wire:click="setProfileEditingUnlocked(true)" class="!rounded-none">Unlock profile editing</flux:button>
+                        @elseif($form['profile_editing_unlocked'] ?? false)
+                            <flux:button type="button" size="sm" variant="ghost" wire:click="setProfileEditingUnlocked(false)" class="!rounded-none">Lock profile editing</flux:button>
+                        @endif
+                        @if(! ($form['document_reupload_unlocked'] ?? false))
+                            <flux:button type="button" size="sm" variant="primary" wire:click="setDocumentReuploadUnlocked(true)" class="!rounded-none">Allow approved doc re-upload</flux:button>
+                        @else
+                            <flux:button type="button" size="sm" variant="ghost" wire:click="setDocumentReuploadUnlocked(false)" class="!rounded-none">Lock approved doc re-upload</flux:button>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="flex justify-end gap-3 pt-2">

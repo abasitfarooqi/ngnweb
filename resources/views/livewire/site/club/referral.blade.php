@@ -7,7 +7,7 @@
             <a href="{{ route('ngnclub.dashboard') }}" class="mt-6 inline-block text-sm font-medium text-brand-red underline">Back to dashboard</a>
         </div>
     @else
-        <div class="bg-gray-900 text-white py-8 px-4">
+        <div class="site-page-hero py-8 px-4">
             <div class="max-w-3xl mx-auto">
                 <h1 class="text-2xl font-bold">NGN Club referral</h1>
                 <a href="{{ route('ngnclub.dashboard') }}"
@@ -49,7 +49,7 @@
             @if (! session('referral_link'))
                 <flux:card class="p-6 border-2 border-brand-red">
                     <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-4 text-center">Referred person details</h2>
-                    <form wire:submit="submit" class="space-y-4 max-w-md mx-auto">
+                    <form wire:submit="submit" class="site-form site-form-stack max-w-md mx-auto">
                         <flux:field>
                             <flux:label>Full name</flux:label>
                             <flux:input wire:model="full_name" autocomplete="name" required />

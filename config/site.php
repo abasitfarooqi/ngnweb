@@ -2,6 +2,8 @@
 
 return [
 
+    'logo' => 'img/ngn-motor-logo-fit-small.png',
+
     'hours' => env('SITE_HOURS', 'Monday to Saturday, 9:00 AM – 6:00 PM · Sunday Closed'),
 
     /** Used bike detail page: classic | premium. Override per visit with ?layout=premium */

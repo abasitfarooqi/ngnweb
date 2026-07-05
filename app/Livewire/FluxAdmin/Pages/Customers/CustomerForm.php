@@ -83,6 +83,32 @@ class CustomerForm extends Component
         $this->redirect(route('flux-admin.customers.index'), navigate: true);
     }
 
+    public function setProfileEditingUnlocked(bool $unlocked): void
+    {
+        if (! $this->customer?->exists) {
+            return;
+        }
+
+        $this->customer->update(['profile_editing_unlocked' => $unlocked]);
+        $this->form['profile_editing_unlocked'] = $unlocked;
+        $this->dispatch('flux-admin:toast', type: 'success', message: $unlocked
+            ? 'Customer may edit their profile again.'
+            : 'Customer profile editing locked.');
+    }
+
+    public function setDocumentReuploadUnlocked(bool $unlocked): void
+    {
+        if (! $this->customer?->exists) {
+            return;
+        }
+
+        $this->customer->update(['document_reupload_unlocked' => $unlocked]);
+        $this->form['document_reupload_unlocked'] = $unlocked;
+        $this->dispatch('flux-admin:toast', type: 'success', message: $unlocked
+            ? 'Customer may replace approved documents.'
+            : 'Approved document re-upload locked.');
+    }
+
     public function render()
     {
         $branches = Branch::orderBy('name')->get(['id', 'name']);

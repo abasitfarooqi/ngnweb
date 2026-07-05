@@ -1,7 +1,7 @@
 <div>
 {{-- Hero --}}
-<div class="relative bg-gray-900 text-white py-14 md:py-20 overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-red/30"></div>
+<div class="relative site-page-hero py-14 md:py-20 overflow-hidden">
+    <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-black via-gray-900 to-brand-red/30"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl md:text-5xl font-bold mb-4">Motorcycle Repair Services</h1>
         <nav class="text-sm text-gray-400" aria-label="Breadcrumb">
@@ -133,8 +133,8 @@
             </flux:callout>
         @endif
 
-        <flux:card class="p-6 md:p-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-            <form wire:key="repairs-index-enquiry-{{ $formNonce }}" wire:submit="submitEnquiry" class="space-y-4">
+        <x-site.form-panel>
+            <form wire:key="repairs-index-enquiry-{{ $formNonce }}" wire:submit="submitEnquiry" class="site-form site-form-stack">
                 <flux:field>
                     <flux:label>Service type *</flux:label>
                     <flux:select wire:model="selectedService" variant="listbox" placeholder="Select service…">
@@ -157,7 +157,7 @@
                     <flux:error name="selectedBranch" />
                 </flux:field>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Full name *</flux:label>
                         <flux:input wire:model="name" />
@@ -168,7 +168,7 @@
                         <flux:input wire:model="phone" type="tel" />
                         <flux:error name="phone" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
 
                 <flux:field>
                     <flux:label>Email *</flux:label>
@@ -182,7 +182,7 @@
                     <flux:error name="regNo" />
                 </flux:field>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Make</flux:label>
                         <flux:input wire:model="make" placeholder="e.g. Honda" />
@@ -191,7 +191,7 @@
                         <flux:label>Model</flux:label>
                         <flux:input wire:model="model" placeholder="e.g. CB650R" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
 
                 <flux:field>
                     <flux:label>Describe the work or issue *</flux:label>
@@ -199,24 +199,13 @@
                     <flux:error name="description" />
                 </flux:field>
 
-                <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled">
+                <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark" wire:loading.attr="disabled">
                     <span wire:loading.remove wire:target="submitEnquiry">Submit enquiry</span>
                     <span wire:loading wire:target="submitEnquiry">Submitting…</span>
                 </flux:button>
             </form>
-        </flux:card>
+        </x-site.form-panel>
     </div>
 </div>
 
-<style>
-    .repairs-enquiry-form:not(.dark *) [data-flux-control],
-    html:not(.dark) .repairs-enquiry-form [data-flux-control] {
-        border-color: rgb(209 213 219) !important;
-        background-color: #fff !important;
-        color: rgb(17 24 39);
-    }
-    html:not(.dark) .repairs-enquiry-form [data-flux-label] {
-        color: rgb(55 65 81);
-    }
-</style>
 </div>

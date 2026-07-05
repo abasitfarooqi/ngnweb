@@ -14,7 +14,7 @@
                 </div>
             </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <x-site.form-grid :cols="2">
             <flux:field>
                 <flux:label>Model</flux:label>
                 <flux:input name="model" id="{{ $formId }}_model" class="uppercase" required pattern="[A-Za-z0-9/ -]*" />
@@ -23,8 +23,8 @@
                 <flux:label>Make</flux:label>
                 <flux:input name="make" id="{{ $formId }}_make" class="uppercase" required pattern="[A-Za-z0-9/ -]*" />
             </flux:field>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        </x-site.form-grid>
+        <x-site.form-grid :cols="2">
             <flux:field>
                 <flux:label>Year</flux:label>
                 <flux:select name="vehicle_year" id="{{ $formId }}_year" required>
@@ -38,8 +38,8 @@
                 <flux:label>Engine (CC)</flux:label>
                 <flux:input type="number" name="engine_size" id="{{ $formId }}_engine" min="0" step="1" required />
             </flux:field>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        </x-site.form-grid>
+        <x-site.form-grid :cols="2">
             <flux:field>
                 <flux:label>Mileage</flux:label>
                 <flux:input type="number" name="mileage" id="{{ $formId }}_mileage" min="0" step="1" required />
@@ -48,7 +48,7 @@
                 <flux:label>New vehicle price (£)</flux:label>
                 <flux:input type="number" name="base_price" id="{{ $formId }}_base_price" min="0" step="1" required />
             </flux:field>
-        </div>
+        </x-site.form-grid>
         <flux:field>
             <flux:label>Condition (1–10): <span id="{{ $formId }}_cond_label" class="text-brand-red font-bold">5</span></flux:label>
             <input type="range" name="condition" id="{{ $formId }}_condition" min="1" max="10" step="1" value="5"

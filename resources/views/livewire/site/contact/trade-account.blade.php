@@ -1,13 +1,12 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
+<div class="site-page-hero bg-gradient-to-r from-brand-green to-emerald-800 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Trade Account Application</h1>
-        <p class="text-xl text-red-100">Exclusive benefits for trade customers & businesses</p>
+        <p class="text-xl text-emerald-100">Exclusive benefits for trade customers & businesses</p>
     </div>
 </div>
 
-{{-- Benefits --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
         @foreach([
@@ -16,7 +15,7 @@
             ['icon' => 'truck',        'title' => 'Priority Service',    'desc' => 'Fast-track orders & dedicated account manager'],
         ] as $benefit)
             <flux:card class="p-8 text-center">
-                <flux:icon name="{{ $benefit['icon'] }}" class="h-10 w-10 text-brand-red mx-auto mb-4" />
+                <flux:icon name="{{ $benefit['icon'] }}" class="h-10 w-10 text-brand-green mx-auto mb-4" />
                 <h3 class="font-bold text-gray-900 dark:text-white mb-2">{{ $benefit['title'] }}</h3>
                 <p class="text-gray-600 dark:text-gray-400 text-sm">{{ $benefit['desc'] }}</p>
             </flux:card>
@@ -24,7 +23,6 @@
     </div>
 </div>
 
-{{-- Application Form --}}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
     @if(session('success'))
         <flux:callout variant="success" icon="check-circle" class="mb-6">
@@ -32,17 +30,15 @@
         </flux:callout>
     @endif
 
-    <flux:card class="p-8">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Trade Account Application Form</h2>
-
-        <form wire:submit.prevent="submitEnquiry" class="site-form space-y-5">
+    <x-site.form-panel title="Trade Account Application Form">
+        <form wire:submit.prevent="submitEnquiry" class="site-form site-form-stack">
             <flux:field>
                 <flux:label>Company Name *</flux:label>
                 <flux:input wire:model="companyName" type="text" placeholder="Your company name" />
                 <flux:error name="companyName" />
             </flux:field>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Contact Name *</flux:label>
                     <flux:input wire:model="contactName" type="text" />
@@ -53,7 +49,7 @@
                     <flux:input wire:model="email" type="email" />
                     <flux:error name="email" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
 
             <flux:field>
                 <flux:label>Phone *</flux:label>
@@ -78,8 +74,7 @@
                 <flux:error name="message" />
             </flux:field>
 
-            <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">Submit Application</flux:button>
+            <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">Submit Application</flux:button>
         </form>
-    </flux:card>
-</div>
+    </x-site.form-panel>
 </div>

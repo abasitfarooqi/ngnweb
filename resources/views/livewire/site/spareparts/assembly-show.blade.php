@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 border border-slate-700">
+        <section class="site-page-hero bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 border border-slate-700">
             <h1 class="text-2xl md:text-3xl font-bold uppercase">{{ str_replace('-', ' ', $assembly) }}</h1>
             <p class="text-xs text-slate-300 mt-2">
                 {{ strtoupper($manufacturer) }} -> {{ strtoupper($model) }} -> {{ $year }} -> {{ strtoupper(str_replace('-', ' ', $country)) }} -> {{ strtoupper(str_replace('-', ' ', $colour)) }}

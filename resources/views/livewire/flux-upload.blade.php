@@ -4,8 +4,8 @@
     $displayLabel = $label ?? ($isDocumentMode ? 'Upload document' : 'Upload files');
     $displayDesc = $description ?? ($isDocumentMode ? 'Select a file. It will be stored on DO Spaces.' : 'Drop files here or click to browse. Max ' . number_format($maxSizeKb / 1024) . 'MB per file.');
 @endphp
-<div wire:key="flux-upload-{{ $this->getId() }}" class="space-y-4">
-    <form wire:submit="commit" class="space-y-4">
+<div wire:key="flux-upload-{{ $this->getId() }}" class="site-form site-form-stack">
+    <form wire:submit="commit" class="site-form site-form-stack">
         <flux:field>
             <flux:label>{{ $displayLabel }}</flux:label>
             <flux:description>{{ $displayDesc }}</flux:description>

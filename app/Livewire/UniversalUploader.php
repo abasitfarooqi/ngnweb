@@ -3,7 +3,9 @@
 namespace App\Livewire;
 
 use App\Jobs\MoveCustomerDocumentToSpacesJob;
+use App\Models\Customer;
 use App\Models\CustomerDocument;
+use App\Support\CustomerDocumentReviewNotifier;
 use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
@@ -223,6 +225,11 @@ class UniversalUploader extends Component
 
         MoveCustomerDocumentToSpacesJob::dispatch($savedDocument->id, $path)
             ->delay(now()->addMinutes(10));
+
+        $customer = $this->customerId ? Customer::query()->find($this->customerId) : null;
+        if ($customer) {
+            app(CustomerDocumentReviewNotifier::class)->notifyStaffIfAllMandatorySubmitted($customer, null);
+        }
 
         $this->dispatch('document-upload-committed',
             documentTypeId: $this->documentTypeId,

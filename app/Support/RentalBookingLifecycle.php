@@ -179,8 +179,15 @@ class RentalBookingLifecycle
 
         $document->update($payload);
 
-        if (in_array($status, ['approved', 'rejected'], true)) {
+        if ($status === 'rejected') {
             app(CustomerDocumentReviewNotifier::class)->notifyCustomer($document->fresh(), $status);
+        }
+
+        if ($status === 'rejected' && $document->customer_id) {
+            app(CustomerDocumentReviewNotifier::class)->clearStaffMandatorySubmittedFlag(
+                (int) $document->customer_id,
+                $document->booking_id ? (int) $document->booking_id : null
+            );
         }
     }
 

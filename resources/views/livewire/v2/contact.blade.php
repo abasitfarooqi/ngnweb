@@ -15,8 +15,8 @@
                     <p class="text-zinc-600 text-sm">Thank you for getting in touch. We'll reply to your email within 2 hours during business hours.</p>
                 </div>
             @else
-                <form wire:submit="submit" class="space-y-5">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <form wire:submit="submit" class="site-form site-form-stack">
+                    <x-site.form-grid :cols="2">
                         <div>
                             <label class="ngn-label">Full Name *</label>
                             <input wire:model="name" type="text" class="ngn-input w-full" placeholder="John Smith">
@@ -27,7 +27,7 @@
                             <input wire:model="phone" type="tel" class="ngn-input w-full" placeholder="07900 000000">
                             @error('phone')<span class="ngn-error">{{ $message }}</span>@enderror
                         </div>
-                    </div>
+                    </x-site.form-grid>
                     <div>
                         <label class="ngn-label">Email Address *</label>
                         <input wire:model="email" type="email" class="ngn-input w-full" placeholder="john@example.com">

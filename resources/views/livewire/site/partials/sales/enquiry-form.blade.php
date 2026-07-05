@@ -15,7 +15,7 @@
     <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
         <h3 class="text-lg font-bold text-gray-900 dark:text-white">{{ $heading }}</h3>
         @if ($enquiryTypeLabel)
-            <span class="inline-flex self-start border border-brand-red px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand-red dark:border-red-500 dark:text-red-200">
+            <span class="inline-flex self-start border border-brand-green px-2 py-0.5 text-xs font-semibold uppercase tracking-wide text-brand-green dark:border-emerald-500 dark:text-emerald-200">
                 {{ $enquiryTypeLabel }}
             </span>
         @endif
@@ -27,9 +27,9 @@
         </flux:callout>
     @endif
 
-    <form wire:submit.prevent="submitEnquiry" class="site-form space-y-3" wire:key="sales-enquiry-form">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-            <flux:field class="w-full">
+    <form wire:submit.prevent="submitEnquiry" class="site-form site-form-stack" wire:key="sales-enquiry-form">
+        <x-site.form-grid :cols="2">
+            <flux:field>
                 <flux:label>Full name</flux:label>
                 <flux:input wire:model.defer="name" autocomplete="name" />
                 <flux:error name="name" />
@@ -39,7 +39,7 @@
                 <flux:input wire:model.defer="phone" type="tel" autocomplete="tel" />
                 <flux:error name="phone" />
             </flux:field>
-        </div>
+        </x-site.form-grid>
 
         <flux:field>
             <flux:label>Email</flux:label>
@@ -61,16 +61,16 @@
             <flux:error name="message" />
         </flux:field>
 
-        <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300">
-            <input type="checkbox" wire:model="privacy" class="mt-1 border border-gray-300 text-brand-red focus:ring-brand-red focus:ring-offset-0 dark:border-gray-500 dark:bg-gray-900 dark:focus:ring-brand-red">
+        <label class="site-form-consent">
+            <input type="checkbox" wire:model="privacy">
             <span>
                 I have read and agree to the
-                <a href="{{ $privacyUrl }}" target="_blank" rel="noopener" class="font-medium text-brand-red underline hover:no-underline dark:text-red-300">cookie and privacy policy</a>.
+                <a href="{{ $privacyUrl }}" target="_blank" rel="noopener" class="font-medium text-brand-green underline hover:no-underline dark:text-emerald-300">cookie and privacy policy</a>.
             </span>
         </label>
         <flux:error name="privacy" />
 
-        <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+        <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
             {{ $submitButtonLabel }}
         </flux:button>
     </form>

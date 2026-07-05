@@ -1,5 +1,5 @@
 <div>
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl font-bold mb-3">Thank You!</h1>
         <p class="text-gray-300 text-lg">Your partner application has been received.</p>

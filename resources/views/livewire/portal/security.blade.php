@@ -29,7 +29,7 @@
     <flux:card class="p-6 mb-6">
         <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Change Password</h2>
         @if($canChangePassword)
-            <form wire:submit="updatePassword" class="space-y-4 max-w-sm">
+            <form wire:submit="updatePassword" class="site-form site-form-stack max-w-sm">
                 <flux:field>
                     <flux:label>Current Password</flux:label>
                     <flux:input wire:model="current_password" type="password" />

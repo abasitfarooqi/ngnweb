@@ -1,7 +1,7 @@
 <div>
-    <section class="relative bg-gray-900 text-white overflow-hidden">
+    <section class="relative site-page-hero overflow-hidden">
         <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
-        <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-brand-red/25 opacity-90" aria-hidden="true"></div>
+        <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-gray-900 via-gray-900 to-brand-red/25 opacity-90" aria-hidden="true"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
             <flux:badge color="green" class="mb-4 uppercase tracking-widest text-[10px]">New stock</flux:badge>
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Motorcycles for sale</h1>
@@ -11,37 +11,38 @@
 
     <section class="bg-gray-50 dark:bg-gray-950 border-b border-gray-200 dark:border-gray-800">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-8">
-            <form method="GET" action="{{ route('sale-motorcycles') }}" class="flex flex-col gap-4">
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 lg:gap-4 items-end">
-                    <div class="sm:col-span-2 lg:col-span-5 w-full">
-                        <label for="sales-search" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">Search</label>
+            <form method="GET" action="{{ route('sale-motorcycles') }}" class="bike-list-filters space-y-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-3 lg:gap-4">
+                    <div class="bike-filter-field sm:col-span-2 lg:col-span-5">
+                        <label for="sales-search" class="bike-filter-label">Search</label>
                         <input
                             id="sales-search"
+                            type="search"
                             name="search"
                             value="{{ $search }}"
                             placeholder="Make or model"
-                            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent"
+                            class="bike-filter-control"
+                            autocomplete="off"
                         >
                     </div>
-                    <div class="w-full lg:col-span-4">
-                        <label for="sales-sort" class="block text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">Sort</label>
-                        <select
-                            id="sales-sort"
-                            name="sort"
-                            class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 px-3 py-2.5 text-sm text-gray-900 dark:text-white shadow-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
-                        >
+                    <div class="bike-filter-field lg:col-span-4">
+                        <label for="sales-sort" class="bike-filter-label">Sort</label>
+                        <select id="sales-sort" name="sort" class="bike-filter-control bike-filter-select">
                             <option value="default" @selected($sort === 'default')>Newest listed</option>
                             <option value="price_asc" @selected($sort === 'price_asc')>Price: low to high</option>
                             <option value="price_desc" @selected($sort === 'price_desc')>Price: high to low</option>
                         </select>
                     </div>
-                    <div class="w-full lg:col-span-3 flex gap-2">
-                        <flux:button type="submit" variant="filled" class="w-full justify-center bg-brand-red text-white hover:bg-brand-red-dark">
-                            Apply
-                        </flux:button>
-                        <flux:button href="{{ route('sale-motorcycles') }}" variant="outline" class="w-full justify-center shrink-0">
-                            Reset
-                        </flux:button>
+                    <div class="bike-filter-field lg:col-span-3">
+                        <span class="bike-filter-label invisible select-none" aria-hidden="true">Actions</span>
+                        <div class="grid h-10 min-h-10 max-h-10 grid-cols-2 gap-2">
+                            <button type="submit" class="bike-filter-btn bike-filter-btn-primary w-full">
+                                Apply
+                            </button>
+                            <a href="{{ route('sale-motorcycles') }}" class="bike-filter-btn bike-filter-btn-muted w-full text-center no-underline">
+                                Reset
+                            </a>
+                        </div>
                     </div>
                 </div>
                 <p class="text-xs text-gray-500 dark:text-gray-400">

@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <form wire:submit="login" class="space-y-5">
+        <form wire:submit="login" class="site-form site-form-stack">
 
             {{-- Email --}}
             <div>

@@ -164,7 +164,12 @@ class Profile extends Component
         $profile->update($data);
         $profile->refresh();
 
-        session()->flash('success', 'Profile updated successfully.');
+        if (! $profile->profile_initialised_at) {
+            $profile->sealProfileAfterInitialSave();
+            session()->flash('success', 'Profile saved. Identity details are now locked — contact us if you need to change them.');
+        } else {
+            session()->flash('success', 'Profile updated successfully.');
+        }
     }
 
     public function render()

@@ -61,22 +61,34 @@ class ServiceBooking extends Component
     public int $formNonce = 0;
 
     /**
+     * Public service-booking dropdown (site + all-services enquiry).
+     *
      * @return list<string>
      */
-    public static function allowedServiceTypes(): array
+    public static function publicServiceTypeOptions(): array
     {
         return [
             'Motorcycle Repairs Enquiry',
+            'Motorcycle Engine Repairs Enquiry',
             'MOT Booking Enquiry',
             'Motorcycle Full Service Enquiry',
             'Motorcycle Basic Service Enquiry',
             'Motorcycle Rental Enquiry',
             'Accident Management Services Enquiry',
             'Other',
+        ];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public static function allowedServiceTypes(): array
+    {
+        return array_merge(self::publicServiceTypeOptions(), [
             'Motorcycle Repairs',
             'Motorcycle Full Service',
             'Motorcycle Basic Service',
-        ];
+        ]);
     }
 
     /**
@@ -197,10 +209,22 @@ class ServiceBooking extends Component
         if ($this->serviceType === 'MOT Booking Enquiry') {
             $this->selectedBranch = (string) (MOTBooking::catfordBranchId() ?? $this->selectedBranch);
         }
+
+        $this->applyServiceTypePresentation();
+    }
+
+    private function applyServiceTypePresentation(): void
+    {
+        if ($this->serviceType === 'Motorcycle Engine Repairs Enquiry') {
+            $this->submitLabel = 'Send engine rebuild enquiry';
+            $this->notesLabel = 'Describe the engine issue';
+        }
     }
 
     public function updatedServiceType(?string $value): void
     {
+        $this->applyServiceTypePresentation();
+
         if ((string) $value === 'MOT Booking Enquiry') {
             $this->selectedBranch = (string) (MOTBooking::catfordBranchId() ?? $this->selectedBranch);
             if ($this->preferredTime !== '' && ! array_key_exists($this->preferredTime, $this->availableTimeSlots)) {

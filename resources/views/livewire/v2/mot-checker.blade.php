@@ -15,7 +15,7 @@
                     <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-5 text-sm text-red-700">{{ $error }}</div>
                 @endif
 
-                <form wire:submit="check" class="space-y-5">
+                <form wire:submit="check" class="site-form site-form-stack">
                     <div>
                         <label class="ngn-label">Vehicle Registration *</label>
                         <input wire:model="reg"

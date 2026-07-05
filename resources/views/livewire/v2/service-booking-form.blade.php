@@ -15,7 +15,7 @@
                 <a href="{{ route('v2.services') }}" class="btn-ngn text-sm px-6 py-3">Back to Services</a>
             </div>
         @else
-            <form wire:submit="submit" class="space-y-5">
+            <form wire:submit="submit" class="site-form site-form-stack">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="ngn-label">Full Name *</label>

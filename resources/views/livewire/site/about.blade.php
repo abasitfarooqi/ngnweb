@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">About NGN Motors</h1>
         <p class="text-gray-300 text-lg">London's trusted motorcycle specialists since 2018</p>

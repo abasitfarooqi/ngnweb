@@ -139,7 +139,7 @@ class MobilePublicFormsController extends Controller
             'data' => [
                 'calculator' => [
                     'defaults' => ['loan_amount' => 3000, 'deposit' => 500, 'term' => 12, 'rate' => 0],
-                    'allowed_terms' => [6, 12],
+                    'allowed_terms' => [6, 10, 12],
                     'formula' => '((loan_amount - deposit) / term) where rate is 0 on current public page',
                 ],
                 'application_fields' => [
@@ -155,7 +155,7 @@ class MobilePublicFormsController extends Controller
         $payload = $request->validate([
             'loan_amount' => ['required', 'numeric', 'min:0'],
             'deposit' => ['required', 'numeric', 'min:0'],
-            'term' => ['required', 'integer', 'in:6,12'],
+            'term' => ['required', 'integer', 'in:6,10,12'],
             'rate' => ['nullable', 'numeric', 'min:0'],
         ]);
 
@@ -191,8 +191,11 @@ class MobilePublicFormsController extends Controller
             'consent' => ['accepted'],
             'loan_amount' => ['required', 'numeric', 'min:0'],
             'deposit' => ['required', 'numeric', 'min:0'],
-            'term' => ['required', 'integer', 'in:6,12'],
+            'term' => ['nullable', 'integer', 'in:6,10,12'],
         ]);
+
+        $termMonths = isset($payload['term']) ? (int) $payload['term'] : 0;
+        $selectedPlan = $termMonths > 0 ? 'Preferred plan: '.$termMonths.' months' : null;
 
         $booking = ServiceBooking::query()->create([
             'customer_id' => null,
@@ -205,7 +208,7 @@ class MobilePublicFormsController extends Controller
                 'Bike: '.trim((string) ($payload['bike_interest'] ?? 'N/A')),
                 'Finance amount GBP: '.number_format((float) $payload['loan_amount'], 2, '.', ''),
                 'Deposit GBP: '.number_format((float) $payload['deposit'], 2, '.', ''),
-                'Term months: '.(int) $payload['term'],
+                $selectedPlan,
                 'Employment: '.trim((string) $payload['employment_status']),
                 ! empty($payload['notes']) ? 'Notes: '.trim((string) $payload['notes']) : null,
             ])),

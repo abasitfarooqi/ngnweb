@@ -18,11 +18,11 @@
         </flux:callout>
     @endif
 
-    <form wire:submit.prevent="submit" class="site-form space-y-6">
+    <form wire:submit.prevent="submit" class="site-form site-form-stack">
         <flux:card class="p-6 space-y-6">
             <h2 class="text-base font-semibold text-gray-900 dark:text-white">Appointment Details</h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Date of Appointment *</flux:label>
                     <x-site.booking-date-picker wire:model.live="date_of_appointment" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
@@ -37,7 +37,7 @@
                     </flux:select>
                     <flux:error name="time_slot" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
 
             <flux:field>
                 <flux:label>Branch Location *</flux:label>
@@ -48,7 +48,7 @@
             <flux:separator />
 
             <h3 class="text-base font-medium text-gray-900 dark:text-white">Vehicle Details</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <x-site.form-grid :cols="3">
                 <flux:field>
                     <flux:label>Registration Number *</flux:label>
                     <flux:input wire:model="motorbike_reg_no" placeholder="AB12 CDE" class="uppercase" />
@@ -64,7 +64,7 @@
                     <flux:input wire:model="motorbike_model" placeholder="PCX 125" />
                     <flux:error name="motorbike_model" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
 
             <flux:separator />
 

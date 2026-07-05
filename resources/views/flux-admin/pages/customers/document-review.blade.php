@@ -35,6 +35,24 @@
                     <flux:button size="sm" variant="primary" :href="$document->file_url" target="_blank" icon="eye" class="!rounded-none">Open file</flux:button>
                 </div>
             @endif
+
+            @if($document->customer)
+                <div class="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                    <h3 class="text-xs font-semibold uppercase tracking-wide text-zinc-500 mb-2">Customer access</h3>
+                    <div class="flex flex-col gap-2">
+                        @if($document->customer->profile_initialised_at && ! $document->customer->profile_editing_unlocked)
+                            <flux:button size="xs" variant="primary" wire:click="setProfileEditingUnlocked(true)" class="!rounded-none">Unlock profile editing</flux:button>
+                        @elseif($document->customer->profile_editing_unlocked)
+                            <flux:button size="xs" variant="ghost" wire:click="setProfileEditingUnlocked(false)" class="!rounded-none">Lock profile editing</flux:button>
+                        @endif
+                        @if(! $document->customer->document_reupload_unlocked)
+                            <flux:button size="xs" variant="primary" wire:click="setDocumentReuploadUnlocked(true)" class="!rounded-none">Allow approved doc re-upload</flux:button>
+                        @else
+                            <flux:button size="xs" variant="ghost" wire:click="setDocumentReuploadUnlocked(false)" class="!rounded-none">Lock approved doc re-upload</flux:button>
+                        @endif
+                    </div>
+                </div>
+            @endif
         </div>
 
         <div class="lg:col-span-3">

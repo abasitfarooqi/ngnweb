@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 use Spatie\Permission\Traits\HasRoles;
 
 class Customer extends Model
@@ -43,7 +44,22 @@ class Customer extends Model
         'verified_at',
         'verification_expires_at',
         'locked_fields',
+        'profile_initialised_at',
+        'profile_editing_unlocked',
+        'document_reupload_unlocked',
         'current_terms_version_id',
+    ];
+
+    public const PROFILE_IDENTITY_FIELDS = [
+        'first_name',
+        'last_name',
+        'dob',
+        'address',
+        'nationality',
+        'license_number',
+        'license_issuance_authority',
+        'license_issuance_date',
+        'license_expiry_date',
     ];
 
     protected $casts = [
@@ -56,6 +72,9 @@ class Customer extends Model
         'verified_at' => 'datetime',
         'verification_expires_at' => 'datetime',
         'locked_fields' => 'array',
+        'profile_initialised_at' => 'datetime',
+        'profile_editing_unlocked' => 'boolean',
+        'document_reupload_unlocked' => 'boolean',
     ];
 
     public function judopayOnboarding(): MorphOne
@@ -127,14 +146,67 @@ class Customer extends Model
         return $this->belongsTo(Branch::class, 'preferred_branch_id');
     }
 
-    public function isFieldLocked(string $field): bool
+    public function canCustomerEditIdentityFields(): bool
     {
-        $locked = $this->locked_fields ?? [];
-        if (! is_array($locked)) {
-            return false;
+        if ($this->profile_editing_unlocked ?? false) {
+            return true;
         }
 
-        return in_array($field, $locked, true);
+        return empty($this->profile_initialised_at);
+    }
+
+    public function isFieldLocked(string $field): bool
+    {
+        if (in_array($field, self::PROFILE_IDENTITY_FIELDS, true) && ! $this->canCustomerEditIdentityFields()) {
+            return true;
+        }
+
+        $locked = is_array($this->locked_fields) ? $this->locked_fields : [];
+        if (! is_array($locked)) {
+            $locked = [];
+        }
+
+        if (Schema::hasColumn('customers', 'locked_fields') && in_array($field, $locked, true)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    public function sealProfileAfterInitialSave(): void
+    {
+        if ($this->profile_initialised_at) {
+            return;
+        }
+
+        $payload = [
+            'profile_initialised_at' => now(),
+            'profile_editing_unlocked' => false,
+        ];
+
+        if (Schema::hasColumn('customers', 'locked_fields')) {
+            $locked = array_values(array_unique(array_merge(
+                is_array($this->locked_fields) ? $this->locked_fields : [],
+                self::PROFILE_IDENTITY_FIELDS
+            )));
+            $payload['locked_fields'] = $locked;
+        }
+
+        $this->forceFill($payload)->save();
+    }
+
+    public function canCustomerReplaceDocument(string $resolvedStatus): bool
+    {
+        return match ($resolvedStatus) {
+            'missing', 'rejected' => true,
+            'approved' => (bool) ($this->document_reupload_unlocked ?? false),
+            default => false,
+        };
+    }
+
+    public function canCustomerDeleteDocument(string $resolvedStatus): bool
+    {
+        return $this->canCustomerReplaceDocument($resolvedStatus);
     }
 
     public function rentingBookings()

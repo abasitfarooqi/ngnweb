@@ -42,7 +42,7 @@
             @if($step === 1)
             <div>
                 <h2 class="text-xl font-black text-zinc-900 mb-6">Your Details</h2>
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
                         <label class="ngn-label">Full Name *</label>
                         <input wire:model="full_name" type="text" class="ngn-input w-full" placeholder="John Smith">
@@ -87,7 +87,7 @@
                 </div>
                 @endif
 
-                <div class="space-y-4">
+                <div class="space-y-5">
                     <div>
                         <label class="ngn-label">Start Date *</label>
                         <input wire:model="start_date" type="date" class="ngn-input w-full" min="{{ now()->addDay()->format('Y-m-d') }}">

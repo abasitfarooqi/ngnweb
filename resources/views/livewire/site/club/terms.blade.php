@@ -1,5 +1,5 @@
 <div>
-<div class="bg-gray-900 text-white py-10">
+<div class="site-page-hero py-10">
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-amber-400 text-2xl mb-2">★</p>
         <h1 class="text-3xl font-bold mb-2">NGN Club — Terms &amp; Conditions</h1>

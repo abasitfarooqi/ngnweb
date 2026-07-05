@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Motorcycle Payment Plan</h1>
         <p class="text-gray-300 text-lg mb-6">Flexible payment plan options to help you get on the road sooner</p>
@@ -33,8 +33,8 @@
     <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Payment Plan Calculator</h2>
 
-        <flux:card class="p-8">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
+        <flux:card class="p-6 md:p-8 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="site-form site-form-grid site-form-grid-2 mb-5">
                 <flux:field>
                     <flux:label>Bike Price (£)</flux:label>
                     <flux:input wire:model.live="loanAmount" type="number" min="500" max="30000" />
@@ -45,8 +45,9 @@
                 </flux:field>
                 <flux:field>
                     <flux:label>Instalment term (months)</flux:label>
-                    <flux:select wire:model.live="term" variant="listbox" placeholder="Select term">
+                    <flux:select wire:model.live="term" variant="listbox" placeholder="Select term (optional)">
                         <flux:select.option value="6">6 months</flux:select.option>
+                        <flux:select.option value="10">10 months</flux:select.option>
                         <flux:select.option value="12">12 months</flux:select.option>
                     </flux:select>
                 </flux:field>
@@ -65,67 +66,65 @@
 
 {{-- Application form --}}
 <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
-    <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Apply for a Payment Plan</h2>
-
     @if(session('success'))
         <flux:callout variant="success" icon="check-circle" class="mb-6">
             <flux:callout.text>{{ session('success') }}</flux:callout.text>
         </flux:callout>
     @endif
 
-    <form wire:submit="submitApplication" class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <x-site.form-panel title="Apply for a Payment Plan">
+        <form wire:submit="submitApplication" class="site-form site-form-stack">
+            <x-site.form-grid :cols="2">
+                <flux:field>
+                    <flux:label>First Name *</flux:label>
+                    <flux:input wire:model.defer="firstName" />
+                    <flux:error name="firstName" />
+                </flux:field>
+                <flux:field>
+                    <flux:label>Last Name *</flux:label>
+                    <flux:input wire:model.defer="lastName" />
+                    <flux:error name="lastName" />
+                </flux:field>
+            </x-site.form-grid>
+            <x-site.form-grid :cols="2">
+                <flux:field>
+                    <flux:label>Email *</flux:label>
+                    <flux:input wire:model.defer="email" type="email" />
+                    <flux:error name="email" />
+                </flux:field>
+                <flux:field>
+                    <flux:label>Phone *</flux:label>
+                    <flux:input wire:model.defer="phone" type="tel" />
+                    <flux:error name="phone" />
+                </flux:field>
+            </x-site.form-grid>
             <flux:field>
-                <flux:label>First Name *</flux:label>
-                <flux:input wire:model.defer="firstName" />
-                <flux:error name="firstName" />
+                <flux:label>Employment Status *</flux:label>
+                <flux:select wire:model.defer="employmentStatus" variant="listbox" placeholder="Select…">
+                    @foreach(['employed'=>'Employed', 'self_employed'=>'Self-Employed', 'retired'=>'Retired', 'student'=>'Student', 'other'=>'Other'] as $val => $label)
+                        <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+                <flux:error name="employmentStatus" />
             </flux:field>
             <flux:field>
-                <flux:label>Last Name *</flux:label>
-                <flux:input wire:model.defer="lastName" />
-                <flux:error name="lastName" />
-            </flux:field>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <flux:field>
-                <flux:label>Email *</flux:label>
-                <flux:input wire:model.defer="email" type="email" />
-                <flux:error name="email" />
+                <flux:label>Motorbike You're Interested In</flux:label>
+                <flux:input wire:model.defer="bikeInterest" placeholder="e.g. Honda CB500F 2023" />
             </flux:field>
             <flux:field>
-                <flux:label>Phone *</flux:label>
-                <flux:input wire:model.defer="phone" type="tel" />
-                <flux:error name="phone" />
+                <flux:label>Additional Information</flux:label>
+                <flux:textarea wire:model.defer="notes" rows="3" />
             </flux:field>
-        </div>
-        <flux:field>
-            <flux:label>Employment Status *</flux:label>
-            <flux:select wire:model.defer="employmentStatus" variant="listbox" placeholder="Select…">
-                @foreach(['employed'=>'Employed', 'self_employed'=>'Self-Employed', 'retired'=>'Retired', 'student'=>'Student', 'other'=>'Other'] as $val => $label)
-                    <flux:select.option value="{{ $val }}">{{ $label }}</flux:select.option>
-                @endforeach
-            </flux:select>
-            <flux:error name="employmentStatus" />
-        </flux:field>
-        <flux:field>
-            <flux:label>Motorbike You're Interested In</flux:label>
-            <flux:input wire:model.defer="bikeInterest" placeholder="e.g. Honda CB500F 2023" />
-        </flux:field>
-        <flux:field>
-            <flux:label>Additional Information</flux:label>
-            <flux:textarea wire:model.defer="notes" rows="3" />
-        </flux:field>
-        <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-400">
-            <input type="checkbox" wire:model.defer="consent" class="mt-0.5 accent-brand-red" />
-            <span>I consent to NGN Motors contacting me about this application *</span>
-        </label>
-        <flux:error name="consent" />
-        <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
-            Submit Application
-        </flux:button>
-        <p class="text-xs text-gray-500 text-center">
-            Payment plan subject to status. NGN Motors is a credit broker, not a lender.
-        </p>
-    </form>
-</div>
-</div>
+            <label class="site-form-consent">
+                <input type="checkbox" wire:model.defer="consent">
+                <span>I consent to NGN Motors contacting me about this application *</span>
+            </label>
+            <flux:error name="consent" />
+            <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
+                Submit Application
+            </flux:button>
+            <p class="text-xs text-gray-500 text-center">
+                Payment plan subject to status. NGN Motors is a credit broker, not a lender.
+            </p>
+        </form>
+    </x-site.form-panel>

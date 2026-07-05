@@ -25,7 +25,7 @@
 
         <flux:card class="p-8">
             @if (! $codeSent)
-                <form wire:submit.prevent="sendCode" class="space-y-5">
+                <form wire:submit.prevent="sendCode" class="site-form site-form-stack">
                     <flux:field>
                         <flux:label>Phone or email</flux:label>
                         <flux:input
@@ -38,13 +38,13 @@
                         <flux:error name="identifier" />
                     </flux:field>
 
-                    <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-red-700 font-semibold" wire:loading.attr="disabled">
+                    <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark font-semibold" wire:loading.attr="disabled">
                         <span wire:loading.remove wire:target="sendCode">Send verification code</span>
                         <span wire:loading wire:target="sendCode">Sending…</span>
                     </flux:button>
                 </form>
             @else
-                <form wire:submit.prevent="resetPasskey" class="space-y-5">
+                <form wire:submit.prevent="resetPasskey" class="site-form site-form-stack">
                     <flux:callout variant="info" icon="information-circle" class="text-sm">
                         <flux:callout.text>
                             Enter the 6-digit code, then press <strong class="text-gray-900 dark:text-white">Reset passkey</strong>. We will send your new passkey by SMS and by email when we hold both on file.
@@ -70,7 +70,7 @@
 
                     <button
                         type="submit"
-                        class="inline-flex w-full items-center justify-center gap-2 bg-brand-red px-4 py-2.5 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
+                        class="inline-flex w-full items-center justify-center gap-2 bg-brand-green px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-green-dark disabled:opacity-60"
                         wire:loading.attr="disabled"
                         wire:target="resetPasskey"
                     >

@@ -21,12 +21,12 @@
             <h2 class="font-semibold text-gray-900 dark:text-white mb-5">
                 {{ $editId ? 'Edit Address' : 'New Address' }}
             </h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <div>
                     <flux:label>First Name</flux:label>
                     <flux:input wire:model="first_name" />
                     @error('first_name') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </div>
+                </x-site.form-grid>
                 <div>
                     <flux:label>Last Name</flux:label>
                     <flux:input wire:model="last_name" />
@@ -95,7 +95,7 @@
             </flux:button>
         </flux:card>
     @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <x-site.form-grid :cols="2">
             @foreach($addresses as $address)
                 <flux:card class="p-5 {{ $address->is_default ? 'border-brand-red border-2' : '' }}">
                     <div class="flex items-start justify-between mb-3">
@@ -106,7 +106,7 @@
                             @if($address->is_default)
                                 <flux:badge color="red" size="sm" class="mt-1">Default</flux:badge>
                             @endif
-                        </div>
+                        </x-site.form-grid>
                         <flux:badge color="{{ $address->type === 'billing' ? 'blue' : 'zinc' }}" size="sm">
                             {{ ucfirst($address->type) }}
                         </flux:badge>

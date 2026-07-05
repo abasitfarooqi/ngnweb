@@ -38,13 +38,13 @@
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Your Information</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">First Name *</label>
                         <input type="text" wire:model="first_name" required
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
                         @error('first_name') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
-                    </div>
+                    </x-site.form-grid>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Last Name *</label>
@@ -101,14 +101,14 @@
             <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 space-y-4">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Financial Details</h2>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Deposit (£) *</label>
                         <input type="number" wire:model.live="deposit" required min="0" step="0.01"
                             class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md dark:bg-gray-700 dark:text-white">
                         @error('deposit') <span class="text-red-600 text-xs">{{ $message }}</span> @enderror
                         <p class="text-xs text-gray-500 mt-1">Minimum 10% of bike price</p>
-                    </div>
+                    </x-site.form-grid>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Payment Frequency</label>

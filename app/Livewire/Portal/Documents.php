@@ -108,6 +108,30 @@ class Documents extends Component
 
     public function startUpload($documentTypeId)
     {
+        $profile = Auth::guard('customer')->user()?->customer;
+        $existing = null;
+        $customerId = $this->getPortalCustomerId();
+
+        if ($customerId) {
+            $existing = CustomerDocument::query()
+                ->where('customer_id', $customerId)
+                ->where('document_type_id', (int) $documentTypeId)
+                ->first();
+        }
+
+        $lifecycle = app(RentalBookingLifecycle::class);
+        $status = $lifecycle->resolveCustomerDocumentStatus($existing);
+
+        if ($profile && ! $profile->canCustomerReplaceDocument($status)) {
+            session()->flash('error', match ($status) {
+                'pending_review' => 'This document is awaiting review and cannot be changed yet.',
+                'approved' => 'This document is approved and locked. Contact us if you need to replace it.',
+                default => 'You cannot replace this document at the moment.',
+            });
+
+            return;
+        }
+
         $this->uploadingFor = (int) $documentTypeId;
         $this->file = null;
         $this->valid_until = '';
@@ -206,6 +230,15 @@ class Documents extends Component
                 'document_type_id' => $this->uploadingFor,
             ])->first();
 
+            $lifecycle = app(RentalBookingLifecycle::class);
+            $existingStatus = $lifecycle->resolveCustomerDocumentStatus($existing);
+            if (! $profile->canCustomerReplaceDocument($existingStatus)) {
+                session()->flash('error', 'You cannot replace this document at the moment.');
+                $this->dispatch('portal-document-upload-popup', message: 'Upload blocked: document is locked or awaiting review.');
+
+                return;
+            }
+
             $oldPath = $existing?->file_path;
 
             $attributes = [
@@ -242,6 +275,10 @@ class Documents extends Component
             \Log::info('Portal Documents::submitDocumentUpload db row saved', ['document_id' => $row->id]);
 
             app(CustomerDocumentReviewNotifier::class)->logStaffUpload($row);
+            app(CustomerDocumentReviewNotifier::class)->notifyStaffIfAllMandatorySubmitted(
+                $profile,
+                $this->rentalBookingId
+            );
 
             if ($oldPath && $oldPath !== $path) {
                 \Log::info('Portal Documents::submitDocumentUpload deleting old file', ['old_path' => $oldPath]);
@@ -285,6 +322,47 @@ class Documents extends Component
             $this->dispatch('portal-document-upload-popup', message: 'Upload failed: '.$e->getMessage());
             throw $e;
         }
+    }
+
+    public function deleteDocument(int $documentTypeId): void
+    {
+        $customerId = $this->getPortalCustomerId();
+        $profile = Auth::guard('customer')->user()?->customer;
+
+        if (! $customerId || ! $profile) {
+            session()->flash('error', 'Your account is not linked to a customer record yet.');
+
+            return;
+        }
+
+        $document = CustomerDocument::query()
+            ->where('customer_id', $customerId)
+            ->where('document_type_id', $documentTypeId)
+            ->first();
+
+        if (! $document) {
+            return;
+        }
+
+        $lifecycle = app(RentalBookingLifecycle::class);
+        $status = $lifecycle->resolveCustomerDocumentStatus($document);
+
+        if (! $profile->canCustomerDeleteDocument($status)) {
+            session()->flash('error', 'This document cannot be deleted at the moment.');
+
+            return;
+        }
+
+        if ($document->file_path) {
+            CustomerDocumentStorage::delete($document->file_path);
+        }
+
+        $bookingId = $document->booking_id ? (int) $document->booking_id : null;
+        $document->delete();
+
+        app(CustomerDocumentReviewNotifier::class)->clearStaffMandatorySubmittedFlag($customerId, $bookingId);
+
+        session()->flash('success', 'Document removed.');
     }
 
     public function render()

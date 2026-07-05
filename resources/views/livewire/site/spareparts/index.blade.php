@@ -1,6 +1,6 @@
 <div class="min-h-screen bg-gray-50 dark:bg-gray-950 py-8">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-        <section class="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 md:p-8 border border-slate-700">
+        <section class="site-page-hero bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white p-6 md:p-8 border border-slate-700">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl md:text-4xl font-bold tracking-tight">OEM Spareparts</h1>

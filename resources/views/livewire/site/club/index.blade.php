@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-16">
+<div class="site-page-hero py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-amber-400 text-3xl mb-2">★</p>
         <h1 class="text-4xl md:text-5xl font-bold mb-4">NGN Club</h1>
@@ -75,14 +75,14 @@
             @endif
 
             <flux:card class="p-8">
-                <form wire:submit="joinClub" class="space-y-5">
+                <form wire:submit="joinClub" class="site-form site-form-stack">
                     <flux:field>
                         <flux:label>Full Name *</flux:label>
                         <flux:input wire:model="full_name" placeholder="John Smith" />
                         <flux:error name="full_name" />
                     </flux:field>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <x-site.form-grid :cols="2">
                         <flux:field>
                             <flux:label>Email *</flux:label>
                             <flux:input wire:model="email" type="email" placeholder="john@example.com" />
@@ -93,19 +93,19 @@
                             <flux:input wire:model="phone" type="tel" placeholder="07700 900 123" />
                             <flux:error name="phone" />
                         </flux:field>
-                    </div>
+                    </x-site.form-grid>
 
                     <flux:separator />
 
                     <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Your Motorbike (optional)</p>
 
-                    <flux:field>
+                    <flux:field class="site-form-field-plate">
                         <flux:label>Registration Number</flux:label>
-                        <flux:input wire:model="vrm" placeholder="AB12 CDE" class="uppercase tracking-widest font-bold bg-yellow-50 dark:bg-yellow-900/10 border-yellow-400" />
+                        <flux:input wire:model="vrm" placeholder="AB12 CDE" class="uppercase tracking-widest text-base" />
                         <flux:error name="vrm" />
                     </flux:field>
 
-                    <div class="grid grid-cols-3 gap-4">
+                    <x-site.form-grid :cols="3" :compact="true">
                         <flux:field>
                             <flux:label>Make</flux:label>
                             <flux:input wire:model="make" placeholder="Honda" />
@@ -118,7 +118,7 @@
                             <flux:label>Year</flux:label>
                             <flux:input wire:model="year" placeholder="2022" maxlength="4" />
                         </flux:field>
-                    </div>
+                    </x-site.form-grid>
 
                     <flux:separator />
 

@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
+<div class="site-page-hero bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">NGN Partner Terms & Conditions</h1>
     </div>

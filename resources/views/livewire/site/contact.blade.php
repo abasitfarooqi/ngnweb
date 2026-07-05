@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Contact Us</h1>
         <p class="text-gray-300 text-lg">Get in touch with our team – we're here to help</p>
@@ -12,15 +12,14 @@
 
         {{-- Contact form --}}
         <div>
-            <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">Send Us a Message</h2>
-
             @if(session()->has('success'))
                 <flux:callout variant="success" icon="check-circle" class="mb-6">
                     <flux:callout.text>{{ session('success') }}</flux:callout.text>
                 </flux:callout>
             @endif
 
-            <form wire:submit.prevent="submit" class="site-form space-y-4">
+            <x-site.form-panel title="Send Us a Message">
+                <form wire:submit.prevent="submit" class="site-form site-form-stack">
                 <flux:field>
                     <flux:label>Full Name *</flux:label>
                     <flux:input wire:model="name" />
@@ -66,10 +65,11 @@
                     <flux:error name="message" />
                 </flux:field>
 
-                <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+                <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                     Send Message
                 </flux:button>
-            </form>
+                </form>
+            </x-site.form-panel>
 
             {{-- Sub-contact forms tabs --}}
             <div class="mt-10 pt-8 border-t border-gray-200 dark:border-gray-700">

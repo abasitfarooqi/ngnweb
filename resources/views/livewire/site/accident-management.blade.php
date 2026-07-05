@@ -1,8 +1,8 @@
 <div>
 
 {{-- Hero --}}
-<div class="relative bg-gray-900 text-white overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-red-950 opacity-95"></div>
+<div class="relative site-page-hero overflow-hidden">
+    <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-black via-gray-900 to-red-950 opacity-95"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
         <div class="max-w-2xl">
             <flux:badge color="red" class="mb-4 uppercase tracking-wider text-xs">Road Traffic Accidents</flux:badge>
@@ -127,20 +127,21 @@
                 </flux:callout.text>
             </flux:callout>
         @else
-            <form wire:submit.prevent="submit" class="space-y-5">
+            <x-site.form-panel>
+            <form wire:submit.prevent="submit" class="site-form site-form-stack">
 
-                <div class="flex flex-col sm:flex-row gap-5">
-                    <flux:field class="flex-1">
+                <x-site.form-grid :cols="2">
+                    <flux:field>
                         <flux:label for="acc-name">Full Name *</flux:label>
                         <flux:input id="acc-name" wire:model="name" type="text" placeholder="John Smith" required />
                         <flux:error name="name" />
                     </flux:field>
-                    <flux:field class="flex-1">
+                    <flux:field>
                         <flux:label for="acc-phone">Phone Number *</flux:label>
                         <flux:input id="acc-phone" wire:model="phone" type="tel" placeholder="07700 900000" required />
                         <flux:error name="phone" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
                 
            
 
@@ -171,19 +172,20 @@
                         <flux:checkbox id="acc-privacy" wire:model="privacy_policy" />
                         <label for="acc-privacy" class="text-sm text-gray-600 dark:text-gray-400 leading-snug cursor-pointer">
                             By submitting this form I agree to the
-                            <a href="/cookie-and-privacy-policy" class="text-brand-red underline" target="_blank">Privacy Policy</a>
+                            <a href="/cookie-and-privacy-policy" class="text-brand-green underline" target="_blank">Privacy Policy</a>
                             and consent to NGN Motors contacting me regarding my claim. *
                         </label>
                     </div>
                     <flux:error name="privacy_policy" />
                 </flux:field>
 
-                <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-red-700 font-semibold py-3">
+                <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark font-semibold py-3">
                     <span wire:loading.remove>Submit Claim</span>
                     <span wire:loading>Submitting…</span>
                 </flux:button>
 
             </form>
+            </x-site.form-panel>
         @endif
     </div>
 </div>

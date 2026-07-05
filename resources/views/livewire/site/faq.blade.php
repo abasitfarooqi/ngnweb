@@ -1,7 +1,7 @@
 <div>
 
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <flux:badge color="red" class="mb-4 uppercase tracking-wider text-xs">Help Centre</flux:badge>
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Frequently Asked Questions</h1>
@@ -52,10 +52,10 @@
                     <flux:badge size="sm" class="ml-auto">{{ count($items) }}</flux:badge>
                 </div>
 
-                <flux:accordion class="divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700">
+                <flux:accordion class="site-flux-accordion divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700">
                     @foreach($items as $i => $faq)
                         <flux:accordion.item :value="$category . '-' . $i">
-                            <flux:accordion.heading class="text-gray-800 dark:text-gray-200 font-medium text-left py-4 px-4 hover:text-brand-red">
+                            <flux:accordion.heading class="text-gray-900 dark:text-gray-100 font-medium text-left py-4 px-4">
                                 {{ $faq['q'] }}
                             </flux:accordion.heading>
                             <flux:accordion.content class="px-4 pb-4 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">

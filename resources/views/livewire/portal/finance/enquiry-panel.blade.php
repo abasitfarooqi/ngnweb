@@ -1,4 +1,4 @@
-<flux:card class="p-6 space-y-5 border border-gray-200 dark:border-gray-700">
+<flux:card class="p-6 border border-gray-200 dark:border-gray-700 site-form site-form-stack">
     <div>
         <flux:heading size="lg">Payment plan enquiry</flux:heading>
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
@@ -21,7 +21,7 @@
         </flux:callout>
     @endif
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <x-site.form-grid :cols="2">
         <flux:field>
             <flux:label>Bike price (£)</flux:label>
             <flux:input wire:model.live="bikePrice" type="number" min="500" step="50" />
@@ -33,7 +33,7 @@
             <flux:error name="deposit" />
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Cannot exceed bike price.</p>
         </flux:field>
-    </div>
+    </x-site.form-grid>
 
     <flux:field>
         <flux:label>Instalment term (months) *</flux:label>

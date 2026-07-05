@@ -1,16 +1,17 @@
 <div>
 {{-- Hero --}}
-<div class="relative bg-gray-900 text-white overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-r from-black via-gray-900 to-brand-red opacity-90"></div>
+<div class="relative site-page-hero site-home-hero overflow-hidden">
+    <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-black via-gray-900 to-brand-green opacity-95"></div>
+    <div class="absolute inset-0 site-home-hero-grid" aria-hidden="true"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
         <div class="max-w-2xl">
-            <flux:badge color="red" class="mb-4 uppercase tracking-wide text-xs">London's Motorcycle Specialists Since 2018</flux:badge>
+            <flux:badge color="green" class="mb-4 uppercase tracking-wide text-xs">London's Motorcycle Specialists Since 2018</flux:badge>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 Motorcycles.<br>Rentals, MOT,<br>
-                <span class="text-red-400">Repairs & Sales.</span>
+                <span class="text-emerald-400">Repairs & Sales.</span>
             </h1>
             <p class="text-lg md:text-xl text-gray-300 mb-8">
-                Serving Catford, Tooting & Sutton. 
+                Serving South London & Greater London. 
             </p>
             <div class="flex flex-wrap gap-3">
                 <flux:button
@@ -18,7 +19,7 @@
                     @click="$flux.modal('quick-book').show()"
                     variant="filled"
                     size="base"
-                    class="bg-brand-red text-white hover:bg-brand-red-dark"
+                    class="bg-brand-green text-white hover:bg-brand-green-dark"
                 >
                     Book Now
                 </flux:button>
@@ -62,6 +63,7 @@
 </div>
 --}}
 @include('livewire.site.home.partials.repairs-services-home-grid')
+@include('livewire.site.home.partials.engine-rebuilds-home')
 
 {{-- Motorcycle rentals: scroll-snap slider (touch + Flux controls), 3 cards per slide --}}
 @php $rentalSlides = collect($homeRentalModels)->chunk(3); @endphp
@@ -71,14 +73,14 @@
     aria-roledescription="carousel"
     aria-label="Rental motorcycle models"
 >
-    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
+    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-green" aria-hidden="true"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-10 md:mb-12">
-            <flux:badge color="red" class="mb-3 uppercase tracking-widest text-[10px]">Hire fleet</flux:badge>
+            <flux:badge color="green" class="mb-3 uppercase tracking-widest text-[10px]">Hire fleet</flux:badge>
             <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Motorcycle rentals</h2>
             <p class="mt-3 text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                 Short-term and long-term hire across our London branches. Swipe on mobile or use the arrows.
-                <a href="{{ route('site.rentals') }}" class="text-brand-red font-semibold hover:underline underline-offset-2">Browse the full rental range</a>
+                <a href="{{ route('site.rentals') }}" class="text-brand-green font-semibold hover:underline underline-offset-2">Browse the full rental range</a>
             </p>
         </div>
 
@@ -106,8 +108,8 @@
                     >
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 w-full max-w-full min-w-0">
                             @foreach($chunk as $item)
-                                <flux:card class="group flex h-full w-full max-w-full min-w-0 flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/80 dark:ring-gray-700 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-red/35 transition-all duration-300 bg-white dark:bg-gray-900">
-                                    <a href="{{ $item['href'] }}" class="relative block w-full max-w-full h-56 sm:h-36 md:h-32 lg:h-36 overflow-hidden bg-gray-100 dark:bg-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-inset [max-height:9.5rem] md:[max-height:8.5rem] lg:[max-height:9.5rem]">
+                                <flux:card class="group flex h-full w-full max-w-full min-w-0 flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/80 dark:ring-gray-700 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-green/35 transition-all duration-300 bg-white dark:bg-gray-900">
+                                    <a href="{{ $item['href'] }}" class="relative block w-full max-w-full h-56 sm:h-36 md:h-32 lg:h-36 overflow-hidden bg-gray-100 dark:bg-gray-800 outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-inset [max-height:9.5rem] md:[max-height:8.5rem] lg:[max-height:9.5rem]">
                                         <img
                                             loading="lazy"
                                             src="{{ asset($item['img']) }}"
@@ -126,7 +128,7 @@
                                         <p class="text-center text-xs text-gray-500 dark:text-gray-400 mb-4 leading-relaxed">Typical weekly rate for this or a similar model.</p>
                                         <div class="mt-auto flex flex-col gap-2">
                                             <flux:button href="{{ $item['href'] }}" variant="outline" size="sm" class="w-full justify-center ring-1 ring-gray-300 dark:ring-gray-600">More information</flux:button>
-                                            <flux:button href="tel:02083141498" variant="filled" size="sm" class="w-full justify-center bg-brand-red text-white hover:bg-brand-red-dark">Call now</flux:button>
+                                            <flux:button href="tel:02083141498" variant="filled" size="sm" class="w-full justify-center bg-brand-green text-white hover:bg-brand-green-dark">Call now</flux:button>
                                         </div>
                                     </div>
                                 </flux:card>
@@ -177,11 +179,11 @@
                             :aria-selected="index === {{ $si }}"
                             :class="[
                                 index === {{ $si }}
-                                    ? 'bg-brand-red w-8'
+                                    ? 'bg-brand-green w-8'
                                     : 'bg-gray-300 dark:bg-gray-600 w-6 hover:bg-gray-400 dark:hover:bg-gray-500',
                                 (index === {{ $si }}) ? '' : 'disabled:bg-gray-200 disabled:dark:bg-gray-700 disabled:opacity-60'
                             ]"
-                            class="h-1 max-w-8 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
+                            class="h-1 max-w-8 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-900"
                             aria-label="Go to slide {{ $si + 1 }}"
                             @click="goTo({{ $si }})"
                             :disabled="index === {{ $si }}"
@@ -201,18 +203,18 @@
 {{-- Used motorcycles (same stock as /used-motorcycles; five on home) --}}
 @if($usedBikesForSale->isNotEmpty())
 <section class="relative py-16 md:py-20 border-t border-gray-200 dark:border-gray-800 bg-gradient-to-b from-white via-gray-50 to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-950" aria-label="Used motorcycles for sale">
-    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
+    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-green" aria-hidden="true"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
             <div>
-                <flux:badge color="red" class="mb-3 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
+                <flux:badge color="green" class="mb-3 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
                 <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Used motorcycles</h2>
                 <p class="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
                     current used motorcycles. Same listings as our full used showroom.
                 </p>
             </div>
             <div class="flex flex-wrap gap-2 shrink-0">
-                <flux:button href="{{ route('used-motorcycles.page') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">
+                <flux:button href="{{ route('used-motorcycles.page') }}" variant="filled" size="sm" class="bg-brand-green text-white hover:bg-brand-green-dark">
                     See more
                 </flux:button>
                 <flux:button href="{{ route('site.bikes', ['filter' => 'used']) }}" variant="outline" size="sm" class="border-gray-300 dark:border-gray-600 text-gray-800 dark:text-gray-200">
@@ -227,8 +229,8 @@
                     $mileage = $bike->sale_mileage ?? $bike->mileage ?? null;
                 @endphp
                 <li class="min-w-0">
-                    <flux:card class="group flex h-full flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/90 dark:ring-gray-700 bg-white dark:bg-gray-900 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-red/40 transition-all duration-300">
-                        <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="relative block w-full aspect-[5/3] min-h-[10rem] bg-gray-100 dark:bg-gray-800 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-inset">
+                    <flux:card class="group flex h-full flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/90 dark:ring-gray-700 bg-white dark:bg-gray-900 shadow-md shadow-gray-900/5 dark:shadow-none hover:shadow-xl hover:ring-brand-green/40 transition-all duration-300">
+                        <a href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" class="relative block w-full aspect-[5/3] min-h-[10rem] bg-gray-100 dark:bg-gray-800 overflow-hidden outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-inset">
                             <img
                                 src="{{ $img }}"
                                 alt="{{ $bike->make }} {{ $bike->model }}"
@@ -247,7 +249,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 @if($mileage !== null && $mileage !== ''){{ number_format((int) $mileage) }} miles · @endif{{ $bike->year ?? '—' }}
                             </p>
-                            <p class="text-brand-red font-black text-lg mt-2">£{{ number_format((float) ($bike->price ?? 0), 0) }}</p>
+                            <p class="text-brand-green font-black text-lg mt-2">£{{ number_format((float) ($bike->price ?? 0), 0) }}</p>
                             <div class="mt-auto pt-3">
                                 <flux:button href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" variant="outline" size="sm" class="w-full justify-center ring-1 ring-gray-300 dark:ring-gray-600">
                                     View details
@@ -271,7 +273,7 @@
                 <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-4">Latest News</h2>
                 <div class="space-y-3 mb-4">
                     @foreach($blogPosts as $post)
-                        <a href="/shop/blog/{{ $post->slug }}" class="block border border-gray-200 dark:border-gray-700 hover:border-brand-red transition">
+                        <a href="/shop/blog/{{ $post->slug }}" class="block border border-gray-200 dark:border-gray-700 hover:border-brand-green transition">
                             <div class="flex">
                                 @php $blogImage = $post->images->isNotEmpty() ? 'https://neguinhomotors.co.uk/storage/'.$post->images->first()->path : 'https://neguinhomotors.co.uk/assets/img/no-image.png'; @endphp
                                 <img src="{{ $blogImage }}" alt="{{ $post->title }}" class="w-24 h-24 object-cover">
@@ -284,7 +286,7 @@
                     @endforeach
                 </div>
                 <div class="text-right">
-                    <a href="/shop/blog" class="text-sm font-semibold text-brand-red hover:underline">See all our latest updates</a>
+                    <a href="/shop/blog" class="text-sm font-semibold text-brand-green hover:underline">See all our latest updates</a>
                 </div>
             </section>
             <section>
@@ -295,7 +297,7 @@
                     </flux:callout>
                 @endif
                 <flux:card class="p-5 md:p-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ring-1 ring-gray-200/80 dark:ring-gray-700/80 shadow-sm">
-                    <form wire:submit="submitContact" class="space-y-4">
+                    <form wire:submit="submitContact" class="site-form site-form-stack">
                         <flux:field>
                             <flux:label>Name *</flux:label>
                             <flux:input wire:model="contactName" autocomplete="name" />
@@ -331,7 +333,7 @@
                                 <p class="text-sm text-red-600 dark:text-red-400 mt-1">{{ $message }}</p>
                             @enderror
                         </flux:field>
-                        <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled">
+                        <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark" wire:loading.attr="disabled">
                             <span wire:loading.remove wire:target="submitContact">Send</span>
                             <span wire:loading wire:target="submitContact">Sending…</span>
                         </flux:button>
@@ -343,19 +345,21 @@
 </div>
 
 {{-- About (legacy: aboutHomeSection — full copy) --}}
-<div class="bg-[#1f1f1f] text-white py-14 md:py-16 border-t border-gray-800" id="about-us">
-    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <h2 class="text-3xl md:text-4xl font-semibold mb-6 tracking-tight">About NGN</h2>
-        <div class="text-sm md:text-base text-gray-300 leading-relaxed space-y-4 text-left md:text-center">
+<div class="relative overflow-hidden bg-gray-950 text-white py-14 md:py-16 border-t border-brand-green/30" id="about-us">
+    <div class="absolute top-0 left-0 right-0 h-1 bg-brand-green" aria-hidden="true"></div>
+    <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-green opacity-90" aria-hidden="true"></div>
+    <div class="relative max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl md:text-4xl font-semibold mb-6 tracking-tight text-white">About NGN</h2>
+        <div class="text-sm md:text-base text-gray-200 leading-relaxed space-y-4 text-left md:text-center">
             <p>
-                Incorporated in October 2018, NGN specializes in <strong class="text-white">motorcycle rentals</strong>, <strong class="text-white">MOT services</strong>, sales, <strong class="text-white">spare parts</strong>, <strong class="text-white">maintenance</strong>, and <strong class="text-white">repair services</strong>. We offer a wide range of motorcycle accessories in <strong class="text-white">London</strong>, <strong class="text-white">Catford</strong>, <strong class="text-white">Tooting</strong>, and <strong class="text-white">Sutton</strong>. Our mission is to keep your motorcycle roadworthy and performing at its best.
+                Incorporated in October 2018, NGN specializes in <strong class="text-emerald-400">motorcycle rentals</strong>, <strong class="text-emerald-400">MOT services</strong>, sales, <strong class="text-emerald-400">spare parts</strong>, <strong class="text-emerald-400">maintenance</strong>, and <strong class="text-emerald-400">repair services</strong>. We offer a wide range of motorcycle accessories in <strong class="text-emerald-400">London</strong>, <strong class="text-emerald-400">Catford</strong>, <strong class="text-emerald-400">Tooting</strong>, and <strong class="text-emerald-400">Sutton</strong>. Our mission is to keep your motorcycle roadworthy and performing at its best.
            
             </p>
             <p>
                 Whether you need quality motorcycle rentals or expert repairs, we are here to provide top-notch motorcycling solutions and exceptional customer support. Our commitment to excellence ensures that every rider receives the best possible service, making NGN the go-to destination for all your motorcycle needs.
             </p>
         </div>
-        <flux:button href="{{ route('site.about') }}" variant="outline" class="mt-8 border-white text-white hover:bg-white hover:text-gray-900">
+        <flux:button href="{{ route('site.about') }}" variant="filled" class="mt-8 bg-brand-green text-white hover:bg-brand-green-dark">
             Learn more about us
         </flux:button>
     </div>

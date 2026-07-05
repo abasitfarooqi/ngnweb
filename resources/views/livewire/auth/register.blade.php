@@ -51,7 +51,7 @@
 
         {{-- STEP 1: Account Basics --}}
         @if ($currentStep === 1)
-            <div class="space-y-5">
+            <div class="site-form site-form-stack">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Account details</h2>
 
                 <div>
@@ -144,7 +144,7 @@
 
         {{-- STEP 3: Profile --}}
         @if ($currentStep === 3)
-            <div class="space-y-5">
+            <div class="site-form site-form-stack">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">Your profile <span class="text-sm font-normal text-gray-400">(optional)</span></h2>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">

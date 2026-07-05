@@ -10,11 +10,14 @@ use Livewire\Component;
 
 class Index extends Component
 {
+    private const ALLOWED_TERMS = [6, 10, 12];
+
     public $loanAmount = 3000;
 
     public $deposit = 500;
 
-    public $term = 12;
+    /** @var int|string|null Empty until customer picks a term in the calculator */
+    public $term = '';
 
     /** @var float Calculator interest rate (% APR) — fixed at 0; field hidden on public finance page */
     public $rate = 0;
@@ -79,8 +82,13 @@ class Index extends Component
     public function updated($field): void
     {
         if ($field === 'term') {
+            if ($this->term === '' || $this->term === null) {
+                $this->monthlyPayment = 0;
+
+                return;
+            }
             $t = (int) $this->term;
-            $this->term = in_array($t, [6, 12], true) ? $t : 12;
+            $this->term = in_array($t, self::ALLOWED_TERMS, true) ? (string) $t : '';
         }
         if (in_array($field, ['loanAmount', 'deposit', 'term', 'rate'], true)) {
             $this->calculatePayment();
@@ -93,7 +101,8 @@ class Index extends Component
         $apr = max(0, (float) $this->rate);
         $monthlyRate = ($apr / 100) / 12;
 
-        if ($this->term < 1) {
+        $termMonths = (int) $this->term;
+        if ($termMonths < 1) {
             $this->monthlyPayment = 0;
 
             return;
@@ -101,12 +110,12 @@ class Index extends Component
 
         if ($monthlyRate > 0) {
             $this->monthlyPayment = round(
-                $principal * ($monthlyRate * pow(1 + $monthlyRate, $this->term)) /
-                (pow(1 + $monthlyRate, $this->term) - 1),
+                $principal * ($monthlyRate * pow(1 + $monthlyRate, $termMonths)) /
+                (pow(1 + $monthlyRate, $termMonths) - 1),
                 2
             );
         } else {
-            $this->monthlyPayment = round($principal / $this->term, 2);
+            $this->monthlyPayment = round($principal / $termMonths, 2);
         }
     }
 
@@ -160,6 +169,12 @@ class Index extends Component
         $bikeType = (string) ($this->bikeType ?? 'unknown');
         $source = (string) ($this->bikeSource ?? 'finance-page');
 
+        $termMonths = (int) $this->term;
+        $selectedPlan = $termMonths > 0 && in_array($termMonths, self::ALLOWED_TERMS, true)
+            ? 'Preferred plan: '.$termMonths.' months'
+                .($this->monthlyPayment > 0 ? ' · illustrative £'.number_format($this->monthlyPayment, 2).'/month' : '')
+            : null;
+
         $description = implode(' | ', array_filter([
             'Source: '.$source,
             $bikeLabel !== '' ? 'Bike: '.$bikeLabel : null,
@@ -167,8 +182,7 @@ class Index extends Component
             'Bike type: '.$bikeType,
             'Finance amount GBP: '.number_format($amount, 2, '.', ''),
             'Deposit GBP: '.number_format($deposit, 2, '.', ''),
-            'Term months: '.(int) $this->term,
-            'Illustrative monthly from calculator: (bike price − deposit) ÷ term months; no interest on this calculator — not an offer of credit',
+            $selectedPlan,
             'Employment: '.(string) $this->employmentStatus,
             $this->notes ? 'Notes: '.trim((string) $this->notes) : null,
         ]));

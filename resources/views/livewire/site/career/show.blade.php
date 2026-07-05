@@ -19,18 +19,15 @@
         {!! $career->description !!}
     </div>
 
-    {{-- Application form --}}
-    <flux:card class="p-8">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-5">Apply for This Role</h2>
+    @if(session('success'))
+        <flux:callout variant="success" icon="check-circle" class="mb-5">
+            <flux:callout.text>{{ session('success') }}</flux:callout.text>
+        </flux:callout>
+    @endif
 
-        @if(session('success'))
-            <flux:callout variant="success" icon="check-circle" class="mb-5">
-                <flux:callout.text>{{ session('success') }}</flux:callout.text>
-            </flux:callout>
-        @endif
-
-        <form wire:submit="submitApplication" class="space-y-4">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <x-site.form-panel title="Apply for This Role" heading-class="text-xl font-bold text-gray-900 dark:text-white mb-5">
+        <form wire:submit="submitApplication" class="site-form site-form-stack">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>First Name *</flux:label>
                     <flux:input wire:model="firstName" />
@@ -41,7 +38,7 @@
                     <flux:input wire:model="lastName" />
                     <flux:error name="lastName" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
             <flux:field>
                 <flux:label>Email *</flux:label>
                 <flux:input wire:model="email" type="email" />
@@ -57,10 +54,9 @@
                 <flux:textarea wire:model="coverLetter" rows="5" placeholder="Tell us why you'd be a great fit…" />
                 <flux:error name="coverLetter" />
             </flux:field>
-            <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+            <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                 Submit Application
             </flux:button>
         </form>
-    </flux:card>
-</div>
+    </x-site.form-panel>
 </div>

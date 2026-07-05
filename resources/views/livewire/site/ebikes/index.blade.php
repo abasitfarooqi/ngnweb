@@ -5,7 +5,7 @@
 
     {{-- Gallery: fixed viewport height; image object-contain inside --}}
     <div
-        class="relative border-b border-gray-800 bg-gray-950 text-white dark:border-gray-700 dark:bg-black"
+        class="relative border-b border-gray-800 site-page-hero dark:border-gray-700"
         x-data="{
             urls: {{ json_encode($galleryUrls) }},
             i: 0,
@@ -206,7 +206,7 @@
                     <h2 class="mb-2 text-center text-xl font-bold text-gray-900 dark:text-white lg:text-left">Frequently asked questions</h2>
                     <p class="mb-6 text-center text-sm text-gray-600 dark:text-gray-400 lg:text-left">Common questions about UK eBikes and how we can help</p>
 
-                    <flux:accordion class="border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800 [&_button[data-flux-accordion-heading]]:text-gray-900 [&_button[data-flux-accordion-heading]]:dark:text-gray-100 [&_[data-flux-accordion-content]>div]:!text-gray-600 [&_[data-flux-accordion-content]>div]:dark:!text-gray-300">
+                    <flux:accordion class="site-flux-accordion border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800">
                         <flux:accordion.item
                             class="!border-b border-gray-200 px-3 dark:!border-gray-600"
                             heading="Do I need a licence to ride a pedal-assist eBike in the UK?"

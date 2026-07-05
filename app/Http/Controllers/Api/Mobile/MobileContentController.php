@@ -120,7 +120,7 @@ class MobileContentController extends Controller
         return response()->json([
             'hero' => [
                 'title' => 'Motorcycles. Rentals, MOT, Repairs and sales.',
-                'subtitle' => 'Serving Catford, Tooting and Sutton.',
+                'subtitle' => 'Serving South London & Greater London.',
                 'actions' => [
                     ['label' => 'Book now', 'target' => 'modal:quick-book'],
                     ['label' => 'Find your branch', 'target' => '#locations'],

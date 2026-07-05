@@ -15,6 +15,20 @@
             ],
         ],
         [
+            'panel' => 'MotorcycleEngineRepairs',
+            'slug' => 'engine-rebuilds',
+            'icon' => 'cog-8-tooth',
+            'title' => 'Engine rebuilds',
+            'image' => 'images/engine-rebuild-workshop.png',
+            'alt' => 'Specialist motorcycle engine rebuild — NGN London workshop',
+            'teaser' => 'Complete engine strip-down, inspection and rebuild for commuters, delivery scooters and larger machines — OEM or premium parts, transparent quotations.',
+            'buttons' => [
+                ['href' => route('site.home').'#engine-rebuilds', 'label' => 'Learn more', 'variant' => 'filled', 'class' => 'bg-brand-green text-white hover:bg-brand-green-dark'],
+                ['href' => 'tel:02083141498', 'label' => 'Call now', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+                ['href' => route('all-services', ['service' => 'MotorcycleEngineRepairs']).'#service-enquiry', 'label' => 'Enquire', 'variant' => 'outline', 'class' => 'border-slate-300 dark:border-gray-600'],
+            ],
+        ],
+        [
             'panel' => 'MOT',
             'slug' => 'mot',
             'icon' => 'shield-check',
@@ -117,6 +131,13 @@
     x-data="{
         map: @js(array_column($sections, 'slug', 'panel')),
         scrollFromQuery() {
+            const hash = (window.location.hash || '').replace(/^#/, '');
+            if (hash === 'service-enquiry') {
+                const scrollToForm = () => document.getElementById('service-enquiry')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                this.$nextTick(scrollToForm);
+                setTimeout(scrollToForm, 280);
+                return;
+            }
             const q = new URLSearchParams(window.location.search).get('service');
             if (!q || !this.map[q]) return;
             this.$nextTick(() => {
@@ -127,8 +148,8 @@
     x-init="scrollFromQuery(); window.addEventListener('livewire:navigated', () => setTimeout(() => $data.scrollFromQuery(), 120))"
 >
     {{-- Hero — same pattern as resources/views/livewire/site/repairs/index.blade.php --}}
-    <div class="relative bg-gray-900 text-white py-14 md:py-20 overflow-hidden">
-        <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-red/30"></div>
+    <div class="relative site-page-hero py-14 md:py-20 overflow-hidden">
+        <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-black via-gray-900 to-brand-red/30"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h1 class="text-3xl md:text-5xl font-bold mb-4">Our Services</h1>
             <nav class="text-sm text-gray-400" aria-label="Breadcrumb">
@@ -217,12 +238,12 @@
         />
 
         {{-- Enquiry — same width treatment as repairs/index enquiry block --}}
-        <div id="service-enquiry" class="mx-auto mt-14 max-w-3xl scroll-mt-28">
-            <h2 class="mb-6 text-2xl font-bold text-gray-900 dark:text-white">Universal service enquiry</h2>
-            <p class="mb-6 text-sm leading-relaxed text-gray-600 dark:text-gray-400">Choose the service type in the form; it can be preset when you use an Enquire link from a card above.</p>
+        <div id="service-enquiry" class="mx-auto mt-4 max-w-3xl scroll-mt-28">
             <livewire:site.contact.service-booking
                 :embedded="true"
+                :embedded-heading="$openPanel === 'MotorcycleEngineRepairs' ? 'Engine rebuild enquiry' : null"
                 :initial-service-type="$this->bookingPresetForChild()"
+                :initial-message="$this->bookingMessageForChild()"
                 wire:key="all-services-booking-{{ $openPanel }}-{{ $bookingServiceType }}"
             />
         </div>

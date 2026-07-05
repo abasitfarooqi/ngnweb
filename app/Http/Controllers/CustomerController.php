@@ -318,6 +318,14 @@ class CustomerController extends Controller
 
         app(CustomerDocumentReviewNotifier::class)->logStaffUpload($customerDocument);
 
+        $customer = Customer::query()->find($customer_id);
+        if ($customer) {
+            app(CustomerDocumentReviewNotifier::class)->notifyStaffIfAllMandatorySubmitted(
+                $customer,
+                $bookingID ? (int) $bookingID : null
+            );
+        }
+
         \Log::info("Document stored at: {$path}");
 
         // LOGGING & SFTP SYNC LOGIC (Add these lines)

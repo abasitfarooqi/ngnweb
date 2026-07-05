@@ -126,6 +126,40 @@ class DocumentsTab extends Component
         }
     }
 
+    public function setProfileEditingUnlocked(bool $unlocked): void
+    {
+        $booking = RentingBooking::with('customer')->findOrFail($this->bookingId);
+        if (! $booking->customer) {
+            $this->flashMessage = 'No customer linked to this booking.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $booking->customer->update(['profile_editing_unlocked' => $unlocked]);
+        $this->flashMessage = $unlocked
+            ? 'Customer may edit their profile again.'
+            : 'Customer profile editing locked.';
+        $this->flashType = 'success';
+    }
+
+    public function setDocumentReuploadUnlocked(bool $unlocked): void
+    {
+        $booking = RentingBooking::with('customer')->findOrFail($this->bookingId);
+        if (! $booking->customer) {
+            $this->flashMessage = 'No customer linked to this booking.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $booking->customer->update(['document_reupload_unlocked' => $unlocked]);
+        $this->flashMessage = $unlocked
+            ? 'Customer may replace approved documents.'
+            : 'Approved document re-upload locked.';
+        $this->flashType = 'success';
+    }
+
     public function render()
     {
         $booking = RentingBooking::with('customer')->findOrFail($this->bookingId);

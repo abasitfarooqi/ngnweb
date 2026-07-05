@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
+<div class="site-page-hero bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Motorcycle Accessories</h1>
         <p class="text-xl text-red-100">Everything you need for your ride</p>
@@ -40,7 +40,7 @@
 </div>
 
 {{-- CTA Strip --}}
-<div class="bg-gray-900 text-white py-10 text-center">
+<div class="site-page-hero py-10 text-center">
     <h2 class="text-2xl font-bold mb-4">Need Help Choosing?</h2>
     <p class="text-gray-300 mb-6">Our team is on hand to advise – call us or drop in at any branch</p>
     <div class="flex flex-wrap gap-3 justify-center">

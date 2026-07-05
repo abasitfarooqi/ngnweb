@@ -1,7 +1,7 @@
 <div>
 
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-12">
+<div class="site-page-hero py-12">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <p class="text-amber-400 text-3xl mb-2">★</p>
         <h1 class="text-3xl md:text-4xl font-bold mb-3">Join NGN Club</h1>
@@ -27,20 +27,16 @@
             </a>
         </div>
     @else
-        <flux:card class="p-8">
+        <x-site.form-panel title="Your Details">
+            <form wire:submit="joinClub" class="site-form site-form-stack">
 
-            <h2 class="text-lg font-bold text-gray-900 dark:text-white mb-6">Your Details</h2>
-
-            <form wire:submit="joinClub" class="space-y-5">
-
-                {{-- Personal details --}}
                 <flux:field>
                     <flux:label>Full Name *</flux:label>
                     <flux:input wire:model="full_name" placeholder="John Smith" autocomplete="name" />
                     <flux:error name="full_name" />
                 </flux:field>
 
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Email Address *</flux:label>
                         <flux:input wire:model="email" type="email" placeholder="john@example.com" autocomplete="email" />
@@ -52,23 +48,20 @@
                         <flux:error name="phone" />
                         <flux:description>We'll send your passkey here via SMS</flux:description>
                     </flux:field>
-                </div>
+                </x-site.form-grid>
 
                 <flux:separator />
 
                 <div>
                     <p class="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-4">Your Motorbike <span class="font-normal text-gray-400">(optional)</span></p>
 
-                    {{-- UK plate styled input --}}
-                    <flux:field class="mb-4">
+                    <flux:field class="site-form-field-plate mb-4">
                         <flux:label>Registration Number</flux:label>
-                        <flux:input wire:model="vrm"
-                            placeholder="AB12 CDE"
-                            class="uppercase tracking-widest font-black text-base bg-yellow-50 dark:bg-yellow-900/10 border-2 border-yellow-400 focus:border-yellow-500" />
+                        <flux:input wire:model="vrm" placeholder="AB12 CDE" class="uppercase tracking-widest text-base" />
                         <flux:error name="vrm" />
                     </flux:field>
 
-                    <div class="grid grid-cols-3 gap-4">
+                    <x-site.form-grid :cols="3" :compact="true">
                         <flux:field>
                             <flux:label>Make</flux:label>
                             <flux:input wire:model="make" placeholder="Honda" />
@@ -82,7 +75,7 @@
                             <flux:input wire:model="year" placeholder="2022" maxlength="4" />
                             <flux:error name="year" />
                         </flux:field>
-                    </div>
+                    </x-site.form-grid>
                 </div>
 
                 <flux:separator />
@@ -107,11 +100,11 @@
                 <flux:separator />
 
                 {{-- T&Cs --}}
-                <label class="flex items-start gap-3 cursor-pointer">
-                    <input type="checkbox" wire:model="tc_agreed" class="mt-0.5 w-4 h-4 accent-brand-red flex-shrink-0" />
-                    <span class="text-sm text-gray-600 dark:text-gray-400">
+                <label class="site-form-consent cursor-pointer">
+                    <input type="checkbox" wire:model="tc_agreed">
+                    <span>
                         I agree to the
-                        <a href="{{ route('ngnclub.terms') }}" target="_blank" class="text-brand-red hover:underline font-medium">Terms &amp; Conditions</a>
+                        <a href="{{ route('ngnclub.terms') }}" target="_blank" class="text-brand-green hover:underline font-medium">Terms &amp; Conditions</a>
                         and I consent to receiving NGN Club communications including SMS *
                     </span>
                 </label>
@@ -130,8 +123,7 @@
                 </p>
 
             </form>
-
-        </flux:card>
+        </x-site.form-panel>
     @endif
 
 </div>

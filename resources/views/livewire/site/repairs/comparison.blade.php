@@ -1,6 +1,6 @@
 <div>
-<div class="relative bg-gray-900 text-white py-14 md:py-20 overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-brand-red/25"></div>
+<div class="relative site-page-hero py-14 md:py-20 overflow-hidden">
+    <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-black via-gray-900 to-brand-red/25"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h1 class="text-3xl md:text-5xl font-bold mb-4">Choose Your Service Package</h1>
         <nav class="text-sm text-gray-400" aria-label="Breadcrumb">

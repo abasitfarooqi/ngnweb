@@ -31,6 +31,24 @@
         </div>
     @endif
 
+    @if($booking->customer)
+        <div class="mx-4 mt-3 p-3 border border-zinc-300 bg-zinc-50 text-sm dark:border-zinc-600 dark:bg-zinc-900/40">
+            <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Customer portal controls</p>
+            <div class="flex flex-wrap gap-2">
+                @if($booking->customer->profile_initialised_at && ! $booking->customer->profile_editing_unlocked)
+                    <flux:button size="xs" variant="primary" wire:click="setProfileEditingUnlocked(true)">Unlock profile editing</flux:button>
+                @elseif($booking->customer->profile_editing_unlocked)
+                    <flux:button size="xs" variant="ghost" wire:click="setProfileEditingUnlocked(false)">Lock profile editing</flux:button>
+                @endif
+                @if(! $booking->customer->document_reupload_unlocked)
+                    <flux:button size="xs" variant="primary" wire:click="setDocumentReuploadUnlocked(true)">Allow approved doc re-upload</flux:button>
+                @else
+                    <flux:button size="xs" variant="ghost" wire:click="setDocumentReuploadUnlocked(false)">Lock approved doc re-upload</flux:button>
+                @endif
+            </div>
+        </div>
+    @endif
+
     {{-- Booking state & action buttons --}}
     <div class="flex flex-col sm:flex-row sm:items-center gap-3 p-4 border-b border-zinc-200 dark:border-zinc-700">
         <div class="flex-1">
@@ -195,7 +213,7 @@
             <strong class="text-zinc-700 dark:text-zinc-300">Note:</strong>
             Customers can upload via the public link above (no login) or from the customer portal
             <a href="{{ route('account.documents', ['tab' => 'rental', 'booking_id' => $booking->id]) }}" class="underline" target="_blank">My Documents</a>.
-            Approve or request re-upload before activating the rental. Customers receive an email when a document is approved or when re-upload is requested; they see the same status in their account and on the upload link.
+            Approve or request re-upload before activating the rental. Customers receive an email when re-upload is requested; staff receive one email when all mandatory documents are uploaded. Customers see status in their account and on the upload link.
         </p>
     </div>
 </div>

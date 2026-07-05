@@ -341,7 +341,7 @@
 
             <form action="{{ route('ngnclub.profile.update') }}" method="POST" class="space-y-6 border border-gray-200 dark:border-gray-700 p-6 bg-white dark:bg-gray-800">
                 @csrf
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Full name</flux:label>
                         <flux:input value="{{ $member->full_name }}" readonly />
@@ -356,11 +356,11 @@
                         <flux:label>Phone</flux:label>
                         <flux:input value="{{ $member->phone }}" readonly />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
 
                 <div class="border border-gray-200 dark:border-gray-700 p-4 bg-gray-50 dark:bg-gray-900/30">
                     <h3 class="font-bold text-gray-900 dark:text-white mb-4">Vehicle details (optional)</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <x-site.form-grid :cols="3">
                         <flux:field>
                             <flux:label>Make</flux:label>
                             <flux:input name="profile[make]" value="{{ $member->make }}" maxlength="50" class="uppercase" pattern="[A-Za-z0-9/\s-]*" title="Letters, numbers, forward slash, and hyphens only" />
@@ -373,7 +373,7 @@
                             <flux:label>Year</flux:label>
                             <flux:input name="profile[year]" value="{{ $member->year }}" maxlength="4" inputmode="numeric" pattern="[0-9]*" title="4-digit year" />
                         </flux:field>
-                    </div>
+                    </x-site.form-grid>
                     <flux:field class="mt-4">
                         <flux:label class="text-center">Vehicle registration number</flux:label>
                         <div class="flex justify-center">

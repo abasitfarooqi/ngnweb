@@ -15,7 +15,7 @@
         <flux:callout.text>We will confirm your date and time. If you need a quick question answered first, send a repair enquiry instead.</flux:callout.text>
     </flux:callout>
 
-    <form wire:submit.prevent="submit" class="site-form space-y-6">
+    <form wire:submit.prevent="submit" class="site-form site-form-stack">
         <flux:card class="p-6 space-y-6">
             <flux:field>
                 <flux:label>Service type *</flux:label>
@@ -35,14 +35,14 @@
 
             <div>
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Bike details</h3>
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
+                <x-site.form-grid :cols="3" class="mb-4">
                     <div class="md:col-span-2">
                         <flux:field>
                             <flux:label>Registration number *</flux:label>
                             <flux:input wire:model="bike_reg_no" type="text" placeholder="AB12 CDE" class="uppercase" />
                             <flux:error name="bike_reg_no" />
                         </flux:field>
-                    </div>
+                    </x-site.form-grid>
                     <flux:field>
                         <flux:label>Make</flux:label>
                         <flux:input wire:model="bike_make" type="text" placeholder="Honda" />
@@ -69,7 +69,7 @@
 
             <div>
                 <h3 class="text-base font-semibold text-gray-900 dark:text-white mb-4">Preferred slot</h3>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <x-site.form-grid :cols="3">
                     <flux:field>
                         <flux:label>Date *</flux:label>
                         <x-site.booking-date-picker wire:model="date_requested" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
@@ -93,7 +93,7 @@
                         </flux:select>
                         <flux:error name="branch_id" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
             </div>
 
             <flux:separator />

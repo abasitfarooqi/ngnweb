@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gray-900 text-white py-12">
+<div class="site-page-hero py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl font-bold mb-2">Book Your MOT Test</h1>
         <p class="text-gray-300">MOT Booking at our Catford branch</p>
@@ -27,10 +27,8 @@
         </flux:callout>
     @endif
 
-    <flux:card class="p-6 md:p-8 border border-slate-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm">
-        <h2 class="text-xl font-bold text-slate-900 dark:text-white mb-6">MOT booking form</h2>
-
-        <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="site-form space-y-5">
+    <x-site.form-panel title="MOT booking form">
+        <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="site-form site-form-stack">
 
             <flux:field>
                 <flux:label>Branch</flux:label>
@@ -38,7 +36,7 @@
                 <flux:error name="branch_id" />
             </flux:field>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Registration Number *</flux:label>
                     <flux:input wire:model="regNo" placeholder="AB12 CDE" class="uppercase tracking-wider font-bold" />
@@ -48,7 +46,7 @@
                     <flux:label>Make</flux:label>
                     <flux:input wire:model="make" placeholder="e.g. Honda" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
 
             <flux:field>
                 <flux:label>Model</flux:label>
@@ -64,7 +62,7 @@
                 <flux:error name="name" />
             </flux:field>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Email *</flux:label>
                     <flux:input wire:model.live="email" type="email" />
@@ -75,9 +73,9 @@
                     <flux:input wire:model="phone" type="tel" />
                     <flux:error name="phone" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Preferred Date *</flux:label>
                     <x-site.booking-date-picker wire:model.live="preferredDate" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
@@ -92,17 +90,15 @@
                     </flux:select>
                     <flux:error name="preferredTime" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
 
             <flux:field>
                 <flux:label>Additional Notes</flux:label>
                 <flux:textarea wire:model="notes" rows="5" />
             </flux:field>
 
-            <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark">
+            <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                 Submit MOT Booking
             </flux:button>
         </form>
-    </flux:card>
-</div>
-</div>
+    </x-site.form-panel>

@@ -19,68 +19,261 @@
     .delivery-accordion-menu .accordion-item    { @apply border border-gray-200 mb-2 overflow-hidden; }
     .delivery-accordion-menu .accordion-button  { @apply w-full px-6 py-4 text-left text-gray-800 dark:text-gray-200 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none transition-all duration-200 font-medium; }
     .delivery-accordion-menu .accordion-button.collapsed { @apply border-b-0; }
-    .delivery-accordion-menu .accordion-button:not(.collapsed) { @apply bg-gray-50 dark:bg-gray-700 text-brand-red; }
+    .delivery-accordion-menu .accordion-button:not(.collapsed) { @apply bg-gray-50 dark:bg-gray-700 text-brand-green; }
     .delivery-accordion-menu .accordion-body    { @apply px-6 py-4 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400; }
     .delivery-accordion-menu .accordion-button::after  { @apply float-right ml-auto transition-transform duration-200; content: '+'; font-size: 1.5rem; line-height: 1; }
     .delivery-accordion-menu .accordion-button:not(.collapsed)::after { content: '−'; }
+
+    /* Site FAQ accordions (Alpine + Flux) */
+    .site-accordion { @apply space-y-2; }
+    .site-accordion-item { @apply border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 overflow-hidden; }
+    .site-accordion-trigger {
+        @apply w-full flex items-center justify-between gap-3 px-4 py-3 text-left font-semibold
+            text-gray-900 dark:text-white bg-white dark:bg-gray-800
+            hover:bg-gray-50 dark:hover:bg-gray-700
+            focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-red/40 transition-colors;
+    }
+    .site-accordion-item.is-open .site-accordion-trigger { @apply bg-gray-50 dark:bg-gray-700; }
+    .site-accordion-icon { @apply text-gray-500 dark:text-gray-400 text-lg leading-none shrink-0; }
+    .site-accordion-panel { @apply px-4 pb-4 text-sm text-gray-700 dark:text-gray-300 border-t border-gray-100 dark:border-gray-700; }
+
+    /* Page hero — dark band in light mode, white band in dark mode */
+    .site-page-hero {
+        @apply bg-gray-900 text-white dark:bg-white dark:text-gray-900 dark:border-b dark:border-gray-200;
+    }
+    .site-page-hero .text-gray-300,
+    .site-page-hero .text-slate-300 {
+        @apply dark:text-gray-600;
+    }
+    .site-page-hero .text-gray-400,
+    .site-page-hero .text-slate-400 {
+        @apply dark:text-gray-500;
+    }
+    .site-page-hero .text-emerald-400 {
+        @apply dark:text-brand-green;
+    }
+    .site-page-hero .text-red-100,
+    .site-page-hero .text-emerald-100 {
+        @apply dark:text-gray-600;
+    }
+
+    /* Home hero only — cinematic dark band in both themes */
+    .site-home-hero {
+        @apply bg-gray-950 text-white dark:bg-gray-950 dark:text-white dark:border-b dark:border-brand-green/40;
+    }
 
     /* Portal sidebar nav link */
     .portal-nav-link {
         @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors;
     }
     .portal-nav-link.active {
-        @apply bg-brand-red text-white hover:bg-red-700 hover:text-white;
+        @apply bg-brand-green text-white hover:bg-brand-green-dark hover:text-white;
     }
     .portal-nav-sub-link {
         @apply flex items-center px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
     }
     .portal-nav-sub-link.active {
-        @apply bg-brand-red text-white hover:bg-red-700 hover:text-white;
+        @apply bg-brand-green text-white hover:bg-brand-green-dark hover:text-white;
     }
 
     /* Public site forms — aligned fields, consistent dark/light controls */
     .site-form {
-        @apply w-full;
+        @apply w-full max-w-full;
+    }
+
+    .site-form-stack {
+        @apply flex w-full max-w-full flex-col gap-4;
+    }
+
+    .site-form-grid {
+        display: grid !important;
+        margin: 0 !important;
+        overflow: visible !important;
+        @apply w-full max-w-full grid-cols-1 items-start gap-4;
+    }
+
+    .site-form-grid-2 {
+        @apply sm:grid-cols-2;
+    }
+
+    .site-form-grid-3 {
+        @apply md:grid-cols-3;
+    }
+
+    .site-form-grid-3-compact {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+
+    .site-form-field-plate input[data-flux-control] {
+        background-color: rgb(254 252 232) !important;
+        border: 2px solid rgb(250 204 21) !important;
+        color: rgb(0 0 0) !important;
+        text-align: center;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+    }
+
+    html.dark .site-form-field-plate input[data-flux-control] {
+        background-color: rgb(66 32 6 / 0.35) !important;
+        border-color: rgb(250 204 21) !important;
+        color: rgb(254 252 232) !important;
     }
 
     .site-form flux-field,
-    .site-form [data-flux-field] {
-        @apply w-full min-w-0;
+    .site-form [data-flux-field],
+    .site-form ui-field[data-flux-field] {
+        @apply w-full min-w-0 max-w-full block;
     }
 
+    .site-form .site-form-grid > flux-field,
+    .site-form .site-form-grid > [data-flux-field],
+    .site-form .site-form-grid > ui-field,
     .site-form .grid > flux-field,
     .site-form .grid > [data-flux-field],
-    .site-form .grid > div {
-        @apply min-w-0;
+    .site-form .grid > ui-field {
+        @apply min-w-0 w-full max-w-full;
+    }
+
+    .site-form [data-flux-label] {
+        @apply mb-1.5 block w-full text-sm font-medium leading-5 text-gray-700 dark:text-gray-300;
+        margin-bottom: 0.375rem !important;
     }
 
     .site-form input[data-flux-control],
     .site-form textarea[data-flux-control],
     .site-form [data-flux-date-picker-button],
-    .site-form [data-flux-select] > button,
-    .site-form [data-flux-select] [data-flux-group-target] {
-        @apply w-full min-w-0 !rounded-none;
+    .site-form [data-flux-select-button] {
+        @apply w-full min-w-0 max-w-full !rounded-none box-border;
     }
 
     .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]),
     .site-form textarea[data-flux-control] {
-        @apply bg-gray-50 text-gray-900 border-gray-300
+        @apply bg-gray-50 text-gray-900 border border-gray-300 text-sm
                dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600;
+        display: block !important;
+        min-height: 2.5rem !important;
+        height: 2.5rem !important;
+        border-width: 1px !important;
+        border-style: solid !important;
+        border-color: rgb(209 213 219) !important;
+        box-shadow: none !important;
+        outline: none !important;
+        padding: 0 0.75rem !important;
+        line-height: 2.5rem !important;
+        letter-spacing: normal !important;
+        font-weight: 400 !important;
     }
 
     .site-form [data-flux-date-picker-button],
-    .site-form [data-flux-select] > button,
-    .site-form [data-flux-select] [data-flux-group-target] {
-        @apply bg-gray-50 text-gray-900 border border-gray-300
+    .site-form [data-flux-select-button] {
+        @apply bg-gray-50 text-gray-900 border border-gray-300 text-sm
                dark:bg-gray-800 dark:text-gray-100 dark:border-gray-600;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        gap: 0.5rem !important;
+        min-height: 2.5rem !important;
+        height: 2.5rem !important;
+        max-height: 2.5rem !important;
+        border-width: 1px !important;
+        border-style: solid !important;
+        border-color: rgb(209 213 219) !important;
+        box-shadow: none !important;
+        outline: none !important;
+        padding: 0 0.75rem !important;
+        line-height: 1.25 !important;
+        letter-spacing: normal !important;
+        font-weight: 400 !important;
+        overflow: visible !important;
+    }
+
+    /* Searchable select filter — exclude from trigger field rules (dropdown is portalled) */
+    .site-form [data-flux-select-search] input,
+    .site-form [data-flux-select-search] input[data-flux-control] {
+        padding: 0 2.5rem !important;
+        border-width: 0 !important;
+        border-bottom: 1px solid rgb(209 213 219) !important;
+        border-radius: 0 !important;
+    }
+
+    .dark .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]),
+    .dark .site-form textarea[data-flux-control],
+    .dark .site-form [data-flux-date-picker-button],
+    .dark .site-form [data-flux-select-button] {
+        border-color: rgb(75 85 99) !important;
     }
 
     .site-form textarea[data-flux-control] {
-        min-height: 8.5rem;
+        display: block !important;
+        min-height: 8.5rem !important;
+        height: auto !important;
+        line-height: 1.5 !important;
+        padding: 0.625rem 0.75rem !important;
+        resize: vertical;
+    }
+
+    .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]):hover,
+    .site-form textarea[data-flux-control]:hover,
+    .site-form [data-flux-date-picker-button]:hover,
+    .site-form [data-flux-select-button]:hover {
+        border-width: 1px !important;
+        border-color: rgb(156 163 175) !important;
+    }
+
+    .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]):focus,
+    .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]):focus-visible,
+    .site-form textarea[data-flux-control]:focus,
+    .site-form textarea[data-flux-control]:focus-visible,
+    .site-form [data-flux-date-picker-button]:focus,
+    .site-form [data-flux-date-picker-button]:focus-visible,
+    .site-form [data-flux-select-button]:focus,
+    .site-form [data-flux-select-button]:focus-visible {
+        border-width: 1px !important;
+        border-color: var(--color-brand-green) !important;
+        box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.22) !important;
+        outline: none !important;
     }
 
     .site-form input[type="checkbox"] {
-        @apply border-gray-300 dark:border-gray-500 dark:bg-gray-800;
+        @apply h-4 w-4 min-h-0 shrink-0 border border-gray-300 accent-brand-green
+               focus:ring-2 focus:ring-brand-green/30 focus:ring-offset-0
+               dark:border-gray-500 dark:bg-gray-800;
+        height: 1rem !important;
+        min-height: 0 !important;
+        width: 1rem !important;
+        display: inline-block !important;
+    }
+
+    .site-form-consent {
+        @apply flex w-full max-w-full items-start gap-2 text-sm text-gray-700 dark:text-gray-300;
+    }
+
+    .site-form [data-invalid] input[data-flux-control],
+    .site-form [data-invalid] textarea[data-flux-control] {
+        border-color: #dc2626 !important;
+    }
+
+    .site-form button:not([type="checkbox"]):not([type="radio"]):before {
+        display: none !important;
+        content: none !important;
+    }
+
+    .site-form button:not([type="checkbox"]):not([type="radio"]).bg-brand-green,
+    .site-form button:not([type="checkbox"]):not([type="radio"]).bg-brand-red,
+    .site-form button:not([type="checkbox"]):not([type="radio"])[class*="bg-brand-green"],
+    .site-form button:not([type="checkbox"]):not([type="radio"])[class*="bg-brand-red"] {
+        background-color: var(--color-brand-green) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+    }
+
+    .site-form button:not([type="checkbox"]):not([type="radio"]).bg-brand-green:hover,
+    .site-form button:not([type="checkbox"]):not([type="radio"]).bg-brand-red:hover,
+    .site-form button:not([type="checkbox"]):not([type="radio"]).hover\:bg-brand-green-dark:hover,
+    .site-form button:not([type="checkbox"]):not([type="radio"]).hover\:bg-brand-red-dark:hover,
+    .site-form button:not([type="checkbox"]):not([type="radio"]).hover\:bg-red-700:hover {
+        background-color: var(--color-brand-green-dark) !important;
+        color: #ffffff !important;
     }
 
     /* Used bike listing filters — one height, one surface */
@@ -99,7 +292,7 @@
 
     .bike-filter-control {
         @apply border border-gray-300 bg-gray-100 text-gray-900
-               focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30;
+               focus:border-brand-green focus:outline-none focus:ring-2 focus:ring-brand-green/30;
     }
 
     .dark .bike-filter-control {
@@ -149,8 +342,538 @@
         @apply bg-gray-100 text-gray-800 hover:bg-gray-200;
     }
 
+    .bike-filter-btn-primary {
+        @apply border-brand-green bg-brand-green text-white hover:bg-brand-green-dark;
+    }
+
     .dark .bike-filter-btn-muted {
         @apply border-gray-600 bg-gray-800 text-gray-100 hover:bg-gray-700;
     }
 
+}
+
+/* Site link hovers — green theme; layered utilities cannot beat legacy style.css */
+body:not(.flux-admin-app) a.text-white:hover,
+body:not(.flux-admin-app) a.text-white:focus,
+body:not(.flux-admin-app) a[class*="bg-emerald"]:hover,
+body:not(.flux-admin-app) a[class*="bg-emerald"]:focus,
+body:not(.flux-admin-app) a[class*="bg-brand-red"]:hover,
+body:not(.flux-admin-app) a[class*="bg-brand-green"]:hover {
+    color: #ffffff !important;
+}
+
+/* Dark-section outline: white label inverts to dark text on white hover */
+body:not(.flux-admin-app) a.hover\:bg-white.hover\:text-gray-900:hover,
+body:not(.flux-admin-app) a.hover\:bg-white.hover\:text-gray-900:focus,
+body:not(.flux-admin-app) button.hover\:bg-white.hover\:text-gray-900:hover,
+body:not(.flux-admin-app) button.hover\:bg-white.hover\:text-gray-900:focus {
+    color: rgb(17 24 39) !important;
+    background-color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) a.dark\:hover\:bg-white.dark\:hover\:text-gray-900:hover,
+body:not(.flux-admin-app) button.dark\:hover\:bg-white.dark\:hover\:text-gray-900:hover {
+    color: rgb(17 24 39) !important;
+    background-color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) a.text-brand-red:hover,
+body:not(.flux-admin-app) a.text-brand-red:focus,
+body:not(.flux-admin-app) a.hover\:text-brand-red:hover,
+body:not(.flux-admin-app) a.hover\:text-brand-green:hover {
+    color: var(--color-brand-green-dark) !important;
+}
+
+/* Flux form alignment — public site; unlayered so legacy style.css cannot skew widths/padding */
+body:not(.flux-admin-app) .site-form {
+    width: 100%;
+}
+
+body:not(.flux-admin-app) ui-field[data-flux-field],
+body:not(.flux-admin-app) [data-flux-field] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+body:not(.flux-admin-app) .site-form [data-flux-field] > :not([data-flux-label]):not([data-flux-error]):not([data-flux-description]),
+body:not(.flux-admin-app) .site-form ui-field[data-flux-field] > :not([data-flux-label]):not([data-flux-error]):not([data-flux-description]) {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+body:not(.flux-admin-app) .site-form .site-form-grid,
+body:not(.flux-admin-app) .site-form .grid {
+    width: 100% !important;
+    max-width: 100% !important;
+    gap: 1rem !important;
+    margin: 0 !important;
+    overflow: visible !important;
+}
+
+/* One surface for every Flux control in public forms — beats Flux utility bg/border */
+body:not(.flux-admin-app) .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]),
+body:not(.flux-admin-app) .site-form textarea[data-flux-control],
+body:not(.flux-admin-app) .site-form [data-flux-select-button],
+body:not(.flux-admin-app) .site-form [data-flux-date-picker-button] {
+    background-color: rgb(249 250 251) !important;
+    color: rgb(17 24 39) !important;
+    border: 1px solid rgb(209 213 219) !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]),
+html.dark body:not(.flux-admin-app) .site-form textarea[data-flux-control],
+html.dark body:not(.flux-admin-app) .site-form [data-flux-select-button],
+html.dark body:not(.flux-admin-app) .site-form [data-flux-date-picker-button] {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+    border-color: rgb(75 85 99) !important;
+}
+
+body:not(.flux-admin-app) .site-form input:not([data-flux-control]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(:is([data-flux-select-search] input, [data-flux-pillbox-search] input, [data-flux-command-input])),
+body:not(.flux-admin-app) .site-form textarea:not([data-flux-control]),
+body:not(.flux-admin-app) .site-form select:not([data-flux-control]) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 2.5rem !important;
+    box-sizing: border-box !important;
+    background-color: rgb(249 250 251) !important;
+    color: rgb(17 24 39) !important;
+    border: 1px solid rgb(209 213 219) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    padding: 0 0.75rem !important;
+    font-size: 0.875rem !important;
+    line-height: 2.5rem !important;
+}
+
+body:not(.flux-admin-app) .site-form textarea:not([data-flux-control]) {
+    height: auto !important;
+    min-height: 8.5rem !important;
+    line-height: 1.5 !important;
+    padding: 0.625rem 0.75rem !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-form input:not([data-flux-control]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not(:is([data-flux-select-search] input, [data-flux-pillbox-search] input, [data-flux-command-input])),
+html.dark body:not(.flux-admin-app) .site-form textarea:not([data-flux-control]),
+html.dark body:not(.flux-admin-app) .site-form select:not([data-flux-control]) {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+    border-color: rgb(75 85 99) !important;
+}
+
+body:not(.flux-admin-app) .site-form .site-form-grid > ui-field,
+body:not(.flux-admin-app) .site-form .site-form-grid > [data-flux-field],
+body:not(.flux-admin-app) .site-form .grid > ui-field,
+body:not(.flux-admin-app) .site-form .grid > [data-flux-field] {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-self: stretch !important;
+}
+
+body:not(.flux-admin-app) .site-form [data-flux-input],
+body:not(.flux-admin-app) .site-form [data-flux-select],
+body:not(.flux-admin-app) .site-form [data-flux-textarea],
+body:not(.flux-admin-app) .site-form [data-flux-date-picker] {
+    display: block !important;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+}
+
+body:not(.flux-admin-app) .site-form .grid {
+    width: 100%;
+    align-items: start;
+}
+
+body:not(.flux-admin-app) .site-form .grid > * {
+    min-width: 0;
+    width: 100%;
+}
+
+body:not(.flux-admin-app) .site-form input[data-flux-control]:not([type="checkbox"]):not([type="radio"]) {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 0.75rem !important;
+    line-height: 2.5rem !important;
+    letter-spacing: normal !important;
+}
+
+body:not(.flux-admin-app) .site-form [data-flux-date-picker-button],
+body:not(.flux-admin-app) .site-form [data-flux-select-button] {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 2.25rem 0 0.75rem !important;
+    line-height: 1.25 !important;
+    letter-spacing: normal !important;
+    overflow: visible !important;
+}
+
+body:not(.flux-admin-app) .site-form textarea[data-flux-control] {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: 8.5rem !important;
+    line-height: 1.5 !important;
+    padding: 0.625rem 0.75rem !important;
+}
+
+body:not(.flux-admin-app) [data-flux-select] {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+body:not(.flux-admin-app) [data-flux-input],
+body:not(.flux-admin-app) [data-flux-textarea],
+body:not(.flux-admin-app) [data-flux-date-picker] {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+/* Flux dropdown filters + select triggers — icon/placeholder must never overlap (site-wide) */
+body:not(.flux-admin-app) .site-form [data-flux-select-search] input[type="text"],
+body:not(.flux-admin-app) [data-flux-select-search] input[type="text"],
+body:not(.flux-admin-app) .site-form [data-flux-pillbox-search] input[type="text"],
+body:not(.flux-admin-app) [data-flux-pillbox-search] input[type="text"],
+body:not(.flux-admin-app) .site-form [data-flux-command-input],
+body:not(.flux-admin-app) [data-flux-command-input] {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-height: 2.5rem !important;
+    height: 2.5rem !important;
+    box-sizing: border-box !important;
+    padding: 0 2.5rem !important;
+    border-width: 0 !important;
+    border-bottom: 1px solid rgb(209 213 219) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    letter-spacing: normal !important;
+    line-height: 1.25 !important;
+    background-color: rgb(249 250 251) !important;
+    color: rgb(17 24 39) !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-form [data-flux-select-search] input[type="text"],
+html.dark body:not(.flux-admin-app) [data-flux-select-search] input[type="text"],
+html.dark body:not(.flux-admin-app) .site-form [data-flux-pillbox-search] input[type="text"],
+html.dark body:not(.flux-admin-app) [data-flux-pillbox-search] input[type="text"],
+html.dark body:not(.flux-admin-app) .site-form [data-flux-command-input],
+html.dark body:not(.flux-admin-app) [data-flux-command-input] {
+    border-bottom-color: rgb(75 85 99) !important;
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+}
+
+body:not(.flux-admin-app) [data-flux-select-search] > .absolute.start-0,
+body:not(.flux-admin-app) [data-flux-pillbox-search] > .absolute.start-0 {
+    width: 2.5rem !important;
+    min-width: 2.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-inline-start: 0 !important;
+    pointer-events: none !important;
+}
+
+body:not(.flux-admin-app) [data-flux-select-search] > .absolute.end-0,
+body:not(.flux-admin-app) [data-flux-pillbox-search] > .absolute.end-0,
+body:not(.flux-admin-app) [data-flux-select-search] > div.absolute:last-child,
+body:not(.flux-admin-app) [data-flux-pillbox-search] > div.absolute:last-child {
+    width: 2.5rem !important;
+    min-width: 2.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding-inline-end: 0 !important;
+}
+
+body:not(.flux-admin-app) .site-form [data-flux-select-button],
+body:not(.flux-admin-app) [data-flux-select-button] {
+    padding-right: 2.5rem !important;
+    padding-left: 0.75rem !important;
+    gap: 0.5rem !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body:not(.flux-admin-app) [data-flux-select-button] ui-selected,
+body:not(.flux-admin-app) [data-flux-select-button] [data-flux-select-placeholder],
+body:not(.flux-admin-app) [data-flux-select-button] > :not(svg):not([data-flux-icon]) {
+    flex: 1 1 auto !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+body:not(.flux-admin-app) [data-flux-select-button] svg,
+body:not(.flux-admin-app) [data-flux-select-button] [data-flux-icon],
+body:not(.flux-admin-app) [data-flux-select-button] > flux-icon {
+    flex-shrink: 0 !important;
+    margin-inline-start: auto !important;
+}
+
+body:not(.flux-admin-app) .site-form [data-flux-input]:has(> .absolute svg, > .absolute [data-flux-icon]) input[data-flux-control],
+body:not(.flux-admin-app) [data-flux-input]:has(> .absolute svg, > .absolute [data-flux-icon]) input[data-flux-control] {
+    padding-left: 2.5rem !important;
+    padding-right: 0.75rem !important;
+}
+
+body:not(.flux-admin-app) .site-form [data-flux-date-picker-button],
+body:not(.flux-admin-app) [data-flux-date-picker-button] {
+    padding-right: 2.5rem !important;
+}
+
+/* Accordion triggers — reset legacy global button CTA styles (readable light/dark) */
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger,
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:hover,
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:focus,
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:active,
+body:not(.flux-admin-app) button[data-flux-accordion-heading],
+body:not(.flux-admin-app) button[data-flux-accordion-heading]:hover,
+body:not(.flux-admin-app) button[data-flux-accordion-heading]:focus,
+body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button,
+body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:hover,
+body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:focus {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    text-transform: none !important;
+    font-weight: 600 !important;
+    letter-spacing: normal !important;
+    line-height: 1.5 !important;
+    box-shadow: none !important;
+}
+
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:hover,
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:focus,
+body:not(.flux-admin-app) button[data-flux-accordion-heading]:hover,
+body:not(.flux-admin-app) button[data-flux-accordion-heading]:focus,
+body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:hover,
+body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:focus {
+    background-color: #f9fafb !important;
+    color: #111827 !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-accordion .site-accordion-trigger,
+html.dark body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:hover,
+html.dark body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:focus,
+html.dark body:not(.flux-admin-app) .site-accordion .site-accordion-item.is-open .site-accordion-trigger,
+html.dark body:not(.flux-admin-app) button[data-flux-accordion-heading],
+html.dark body:not(.flux-admin-app) button[data-flux-accordion-heading]:hover,
+html.dark body:not(.flux-admin-app) button[data-flux-accordion-heading]:focus,
+html.dark body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button,
+html.dark body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:hover,
+html.dark body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:focus {
+    background-color: rgb(31 41 55) !important;
+    color: #f9fafb !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:hover,
+html.dark body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:focus,
+html.dark body:not(.flux-admin-app) button[data-flux-accordion-heading]:hover,
+html.dark body:not(.flux-admin-app) button[data-flux-accordion-heading]:focus,
+html.dark body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:hover,
+html.dark body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:focus {
+    background-color: rgb(55 65 81) !important;
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) .site-accordion .site-accordion-trigger:before,
+body:not(.flux-admin-app) button[data-flux-accordion-heading]:before,
+body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:before {
+    display: none !important;
+    content: none !important;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] > div,
+body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] {
+    color: #4b5563 !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] > div,
+html.dark body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] {
+    color: #d1d5db !important;
+}
+
+/* Page heroes — flatten gradients and keep readable CTAs in dark mode (home excluded) */
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) {
+    background: #ffffff !important;
+    background-image: none !important;
+    color: #111827 !important;
+    border-bottom-color: #e5e7eb !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) .site-page-hero-overlay {
+    display: none !important;
+}
+
+/* Home hero — unique dark gradient in dark mode */
+html.dark body:not(.flux-admin-app) .site-home-hero {
+    background: #030712 !important;
+    color: #ffffff !important;
+    border-bottom-color: rgba(5, 150, 105, 0.45) !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-home-hero .text-gray-300,
+html.dark body:not(.flux-admin-app) .site-home-hero .text-slate-300 {
+    color: #d1d5db !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-home-hero .text-emerald-400 {
+    color: #34d399 !important;
+}
+
+body:not(.flux-admin-app) .site-home-hero .site-home-hero-grid {
+    background-image:
+        linear-gradient(to right, rgba(5, 150, 105, 0.07) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(5, 150, 105, 0.07) 1px, transparent 1px);
+    background-size: 56px 56px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Home About band — brand dark gradient, readable on light + dark themes */
+body:not(.flux-admin-app) #about-us h2 {
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) #about-us [data-flux-button][class*="bg-brand-green"],
+body:not(.flux-admin-app) #about-us a[class*="bg-brand-green"],
+body:not(.flux-admin-app) #about-us button[class*="bg-brand-green"] {
+    background-color: var(--color-brand-green) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+body:not(.flux-admin-app) #about-us [data-flux-button][class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) #about-us a[class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) #about-us button[class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) #about-us [data-flux-button][class*="hover:bg-brand-green-dark"]:hover {
+    background-color: var(--color-brand-green-dark) !important;
+    color: #ffffff !important;
+}
+
+/* Hero CTAs — beat Flux dark: defaults and legacy button wipes */
+body:not(.flux-admin-app) .site-page-hero [data-flux-button]:before,
+body:not(.flux-admin-app) .site-page-hero button:before,
+body:not(.flux-admin-app) .site-page-hero a.inline-flex:before {
+    display: none !important;
+    content: none !important;
+}
+
+body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="bg-brand-green"],
+body:not(.flux-admin-app) .site-page-hero [data-flux-button].bg-brand-green,
+body:not(.flux-admin-app) .site-page-hero a[class*="bg-brand-green"],
+body:not(.flux-admin-app) .site-page-hero button[class*="bg-brand-green"] {
+    background-color: var(--color-brand-green) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) .site-page-hero [data-flux-button].bg-brand-green:hover,
+body:not(.flux-admin-app) .site-page-hero a[class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) .site-page-hero button[class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="hover:bg-brand-green-dark"]:hover,
+body:not(.flux-admin-app) .site-page-hero a[class*="hover:bg-brand-green-dark"]:hover,
+body:not(.flux-admin-app) .site-page-hero button[class*="hover:bg-brand-green-dark"]:hover {
+    background-color: var(--color-brand-green-dark) !important;
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="bg-brand-red"],
+body:not(.flux-admin-app) .site-page-hero [data-flux-button].bg-brand-red,
+body:not(.flux-admin-app) .site-page-hero a[class*="bg-brand-red"],
+body:not(.flux-admin-app) .site-page-hero button[class*="bg-brand-red"] {
+    background-color: var(--color-brand-red) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+}
+
+body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="bg-brand-red"]:hover,
+body:not(.flux-admin-app) .site-page-hero [data-flux-button].bg-brand-red:hover,
+body:not(.flux-admin-app) .site-page-hero a[class*="bg-brand-red"]:hover,
+body:not(.flux-admin-app) .site-page-hero button[class*="bg-brand-red"]:hover,
+body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="hover:bg-brand-red-dark"]:hover,
+body:not(.flux-admin-app) .site-page-hero a[class*="hover:bg-red-700"]:hover,
+body:not(.flux-admin-app) .site-page-hero button[class*="hover:bg-red-700"]:hover {
+    background-color: var(--color-brand-red-dark) !important;
+    color: #ffffff !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) [data-flux-button][class*="border-white"],
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) a[class*="border-white"],
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) button[class*="border-white"] {
+    background-color: transparent !important;
+    border-color: #111827 !important;
+    color: #111827 !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) [data-flux-button][class*="border-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) a[class*="border-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) button[class*="border-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) [data-flux-button][class*="hover:bg-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) a[class*="hover:bg-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-page-hero:not(.site-home-hero) button[class*="hover:bg-white"]:hover {
+    background-color: #111827 !important;
+    border-color: #111827 !important;
+    color: #ffffff !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-home-hero [data-flux-button][class*="border-white"],
+html.dark body:not(.flux-admin-app) .site-home-hero a[class*="border-white"],
+html.dark body:not(.flux-admin-app) .site-home-hero button[class*="border-white"] {
+    background-color: transparent !important;
+    border-color: #ffffff !important;
+    color: #ffffff !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-home-hero [data-flux-button][class*="border-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-home-hero a[class*="border-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-home-hero button[class*="border-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-home-hero [data-flux-button][class*="hover:bg-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-home-hero a[class*="hover:bg-white"]:hover,
+html.dark body:not(.flux-admin-app) .site-home-hero button[class*="hover:bg-white"]:hover {
+    background-color: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #111827 !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="bg-white"]:not([class*="bg-white/"]),
+html.dark body:not(.flux-admin-app) .site-page-hero a[class*="bg-white"]:not([class*="bg-white/"]),
+html.dark body:not(.flux-admin-app) .site-page-hero button[class*="bg-white"]:not([class*="bg-white/"]) {
+    background-color: #ffffff !important;
+    border: 1px solid #111827 !important;
+    color: var(--color-brand-red) !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-page-hero [data-flux-button][class*="bg-white"]:not([class*="bg-white/"]):hover,
+html.dark body:not(.flux-admin-app) .site-page-hero a[class*="bg-white"]:not([class*="bg-white/"]):hover,
+html.dark body:not(.flux-admin-app) .site-page-hero button[class*="bg-white"]:not([class*="bg-white/"]):hover {
+    background-color: #f3f4f6 !important;
+    color: var(--color-brand-red) !important;
 }

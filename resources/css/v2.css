@@ -1,17 +1,17 @@
 /* NGN Motors – Brand tokens, Flux Pro overrides, dark-mode support */
 
 :root {
-    /* Brand */
-    --color-brand-red:      #c31924;
-    --color-brand-red-dark: #9e1320;
+    /* Brand — accent is emerald green (was company red #c31924) */
+    --color-brand-red:      #059669;
+    --color-brand-red-dark: #047857;
     --color-brand-black:    #000000;
     --color-brand-gray:     #424242;
     --color-brand-light:    #f8f9fa;
-    --color-brand-green:    #16a34a;
-    --color-brand-green-dark: #15803d;
+    --color-brand-green:    #059669;
+    --color-brand-green-dark: #047857;
 
-    /* Flux accent = NGN red */
-    --color-accent:            #c31924;
+    /* Flux accent */
+    --color-accent:            #059669;
     --color-accent-foreground: #ffffff;
 
     /* Zero border radius (user rule: no rounded corners) */
@@ -29,12 +29,14 @@
     .bg-brand-red             { background-color: var(--color-brand-red); }
     .text-brand-red           { color: var(--color-brand-red); }
     .border-brand-red         { border-color: var(--color-brand-red); }
-    .hover\:bg-brand-red:hover    { background-color: var(--color-brand-red); }
-    .hover\:text-brand-red:hover  { color: var(--color-brand-red); }
+    .hover\:bg-brand-red:hover    { background-color: var(--color-brand-red-dark); }
+    .hover\:bg-brand-red-dark:hover { background-color: var(--color-brand-red-dark); }
+    .hover\:bg-brand-green-dark:hover { background-color: var(--color-brand-green-dark); }
+    .hover\:text-brand-red:hover  { color: var(--color-brand-green-dark); }
     .ring-brand-red            { --tw-ring-color: var(--color-brand-red); }
     .focus\:ring-brand-red:focus  { --tw-ring-color: var(--color-brand-red); }
     .focus\:border-brand-red:focus { border-color: var(--color-brand-red); }
-    .hover-primary:hover       { color: var(--color-brand-red) !important; }
+    .hover-primary:hover       { color: var(--color-brand-green-dark) !important; }
     .text-justify              { text-align: justify; }
     .scroll-pt-16              { scroll-padding-top: 4rem; }
 
@@ -42,8 +44,8 @@
     .bg-brand-green             { background-color: var(--color-brand-green); }
     .text-brand-green           { color: var(--color-brand-green); }
     .border-brand-green         { border-color: var(--color-brand-green); }
-    .hover\:bg-brand-green:hover    { background-color: var(--color-brand-green); }
-    .hover\:text-brand-green:hover  { color: var(--color-brand-green); }
+    .hover\:bg-brand-green:hover    { background-color: var(--color-brand-green-dark); }
+    .hover\:text-brand-green:hover  { color: var(--color-brand-green-dark); }
 }
 
 /* Sharp corners: eliminate rounded-lg, rounded-xl, rounded-md, rounded-sm (keep rounded-full for circles) */
@@ -62,9 +64,9 @@
     @apply block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1;
 }
 
-/* Primary brand CTA (red) — use for marketing/hero calls to action */
+/* Primary brand CTA — green */
 .ngn-btn-primary {
-    @apply inline-flex items-center justify-center px-4 py-2 bg-brand-red text-white text-sm font-medium border border-transparent hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center px-4 py-2 bg-brand-green text-white text-sm font-medium border border-transparent hover:bg-brand-green-dark focus:outline-none focus:ring-2 focus:ring-brand-green focus:ring-offset-2 transition disabled:opacity-50 disabled:cursor-not-allowed;
 }
 
 /* Confirm / Submit / Accept — green */
@@ -84,7 +86,136 @@
 .ngn-btn-danger:hover { background-color: var(--color-brand-red-dark); }
 
 .ngn-btn-secondary {
-    @apply inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-red focus:ring-offset-2 transition;
+    @apply inline-flex items-center justify-center px-4 py-2 bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-sm font-medium border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-green focus:ring-offset-2 transition;
+}
+
+/* Flux / Livewire forms — no legacy black button wipe; green primary, white label */
+body:not(.flux-admin-app) button:not(.ngn-btn):not(.accordion-button):not(.accordion-services-button):not(.site-accordion-trigger):not([data-flux-accordion-heading]):before {
+    display: none !important;
+    content: none !important;
+}
+
+body:not(.flux-admin-app) button.bg-brand-green,
+body:not(.flux-admin-app) button.bg-brand-red,
+body:not(.flux-admin-app) button[class*="bg-brand-green"],
+body:not(.flux-admin-app) button[class*="bg-brand-red"] {
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) button.bg-brand-green:hover,
+body:not(.flux-admin-app) button.bg-brand-red:hover,
+body:not(.flux-admin-app) button.hover\:bg-brand-green-dark:hover,
+body:not(.flux-admin-app) button.hover\:bg-brand-red-dark:hover,
+body:not(.flux-admin-app) button.hover\:bg-red-700:hover {
+    color: #ffffff !important;
+}
+
+/* Brand CTA links — mirror button hovers (legacy blades use <a> + hover:bg-red-700) */
+body:not(.flux-admin-app) a.bg-brand-green,
+body:not(.flux-admin-app) a.bg-brand-red,
+body:not(.flux-admin-app) a[class*="bg-brand-green"],
+body:not(.flux-admin-app) a[class*="bg-brand-red"] {
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) a.bg-brand-green:hover,
+body:not(.flux-admin-app) a.bg-brand-red:hover,
+body:not(.flux-admin-app) a[class*="bg-brand-green"]:hover,
+body:not(.flux-admin-app) a[class*="bg-brand-red"]:hover,
+body:not(.flux-admin-app) a.hover\:bg-brand-green-dark:hover,
+body:not(.flux-admin-app) a.hover\:bg-brand-red-dark:hover,
+body:not(.flux-admin-app) a.hover\:bg-red-700:hover,
+body:not(.flux-admin-app) a[class*="bg-emerald"]:hover,
+body:not(.flux-admin-app) a.hover\:bg-emerald-800:hover {
+    color: #ffffff !important;
+}
+
+/* Dark-section outline buttons — do not force white text when hover inverts to gray-900 */
+body:not(.flux-admin-app) a.hover\:bg-white.hover\:text-gray-900:hover,
+body:not(.flux-admin-app) a.hover\:bg-white.hover\:text-gray-900:focus,
+body:not(.flux-admin-app) button.hover\:bg-white.hover\:text-gray-900:hover,
+body:not(.flux-admin-app) button.hover\:bg-white.hover\:text-gray-900:focus,
+body:not(.flux-admin-app) a.dark\:hover\:bg-white.dark\:hover\:text-gray-900:hover,
+body:not(.flux-admin-app) button.dark\:hover\:bg-white.dark\:hover\:text-gray-900:hover {
+    color: rgb(17 24 39) !important;
+    background-color: #ffffff !important;
+}
+
+/* Rebrand: hover:bg-red-700 on green CTAs → darker green, not Tailwind red */
+body:not(.flux-admin-app) a.bg-brand-red.hover\:bg-red-700:hover,
+body:not(.flux-admin-app) a.bg-brand-green.hover\:bg-red-700:hover,
+body:not(.flux-admin-app) a[class*="bg-brand-red"].hover\:bg-red-700:hover,
+body:not(.flux-admin-app) a[class*="bg-brand-green"].hover\:bg-red-700:hover,
+body:not(.flux-admin-app) button.bg-brand-red.hover\:bg-red-700:hover,
+body:not(.flux-admin-app) button.bg-brand-green.hover\:bg-red-700:hover,
+body:not(.flux-admin-app) button[class*="bg-brand-red"].hover\:bg-red-700:hover,
+body:not(.flux-admin-app) button[class*="bg-brand-green"].hover\:bg-red-700:hover {
+    background-color: var(--color-brand-green-dark) !important;
+}
+
+/* Flux leading icons + searchable select — public site / portal (admin rules are separate above) */
+body:not(.flux-admin-app) [data-flux-input]:has(> .absolute svg, > .absolute [data-flux-icon]) input[data-flux-control] {
+    padding-left: 2.5rem !important;
+}
+
+body:not(.flux-admin-app) [data-flux-input] > .absolute.start-0 {
+    width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline-start: 0 !important;
+    pointer-events: none;
+}
+
+body:not(.flux-admin-app) [data-flux-select-search] input,
+body:not(.flux-admin-app) [data-flux-select-search] input[data-flux-control] {
+    min-height: 2.5rem !important;
+    height: 2.5rem !important;
+    padding: 0 2.5rem !important;
+    border-width: 0 !important;
+    border-bottom: 1px solid rgb(209 213 219) !important;
+    background-color: rgb(255 255 255) !important;
+    color: rgb(17 24 39) !important;
+    letter-spacing: normal !important;
+    box-shadow: none !important;
+    outline: none !important;
+}
+
+html.dark body:not(.flux-admin-app) [data-flux-select-search] input,
+html.dark body:not(.flux-admin-app) [data-flux-select-search] input[data-flux-control] {
+    border-bottom-color: rgb(75 85 99) !important;
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+}
+
+body:not(.flux-admin-app) [data-flux-select-search] > .absolute.start-0 {
+    width: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline-start: 0 !important;
+    pointer-events: none;
+}
+
+body:not(.flux-admin-app) [data-flux-select-search] > .absolute.end-0 {
+    width: 2.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline-end: 0 !important;
+}
+
+/* Select trigger: room for trailing chevron; keep full width */
+body:not(.flux-admin-app) [data-flux-select] {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+body:not(.flux-admin-app) [data-flux-select] [data-flux-select-button] {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
 }
 
 /* Base card — logo grey fill */
@@ -296,4 +427,110 @@ body.flux-admin-app .ngn-field-error {
     font-size: 0.75rem;
     line-height: 1rem;
     color: #dc2626;
+}
+
+/* Bike listing filters — override legacy style.css native input/select resets */
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-control,
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn {
+    display: block !important;
+    width: 100% !important;
+    height: 2.5rem !important;
+    min-height: 2.5rem !important;
+    max-height: 2.5rem !important;
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 0.75rem !important;
+    line-height: 2.5rem !important;
+    letter-spacing: normal !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+    border: 1px solid rgb(209 213 219) !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    background-color: rgb(243 244 246) !important;
+    color: rgb(17 24 39) !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-control:focus,
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn:focus-visible {
+    border-color: var(--color-brand-green) !important;
+    box-shadow: 0 0 0 2px rgb(5 150 105 / 0.25) !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-control::placeholder {
+    color: rgb(156 163 175) !important;
+    opacity: 1 !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-select {
+    padding-right: 2.25rem !important;
+    line-height: normal !important;
+    cursor: pointer !important;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    background-repeat: no-repeat !important;
+    background-position: right 0.75rem center !important;
+    background-size: 1.1rem !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E") !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn {
+    line-height: 2.5rem !important;
+    text-align: center !important;
+    text-decoration: none !important;
+    cursor: pointer !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn-primary {
+    background-color: var(--color-brand-green) !important;
+    border-color: var(--color-brand-green) !important;
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn-primary:hover {
+    background-color: var(--color-brand-green-dark) !important;
+    border-color: var(--color-brand-green-dark) !important;
+    color: #ffffff !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn-muted {
+    background-color: rgb(243 244 246) !important;
+    border-color: rgb(209 213 219) !important;
+    color: rgb(31 41 55) !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn-muted:hover {
+    background-color: rgb(229 231 235) !important;
+    color: rgb(17 24 39) !important;
+}
+
+body:not(.flux-admin-app) .bike-list-filters .bike-filter-control[type="number"] {
+    -moz-appearance: textfield !important;
+}
+
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-control,
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn-muted,
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-select {
+    background-color: rgb(31 41 55) !important;
+    border-color: rgb(75 85 99) !important;
+    color: rgb(243 244 246) !important;
+}
+
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-control::placeholder {
+    color: rgb(107 114 128) !important;
+}
+
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-select {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E") !important;
+}
+
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-select option {
+    background-color: rgb(31 41 55) !important;
+    color: rgb(243 244 246) !important;
+}
+
+html.dark body:not(.flux-admin-app) .bike-list-filters .bike-filter-btn-muted:hover {
+    background-color: rgb(55 65 81) !important;
+    color: rgb(243 244 246) !important;
 }

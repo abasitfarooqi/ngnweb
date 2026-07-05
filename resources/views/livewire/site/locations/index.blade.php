@@ -1,5 +1,5 @@
 <div>
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl font-bold mb-3">Our London Branches</h1>
         <p class="text-gray-300">Visit us in Catford, Tooting or Sutton</p>
@@ -16,7 +16,9 @@
                 $email   = 'enquiries@neguinhomotors.co.uk';
                 $mapUrl  = 'https://www.google.com/maps?q=' . urlencode($address . ', ' . $postcode);
             @endphp
-            <flux:card class="p-6">
+            <flux:card class="p-0 overflow-hidden">
+                <x-site.branch-logo-banner :alt="$branch->name . ' — NGN Motors'" class="border-b border-gray-200 dark:border-gray-700" />
+                <div class="p-6">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white mb-4 uppercase">{{ $branch->name }}</h2>
                 <ul class="space-y-3 text-sm text-gray-600 dark:text-gray-400">
                     <li class="flex items-start gap-2">
@@ -36,6 +38,7 @@
                     <flux:button href="{{ $mapUrl }}" target="_blank" variant="outline" size="sm" class="w-full">
                         Get Directions
                     </flux:button>
+                </div>
                 </div>
             </flux:card>
         @endforeach

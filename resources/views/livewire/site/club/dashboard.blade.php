@@ -1,5 +1,5 @@
 <div>
-    <div class="bg-gray-900 text-white py-8 px-4">
+    <div class="site-page-hero py-8 px-4">
         <div class="max-w-5xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <div>
                 <p class="text-amber-400 text-sm font-semibold tracking-widest uppercase mb-1">★ NGN Club member</p>

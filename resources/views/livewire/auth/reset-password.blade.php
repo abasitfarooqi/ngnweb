@@ -7,7 +7,7 @@
     </div>
 
     <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-sm px-6 py-8 sm:px-8">
-        <form wire:submit="resetPassword" class="space-y-5">
+        <form wire:submit="resetPassword" class="site-form site-form-stack">
             <input type="hidden" wire:model="token">
 
             <div>

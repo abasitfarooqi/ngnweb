@@ -5,15 +5,18 @@ namespace App\Support;
 use App\Mail\CustomerDocumentRequest;
 use App\Models\Customer;
 use App\Models\CustomerDocument;
+use App\Models\DocumentType;
 use Exception;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Schema;
 
 class CustomerDocumentReviewNotifier
 {
     public function notifyCustomer(CustomerDocument $document, string $decision): void
     {
-        if (! in_array($decision, ['approved', 'rejected'], true)) {
+        if ($decision !== 'rejected') {
             return;
         }
 
@@ -36,20 +39,13 @@ class CustomerDocumentReviewNotifier
                 ->findActiveLink((int) $document->customer_id, (int) $document->booking_id);
         }
 
-        if ($decision === 'approved') {
-            $title = 'Document approved';
-            $body = "Good news — we have approved your {$docName}.\n\nYou can view your documents any time in your account.";
-            $actionUrl = $portalUrl;
-            $actionLabel = 'View my documents';
-        } else {
-            $title = 'Please re-upload a document';
-            $reason = trim((string) $document->rejection_reason);
-            $body = "We need you to upload a new copy of your {$docName}."
-                .($reason !== '' ? "\n\nReason: {$reason}" : '')
-                ."\n\nUse the upload link below or sign in to your account and replace the file.";
-            $actionUrl = $uploadUrl ?: $portalUrl;
-            $actionLabel = $uploadUrl ? 'Upload document' : 'Open my documents';
-        }
+        $title = 'Please re-upload a document';
+        $reason = trim((string) $document->rejection_reason);
+        $body = "We need you to upload a new copy of your {$docName}."
+            .($reason !== '' ? "\n\nReason: {$reason}" : '')
+            ."\n\nUse the upload link below or sign in to your account and replace the file.";
+        $actionUrl = $uploadUrl ?: $portalUrl;
+        $actionLabel = $uploadUrl ? 'Upload document' : 'Open my documents';
 
         try {
             Mail::to([
@@ -68,6 +64,83 @@ class CustomerDocumentReviewNotifier
                 'decision' => $decision,
             ]);
         }
+    }
+
+    public function notifyStaffIfAllMandatorySubmitted(Customer $customer, ?int $bookingId = null): void
+    {
+        $mandatoryTypes = DocumentType::query()
+            ->when(Schema::hasColumn('document_types', 'is_mandatory'), fn ($q) => $q->where('is_mandatory', true))
+            ->orderBy('sort_order')
+            ->get();
+
+        if ($mandatoryTypes->isEmpty()) {
+            return;
+        }
+
+        $uploadedByType = CustomerDocument::query()
+            ->where('customer_id', $customer->id)
+            ->when($bookingId && Schema::hasColumn('customer_documents', 'booking_id'), function ($q) use ($bookingId): void {
+                $q->where(function ($inner) use ($bookingId): void {
+                    $inner->where('booking_id', $bookingId)->orWhereNull('booking_id');
+                });
+            })
+            ->orderByDesc('id')
+            ->get()
+            ->unique('document_type_id')
+            ->keyBy('document_type_id');
+
+        $lifecycle = app(RentalBookingLifecycle::class);
+        $allUploaded = $mandatoryTypes->every(function (DocumentType $type) use ($uploadedByType, $lifecycle): bool {
+            $doc = $uploadedByType->get($type->id);
+
+            return $doc && $doc->file_path && $lifecycle->resolveCustomerDocumentStatus($doc) !== 'missing';
+        });
+
+        if (! $allUploaded) {
+            $this->clearStaffMandatorySubmittedFlag($customer->id, $bookingId);
+
+            return;
+        }
+
+        $cacheKey = $this->staffMandatorySubmittedCacheKey($customer->id, $bookingId);
+        if (Cache::get($cacheKey)) {
+            return;
+        }
+
+        $customerName = trim($customer->first_name.' '.$customer->last_name) ?: ($customer->email ?? 'Customer');
+        $reviewUrl = $bookingId
+            ? route('flux-admin.rentals.show', ['booking' => $bookingId, 'activeTab' => 'documents'])
+            : route('flux-admin.customer-documents.index', ['filters' => ['status' => 'pending_review']]);
+
+        $body = "{$customerName} has uploaded all required documents."
+            .($bookingId ? " Rental booking #{$bookingId}." : '')
+            ."\n\nPlease review and validate them in Flux Admin.";
+
+        try {
+            Mail::to('customerservice@neguinhomotors.co.uk')->send(new CustomerDocumentRequest([
+                'title' => 'All required documents submitted',
+                'body' => $body,
+                'url' => $reviewUrl,
+                'actionLabel' => 'Review documents',
+                'customer_name' => $customerName,
+            ]));
+            Cache::forever($cacheKey, now()->toIso8601String());
+        } catch (Exception $e) {
+            Log::error('Staff mandatory documents email failed: '.$e->getMessage(), [
+                'customer_id' => $customer->id,
+                'booking_id' => $bookingId,
+            ]);
+        }
+    }
+
+    public function clearStaffMandatorySubmittedFlag(int $customerId, ?int $bookingId = null): void
+    {
+        Cache::forget($this->staffMandatorySubmittedCacheKey($customerId, $bookingId));
+    }
+
+    protected function staffMandatorySubmittedCacheKey(int $customerId, ?int $bookingId): string
+    {
+        return 'staff_mandatory_docs_ready:'.$customerId.':'.($bookingId ?? 'general');
     }
 
     public function logStaffUpload(CustomerDocument $document): void

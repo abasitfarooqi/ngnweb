@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Customers;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\CustomerDocument;
+use App\Support\RentalBookingLifecycle;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -49,16 +50,53 @@ class DocumentReview extends Component
             ],
         ]);
 
-        $this->document->fill([
-            'status' => $this->status,
-            'valid_until' => $this->valid_until ?: null,
-            'rejection_reason' => $this->status === 'rejected' ? $this->rejection_reason : null,
-        ])->save();
+        if (in_array($this->status, ['approved', 'rejected', 'pending_review'], true)) {
+            app(RentalBookingLifecycle::class)->setCustomerDocumentReviewStatus(
+                $this->document,
+                $this->status,
+                $this->status === 'rejected' ? $this->rejection_reason : null
+            );
+        } else {
+            $this->document->fill([
+                'status' => $this->status,
+                'rejection_reason' => $this->status === 'rejected' ? $this->rejection_reason : null,
+            ])->save();
+        }
+
+        $this->document->update(['valid_until' => $this->valid_until ?: null]);
 
         $this->document->refresh();
 
         session()->flash('flux-admin.flash', 'Document saved.');
 
         return redirect()->route('flux-admin.customer-documents.index');
+    }
+
+    public function setProfileEditingUnlocked(bool $unlocked): void
+    {
+        $customer = $this->document->customer;
+        if (! $customer) {
+            return;
+        }
+
+        $customer->update(['profile_editing_unlocked' => $unlocked]);
+        $this->document->load('customer');
+        session()->flash('flux-admin.flash', $unlocked
+            ? 'Customer may edit their profile again.'
+            : 'Customer profile editing locked.');
+    }
+
+    public function setDocumentReuploadUnlocked(bool $unlocked): void
+    {
+        $customer = $this->document->customer;
+        if (! $customer) {
+            return;
+        }
+
+        $customer->update(['document_reupload_unlocked' => $unlocked]);
+        $this->document->load('customer');
+        session()->flash('flux-admin.flash', $unlocked
+            ? 'Customer may replace approved documents.'
+            : 'Approved document re-upload locked.');
     }
 }

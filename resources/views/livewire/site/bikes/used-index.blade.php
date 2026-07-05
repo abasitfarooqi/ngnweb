@@ -1,7 +1,7 @@
 <div>
-    <section class="relative bg-gray-900 text-white overflow-hidden">
+    <section class="relative site-page-hero overflow-hidden">
         <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
-        <div class="absolute inset-0 bg-gradient-to-br from-gray-900 via-gray-900 to-brand-red/25 opacity-90" aria-hidden="true"></div>
+        <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-gray-900 via-gray-900 to-brand-red/25 opacity-90" aria-hidden="true"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
             <flux:badge color="red" class="mb-4 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Used motorcycles for sale</h1>

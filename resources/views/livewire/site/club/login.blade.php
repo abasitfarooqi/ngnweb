@@ -23,7 +23,7 @@
         @endif
 
         <flux:card class="p-8">
-            <form wire:submit="login" class="space-y-5">
+            <form wire:submit="login" class="site-form site-form-stack">
                 <flux:field>
                     <flux:label>Phone Number</flux:label>
                     <flux:input wire:model="phone" type="tel" placeholder="07700 900 123" autocomplete="tel" />
@@ -40,7 +40,7 @@
                     </flux:description>
                 </flux:field>
 
-                <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-red-700 font-semibold" wire:loading.attr="disabled">
+                <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark font-semibold" wire:loading.attr="disabled">
                     <span wire:loading.remove>Login to My Club</span>
                     <span wire:loading>Logging in…</span>
                 </flux:button>

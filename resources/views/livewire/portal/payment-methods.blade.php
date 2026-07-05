@@ -10,7 +10,7 @@
             <p class="text-gray-500 dark:text-gray-400">Payment methods will be available soon.</p>
         </flux:card>
     @else
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <x-site.form-grid :cols="2">
             @foreach($methods as $method)
                 <flux:card class="p-5">
                     <div class="flex items-start gap-4">
@@ -19,7 +19,7 @@
                         @else
                             <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                                 <flux:icon name="credit-card" class="h-5 w-5 text-gray-400" />
-                            </div>
+                            </x-site.form-grid>
                         @endif
                         <div>
                             <p class="font-semibold text-gray-900 dark:text-white">{{ $method->title }}</p>

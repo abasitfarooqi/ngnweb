@@ -1,10 +1,10 @@
 <section class="py-12 md:py-16 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10 md:mb-12 max-w-3xl mx-auto">
-            <flux:badge color="red" class="mb-3 uppercase tracking-widest text-[10px]">Workshop</flux:badge>
+            <flux:badge color="green" class="mb-3 uppercase tracking-widest text-[10px]">Workshop</flux:badge>
             <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Extensive motorcycle services</h2>
             <p class="mt-3 text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
-                Servicing, repairs and MOT across Catford, Tooting and Sutton. Same depth as our legacy service pages — compare packages, book enquiries, or browse every workshop offering on <a href="{{ route('all-services') }}" class="text-brand-red font-semibold underline underline-offset-2">all services</a>.
+                Servicing, repairs and MOT across Catford, Tooting and Sutton. Same depth as our legacy service pages — compare packages, book enquiries, or browse every workshop offering on <a href="{{ route('all-services') }}" class="text-brand-green font-semibold underline underline-offset-2">all services</a>.
             </p>
         </div>
 
@@ -16,14 +16,14 @@
                 ['img' => 'assets/images/services/MOT-BOOKING.jpg', 'title' => 'MOT', 'sub' => 'Expert motorcycle MOT.', 'bullets' => ['Qualified testers', 'Current inspection standards', 'Book online or by phone'], 'learn' => route('site.mot'), 'enquiry' => route('site.contact.service-booking', ['service' => 'MOT Booking Enquiry'])],
             ] as $card)
                 <div class="flex flex-col h-full min-w-0">
-                    <flux:card class="flex-1 flex flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/90 dark:ring-gray-700 bg-gray-50 dark:bg-gray-900 shadow-md shadow-gray-900/5 dark:shadow-none hover:ring-brand-red/35 transition-all duration-300">
+                    <flux:card class="flex-1 flex flex-col overflow-hidden p-0 border-0 ring-1 ring-gray-200/90 dark:ring-gray-700 bg-gray-50 dark:bg-gray-900 shadow-md shadow-gray-900/5 dark:shadow-none hover:ring-brand-green/35 transition-all duration-300">
                         <div class="relative w-full h-[150px] shrink-0 bg-gray-200 dark:bg-gray-800 overflow-hidden">
                             <img loading="lazy" src="{{ asset($card['img']) }}" alt="{{ $card['title'] }}" class="w-full h-full object-cover">
                         </div>
                         <div class="p-4 flex flex-col flex-1">
                             <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ $card['title'] }}</h3>
                             <p class="text-sm font-semibold text-gray-700 dark:text-gray-200 mt-1">{{ $card['sub'] }}</p>
-                            <ul class="text-sm text-gray-600 dark:text-gray-300 mt-3 space-y-1.5 leading-relaxed list-disc list-inside marker:text-brand-red">
+                            <ul class="text-sm text-gray-600 dark:text-gray-300 mt-3 space-y-1.5 leading-relaxed list-disc list-inside marker:text-brand-green">
                                 @foreach ($card['bullets'] as $line)
                                     <li>{{ $line }}</li>
                                 @endforeach
@@ -36,7 +36,7 @@
                         </div>
                     </flux:card>
                     <div class="grid grid-cols-1 gap-2 mt-3">
-                        <flux:button href="{{ $card['learn'] }}" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark justify-center">
+                        <flux:button href="{{ $card['learn'] }}" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark justify-center">
                             Learn more
                         </flux:button>
                         <flux:button href="{{ route('site.repairs.comparison') }}" variant="outline" size="sm" class="w-full justify-center border-gray-300 dark:border-gray-600">

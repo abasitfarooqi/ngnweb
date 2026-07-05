@@ -325,7 +325,7 @@ a {
 
 a:hover,
 a:focus {
-    color: #C31924;
+    color: var(--color-brand-green-dark, #047857);
     text-decoration: none;
     outline: 0;
     -webkit-transition: all 0.3s ease-in-out;
@@ -333,6 +333,36 @@ a:focus {
     -ms-transition: all 0.3s ease-in-out;
     -o-transition: all 0.3s ease-in-out;
     transition: all 0.3s ease-in-out;
+}
+
+a.text-white:hover,
+a.text-white:focus,
+a.bg-brand-red:hover,
+a.bg-brand-red:focus,
+a.bg-brand-green:hover,
+a.bg-brand-green:focus,
+a[class*="bg-brand-red"]:hover,
+a[class*="bg-brand-red"]:focus,
+a[class*="bg-brand-green"]:hover,
+a[class*="bg-brand-green"]:focus,
+a[class*="bg-emerald"]:hover,
+a[class*="bg-emerald"]:focus {
+    color: #ffffff;
+}
+
+a.hover\:bg-white.hover\:text-gray-900:hover,
+a.hover\:bg-white.hover\:text-gray-900:focus,
+button.hover\:bg-white.hover\:text-gray-900:hover,
+button.hover\:bg-white.hover\:text-gray-900:focus {
+    color: #111827;
+    background-color: #ffffff;
+}
+
+a.text-brand-red:hover,
+a.text-brand-red:focus,
+a.text-brand-green:hover,
+a.text-brand-green:focus {
+    color: var(--color-brand-green-dark, #047857);
 }
 
 ul,
@@ -371,22 +401,22 @@ input[type="submit"] {
     transition: all 0.3s ease 0s;
 }
 
-body:not(.flux-admin-app) select,
-body:not(.flux-admin-app) textarea,
-body:not(.flux-admin-app) input[type="text"],
-body:not(.flux-admin-app) input[type="password"],
-body:not(.flux-admin-app) input[type="datetime"],
-body:not(.flux-admin-app) input[type="datetime-local"],
-body:not(.flux-admin-app) input[type="date"],
-body:not(.flux-admin-app) input[type="month"],
-body:not(.flux-admin-app) input[type="time"],
-body:not(.flux-admin-app) input[type="week"],
-body:not(.flux-admin-app) input[type="number"],
-body:not(.flux-admin-app) input[type="email"],
-body:not(.flux-admin-app) input[type="url"],
-body:not(.flux-admin-app) input[type="search"],
-body:not(.flux-admin-app) input[type="tel"],
-body:not(.flux-admin-app) input[type="color"] {
+body:not(.flux-admin-app) select:not([data-flux-control]),
+body:not(.flux-admin-app) textarea:not([data-flux-control]),
+body:not(.flux-admin-app) input:not([data-flux-control])[type="text"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="password"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="datetime"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="datetime-local"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="date"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="month"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="time"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="week"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="number"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="email"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="url"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="search"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="tel"],
+body:not(.flux-admin-app) input:not([data-flux-control])[type="color"] {
     background-color: #ffffff;
     height: 50px;
     width: 100%;
@@ -403,28 +433,28 @@ body:not(.flux-admin-app) input[type="color"] {
     transition: all 0.3s ease-in-out;
 }
 
-body:not(.flux-admin-app) textarea:focus,
-body:not(.flux-admin-app) input[type="text"]:focus,
-body:not(.flux-admin-app) input[type="password"]:focus,
-body:not(.flux-admin-app) input[type="datetime"]:focus,
-body:not(.flux-admin-app) input[type="datetime-local"]:focus,
-body:not(.flux-admin-app) input[type="date"]:focus,
-body:not(.flux-admin-app) input[type="month"]:focus,
-body:not(.flux-admin-app) input[type="time"]:focus,
-body:not(.flux-admin-app) input[type="week"]:focus,
-body:not(.flux-admin-app) input[type="number"]:focus,
-body:not(.flux-admin-app) input[type="email"]:focus,
-body:not(.flux-admin-app) input[type="url"]:focus,
-body:not(.flux-admin-app) input[type="search"]:focus,
-body:not(.flux-admin-app) input[type="tel"]:focus,
-body:not(.flux-admin-app) input[type="color"]:focus {
-    border: 1px solid #C31924;
+body:not(.flux-admin-app) textarea:not([data-flux-control]):focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="text"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="password"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="datetime"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="datetime-local"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="date"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="month"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="time"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="week"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="number"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="email"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="url"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="search"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="tel"]:focus,
+body:not(.flux-admin-app) input:not([data-flux-control])[type="color"]:focus {
+    border: 1px solid #059669;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
 }
 
-textarea {
+textarea:not([data-flux-control]) {
     width: 100%;
     height: 150px;
     padding: 15px;
@@ -464,19 +494,19 @@ input[type="checkbox"] {
     display: none;
 }
 
-button {
+button.ngn-btn {
     z-index: 1;
     position: relative;
 }
 
-button:before {
+button.ngn-btn:before {
     content: "";
     width: 0%;
     height: 100%;
     position: absolute;
     top: 0;
     left: 0;
-    background: #333333;
+    background: #047857;
     z-index: -1;
     -webkit-transition: all 0.3s ease 0s;
     -moz-transition: all 0.3s ease 0s;
@@ -485,7 +515,7 @@ button:before {
     transition: all 0.3s ease 0s;
 }
 
-button:hover:before {
+button.ngn-btn:hover:before {
     width: 100%;
 }
 
@@ -3957,7 +3987,7 @@ li.area {
     line-height: 30px;
     text-transform: uppercase;
     padding: 7px 26px;
-    background-color: #333333;
+    background-color: #047857;
     -webkit-transition: all 0.3s ease 0s;
     -moz-transition: all 0.3s ease 0s;
     -ms-transition: all 0.3s ease 0s;
@@ -4109,15 +4139,14 @@ ul.breadcrumbul-parallax li a{
 input,
 textarea {
     background-image: -webkit-linear-gradient(hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, 0));
-    /* Removing the inner shadow, rounded corners on iOS inputs */
-    border: 2px solid #c1162a85 !important;
+    border: 2px solid rgba(5, 150, 105, 0.45) !important;
 }
 
 input:hover,input:focus,
 textarea:hover, textarea:focus {
     background-image: -webkit-linear-gradient(hsla(0, 0%, 100%, 0), hsla(0, 0%, 100%, 0));
-    /* Removing the inner shadow, rounded corners on iOS inputs */
-    border: 4px solid #c1162a !important;
+    border: 1px solid #059669 !important;
+    box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2) !important;
 }
 input[type="checkbox"] {
     display: inherit;

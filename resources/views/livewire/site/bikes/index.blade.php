@@ -1,5 +1,5 @@
 <div>
-<div class="bg-gray-900 text-white py-14">
+<div class="site-page-hero py-14">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-3">Motorcycles For Sale</h1>
         <p class="text-gray-300 text-lg mb-6">Quality used bikes &amp; new arrivals · Payment plans available</p>
@@ -81,7 +81,7 @@
 </div>
 @endif
 
-<div class="bg-gray-900 text-white py-12">
+<div class="site-page-hero py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h2 class="text-2xl font-bold mb-3">Payment Plan Available</h2>
         <p class="text-gray-300 mb-6">Spread the cost with our flexible payment plan options. Check your eligibility today.</p>

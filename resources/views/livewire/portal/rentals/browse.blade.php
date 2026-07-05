@@ -44,7 +44,7 @@
 
     {{-- Filters
     <flux:card class="p-4">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <x-site.form-grid :cols="3">
             <flux:field>
                 <flux:label>Branch</flux:label>
                 <flux:select wire:model.live="selectedBranch" variant="listbox" searchable placeholder="All Branches">
@@ -68,7 +68,7 @@
                 <flux:label>Search</flux:label>
                 <flux:input wire:model.live.debounce.300ms="searchQuery" type="text" placeholder="Make, model, reg..." />
             </flux:field>
-        </div>
+        </x-site.form-grid>
     </flux:card>
     --}}
 {{--     

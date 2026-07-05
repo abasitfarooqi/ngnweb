@@ -7,12 +7,20 @@
         </flux:callout>
     @endif
 
-    <form wire:submit="save" class="space-y-6">
+    @if($profile && $profile->profile_initialised_at && ! $profile->profile_editing_unlocked)
+        <flux:callout variant="warning" icon="lock-closed" class="mb-5">
+            <flux:callout.text>
+                Your identity details are locked after your first save. Contact us if you need to change name, date of birth, address, or licence details.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
+    <form wire:submit="save" class="site-form site-form-stack">
 
         {{-- Contact Details --}}
         <flux:card class="p-6">
             <h2 class="text-base font-bold text-gray-900 dark:text-white mb-4">Contact Details</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Email</flux:label>
                     <flux:input value="{{ auth('customer')->user()->email }}" disabled class="bg-gray-100 dark:bg-gray-800" />
@@ -35,7 +43,7 @@
                         @endforeach
                     </flux:select>
                 </flux:field>
-            </div>
+            </x-site.form-grid>
         </flux:card>
 
         {{-- Identity Details --}}
@@ -46,7 +54,7 @@
                     <flux:badge color="green" class="text-xs">Verified</flux:badge>
                 @endif
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>First Name</flux:label>
                     <flux:input wire:model="first_name" :disabled="$profile && $profile->isFieldLocked('first_name')" />
@@ -81,7 +89,7 @@
                     <flux:label>Country</flux:label>
                     <flux:input wire:model="country" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
             <div class="mt-4">
                 <flux:field>
                     <flux:label>Address *</flux:label>
@@ -97,7 +105,7 @@
                 <h2 class="text-base font-bold text-gray-900 dark:text-white">Driving Licence</h2>
                 <span class="text-xs text-gray-500">Required for rentals</span>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Licence Number *</flux:label>
                     <flux:input wire:model="license_number" :disabled="$profile && $profile->isFieldLocked('license_number')" />
@@ -118,7 +126,7 @@
                     <flux:label>Expiry Date *</flux:label>
                     <flux:date-picker wire:model="license_expiry_date" :disabled="$profile && $profile->isFieldLocked('license_number')" />
                 </flux:field>
-            </div>
+            </x-site.form-grid>
             <flux:callout variant="info" icon="document-text" class="mt-4">
                 <flux:callout.text class="text-xs">
                     Please upload photos of your licence (front and back) in the

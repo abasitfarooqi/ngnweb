@@ -18,6 +18,7 @@ class AllServices extends Component
         'Rental',
         'Accident',
         'Finance',
+        'MotorcycleEngineRepairs',
     ];
 
     #[Url(as: 'service', except: 'Repairs')]
@@ -42,11 +43,21 @@ class AllServices extends Component
     {
         return match ($panel) {
             'Repairs' => 'Motorcycle Repairs Enquiry',
+            'MotorcycleEngineRepairs' => 'Motorcycle Engine Repairs Enquiry',
             'MOT' => 'MOT Booking Enquiry',
             'Rental' => 'Motorcycle Rental Enquiry',
             'Accident' => 'Accident Management Services Enquiry',
             default => null,
         };
+    }
+
+    public function bookingMessageForChild(): ?string
+    {
+        if ($this->openPanel === 'MotorcycleEngineRepairs') {
+            return 'Engine rebuild enquiry — please assess my motorcycle and provide a no-obligation quotation.';
+        }
+
+        return null;
     }
 
     public function bookingPresetForChild(): ?string

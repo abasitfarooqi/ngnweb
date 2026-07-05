@@ -7,13 +7,13 @@
         <flux:callout.text>The MOT checker is temporarily unavailable. Please <a href="/contact" class="underline">contact us</a> for assistance.</flux:callout.text>
     </flux:callout>
 @else
-    <form wire:submit="checkMOT" class="space-y-4">
-        <flux:field>
+    <form wire:submit="checkMOT" class="site-form site-form-stack">
+        <flux:field class="site-form-field-plate">
             <flux:label>Registration number</flux:label>
             <flux:input
                 wire:model="regNo"
                 placeholder="AB12 CDE"
-                class="uppercase tracking-widest font-bold text-center text-xl bg-yellow-100 border-2 border-yellow-400 text-black"
+                class="uppercase tracking-widest text-xl"
                 style="font-size:1.5rem;"
             />
             <flux:error name="regNo" />
@@ -24,7 +24,7 @@
             <flux:error name="notifyEmail" />
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">If you enter an email, we store your registration and next MOT date after a successful DVLA lookup.</p>
         </flux:field>
-        <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled">
+        <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark hover:text-white" wire:loading.attr="disabled">
             <span wire:loading.remove wire:target="checkMOT">Check MOT status</span>
             <span wire:loading wire:target="checkMOT">Checking…</span>
         </flux:button>

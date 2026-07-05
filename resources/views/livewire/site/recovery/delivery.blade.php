@@ -1,5 +1,5 @@
 <div class="min-h-screen bg-gray-100 dark:bg-gray-950">
-    <section class="bg-gradient-to-br from-red-800 via-red-700 to-slate-900 text-white border-b border-red-900">
+    <section class="site-page-hero bg-gradient-to-br from-red-800 via-red-700 to-slate-900 text-white border-b border-red-900">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-14">
             <h1 class="text-3xl md:text-5xl font-bold tracking-tight">The UK’s Leading Motorcycle Delivery Service</h1>
             <p class="mt-3 text-base md:text-lg font-semibold">Free Collection When You Repair with Us!</p>
@@ -15,10 +15,11 @@
         @endif
 
         @if($step === 1)
-            <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5">
+            <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 site-form">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Step 1: Enter postcodes</h2>
                 <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">From Postcode and To Postcode to calculate distance and proceed.</p>
-                <div class=" grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div class="site-form site-form-stack mt-4">
+                <x-site.form-grid :cols="2" class="mt-0">
                     <flux:field>
                         <flux:label>From Postcode</flux:label>
                         <flux:input wire:model.defer="pickupPostcode" class="uppercase" placeholder="ENTER PICKUP POSTAL CODE" />
@@ -29,8 +30,9 @@
                         <flux:input wire:model.defer="dropoffPostcode" class="uppercase" placeholder="ENTER DELIVERY POSTAL CODE" />
                         <flux:error name="dropoffPostcode" />
                     </flux:field>
+                </x-site.form-grid>
                 </div>
-                <flux:button wire:click="proceedToStepTwo" variant="filled" class="mt-4 w-full bg-brand-red text-white hover:bg-red-700" wire:loading.attr="disabled">
+                <flux:button wire:click="proceedToStepTwo" variant="filled" class="mt-4 w-full bg-brand-green text-white hover:bg-brand-green-dark" wire:loading.attr="disabled">
                     <span wire:loading.remove wire:target="proceedToStepTwo">Proceed to Next Step</span>
                     <span wire:loading wire:target="proceedToStepTwo">Calculating distance…</span>
                 </flux:button>
@@ -38,7 +40,7 @@
         @endif
 
         @if($step === 2)
-            <form wire:submit="submitOrder" class="site-form space-y-5">
+            <form wire:submit="submitOrder" class="site-form site-form-stack">
                 <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5">
                     <div class="flex items-center justify-between gap-2">
                         <h2 class="text-xl font-bold text-gray-900 dark:text-white">Step 2: Complete your order</h2>
@@ -49,7 +51,7 @@
                     </div>
                 </section>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <x-site.form-grid :cols="2">
                     <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 space-y-4">
                         <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Pickup Details</h3>
                         <flux:field><flux:label>Pickup Postcode</flux:label><flux:input wire:model="pickupPostcode" class="uppercase" /><flux:error name="pickupPostcode" /></flux:field>
@@ -60,11 +62,11 @@
                         <flux:field><flux:label>Dropoff Postcode</flux:label><flux:input wire:model="dropoffPostcode" class="uppercase" /><flux:error name="dropoffPostcode" /></flux:field>
                         <flux:field><flux:label>Dropoff Address</flux:label><flux:input wire:model="dropoffAddress" /><flux:error name="dropoffAddress" /></flux:field>
                     </section>
-                </div>
+                </x-site.form-grid>
 
                 <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-5 space-y-4">
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Bike Details</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <x-site.form-grid :cols="2">
                         <div class="md:col-span-2">
                             <flux:label class="mb-2 block">Vehicle Pickup Date &amp; Time</flux:label>
                             <x-site.booking-datetime-field
@@ -75,7 +77,7 @@
                             />
                             <flux:description>We are closed on Sundays.</flux:description>
                             <flux:error name="pickUpDatetime" />
-                        </div>
+                        </x-site.form-grid>
                         <flux:field>
                             <flux:label>Vehicle Registration Number</flux:label>
                             <flux:input wire:model="vrm" class="uppercase" />
@@ -106,12 +108,12 @@
                         <flux:error name="note" />
                     </flux:field>
                     <h3 class="text-lg font-semibold text-gray-900 dark:text-white">Add Your Details</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <x-site.form-grid :cols="2">
                         <flux:field><flux:label>Full Name</flux:label><flux:input wire:model="fullName" /><flux:error name="fullName" /></flux:field>
                         <flux:field><flux:label>Phone Number</flux:label><flux:input wire:model="phone" /><flux:error name="phone" /></flux:field>
                         <flux:field><flux:label>Email Address *</flux:label><flux:input wire:model="email" type="email" /><flux:error name="email" /></flux:field>
                         <flux:field><flux:label>Address</flux:label><flux:input wire:model="customerAddress" /><flux:error name="customerAddress" /></flux:field>
-                    </div>
+                    </x-site.form-grid>
                     <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300"><input type="checkbox" wire:model="terms" class="mt-1"><span>I confirm all details are correct and authorise this order.</span></label>
                     <flux:error name="terms" />
                 </section>
@@ -137,7 +139,7 @@
             </ul>
         </section>
 
-        <section x-data="{open:null}" class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
+        <section class="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 p-6">
             <h3 class="text-2xl font-bold mb-6 text-gray-900 dark:text-white">Frequently Asked Questions</h3>
             @php
                 $faqs = [
@@ -153,17 +155,7 @@
                     ['q' => 'What types of motorcycles can you transport?', 'a' => 'We are capable of transporting all types of motorcycles, from 125cc models to the largest bikes, including Harley Davidsons and Triumph Rockets. No motorcycle transport job is too big or too small for us.'],
                 ];
             @endphp
-            <div class="space-y-2">
-                @foreach($faqs as $i => $faq)
-                    <div class="border border-gray-200 dark:border-gray-700">
-                        <button type="button" class="w-full text-left px-4 py-3 font-semibold text-gray-900 dark:text-white flex items-center justify-between" @click="open = open === {{ $i }} ? null : {{ $i }}">
-                            <span>{{ $faq['q'] }}</span>
-                            <span x-text="open === {{ $i }} ? '-' : '+'"></span>
-                        </button>
-                        <div x-show="open === {{ $i }}" class="px-4 pb-4 text-sm text-gray-700 dark:text-gray-300">{{ $faq['a'] }}</div>
-                    </div>
-                @endforeach
-            </div>
+            <x-site.accordion :items="$faqs" />
         </section>
     </div>
 </div>

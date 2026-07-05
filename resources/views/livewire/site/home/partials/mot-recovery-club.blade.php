@@ -6,11 +6,11 @@
                 <div class="absolute inset-0 bg-center bg-cover opacity-[0.12] dark:opacity-[0.18] pointer-events-none" style="background-image: url('{{ asset('images/recovery.jpg') }}');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent dark:from-gray-950 dark:via-gray-950/90 dark:to-transparent pointer-events-none"></div>
                 <div class="relative z-10">
-                    <a href="{{ route('site.recovery') }}" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950">
+                    <a href="{{ route('site.recovery') }}" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950">
                         <span class="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">Free motorcycle recovery</span>
                     </a>
                     <p class="text-gray-600 dark:text-gray-300 text-sm mt-3 mb-5 max-w-sm mx-auto leading-relaxed">Free recovery for qualifying riders — find out how it works.</p>
-                    <flux:button href="{{ route('site.recovery') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">
+                    <flux:button href="{{ route('site.recovery') }}" variant="filled" size="sm" class="bg-brand-green text-white hover:bg-brand-green-dark">
                         View details
                     </flux:button>
                 </div>
@@ -19,11 +19,11 @@
                 <div class="absolute inset-0 bg-center bg-cover opacity-[0.12] dark:opacity-[0.18] pointer-events-none" style="background-image: url('{{ asset('images/recovery.jpg') }}');"></div>
                 <div class="absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent dark:from-gray-950 dark:via-gray-950/90 dark:to-transparent pointer-events-none"></div>
                 <div class="relative z-10">
-                    <a href="{{ route('ngnclub.subscribe') }}" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-red focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950">
+                    <a href="{{ route('ngnclub.subscribe') }}" class="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-green focus-visible:ring-offset-2 dark:focus-visible:ring-offset-gray-950">
                         <span class="text-xl md:text-2xl font-bold tracking-tight text-gray-900 dark:text-white">NGN Club membership</span>
                     </a>
                     <p class="text-gray-600 dark:text-gray-300 text-sm mt-3 mb-5 max-w-sm mx-auto leading-relaxed">Join NGN Club for rewards, credits and member-only benefits.</p>
-                    <flux:button href="{{ route('ngnclub.subscribe') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">
+                    <flux:button href="{{ route('ngnclub.subscribe') }}" variant="filled" size="sm" class="bg-brand-green text-white hover:bg-brand-green-dark">
                         Join now
                     </flux:button>
                 </div>

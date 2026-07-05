@@ -1,5 +1,5 @@
 <div>
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-12">
+<div class="site-page-hero bg-gradient-to-r from-brand-red to-red-700 text-white py-12">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-3xl font-bold">Shipping Policy</h1>
     </div>

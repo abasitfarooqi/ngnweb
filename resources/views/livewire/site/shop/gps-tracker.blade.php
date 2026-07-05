@@ -1,6 +1,6 @@
 <div>
 {{-- Hero --}}
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
+<div class="site-page-hero bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <img src="{{ asset('images/gps-tracker.jpg') }}" alt="GPS Tracker" class="w-full h-64 object-cover mb-8 opacity-20 absolute inset-0" style="display:none">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">GPS Tracker Installation</h1>
@@ -76,7 +76,7 @@
 </div>
 
 {{-- CTA Strip --}}
-<div class="bg-gray-900 text-white py-10 text-center">
+<div class="site-page-hero py-10 text-center">
     <h2 class="text-2xl font-bold mb-4">Book GPS Tracker Installation</h2>
     <p class="text-gray-300 mb-6">We install at all three NGN branches in London</p>
     <flux:button href="/contact" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark">Book Now</flux:button>

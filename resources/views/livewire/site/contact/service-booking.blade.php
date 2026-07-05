@@ -1,10 +1,10 @@
 <div>
 @if(! $embedded)
 {{-- Hero --}}
-<div class="bg-gradient-to-r from-brand-red to-red-700 text-white py-16">
+<div class="site-page-hero bg-gradient-to-r from-brand-green to-emerald-800 text-white py-16">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <h1 class="text-4xl md:text-5xl font-bold mb-4">Book a Service</h1>
-        <p class="text-xl text-red-100">Fast, convenient online service booking</p>
+        <p class="text-xl text-emerald-100">Fast, convenient online service booking</p>
     </div>
 </div>
 @endif
@@ -25,18 +25,8 @@
         </flux:callout>
     @endif
 
-    <flux:card class="p-8 border border-gray-200 dark:border-gray-700 shadow-sm">
-        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-6">
-            @if($embeddedHeading)
-                {{ $embeddedHeading }}
-            @elseif($embedded)
-                Service enquiry
-            @else
-                Service Booking Form
-            @endif
-        </h2>
-
-        <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="site-form space-y-5">
+    <x-site.form-panel :title="$embeddedHeading ?: ($embedded ? 'Service enquiry' : 'Service Booking Form')">
+        <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="site-form site-form-stack">
             @if($portalRepairsEnquiry && $repairsEnquiryCompactMode)
                 <flux:field>
                     <flux:label>Enquiry type *</flux:label>
@@ -47,7 +37,7 @@
                     </flux:select>
                     <flux:error name="serviceType" />
                 </flux:field>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <x-site.form-grid :cols="3">
                     <flux:field>
                         <flux:label>Registration</flux:label>
                         <flux:input wire:model="regNo" type="text" placeholder="AB12CDE" class="uppercase" />
@@ -60,20 +50,16 @@
                         <flux:label>Model</flux:label>
                         <flux:input wire:model="model" type="text" placeholder="e.g. CBR500R" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
             @endif
 
             @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
                 <flux:field>
                     <flux:label>Service Type *</flux:label>
                     <flux:select wire:model.live="serviceType" variant="listbox" placeholder="Select service...">
-                        <flux:select.option value="Motorcycle Repairs Enquiry">Motorcycle Repairs Enquiry</flux:select.option>
-                        <flux:select.option value="MOT Booking Enquiry">MOT Booking Enquiry</flux:select.option>
-                        <flux:select.option value="Motorcycle Full Service Enquiry">Motorcycle Full Service Enquiry</flux:select.option>
-                        <flux:select.option value="Motorcycle Basic Service Enquiry">Motorcycle Basic Service Enquiry</flux:select.option>
-                        <flux:select.option value="Motorcycle Rental Enquiry">Motorcycle Rental Enquiry</flux:select.option>
-                        <flux:select.option value="Accident Management Services Enquiry">Accident Management Services Enquiry</flux:select.option>
-                        <flux:select.option value="Other">Other</flux:select.option>
+                        @foreach (\App\Livewire\Site\Contact\ServiceBooking::publicServiceTypeOptions() as $serviceOption)
+                            <flux:select.option value="{{ $serviceOption }}">{{ $serviceOption }}</flux:select.option>
+                        @endforeach
                     </flux:select>
                     <flux:error name="serviceType" />
                 </flux:field>
@@ -100,7 +86,7 @@
             @endif
 
             @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <x-site.form-grid :cols="3">
                     <flux:field>
                         <flux:label>Registration</flux:label>
                         <flux:input wire:model="regNo" type="text" placeholder="AB12CDE" class="uppercase" />
@@ -113,11 +99,11 @@
                         <flux:label>Model</flux:label>
                         <flux:input wire:model="model" type="text" placeholder="e.g. CBR500R" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
             @endif
 
             @if (! ($portalRepairsEnquiry && $repairsEnquiryCompactMode))
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Full Name *</flux:label>
                         <flux:input wire:model="name" type="text" />
@@ -128,7 +114,7 @@
                         <flux:input wire:model="phone" type="tel" />
                         <flux:error name="phone" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
             @endif
 
             <flux:field>
@@ -138,7 +124,7 @@
             </flux:field>
 
             @if($this->requiresScheduleSelection)
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label>Preferred Date *</flux:label>
                         <x-site.booking-date-picker wire:model.live="preferredDate" />
@@ -153,7 +139,7 @@
                         </flux:select>
                         <flux:error name="preferredTime" />
                     </flux:field>
-                </div>
+                </x-site.form-grid>
             @endif
 
             <flux:field>
@@ -162,22 +148,20 @@
             </flux:field>
 
             @if(! $rentalCompactMode && ! $repairsEnquiryCompactMode)
-                <div class="text-sm text-gray-700 dark:text-gray-300">
-                    <label class="inline-flex items-start gap-2 cursor-pointer">
-                        <input type="checkbox" wire:model="cookiePolicy" class="mt-1 accent-brand-red">
+                <div>
+                    <label class="site-form-consent cursor-pointer">
+                        <input type="checkbox" wire:model="cookiePolicy">
                         <span>I have read and agree to the
-                            <a href="{{ route('site.privacy') }}" class="text-brand-red font-medium underline decoration-brand-red/80 hover:text-brand-red-dark hover:decoration-brand-red-dark">Cookie and Privacy Policy</a>.
+                            <a href="{{ route('site.privacy') }}" class="text-brand-green font-medium underline decoration-brand-green/80 hover:text-brand-green-dark hover:decoration-brand-green-dark">Cookie and Privacy Policy</a>.
                         </span>
                     </label>
                     <flux:error name="cookiePolicy" />
                 </div>
             @endif
 
-            <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-brand-red-dark" wire:loading.attr="disabled" wire:target="submitBooking">
+            <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark" wire:loading.attr="disabled" wire:target="submitBooking">
                 <span wire:loading.remove wire:target="submitBooking">{{ $submitLabel }}</span>
                 <span wire:loading wire:target="submitBooking">Submitting...</span>
             </flux:button>
         </form>
-    </flux:card>
-</div>
-</div>
+    </x-site.form-panel>

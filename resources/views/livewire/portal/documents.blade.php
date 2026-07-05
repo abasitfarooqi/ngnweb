@@ -83,6 +83,8 @@
                                     default => 'zinc',
                                 };
                                 $statusLabel = $documentLifecycle->documentStatusLabel($status);
+                                $canReplace = $profile && $profile->canCustomerReplaceDocument($status);
+                                $canDelete = $profile && $uploaded && $profile->canCustomerDeleteDocument($status);
                             @endphp
                             <div class="flex items-start sm:items-center justify-between gap-3 p-4 border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
                                 <div class="flex-1 min-w-0">
@@ -110,13 +112,28 @@
                                     @if($uploaded?->portal_file_url)
                                         <flux:button href="{{ $uploaded->portal_file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
                                     @endif
-                                    <flux:button
-                                        wire:key="upload-btn-rental-{{ $docType->id }}"
-                                        wire:click="startUpload({{ $docType->id }})"
-                                        variant="filled" size="sm"
-                                        class="bg-brand-red text-white">
-                                        {{ $uploaded ? 'Replace' : 'Upload' }}
-                                    </flux:button>
+                                    @if($canReplace || ! $uploaded)
+                                        <flux:button
+                                            wire:key="upload-btn-rental-{{ $docType->id }}"
+                                            wire:click="startUpload({{ $docType->id }})"
+                                            variant="filled" size="sm"
+                                            class="bg-brand-red text-white">
+                                            {{ $uploaded ? 'Replace' : 'Upload' }}
+                                        </flux:button>
+                                    @elseif($status === 'pending_review')
+                                        <span class="text-xs text-amber-600 dark:text-amber-400">Awaiting review</span>
+                                    @elseif($status === 'approved')
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Locked</span>
+                                    @endif
+                                    @if($canDelete)
+                                        <flux:button
+                                            wire:click="deleteDocument({{ $docType->id }})"
+                                            wire:confirm="Remove this document?"
+                                            variant="ghost" size="sm"
+                                            class="text-red-600">
+                                            Delete
+                                        </flux:button>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
@@ -205,6 +222,8 @@
                                     default => 'zinc',
                                 };
                                 $statusLabel = $documentLifecycle->documentStatusLabel($status);
+                                $canReplace = $profile && $profile->canCustomerReplaceDocument($status);
+                                $canDelete = $profile && $uploaded && $profile->canCustomerDeleteDocument($status);
                             @endphp
                             <div class="flex items-start sm:items-center justify-between gap-3 p-4 border border-gray-200 dark:border-gray-700 flex-wrap sm:flex-nowrap">
                                 <div class="flex-1 min-w-0">
@@ -232,13 +251,28 @@
                                     @if($uploaded?->portal_file_url)
                                         <flux:button href="{{ $uploaded->portal_file_url }}" target="_blank" variant="outline" size="sm">View</flux:button>
                                     @endif
-                                    <flux:button
-                                        wire:key="upload-btn-finance-{{ $docType->id }}"
-                                        wire:click="startUpload({{ $docType->id }})"
-                                        variant="filled" size="sm"
-                                        class="bg-brand-red text-white">
-                                        {{ $uploaded ? 'Replace' : 'Upload' }}
-                                    </flux:button>
+                                    @if($canReplace || ! $uploaded)
+                                        <flux:button
+                                            wire:key="upload-btn-finance-{{ $docType->id }}"
+                                            wire:click="startUpload({{ $docType->id }})"
+                                            variant="filled" size="sm"
+                                            class="bg-brand-red text-white">
+                                            {{ $uploaded ? 'Replace' : 'Upload' }}
+                                        </flux:button>
+                                    @elseif($status === 'pending_review')
+                                        <span class="text-xs text-amber-600 dark:text-amber-400">Awaiting review</span>
+                                    @elseif($status === 'approved')
+                                        <span class="text-xs text-gray-500 dark:text-gray-400">Locked</span>
+                                    @endif
+                                    @if($canDelete)
+                                        <flux:button
+                                            wire:click="deleteDocument({{ $docType->id }})"
+                                            wire:confirm="Remove this document?"
+                                            variant="ghost" size="sm"
+                                            class="text-red-600">
+                                            Delete
+                                        </flux:button>
+                                    @endif
                                 </div>
                             </div>
                         @endforeach
