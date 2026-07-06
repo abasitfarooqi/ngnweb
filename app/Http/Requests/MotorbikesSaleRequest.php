@@ -50,15 +50,7 @@ class MotorbikesSaleRequest extends FormRequest
             'image_four' => 'nullable|image|max:2048',
         ];
 
-        // When Is Sold is checked, require Buyer Name, Phone, Email (Address stays optional)
-        // Backpack can send is_sold as 1, "1", "on", etc.
-        $isSold = filter_var($this->input('is_sold'), FILTER_VALIDATE_BOOLEAN);
-        if ($isSold) {
-            $rules['buyer_name'] = 'required|string|max:255';
-            $rules['buyer_phone'] = 'required|string|max:255';
-            $rules['buyer_email'] = 'required|email|max:255';
-        }
-
+        // Buyer fields stay optional even when marked sold.
         return $rules;
     }
 

@@ -87,11 +87,11 @@
 
             @if($form['is_sold'] ?? false)
                 <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
-                    <x-flux-admin::field-group label="Buyer name" required :error="$errors->first('form.buyer_name')">
+                    <x-flux-admin::field-group label="Buyer name" :error="$errors->first('form.buyer_name')">
                         <flux:input wire:model="form.buyer_name" />
                     </x-flux-admin::field-group>
 
-                    <x-flux-admin::field-group label="Buyer phone" required :error="$errors->first('form.buyer_phone')">
+                    <x-flux-admin::field-group label="Buyer phone" :error="$errors->first('form.buyer_phone')">
                         <flux:input wire:model="form.buyer_phone" type="tel" />
                     </x-flux-admin::field-group>
 
@@ -100,7 +100,7 @@
                     </x-flux-admin::field-group>
                 </div>
                 <div class="mt-4">
-                    <x-flux-admin::field-group label="Buyer address" required :error="$errors->first('form.buyer_address')">
+                    <x-flux-admin::field-group label="Buyer address" :error="$errors->first('form.buyer_address')">
                         <flux:textarea wire:model="form.buyer_address" rows="2" />
                     </x-flux-admin::field-group>
                 </div>

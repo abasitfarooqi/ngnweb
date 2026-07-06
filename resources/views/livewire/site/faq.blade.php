@@ -55,10 +55,10 @@
                 <flux:accordion class="site-flux-accordion divide-y divide-gray-200 dark:divide-gray-700 border border-gray-200 dark:border-gray-700">
                     @foreach($items as $i => $faq)
                         <flux:accordion.item :value="$category . '-' . $i">
-                            <flux:accordion.heading class="text-gray-900 dark:text-gray-100 font-medium text-left py-4 px-4">
+                            <flux:accordion.heading class="site-flux-accordion-heading">
                                 {{ $faq['q'] }}
                             </flux:accordion.heading>
-                            <flux:accordion.content class="px-4 pb-4 text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                            <flux:accordion.content class="site-flux-accordion-content">
                                 {{ $faq['a'] }}
                             </flux:accordion.content>
                         </flux:accordion.item>

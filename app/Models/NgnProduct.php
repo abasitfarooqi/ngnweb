@@ -25,11 +25,14 @@ class NgnProduct extends Model
         'sku',
         'ean',
         'image_url',
+        'video_url',
         'name',
         'variation',
         'description',
         'extended_description',
         'colour',
+        'size_label',
+        'parent_product_id',
         'pos_variant_id',
         'pos_product_id',
         'brand_id',
@@ -123,6 +126,21 @@ class NgnProduct extends Model
     public function productImages()
     {
         return $this->hasMany(NgnProductImage::class, 'product_id');
+    }
+
+    public function parentProduct()
+    {
+        return $this->belongsTo(NgnProduct::class, 'parent_product_id');
+    }
+
+    public function childVariants()
+    {
+        return $this->hasMany(NgnProduct::class, 'parent_product_id');
+    }
+
+    public function scopeParentsOnly($query)
+    {
+        return $query->whereNull('parent_product_id');
     }
 
     // In NgnProduct model

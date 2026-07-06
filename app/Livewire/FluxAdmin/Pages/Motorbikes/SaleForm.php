@@ -72,10 +72,6 @@ class SaleForm extends Component
 
     public function save(): void
     {
-        $buyerRules = (bool) ($this->form['is_sold'] ?? false)
-            ? ['required', 'string', 'max:255']
-            : ['nullable', 'string', 'max:255'];
-
         $this->validate([
             'form.motorbike_id'  => ['required', 'integer'],
             'form.condition'     => ['nullable', 'string', 'max:120'],
@@ -92,10 +88,10 @@ class SaleForm extends Component
             'form.accessories'   => ['nullable', 'string'],
             'form.note'          => ['nullable', 'string'],
             'form.is_sold'       => ['boolean'],
-            'form.buyer_name'    => $buyerRules,
-            'form.buyer_phone'   => [(bool) ($this->form['is_sold'] ?? false) ? 'required' : 'nullable', 'string', 'max:50'],
+            'form.buyer_name'    => ['nullable', 'string', 'max:255'],
+            'form.buyer_phone'   => ['nullable', 'string', 'max:50'],
             'form.buyer_email'   => ['nullable', 'email', 'max:255'],
-            'form.buyer_address' => [(bool) ($this->form['is_sold'] ?? false) ? 'required' : 'nullable', 'string', 'max:500'],
+            'form.buyer_address' => ['nullable', 'string', 'max:500'],
             'form.v5_available'  => ['boolean'],
         ]);
 

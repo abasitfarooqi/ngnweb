@@ -276,6 +276,32 @@
         color: #ffffff !important;
     }
 
+    body:not(.flux-admin-app) .site-form [data-flux-button][class*="bg-brand-green"],
+    body:not(.flux-admin-app) .site-form [data-flux-button][class*="bg-brand-red"],
+    body:not(.flux-admin-app) .site-form button[data-flux-button][class*="bg-brand-green"],
+    body:not(.flux-admin-app) .site-form button[data-flux-button][class*="bg-brand-red"] {
+        background-color: var(--color-brand-green) !important;
+        background-image: none !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+        text-transform: none !important;
+        font-weight: 600 !important;
+        letter-spacing: normal !important;
+        line-height: 1.25 !important;
+    }
+
+    body:not(.flux-admin-app) .site-form [data-flux-button][class*="bg-brand-green"]:hover,
+    body:not(.flux-admin-app) .site-form [data-flux-button][class*="bg-brand-red"]:hover,
+    body:not(.flux-admin-app) .site-form [data-flux-button][class*="hover:bg-brand-green-dark"]:hover,
+    body:not(.flux-admin-app) .site-form [data-flux-button][class*="hover:bg-brand-red-dark"]:hover,
+    body:not(.flux-admin-app) .site-form button[data-flux-button][class*="bg-brand-green"]:hover,
+    body:not(.flux-admin-app) .site-form button[data-flux-button][class*="bg-brand-red"]:hover,
+    body:not(.flux-admin-app) .site-form button[data-flux-button][class*="hover:bg-brand-green-dark"]:hover,
+    body:not(.flux-admin-app) .site-form button[data-flux-button][class*="hover:bg-brand-red-dark"]:hover {
+        background-color: var(--color-brand-green-dark) !important;
+        color: #ffffff !important;
+    }
+
     /* Used bike listing filters — one height, one surface */
     .bike-filter-field {
         @apply flex min-w-0 flex-col;
@@ -711,12 +737,83 @@ body:not(.flux-admin-app) .delivery-accordion-menu .accordion-button:before {
 
 body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] > div,
 body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] {
-    color: #4b5563 !important;
+    color: #374151 !important;
 }
 
 html.dark body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] > div,
 html.dark body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] {
-    color: #d1d5db !important;
+    color: #e5e7eb !important;
+}
+
+/* Flux accordions — Tailwind v3 lacks group-data-open/* chevron variants */
+body:not(.flux-admin-app) .site-flux-accordion ui-disclosure {
+    border-left: 3px solid transparent;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion ui-disclosure[data-open] {
+    background-color: #f9fafb !important;
+    border-left-color: var(--color-brand-green);
+}
+
+html.dark body:not(.flux-admin-app) .site-flux-accordion ui-disclosure[data-open] {
+    background-color: rgb(31 41 55) !important;
+    border-left-color: var(--color-brand-green);
+}
+
+body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading] {
+    padding: 1rem 1rem 1rem 0.875rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.5 !important;
+    gap: 0.75rem !important;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion ui-disclosure[data-open] button[data-flux-accordion-heading],
+body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading][data-open] {
+    background-color: transparent !important;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading] > svg {
+    color: #6b7280 !important;
+    flex-shrink: 0;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion ui-disclosure[data-open] button[data-flux-accordion-heading] > svg:first-of-type,
+body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading][data-open] > svg:first-of-type {
+    display: block !important;
+    color: #111827 !important;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion ui-disclosure[data-open] button[data-flux-accordion-heading] > svg:last-of-type,
+body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading][data-open] > svg:last-of-type {
+    display: none !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading] > svg {
+    color: #9ca3af !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-flux-accordion ui-disclosure[data-open] button[data-flux-accordion-heading] > svg:first-of-type,
+html.dark body:not(.flux-admin-app) .site-flux-accordion button[data-flux-accordion-heading][data-open] > svg:first-of-type {
+    color: #f9fafb !important;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion .site-flux-accordion-content,
+body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] > div {
+    padding: 0 1rem 1rem 1.125rem !important;
+    font-size: 0.9375rem !important;
+    line-height: 1.625 !important;
+}
+
+body:not(.flux-admin-app) .site-flux-accordion .site-flux-accordion-content p,
+body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] p {
+    color: #374151 !important;
+    margin: 0 !important;
+}
+
+html.dark body:not(.flux-admin-app) .site-flux-accordion .site-flux-accordion-content p,
+html.dark body:not(.flux-admin-app) .site-flux-accordion [data-flux-accordion-content] p {
+    color: #e5e7eb !important;
 }
 
 /* Page heroes — flatten gradients and keep readable CTAs in dark mode (home excluded) */

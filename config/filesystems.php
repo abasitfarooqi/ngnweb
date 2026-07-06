@@ -95,6 +95,13 @@ return [
             'visibility' => 'public',
         ],
 
+        'product_videos' => [
+            'driver' => 'local',
+            'root' => public_path('assets/videos/store/products'),
+            'url' => env('APP_URL').'/assets/videos/store/products',
+            'visibility' => 'public',
+        ],
+
         'new_motorbike_images' => [
             'driver' => 'local',
             'root' => storage_path('app/public/motorbikes'),

@@ -177,15 +177,27 @@ class Product extends Component
             abort(404);
         }
 
-        if (! $this->selectedVariantId && ! empty($product['variants'])) {
-            $this->selectedVariantId = $product['variants'][0]['id'];
+        if (! $this->selectedVariantId) {
+            if (! empty($product['selected_variant_id'])) {
+                $this->selectedVariantId = (int) $product['selected_variant_id'];
+            } elseif (! empty($product['variants'])) {
+                $this->selectedVariantId = $product['variants'][0]['id'];
+            }
+        }
+
+        $displayPrice = $product['normal_price'];
+        if ($this->selectedVariantId) {
+            $selected = collect($product['variants'] ?? [])->firstWhere('id', $this->selectedVariantId);
+            if ($selected && isset($selected['normal_price']) && $selected['normal_price'] > 0) {
+                $displayPrice = $selected['normal_price'];
+            }
         }
 
         $availability = $this->selectedVariantId
             ? $this->shop->getProductAvailability($this->selectedVariantId)
             : ['total_balance' => 0, 'branches' => []];
 
-        return view('livewire.shop.product', compact('product', 'availability'))
+        return view('livewire.shop.product', compact('product', 'availability', 'displayPrice'))
             ->layout('components.layouts.public', [
                 'title' => ($product['meta_title'] ?: $product['name']).' | NGN Shop',
                 'description' => $product['meta_description'] ?: 'Buy '.$product['name'].' at NGN Motors London.',

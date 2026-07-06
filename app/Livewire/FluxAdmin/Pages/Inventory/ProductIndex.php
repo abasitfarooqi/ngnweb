@@ -178,6 +178,7 @@ class ProductIndex extends Component
     protected function baseQuery(): Builder
     {
         return NgnProduct::query()
+            ->parentsOnly()
             ->select('ngn_products.*')
             ->addSelect([
                 'catford_stock' => NgnStockMovement::query()

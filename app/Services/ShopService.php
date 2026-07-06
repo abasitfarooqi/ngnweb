@@ -42,6 +42,7 @@ class ShopService
             ->join('ngn_models', 'ngn_products.model_id', '=', 'ngn_models.id')
             ->join('ngn_brands', 'ngn_products.brand_id', '=', 'ngn_brands.id')
             ->join('ngn_categories', 'ngn_products.category_id', '=', 'ngn_categories.id')
+            ->whereNull('ngn_products.parent_product_id')
             ->where('ngn_products.is_ecommerce', 1)
             ->whereNotNull('ngn_products.slug')
             ->where('ngn_products.slug', '!=', '')
@@ -110,21 +111,95 @@ class ShopService
     }
 
     /**
-     * Get a single product by slug (with all variants grouped under slug prefix).
+     * Resolve a shop product by slug.
+     *
+     * Supports legacy rows sharing one slug (sizes in variation), colour suffix slugs,
+     * per-size slugs ({base}-variant-xs), and parent_product_id children.
      */
     public function getProductBySlug(string $slug): ?array
     {
-        $products = DB::table('ngn_products')
-            ->where('slug', 'like', $slug.'%')
-            ->where('is_ecommerce', true)
-            ->where('dead', false)
-            ->get();
-
-        if ($products->isEmpty()) {
+        $slug = trim($slug);
+        if ($slug === '') {
             return null;
         }
 
-        $productIds = $products->pluck('id')->toArray();
+        $query = DB::table('ngn_products')
+            ->where('is_ecommerce', true)
+            ->where('dead', false);
+
+        $exactMatches = (clone $query)->where('slug', $slug)->orderBy('id')->get();
+
+        $selectedVariantId = null;
+        $variants = collect();
+        $display = null;
+
+        if ($exactMatches->count() > 1) {
+            $display = $exactMatches->first();
+            $variants = $exactMatches;
+        } elseif ($exactMatches->count() === 1) {
+            $hit = $exactMatches->first();
+            $selectedVariantId = (int) $hit->id;
+
+            $children = (clone $query)
+                ->where('parent_product_id', $hit->id)
+                ->orderBy('size_label')
+                ->orderBy('id')
+                ->get();
+
+            if ($children->isNotEmpty()) {
+                $display = $hit;
+                $variants = $children;
+            } elseif ($hit->parent_product_id) {
+                $display = (clone $query)->where('id', $hit->parent_product_id)->first() ?? $hit;
+                $variants = (clone $query)
+                    ->where('parent_product_id', $display->id)
+                    ->orderBy('size_label')
+                    ->orderBy('id')
+                    ->get();
+            } elseif ($base = $this->sizeVariantBaseSlug($slug)) {
+                $variants = (clone $query)
+                    ->where('slug', 'like', $base.'-variant-%')
+                    ->orderBy('slug')
+                    ->orderBy('id')
+                    ->get();
+                $display = $variants->firstWhere('slug', $slug) ?? $hit;
+                if ($variants->isEmpty()) {
+                    $display = $hit;
+                    $variants = collect([$hit]);
+                }
+            } else {
+                $display = $hit;
+                $variants = collect([$hit]);
+            }
+        } else {
+            $family = (clone $query)
+                ->where(function ($q) use ($slug) {
+                    $q->where('slug', $slug)
+                        ->orWhere('slug', 'like', $slug.'-%');
+                })
+                ->orderBy('slug')
+                ->orderBy('id')
+                ->get();
+
+            if ($family->isEmpty()) {
+                return null;
+            }
+
+            $sameSlug = $family->where('slug', $slug)->values();
+            if ($sameSlug->count() > 1) {
+                $display = $sameSlug->first();
+                $variants = $sameSlug;
+            } else {
+                $display = $family->first();
+                $variants = $family;
+            }
+        }
+
+        if (! $display || $variants->isEmpty()) {
+            return null;
+        }
+
+        $productIds = $variants->pluck('id')->prepend($display->id)->unique()->values()->all();
 
         $uniqueImages = DB::table('ngn_product_images')
             ->whereIn('product_id', $productIds)
@@ -133,34 +208,68 @@ class ShopService
             ->values()
             ->all();
 
-        $totalBalances = $this->calculateTotalBalances($productIds);
+        $totalBalances = $this->calculateTotalBalances($variants->pluck('id')->all());
 
-        $variants = $products->map(function ($p) use ($totalBalances) {
+        $variantRows = $variants->map(function ($p) use ($totalBalances) {
             return [
                 'id' => $p->id,
                 'sku' => trim($p->sku),
                 'name' => trim($p->name),
-                'variation' => trim($p->variation),
+                'variation' => trim((string) $p->variation),
+                'size_label' => trim((string) ($p->size_label ?? '')),
+                'colour' => trim((string) ($p->colour ?? '')),
+                'label' => $this->formatVariantLabel($p),
                 'slug' => trim($p->slug),
+                'normal_price' => (float) $p->normal_price,
                 'total_balance' => $totalBalances[$p->id] ?? 0,
             ];
         })->values()->all();
 
+        if ($selectedVariantId === null && count($variantRows) === 1) {
+            $selectedVariantId = (int) $variantRows[0]['id'];
+        }
+
         return [
-            'name' => $products[0]->name,
-            'slug' => $products[0]->slug,
-            'image_url' => $products[0]->image_url,
+            'name' => $display->name,
+            'slug' => $display->slug,
+            'canonical_slug' => $slug,
+            'selected_variant_id' => $selectedVariantId,
+            'image_url' => $display->image_url,
+            'video_url' => $display->video_url ?? null,
             'image_array' => $uniqueImages,
-            'normal_price' => $products[0]->normal_price,
-            'global_stock' => $products[0]->global_stock,
-            'meta_title' => $products[0]->meta_title,
-            'meta_description' => $products[0]->meta_description,
-            'description' => strip_tags($products[0]->description),
-            'extended_description' => strip_tags($products[0]->extended_description),
-            'colour' => $products[0]->colour,
-            'counts' => count($variants),
-            'variants' => $variants,
+            'normal_price' => (float) $display->normal_price,
+            'global_stock' => $display->global_stock,
+            'meta_title' => $display->meta_title,
+            'meta_description' => $display->meta_description,
+            'description' => strip_tags((string) $display->description),
+            'extended_description' => strip_tags((string) $display->extended_description),
+            'colour' => $display->colour,
+            'counts' => count($variantRows),
+            'variants' => $variantRows,
         ];
+    }
+
+    /**
+     * Base slug for per-size URLs such as atom-2-bast-b7-variant-xs.
+     */
+    private function sizeVariantBaseSlug(string $slug): ?string
+    {
+        if (preg_match('/^(.+)-variant-[a-z0-9]+$/i', $slug, $matches) === 1) {
+            return $matches[1];
+        }
+
+        return null;
+    }
+
+    private function formatVariantLabel(object $product): string
+    {
+        $labelParts = array_filter([
+            $product->size_label ?? null,
+            $product->variation ?? null,
+            $product->colour ?? null,
+        ]);
+
+        return $labelParts !== [] ? implode(' · ', $labelParts) : trim((string) $product->sku);
     }
 
     /**

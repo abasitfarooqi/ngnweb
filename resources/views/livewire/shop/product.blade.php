@@ -57,7 +57,7 @@
             @endif
 
             <div class="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                £{{ number_format($product['normal_price'], 2) }}
+                £{{ number_format($displayPrice, 2) }}
             </div>
 
             {{-- Stock badge --}}
@@ -71,6 +71,21 @@
                 </span>
             @endif
 
+            @if(!empty($product['video_url']))
+                <div class="mb-5">
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Product video</p>
+                    @if(\Illuminate\Support\Str::contains($product['video_url'], ['youtube.com', 'youtu.be', 'vimeo.com']))
+                        <div class="aspect-video bg-black">
+                            <iframe src="{{ $product['video_url'] }}" class="w-full h-full" allowfullscreen loading="lazy"></iframe>
+                        </div>
+                    @else
+                        <video controls class="w-full max-h-80 bg-black" preload="metadata">
+                            <source src="{{ \Illuminate\Support\Str::startsWith($product['video_url'], ['http://', 'https://', '/']) ? $product['video_url'] : asset('assets/videos/store/products/'.$product['video_url']) }}">
+                        </video>
+                    @endif
+                </div>
+            @endif
+
             {{-- Variants --}}
             @if(count($product['variants']) > 1)
                 <div class="mb-5">
@@ -82,7 +97,7 @@
                                         {{ $selectedVariantId === $variant['id']
                                             ? 'border-brand-red text-brand-red bg-red-50 dark:bg-red-900/20'
                                             : 'border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:border-brand-red' }}">
-                                {{ $variant['variation'] ?: $variant['sku'] }}
+                                {{ $variant['label'] ?? ($variant['variation'] ?: $variant['sku']) }}
                                 @if($variant['total_balance'] <= 0)
                                     <span class="ml-1 text-xs text-red-400">(OOS)</span>
                                 @endif

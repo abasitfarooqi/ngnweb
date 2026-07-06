@@ -206,31 +206,38 @@
                     <h2 class="mb-2 text-center text-xl font-bold text-gray-900 dark:text-white lg:text-left">Frequently asked questions</h2>
                     <p class="mb-6 text-center text-sm text-gray-600 dark:text-gray-400 lg:text-left">Common questions about UK eBikes and how we can help</p>
 
-                    <flux:accordion class="site-flux-accordion border border-gray-200 bg-white dark:border-gray-600 dark:bg-gray-800">
-                        <flux:accordion.item
-                            class="!border-b border-gray-200 px-3 dark:!border-gray-600"
-                            heading="Do I need a licence to ride a pedal-assist eBike in the UK?"
-                            :expanded="true"
-                            :transition="true"
-                        >
-                            <p class="leading-relaxed text-gray-600 dark:text-gray-300">
+                    <flux:accordion class="site-flux-accordion divide-y divide-gray-200 border border-gray-200 bg-white dark:divide-gray-700 dark:border-gray-700 dark:bg-gray-800">
+                        <flux:accordion.item :expanded="true" :transition="true">
+                            <flux:accordion.heading class="site-flux-accordion-heading">
+                                Do I need a licence to ride a pedal-assist eBike in the UK?
+                            </flux:accordion.heading>
+                            <flux:accordion.content class="site-flux-accordion-content">
                                 No, as long as the eBike meets UK EAPC regulations (maximum 15.5 mph assisted speed, 250W pedal-assist motor, pedals must be used), you do not need a licence, insurance, or tax. Our eBikes are fully compliant.
-                            </p>
+                            </flux:accordion.content>
                         </flux:accordion.item>
-                        <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" :transition="true" heading="Can I use your pedal-assist eBikes for delivery work?">
-                            <p class="leading-relaxed text-gray-600 dark:text-gray-300">
+                        <flux:accordion.item :transition="true">
+                            <flux:accordion.heading class="site-flux-accordion-heading">
+                                Can I use your pedal-assist eBikes for delivery work?
+                            </flux:accordion.heading>
+                            <flux:accordion.content class="site-flux-accordion-content">
                                 Absolutely! Our eBikes are designed for reliability and range, making them ideal for couriers and delivery riders in London.
-                            </p>
+                            </flux:accordion.content>
                         </flux:accordion.item>
-                        <flux:accordion.item class="!border-b border-gray-200 px-3 dark:!border-gray-600" :transition="true" heading="Do you offer finance or instalment plans for electric bicycles?">
-                            <p class="leading-relaxed text-gray-600 dark:text-gray-300">
+                        <flux:accordion.item :transition="true">
+                            <flux:accordion.heading class="site-flux-accordion-heading">
+                                Do you offer finance or instalment plans for electric bicycles?
+                            </flux:accordion.heading>
+                            <flux:accordion.content class="site-flux-accordion-content">
                                 Yes, flexible finance and instalment options are available. Contact us for details.
-                            </p>
+                            </flux:accordion.content>
                         </flux:accordion.item>
-                        <flux:accordion.item class="px-3 !pb-5" :transition="true" heading="Where can I see or test ride the pedal-assist eBikes?">
-                            <p class="leading-relaxed text-gray-600 dark:text-gray-300">
+                        <flux:accordion.item :transition="true">
+                            <flux:accordion.heading class="site-flux-accordion-heading">
+                                Where can I see or test ride the pedal-assist eBikes?
+                            </flux:accordion.heading>
+                            <flux:accordion.content class="site-flux-accordion-content">
                                 Visit our London showrooms or book a test ride online. We&rsquo;re happy to help you find the perfect eBike.
-                            </p>
+                            </flux:accordion.content>
                         </flux:accordion.item>
                     </flux:accordion>
                 </div>

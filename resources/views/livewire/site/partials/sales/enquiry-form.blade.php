@@ -70,7 +70,7 @@
         </label>
         <flux:error name="privacy" />
 
-        <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
+        <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark hover:text-white">
             {{ $submitButtonLabel }}
         </flux:button>
     </form>
