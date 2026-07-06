@@ -65,17 +65,17 @@ class Faq extends Component
             'a' => 'Yes, we offer motorcycle collection and delivery across London. Contact your nearest branch for availability and charges.',
         ],
         [
-            'category' => 'Sales & Finance',
+            'category' => 'Sales & Payment plans',
             'q' => 'Do you sell new motorcycles?',
             'a' => 'Yes. We sell new Honda and Yamaha motorcycles as well as quality used bikes sourced from our own rental fleet and external suppliers.',
         ],
         [
-            'category' => 'Sales & Finance',
-            'q' => 'Can I get finance on a motorcycle?',
-            'a' => 'Yes, we offer flexible finance plans to help you purchase your motorcycle. Interest rates and terms vary. Visit our Finance page or speak to a member of staff for a personalised quote.',
+            'category' => 'Sales & Payment plans',
+            'q' => 'Can I get a payment plan on a motorcycle?',
+            'a' => 'Yes, we offer flexible payment plans to help you purchase your motorcycle. Interest rates and terms vary. Visit our Payment plans page or speak to a member of staff for a personalised quote.',
         ],
         [
-            'category' => 'Sales & Finance',
+            'category' => 'Sales & Payment plans',
             'q' => 'Do you buy or part-exchange motorcycles?',
             'a' => 'We consider part-exchange on a case-by-case basis. Contact us with details of your bike and we will advise.',
         ],
@@ -135,7 +135,7 @@ class Faq extends Component
         return view('livewire.site.faq')
             ->layout('components.layouts.public', [
                 'title' => 'FAQs – Motorcycle Rental, MOT, Repairs & Sales | NGN Motors',
-                'description' => 'Frequently asked questions about motorcycle rentals, MOT Booking, repairs, servicing, finance, and the NGN Club at NGN Motors London.',
+                'description' => 'Frequently asked questions about motorcycle rentals, MOT Booking, repairs, servicing, payment plans, and the NGN Club at NGN Motors London.',
             ]);
     }
 }

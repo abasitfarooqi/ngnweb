@@ -62,6 +62,13 @@
         @apply bg-gray-950 text-white dark:bg-gray-950 dark:text-white dark:border-b dark:border-brand-green/40;
     }
 
+    /* Readable green badges (Flux green-on-green is illegible on dark heroes) */
+    .site-flux-badge-green {
+        background-color: var(--color-brand-green) !important;
+        color: #fff !important;
+        border-color: transparent !important;
+    }
+
     /* Portal sidebar nav link */
     .portal-nav-link {
         @apply flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white transition-colors;

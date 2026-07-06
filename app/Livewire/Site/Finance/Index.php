@@ -180,7 +180,7 @@ class Index extends Component
             $bikeLabel !== '' ? 'Bike: '.$bikeLabel : null,
             $this->bikeId ? 'Bike ID: '.$this->bikeId : null,
             'Bike type: '.$bikeType,
-            'Finance amount GBP: '.number_format($amount, 2, '.', ''),
+            'Payment plan amount GBP: '.number_format($amount, 2, '.', ''),
             'Deposit GBP: '.number_format($deposit, 2, '.', ''),
             $selectedPlan,
             'Employment: '.(string) $this->employmentStatus,
@@ -194,8 +194,8 @@ class Index extends Component
             'customer_auth_id' => $customerAuth?->id,
             'submission_context' => $customerAuth ? 'authenticated_customer' : 'guest',
             'enquiry_type' => 'finance',
-            'service_type' => 'Finance enquiry',
-            'subject' => $bikeLabel !== '' ? 'Finance enquiry - '.$bikeLabel : 'Finance enquiry',
+            'service_type' => 'Payment plan enquiry',
+            'subject' => $bikeLabel !== '' ? 'Payment plan enquiry - '.$bikeLabel : 'Payment plan enquiry',
             'description' => $description,
             'requires_schedule' => false,
             'booking_date' => null,
@@ -203,13 +203,13 @@ class Index extends Component
             'status' => 'Pending',
             'fullname' => $fullName,
             'phone' => trim($this->phone),
-            'reg_no' => $this->bikeId ? 'Finance bike #'.$this->bikeId : 'Finance enquiry',
+            'reg_no' => $this->bikeId ? 'Payment plan bike #'.$this->bikeId : 'Payment plan enquiry',
             'email' => trim($this->email),
         ]);
 
         app(MailController::class)->sendBookingConfirmation($booking);
 
-        session()->flash('success', 'Finance enquiry received. We will contact you within 24 hours.');
+        session()->flash('success', 'Payment plan enquiry received. We will contact you within 24 hours.');
 
         $this->resetValidation();
         $this->reset([
@@ -231,8 +231,8 @@ class Index extends Component
     {
         return view('livewire.site.finance.index')
             ->layout('components.layouts.public', [
-                'title' => 'Motorcycle Finance London | Flexible Payment Plans | NGN Motors',
-                'description' => 'Flexible motorcycle finance options in London. Apply online today.',
+                'title' => 'Motorcycle Payment Plans London | Flexible Payment Plans | NGN Motors',
+                'description' => 'Flexible motorcycle payment plan options in London. Apply online today.',
             ]);
     }
 }

@@ -41,7 +41,7 @@
                         <div>
                             <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">{{ $tracker['name'] }}</h3>
                             <p class="text-gray-700 dark:text-gray-300 mb-2">{{ $tracker['desc'] }}</p>
-                            <flux:badge color="green">{{ $tracker['badge'] }}</flux:badge>
+                            <flux:badge class="site-flux-badge-green">{{ $tracker['badge'] }}</flux:badge>
                         </div>
                         <div class="text-right flex-shrink-0">
                             <p class="text-3xl font-bold text-brand-red mb-1">{{ $tracker['price'] }}</p>

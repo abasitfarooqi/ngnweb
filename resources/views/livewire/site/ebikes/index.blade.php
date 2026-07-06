@@ -225,10 +225,10 @@
                         </flux:accordion.item>
                         <flux:accordion.item :transition="true">
                             <flux:accordion.heading class="site-flux-accordion-heading">
-                                Do you offer finance or instalment plans for electric bicycles?
+                                Do you offer payment plans for electric bicycles?
                             </flux:accordion.heading>
                             <flux:accordion.content class="site-flux-accordion-content">
-                                Yes, flexible finance and instalment options are available. Contact us for details.
+                                Yes, flexible payment plan options are available. Contact us for details.
                             </flux:accordion.content>
                         </flux:accordion.item>
                         <flux:accordion.item :transition="true">

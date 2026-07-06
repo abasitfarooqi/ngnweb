@@ -40,7 +40,7 @@
         @break
     @case('Sales')
         <p><strong class="text-gray-900 dark:text-white">Discover our motorcycle sales.</strong> Explore our <strong class="text-gray-900 dark:text-white">2025 range</strong> of motorbikes and mopeds from top brands like <strong class="text-gray-900 dark:text-white">Honda</strong> and <strong class="text-gray-900 dark:text-white">Yamaha</strong>, ideal for city commuting in London and perfect for new riders. Popular models include the <strong class="text-gray-900 dark:text-white">Honda PCX125</strong>, <strong class="text-gray-900 dark:text-white">Vision 110</strong>, <strong class="text-gray-900 dark:text-white">CB125F</strong>, <strong class="text-gray-900 dark:text-white">CBR125R</strong>, <strong class="text-gray-900 dark:text-white">CRF250L</strong>, and <strong class="text-gray-900 dark:text-white">MSX125 Grom</strong>. For Yamaha, we offer the <strong class="text-gray-900 dark:text-white">YZF-R125</strong>, <strong class="text-gray-900 dark:text-white">MT-125</strong>, <strong class="text-gray-900 dark:text-white">NMAX 125</strong>, <strong class="text-gray-900 dark:text-white">FZ-125</strong>, <strong class="text-gray-900 dark:text-white">WR125R</strong>, <strong class="text-gray-900 dark:text-white">Yamaha Aerox 50</strong>, and <strong class="text-gray-900 dark:text-white">Yamaha Neo&apos;s 50</strong>.</p>
-        <p>Looking for a reliable bike with <strong class="text-gray-900 dark:text-white">flexible payment options</strong>? We offer brand-new motorbikes from the <strong class="text-gray-900 dark:text-white">2025 range</strong> with straightforward instalment plans tailored to your budget. Our used bikes are sold as-is, making them a practical choice for delivery riders across London.</p>
+        <p>Looking for a reliable bike with <strong class="text-gray-900 dark:text-white">flexible payment options</strong>? We offer brand-new motorbikes from the <strong class="text-gray-900 dark:text-white">2025 range</strong> with straightforward payment plans tailored to your budget. Our used bikes are sold as-is, making them a practical choice for delivery riders across London.</p>
         <p><strong class="text-gray-900 dark:text-white">Straightforward payments</strong> designed to suit different budgets.</p>
         <div class="flex flex-wrap gap-2 mt-6 pt-5 border-t border-dashed border-gray-200 dark:border-gray-600">
             <flux:button href="{{ route('motorcycles.new') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">New motorcycles</flux:button>
@@ -64,9 +64,9 @@
         </div>
         @break
     @case('Finance')
-        <p><strong class="text-gray-900 dark:text-white">Explore our finance options</strong> to make your motorcycle purchase easier.</p>
+        <p><strong class="text-gray-900 dark:text-white">Explore our payment plan options</strong> to make your motorcycle purchase easier.</p>
         <div class="flex flex-wrap gap-2 mt-6 pt-5 border-t border-dashed border-gray-200 dark:border-gray-600">
-            <flux:button href="{{ route('site.finance') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Finance overview</flux:button>
+            <flux:button href="{{ route('site.finance') }}" variant="filled" size="sm" class="bg-brand-red text-white hover:bg-brand-red-dark">Payment plans overview</flux:button>
         </div>
         @break
 @endswitch

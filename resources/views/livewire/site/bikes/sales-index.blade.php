@@ -3,7 +3,7 @@
         <div class="absolute top-0 left-0 right-0 h-1 bg-brand-red" aria-hidden="true"></div>
         <div class="absolute inset-0 site-page-hero-overlay bg-gradient-to-br from-gray-900 via-gray-900 to-brand-red/25 opacity-90" aria-hidden="true"></div>
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
-            <flux:badge color="green" class="mb-4 uppercase tracking-widest text-[10px]">New stock</flux:badge>
+            <flux:badge class="site-flux-badge-green mb-4 uppercase tracking-widest text-[10px]">New stock</flux:badge>
             <h1 class="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight">Motorcycles for sale</h1>
             
         </div>
@@ -132,7 +132,7 @@
                                         Full details
                                     </flux:button>
                                     <flux:button href="/finance?source=new-bike&bike_id={{ $motorcycle->id }}&bike_type=new&price={{ (float) ($motorcycle->sale_new_price ?? 0) }}" variant="filled" size="sm" class="flex-1 justify-center bg-brand-red text-white hover:bg-brand-red-dark">
-                                        Payment Plan
+                                        Payment plans
                                     </flux:button>
                                 </div>
                             </div>

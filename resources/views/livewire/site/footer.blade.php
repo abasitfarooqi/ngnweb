@@ -30,7 +30,7 @@
                     <li><a href="/repairs" class="hover:text-white transition">Repairs & Servicing</a></li>
                     <li><a href="{{ route('rental-hire') }}" class="hover:text-white transition">Motorcycle Rentals</a></li>
                     <li><a href="/motorbikes" class="hover:text-white transition">Motorbikes For Sale</a></li>
-                    <li><a href="/finance" class="hover:text-white transition">Payment Plan</a></li>
+                    <li><a href="/finance" class="hover:text-white transition">Payment plans</a></li>
                     <li><a href="/motorcycle-delivery" class="hover:text-white transition">Recovery & Delivery</a></li>
                     <li><a href="/shop" class="hover:text-white transition">Shop</a></li>
                     <li><a href="/ebikes" class="hover:text-white transition">eBikes</a></li>

@@ -261,7 +261,7 @@ class Show extends Component
         return view('livewire.site.bikes.show')
             ->layout('components.layouts.public', [
                 'title' => ($this->bike->make ?? '').' '.($this->bike->model ?? '').' For Sale | NGN Motors',
-                'description' => 'Buy '.($this->bike->make ?? '').' '.($this->bike->model ?? '').' at NGN Motors London. Finance available.',
+                'description' => 'Buy '.($this->bike->make ?? '').' '.($this->bike->model ?? '').' at NGN Motors London. Payment plans available.',
             ]);
     }
 }

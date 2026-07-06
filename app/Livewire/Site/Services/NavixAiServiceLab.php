@@ -83,10 +83,10 @@ class NavixAiServiceLab extends Component
             ],
             [
                 'id' => 'finance',
-                'title' => 'Finance',
-                'description' => 'Finance paths for qualifying motorcycles, suitable for personal and work riders.',
+                'title' => 'Payment plans',
+                'description' => 'Payment plan options for qualifying motorcycles, suitable for personal and work riders.',
                 'href' => route('site.finance'),
-                'cta' => 'Open finance',
+                'cta' => 'Open payment plans',
                 'booking_type' => 'Other',
             ],
             [

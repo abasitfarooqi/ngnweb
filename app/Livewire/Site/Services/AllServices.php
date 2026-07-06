@@ -75,7 +75,7 @@ class AllServices extends Component
         return view('livewire.site.services.all-services')
             ->layout('components.layouts.public', [
                 'title' => 'Our Services | NGN Motorcycle — Repairs, MOT, Sales, Rental, London',
-                'description' => 'Discover NGN Motorcycle’s full range of services: repairs, MOT, servicing, vehicle delivery, sales, rental, accident management and finance. Catford, Tooting and Sutton.',
+                'description' => 'Discover NGN Motorcycle’s full range of services: repairs, MOT, servicing, vehicle delivery, sales, rental, accident management and payment plans. Catford, Tooting and Sutton.',
             ]);
     }
 }

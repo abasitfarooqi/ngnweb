@@ -182,8 +182,8 @@
                 <div class="flex gap-4">
                     <div class="w-10 h-10 bg-orange-600 flex items-center justify-center flex-shrink-0 text-white font-black text-lg">04</div>
                     <div>
-                        <h4 class="font-bold text-white mb-1">Finance Available</h4>
-                        <p class="text-zinc-400 text-sm leading-relaxed">Flexible finance options to get you on the road without the upfront cost.</p>
+                        <h4 class="font-bold text-white mb-1">Payment Plans Available</h4>
+                        <p class="text-zinc-400 text-sm leading-relaxed">Flexible payment plan options to get you on the road without the upfront cost.</p>
                     </div>
                 </div>
                 <div class="flex gap-4">

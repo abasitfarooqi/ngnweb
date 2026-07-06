@@ -5,7 +5,7 @@
     <div class="absolute inset-0 site-home-hero-grid" aria-hidden="true"></div>
     <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
         <div class="max-w-2xl">
-            <flux:badge color="green" class="mb-4 uppercase tracking-wide text-xs">London's Motorcycle Specialists Since 2018</flux:badge>
+            <flux:badge class="site-flux-badge-green mb-4 uppercase tracking-wide text-xs">London's Motorcycle Specialists Since 2018</flux:badge>
             <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
                 Motorcycles.<br>Rentals, MOT,<br>
                 <span class="text-emerald-400">Repairs & Sales.</span>
@@ -76,7 +76,7 @@
     <div class="absolute top-0 left-0 right-0 h-1 bg-brand-green" aria-hidden="true"></div>
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-2xl mx-auto mb-10 md:mb-12">
-            <flux:badge color="green" class="mb-3 uppercase tracking-widest text-[10px]">Hire fleet</flux:badge>
+            <flux:badge class="site-flux-badge-green mb-3 uppercase tracking-widest text-[10px]">Hire fleet</flux:badge>
             <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Motorcycle rentals</h2>
             <p class="mt-3 text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                 Short-term and long-term hire across our London branches. Swipe on mobile or use the arrows.
@@ -207,7 +207,7 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
             <div>
-                <flux:badge color="green" class="mb-3 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
+                <flux:badge class="site-flux-badge-green mb-3 uppercase tracking-widest text-[10px]">Used stock</flux:badge>
                 <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Used motorcycles</h2>
                 <p class="mt-2 text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
                     current used motorcycles. Same listings as our full used showroom.

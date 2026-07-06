@@ -121,7 +121,7 @@
             'alt' => 'Motorcycle payment plan options',
             'teaser' => 'Payment plan options to make your next motorcycle purchase straightforward — ask us what is available on new stock.',
             'buttons' => [
-                ['href' => route('site.finance'), 'label' => 'Payment plan overview', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
+                ['href' => route('site.finance'), 'label' => 'Payment plans overview', 'variant' => 'filled', 'class' => 'bg-brand-red text-white hover:bg-brand-red-dark'],
             ],
         ],
     ];

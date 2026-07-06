@@ -96,7 +96,7 @@ class Index extends Component
         return view('livewire.site.bikes.index', compact('newBikes', 'usedBikes'))
             ->layout('components.layouts.public', [
                 'title' => 'Used Motorcycles For Sale London | New Bikes | NGN Motors',
-                'description' => 'Quality used motorcycles for sale in London. Finance available.',
+                'description' => 'Quality used motorcycles for sale in London. Payment plans available.',
             ]);
     }
 }

@@ -25,7 +25,7 @@
 
             {{-- Copy + CTA — one column, no extra blocks below --}}
             <div class="flex flex-col justify-center p-6 md:p-8">
-                <flux:badge color="green" class="mb-2 w-fit uppercase tracking-widest text-[10px]">Workshop specialists</flux:badge>
+                <flux:badge class="site-flux-badge-green mb-2 w-fit uppercase tracking-widest text-[10px]">Workshop specialists</flux:badge>
                 <h2 class="text-xl md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight leading-snug">
                     Specialist motorcycle &amp; scooter engine rebuilds
                 </h2>

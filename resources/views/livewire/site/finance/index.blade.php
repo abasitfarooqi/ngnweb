@@ -44,7 +44,7 @@
                     <flux:input wire:model.live="deposit" type="number" min="0" />
                 </flux:field>
                 <flux:field>
-                    <flux:label>Instalment term (months)</flux:label>
+                    <flux:label>Payment plan term (months)</flux:label>
                     <flux:select wire:model.live="term" variant="listbox" placeholder="Select term (optional)">
                         <flux:select.option value="6">6 months</flux:select.option>
                         <flux:select.option value="10">10 months</flux:select.option>

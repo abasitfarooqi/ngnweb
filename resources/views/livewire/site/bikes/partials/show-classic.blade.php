@@ -35,7 +35,7 @@
         <div>
             <div class="mb-3">
                 @if($isNew)
-                    <flux:badge color="green">New</flux:badge>
+                    <flux:badge class="site-flux-badge-green">New</flux:badge>
                 @else
                     <flux:badge color="blue">Used</flux:badge>
                 @endif

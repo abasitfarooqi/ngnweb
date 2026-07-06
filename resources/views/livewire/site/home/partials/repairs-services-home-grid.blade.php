@@ -1,7 +1,7 @@
 <section class="py-12 md:py-16 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center mb-10 md:mb-12 max-w-3xl mx-auto">
-            <flux:badge color="green" class="mb-3 uppercase tracking-widest text-[10px]">Workshop</flux:badge>
+            <flux:badge class="site-flux-badge-green mb-3 uppercase tracking-widest text-[10px]">Workshop</flux:badge>
             <h2 class="text-2xl md:text-4xl font-bold text-gray-900 dark:text-white tracking-tight">Extensive motorcycle services</h2>
             <p class="mt-3 text-sm md:text-base text-gray-600 dark:text-gray-400 leading-relaxed">
                 Servicing, repairs and MOT across Catford, Tooting and Sutton. Same depth as our legacy service pages — compare packages, book enquiries, or browse every workshop offering on <a href="{{ route('all-services') }}" class="text-brand-green font-semibold underline underline-offset-2">all services</a>.

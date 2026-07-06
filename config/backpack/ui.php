@@ -63,7 +63,7 @@ return [
     'home_link' => '',
 
     // Menu logo. You can replace this with an <img> tag if you have a logo.
-    'project_logo' => '<img src="https://neguinhomotors.co.uk/assets/images/logo-dark.png" alt="NGN Motor admin" height="60" class="mt-2 mb-2 text-left">',
+    'project_logo' => '<img src="/assets/images/logo-dark.png" alt="NGN Motor admin" height="60" class="mt-2 mb-2 text-left">',
 
     // Show / hide breadcrumbs on admin panel pages.
     'breadcrumbs' => true,

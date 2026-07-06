@@ -34,7 +34,7 @@
                 ['icon'=>'check-badge',      'title'=>'MOT Booking',          'text'=>'DVSA-approved MOT Booking for motorcycles, mopeds & scooters. From £29.65.', 'url'=>'/mot'],
                 ['icon'=>'wrench-screwdriver','title'=>'Repairs & Servicing', 'text'=>'Full workshop repairs, basic & major services, accident damage, brake & tyre work.', 'url'=>'/repairs'],
                 ['icon'=>'shopping-bag',     'title'=>'Sales',                'text'=>'New and used motorcycles from trusted brands. Payment plan options available.', 'url'=>'/motorbikes'],
-                ['icon'=>'banknotes',        'title'=>'Payment Plan',         'text'=>'Flexible payment plans to help you buy your dream bike. Competitive rates.', 'url'=>'/finance'],
+                ['icon'=>'banknotes',        'title'=>'Payment plans',         'text'=>'Flexible payment plans to help you buy your dream bike. Competitive rates.', 'url'=>'/finance'],
                 ['icon'=>'bolt',             'title'=>'Recovery',             'text'=>'24/7 motorcycle recovery, breakdown assistance and delivery across London.', 'url'=>'/recovery'],
             ] as $item)
                 <a href="{{ $item['url'] }}" class="group block">

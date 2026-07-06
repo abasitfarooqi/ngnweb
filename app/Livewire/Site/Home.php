@@ -152,7 +152,7 @@ class Home extends Component
         return view('livewire.site.home')
             ->layout('components.layouts.public', [
                 'title' => 'NGN Motors - Motorcycle Rentals, MOT, Repairs & Sales in London',
-                'description' => 'Expert motorcycle services in London. Rentals from £70/week, MOT Booking, repairs, servicing, used bikes, and finance.',
+                'description' => 'Expert motorcycle services in London. Rentals from £70/week, MOT Booking, repairs, servicing, used bikes, and payment plans.',
             ]);
     }
 }

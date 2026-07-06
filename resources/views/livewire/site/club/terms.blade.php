@@ -16,7 +16,7 @@
                 'Loyalty credits earned will be assigned to your account after each qualifying purchase. Previous purchases made before joining the NGN Club are not eligible for credit.',
                 'Members are responsible for keeping their account details safe.',
                 'Credits will expire after 6 months of being added into a member\'s account.',
-                'Credits cannot be used towards PCNs, Instalments, or Rentals.',
+                'Credits cannot be used towards PCNs, Payment plans, or Rentals.',
                 'Loyalty credits earned will be available after 48 hours.',
                 'Members will earn 10% credit on each £1 spent on repairs, maintenances, accessories and MOT to be used at any NGN stores.',
                 'Members will earn 2% credit on each £1 spent on all motorbike purchases to be used at any NGN stores.',

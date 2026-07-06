@@ -77,7 +77,7 @@ class UsedIndex extends Component
         return view('livewire.site.bikes.used-index', compact('motorbikes', 'latestMotorcycles', 'total', 'hasMore'))
             ->layout('components.layouts.public', [
                 'title' => 'Used Motorbike For Sale - NGN - Motorcycle Rentals, Repairs, Accessories in Catford, Tooting, UK',
-                'description' => 'Browse used motorcycles for sale with full details, enquiry and finance links.',
+                'description' => 'Browse used motorcycles for sale with full details, enquiry and payment plan links.',
             ]);
     }
 }
