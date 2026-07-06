@@ -4,6 +4,7 @@
             <x-flux-admin::export-button />
             <flux:button size="sm" variant="ghost" icon="arrow-down-tray" wire:click="exportForPos" class="!rounded-none">POS export</flux:button>
             <flux:button size="sm" variant="ghost" icon="arrow-up-tray" wire:click="$set('showImportModal', true)" class="!rounded-none">Import stock</flux:button>
+            <flux:button size="sm" variant="danger" icon="trash" wire:click="$set('showPurgeModal', true)" class="!rounded-none">Delete all catalogue</flux:button>
             <a href="{{ route('flux-admin.inventory-products.create') }}">
                 <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New product</flux:button>
             </a>
@@ -138,6 +139,22 @@
             <div class="flex justify-end gap-2 pt-2">
                 <flux:button type="button" variant="ghost" wire:click="$set('showImportModal', false)" class="!rounded-none">Cancel</flux:button>
                 <flux:button type="submit" variant="primary" class="!rounded-none">Import</flux:button>
+            </div>
+        </form>
+    </flux:modal>
+
+    <flux:modal wire:model.self="showPurgeModal" class="md:w-[500px]">
+        <form wire:submit.prevent="purgeAllCatalog" class="space-y-4" novalidate>
+            <flux:heading size="lg">Delete entire catalogue</flux:heading>
+            <p class="text-sm text-red-600 dark:text-red-400">
+                This permanently deletes <strong>all</strong> products, variants, gallery images, stock movements, brands, categories and models. Order history is kept but product links are cleared. This cannot be undone.
+            </p>
+            <x-flux-admin::field-group label="Admin password" :error="$errors->first('purgePassword')" required>
+                <flux:input type="password" wire:model="purgePassword" placeholder="Enter purge password" />
+            </x-flux-admin::field-group>
+            <div class="flex justify-end gap-2 pt-2">
+                <flux:button type="button" variant="ghost" wire:click="$set('showPurgeModal', false)" class="!rounded-none">Cancel</flux:button>
+                <flux:button type="submit" variant="danger" class="!rounded-none">Delete everything</flux:button>
             </div>
         </form>
     </flux:modal>

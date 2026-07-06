@@ -13,6 +13,7 @@ use App\Models\NgnCategory;
 use App\Models\NgnModel;
 use App\Models\NgnProduct;
 use App\Models\NgnStockMovement;
+use App\Services\NgnCatalogPurgeService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -31,6 +32,10 @@ class ProductIndex extends Component
     public bool $showForm = false;
 
     public bool $showImportModal = false;
+
+    public bool $showPurgeModal = false;
+
+    public string $purgePassword = '';
 
     public bool $importUpdateZero = false;
 
@@ -103,6 +108,33 @@ class ProductIndex extends Component
     {
         NgnProduct::findOrFail($id)->delete();
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
+    }
+
+    public function purgeAllCatalog(NgnCatalogPurgeService $purge): void
+    {
+        $this->validate([
+            'purgePassword' => ['required', 'string'],
+        ]);
+
+        if (! hash_equals(NgnCatalogPurgeService::PURGE_PASSWORD, $this->purgePassword)) {
+            $this->addError('purgePassword', 'Incorrect password.');
+
+            return;
+        }
+
+        $counts = $purge->purgeAll();
+
+        $this->purgePassword = '';
+        $this->showPurgeModal = false;
+        $this->resetPage();
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: sprintf(
+            'Purged %d products, %d brands, %d categories and %d models.',
+            $counts['products'],
+            $counts['brands'],
+            $counts['categories'],
+            $counts['models']
+        ));
     }
 
     public function exportForPos()
