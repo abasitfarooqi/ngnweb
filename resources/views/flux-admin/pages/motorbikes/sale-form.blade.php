@@ -22,9 +22,8 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Sale details</h2>
 
-            {{-- Motorbike search --}}
-            <div class="mb-4">
-                <x-flux-admin::field-group label="Motorbike (reg)" required :error="$errors->first('form.motorbike_id')">
+            <x-flux-admin::form-grid cols="3" class="mb-4">
+                <x-flux-admin::field-group label="Motorbike (reg)" required span="full" :error="$errors->first('form.motorbike_id')">
                     <div class="relative">
                         <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by registration…" autocomplete="off" />
                         @if(count($motorbikeSuggestions))
@@ -37,9 +36,7 @@
                         @endif
                     </div>
                 </x-flux-admin::field-group>
-            </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Condition" :error="$errors->first('form.condition')">
                     <flux:input wire:model="form.condition" placeholder="e.g. Good, Fair" />
                 </x-flux-admin::field-group>
@@ -59,7 +56,9 @@
                 <x-flux-admin::field-group label="Sale date" :error="$errors->first('form.date_of_sale')">
                     <flux:input wire:model="form.date_of_sale" type="date" />
                 </x-flux-admin::field-group>
+            </x-flux-admin::form-grid>
 
+            <x-flux-admin::form-grid cols="3">
                 <x-flux-admin::field-group label="Engine" :error="$errors->first('form.engine')">
                     <flux:input wire:model="form.engine" />
                 </x-flux-admin::field-group>
@@ -83,10 +82,10 @@
                 <x-flux-admin::field-group label="Tires" :error="$errors->first('form.tires')">
                     <flux:input wire:model="form.tires" />
                 </x-flux-admin::field-group>
-            </div>
+            </x-flux-admin::form-grid>
 
             @if($form['is_sold'] ?? false)
-                <div class="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+                <x-flux-admin::form-grid cols="3" class="mt-4">
                     <x-flux-admin::field-group label="Buyer name" :error="$errors->first('form.buyer_name')">
                         <flux:input wire:model="form.buyer_name" />
                     </x-flux-admin::field-group>
@@ -98,25 +97,22 @@
                     <x-flux-admin::field-group label="Buyer email" :error="$errors->first('form.buyer_email')">
                         <flux:input wire:model="form.buyer_email" type="email" />
                     </x-flux-admin::field-group>
-                </div>
-                <div class="mt-4">
-                    <x-flux-admin::field-group label="Buyer address" :error="$errors->first('form.buyer_address')">
+
+                    <x-flux-admin::field-group label="Buyer address" span="full" :error="$errors->first('form.buyer_address')">
                         <flux:textarea wire:model="form.buyer_address" rows="2" />
                     </x-flux-admin::field-group>
-                </div>
+                </x-flux-admin::form-grid>
             @endif
 
-            <div class="mt-4">
+            <x-flux-admin::form-grid cols="1" class="mt-4">
                 <x-flux-admin::field-group label="Accessories" :error="$errors->first('form.accessories')">
                     <flux:textarea wire:model="form.accessories" rows="3" />
                 </x-flux-admin::field-group>
-            </div>
 
-            <div class="mt-4">
                 <x-flux-admin::field-group label="Notes" :error="$errors->first('form.note')">
                     <flux:textarea wire:model="form.note" rows="2" />
                 </x-flux-admin::field-group>
-            </div>
+            </x-flux-admin::form-grid>
 
             <div class="mt-4 flex items-center gap-6">
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">

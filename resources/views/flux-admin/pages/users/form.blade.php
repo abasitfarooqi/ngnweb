@@ -27,7 +27,7 @@
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Account details</h2>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Staff account details, role assignment and extra permissions.</p>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="First name" required :error="$errors->first('first_name')">
                     <flux:input wire:model="first_name" />
                 </x-flux-admin::field-group>
@@ -57,7 +57,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Password</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group
                     label="Password"
                     :required="! $userId"

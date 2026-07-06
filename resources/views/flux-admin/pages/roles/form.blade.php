@@ -27,7 +27,7 @@
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Role details</h2>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Roles bundle permissions that can be assigned to users.</p>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Name" required :error="$errors->first('name')">
                     <flux:input wire:model="name" />
                 </x-flux-admin::field-group>

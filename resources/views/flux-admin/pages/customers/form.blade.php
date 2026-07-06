@@ -24,7 +24,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Personal details</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="First name" required :error="$errors->first('form.first_name')">
                     <flux:input wire:model="form.first_name" />
                 </x-flux-admin::field-group>
@@ -78,7 +78,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Licence details</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Licence number" :error="$errors->first('form.license_number')">
                     <flux:input wire:model="form.license_number" />
                 </x-flux-admin::field-group>
@@ -100,7 +100,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Account settings</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Star rating (1–5)" :error="$errors->first('form.rating')">
                     <flux:input type="number" min="1" max="5" step="1" wire:model="form.rating" />
                 </x-flux-admin::field-group>

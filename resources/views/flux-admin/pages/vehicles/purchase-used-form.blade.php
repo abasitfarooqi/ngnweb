@@ -21,7 +21,7 @@
     <form wire:submit.prevent="save" class="space-y-6">
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Seller details</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Purchase date" :error="$errors->first('form.purchase_date')">
                     <flux:input type="date" wire:model="form.purchase_date" />
                 </x-flux-admin::field-group>
@@ -47,7 +47,7 @@
 
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Vehicle details</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Make" :error="$errors->first('form.make')">
                     <flux:input wire:model="form.make" />
                 </x-flux-admin::field-group>

@@ -19,7 +19,7 @@
     <form wire:submit.prevent="save" class="space-y-5">
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Invoice details</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Invoice number" :error="$errors->first('form.invoice_number')">
                     <flux:input wire:model="form.invoice_number" />
                 </x-flux-admin::field-group>
@@ -76,7 +76,7 @@
 
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Customer & vehicle</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Customer" :error="$errors->first('form.customer_id')">
                     <flux:select wire:model.live="form.customer_id" placeholder="— Select —">
                         <flux:select.option value="">Manual customer</flux:select.option>

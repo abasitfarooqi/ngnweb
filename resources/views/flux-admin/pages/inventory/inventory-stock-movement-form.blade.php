@@ -20,7 +20,7 @@
 
     <form wire:submit.prevent="save" class="space-y-6" novalidate>
         <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
-            <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="flux-admin-form-grid grid grid-cols-1 gap-4 md:grid-cols-2">
                 <x-flux-admin::field-group label="Product" required :error="$errors->first('form.product_id')">
                     <flux:select wire:model="form.product_id" placeholder="— Select —">
                         @foreach($products as $p)

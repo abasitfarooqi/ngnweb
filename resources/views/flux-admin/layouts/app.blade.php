@@ -435,7 +435,7 @@
 
         <flux:separator />
 
-        <flux:navlist class="flux-admin-menu min-h-0  overflow-y-auto">
+        <flux:navlist id="flux-admin-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
             <flux:navlist.item href="{{ route('flux-admin.dashboard') }}" icon="home" :current="request()->routeIs('flux-admin.dashboard*')">Dashboard</flux:navlist.item>
             <flux:navlist.item href="{{ route('flux-admin.search') }}" icon="magnifying-glass" :current="request()->routeIs('flux-admin.search')">Global search</flux:navlist.item>
 
@@ -747,5 +747,93 @@
     <flux:toast />
     @livewireScripts
     @fluxScripts
+    <script>
+        (function () {
+            var key = 'flux-admin:navlist-scroll';
+
+            function navlist() {
+                return document.getElementById('flux-admin-navlist')
+                    || document.querySelector('[data-flux-sidebar] [data-flux-navlist]');
+            }
+
+            function readScroll() {
+                var raw = sessionStorage.getItem(key);
+                if (raw === null) {
+                    return null;
+                }
+                var top = parseInt(raw, 10);
+                return Number.isNaN(top) ? null : top;
+            }
+
+            function saveScroll() {
+                var el = navlist();
+                if (!el) {
+                    return;
+                }
+                sessionStorage.setItem(key, String(el.scrollTop));
+            }
+
+            function restoreScroll() {
+                var el = navlist();
+                var top = readScroll();
+                if (!el || top === null) {
+                    return;
+                }
+                el.scrollTop = top;
+            }
+
+            function restoreScrollUntilStable() {
+                var top = readScroll();
+                if (top === null) {
+                    return;
+                }
+                var attempts = 0;
+                var tick = function () {
+                    var el = navlist();
+                    if (!el) {
+                        return;
+                    }
+                    if (el.scrollTop !== top) {
+                        el.scrollTop = top;
+                    }
+                    if (++attempts < 10) {
+                        requestAnimationFrame(tick);
+                    }
+                };
+                requestAnimationFrame(tick);
+            }
+
+            function bindNavlist() {
+                var el = navlist();
+                if (!el || el.dataset.scrollBound === '1') {
+                    return;
+                }
+                el.dataset.scrollBound = '1';
+                el.addEventListener('scroll', saveScroll, { passive: true });
+            }
+
+            document.addEventListener('click', function (event) {
+                if (event.target.closest('[data-flux-sidebar] a[href]')) {
+                    saveScroll();
+                }
+            }, true);
+
+            document.addEventListener('livewire:navigating', saveScroll);
+            document.addEventListener('livewire:navigated', function () {
+                bindNavlist();
+                restoreScrollUntilStable();
+            });
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', function () {
+                    bindNavlist();
+                    restoreScroll();
+                });
+            } else {
+                bindNavlist();
+                restoreScroll();
+            }
+        })();
+    </script>
 </body>
 </html>

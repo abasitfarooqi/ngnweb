@@ -414,6 +414,42 @@ body.flux-admin-app .flux-admin-content form .grid [data-flux-field] {
     margin-bottom: 0;
 }
 
+/* Flux admin CRUD forms — aligned grids and full-width controls */
+body.flux-admin-app .flux-admin-content form .flux-admin-form-grid,
+body.flux-admin-app .flux-admin-content form .grid:has(> .flux-admin-field) {
+    align-items: start;
+    width: 100%;
+}
+
+body.flux-admin-app .flux-admin-content form .flux-admin-form-grid > .flux-admin-field,
+body.flux-admin-app .flux-admin-content form .grid:has(> .flux-admin-field) > .flux-admin-field {
+    min-width: 0;
+    width: 100%;
+}
+
+body.flux-admin-app .flux-admin-field-control [data-flux-input],
+body.flux-admin-app .flux-admin-field-control [data-flux-select],
+body.flux-admin-app .flux-admin-field-control [data-flux-textarea],
+body.flux-admin-app .flux-admin-field-control [data-flux-date-picker] {
+    display: block;
+    width: 100%;
+    min-width: 0;
+}
+
+body.flux-admin-app .flux-admin-field-control input[data-flux-control],
+body.flux-admin-app .flux-admin-field-control textarea[data-flux-control],
+body.flux-admin-app .flux-admin-field-control [data-flux-select-button],
+body.flux-admin-app .flux-admin-field-control [data-flux-date-picker-button] {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+body.flux-admin-app .flux-admin-field-control > .relative {
+    width: 100%;
+    min-width: 0;
+}
+
 body.flux-admin-app textarea[data-flux-control] {
     min-height: 6rem;
     padding-top: 0.625rem;

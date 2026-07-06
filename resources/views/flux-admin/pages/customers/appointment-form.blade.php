@@ -22,7 +22,7 @@
         <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
             <h2 class="mb-4 text-sm font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-300">Appointment details</h2>
 
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div class="flux-admin-form-grid grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <x-flux-admin::field-group label="Appointment date" required :error="$errors->first('form.appointment_date')" class="sm:col-span-2">
                     <flux:input type="datetime-local" wire:model="form.appointment_date" />
                 </x-flux-admin::field-group>

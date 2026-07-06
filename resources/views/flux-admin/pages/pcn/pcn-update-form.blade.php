@@ -36,7 +36,7 @@
                 </x-flux-admin::field-group>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Update date" required :error="$errors->first('form.update_date')">
                     <flux:input type="date" wire:model="form.update_date" />
                 </x-flux-admin::field-group>

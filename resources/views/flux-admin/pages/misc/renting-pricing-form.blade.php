@@ -20,7 +20,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Pricing details</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Weekly price (£)" required :error="$errors->first('form.weekly_price')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.weekly_price" placeholder="0.00" />
                 </x-flux-admin::field-group>

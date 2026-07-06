@@ -39,7 +39,7 @@
                 </x-flux-admin::field-group>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Full name" required :error="$errors->first('form.fullname')">
                     <flux:input wire:model="form.fullname" />
                 </x-flux-admin::field-group>

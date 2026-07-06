@@ -23,7 +23,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Member details</h2>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Full name" required :error="$errors->first('form.full_name')" class="sm:col-span-2">
                     <flux:input wire:model="form.full_name" />
                 </x-flux-admin::field-group>
