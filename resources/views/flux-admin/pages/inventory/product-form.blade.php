@@ -146,6 +146,7 @@
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Or upload MP4/WebM" :error="$errors->first('videoUpload')">
                     <input type="file" wire:model="videoUpload" accept="video/mp4,video/webm,video/quicktime" class="block w-full text-sm text-zinc-700 dark:text-zinc-300">
+                    <p class="mt-1 text-xs text-zinc-500">For large files, use Video URL instead. Server upload limit: {{ ini_get('upload_max_filesize') ?: '2M' }}.</p>
                     @if(!empty($form['video_url']) && empty($videoUpload))
                         <p class="mt-2 text-xs text-zinc-500 break-all">{{ $form['video_url'] }}</p>
                     @endif

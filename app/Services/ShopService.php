@@ -11,9 +11,14 @@ use App\Models\TermsVersion;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 class ShopService
 {
+    public function __construct(
+        private readonly NgnProductCatalogService $catalog
+    ) {}
+
     /**
      * Get paginated products with optional filters.
      */
@@ -107,7 +112,12 @@ class ShopService
             default => $query->orderBy('max_created_at', 'desc'),
         };
 
-        return $query->paginate($perPage, ['*'], 'page', $page);
+        return $query->paginate($perPage, ['*'], 'page', $page)
+            ->through(function ($product) {
+                $product->image_url = $this->catalog->publicAssetUrl($product->image_url);
+
+                return $product;
+            });
     }
 
     /**
@@ -229,14 +239,32 @@ class ShopService
             $selectedVariantId = (int) $variantRows[0]['id'];
         }
 
+        $resolvedImages = array_values(array_filter(array_map(
+            fn (string $path) => $this->catalog->publicAssetUrl($path),
+            $uniqueImages
+        )));
+
+        $mainImage = $this->catalog->publicAssetUrl($display->image_url);
+        if ($mainImage && ! in_array($mainImage, $resolvedImages, true)) {
+            array_unshift($resolvedImages, $mainImage);
+        }
+
+        $hasVariantOptions = count($variantRows) > 1
+            || (count($variantRows) === 1 && (
+                (int) ($variants->first()->parent_product_id ?? 0) === (int) $display->id
+                || trim((string) ($variantRows[0]['size_label'] ?? '')) !== ''
+                || trim((string) ($variantRows[0]['variation'] ?? '')) !== ''
+            ));
+
         return [
             'name' => $display->name,
             'slug' => $display->slug,
             'canonical_slug' => $slug,
             'selected_variant_id' => $selectedVariantId,
-            'image_url' => $display->image_url,
-            'video_url' => $display->video_url ?? null,
-            'image_array' => $uniqueImages,
+            'image_url' => $mainImage,
+            'video_url' => $this->resolveVideoUrl($display->video_url ?? null),
+            'image_array' => $resolvedImages,
+            'has_variant_options' => $hasVariantOptions,
             'normal_price' => (float) $display->normal_price,
             'global_stock' => $display->global_stock,
             'meta_title' => $display->meta_title,
@@ -252,6 +280,20 @@ class ShopService
     /**
      * Base slug for per-size URLs such as atom-2-bast-b7-variant-xs.
      */
+    private function resolveVideoUrl(?string $path): ?string
+    {
+        if (! $path) {
+            return null;
+        }
+
+        if (Str::startsWith($path, ['http://', 'https://', '/'])
+            || Str::contains($path, ['youtube.com', 'youtu.be', 'vimeo.com'])) {
+            return $path;
+        }
+
+        return $this->catalog->publicAssetUrl($path);
+    }
+
     private function sizeVariantBaseSlug(string $slug): ?string
     {
         if (preg_match('/^(.+)-variant-[a-z0-9]+$/i', $slug, $matches) === 1) {

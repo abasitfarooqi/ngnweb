@@ -87,9 +87,11 @@
             @endif
 
             {{-- Variants --}}
-            @if(count($product['variants']) > 1)
+            @if(!empty($product['has_variant_options']) && count($product['variants']) >= 1)
                 <div class="mb-5">
-                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Select variant:</p>
+                    <p class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                        {{ count($product['variants']) > 1 ? 'Select variant:' : 'Variant:' }}
+                    </p>
                     <div class="flex flex-wrap gap-2">
                         @foreach($product['variants'] as $variant)
                             <button wire:click="selectVariant({{ $variant['id'] }})"
@@ -105,8 +107,6 @@
                         @endforeach
                     </div>
                 </div>
-            @elseif(count($product['variants']) === 1)
-                <input type="hidden" wire:model="selectedVariantId" value="{{ $product['variants'][0]['id'] }}">
             @endif
 
             {{-- Quantity --}}

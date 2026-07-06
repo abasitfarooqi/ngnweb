@@ -453,6 +453,10 @@ class NgnProductCatalogService
         $size = trim((string) ($row['size_label'] ?? ''));
         $variation = trim((string) ($row['variation'] ?? ''));
 
+        if ($size !== '') {
+            return rtrim($baseSlug, '-').'-variant-'.Str::slug($size);
+        }
+
         if ($colour !== '') {
             $colourSlug = Str::slug($colour);
 
@@ -461,12 +465,8 @@ class NgnProductCatalogService
                 : rtrim($baseSlug, '-').'-'.$colourSlug;
         }
 
-        if ($variation !== '' && $size === '') {
+        if ($variation !== '') {
             return $baseSlug;
-        }
-
-        if ($size !== '') {
-            return rtrim($baseSlug, '-').'-variant-'.Str::slug($size);
         }
 
         return $baseSlug;

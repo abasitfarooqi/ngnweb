@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\NgnProduct;
 use App\Models\SpAssembly;
 use App\Models\SpPart;
+use App\Services\NgnProductCatalogService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 
@@ -123,7 +124,7 @@ class CartService
                 'product_name' => $product->name,
                 'variation' => $product->variation,
                 'sku' => $product->sku,
-                'image_url' => $product->image_url,
+                'image_url' => app(NgnProductCatalogService::class)->publicAssetUrl($product->image_url),
                 'slug' => $product->slug,
                 'unit_price' => $unitPrice,
                 'line_total' => $unitPrice * $quantity,
