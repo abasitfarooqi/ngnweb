@@ -174,6 +174,15 @@ cache_laravel() {
   "
 }
 
+run_migrations() {
+  log "RUN DATABASE MIGRATIONS"
+
+  sudo -u deploy bash -lc "
+    cd '$REL'
+    php artisan migrate --force
+  "
+}
+
 verify_release_files() {
   log "VERIFY RELEASE FILES"
 
@@ -184,13 +193,13 @@ verify_release_files() {
   [ -L "$REL/public/storage" ] || { echo "ERROR: public/storage symlink missing"; exit 1; }
   [ -f "$BASE/shared/storage/app/public/basset/.basset" ] || { echo "ERROR: Backpack basset cache map missing"; exit 1; }
 
-  sudo -u deploy bash -lc "
-    cd '$REL'
-    test \"\$(php artisan tinker --execute='echo config(\"'\"'app.url\"'\"');')\" = '$CANONICAL_URL'
-  " || {
-    echo "ERROR: Laravel cached app.url is not $CANONICAL_URL"
+  local cached_app_url
+  cached_app_url="$(sudo -u deploy bash -lc "cd '$REL' && timeout 20 php -r 'require \"vendor/autoload.php\"; \$app = require \"bootstrap/app.php\"; \$app->make(\"Illuminate\\\\Contracts\\\\Console\\\\Kernel\")->bootstrap(); echo config(\"app.url\");'")"
+
+  if [ "$cached_app_url" != "$CANONICAL_URL" ]; then
+    echo "ERROR: Laravel cached app.url is '$cached_app_url', expected '$CANONICAL_URL'."
     exit 1
-  }
+  fi
 
   echo "Release files and cached config look healthy."
 }
@@ -281,6 +290,7 @@ fi
 log "COMPOSER INSTALL"
 sudo -u deploy bash -lc "cd '$REL' && composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader"
 
+run_migrations
 cache_backpack_assets
 cache_laravel
 verify_release_files
