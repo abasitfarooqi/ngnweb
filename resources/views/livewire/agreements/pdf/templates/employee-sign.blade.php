@@ -398,7 +398,7 @@
 
                 <p>Employee Name: <b>{{ $customer }}</b></p>
                 <br><br>
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 299.25px; height: 106.7px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 299.25px; height: 106.7px">
                 <b>
                     <p>Date: <b> {{ \Carbon\Carbon::parse($date)->format('d F Y') }}</b></p>
                 </b>

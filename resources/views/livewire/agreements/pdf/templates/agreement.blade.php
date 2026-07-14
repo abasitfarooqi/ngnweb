@@ -281,7 +281,7 @@
         <tr>
             <td class="td-cont">Signature</td>
             <td class="td-cont">
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 500px; height: 112px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 500px; height: 112px">
             </td>
         </tr>
     </table>
@@ -1039,7 +1039,7 @@
                 <h3>Signature</h3>
                 <p>By signing below, the Renter agrees to the terms and conditions of this Motorcycle Rental Agreement.
                 </p>
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 500px; height: 112px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 500px; height: 112px">
 
             </div>
         </div>

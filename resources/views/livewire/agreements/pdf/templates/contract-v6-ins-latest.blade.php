@@ -398,7 +398,7 @@
         <tr>
             <td class="td-cont">Signature</td>
             <td class="td-cont">
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 199.25px; height: 71.2px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 199.25px; height: 71.2px">
             </td>
         </tr>
     </table>
@@ -1145,7 +1145,7 @@
                 <h4>Signature Date: {{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y H:i:s') }}</h4>
                 <h3>Signature</h3>
                 <p>By signing below, the keeper agrees to the terms and conditions of this Motorcycle Sale Contract.</p>
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 199.25px; height: 71.2px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 199.25px; height: 71.2px">
             </div>
         </div>
     </div>

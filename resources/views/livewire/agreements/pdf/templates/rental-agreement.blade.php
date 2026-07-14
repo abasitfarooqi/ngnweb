@@ -979,7 +979,7 @@
 
                     <p>Signature:</p>
 
-                    <img src="{{ storage_path('app/public/' . $agreement->signature) }}"
+                    <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($agreement->signature ?? '') }}"
                         style="width: 200px; height: 200px">
 
 

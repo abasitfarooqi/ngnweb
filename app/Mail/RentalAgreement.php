@@ -50,7 +50,7 @@ class RentalAgreement extends Mailable
         // Check if this is a battery safety leaflet email
         $isBatterySafetyLeaflet = isset($this->mailData['title']) && $this->mailData['title'] === 'E-Bike Battery Safety Leaflet';
 
-        if (is_array($this->mailData['pdf']) && ! isset($this->mailData['pdf']->output)) {
+        if (isset($this->mailData['pdf']) && is_array($this->mailData['pdf']) && ! isset($this->mailData['pdf']->output)) {
             // Handle array of PDFs
             foreach ($this->mailData['pdf'] as $index => $pdf) {
                 if ($pdf && method_exists($pdf, 'output')) {
@@ -61,15 +61,13 @@ class RentalAgreement extends Mailable
                     )->withMime('application/pdf');
                 }
             }
-        } else {
+        } elseif (isset($this->mailData['pdf']) && method_exists($this->mailData['pdf'], 'output')) {
             // Handle single PDF
-            if (isset($this->mailData['pdf']) && method_exists($this->mailData['pdf'], 'output')) {
-                $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'Rental-Agreement.pdf';
-                $attachments[] = Attachment::fromData(
-                    fn () => $this->mailData['pdf']->output(),
-                    $filename
-                )->withMime('application/pdf');
-            }
+            $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'Rental-Agreement.pdf';
+            $attachments[] = Attachment::fromData(
+                fn () => $this->mailData['pdf']->output(),
+                $filename
+            )->withMime('application/pdf');
         }
 
         return $attachments;

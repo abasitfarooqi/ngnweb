@@ -9,11 +9,11 @@ use App\Models\Rental;
 use App\Models\RentalPayment;
 use App\Models\User;
 use App\Support\AgreementPdfGenerator;
+use App\Support\SignatureUploadStore;
 use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
 
 class RentalSignupController extends Controller
 {
@@ -184,11 +184,11 @@ class RentalSignupController extends Controller
     // Process rental agreement - Save new client signature function
     public function signedAgreement(Request $request)
     {
-        $base64_image = $request->input('sign'); // your base64 encoded
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now().'.'.'jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         $user = User::findOrFail($request->user_id);
 

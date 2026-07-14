@@ -314,7 +314,7 @@
         <tr>
             <td class="td-cont">Signature</td>
             <td class="td-cont">
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 200px; height: 67px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 200px; height: 67px">
 
             </td>
         </tr>
@@ -430,7 +430,7 @@
         <h3>Name: {{ $customer->first_name }} {{ $customer->last_name }}</h3>
         <h4>Signature Date: {{ \Carbon\Carbon::createFromFormat('d/m/Y', $today)->format('d-F-Y') }} </h4>
         <h3>Signature</h3>
-        <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 200px; height: 67px">
+        <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 200px; height: 67px">
 
         <div style="padding-bottom: 12px; margin-bottom:12px; text-align: justify;">
             <div class="container"><b>Important Notice 1</b>
@@ -485,7 +485,7 @@
                 <p>By signing below, the keeper agrees to the terms and conditions of this Motorcycle Sale/Hire
                     Contract.
                 </p>
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 200px; height: 67px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 200px; height: 67px">
 
             </div>
         </div>

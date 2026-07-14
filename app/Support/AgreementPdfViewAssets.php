@@ -141,4 +141,50 @@ final class AgreementPdfViewAssets
 
         return 'data:'.$mime.';base64,'.base64_encode($binary);
     }
+
+    /**
+     * DomPDF-safe signature: base64 data URI (avoids chroot/path/mime mismatches).
+     * Accepts a relative disk path, an absolute path, or an existing data URI.
+     * $disk defaults to 'public' but callers storing to 'private' (e.g. rental
+     * termination letters) can pass that disk name explicitly.
+     */
+    public static function signatureSrc(?string $sigfile, string $disk = 'public'): string
+    {
+        if ($sigfile === null || $sigfile === '' || $sigfile === '#') {
+            return self::TRANSPARENT_PIXEL_PNG;
+        }
+
+        if (str_starts_with($sigfile, 'data:')) {
+            return $sigfile;
+        }
+
+        $absolute = is_file($sigfile)
+            ? $sigfile
+            : \Illuminate\Support\Facades\Storage::disk($disk)->path(ltrim($sigfile, '/'));
+
+        if (! is_file($absolute) || ! is_readable($absolute)) {
+            return self::TRANSPARENT_PIXEL_PNG;
+        }
+
+        $binary = @file_get_contents($absolute);
+        if ($binary === false || $binary === '') {
+            return self::TRANSPARENT_PIXEL_PNG;
+        }
+
+        $mime = 'image/png';
+        if (str_starts_with($binary, "\x89PNG")) {
+            $mime = 'image/png';
+        } elseif (str_starts_with($binary, "\xff\xd8\xff")) {
+            $mime = 'image/jpeg';
+        } elseif (str_starts_with($binary, 'GIF8')) {
+            $mime = 'image/gif';
+        } else {
+            $detected = @mime_content_type($absolute) ?: '';
+            if (is_string($detected) && str_starts_with($detected, 'image/')) {
+                $mime = $detected;
+            }
+        }
+
+        return 'data:'.$mime.';base64,'.base64_encode($binary);
+    }
 }

@@ -384,7 +384,7 @@
         <div style="margin-top: 10px;">
 
             <p class="td-cont">
-                <img src="{{ storage_path('app/private/' . $SIGFILE) }}" style="width: 199.25px; height: 71.2px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '', 'private') }}" style="width: 199.25px; height: 71.2px">
 
             </p>
             <p>Sincerely,</p>

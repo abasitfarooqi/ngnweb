@@ -4,9 +4,20 @@
             <p class="text-sm font-semibold text-zinc-900 dark:text-white">Rental agreement</p>
             <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate the V6 signing link (same URL emailed to the customer).</p>
         </div>
-        <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled">
-            Generate agreement &amp; QR
-        </flux:button>
+        <div class="flex flex-col sm:flex-row gap-2">
+            <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled">
+                Generate agreement &amp; QR
+            </flux:button>
+            <flux:button
+                size="sm"
+                variant="outline"
+                wire:click="sendAgreementLinkEmail"
+                wire:loading.attr="disabled"
+                wire:target="sendAgreementLinkEmail,generateAgreement"
+            >
+                Email signing link
+            </flux:button>
+        </div>
     </div>
 
     @if($flashMessage)
@@ -75,6 +86,16 @@
                                 {{ $loyaltyUrl }}
                             </a>
                         </div>
+                    </div>
+                    <div class="mt-4">
+                        <flux:button
+                            size="sm"
+                            variant="outline"
+                            wire:click="sendAgreementLinkEmail({{ $agreement->id }})"
+                            wire:loading.attr="disabled"
+                        >
+                            Email this signing link
+                        </flux:button>
                     </div>
                 </div>
             @endforeach

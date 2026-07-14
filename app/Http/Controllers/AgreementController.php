@@ -42,6 +42,7 @@ use PDF;
 use App\Support\QrCodeGenerator;
 use App\Support\AgreementPdfGenerator;
 use App\Support\BrowsershotPdfAdapter;
+use App\Support\SignatureUploadStore;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
 use App\Livewire\Agreements\LegacyMigratedDocument;
@@ -355,13 +356,12 @@ class AgreementController extends Controller
         // Collect Booking Items details.
         $Customer = Customer::where('id', $customer_id)->first();
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-
-        $fileName = $Customer->first_name.'-'.$Customer->last_name.'-'.Carbon::now()->format('Y-m-d H-i-s').'.'.'jpg';
-
-        Storage::disk('private')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $Customer->first_name,
+            (string) $Customer->last_name,
+            'private'
+        );
 
         \Log::info('Creating New Termination Letter');
 
@@ -478,11 +478,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign'); // your base64 encoded
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         $Booking = FinanceApplication::findOrFail($request->booking_id);
         $Customer = Customer::findOrFail($Booking->customer_id);
@@ -644,11 +644,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorised access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         \Log::info('Image saved at: '.storage_path('app/public/'.$fileName));
 
@@ -820,11 +820,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         \Log::info('Image saved at: '.storage_path('app/public/'.$fileName));
 
@@ -1019,11 +1019,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.now()->format('Y-m-d_H-i-s').'.jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         \Log::info('Image saved at: '.storage_path('app/public/'.$fileName));
 
@@ -1342,11 +1342,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         $Booking = FinanceApplication::findOrFail($request->booking_id);
         
@@ -1554,11 +1554,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         $Booking = FinanceApplication::findOrFail($request->booking_id);
         
@@ -1818,24 +1818,14 @@ class AgreementController extends Controller
 
     public function employeeNda(Request $request)
     {
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-
-        $fileName = $request->employeeName.'-'.Carbon::now()->format('YmdHis').'.jpg';
-        $filePath = 'employee/'.$fileName;
-
-        // Attempt to save the image and log success or failure
-        try {
-            $saved = Storage::disk('public')->put($filePath, base64_decode($file_data));
-            if ($saved) {
-                Log::info('Signature image saved successfully at '.Storage::disk('public')->path($filePath));
-            } else {
-                Log::error('Failed to save signature image.');
-            }
-        } catch (\Exception $e) {
-            Log::error('Error saving signature image: '.$e->getMessage());
-        }
+        $filePath = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->employeeName,
+            'nda',
+            'public',
+            'employee'
+        );
+        Log::info('Signature image saved successfully at '.Storage::disk('public')->path($filePath));
 
         $toDay = new DateTime;
         $today = Carbon::parse($toDay)->format('d/m/Y');
@@ -1885,12 +1875,11 @@ class AgreementController extends Controller
     {
         \Log::info('Creating new Purchase INVOICE', $request->all());
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-
-        $fileName = 'inv'.'-'.Carbon::now().'.'.'jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            'inv',
+            (string) $request->purchase_id
+        );
 
         $purchase_id = $request->purchase_id;
         $sell = PurchaseUsedVehicle::findOrFail($purchase_id);
@@ -1955,11 +1944,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign'); // your base64 encoded
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.'.'jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         // log
         \Log::info('Creating new agreement');
@@ -2197,11 +2186,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign'); // your base64 encoded
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.'.'jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         // log
         \Log::info('Creating new agreement');
@@ -2249,7 +2238,7 @@ class AgreementController extends Controller
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
         
-        $path = "customers/{$Booking->customer_id}/rental-agreement-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/rental-agreement-v6-".$tm.$rand_no.'.pdf';
 
         // 5m
         $path1 = "customers/{$Booking->customer_id}/1st-{$pdf_name}-".$tm.$rand_no.'.pdf';
@@ -2261,7 +2250,7 @@ class AgreementController extends Controller
         $customerAgreement = CustomerAgreement::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'rental-agreement-'.time().$rand_no.'.pdf',
+            'file_name' => 'rental-agreement-v6-'.$tm.$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -2472,11 +2461,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.'.'jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         // log
         \Log::info('Creating new agreement INS');
@@ -2513,12 +2502,12 @@ class AgreementController extends Controller
         // $customerAgreement = new CustomerAgreement();
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        $path = "customers/{$Booking->customer_id}/rental-agreement-ins-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/rental-agreement-ins-v6-".$tm.$rand_no.'.pdf';
 
         $customerAgreement = CustomerAgreement::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'rental-agreement-ins-'.time().$rand_no.'.pdf',
+            'file_name' => 'rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -2756,11 +2745,11 @@ class AgreementController extends Controller
             abort(403, 'Unauthorized access or the link has expired.');
         }
 
-        $base64_image = $request->input('sign');
-        @[$type, $file_data] = explode(';', $base64_image);
-        @[, $file_data] = explode(',', $file_data);
-        $fileName = $request->first_name.'-'.$request->last_name.'-'.Carbon::now()->format('Y-m-d_H-i-s').'.'.'jpg';
-        Storage::disk('public')->put($fileName, base64_decode($file_data));
+        $fileName = SignatureUploadStore::store(
+            (string) $request->input('sign'),
+            (string) $request->first_name,
+            (string) $request->last_name
+        );
 
         \Log::info('Creating loyalty scheme policy document');
 

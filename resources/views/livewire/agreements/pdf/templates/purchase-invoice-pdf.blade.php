@@ -284,7 +284,7 @@
                     associated
                     terms and conditions.</p>
 
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 199.25px; height: 71.2px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 199.25px; height: 71.2px">
 
             </div>
         </div>

@@ -189,7 +189,7 @@ body {
                 <h3>Signature</h3>
                 <p>By signing below, the Customer agrees to the terms and conditions of this Loyalty Upgrade Scheme Policy.
                 </p>
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 313.6px; height: 112px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 313.6px; height: 112px">
             </div>
         </div>
     </div>

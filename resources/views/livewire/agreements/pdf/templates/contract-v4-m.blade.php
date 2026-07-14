@@ -373,7 +373,7 @@
         <tr>
             <td class="td-cont">Signature</td>
             <td class="td-cont">
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 200px; height: 67px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 200px; height: 67px">
 
             </td>
         </tr>
@@ -1090,7 +1090,7 @@
                 <p>By signing below, the keeper agrees to the terms and conditions of this Motorcycle Sale/Hire
                     Contract.
                 </p>
-                <img src="{{ storage_path('app/public/' . $SIGFILE) }}" style="width: 200px; height: 67px">
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 200px; height: 67px">
 
             </div>
         </div>
