@@ -91,7 +91,7 @@ class FluxAdminSearchRegistry
         return [
             self::entry(Motorbike::class, 'Motorbikes', 'flux-admin.motorbikes.index', 'flux-admin.motorbikes.show', 'flux-admin.motorbikes.edit', 'motorbike'),
             self::entry(Customer::class, 'Customers', 'flux-admin.customers.index', 'flux-admin.customers.show', 'flux-admin.customers.edit', 'customer'),
-            self::entry(RentingBooking::class, 'Rentals / bookings', 'flux-admin.rentals.index', 'flux-admin.rentals.show'),
+            self::entry(RentingBooking::class, 'Rentals / bookings', 'flux-admin.rentals.index', 'flux-admin.rentals.show', param: 'booking'),
             self::entry(FinanceApplication::class, 'Finance applications', 'flux-admin.finance.index', 'flux-admin.finance.show', 'flux-admin.finance.edit', 'application'),
             self::entry(PcnCase::class, 'PCN cases', 'flux-admin.pcn.index', 'flux-admin.pcn.show', 'flux-admin.pcn.edit', 'pcnCase'),
             self::entry(ClubMember::class, 'Club members', 'flux-admin.club.index', 'flux-admin.club.show', 'flux-admin.club.edit', 'clubMember'),
@@ -100,7 +100,7 @@ class FluxAdminSearchRegistry
             self::entry(Permission::class, 'Permissions', 'flux-admin.permissions.index'),
             self::entry(IpRestriction::class, 'IP restrictions', 'flux-admin.ip-restrictions.index', edit: 'flux-admin.ip-restrictions.edit', param: 'ipRestriction'),
             self::entry(AccessLog::class, 'Access logs', 'flux-admin.access-logs.index'),
-            self::entry(Branch::class, 'Branches', 'flux-admin.branches.index', 'flux-admin.branches.show'),
+            self::entry(Branch::class, 'Branches', 'flux-admin.branches.index', 'flux-admin.branches.show', param: 'branch'),
             self::entry(MotorbikesSale::class, 'Vehicle sales', 'flux-admin.motorbike-sales.index', edit: 'flux-admin.motorbike-sales.edit', param: 'motorbikesSale'),
             self::entry(NewMotorbike::class, 'New arrivals', 'flux-admin.motorbike-new.index', edit: 'flux-admin.motorbike-new.edit', param: 'newMotorbike'),
             self::entry(Motorcycle::class, 'For-sale catalogue', 'flux-admin.motorbike-for-sale.index', edit: 'flux-admin.motorbike-for-sale.edit', param: 'motorcycle'),

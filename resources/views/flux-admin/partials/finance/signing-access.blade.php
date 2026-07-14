@@ -35,20 +35,27 @@
                         </div>
                     </div>
                     @php
-                        $contractLinks = $access->application
-                            ? \App\Services\FinanceContractLinkResolver::resolve($access->application, $access->passcode)
-                            : null;
+                        $contractLinks = ($access->application && filled($access->passcode))
+                            ? \App\Services\FinanceContractLinkResolver::linksForApplication($access->application, (string) $access->passcode)
+                            : (((int) ($access->customer_id ?? 0) > 0 && filled($access->passcode))
+                                ? collect(\App\Services\FinanceContractLinkResolver::accessLinks((int) $access->customer_id, (string) $access->passcode))
+                                    ->map(fn ($link) => $link + ['is_customer' => false])
+                                    ->all()
+                                : []);
                     @endphp
                     @if($contractLinks)
-                        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div>
-                                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Standard</p>
-                                <a href="{{ $contractLinks['standard'] }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $contractLinks['standard'] }}</a>
-                            </div>
-                            <div>
-                                <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">Insurance/PCN</p>
-                                <a href="{{ $contractLinks['ins'] }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $contractLinks['ins'] }}</a>
-                            </div>
+                        <div class="mt-4 grid grid-cols-1 gap-3">
+                            @foreach($contractLinks as $link)
+                                <div>
+                                    <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                                        {{ $link['label'] }}
+                                        @if(!empty($link['is_customer']))
+                                            <span class="ml-1 text-emerald-700 dark:text-emerald-400">(customer email / copy-paste)</span>
+                                        @endif
+                                    </p>
+                                    <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $link['url'] }}</a>
+                                </div>
+                            @endforeach
                         </div>
                     @endif
                 </div>

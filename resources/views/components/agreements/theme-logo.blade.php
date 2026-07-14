@@ -7,8 +7,6 @@
     $dark = asset(config('agreement.brand.web_logo_dark', 'img/ngn-motor-logo-fit-small.png'));
 @endphp
 <span {{ $attributes->merge(['class' => $wrapClass]) }}>
-    <picture>
-        <source srcset="{{ $dark }}" media="(prefers-color-scheme: dark)">
-        <img src="{{ $light }}" alt="{{ $alt }}" width="150" style="max-width:150px;height:auto;">
-    </picture>
+    <img src="{{ $light }}" alt="{{ $alt }}" width="150" class="agreement-logo agreement-logo--light" style="max-width:150px;height:auto;">
+    <img src="{{ $dark }}" alt="{{ $alt }}" width="150" class="agreement-logo agreement-logo--dark" style="max-width:150px;height:auto;">
 </span>

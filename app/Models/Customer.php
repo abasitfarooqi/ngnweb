@@ -198,7 +198,7 @@ class Customer extends Model
     public function canCustomerReplaceDocument(string $resolvedStatus): bool
     {
         return match ($resolvedStatus) {
-            'missing', 'rejected' => true,
+            'missing', 'rejected', 'expired' => true,
             'approved' => (bool) ($this->document_reupload_unlocked ?? false),
             default => false,
         };

@@ -113,13 +113,31 @@ class FluxAdminGlobalSearch
             'snippet' => $snippet,
             'id' => $row->getKey(),
             'index_url' => route($resource['index'], ['q' => $term]),
-            'show_url' => isset($resource['show']) && Route::has($resource['show'])
-                ? route($resource['show'], [$resource['param'] => $row->getKey()])
-                : null,
-            'edit_url' => isset($resource['edit']) && Route::has($resource['edit'])
-                ? route($resource['edit'], [$resource['param'] => $row->getKey()])
-                : null,
+            'show_url' => self::resourceUrl($resource['show'] ?? null, $row, (string) ($resource['param'] ?? 'id')),
+            'edit_url' => self::resourceUrl($resource['edit'] ?? null, $row, (string) ($resource['param'] ?? 'id')),
         ];
+    }
+
+    protected static function resourceUrl(?string $name, Model $row, string $param): ?string
+    {
+        if ($name === null || $name === '' || ! Route::has($name)) {
+            return null;
+        }
+
+        $route = Route::getRoutes()->getByName($name);
+        $parameterNames = $route?->parameterNames() ?? [];
+
+        if ($parameterNames === []) {
+            return route($name);
+        }
+
+        $key = in_array($param, $parameterNames, true) ? $param : $parameterNames[0];
+
+        try {
+            return route($name, [$key => $row->getKey()]);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     protected static function recordTitle(Model $row): string

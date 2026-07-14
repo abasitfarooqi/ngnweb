@@ -31,29 +31,14 @@ class AgreementAccessCrudController extends BaseCrudController
         CRUD::orderBy('id', 'desc');
 
         $this->crud->addColumn([
-            'name' => 'rental_agreement_standard',
-            'label' => 'Rental v6 Standard',
+            'name' => 'rental_agreement_customer',
+            'label' => 'Customer signing link (V6)',
             'type' => 'closure',
             'function' => function ($entry) {
-                $url = route('agreement.show.v6', [
-                    'customer_id' => $entry->customer_id,
-                    'passcode' => $entry->passcode,
-                ]);
-
-                return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
-            },
-            'escaped' => false,
-        ]);
-
-        $this->crud->addColumn([
-            'name' => 'rental_agreement_ins',
-            'label' => 'Rental v6 Insurance/PCN',
-            'type' => 'closure',
-            'function' => function ($entry) {
-                $url = route('agreement.show.ins.v6', [
-                    'customer_id' => $entry->customer_id,
-                    'passcode' => $entry->passcode,
-                ]);
+                $url = \App\Models\AgreementAccess::customerSigningUrl(
+                    (int) $entry->customer_id,
+                    (string) $entry->passcode
+                );
 
                 return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
             },
@@ -62,10 +47,13 @@ class AgreementAccessCrudController extends BaseCrudController
 
         $this->crud->addColumn([
             'name' => 'loyalty_scheme_link',
-            'label' => 'Loyalty Scheme Link',
+            'label' => 'Loyalty Scheme Link (copy for customer)',
             'type' => 'closure',
             'function' => function ($entry) {
-                $url = url("/loyalty-scheme/{$entry->customer_id}/{$entry->passcode}");
+                $url = \App\Models\AgreementAccess::loyaltySchemeSigningUrl(
+                    (int) $entry->customer_id,
+                    (string) $entry->passcode
+                );
 
                 return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
             },

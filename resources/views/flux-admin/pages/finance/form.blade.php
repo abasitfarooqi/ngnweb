@@ -54,17 +54,17 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Contract details</h2>
 
-            {{-- Contract type --}}
+            {{-- Contract type (Backpack: New/Used Latest are primary; others kept for legacy) --}}
             <div class="mb-5">
-                <flux:label>Contract Type</flux:label>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2 mt-1">
+                <flux:label>Contract Type <span class="text-red-500">*</span></flux:label>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-1">
                     @foreach([
-                        'is_new'                  => 'New Motorcycle',
-                        'is_used'                 => 'Used Vehicle',
-                        'is_used_extended'        => 'Used Extended',
-                        'is_used_extended_custom' => 'Used 18 Months',
                         'is_new_latest'           => 'New Latest',
                         'is_used_latest'          => 'Used Latest',
+                        'is_new'                  => 'New Motorcycle (legacy)',
+                        'is_used'                 => 'Used Vehicle (legacy)',
+                        'is_used_extended'        => 'Used Extended (legacy)',
+                        'is_used_extended_custom' => 'Used 18 Months (legacy)',
                     ] as $key => $label)
                         <label class="flex items-center gap-2 cursor-pointer border border-zinc-200 dark:border-zinc-700 px-3 py-2 text-sm {{ ($form['contract_type'] ?? '') === $key ? 'bg-blue-50 border-blue-400 dark:bg-blue-950 dark:border-blue-500' : 'bg-white dark:bg-zinc-900' }}">
                             <input type="radio"
@@ -87,6 +87,10 @@
                 <label class="flex items-center gap-2 text-sm cursor-pointer">
                     <flux:checkbox wire:model="form.no_email" />
                     No email
+                </label>
+                <label class="flex items-center gap-2 text-sm cursor-pointer">
+                    <flux:checkbox wire:model="form.insurance_pcn" />
+                    Insurance / PCN link
                 </label>
             </div>
 
@@ -158,6 +162,7 @@
                 <div class="mb-3 flex items-center justify-between gap-3">
                     <div>
                         <h3 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">Application Items</h3>
+                        <p class="text-xs text-zinc-500 dark:text-zinc-400 mt-1">At least one motorbike is required.</p>
                     </div>
                     <flux:button type="button" size="xs" variant="ghost" icon="plus" wire:click="addItemRow" class="!rounded-none">Add item</flux:button>
                 </div>
@@ -166,7 +171,7 @@
                     @foreach($itemRows as $index => $item)
                         <div class="grid grid-cols-1 gap-3 border border-zinc-200 p-3 dark:border-zinc-800 sm:grid-cols-[minmax(0,1fr)_auto_auto]" wire:key="application-item-row-{{ $index }}">
                             <div>
-                                <flux:label>Motorbike</flux:label>
+                                <flux:label>Motorbike <span class="text-red-500">*</span></flux:label>
                                 <div class="relative">
                                     <flux:input wire:model.live.debounce.300ms="motorbikeSearches.{{ $index }}"
                                                 placeholder="Search by reg, make, model or VIN..."
@@ -183,6 +188,7 @@
                                     @endif
                                 </div>
                                 @error("itemRows.$index.motorbike_id") <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
+                                @error('itemRows') <p class="mt-1 text-xs text-red-500">{{ $message }}</p> @enderror
                             </div>
 
                             <label class="flex items-center gap-2 text-sm sm:self-end sm:pb-2">

@@ -272,14 +272,16 @@ class CustomerController extends Controller
     {
         $request->validate([
             'document' => 'file|mimes:jpg,jpeg,png,pdf|max:65536',
+            'valid_until' => 'nullable|date',
         ]);
 
         \Log::info("Received Customer upload request for customer_id {$customer_id}: ", $request->all());
 
         $file = $request->file('document');
         $documentTypeCode = $request->input('documentTypeCode');
-        $motorbikeID = $request->input('motorbikeID');
-        $bookingID = $request->input('bookingID');
+        $motorbikeID = $request->input('motorbikeID') ?: null;
+        $bookingID = $request->input('bookingID') ?: null;
+        $validUntil = $request->input('valid_until') ?: null;
         $documentType = DocumentType::where('code', $documentTypeCode)->firstOrFail();
 
         $rrand = rand(10, 999);
@@ -294,11 +296,15 @@ class CustomerController extends Controller
             'file_path' => $path,
             'file_format' => $extension,
             'document_number' => '',
-            'valid_until' => null,
+            'valid_until' => $validUntil,
             'is_verified' => false,
+            // Motorbike docs may keep booking context; identity docs stay customer-scoped.
             'motorbike_id' => $motorbikeID,
-            'booking_id' => $bookingID,
         ];
+
+        if ($motorbikeID) {
+            $attributes['booking_id'] = $bookingID;
+        }
 
         if (Schema::hasColumn('customer_documents', 'status')) {
             $attributes['status'] = 'pending_review';
@@ -308,6 +314,7 @@ class CustomerController extends Controller
             $attributes['rejection_reason'] = null;
         }
 
+        // One live identity document per type per customer.
         $customerDocument = CustomerDocument::updateOrCreate(
             [
                 'customer_id' => $customer_id,
@@ -434,16 +441,21 @@ class CustomerController extends Controller
         $rows = $types->map(function (DocumentType $type) use ($documentsByType, $lifecycle, $customerId) {
             $document = $documentsByType->get($type->id);
             $status = $lifecycle->resolveCustomerDocumentStatus($document);
+            $needsUpload = $lifecycle->documentNeedsUpload($status);
 
             return [
                 'id' => $type->id,
                 'name' => $type->name,
                 'code' => $type->code,
                 'is_active' => (bool) $type->is_active,
-                'is_required' => (bool) $type->is_required,
+                // Required for the customer only when missing, expired, or rejected.
+                'is_required' => $needsUpload,
                 'customer_id' => $customerId,
                 'file_name' => $document?->file_name,
                 'file_path' => $document?->file_path,
+                'valid_until' => $document?->valid_until
+                    ? \Carbon\Carbon::parse($document->valid_until)->toDateString()
+                    : null,
                 'is_verified' => $status === 'approved',
                 'status' => $status,
                 'status_label' => $lifecycle->documentStatusLabel($status),
@@ -458,7 +470,6 @@ class CustomerController extends Controller
     public function uploadLeftMotorbikeDocumentViaLink(Request $request)
     {
         $customerId = (int) $request->customer_id;
-        $bookingId = $request->filled('booking_id') ? (int) $request->booking_id : null;
         $lifecycle = app(RentalBookingLifecycle::class);
 
         $types = DocumentType::query()
@@ -467,19 +478,12 @@ class CustomerController extends Controller
             ->orderBy('name')
             ->get();
 
-        $documentsQuery = CustomerDocument::query()
+        // Motorbike docs stay customer + type identity (rare multi-bike still shares customer).
+        $documentsByType = CustomerDocument::query()
             ->where('customer_id', $customerId)
             ->where(function ($q) {
                 $q->whereNull('id_deleted')->orWhere('id_deleted', false);
-            });
-
-        if ($bookingId) {
-            $documentsQuery->where(function ($q) use ($bookingId) {
-                $q->where('booking_id', $bookingId)->orWhereNull('booking_id');
-            });
-        }
-
-        $documentsByType = $documentsQuery
+            })
             ->orderByDesc('id')
             ->get()
             ->unique('document_type_id')
@@ -488,16 +492,20 @@ class CustomerController extends Controller
         $rows = $types->map(function (DocumentType $type) use ($documentsByType, $lifecycle, $customerId) {
             $document = $documentsByType->get($type->id);
             $status = $lifecycle->resolveCustomerDocumentStatus($document);
+            $needsUpload = $lifecycle->documentNeedsUpload($status);
 
             return [
                 'id' => $type->id,
                 'name' => $type->name,
                 'code' => $type->code,
                 'is_active' => (bool) $type->is_active,
-                'is_required' => (bool) $type->is_required,
+                'is_required' => $needsUpload,
                 'customer_id' => $customerId,
                 'file_name' => $document?->file_name,
                 'file_path' => $document?->file_path,
+                'valid_until' => $document?->valid_until
+                    ? \Carbon\Carbon::parse($document->valid_until)->toDateString()
+                    : null,
                 'is_verified' => $status === 'approved',
                 'status' => $status,
                 'status_label' => $lifecycle->documentStatusLabel($status),

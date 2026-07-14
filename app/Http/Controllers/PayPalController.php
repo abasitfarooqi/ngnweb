@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\CustomerAddress;
 use App\Models\Ecommerce\EcOrder;
+use App\Models\Ecommerce\EcOrderItem;
 use App\Models\PaymentsPaypal;
 use App\Models\PaypalWebhookEvent;
 use Illuminate\Http\Request;
@@ -12,6 +14,19 @@ use Srmklive\PayPal\Services\PayPal as PayPalClient;
 
 class PayPalController extends Controller
 {
+    /**
+     * Return the correct checkout URL for an order (spare parts vs general shop),
+     * so PayPal returns the customer to the checkout they started from.
+     */
+    private function checkoutPathForOrder($orderId): string
+    {
+        if ($orderId && EcOrderItem::where('order_id', $orderId)->where('item_type', 'sparepart')->exists()) {
+            return '/spareparts/checkout';
+        }
+
+        return '/shop/checkout';
+    }
+
     // Modified directPayment method
     public function directPayment(Request $request)
     {
@@ -76,14 +91,17 @@ class PayPalController extends Controller
                 'country_code' => 'GB',
             ];
         } else {
-            // For home delivery, use customer's address
-            // from CustomerAddress model customer_addresses.id from ec_orders.customer_address_id
-            // Until Shipping method is In Store Pickup, it has to be remain like this
+            // For home delivery, use the delivery address selected on this order
+            // (ec_orders.customer_address_id), falling back to the customer profile.
+            $deliveryAddress = $pendingOrder->customer_address_id
+                ? CustomerAddress::find($pendingOrder->customer_address_id)
+                : null;
+
             $shippingDetails = [
-                'line1' => $customer->customer->address,
-                'line2' => $customer->customer->address2,
-                'city' => $customer->customer->city,
-                'postal_code' => $customer->customer->postal_code,
+                'line1' => $deliveryAddress->street_address ?? $customer->customer->address,
+                'line2' => $deliveryAddress->street_address_plus ?? ($customer->customer->address2 ?? ''),
+                'city' => $deliveryAddress->city ?? $customer->customer->city,
+                'postal_code' => $deliveryAddress->postcode ?? $customer->customer->postal_code,
                 'country_code' => 'GB',
             ];
         }
@@ -267,12 +285,14 @@ class PayPalController extends Controller
     // Modified success method
     public function success(Request $request)
     {
+        $orderId = null;
+
         try {
             // Validate token presence
             if (! $request->token) {
                 Log::error('PayPal token missing in request');
 
-                return redirect('/shop/checkout')
+                return redirect($this->checkoutPathForOrder($orderId))
                     ->with([
                         'payment_status' => 'error',
                         'message' => 'Invalid payment token',
@@ -337,7 +357,7 @@ class PayPalController extends Controller
                 if (! $payment) {
                     Log::error('Payment record not found', ['order_id' => $orderId]);
 
-                    return redirect('/shop/checkout')
+                    return redirect($this->checkoutPathForOrder($orderId))
                         ->with([
                             'payment_status' => 'error',
                             'message' => 'Payment record not found',
@@ -371,7 +391,7 @@ class PayPalController extends Controller
                 ]);
 
                 // Redirect back to checkout with success status
-                return redirect('/shop/checkout')
+                return redirect($this->checkoutPathForOrder($orderId))
                     ->with([
                         'payment_status' => 'success',
                         'transaction_id' => $captureId,
@@ -379,7 +399,7 @@ class PayPalController extends Controller
             }
 
             // Handle non-completed status
-            return redirect('/shop/checkout')
+            return redirect($this->checkoutPathForOrder($orderId))
                 ->with([
                     'payment_status' => 'error',
                     'message' => 'Payment not completed',
@@ -391,7 +411,7 @@ class PayPalController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect('/shop/checkout')
+            return redirect($this->checkoutPathForOrder($orderId))
                 ->with([
                     'payment_status' => 'error',
                     'message' => 'An error occurred while processing the payment',
@@ -403,6 +423,8 @@ class PayPalController extends Controller
     public function cancel(Request $request)
     {
         Log::info('cancel:Payment Cancelled:', $request->all());
+
+        $orderId = null;
 
         // Find the payment record using the token
         $provider = new PayPalClient;
@@ -460,7 +482,7 @@ class PayPalController extends Controller
         }
 
         // Redirect back to checkout with cancel status
-        return redirect('/shop/checkout')
+        return redirect($this->checkoutPathForOrder($orderId))
             ->with([
                 'payment_status' => 'cancelled',
                 'message' => 'You have canceled the transaction.',

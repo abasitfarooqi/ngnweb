@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="Club redemptions" description="Points redemption log against POS invoices.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <a href="{{ route('flux-admin.club-redeems.create') }}">
+            <a href="{{ route('flux-admin.club-redemptions.create') }}">
                 <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Log redemption</flux:button>
             </a>
         </x-slot:actions>
@@ -37,7 +37,7 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $branches->firstWhere('id', $r->branch_id)?->name ?? '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
-                                <a href="{{ route('flux-admin.club-redeems.edit', $r->id) }}">
+                                <a href="{{ route('flux-admin.club-redemptions.edit', $r->id) }}">
                                     <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                                 </a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this redemption?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>

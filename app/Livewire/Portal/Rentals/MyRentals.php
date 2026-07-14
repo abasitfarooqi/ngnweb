@@ -118,7 +118,10 @@ class MyRentals extends Component
             })
             ->firstOrFail();
 
-        $pdf = \PDF::loadView('livewire.agreements.pdf.templates.repair_invoice', compact('repair'))
+        $pdf = \PDF::loadView(
+            'livewire.agreements.pdf.templates.repair_invoice',
+            array_merge(\App\Support\AgreementPdfViewAssets::composerVariables(), compact('repair'))
+        )
             ->setPaper('a4', 'portrait')
             ->setOptions([
                 'isHtml5ParserEnabled' => true,

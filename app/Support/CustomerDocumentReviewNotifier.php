@@ -79,11 +79,6 @@ class CustomerDocumentReviewNotifier
 
         $uploadedByType = CustomerDocument::query()
             ->where('customer_id', $customer->id)
-            ->when($bookingId && Schema::hasColumn('customer_documents', 'booking_id'), function ($q) use ($bookingId): void {
-                $q->where(function ($inner) use ($bookingId): void {
-                    $inner->where('booking_id', $bookingId)->orWhereNull('booking_id');
-                });
-            })
             ->orderByDesc('id')
             ->get()
             ->unique('document_type_id')
@@ -91,9 +86,16 @@ class CustomerDocumentReviewNotifier
 
         $lifecycle = app(RentalBookingLifecycle::class);
         $allUploaded = $mandatoryTypes->every(function (DocumentType $type) use ($uploadedByType, $lifecycle): bool {
-            $doc = $uploadedByType->get($type->id);
+            if (in_array((string) $type->code, ['loyalty_scheme_policy', 'rental_agreement'], true)
+                || in_array((string) $type->name, ['Loyalty Scheme Policy', 'Rental Agreement'], true)) {
+                return true;
+            }
 
-            return $doc && $doc->file_path && $lifecycle->resolveCustomerDocumentStatus($doc) !== 'missing';
+            $doc = $uploadedByType->get($type->id);
+            $status = $lifecycle->resolveCustomerDocumentStatus($doc);
+
+            // Staff-notify when nothing still needing upload (uploaded/pending/approved is enough).
+            return ! $lifecycle->documentNeedsUpload($status);
         });
 
         if (! $allUploaded) {

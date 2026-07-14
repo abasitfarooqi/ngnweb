@@ -363,6 +363,7 @@ Route::get('/club/{clubMember}/edit', ClubForm::class)->name('flux-admin.club.ed
 Route::get('/club/{clubMember}', ClubShow::class)->name('flux-admin.club.show');
 
 Route::get('/branches', BranchIndex::class)->name('flux-admin.branches.index');
+Route::get('/branches/create', BranchForm::class)->name('flux-admin.branches.create');
 Route::get('/branches/{branch}', BranchShow::class)->name('flux-admin.branches.show');
 
 // Phase 1 — Users & Security
@@ -663,7 +664,6 @@ Route::get('/permissions/create', PermissionForm::class)->name('flux-admin.permi
 Route::get('/permissions/{id}/edit', PermissionForm::class)->name('flux-admin.permissions.edit');
 
 // Form pages — Branches
-Route::get('/branches/create', BranchForm::class)->name('flux-admin.branches.create');
 Route::get('/branches/{branch}/edit', BranchForm::class)->name('flux-admin.branches.edit');
 
 // Form pages — Misc

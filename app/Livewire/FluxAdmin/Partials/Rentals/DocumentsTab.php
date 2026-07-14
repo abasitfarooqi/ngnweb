@@ -169,10 +169,6 @@ class DocumentsTab extends Component
 
         $documents = CustomerDocument::with('documentType')
             ->where('customer_id', $booking->customer_id)
-            ->where(function ($q) use ($booking) {
-                $q->where('booking_id', $this->bookingId)
-                    ->orWhereNull('booking_id');
-            })
             ->orderByDesc('created_at')
             ->get()
             ->map(function (CustomerDocument $doc) use ($lifecycle) {

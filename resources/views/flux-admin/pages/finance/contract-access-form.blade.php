@@ -41,15 +41,19 @@
                 <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Contract URLs</h2>
                 @if(!empty($contractLinks))
                     <div class="grid grid-cols-1 gap-4">
-                        <x-flux-admin::field-group label="Standard contract">
-                            <flux:input readonly value="{{ $contractLinks['standard'] ?? '' }}" />
-                        </x-flux-admin::field-group>
-                        <x-flux-admin::field-group label="Insurance/PCN contract">
-                            <flux:input readonly value="{{ $contractLinks['ins'] ?? '' }}" />
-                        </x-flux-admin::field-group>
+                        @foreach($contractLinks as $link)
+                            <x-flux-admin::field-group :label="$link['label']">
+                                <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                                    <flux:input readonly value="{{ $link['url'] }}" class="flex-1" />
+                                    <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer">
+                                        <flux:button type="button" size="sm" variant="ghost" icon="arrow-top-right-on-square" class="!rounded-none">Open</flux:button>
+                                    </a>
+                                </div>
+                            </x-flux-admin::field-group>
+                        @endforeach
                     </div>
                 @else
-                    <p class="text-sm text-zinc-500 dark:text-zinc-400">No latest contract type on the linked application — obsolete links are not shown.</p>
+                    <p class="text-sm text-zinc-500 dark:text-zinc-400">Save a customer ID and passcode to generate the three contract links.</p>
                 @endif
             </div>
         @endif

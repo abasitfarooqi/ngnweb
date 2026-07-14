@@ -27,13 +27,39 @@ class AgreementAccess extends Model
         return $this->belongsTo(Customer::class);
     }
 
+    /**
+     * Customer-facing rental signing URL (V6 first priority).
+     * Used for automated email and the staff copy-paste link.
+     */
+    public static function customerSigningUrl(int $customerId, string $passcode): string
+    {
+        return route('agreement.show.ins.v6', [
+            'customer_id' => $customerId,
+            'passcode' => $passcode,
+        ]);
+    }
+
+    /**
+     * Optional Loyalty Scheme Policy signing URL (same passcode as rental access).
+     */
+    public static function loyaltySchemeSigningUrl(int $customerId, string $passcode): string
+    {
+        return route('loyalty.scheme.show', [
+            'customer_id' => $customerId,
+            'passcode' => $passcode,
+        ]);
+    }
+
     public static function rentalUrlsFor(int $customerId, string $passcode): array
     {
         $params = ['customer_id' => $customerId, 'passcode' => $passcode];
+        $customer = self::customerSigningUrl($customerId, $passcode);
 
         return [
+            'customer' => $customer,
             'standard' => route('agreement.show.v6', $params),
-            'ins' => route('agreement.show.ins.v6', $params),
+            'ins' => $customer,
+            'loyalty' => self::loyaltySchemeSigningUrl($customerId, $passcode),
         ];
     }
 
@@ -44,13 +70,13 @@ class AgreementAccess extends Model
 
     public function getLinkHtmlAttribute()
     {
-        $url = $this->rentalAgreementUrls()['ins'];
+        $url = $this->getLink();
 
         return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
     }
 
     public function getLink()
     {
-        return $this->rentalAgreementUrls()['ins'];
+        return self::customerSigningUrl((int) $this->customer_id, (string) $this->passcode);
     }
 }

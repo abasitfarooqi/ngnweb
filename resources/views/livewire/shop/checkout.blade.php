@@ -7,8 +7,13 @@
             <div class="w-20 h-20 bg-green-100 dark:bg-green-900/30 flex items-center justify-center mx-auto mb-5">
                 <flux:icon name="check-circle" class="h-10 w-10 text-green-600" />
             </div>
-            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Order Placed!</h1>
+            <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">
+                {{ $paymentResult === 'success' ? 'Payment Successful!' : 'Order Placed!' }}
+            </h1>
             <p class="text-gray-600 dark:text-gray-400 mb-2">Your order <strong>#{{ $orderId }}</strong> has been confirmed.</p>
+            @if($transactionId)
+                <p class="text-sm text-gray-500 dark:text-gray-500 mb-2">PayPal reference: <strong>{{ $transactionId }}</strong></p>
+            @endif
             <p class="text-sm text-gray-500 dark:text-gray-500 mb-8">
                 A confirmation email will be sent to your registered address. We will contact you about delivery.
             </p>
@@ -164,6 +169,24 @@
                             @endforeach
                         </div>
                         @error('shippingMethodId') <p class="text-xs text-red-500 mt-2">{{ $message }}</p> @enderror
+
+                        {{-- Branch picker: only for store/partner collection --}}
+                        @if($shippingMethod && $shippingMethod->in_store_pickup)
+                            <div class="mt-6 pt-5 border-t border-gray-200 dark:border-gray-700">
+                                <h3 class="text-sm font-bold text-gray-900 dark:text-white mb-3">Choose a branch to collect from</h3>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    @foreach($branches as $branch)
+                                        <label class="flex items-center gap-2 p-3 border-2 cursor-pointer transition
+                                            {{ (int) $branchId === (int) $branch->id ? 'border-brand-red bg-red-50 dark:bg-red-900/10' : 'border-gray-200 dark:border-gray-600 hover:border-gray-300' }}">
+                                            <input type="radio" wire:model.live="branchId" value="{{ $branch->id }}"
+                                                   class="accent-brand-red">
+                                            <span class="text-sm font-medium text-gray-900 dark:text-white">{{ $branch->name }}</span>
+                                        </label>
+                                    @endforeach
+                                </div>
+                                @error('branchId') <p class="text-xs text-red-500 mt-2">{{ $message }}</p> @enderror
+                            </div>
+                        @endif
                     </div>
                 @endif
 
@@ -216,6 +239,12 @@
                             <div class="border-t border-gray-200 dark:border-gray-700 pt-4 text-sm text-gray-600 dark:text-gray-400">
                                 <p>Shipping: <strong class="text-gray-900 dark:text-white">{{ $shippingMethod->name }}</strong>
                                    — {{ $shippingCost > 0 ? '£' . number_format($shippingCost, 2) : 'Free' }}</p>
+                                @if($shippingMethod->in_store_pickup)
+                                    @php $selectedBranch = $branches->firstWhere('id', (int) $branchId); @endphp
+                                    <p class="mt-1">Collect from:
+                                        <strong class="text-gray-900 dark:text-white">{{ $selectedBranch?->name ?? 'Not selected' }}</strong>
+                                    </p>
+                                @endif
                             </div>
                         @endif
 

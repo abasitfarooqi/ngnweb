@@ -69,8 +69,9 @@
                     <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Address</dt><dd>Unit 2, 15 Empress Avenue, London, E12 5HH</dd></div>
                     <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Phone</dt><dd><a href="tel:+447907600611" class="text-orange-600 font-semibold">+44 7907 600 611</a></dd></div>
                     <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Email</dt><dd><a href="mailto:info@neguinhomotors.co.uk" class="text-orange-600">info@neguinhomotors.co.uk</a></dd></div>
-                    <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Mon–Sat</dt><dd>9:00am – 6:00pm</dd></div>
-                    <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Sunday</dt><dd>Closed</dd></div>
+                    <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Mon–Fri</dt><dd>{{ config('site.opening_hours.monday') }}</dd></div>
+                    <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Saturday</dt><dd>{{ config('site.opening_hours.saturday') }}</dd></div>
+                    <div class="flex gap-3"><dt class="font-semibold text-zinc-900 w-24 flex-shrink-0">Sunday</dt><dd>{{ config('site.opening_hours.sunday') }}</dd></div>
                 </dl>
             </div>
             <div class="bg-zinc-100" style="height:300px">

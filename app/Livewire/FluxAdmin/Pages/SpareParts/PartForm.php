@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\SpareParts;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\SpPart;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -34,7 +35,7 @@ class PartForm extends Component
     public function save(): void
     {
         $this->validate([
-            'form.part_number'       => ['required', 'string', 'max:100'],
+            'form.part_number'       => ['required', 'string', 'max:100', Rule::unique('sp_parts', 'part_number')->ignore($this->spPart?->id)],
             'form.name'              => ['required', 'string', 'max:255'],
             'form.note'              => ['nullable', 'string'],
             'form.stock_status'      => ['nullable', 'string', 'max:50'],

@@ -260,8 +260,9 @@ class Documents extends Component
                 $attributes['rejection_reason'] = null;
             }
 
-            if ($this->rentalBookingId && Schema::hasColumn('customer_documents', 'booking_id')) {
-                $attributes['booking_id'] = $this->rentalBookingId;
+            // Identity documents belong to the customer across bookings.
+            if (Schema::hasColumn('customer_documents', 'booking_id')) {
+                $attributes['booking_id'] = null;
             }
 
             \Log::info('Portal Documents::submitDocumentUpload saving db row', [
@@ -277,7 +278,7 @@ class Documents extends Component
             app(CustomerDocumentReviewNotifier::class)->logStaffUpload($row);
             app(CustomerDocumentReviewNotifier::class)->notifyStaffIfAllMandatorySubmitted(
                 $profile,
-                $this->rentalBookingId
+                null
             );
 
             if ($oldPath && $oldPath !== $path) {
@@ -441,10 +442,21 @@ class Documents extends Component
 
         $rentalMandatoryIds = $rentalAndGeneralDocs->where('is_mandatory', true)->pluck('id');
         $financeMandatoryIds = $financeDocs->where('is_mandatory', true)->pluck('id');
-
-        $missingRentalMandatory = $rentalMandatoryIds->filter(fn ($id) => ! $uploadedByType->has($id))->values();
-        $missingFinanceMandatory = $financeMandatoryIds->filter(fn ($id) => ! $uploadedByType->has($id))->values();
         $documentLifecycle = app(RentalBookingLifecycle::class);
+
+        $missingRentalMandatory = $rentalMandatoryIds->filter(function ($id) use ($uploadedByType, $documentLifecycle) {
+            $doc = $uploadedByType->get($id);
+            $status = $documentLifecycle->resolveCustomerDocumentStatus($doc);
+
+            return $documentLifecycle->documentNeedsUpload($status);
+        })->values();
+
+        $missingFinanceMandatory = $financeMandatoryIds->filter(function ($id) use ($uploadedByType, $documentLifecycle) {
+            $doc = $uploadedByType->get($id);
+            $status = $documentLifecycle->resolveCustomerDocumentStatus($doc);
+
+            return $documentLifecycle->documentNeedsUpload($status);
+        })->values();
 
         return view('livewire.portal.documents', compact(
             'rentalAndGeneralDocs',

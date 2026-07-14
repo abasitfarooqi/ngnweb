@@ -21,8 +21,8 @@ class DevClubOtpIndex extends Component
     public function render()
     {
         $rows = OtpVerification::query()
-            ->with(['clubMember:id,first_name,last_name,email,phone'])
-            ->when($this->search, fn ($q, $v) => $q->whereHas('clubMember', fn ($q) => $q->where('first_name', 'like', "%{$v}%")->orWhere('last_name', 'like', "%{$v}%")->orWhere('email', 'like', "%{$v}%")->orWhere('phone', 'like', "%{$v}%")))
+            ->with(['clubMember:id,full_name,email,phone'])
+            ->when($this->search, fn ($q, $v) => $q->whereHas('clubMember', fn ($q) => $q->where('full_name', 'like', "%{$v}%")->orWhere('email', 'like', "%{$v}%")->orWhere('phone', 'like', "%{$v}%")))
             ->when($this->filter('is_used') !== '', fn ($q) => $q->where('is_used', $this->filter('is_used') === '1'))
             ->orderByDesc('id')
             ->paginate($this->perPage);

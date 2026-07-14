@@ -35,6 +35,7 @@ class CustomerDocument extends Model
 
     protected $casts = [
         'reviewed_at' => 'datetime',
+        'valid_until' => 'date',
         'is_verified' => 'boolean',
     ];
 

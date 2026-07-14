@@ -1,78 +1,232 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-GB">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice #{{ $invoice->invoice_number }}</title>
     <style>
-        /* Add your custom styles here */
-        body { font-family: Arial, sans-serif; }
-        .invoice-box { max-width: 800px; margin: auto; padding: 30px; border: 1px solid #eee; box-shadow: 0 0 10px rgba(0, 0, 0, 0.15); }
-        .invoice-box table { width: 100%; line-height: inherit; text-align: left; }
-        .invoice-box table td { padding: 5px; vertical-align: top; }
-        .invoice-box table tr td:nth-child(2) { text-align: right; }
-        .invoice-box table tr.top table td { padding-bottom: 20px; }
-        .invoice-box table tr.top table td.title { font-size: 45px; line-height: 45px; color: #333; }
-        .invoice-box table tr.information table td { padding-bottom: 40px; }
-        .invoice-box table tr.heading td { background: #eee; border-bottom: 1px solid #ddd; font-weight: bold; }
-        .invoice-box table tr.details td { padding-bottom: 20px; }
-        .invoice-box table tr.item td{ border-bottom: 1px solid #eee; }
-        .invoice-box table tr.item.last td { border-bottom: none; }
-        .invoice-box table tr.total td:nth-child(2) { border-top: 2px solid #eee; font-weight: bold; }
+        body {
+            font-family: DejaVu Sans, Arial, Helvetica, sans-serif;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        .watermark-area {
+            background-image: url("{{ $agreementPdfWatermarkSrc }}");
+        }
+
+        .header-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 18px 0;
+        }
+
+        .header-table td {
+            border: none;
+            vertical-align: middle;
+            padding: 0;
+        }
+
+        .logo-cell {
+            width: 38%;
+            padding-right: 24px !important;
+        }
+
+        .logo {
+            width: 130px;
+            height: auto;
+            display: block;
+        }
+
+        .meta-cell {
+            width: 62%;
+            text-align: right;
+            padding-left: 24px !important;
+        }
+
+        .invoice-label {
+            display: inline-block;
+            margin: 0 0 8px 0;
+            padding: 5px 10px;
+            background-color: #059669;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 0.4px;
+            text-transform: uppercase;
+        }
+
+        .meta-line {
+            margin: 0 0 4px 0;
+            font-size: 11px;
+            color: #1f2937;
+            line-height: 1.55;
+        }
+
+        .doc-title {
+            margin: 0 0 16px 0;
+            padding: 12px 14px;
+            background-color: #059669;
+            color: #ffffff;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+
+        .section-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 16px 0;
+        }
+
+        .section-table td {
+            width: 50%;
+            vertical-align: top;
+            border: 1px solid #059669;
+            background-color: #f8fafc;
+            padding: 14px 16px;
+        }
+
+        .section-table td.left {
+            border-right: none;
+            padding-right: 20px;
+        }
+
+        .section-table td.right {
+            border-left: 1px solid #059669;
+            padding-left: 20px;
+        }
+
+        .section-title {
+            margin: 0 0 10px 0;
+            padding: 0 0 8px 0;
+            border-bottom: 1px solid #d1fae5;
+            color: #059669;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .detail-line {
+            margin: 0 0 5px 0;
+            font-size: 11px;
+        }
+
+        .muted { color: #6b7280; }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0 0 16px 0;
+            table-layout: fixed;
+        }
+
+        .items-table th,
+        .items-table td {
+            border: 1px solid #059669;
+            padding: 10px 12px;
+            vertical-align: top;
+        }
+
+        .items-table th {
+            background-color: #059669;
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: bold;
+            text-align: left;
+        }
+
+        .col-desc { width: 72%; }
+        .col-amount { width: 28%; text-align: right; }
+
+        .total-row td {
+            background-color: #ecfdf5;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .footer {
+            margin-top: 8px;
+            padding-top: 12px;
+            border-top: 1px solid #d1d5db;
+            text-align: center;
+            font-size: 9.5px;
+            color: #4b5563;
+            line-height: 1.55;
+        }
     </style>
+    @include('livewire.agreements.pdf.partials.pdf-print-theme')
 </head>
 <body>
-    <div class="invoice-box">
-        <table cellpadding="0" cellspacing="0">
-            <tr class="top">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td class="title">
-                                <h1>Invoice</h1>
-                            </td>
-                            <td>
-                                Invoice #: {{ $invoice->invoice_number }}<br>
-                                Created: {{ $invoice->issue_date }}<br>
-                                Due: {{ $invoice->due_date }}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
+@php
+    $bikeLabel = trim(($invoice->motorbike?->make ?? $invoice->make ?? '').' '.($invoice->motorbike?->model ?? $invoice->model ?? ''));
+@endphp
+
+<div class="watermark-area">
+    <table class="header-table">
+        <tr>
+            <td class="logo-cell">
+                <img class="logo" src="{{ $agreementPdfLogoSrc }}" alt="NGN Motors">
+            </td>
+            <td class="meta-cell">
+                <div class="invoice-label">Tax invoice</div>
+                <div class="meta-line"><strong>Invoice #:</strong> {{ $invoice->invoice_number }}</div>
+                <div class="meta-line"><strong>Created:</strong> {{ $invoice->issue_date ?? '—' }}</div>
+                <div class="meta-line"><strong>Due:</strong> {{ $invoice->due_date ?? '—' }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="doc-title">NGN Motors — Invoice</div>
+
+    <table class="section-table">
+        <tr>
+            <td class="left">
+                <div class="section-title">Customer</div>
+                <div class="detail-line">{{ $invoice->customer_name ?: '—' }}</div>
+                <div class="detail-line muted">{{ $invoice->customer_email ?: '—' }}</div>
+                <div class="detail-line muted">{{ $invoice->customer_phone ?: '—' }}</div>
+            </td>
+            <td class="right">
+                <div class="section-title">Motorbike</div>
+                <div class="detail-line">{{ $bikeLabel !== '' ? $bikeLabel : '—' }}</div>
+                <div class="detail-line"><strong>Reg:</strong> {{ $invoice->registration_number ?: '—' }}</div>
+                <div class="detail-line"><strong>VIN:</strong> {{ $invoice->vin ?: '—' }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="items-table">
+        <thead>
+            <tr>
+                <th class="col-desc">Item</th>
+                <th class="col-amount">Price</th>
             </tr>
-            <tr class="information">
-                <td colspan="2">
-                    <table>
-                        <tr>
-                            <td>
-                                {{ $invoice->customer_name }}<br>
-                                {{ $invoice->customer_email }}<br>
-                                {{ $invoice->customer_phone }}
-                            </td>
-                            <td>
-                                {{ $invoice->motorbike->make }} {{ $invoice->motorbike->model }}<br>
-                                Reg No: {{ $invoice->registration_number }}<br>
-                                VIN: {{ $invoice->vin }}
-                            </td>
-                        </tr>
-                    </table>
-                </td>
+        </thead>
+        <tbody>
+            @forelse ($invoice->items ?? [] as $item)
+                <tr>
+                    <td>{{ $item->item_name }}</td>
+                    <td class="col-amount">£{{ number_format((float) $item->total, 2) }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td>Invoice total</td>
+                    <td class="col-amount">£{{ number_format((float) ($invoice->total ?? $invoice->amount ?? 0), 2) }}</td>
+                </tr>
+            @endforelse
+            <tr class="total-row">
+                <td class="col-amount">Total</td>
+                <td class="col-amount">£{{ number_format((float) ($invoice->total ?? $invoice->amount ?? 0), 2) }}</td>
             </tr>
-            <tr class="heading">
-                <td>Item</td>
-                <td>Price</td>
-            </tr>
-            @foreach ($invoice->items as $item)
-            <tr class="item">
-                <td>{{ $item->item_name }}</td>
-                <td>£{{ number_format($item->total, 2) }}</td>
-            </tr>
-            @endforeach
-            <tr class="total">
-                <td></td>
-                <td>Total: £{{ number_format($invoice->total, 2) }}</td>
-            </tr>
-        </table>
+        </tbody>
+    </table>
+
+    <div class="footer">
+        <p><strong>NGN Motors</strong> — enquiries@neguinhomotors.co.uk</p>
+        <p>© {{ date('Y') }} NGN Motors. All rights reserved.</p>
     </div>
+</div>
 </body>
 </html>

@@ -112,12 +112,17 @@
                     $badgeColor = match($item['status']) {
                         'approved' => 'emerald',
                         'pending_review' => 'amber',
-                        'rejected' => 'red',
+                        'rejected', 'expired' => 'red',
                         default => 'zinc',
                     };
                 @endphp
                 <li class="flex items-center justify-between gap-3 px-4 py-2 text-sm">
-                    <span>{{ $item['name'] }}</span>
+                    <span>
+                        {{ $item['name'] }}
+                        @if(!empty($item['valid_until']))
+                            <span class="block text-[11px] text-zinc-500">Valid until {{ \Carbon\Carbon::parse($item['valid_until'])->format('d M Y') }}</span>
+                        @endif
+                    </span>
                     <div class="flex items-center gap-2">
                         <flux:badge size="sm" :color="$badgeColor">{{ $item['status_label'] }}</flux:badge>
                         @if($item['document_id'] && $item['status'] === 'pending_review')
@@ -152,7 +157,7 @@
                                 @php
                                     $statusColor = match($doc->review_status ?? 'missing') {
                                         'approved' => 'emerald',
-                                        'rejected' => 'red',
+                                        'rejected', 'expired' => 'red',
                                         'pending_review' => 'amber',
                                         default => 'zinc',
                                     };
@@ -178,6 +183,8 @@
                                         <flux:button size="xs" variant="danger" wire:click="requestReupload({{ $doc->id }})">Re-upload</flux:button>
                                     @elseif($doc->review_status === 'approved')
                                         <flux:button size="xs" variant="ghost" wire:click="markPendingReview({{ $doc->id }})">Undo</flux:button>
+                                    @elseif($doc->review_status === 'expired')
+                                        <flux:button size="xs" variant="danger" wire:click="requestReupload({{ $doc->id }})">Ask re-upload</flux:button>
                                     @elseif($doc->review_status === 'rejected')
                                         <flux:button size="xs" variant="ghost" wire:click="markPendingReview({{ $doc->id }})">Clear</flux:button>
                                     @endif

@@ -35,7 +35,7 @@ class SurveyResponseIndex extends Component
     public function render()
     {
         $rows = $this->baseQuery()
-            ->with(['survey:id,title', 'customer:id,first_name,last_name', 'answers'])
+            ->with(['survey:id,title', 'answers'])
             ->orderByDesc('id')
             ->paginate($this->perPage);
 

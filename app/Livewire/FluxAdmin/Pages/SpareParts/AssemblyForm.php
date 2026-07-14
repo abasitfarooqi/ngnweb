@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\SpAssembly;
 use App\Models\SpFitment;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,20 +36,27 @@ class AssemblyForm extends Component
 
     public function save(): void
     {
+        if (empty($this->form['slug']) && ! empty($this->form['name'])) {
+            $this->form['slug'] = Str::slug($this->form['name']);
+        }
+
         $this->validate([
             'form.fitment_id'  => ['required', 'integer', 'exists:sp_fitments,id'],
             'form.name'        => ['required', 'string', 'max:255'],
-            'form.slug'        => ['nullable', 'string', 'max:255'],
+            'form.slug'        => [
+                'nullable', 'string', 'max:255',
+                Rule::unique('sp_assemblies', 'slug')
+                    ->where(fn ($q) => $q->where('fitment_id', $this->form['fitment_id'] ?? null))
+                    ->ignore($this->spAssembly?->id),
+            ],
             'form.external_id' => ['nullable', 'string', 'max:255'],
             'form.image_url'   => ['nullable', 'string', 'max:1024'],
             'form.diagram_url' => ['nullable', 'string', 'max:1024'],
             'form.sort_order'  => ['nullable', 'integer', 'min:0'],
             'form.is_active'   => ['boolean'],
-        ]);
-
-        if (empty($this->form['slug']) && ! empty($this->form['name'])) {
-            $this->form['slug'] = Str::slug($this->form['name']);
-        }
+        ], [
+            'form.slug.unique' => 'An assembly with this slug already exists for the selected fitment.',
+        ], ['form.slug' => 'slug']);
 
         $payload = [
             'fitment_id'  => $this->form['fitment_id'],

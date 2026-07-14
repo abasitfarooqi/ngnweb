@@ -25,11 +25,11 @@ class RentalTerminateAccess extends Model
 
     public function customers(): BelongsTo
     {
-        return $this->BelongsTo(Customers::class, 'id', 'customer_id');
+        return $this->belongsTo(Customer::class, 'customer_id', 'id');
     }
 
     public function bookings(): BelongsTo
     {
-        return $this->BelongsTo(RentingBookings::class, 'id', 'booking_id');
+        return $this->belongsTo(RentingBooking::class, 'booking_id', 'id');
     }
 }

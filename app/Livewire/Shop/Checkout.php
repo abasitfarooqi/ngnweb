@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Shop;
 
+use App\Models\Branch;
 use App\Models\CustomerAddress;
 use App\Models\Ecommerce\EcOrder;
 use App\Models\Ecommerce\EcOrderItem;
@@ -53,6 +54,13 @@ class Checkout extends Component
 
     public string $errorMessage = '';
 
+    // PayPal return state
+    public string $paymentResult = '';
+
+    public string $paymentMessage = '';
+
+    public ?string $transactionId = null;
+
     protected CartService $cart;
 
     public function boot(CartService $cart): void
@@ -68,13 +76,41 @@ class Checkout extends Component
             return;
         }
 
+        $customer = Auth::guard('customer')->user();
+
+        // Returning from PayPal (PayPalController flashes payment_status to the session).
+        if (session()->has('payment_status')) {
+            $this->paymentResult = (string) session('payment_status');
+            $this->transactionId = session('transaction_id');
+            $this->paymentMessage = (string) session('message', '');
+
+            if ($this->paymentResult === 'success') {
+                // Payment is confirmed — now it is safe to clear the basket and show confirmation.
+                $this->cart->clear();
+                $this->dispatch('cart-updated', count: 0)->to('site.header');
+
+                $paidOrder = EcOrder::where('customer_id', $customer->id)
+                    ->where('payment_status', 'paid')
+                    ->latest('id')
+                    ->first();
+                $this->orderId = $paidOrder?->id;
+                $this->step = 4;
+
+                return;
+            }
+
+            // Cancelled / error: the basket is intact so the customer can retry.
+            $this->errorMessage = $this->paymentMessage ?: ($this->paymentResult === 'cancelled'
+                ? 'Your PayPal payment was cancelled. Your basket is saved — you can try again.'
+                : 'Your payment could not be completed. Please try again.');
+        }
+
         if ($this->cart->isEmpty()) {
             $this->redirectRoute('shop.basket');
 
             return;
         }
 
-        $customer = Auth::guard('customer')->user();
         $defaultAddress = CustomerAddress::where('customer_id', $customer->customer_id)
             ->where('is_default', true)
             ->first();
@@ -83,7 +119,9 @@ class Checkout extends Component
             $this->selectedAddressId = $defaultAddress->id;
         }
 
-        $defaultShipping = EcShippingMethod::active()->first();
+        // Prefer home delivery by default; fall back to whatever is enabled.
+        $defaultShipping = EcShippingMethod::active()->delivery()->first()
+            ?? EcShippingMethod::active()->first();
         if ($defaultShipping) {
             $this->shippingMethodId = $defaultShipping->id;
         }
@@ -130,6 +168,26 @@ class Checkout extends Component
     protected function validateShipping(): void
     {
         $this->validate(['shippingMethodId' => 'required|integer|min:1']);
+
+        $method = EcShippingMethod::find($this->shippingMethodId);
+        if ($method && $method->in_store_pickup) {
+            $this->validate(
+                ['branchId' => 'required|integer|min:1'],
+                [
+                    'branchId.required' => 'Please choose a branch to collect from.',
+                    'branchId.min' => 'Please choose a branch to collect from.',
+                ]
+            );
+        }
+    }
+
+    public function updatedShippingMethodId(): void
+    {
+        // Reset the branch when switching to a delivery method so it is not carried over.
+        $method = EcShippingMethod::find($this->shippingMethodId);
+        if (! $method || ! $method->in_store_pickup) {
+            $this->branchId = 0;
+        }
     }
 
     public function placeOrder(): void
@@ -153,6 +211,13 @@ class Checkout extends Component
         $shippingMethod = EcShippingMethod::find($this->shippingMethodId);
         if (! $shippingMethod) {
             $this->errorMessage = 'Please select a shipping method.';
+
+            return;
+        }
+
+        if ($shippingMethod->in_store_pickup && ! $this->branchId) {
+            $this->errorMessage = 'Please choose a branch to collect from.';
+            $this->step = 2;
 
             return;
         }
@@ -285,16 +350,17 @@ class Checkout extends Component
 
             DB::commit();
 
-            $this->cart->clear();
             $this->orderId = $order->id;
-            $this->dispatch('cart-updated', count: 0)->to('site.header');
 
             if ($isPayPal) {
+                // Keep the basket until PayPal confirms payment (cleared on the success return).
                 $this->redirectRoute('paypal.directPayment', navigate: false);
 
                 return;
             }
 
+            $this->cart->clear();
+            $this->dispatch('cart-updated', count: 0)->to('site.header');
             $this->step = 4;
 
         } catch (\Exception $e) {
@@ -311,6 +377,7 @@ class Checkout extends Component
             ? CustomerAddress::where('customer_id', $customer->customer_id)->get()
             : collect();
         $shippingMethods = EcShippingMethod::active()->get();
+        $branches = Branch::orderBy('name')->get();
         $paymentMethods = $this->checkoutPaymentMethodsQuery()->get();
         $items = $this->cart->getItems();
         $subtotal = $this->cart->subtotal();
@@ -324,7 +391,7 @@ class Checkout extends Component
         $basketRoute = $isSparePartsCheckout ? 'spareparts.cart' : 'shop.basket';
 
         return view('livewire.shop.checkout', compact(
-            'addresses', 'shippingMethods', 'paymentMethods',
+            'addresses', 'shippingMethods', 'branches', 'paymentMethods',
             'items', 'subtotal', 'shippingCost', 'grandTotal', 'shippingMethod',
             'isSparePartsCheckout', 'continueShoppingRoute', 'basketRoute'
         ))->layout('components.layouts.public', [

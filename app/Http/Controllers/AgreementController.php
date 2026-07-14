@@ -70,9 +70,9 @@ class AgreementController extends Controller
             ->get()
             ->map(function ($access) {
                 $urls = AgreementAccess::rentalUrlsFor($access->customer_id, $access->passcode);
-                $access->link = $urls['ins'];
+                $access->link = $urls['customer'];
                 $access->link_standard = $urls['standard'];
-                $access->link_ins = $urls['ins'];
+                $access->link_ins = $urls['customer'];
                 $access->name = $access->first_name.' '.$access->last_name;
 
                 return $access;
@@ -115,7 +115,7 @@ class AgreementController extends Controller
             'expires_at' => $expiresAt,
         ]);
 
-        $url = route('agreement.show.ins.v6', ['customer_id' => $customer_id, 'passcode' => $passcode]);
+        $url = AgreementAccess::customerSigningUrl((int) $customer_id, $passcode);
 
         if ($access) {
 
@@ -213,11 +213,8 @@ class AgreementController extends Controller
         $motorbike = Motorbike::where('id', $bookingItem->motorbike_id)->first();
         $user_name = $booking->user->first_name.' '.$booking->user->last_name;
 
-        // V1
-        // return view('signature', compact(
-
-        // V6
-        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.signature-v6', compact(
+        // Full HTML signing page — include via legacy-host (not Livewire mount).
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -228,7 +225,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-v6']));
     }
 
 
@@ -255,11 +252,8 @@ class AgreementController extends Controller
         \Log::info('Motorbike Obj: ', [$motorbike]);
         $user_name = $booking->user->first_name.' '.$booking->user->last_name;
 
-        // V1
-        // return view('signature', compact(
-
-        // V3
-        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.signature-v6-ins', compact(
+        // Full HTML signing page — include via legacy-host (not Livewire mount).
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -270,7 +264,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-v6-ins']));
     }
 
 
@@ -443,6 +437,36 @@ class AgreementController extends Controller
         ]);
     }
 
+    // 13-JUL-2026 - Latest Contract (New)
+    public function showContractLatest($customer_id, $passcode)
+    {
+        $access = ContractAccess::where('customer_id', $customer_id)
+            ->where('passcode', $passcode)
+            ->where('expires_at', '>', now())
+            ->firstOrFail();
+
+        $booking = FinanceApplication::findOrFail($access->application_id);
+        $customer = $booking->customer;
+        $bookingItem = ApplicationItem::where('application_id', $booking->id)->first();
+        $motorbike = Motorbike::find($bookingItem->motorbike_id);
+        $user_name = $booking->user->first_name.' '.$booking->user->last_name;
+        $today = now()->format('d/m/Y');
+        $SIGFILE = '#';
+
+        return view('livewire.agreements.legacy-host', array_merge(compact(
+            'booking',
+            'customer',
+            'bookingItem',
+            'SIGFILE',
+            'user_name',
+            'today',
+            'motorbike',
+            'customer_id',
+            'passcode',
+            'access'
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-latest']));
+    }
+
     // 2025 12-SEP-2025 - Latest Contract
     public function createNewContractLatest(Request $request)
     {
@@ -520,8 +544,23 @@ class AgreementController extends Controller
 
         $data['pdf'] = $pdf;
 
+        // Always generate 3× INS/PCN less-terms for customerservice (council PCN handling).
+        $lessTermsPdfs = $this->buildInternalPcnInsCopies(
+            $Booking,
+            $Customer,
+            $Motorbike,
+            $BookingItems,
+            $fileName,
+            (string) $customerAgreement->document_number,
+            $pdfPath,
+            (int) $tm,
+            (int) $rand_no,
+            (bool) $Booking->is_used_latest
+        );
+
         try {
             Mail::to($data['email'])->send(new HireContract($data));
+            $this->mailInternalPcnInsCopies($lessTermsPdfs);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
@@ -678,56 +717,23 @@ class AgreementController extends Controller
         $data['body'] = 'Thank you for choosing Neguinho Motors Ltd. Ride safe and enjoy the journey! Find Attached your rental agreement. ';
         $data['pdf'] = $pdf;
 
-        // Three PDF Generation
-        $contractStartDate = Carbon::parse($Booking->contract_date);
-        $contractEndDate1 = $contractStartDate->copy()->addMonths(5);
-        $contractEndDate2 = $contractEndDate1->copy()->addMonths(5);
-        $contractEndDate3 = $contractEndDate2->copy()->addMonths(5);
-
-        $less_terms_pdf_name = $Booking->is_used_latest
-            ? 'pdf.contract-v6-ins-used-latest-less-terms'
-            : 'pdf.contract-v6-ins-latest-less-terms';
-
-        $contractDates = [
-            ['start' => $contractStartDate, 'end' => $contractEndDate1],
-            ['start' => $contractEndDate1, 'end' => $contractEndDate2],
-            ['start' => $contractEndDate2, 'end' => $contractEndDate3],
-        ];
-
-        $less_terms_pdf_data = [];
-        foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
-            $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
-                'today' => $dates['start'], // Carbon instance
-                'SIGFILE' => $fileName,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-                'document_number' => "{$customerAgreement->document_number}-".($index + 1),
-                'contractStartDate' => $dates['start'], // Carbon instance
-                'contractEndDate' => $dates['end'],   // Carbon instance
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.$pdfFileName);
-
-
-
-            $less_terms_pdf_data[] = $less_terms_pdf;
-        }
-
-        $email_data = [];
-        $email_data['title'] = 'Sale Contract - PCN/INS - Internal';
-        $email_data['body'] = 'Thank you for choosing Neguinho Motors Ltd. Ride safe and enjoy the journey! <br> Find Attached your rental agreement. ';
-        $email_data['pdf'] = $less_terms_pdf_data;
+        // Always: 3× INS/PCN less-terms → customerservice only (council PCN).
+        $lessTermsPdfs = $this->buildInternalPcnInsCopies(
+            $Booking,
+            $Customer,
+            $Motorbike,
+            $BookingItems,
+            $fileName,
+            (string) $customerAgreement->document_number,
+            $pdfPath,
+            (int) $tm,
+            (int) $rand_no,
+            (bool) $Booking->is_used_latest
+        );
 
         try {
-            // sending finance contract pdfs to customer
             Mail::to($data['email'])->send(new HireContract($data));
-
-            // sending ins pdfs to only customerservice@neguinhomotors.co.uk
-            Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new HireContract($email_data));
+            $this->mailInternalPcnInsCopies($lessTermsPdfs);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
@@ -970,7 +976,7 @@ class AgreementController extends Controller
         ]);
     }
 
-    // 2025 12-SEP-2025 - Latest Contract (Used Vehicle)
+    // 13-JUL-2026 - Latest Contract (Used)
     public function showContractUsedLatest($customer_id, $passcode)
     {
         $access = ContractAccess::where('customer_id', $customer_id)
@@ -1079,8 +1085,23 @@ class AgreementController extends Controller
 
         $data['pdf'] = $pdf;
 
+        // Always generate 3× INS/PCN less-terms for customerservice (council PCN handling).
+        $lessTermsPdfs = $this->buildInternalPcnInsCopies(
+            $Booking,
+            $Customer,
+            $Motorbike,
+            $BookingItems,
+            $fileName,
+            (string) $customerAgreement->document_number,
+            $pdfPath,
+            (int) $tm,
+            (int) $rand_no,
+            true
+        );
+
         try {
             Mail::to($data['email'])->send(new HireContract($data));
+            $this->mailInternalPcnInsCopies($lessTermsPdfs);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
@@ -1183,7 +1204,7 @@ class AgreementController extends Controller
     }
 
     /**
-     * Show merged contracts view (Sale + Subscription) - Used Vehicle, Without Insurance
+     * 13-JUL-2026 - Latest Contract (Subs-Used: Sale + Subscription, Used Vehicle)
      */
     public function showMergedContractsUsed($customer_id, $passcode)
     {
@@ -1420,6 +1441,7 @@ class AgreementController extends Controller
             'subscriptionOption' => $subscriptionOption,
             'contractStartDate' => $contractStartDate,
             'contractStartTime' => $contractStartTime,
+            'subs_payment_date' => $Booking->subs_payment_date,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/subscription-contract-'.$tm.$rand_no.'.pdf');
@@ -1633,6 +1655,7 @@ class AgreementController extends Controller
             'subscriptionOption' => $subscriptionOption,
             'contractStartDate' => $contractStartDate,
             'contractStartTime' => $contractStartTime,
+            'subs_payment_date' => $Booking->subs_payment_date,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/subscription-contract-'.$tm.$rand_no.'.pdf');
@@ -2508,7 +2531,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        // V6
+        // V6 full INS agreement (customer + customerservice)
         $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6-ins', [
             'today' => $toDay,
             'SIGFILE' => $fileName,
@@ -2522,16 +2545,120 @@ class AgreementController extends Controller
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf');
 
+        // Always: 3× rental PCN/INS period copies for customerservice only (council PCN).
+        // Uses rental agreement template (agreement-v6-ins), not sale-contract less-terms.
+        $agreementStartDate = $Booking->start_date;
+        $agreementEndDate1 = $agreementStartDate->copy()->addMonths(5);
+        $agreementEndDate2 = $agreementEndDate1->copy()->addMonths(5);
+        $agreementEndDate3 = $agreementEndDate2->copy()->addMonths(5);
 
+        $pcnPdfName = 'pdf.agreement-v6-ins';
+        $path1 = "customers/{$Booking->customer_id}/1st-{$pcnPdfName}-".$tm.$rand_no.'.pdf';
+        $path2 = "customers/{$Booking->customer_id}/2nd-{$pcnPdfName}-".$tm.$rand_no.'.pdf';
+        $path3 = "customers/{$Booking->customer_id}/3rd-{$pcnPdfName}-".$tm.$rand_no.'.pdf';
+
+        $customerAgreement1 = CustomerAgreement::create([
+            'customer_id' => $Booking->customer_id,
+            'document_type_id' => $documentType->id,
+            'file_name' => "1st-{$pcnPdfName}-{$tm}{$rand_no}.pdf",
+            'file_path' => $path1,
+            'file_format' => 'pdf',
+            'document_number' => '',
+            'valid_until' => null,
+            'is_verified' => false,
+            'booking_id' => $request->booking_id,
+        ]);
+        $customerAgreement1->update([
+            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement1->id, 3, '0', STR_PAD_LEFT),
+        ]);
+
+        $customerAgreement2 = CustomerAgreement::create([
+            'customer_id' => $Booking->customer_id,
+            'document_type_id' => $documentType->id,
+            'file_name' => "2nd-{$pcnPdfName}-{$tm}{$rand_no}.pdf",
+            'file_path' => $path2,
+            'file_format' => 'pdf',
+            'document_number' => '',
+            'valid_until' => null,
+            'is_verified' => false,
+            'booking_id' => $request->booking_id,
+        ]);
+        $customerAgreement2->update([
+            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement2->id, 3, '0', STR_PAD_LEFT),
+        ]);
+
+        $customerAgreement3 = CustomerAgreement::create([
+            'customer_id' => $Booking->customer_id,
+            'document_type_id' => $documentType->id,
+            'file_name' => "3rd-{$pcnPdfName}-{$tm}{$rand_no}.pdf",
+            'file_path' => $path3,
+            'file_format' => 'pdf',
+            'document_number' => '',
+            'valid_until' => null,
+            'is_verified' => false,
+            'booking_id' => $request->booking_id,
+        ]);
+        $customerAgreement3->update([
+            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement3->id, 3, '0', STR_PAD_LEFT),
+        ]);
+
+        $pdf1 = $this->pdfLoadView($pcnPdfName, [
+            'agreementStartDate' => $agreementStartDate->format('d/m/Y H:i'),
+            'agreementEndDate' => $agreementEndDate1->format('d/m/Y H:i'),
+            'today' => $agreementStartDate->format('d/m/Y'),
+            'SIGFILE' => $fileName,
+            'booking' => $Booking,
+            'customer' => $Customer,
+            'motorbike' => $Motorbike,
+            'bookingItem' => $BookingItems,
+            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
+            'document_number' => $customerAgreement1->document_number,
+        ])->setPaper('a4', 'portrait')
+            ->setOption('isPhpEnabled', true)
+            ->save($pdfPath."/1st-{$pcnPdfName}-{$tm}{$rand_no}.pdf");
+
+        $pdf2 = $this->pdfLoadView($pcnPdfName, [
+            'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
+            'agreementEndDate' => $agreementEndDate2->format('d/m/Y H:i'),
+            'today' => $agreementEndDate1->format('d/m/Y'),
+            'SIGFILE' => $fileName,
+            'booking' => $Booking,
+            'customer' => $Customer,
+            'motorbike' => $Motorbike,
+            'bookingItem' => $BookingItems,
+            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
+            'document_number' => $customerAgreement2->document_number,
+        ])->setPaper('a4', 'portrait')
+            ->setOption('isPhpEnabled', true)
+            ->save($pdfPath."/2nd-{$pcnPdfName}-{$tm}{$rand_no}.pdf");
+
+        $pdf3 = $this->pdfLoadView($pcnPdfName, [
+            'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
+            'agreementEndDate' => $agreementEndDate3->format('d/m/Y H:i'),
+            'today' => $agreementEndDate2->format('d/m/Y'),
+            'SIGFILE' => $fileName,
+            'booking' => $Booking,
+            'customer' => $Customer,
+            'motorbike' => $Motorbike,
+            'bookingItem' => $BookingItems,
+            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
+            'document_number' => $customerAgreement3->document_number,
+        ])->setPaper('a4', 'portrait')
+            ->setOption('isPhpEnabled', true)
+            ->save($pdfPath."/3rd-{$pcnPdfName}-{$tm}{$rand_no}.pdf");
 
         $data['pdf'] = $pdf;
+        $data['pdf1'] = $pdf1;
+        $data['pdf2'] = $pdf2;
+        $data['pdf3'] = $pdf3;
 
         try {
-            // sent to customer service
+            // Full rental INS agreement → customerservice + customer
             Mail::to($data['email'])->send(new RentalAgreement($data));
-
-            // sent to customers
             Mail::to($Customer->email)->send(new RentalAgreement($data));
+
+            // 3× rental PCN period copies → customerservice only
+            Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new RentalAgreementNgn($data));
         } catch (RfcComplianceException $e) {
             Log::error(__FILE__.' at line '.__LINE__.'RFC Compliance Error: '.$e->getMessage());
         } catch (Exception $e) {
@@ -2727,6 +2854,77 @@ class AgreementController extends Controller
     private function pdfLoadView(string $view, array $data = []): mixed
     {
         return AgreementPdfGenerator::loadView($view, $data);
+    }
+
+    /**
+     * Sale CONTRACT only (not rental agreement).
+     * Build the 3× sale-contract INS/PCN less-terms PDFs for council PCN handling.
+     * These must always go to customerservice only — never to the customer.
+     *
+     * Templates: contract-v6-ins-latest-less-terms / contract-v6-ins-used-latest-less-terms
+     *
+     * @return list<mixed>
+     */
+    private function buildInternalPcnInsCopies(
+        $Booking,
+        $Customer,
+        $Motorbike,
+        $BookingItems,
+        string $fileName,
+        string $documentNumber,
+        string $pdfPath,
+        int $tm,
+        int $rand_no,
+        bool $isUsedLatest
+    ): array {
+        $contractStartDate = Carbon::parse($Booking->contract_date);
+        $contractEndDate1 = $contractStartDate->copy()->addMonths(5);
+        $contractEndDate2 = $contractEndDate1->copy()->addMonths(5);
+        $contractEndDate3 = $contractEndDate2->copy()->addMonths(5);
+
+        $lessTermsPdfName = $isUsedLatest
+            ? 'pdf.contract-v6-ins-used-latest-less-terms'
+            : 'pdf.contract-v6-ins-latest-less-terms';
+
+        $contractDates = [
+            ['start' => $contractStartDate, 'end' => $contractEndDate1],
+            ['start' => $contractEndDate1, 'end' => $contractEndDate2],
+            ['start' => $contractEndDate2, 'end' => $contractEndDate3],
+        ];
+
+        $lessTermsPdfs = [];
+        foreach ($contractDates as $index => $dates) {
+            $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $lessTermsPdfs[] = $this->pdfLoadView($lessTermsPdfName, [
+                'today' => $dates['start'],
+                'SIGFILE' => $fileName,
+                'booking' => $Booking,
+                'customer' => $Customer,
+                'motorbike' => $Motorbike,
+                'bookingItem' => $BookingItems,
+                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
+                'document_number' => $documentNumber.'-'.($index + 1),
+                'contractStartDate' => $dates['start'],
+                'contractEndDate' => $dates['end'],
+            ])->setPaper('a4', 'portrait')
+                ->setOption('isPhpEnabled', true)
+                ->save($pdfPath.$pdfFileName);
+        }
+
+        return $lessTermsPdfs;
+    }
+
+    private function mailInternalPcnInsCopies(array $lessTermsPdfs): void
+    {
+        if ($lessTermsPdfs === []) {
+            return;
+        }
+
+        Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new HireContract([
+            'title' => 'Sale Contract - PCN/INS - Internal',
+            'body' => 'Thank you for choosing Neguinho Motors Ltd. Ride safe and enjoy the journey! <br> Find Attached your rental agreement. ',
+            'pdf' => $lessTermsPdfs,
+        ]));
     }
 
 }

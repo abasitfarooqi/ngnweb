@@ -39,7 +39,7 @@ class MotorbikeRepairCrudController extends BaseCrudController
 
     protected function setupListOperation()
     {
-        CRUD::column('motorbike.reg_no')->label('Registraction No');
+        CRUD::column('motorbike.reg_no')->label('Registration No');
         CRUD::setFromDb();
         CRUD::enableExportButtons();
         // Add a custom button for generating PDF for each repair entry
@@ -376,18 +376,19 @@ class MotorbikeRepairCrudController extends BaseCrudController
             'observations',
         ])->findOrFail($id);
 
-        $pdf = \PDF::loadView('livewire.agreements.pdf.templates.repair_invoice', compact('repair'))
+        $pdf = \PDF::loadView(
+            'livewire.agreements.pdf.templates.repair_invoice',
+            array_merge(\App\Support\AgreementPdfViewAssets::composerVariables(), compact('repair'))
+        )
             ->setPaper('a4', 'portrait')
             ->setOptions([
-                'watermark' => 'Your Watermark',
                 'isHtml5ParserEnabled' => true,
                 'isRemoteEnabled' => true,
-                'margin-top' => 0,
-                'margin-bottom' => 0,
-                'margin-left' => 0,
-                'margin-right' => 0,
+                'defaultFont' => 'DejaVu Sans',
             ]);
 
-        return $pdf->download('Repair_Invoice_'.$repair->motorbike->reg_no.'.pdf');
+        $reg = $repair->motorbike?->reg_no ?: ('repair-'.$repair->id);
+
+        return $pdf->download('Repair_Invoice_'.$reg.'.pdf');
     }
 }

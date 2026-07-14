@@ -22,7 +22,7 @@
                 <flux:input type="number" wire:model.live.debounce.400ms="filterYear" placeholder="Year…" variant="filled" />
             </div>
             <div class="min-w-0 w-full sm:min-w-[10rem] sm:max-w-[11rem]">
-                <flux:select wire:model.live="filterPartner" variant="filled">
+                <flux:select wire:model.live="filterPartner">
                     <flux:select.option value="">Any partner</flux:select.option>
                     <flux:select.option value="1">Partner: Yes</flux:select.option>
                     <flux:select.option value="0">Partner: No</flux:select.option>

@@ -23,7 +23,7 @@
             <flux:table.rows>
                 @forelse($rows as $r)
                     <flux:table.row wire:key="otp-{{ $r->id }}">
-                        <flux:table.cell class="text-zinc-900 dark:text-white">{{ $r->clubMember?->first_name }} {{ $r->clubMember?->last_name }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-900 dark:text-white">{{ $r->clubMember?->full_name ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->clubMember?->email ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->clubMember?->phone ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-lg text-zinc-900 dark:text-white font-bold">{{ $r->otp_code }}</flux:table.cell>

@@ -79,7 +79,7 @@ class PurchaseRequestItemForm extends Component
     public function render()
     {
         $makes            = Make::query()->orderBy('name')->get(['id', 'name']);
-        $bikeModels       = BikeModel::query()->orderBy('name')->get(['id', 'name']);
+        $bikeModels       = BikeModel::query()->select('id', 'model as name')->orderBy('model')->get();
         $purchaseRequests = PurchaseRequest::query()->orderByDesc('id')->limit(200)->get(['id', 'date', 'note']);
 
         return view('flux-admin.pages.inventory.purchase-request-item-form', compact('makes', 'bikeModels', 'purchaseRequests'));

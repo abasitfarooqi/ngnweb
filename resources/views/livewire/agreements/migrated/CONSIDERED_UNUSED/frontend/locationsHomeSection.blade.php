@@ -22,7 +22,7 @@
                             <strong>Phone:</strong> <a href="tel:02083141498">0208 314 1498</a> (Catford)
                         </p>
                         <p class="location-hours">
-                            Mon-Sat: 9:00 AM - 6:00 PM
+                            Mon–Fri: 9 am–6 pm · Sat: 9 am–3:45 pm
                         </p>
                     </div>
                 </div>
@@ -41,7 +41,7 @@
                             <strong>Phone:</strong> <a href="tel:02034095478">0203 409 5478</a> (Tooting)
                         </p>
                         <p class="location-hours">
-                            Mon-Sat: 9:00 AM - 6:00 PM
+                            Mon–Fri: 9 am–6 pm · Sat: 9 am–3:45 pm
                         </p>
                     </div>
                 </div>
@@ -60,7 +60,7 @@
                             <strong>Phone:</strong> <a href="tel:02084129275">0208 412 9275</a> (Sutton)
                         </p>
                         <p class="location-hours">
-                            Mon-Sat: 9:00 AM - 6:00 PM
+                            Mon–Fri: 9 am–6 pm · Sat: 9 am–3:45 pm
                         </p>
                     </div>
                 </div>

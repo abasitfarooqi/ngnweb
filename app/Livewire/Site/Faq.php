@@ -87,7 +87,7 @@ class Faq extends Component
         [
             'category' => 'General',
             'q' => 'What are your opening hours?',
-            'a' => 'Monday to Saturday: 9:00am to 6:00pm. We are closed on Sundays and Bank Holidays.',
+            'a' => 'Monday to Friday: 9:00am to 6:00pm. Saturday: 9:00am to 3:45pm. We are closed on Sundays and Bank Holidays.',
         ],
         [
             'category' => 'General',

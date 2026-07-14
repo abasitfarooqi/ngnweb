@@ -316,7 +316,7 @@
                     'icon' => 'la la-motorcycle',
                     'color' => 'primary',
                     'value' => $totalOwnedBikes,
-                    'label' => 'Our Motorbikes',
+                    'label' => 'NGN Vehicles.',
                 ],
             ],
         ])->to('before_content');

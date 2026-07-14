@@ -4,7 +4,7 @@ return [
 
     'logo' => 'img/ngn-motor-logo-fit-small.png',
 
-    'hours' => env('SITE_HOURS', 'Monday to Saturday, 9:00 AM – 6:00 PM · Sunday Closed'),
+    'hours' => env('SITE_HOURS', 'Monday to Friday, 9:00 AM – 6:00 PM · Saturday 9:00 AM – 3:45 PM · Sunday Closed'),
 
     /** Used bike detail page: classic | premium. Override per visit with ?layout=premium */
     'used_bike_detail_layout' => env('USED_BIKE_DETAIL_LAYOUT', 'classic'),
@@ -15,7 +15,7 @@ return [
         'wednesday' => '9:00 AM – 6:00 PM',
         'thursday'  => '9:00 AM – 6:00 PM',
         'friday'    => '9:00 AM – 6:00 PM',
-        'saturday'  => '9:00 AM – 6:00 PM',
+        'saturday'  => '9:00 AM – 3:45 PM',
         'sunday'    => 'Closed',
     ],
 

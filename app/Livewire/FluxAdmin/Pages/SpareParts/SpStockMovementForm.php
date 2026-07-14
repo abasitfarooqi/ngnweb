@@ -69,8 +69,22 @@ class SpStockMovementForm extends Component
             $message = 'Movement created.';
         }
 
+        $this->recalcGlobalStock((int) $payload['sp_part_id']);
+
         $this->dispatch('flux-admin:toast', type: 'success', message: $message);
         $this->redirect(route('flux-admin.sp-stock-movements.index'), navigate: true);
+    }
+
+    private function recalcGlobalStock(int $partId): void
+    {
+        $part = SpPart::find($partId);
+        if (! $part) {
+            return;
+        }
+
+        $in = (float) SpStockMovement::query()->where('sp_part_id', $partId)->sum('in');
+        $out = (float) SpStockMovement::query()->where('sp_part_id', $partId)->sum('out');
+        $part->forceFill(['global_stock' => $in - $out])->save();
     }
 
     public function render()

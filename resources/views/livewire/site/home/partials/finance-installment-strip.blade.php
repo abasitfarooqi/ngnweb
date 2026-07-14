@@ -10,7 +10,7 @@
                 </a>
             </div>
             <div class="flex flex-col sm:items-end gap-3 shrink-0">
-                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Call Us: (MON-SAT 09:00 to 18:00)</p>
+                <p class="text-sm font-semibold text-gray-700 dark:text-gray-300">Call Us: (Mon–Fri 09:00–18:00 · Sat 09:00–15:45)</p>
                 <flux:button href="tel:02083141498" variant="filled" class="bg-brand-green text-white hover:bg-brand-green-dark w-full sm:w-auto justify-center">
                     Call now
                 </flux:button>

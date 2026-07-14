@@ -134,6 +134,7 @@
 
         .fee-table th {
             background-color: #111827;
+            color: #ffffff;
             font-weight: bold;
         }
         p{
@@ -1169,6 +1170,8 @@ label a{
         </div>
     </div>
 
+    @include('livewire.agreements.partials.signing-agree-enable')
+
     <script src="{{ asset('assets/js/sign-pad.min.js') }}"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
@@ -1227,15 +1230,7 @@ label a{
             if (canvas) {
                 canvas.classList.add("full-size-canvas");
             }
-
-            // Enable the sign button only when the checkbox is checked
-            const agreementCheckbox = document.getElementById("agreementCheckbox");
-            const signButton = document.getElementById("signButton");
-
-            agreementCheckbox.addEventListener("change", function() {
-                signButton.disabled = !this.checked;
-            });
-        });
+});
         $(document).ready(function() {
             $('#signature-pad-cancel').click(function() {
                 $('#signature-pad-booking-id').empty();

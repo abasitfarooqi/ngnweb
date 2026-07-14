@@ -64,10 +64,17 @@ class AppServiceProvider extends ServiceProvider
         });
 
         View::composer('*', function (\Illuminate\View\View $view): void {
-            $name = $view->name();
-            if (! str_starts_with($name, 'livewire.agreements.')) {
+            $name = (string) $view->name();
+            $needsPdfAssets = str_starts_with($name, 'livewire.agreements.')
+                || str_starts_with($name, 'invoices.')
+                || str_starts_with($name, 'portal.pdf.')
+                || str_starts_with($name, 'pcn.template.')
+                || str_starts_with($name, 'emails.pdf.');
+
+            if (! $needsPdfAssets) {
                 return;
             }
+
             $view->with(AgreementPdfViewAssets::composerVariables());
         });
 

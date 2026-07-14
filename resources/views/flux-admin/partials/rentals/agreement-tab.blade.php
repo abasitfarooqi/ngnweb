@@ -2,7 +2,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-zinc-200 dark:border-zinc-700">
         <div>
             <p class="text-sm font-semibold text-zinc-900 dark:text-white">Rental agreement</p>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate a signing link and QR code for the customer.</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate the V6 signing link (same URL emailed to the customer).</p>
         </div>
         <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled">
             Generate agreement &amp; QR
@@ -18,7 +18,7 @@
 
     @if($agreementUrl)
         <div class="mx-4 mt-4 p-4 border border-zinc-200 dark:border-zinc-700">
-            <p class="text-xs font-bold text-zinc-500 mb-2">Latest agreement link</p>
+            <p class="text-xs font-bold text-zinc-500 mb-2">Customer signing link (V6 — email / copy-paste)</p>
             <a href="{{ $agreementUrl }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 break-all hover:underline">{{ $agreementUrl }}</a>
             @if($qrImage)
                 <div class="mt-3">
@@ -31,6 +31,10 @@
     @if($agreements->isNotEmpty())
         <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
             @foreach($agreements as $agreement)
+                @php
+                    $customerUrl = \App\Models\AgreementAccess::customerSigningUrl((int) $agreement->customer_id, (string) $agreement->passcode);
+                    $loyaltyUrl = \App\Models\AgreementAccess::loyaltySchemeSigningUrl((int) $agreement->customer_id, (string) $agreement->passcode);
+                @endphp
                 <div class="p-5" wire:key="agreement-{{ $agreement->id }}">
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
@@ -50,25 +54,25 @@
                             </p>
                         </div>
                     </div>
-                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="mt-4 grid grid-cols-1 gap-4">
                         <div>
-                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Standard agreement</p>
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Customer signing link (V6)</p>
                             <a
-                                href="{{ route('agreement.show.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}"
+                                href="{{ $customerUrl }}"
                                 target="_blank"
                                 class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
                             >
-                                {{ route('agreement.show.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}
+                                {{ $customerUrl }}
                             </a>
                         </div>
                         <div>
-                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Insurance/PCN agreement</p>
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Loyalty Scheme (optional — copy if customer chooses to sign)</p>
                             <a
-                                href="{{ route('agreement.show.ins.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}"
+                                href="{{ $loyaltyUrl }}"
                                 target="_blank"
                                 class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
                             >
-                                {{ route('agreement.show.ins.v6', ['customer_id' => $agreement->customer_id, 'passcode' => $agreement->passcode]) }}
+                                {{ $loyaltyUrl }}
                             </a>
                         </div>
                     </div>

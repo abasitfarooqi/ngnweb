@@ -91,13 +91,22 @@ class RepairIndex extends Component
     {
         $repair = MotorbikeRepair::with(['motorbike', 'branch', 'updates.services', 'observations'])->findOrFail($id);
 
-        $pdf = \PDF::loadView('livewire.agreements.pdf.templates.repair_invoice', compact('repair'))
+        $pdf = \PDF::loadView(
+            'livewire.agreements.pdf.templates.repair_invoice',
+            array_merge(\App\Support\AgreementPdfViewAssets::composerVariables(), compact('repair'))
+        )
             ->setPaper('a4', 'portrait')
-            ->setOptions(['isHtml5ParserEnabled' => true, 'isRemoteEnabled' => true]);
+            ->setOptions([
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled' => true,
+                'defaultFont' => 'DejaVu Sans',
+            ]);
+
+        $reg = $repair->motorbike?->reg_no ?: ('repair-'.$repair->id);
 
         return response()->streamDownload(
             fn () => print($pdf->output()),
-            'Repair_Invoice_'.$repair->motorbike?->reg_no.'.pdf'
+            'Repair_Invoice_'.$reg.'.pdf'
         );
     }
 

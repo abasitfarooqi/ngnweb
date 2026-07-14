@@ -74,7 +74,7 @@
                     <!-- Collection details -->
                     <div v-if="selectedShippingDetails?.in_store_pickup && selectedBranch" class="mt-2">
                       <p class="text-sm text-gray-500">{{ selectedBranch.address }}</p>
-                      <p class="text-sm text-gray-500">Opening Hours: MON-SAT 9AM-6PM</p>
+                      <p class="text-sm text-gray-500">Opening Hours: Mon–Fri 9am–6pm · Sat 9am–3:45pm</p>
                       <p class="text-sm text-gray-500">SUNDAY: CLOSED</p>
                     </div>
                     <!-- Delivery details -->

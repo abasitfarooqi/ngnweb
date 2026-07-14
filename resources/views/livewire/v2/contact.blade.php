@@ -68,8 +68,9 @@
             <div class="bg-zinc-50 border border-zinc-200 p-6">
                 <h3 class="font-black text-lg text-zinc-900 mb-3">Opening Hours</h3>
                 <dl class="space-y-2 text-sm">
-                    <div class="flex justify-between border-b border-zinc-200 pb-2"><dt class="text-zinc-500">Mon – Sat</dt><dd class="font-semibold text-zinc-900">9:00am – 6:00pm</dd></div>
-                    <div class="flex justify-between"><dt class="text-zinc-500">Sunday</dt><dd class="text-zinc-400">Closed</dd></div>
+                    <div class="flex justify-between border-b border-zinc-200 pb-2"><dt class="text-zinc-500">Mon – Fri</dt><dd class="font-semibold text-zinc-900">{{ config('site.opening_hours.monday') }}</dd></div>
+                    <div class="flex justify-between border-b border-zinc-200 pb-2"><dt class="text-zinc-500">Saturday</dt><dd class="font-semibold text-zinc-900">{{ config('site.opening_hours.saturday') }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-zinc-500">Sunday</dt><dd class="text-zinc-400">{{ config('site.opening_hours.sunday') }}</dd></div>
                 </dl>
             </div>
             <div class="bg-orange-50 border border-orange-200 p-5 text-center">

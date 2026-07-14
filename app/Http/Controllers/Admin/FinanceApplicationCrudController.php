@@ -504,6 +504,11 @@ class FinanceApplicationCrudController extends BaseCrudController
             'name' => 'items',
             'type' => 'repeatable',
             'label' => 'Application Items',
+            'hint' => 'At least one motorbike is required.',
+            'min_rows' => 1,
+            'max_rows' => 20,
+            'init_rows' => 1,
+            'reorder' => false,
             'fields' => [
                 [
                     'name' => 'motorbike_id',
@@ -515,6 +520,12 @@ class FinanceApplicationCrudController extends BaseCrudController
                     'data_source' => url(config('backpack.base.route_prefix').'/finance-application/fetch/motorbike'),
                     'placeholder' => 'Select a motorbike',
                     'minimum_input_length' => 1,
+                    'attributes' => [
+                        'required' => 'required',
+                    ],
+                    'wrapper' => [
+                        'class' => 'form-group col-md-8',
+                    ],
                 ],
                 ['name' => 'is_posted', 'type' => 'checkbox', 'label' => 'Is Posted?', 'default' => 1],
                 ['name' => 'user_id', 'type' => 'hidden', 'default' => backpack_user()->id],
@@ -738,6 +749,11 @@ class FinanceApplicationCrudController extends BaseCrudController
             'name' => 'items',
             'type' => 'repeatable',
             'label' => 'Application Items',
+            'hint' => 'At least one motorbike is required.',
+            'min_rows' => 1,
+            'max_rows' => 20,
+            'init_rows' => 1,
+            'reorder' => false,
             'fields' => [
                 [
                     'name' => 'motorbike_id',
@@ -749,6 +765,12 @@ class FinanceApplicationCrudController extends BaseCrudController
                     'data_source' => url(config('backpack.base.route_prefix').'/finance-application/fetch/motorbike'),
                     'placeholder' => 'Select a motorbike',
                     'minimum_input_length' => 1,
+                    'attributes' => [
+                        'required' => 'required',
+                    ],
+                    'wrapper' => [
+                        'class' => 'form-group col-md-8',
+                    ],
                 ],
                 ['name' => 'is_posted', 'type' => 'checkbox', 'label' => 'Is Posted?', 'default' => 1],
                 ['name' => 'user_id', 'type' => 'hidden', 'default' => backpack_user()->id],

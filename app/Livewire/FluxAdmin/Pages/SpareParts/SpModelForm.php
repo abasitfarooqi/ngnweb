@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\SpMake;
 use App\Models\SpModel;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,16 +36,23 @@ class SpModelForm extends Component
 
     public function save(): void
     {
-        $this->validate([
-            'form.make_id'   => ['required', 'integer', 'exists:sp_makes,id'],
-            'form.name'      => ['required', 'string', 'max:255'],
-            'form.slug'      => ['nullable', 'string', 'max:255'],
-            'form.is_active' => ['boolean'],
-        ]);
-
         if (empty($this->form['slug']) && ! empty($this->form['name'])) {
             $this->form['slug'] = Str::slug($this->form['name']);
         }
+
+        $this->validate([
+            'form.make_id'   => ['required', 'integer', 'exists:sp_makes,id'],
+            'form.name'      => ['required', 'string', 'max:255'],
+            'form.slug'      => [
+                'nullable', 'string', 'max:255',
+                Rule::unique('sp_models', 'slug')
+                    ->where(fn ($q) => $q->where('make_id', $this->form['make_id'] ?? null))
+                    ->ignore($this->spModel?->id),
+            ],
+            'form.is_active' => ['boolean'],
+        ], [
+            'form.slug.unique' => 'A model with this slug already exists for the selected make.',
+        ], ['form.slug' => 'slug']);
 
         $payload = [
             'make_id'   => $this->form['make_id'],

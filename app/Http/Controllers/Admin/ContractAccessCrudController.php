@@ -76,34 +76,28 @@ class ContractAccessCrudController extends BaseCrudController
         CRUD::enableExportButtons();
 
         $this->crud->addColumn([
-            'name' => 'contract_link',
-            'label' => 'Contract link',
+            'name' => 'contract_links',
+            'label' => 'Contract links',
             'type' => 'closure',
             'function' => function ($entry) {
-                $application = $entry->application;
-                if (! $application) {
-                    return '<span class="text-muted">No application</span>';
+                $customerId = (int) ($entry->customer_id ?? 0);
+                $passcode = (string) ($entry->passcode ?? '');
+                if ($customerId < 1 || $passcode === '') {
+                    return '<span class="text-muted">Missing customer or passcode</span>';
                 }
 
-                $url = FinanceContractLinkResolver::primaryUrl($application, $entry->passcode);
-                if (! $url) {
-                    return '<span class="text-muted">Obsolete — no latest type</span>';
+                $html = '<ul class="mb-0 ps-3">';
+                foreach (FinanceContractLinkResolver::accessLinks($customerId, $passcode) as $link) {
+                    $html .= '<li class="mb-1"><strong>'.e($link['label']).'</strong><br>'
+                        .'<a href="'.e($link['url']).'" target="_blank">'.e($link['url']).'</a></li>';
                 }
+                $html .= '</ul>';
 
-                return '<a href="'.$url.'" target="_blank">'.$url.'</a>';
+                return $html;
             },
             'escaped' => false,
         ]);
     }
-
-    /**
-     * Define what happens when the List operation is loaded.
-     *
-     * @see  https://backpackforlaravel.com/docs/crud-operation-list-entries
-     *
-     * @return void
-     */
-    
 
     /**
      * Define what happens when the Create operation is loaded.
@@ -116,11 +110,6 @@ class ContractAccessCrudController extends BaseCrudController
     {
         CRUD::setValidation(ContractAccessRequest::class);
         CRUD::setFromDb(); // set fields from db columns.
-
-        /**
-         * Fields can be defined using the fluent syntax:
-         * - CRUD::field('price')->type('number');
-         */
     }
 
     /**
@@ -135,39 +124,35 @@ class ContractAccessCrudController extends BaseCrudController
         $this->setupCreateOperation();
 
         $entry = $this->crud->getCurrentEntry();
-        $application = $entry->application;
-        $links = $application
-            ? FinanceContractLinkResolver::resolve($application, $entry->passcode)
-            : null;
+        $customerId = (int) ($entry->customer_id ?? 0);
+        $passcode = (string) ($entry->passcode ?? '');
 
-        if ($links) {
-            foreach ([
-                'standard' => 'Standard contract link',
-                'ins' => 'Insurance/PCN contract link',
-            ] as $key => $label) {
-                CRUD::addField([
-                    'name' => 'link_'.$key,
-                    'label' => $label,
-                    'type' => 'text',
-                    'value' => $links[$key],
-                    'attributes' => [
-                        'readonly' => 'readonly',
-                    ],
-                    'fake' => true,
-                ]);
-            }
-        } else {
+        if ($customerId < 1 || $passcode === '') {
             CRUD::addField([
-                'name' => 'link_obsolete',
-                'label' => 'Contract link',
+                'name' => 'link_missing',
+                'label' => 'Contract links',
                 'type' => 'text',
-                'value' => 'No latest contract type on linked application — obsolete links are not shown.',
+                'value' => 'Save a customer ID and passcode to generate the three contract links.',
+                'attributes' => [
+                    'readonly' => 'readonly',
+                ],
+                'fake' => true,
+            ]);
+
+            return;
+        }
+
+        foreach (FinanceContractLinkResolver::accessLinks($customerId, $passcode) as $link) {
+            CRUD::addField([
+                'name' => 'link_'.$link['key'],
+                'label' => $link['label'],
+                'type' => 'text',
+                'value' => $link['url'],
                 'attributes' => [
                     'readonly' => 'readonly',
                 ],
                 'fake' => true,
             ]);
         }
-
     }
 }

@@ -153,6 +153,7 @@
 
         .fee-table th {
             background-color: #111827;
+            color: #ffffff;
             font-weight: bold;
         }
         p{
@@ -1100,17 +1101,8 @@ label a{
         </div>
 
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function() {
-                const agreementCheckbox = document.getElementById('agreementCheckbox');
-                const signButton = document.getElementById('signButton');
+        @include('livewire.agreements.partials.signing-agree-enable')
 
-                if (agreementCheckbox && signButton) {
-                    agreementCheckbox.addEventListener('change', function () {
-                        signButton.disabled = !this.checked;
-                    });
-                }
-            });
     <div class="modal fade agreement-signature-modal-root" id="signatureModal" tabindex="-1" aria-labelledby="signatureModalLabel"
         aria-hidden="true">
         <div class="modal-dialog modal-fullscreen">

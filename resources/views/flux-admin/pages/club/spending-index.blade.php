@@ -2,7 +2,7 @@
     <x-flux-admin::data-table title="Club spending" description="Member account spending (FIFO-tracked debt).">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <a href="{{ route('flux-admin.club-spendings.create') }}">
+            <a href="{{ route('flux-admin.club-spending.create') }}">
                 <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Log spend</flux:button>
             </a>
         </x-slot:actions>
@@ -41,7 +41,7 @@
                         <flux:table.cell class="text-amber-600 dark:text-amber-400">£{{ number_format((float) ($r->total - $r->paid_amount), 2) }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_paid" /></flux:table.cell>
                         <flux:table.cell class="flex gap-1">
-                            <a href="{{ route('flux-admin.club-spendings.edit', $r->id) }}">
+                            <a href="{{ route('flux-admin.club-spending.edit', $r->id) }}">
                                 <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                             </a>
                             <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this record?" icon="trash" class="!rounded-none">Delete</flux:button>

@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\SpAssembly;
 use App\Models\SpAssemblyPart;
 use App\Models\SpPart;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -36,13 +37,20 @@ class AssemblyPartForm extends Component
     public function save(): void
     {
         $this->validate([
-            'form.assembly_id' => ['required', 'integer', 'exists:sp_assemblies,id'],
+            'form.assembly_id' => [
+                'required', 'integer', 'exists:sp_assemblies,id',
+                Rule::unique('sp_assembly_parts', 'assembly_id')
+                    ->where(fn ($q) => $q->where('part_id', $this->form['part_id'] ?? null))
+                    ->ignore($this->spAssemblyPart?->id),
+            ],
             'form.part_id' => ['required', 'integer', 'exists:sp_parts,id'],
             'form.qty_used' => ['required', 'integer', 'min:1'],
             'form.sort_order' => ['nullable', 'integer', 'min:0'],
             'form.note_override' => ['nullable', 'string'],
             'form.price_override' => ['nullable', 'numeric', 'min:0'],
             'form.stock_override' => ['nullable', 'numeric', 'min:0'],
+        ], [
+            'form.assembly_id.unique' => 'This part is already linked to the selected assembly.',
         ]);
 
         $payload = collect($this->form)->only([

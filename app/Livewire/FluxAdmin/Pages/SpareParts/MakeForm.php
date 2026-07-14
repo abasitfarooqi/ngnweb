@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\SpareParts;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\SpMake;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -34,21 +35,21 @@ class MakeForm extends Component
 
     public function save(): void
     {
-        $this->validate([
-            'form.name'      => ['required', 'string', 'max:255'],
-            'form.slug'      => ['nullable', 'string', 'max:255'],
-            'form.source'    => ['nullable', 'string', 'max:120'],
-            'form.is_active' => ['boolean'],
-        ]);
-
         if (empty($this->form['slug']) && ! empty($this->form['name'])) {
             $this->form['slug'] = Str::slug($this->form['name']);
         }
 
+        $this->validate([
+            'form.name'      => ['required', 'string', 'max:255'],
+            'form.slug'      => ['nullable', 'string', 'max:255', Rule::unique('sp_makes', 'slug')->ignore($this->spMake?->id)],
+            'form.source'    => ['nullable', 'string', 'max:120'],
+            'form.is_active' => ['boolean'],
+        ], [], ['form.slug' => 'slug']);
+
         $payload = [
             'name'      => $this->form['name'],
             'slug'      => $this->form['slug'] ?? null,
-            'source'    => $this->form['source'] ?? null,
+            'source'    => ($this->form['source'] ?? null) ?: 'internal',
             'is_active' => (bool) ($this->form['is_active'] ?? true),
         ];
 

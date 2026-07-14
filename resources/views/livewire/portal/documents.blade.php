@@ -55,16 +55,16 @@
         <div class="space-y-4">
             @if($rentalBookingId)
                 <flux:callout variant="info" icon="information-circle" class="mb-4">
-                    <flux:callout.text>Uploads on this page are linked to rental booking <strong>#{{ $rentalBookingId }}</strong>. Our team will review them on your booking.</flux:callout.text>
+                    <flux:callout.text>Documents are saved against your customer profile and reused across rentals. Optional expiry dates help us ask again only when a document has run out.</flux:callout.text>
                 </flux:callout>
             @endif
             <flux:card class="p-6 mb-4">
                 <h3 class="text-base font-bold text-gray-900 dark:text-white mb-1">Rental and general documents</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Includes rental requirements and any general document types not classed as finance.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-5">Includes rental requirements and any general document types not classed as finance. Re-upload is needed only when a document is missing, rejected, or expired.</p>
                 @if($missingRentalMandatory->isNotEmpty())
                     <flux:callout variant="warning" icon="exclamation-triangle" class="mb-4">
                         <flux:callout.text>
-                            {{ $missingRentalMandatory->count() }} mandatory rental document{{ $missingRentalMandatory->count() > 1 ? 's are' : ' is' }} still missing.
+                            {{ $missingRentalMandatory->count() }} rental document{{ $missingRentalMandatory->count() > 1 ? 's need' : ' needs' }} uploading (missing, expired, or re-upload requested).
                         </flux:callout.text>
                     </flux:callout>
                 @endif
@@ -79,7 +79,7 @@
                                 $badgeColor = match($status) {
                                     'approved' => 'green',
                                     'pending_review' => 'yellow',
-                                    'rejected' => 'red',
+                                    'rejected', 'expired' => 'red',
                                     default => 'zinc',
                                 };
                                 $statusLabel = $documentLifecycle->documentStatusLabel($status);
@@ -218,7 +218,7 @@
                                 $badgeColor = match($status) {
                                     'approved' => 'green',
                                     'pending_review' => 'yellow',
-                                    'rejected' => 'red',
+                                    'rejected', 'expired' => 'red',
                                     default => 'zinc',
                                 };
                                 $statusLabel = $documentLifecycle->documentStatusLabel($status);

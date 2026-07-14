@@ -80,19 +80,20 @@ class FinanceForm extends Component
                 'is_used'                 => false,
                 'is_used_extended'        => false,
                 'is_used_extended_custom' => false,
-                'is_new_latest'           => false,
+                'is_new_latest'           => true,
                 'is_used_latest'          => false,
                 'is_subscription'         => false,
                 'subscription_option'     => 'A',
                 'subs_payment_date'       => null,
                 'insurance_pcn'           => true,
                 'no_email'                => true,
-                'is_monthly'              => false,
+                'is_monthly'              => true,
                 'is_posted'               => false,
                 'is_cancelled'            => false,
                 'log_book_sent'           => false,
-                'contract_type'           => '',
+                'contract_type'           => 'is_new_latest',
             ];
+            $this->applyContractTypeSelection('is_new_latest');
         }
 
         if ($this->itemRows === []) {
@@ -196,7 +197,7 @@ class FinanceForm extends Component
             'id' => null,
             'motorbike_id' => null,
             'is_posted' => true,
-            'user_id' => backpack_user()?->id,
+            'user_id' => backpack_user()?->id ?? auth()->id(),
         ];
 
         $index = array_key_last($this->itemRows);
@@ -211,7 +212,7 @@ class FinanceForm extends Component
                 'id' => $this->itemRows[$index]['id'] ?? null,
                 'motorbike_id' => null,
                 'is_posted' => true,
-                'user_id' => backpack_user()?->id,
+                'user_id' => backpack_user()?->id ?? auth()->id(),
             ];
             $this->motorbikeSearches[$index] = '';
             $this->motorbikeSuggestions[$index] = [];
@@ -266,8 +267,11 @@ class FinanceForm extends Component
 
     protected function formRules(): array
     {
+        $subscriptionRequired = ! empty($this->form['is_subscription']);
+
         return [
             'form.customer_id'              => ['required', 'integer', 'exists:customers,id'],
+            'form.user_id'                  => ['nullable', 'integer', 'exists:users,id'],
             'form.contract_type'            => ['required', Rule::in(['is_new', 'is_used', 'is_used_extended', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest'])],
             'form.contract_date'            => ['required', 'date'],
             'form.first_instalment_date'    => ['nullable', 'date'],
@@ -285,7 +289,7 @@ class FinanceForm extends Component
             'form.is_used_latest'           => ['boolean'],
             'form.is_used_extended_custom'  => ['boolean'],
             'form.is_subscription'          => ['boolean'],
-            'form.subscription_option'      => ['nullable', Rule::in(['A', 'B', 'C', 'D'])],
+            'form.subscription_option'      => [$subscriptionRequired ? 'required' : 'nullable', Rule::in(['A', 'B', 'C', 'D'])],
             'form.subs_payment_date'        => ['nullable', 'integer', 'min:1', 'max:31'],
             'form.insurance_pcn'            => ['boolean'],
             'form.no_email'                 => ['boolean'],
@@ -294,9 +298,9 @@ class FinanceForm extends Component
             'form.reason_of_cancellation'   => ['nullable', 'string'],
             'form.log_book_sent'            => ['boolean'],
             'form.logbook_transfer_date'    => ['nullable', 'date'],
-            'itemRows'                      => ['array'],
+            'itemRows'                      => ['required', 'array', 'min:1'],
             'itemRows.*.id'                 => ['nullable', 'integer', 'exists:application_items,id'],
-            'itemRows.*.motorbike_id'       => ['nullable', 'integer', 'exists:motorbikes,id'],
+            'itemRows.*.motorbike_id'       => ['required', 'integer', 'exists:motorbikes,id'],
             'itemRows.*.is_posted'          => ['boolean'],
             'itemRows.*.user_id'            => ['nullable', 'integer', 'exists:users,id'],
         ];
@@ -304,9 +308,18 @@ class FinanceForm extends Component
 
     public function save(): void
     {
-        $data = $this->validate($this->formRules());
+        $data = $this->validate($this->formRules(), [
+            'itemRows.min' => 'Add at least one application item.',
+            'itemRows.*.motorbike_id.required' => 'Select a motorbike for each application item.',
+        ]);
         $payload = $data['form'];
         $items = $data['itemRows'] ?? [];
+
+        if (! collect($items)->contains(fn ($item) => ! empty($item['motorbike_id']))) {
+            $this->addError('itemRows.0.motorbike_id', 'Select at least one motorbike for this finance application.');
+
+            return;
+        }
 
         $this->applyContractTypeSelection((string) ($payload['contract_type'] ?? ''));
 
@@ -335,7 +348,7 @@ class FinanceForm extends Component
             'is_new_latest' => (bool) ($payload['is_new_latest'] ?? false),
             'is_used_latest' => (bool) ($payload['is_used_latest'] ?? false),
             'is_subscription' => (bool) ($payload['is_subscription'] ?? false),
-            'is_monthly' => (bool) ($payload['is_monthly'] ?? false),
+            'is_monthly' => (bool) ($payload['is_monthly'] ?? true),
             'log_book_sent' => (bool) ($payload['log_book_sent'] ?? false),
         ];
 
@@ -343,11 +356,11 @@ class FinanceForm extends Component
         unset($payload['contract_type']);
 
         if (empty($payload['user_id'])) {
-            $payload['user_id'] = backpack_user()?->id;
+            $payload['user_id'] = backpack_user()?->id ?? auth()->id();
         }
 
-        if ((! empty($payload['is_posted']) || ! empty($payload['log_book_sent'])) && ! collect($items)->contains(fn ($item) => ! empty($item['motorbike_id']))) {
-            $this->addError('itemRows.0.motorbike_id', 'Select at least one motorbike before generating a contract or transferring the logbook.');
+        if (empty($payload['user_id'])) {
+            $this->addError('form.user_id', 'Unable to determine the staff user for this application.');
 
             return;
         }
@@ -397,7 +410,7 @@ class FinanceForm extends Component
                 'application_id' => $this->application->id,
                 'motorbike_id' => (int) $item['motorbike_id'],
                 'is_posted' => (bool) ($item['is_posted'] ?? true),
-                'user_id' => $item['user_id'] ?? backpack_user()?->id,
+                'user_id' => $item['user_id'] ?? backpack_user()?->id ?? auth()->id(),
             ];
 
             if (! empty($item['id'])) {

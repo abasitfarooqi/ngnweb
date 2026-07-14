@@ -20,9 +20,9 @@ class EcShippingMethodsTableSeeder extends Seeder
         
         DB::unprepared(<<<'SQL'
 INSERT INTO `ec_shipping_methods` (`id`, `name`, `slug`, `logo`, `link_url`, `description`, `shipping_amount`, `is_enabled`, `in_store_pickup`, `created_at`, `updated_at`) VALUES
-('1', 'Store Pickup', 'store-pickup', '-', '-', '-', '0.00', '1', '1', NULL, NULL),
-('2', 'Delivery', 'delivery', '-', '-', '-', '0.00', '0', '0', NULL, NULL),
-('3', 'Partner Store Pickup', 'partner-pickup', '-', '-', '-', '0.00', '1', '1', NULL, NULL);
+('1', 'Store Pickup', 'store-pickup', '-', '-', 'Collect your order from one of our branches.', '0.00', '1', '1', NULL, NULL),
+('2', 'Delivery', 'delivery', '-', '-', 'Delivered to your shipping address.', '0.00', '1', '0', NULL, NULL),
+('3', 'Partner Store Pickup', 'partner-pickup', '-', '-', 'Collect your order from a partner store.', '0.00', '1', '1', NULL, NULL);
 SQL
         );
         

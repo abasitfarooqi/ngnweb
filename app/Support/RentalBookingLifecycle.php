@@ -55,7 +55,7 @@ class RentalBookingLifecycle
         return self::STATUS_ACTIVE;
     }
 
-    /** @return array<int, array{id:int, name:string, slug:string, approved:bool, status:string, document_id:?int, status_label:string}> */
+    /** @return array<int, array{id:int, name:string, slug:string, approved:bool, status:string, document_id:?int, status_label:string, valid_until:?string, needs_upload:bool}> */
     public function documentChecklist(RentingBooking $booking): array
     {
         $booking->loadMissing('customer');
@@ -88,14 +88,18 @@ class RentalBookingLifecycle
             $typesQuery->where('is_active', true);
         }
 
+        // Signed agreements are not customer upload slots (loyalty / rental agreement).
+        $typesQuery->where(function ($q) {
+            $q->whereNull('code')->orWhereNotIn('code', ['loyalty_scheme_policy', 'rental_agreement']);
+        })->where(function ($q) {
+            $q->where('name', '!=', 'Rental Agreement')
+                ->where('name', '!=', 'Loyalty Scheme Policy');
+        });
+
         $types = $typesQuery->get();
 
         $documentsByType = CustomerDocument::query()
             ->where('customer_id', $booking->customer_id)
-            ->where(function ($q) use ($booking) {
-                $q->where('booking_id', $booking->id)
-                    ->orWhereNull('booking_id');
-            })
             ->orderByDesc('id')
             ->get()
             ->unique('document_type_id')
@@ -113,6 +117,10 @@ class RentalBookingLifecycle
                 'status'        => $status,
                 'status_label'  => $this->documentStatusLabel($status),
                 'document_id'   => $document?->id,
+                'valid_until'   => $document?->valid_until
+                    ? Carbon::parse($document->valid_until)->toDateString()
+                    : null,
+                'needs_upload'  => $this->documentNeedsUpload($status),
             ];
         })->values()->all();
     }
@@ -123,16 +131,43 @@ class RentalBookingLifecycle
             return 'missing';
         }
 
+        $status = 'pending_review';
+
         if (Schema::hasColumn('customer_documents', 'status')) {
-            return match ((string) $document->status) {
+            $status = match ((string) $document->status) {
                 'approved' => 'approved',
                 'rejected' => 'rejected',
                 'uploaded', 'pending_review' => 'pending_review',
                 default => 'pending_review',
             };
+        } else {
+            $status = $document->is_verified ? 'approved' : 'pending_review';
         }
 
-        return $document->is_verified ? 'approved' : 'pending_review';
+        // Approved but past valid_until → treat as expired (customer must renew).
+        if ($status === 'approved' && $this->documentIsExpired($document)) {
+            return 'expired';
+        }
+
+        return $status;
+    }
+
+    public function documentIsExpired(?CustomerDocument $document): bool
+    {
+        if (! $document?->valid_until) {
+            return false;
+        }
+
+        try {
+            return Carbon::parse($document->valid_until)->startOfDay()->lt(now()->startOfDay());
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    public function documentNeedsUpload(string $status): bool
+    {
+        return in_array($status, ['missing', 'expired', 'rejected'], true);
     }
 
     public function documentStatusLabel(string $status): string
@@ -141,6 +176,7 @@ class RentalBookingLifecycle
             'approved' => 'Approved',
             'rejected' => 'Re-upload requested',
             'pending_review' => 'Awaiting review',
+            'expired' => 'Expired — re-upload',
             default => 'Not uploaded',
         };
     }
@@ -191,11 +227,40 @@ class RentalBookingLifecycle
         }
     }
 
-    /** @return list<string> */
+    /**
+     * Documents that still block rental activation: missing, expired, rejected, or awaiting review.
+     *
+     * @return list<string>
+     */
     public function missingRequiredDocuments(RentingBooking $booking): array
     {
         return collect($this->documentChecklist($booking))
             ->reject(fn (array $row) => $row['status'] === 'approved')
+            ->pluck('name')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Customer action items for portal / upload link (upload optional expiry; re-upload when expired).
+     *
+     * @return list<string>
+     */
+    public function documentsNeedingCustomerUpload(RentingBooking|Customer $owner): array
+    {
+        if ($owner instanceof RentingBooking) {
+            return collect($this->documentChecklist($owner))
+                ->filter(fn (array $row) => $row['needs_upload'] ?? false)
+                ->pluck('name')
+                ->values()
+                ->all();
+        }
+
+        $proxy = new RentingBooking(['customer_id' => $owner->id]);
+        $proxy->setRelation('customer', $owner);
+
+        return collect($this->documentChecklist($proxy))
+            ->filter(fn (array $row) => $row['needs_upload'] ?? false)
             ->pluck('name')
             ->values()
             ->all();
@@ -506,10 +571,7 @@ class RentalBookingLifecycle
             'expires_at'  => $expiresAt,
         ]);
 
-        $url = route('agreement.show.ins.v6', [
-            'customer_id' => $customerId,
-            'passcode'    => $passcode,
-        ]);
+        $url = AgreementAccess::customerSigningUrl($customerId, $passcode);
 
         $qrBase64 = '';
         try {

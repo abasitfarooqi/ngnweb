@@ -27,7 +27,7 @@
                 <h4 class="font-medium mb-2">Store Opening Times</h4>
                 <div class="grid grid-cols-2 gap-x-4 text-sm">
                   <div>
-                    <p>Mon-Sat: 09:00 - 18:00</p>
+                    <p>Mon–Fri: 09:00–18:00<br>Sat: 09:00–15:45</p>
                   </div>
                 </div>
               </div>

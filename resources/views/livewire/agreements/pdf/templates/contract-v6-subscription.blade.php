@@ -291,7 +291,7 @@
 
     <table class="table-con">
         <tr>
-            <th colspan="7" style="text-align:center; ">CONTRACT INFORMATION</th>
+            <th colspan="8" style="text-align:center; ">CONTRACT INFORMATION</th>
         </tr>
         <tr>
             <td class="td-cont">CONTRACT ID</td>
@@ -300,6 +300,7 @@
             <td class="td-cont">VEHICLE PRICE</td>
             <td class="td-cont">PAID</td>
             <td class="td-cont">MONTHLY</td>
+            <td class="td-cont">PAYMENT DATE</td>
             <td class="td-cont">STAFF</td>
         </tr>
         <tr>
@@ -309,13 +310,14 @@
             <td class="td-cont">{{ $booking->motorbike_price }}</td>
             <td class="td-cont">{{ $booking->deposit }}</td>
             <td class="td-cont">{{ $booking->weekly_instalment }}</td>
+            <td class="td-cont">{{ $booking->subs_payment_date ? \Carbon\Carbon::createFromDate(2000, 1, (int) $booking->subs_payment_date)->format('jS') . ' of each month' : '—' }}</td>
             <td class="td-cont">{{ $user_name }}</td>
         </tr>
     </table>
 
     <table class="table-con" style="">
         <tr>
-            <td colspan="7"><p style="padding:5px !important;">
+            <td colspan="8"><p style="padding:5px !important;">
                 Additional Accessories: <b>{{ $booking->extra_items }}</b><br>
                 Accessories Total: <b>{{ $booking->extra }}</b><br>
                 <span style='font-weight:bold '>Total: {{ $booking->motorbike_price + $booking->extra }}</span>
@@ -516,6 +518,7 @@
         <p><strong>Contract Start Date:</strong> {{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}</p>
         <p><strong>Contract Start Time:</strong> {{ \Carbon\Carbon::parse($booking->contract_date)->format('H:i') }}</p>
         <p><strong>Selected Subscription Option:</strong> {{ $subscriptionOption['text'] ?? 'Group ' . $booking->subscription_option . ' - £' . number_format($subscriptionOption['price'] ?? 0, 2) . '/month' }}</p>
+        <p><strong>Payment date:</strong> {{ $booking->subs_payment_date ? \Carbon\Carbon::createFromDate(2000, 1, (int) $booking->subs_payment_date)->format('jS') . ' of each month' : '—' }}</p>
     </div>
 
     <div class="agreement-section">

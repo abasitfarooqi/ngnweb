@@ -125,19 +125,42 @@
                 var documentTypeId = document.id;
                 var code = document.code;
                 var name = document.name;
-                var isRequired = document.is_required;
+                var isRequired = !!document.is_required;
                 var fileName = document.file_name;
                 var status = document.status || (document.is_verified ? 'approved' : (fileName ? 'pending_review' : 'missing'));
+                var validUntil = document.valid_until || '';
 
-                var panelClass = status === 'rejected' ? ' upload-doc-reupload-panel' : '';
+                var panelClass = (status === 'rejected' || status === 'expired') ? ' upload-doc-reupload-panel' : '';
                 var newDocUpload = $('<div class="document-upload' + panelClass + '" data-document-type="' + code + '">' +
-                    '<label for="' + idPrefix + documentTypeId + '" class="form-label">' + name + '</label>' +
-                    '<input class="form-control" type="file" name="documents[' + code + ']" id="' + idPrefix + documentTypeId + '" ' + (isRequired ? 'required' : '') + ' data-document-type-code="' + code + '">' +
+                    '<label for="' + idPrefix + documentTypeId + '" class="form-label">' + name +
+                    (isRequired ? ' <span class="text-danger">*</span>' : '') +
+                    '</label>' +
+                    '<input class="form-control" type="file" name="documents[' + code + ']" id="' + idPrefix + documentTypeId + '" ' +
+                        (isRequired ? 'required' : '') + ' data-document-type-code="' + code + '">' +
+                    '<label class="form-label mt-2 mb-1" for="' + idPrefix + documentTypeId + '_expiry">Valid until (optional)</label>' +
+                    '<input class="form-control form-control-sm upload-doc-expiry" type="date" id="' + idPrefix + documentTypeId + '_expiry" ' +
+                        'data-document-type-code="' + code + '" value="' + validUntil + '">' +
+                    '<div class="form-text">Optional expiry helps us ask again only when this document runs out.</div>' +
                     '</div>');
 
                 if (status === 'approved') {
                     newDocUpload.find('input[type="file"]').remove();
+                    newDocUpload.find('input.upload-doc-expiry').remove();
+                    newDocUpload.find('label.mt-2').remove();
+                    newDocUpload.find('.form-text').remove();
                     newDocUpload.append('<span class="upload-doc-badge upload-doc-badge-success">Approved</span>');
+                    if (validUntil) {
+                        newDocUpload.append('<div class="upload-doc-filename">Valid until: ' + validUntil + '</div>');
+                    }
+                } else if (status === 'expired') {
+                    newDocUpload.prepend(
+                        '<span class="upload-doc-badge upload-doc-badge-reupload">Expired — re-upload</span>' +
+                        '<p class="upload-doc-reupload-text">This document has expired. Please upload a new copy' +
+                        (validUntil ? ' (was valid until ' + validUntil + ')' : '') + '.</p>'
+                    );
+                    if (fileName) {
+                        newDocUpload.append('<div class="upload-doc-filename upload-doc-filename-muted">Previous file: ' + fileName + '</div>');
+                    }
                 } else if (status === 'rejected') {
                     newDocUpload.prepend(
                         '<span class="upload-doc-badge upload-doc-badge-reupload">Re-upload requested</span>' +
@@ -151,6 +174,9 @@
                     }
                 } else if (status === 'pending_review' && fileName) {
                     newDocUpload.find('input[type="file"]').remove();
+                    newDocUpload.find('input.upload-doc-expiry').remove();
+                    newDocUpload.find('label.mt-2').remove();
+                    newDocUpload.find('.form-text').remove();
                     newDocUpload.append(
                         '<span class="upload-doc-badge upload-doc-badge-pending">Awaiting review</span>' +
                         '<div class="upload-doc-filename">' + fileName + '</div>'
@@ -230,6 +256,7 @@
                 var fileInput = $(this);
                 var documentTypeCode = fileInput.data('document-type-code');
                 var file = fileInput.get(0).files[0];
+                var expiryInput = fileInput.closest('.document-upload').find('input.upload-doc-expiry');
 
                 if (!file) {
                     return;
@@ -240,6 +267,9 @@
                 formData.append('documentTypeCode', documentTypeCode);
                 formData.append('bookingID', booking_id);
                 formData.append('motorbikeID', motorbike_id);
+                if (expiryInput.length && expiryInput.val()) {
+                    formData.append('valid_until', expiryInput.val());
+                }
                 formData.append('_token', $('input[name="_token"]').val());
 
                 $.ajax({

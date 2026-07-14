@@ -90,13 +90,53 @@
 }
 
 @media (max-width: 767px) {
+    .agreement-signing-page {
+        overflow-x: clip;
+    }
+
     .agreement-signing-page .table-con,
     .agreement-signing-page .fee-table {
-        font-size: 11px;
+        font-size: 12px;
     }
 
     .agreement-signing-page .header .title {
         font-size: 14px;
+    }
+
+    .agreement-signing-page .d-md-none {
+        display: block !important;
+    }
+
+    .agreement-signing-page .d-none.d-md-block,
+    .agreement-signing-page .d-none.d-md-flex,
+    .agreement-signing-page .table-responsive.d-none.d-md-block,
+    .agreement-signing-page .table-responsive.d-none {
+        display: none !important;
+    }
+
+    .agreement-signing-page .fee-table,
+    .agreement-signing-page .table-responsive:not(.d-none) {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .agreement-signing-page .d-md-none .card,
+    .agreement-signing-page .d-md-none .card-header,
+    .agreement-signing-page .d-md-none .list-group-item {
+        border-radius: 0 !important;
+    }
+}
+
+@media (min-width: 768px) {
+    .agreement-signing-page .d-md-none {
+        display: none !important;
+    }
+
+    .agreement-signing-page .d-none.d-md-block,
+    .agreement-signing-page .table-responsive.d-none.d-md-block {
+        display: block !important;
     }
 }
 
@@ -125,9 +165,27 @@
 }
 
 .agreement-brand-logo-wrap img {
-    display: block;
     width: 100%;
     height: auto;
+}
+
+/* Do not force display:block on every img — light/dark logos swap via modifiers. */
+.agreement-brand-logo-wrap .agreement-logo--light {
+    display: block;
+}
+
+.agreement-brand-logo-wrap .agreement-logo--dark {
+    display: none;
+}
+
+.agreement-signing-page[data-theme="dark"] .agreement-brand-logo-wrap .agreement-logo--light,
+html[data-agreement-theme="dark"] .agreement-brand-logo-wrap .agreement-logo--light {
+    display: none;
+}
+
+.agreement-signing-page[data-theme="dark"] .agreement-brand-logo-wrap .agreement-logo--dark,
+html[data-agreement-theme="dark"] .agreement-brand-logo-wrap .agreement-logo--dark {
+    display: block;
 }
 
 /* Full-screen signature modal (Bootstrap): fill viewport, match theme */

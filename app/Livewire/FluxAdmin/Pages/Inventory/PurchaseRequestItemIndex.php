@@ -81,7 +81,7 @@ class PurchaseRequestItemIndex extends Component
             ->paginate($this->perPage);
 
         $makes = Make::query()->orderBy('name')->get(['id', 'name']);
-        $bikeModels = BikeModel::query()->orderBy('name')->get(['id', 'name']);
+        $bikeModels = BikeModel::query()->select('id', 'model as name')->orderBy('model')->get();
         $purchaseRequests = PurchaseRequest::query()->orderByDesc('id')->limit(200)->get(['id', 'date', 'note']);
 
         return view('flux-admin.pages.inventory.purchase-request-items-index', compact('rows', 'makes', 'bikeModels', 'purchaseRequests'));

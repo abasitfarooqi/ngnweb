@@ -28,10 +28,12 @@ class ContractAccessForm extends Component
 
         if ($id) {
             $this->recordId = $id;
-            $record         = ContractAccess::with('application')->findOrFail($id);
+            $record         = ContractAccess::findOrFail($id);
             $this->form     = $record->getAttributes();
-            $this->contractLinks = $record->application
-                ? (FinanceContractLinkResolver::resolve($record->application, $record->passcode) ?? [])
+            $customerId     = (int) ($record->customer_id ?? 0);
+            $passcode       = (string) ($record->passcode ?? '');
+            $this->contractLinks = ($customerId > 0 && $passcode !== '')
+                ? FinanceContractLinkResolver::accessLinks($customerId, $passcode)
                 : [];
 
             if (! empty($this->form['expires_at'])) {

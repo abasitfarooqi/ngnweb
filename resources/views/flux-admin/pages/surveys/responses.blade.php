@@ -29,7 +29,7 @@
                 @forelse($rows as $r)
                     <flux:table.row wire:key="sr-{{ $r->id }}">
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->survey?->title ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-900 dark:text-white">{{ $r->contact_name ?? $r->customer?->first_name.' '.$r->customer?->last_name ?? '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-900 dark:text-white">{{ $r->contact_name ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->contact_email ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->contact_phone ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->answers->count() }}</flux:table.cell>
