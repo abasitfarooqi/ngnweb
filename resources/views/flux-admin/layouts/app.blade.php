@@ -172,14 +172,15 @@
             overflow: visible;
         }
         body.flux-admin-app .flux-admin-autocomplete-open {
-            z-index: 220;
+            z-index: 10040;
         }
+        {{-- Absolute fallback; Popover API (top layer) is applied in JS so menus are not clipped by overflow scroll panes. --}}
         body.flux-admin-app .flux-admin-autocomplete-menu {
             position: absolute;
             left: 0;
             right: 0;
             top: calc(100% + 2px);
-            z-index: 230;
+            z-index: 10050;
             max-height: 16rem;
             overflow-x: hidden;
             overflow-y: auto;
@@ -188,6 +189,15 @@
             color: rgb(24 24 27);
             box-shadow: 0 12px 28px rgb(24 24 27 / 0.22);
             padding: 0.25rem 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+        body.flux-admin-app .flux-admin-autocomplete-menu:popover-open {
+            position: fixed;
+            inset: unset;
+            margin: 0;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
         html.dark body.flux-admin-app .flux-admin-autocomplete-menu {
             border-color: rgb(63 63 70);
@@ -219,6 +229,7 @@
         body.flux-admin-app .flux-admin-field,
         body.flux-admin-app .flux-admin-field-control,
         body.flux-admin-app .flux-admin-panel,
+        body.flux-admin-app .flux-admin-content,
         body.flux-admin-app form.space-y-5,
         body.flux-admin-app form.space-y-6,
         body.flux-admin-app form > div.border,
@@ -230,12 +241,16 @@
         body.flux-admin-app .flux-admin-autocomplete > * {
             overflow: visible !important;
         }
-        {{-- Flux UI select / listbox menus should sit above form panels. --}}
+        {{-- Flux UI select / listbox / menu popovers — top of stacking within the document top layer. --}}
         body.flux-admin-app [data-flux-select-options],
-        body.flux-admin-app [popover],
+        body.flux-admin-app [data-flux-options],
+        body.flux-admin-app [data-flux-autocomplete-items],
+        body.flux-admin-app [data-flux-menu],
+        body.flux-admin-app [data-flux-navmenu],
         body.flux-admin-app ui-options,
-        body.flux-admin-app [data-flux-menu] {
-            z-index: 250 !important;
+        body.flux-admin-app [popover],
+        body.flux-admin-app :popover-open {
+            z-index: 10060 !important;
         }
         {{-- Flux Pro `navlist.group expandable` uses Tailwind v4 `data-open:*` / `group-data-open/*` variants, which Tailwind v3 (this project) does not compile. Flux JS propagates `data-open` onto <ui-disclosure>, the trigger button, and the panel div on toggle (flux.js L7194-7196); hook directly on those so clicks actually open/close. --}}
         [data-flux-navlist-group][data-open] > div.hidden,
@@ -532,12 +547,11 @@
 
             {{-- 1. Payment Plan --}}
             @can('see-menu-finance')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.finance.*','flux-admin.contract-access.*','flux-admin.application-items.*','flux-admin.contract-extra-items.*','flux-admin.modules.show')" heading="Payment Plan">
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.finance.*','flux-admin.contract-access.*','flux-admin.application-items.*','flux-admin.modules.show')" heading="Payment Plan">
                     <flux:navlist.item href="{{ route('flux-admin.modules.show', 'finance') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'finance'">Module home</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.finance.index') }}" :current="request()->routeIs('flux-admin.finance.*')">Create / Edit</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.contract-access.index') }}" :current="request()->routeIs('flux-admin.contract-access.*')">Contract signature expire</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.application-items.index') }}" :current="request()->routeIs('flux-admin.application-items.*')">Application items</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.contract-extra-items.index') }}" :current="request()->routeIs('flux-admin.contract-extra-items.*')">Contract extras</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
@@ -799,6 +813,7 @@
                     <flux:navlist.item href="{{ route('flux-admin.judopay-subscriptions.index') }}" :current="request()->routeIs('flux-admin.judopay-subscriptions.*')">Subscriptions</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.ngn-mit-queue.index') }}" :current="request()->routeIs('flux-admin.ngn-mit-queue.*')">NGN MIT queue</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.judopay-mit-queue.index') }}" :current="request()->routeIs('flux-admin.judopay-mit-queue.*')">Judopay MIT queue</flux:navlist.item>
+                    <flux:navlist.item href="{{ url('/ngn-admin/judopay') }}" icon="arrow-path">Open in Backpack UI</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
         </flux:navlist>
@@ -985,6 +1000,112 @@
             } else {
                 bindNavlist();
                 restoreScroll();
+            }
+        })();
+
+        // Keep live searchable suggestion lists above scroll/overflow clipping (top-layer popover).
+        (function () {
+            var scheduled = false;
+
+            function anchorFor(menu) {
+                var wrap = menu.closest('.flux-admin-autocomplete');
+                if (!wrap) {
+                    return null;
+                }
+                return wrap.querySelector('input') || wrap.querySelector('[data-flux-control] input');
+            }
+
+            function positionMenu(menu, anchor) {
+                var rect = anchor.getBoundingClientRect();
+                var width = Math.max(rect.width, 220);
+                var spaceBelow = window.innerHeight - rect.bottom;
+                var preferUp = spaceBelow < 200 && rect.top > spaceBelow;
+
+                menu.style.setProperty('position', 'fixed');
+                menu.style.setProperty('left', Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)) + 'px');
+                menu.style.setProperty('width', width + 'px');
+                menu.style.setProperty('right', 'auto');
+                menu.style.setProperty('inset', 'unset');
+                menu.style.setProperty('margin', '0');
+                menu.style.setProperty('max-width', 'calc(100vw - 16px)');
+
+                if (preferUp) {
+                    menu.style.setProperty('top', 'auto');
+                    menu.style.setProperty('bottom', (window.innerHeight - rect.top + 2) + 'px');
+                } else {
+                    menu.style.setProperty('bottom', 'auto');
+                    menu.style.setProperty('top', (rect.bottom + 2) + 'px');
+                }
+            }
+
+            function syncAutocompletes() {
+                scheduled = false;
+                document.querySelectorAll('.flux-admin-autocomplete .flux-admin-autocomplete-menu').forEach(function (menu) {
+                    var anchor = anchorFor(menu);
+                    if (!anchor) {
+                        return;
+                    }
+
+                    // Fixed positioning first so lists escape overflow scroll panes immediately.
+                    positionMenu(menu, anchor);
+
+                    if (typeof menu.showPopover !== 'function') {
+                        return;
+                    }
+
+                    if (!menu.hasAttribute('popover')) {
+                        menu.setAttribute('popover', 'manual');
+                    }
+
+                    if (!menu.matches(':popover-open')) {
+                        try {
+                            menu.showPopover();
+                        } catch (e) {
+                            // Keep fixed positioning if the Popover API rejects the element.
+                        }
+                    }
+
+                    positionMenu(menu, anchor);
+                });
+            }
+
+            function scheduleSync() {
+                if (scheduled) {
+                    return;
+                }
+                scheduled = true;
+                requestAnimationFrame(syncAutocompletes);
+            }
+
+            document.addEventListener('scroll', scheduleSync, true);
+            window.addEventListener('resize', scheduleSync);
+            document.addEventListener('livewire:navigated', scheduleSync);
+            document.addEventListener('DOMContentLoaded', scheduleSync);
+
+            document.addEventListener('livewire:init', function () {
+                if (typeof Livewire === 'undefined' || !Livewire.hook) {
+                    return;
+                }
+                Livewire.hook('morph.updated', scheduleSync);
+                Livewire.hook('commit', function ({ succeed }) {
+                    succeed(scheduleSync);
+                });
+            });
+
+            if (typeof MutationObserver !== 'undefined') {
+                var observer = new MutationObserver(scheduleSync);
+                var start = function () {
+                    if (!document.body) {
+                        return;
+                    }
+                    observer.observe(document.body, { childList: true, subtree: true });
+                    scheduleSync();
+                };
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', start);
+                } else {
+                    start();
+                }
             }
         })();
     </script>

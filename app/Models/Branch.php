@@ -39,6 +39,18 @@ class Branch extends Model
         return 'name';
     }
 
+    /**
+     * Accept numeric IDs (Flux/Backpack CRUD URLs) as well as branch name keys.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if (is_numeric($value)) {
+            return $this->whereKey($value)->first();
+        }
+
+        return $this->where($field ?? $this->getRouteKeyName(), $value)->first();
+    }
+
     public function motorbikes()
     {
         return $this->hasMany(Motorbike::class);

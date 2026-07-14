@@ -95,7 +95,7 @@
     </style>
     <section class="header-operation container-fluid animated fadeIn d-flex mb-2 align-items-baseline d-print-none" bp-section="page-header">
         <h5 class="text-capitalize uppercase mb-0 ml-2" bp-section="page-heading" style="color: #000000; font-weight: 600; letter-spacing: 0.05em; font-size: 1.2rem; text-transform: uppercase;"   >WEEKLY SCHEDULE</h5>
-        <div class="ml-auto d-flex align-items-center">
+        <div class="ml-auto d-flex align-items-center" style="gap: 0.5rem;">
             <div class="btn-group" role="group" aria-label="Judopay navigation">
                 <a href="{{ judopay_route('index') }}" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; border-radius: 0;">
                     <i class="fa fa-home"></i> Judopay Home
@@ -107,6 +107,9 @@
                     <i class="fa fa-calendar"></i> Weekly Schedule
                 </a>
             </div>
+            @unless(judopay_using_flux())
+                <x-judopay-ui-switch variant="bootstrap" />
+            @endunless
         </div>
     </section>
 

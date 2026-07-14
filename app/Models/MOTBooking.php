@@ -69,6 +69,18 @@ class MOTBooking extends Model
         return 'vehicle_registration';
     }
 
+    /**
+     * Accept numeric IDs (Flux admin CRUD URLs) as well as vehicle registration keys.
+     */
+    public function resolveRouteBinding($value, $field = null)
+    {
+        if (is_numeric($value)) {
+            return $this->whereKey($value)->first();
+        }
+
+        return $this->where($field ?? $this->getRouteKeyName(), $value)->first();
+    }
+
     public function scopePending($query)
     {
         return $query->where('status', 'pending');

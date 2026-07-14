@@ -9,6 +9,35 @@ class CloudwaysToDigitalOceanDataMigrator
 {
     private const CHUNK_SIZE = 500;
 
+    private const SIDECAR_TABLE = 'sync_day_conflict_rows';
+
+    /**
+     * Parent-first order for the July-14 insert-only whitelist.
+     *
+     * @var list<string>
+     */
+    public const DAY_MERGE_TABLE_ORDER = [
+        'customers',
+        'motorbikes',
+        'finance_applications',
+        'otp_verifications',
+        'personal_access_tokens',
+        'sms_messages',
+        'renting_pricings',
+        'ngn_mot_notifier',
+        'motorbike_annual_compliance',
+        'motorbike_registrations',
+        'motorbikes_sale',
+        'club_members',
+        'contract_access',
+        'customer_contracts',
+        'application_items',
+        'booking_invoices',
+        'club_member_purchases',
+        'club_member_redeem',
+        'club_member_spendings',
+    ];
+
     private PDO $source;
 
     private PDO $target;
@@ -17,7 +46,7 @@ class CloudwaysToDigitalOceanDataMigrator
 
     private string $targetSchema;
 
-    /** @var list<array{table:string,status:string,phase?:string,message?:string,rows:int}> */
+    /** @var list<array{table:string,status:string,phase?:string,message?:string,rows:int,candidates?:int,inserted?:int,conflicts?:int}> */
     private array $log = [];
 
     /**
@@ -245,6 +274,470 @@ class CloudwaysToDigitalOceanDataMigrator
         }
 
         return ['status' => 'ok', 'rows' => $inserted];
+    }
+
+    /**
+     * Insert-only merge of rows whose created_at/updated_at fall in [dayStart, dayEndExclusive).
+     * Never truncates, updates, or deletes target business rows. Conflicts go to sidecar.
+     *
+     * @param  list<string>  $tables
+     * @param  callable(string, array<string, mixed>): void|null  $onTable
+     * @return array{
+     *     tables_total:int,
+     *     tables_ok:int,
+     *     tables_failed:int,
+     *     tables_skipped:int,
+     *     rows_copied:int,
+     *     rows_conflicted:int,
+     *     dry_run:bool,
+     *     merge_batch:string,
+     *     day_start:string,
+     *     day_end_exclusive:string,
+     *     errors:list<array{table:string,status:string,phase?:string,message?:string,rows:int}>,
+     *     report_path:string
+     * }
+     */
+    public function mergeDayWindow(
+        array $tables,
+        string $dayStart,
+        string $dayEndExclusive,
+        bool $dryRun = false,
+        ?callable $onTable = null
+    ): array {
+        $this->log = [];
+        $tables = self::orderDayMergeTables($tables);
+        $mergeBatch = 'day_'.preg_replace('/\D+/', '', substr($dayStart, 0, 10)).'_'.date('YmdHis');
+        $rowsCopied = 0;
+        $rowsConflicted = 0;
+        $ok = 0;
+        $failed = 0;
+        $skipped = 0;
+
+        if (! $dryRun) {
+            $this->ensureSidecarTable();
+        }
+
+        $this->target->exec('SET FOREIGN_KEY_CHECKS=0');
+        $this->target->exec('SET UNIQUE_CHECKS=0');
+        $this->target->exec("SET SESSION sql_mode = ''");
+
+        try {
+            foreach ($tables as $table) {
+                try {
+                    $result = $this->mergeTableDayWindow($table, $dayStart, $dayEndExclusive, $dryRun, $mergeBatch);
+                    $entry = [
+                        'table' => $table,
+                        'status' => $result['status'],
+                        'phase' => $result['phase'] ?? null,
+                        'message' => $result['message'] ?? null,
+                        'rows' => $result['inserted'],
+                        'candidates' => $result['candidates'],
+                        'inserted' => $result['inserted'],
+                        'conflicts' => $result['conflicts'],
+                    ];
+                    $this->log[] = $entry;
+
+                    if ($result['status'] === 'ok') {
+                        $ok++;
+                        $rowsCopied += $result['inserted'];
+                        $rowsConflicted += $result['conflicts'];
+                    } elseif ($result['status'] === 'skipped') {
+                        $skipped++;
+                    } else {
+                        $failed++;
+                    }
+
+                    if ($onTable !== null) {
+                        $onTable($table, $entry);
+                    }
+                } catch (\Throwable $e) {
+                    $failed++;
+                    $entry = [
+                        'table' => $table,
+                        'status' => 'failed',
+                        'phase' => 'merge',
+                        'message' => $e->getMessage(),
+                        'rows' => 0,
+                        'candidates' => 0,
+                        'inserted' => 0,
+                        'conflicts' => 0,
+                    ];
+                    $this->log[] = $entry;
+
+                    if ($onTable !== null) {
+                        $onTable($table, $entry);
+                    }
+                }
+            }
+        } finally {
+            $this->target->exec('SET UNIQUE_CHECKS=1');
+            $this->target->exec('SET FOREIGN_KEY_CHECKS=1');
+        }
+
+        $reportPath = $this->writeReport([
+            'mode' => 'day_insert_only',
+            'dry_run' => $dryRun,
+            'merge_batch' => $mergeBatch,
+            'day_start' => $dayStart,
+            'day_end_exclusive' => $dayEndExclusive,
+            'finished_at' => date('c'),
+            'source' => $this->sourceSchema,
+            'target' => $this->targetSchema,
+            'tables_total' => count($tables),
+            'tables_ok' => $ok,
+            'tables_failed' => $failed,
+            'tables_skipped' => $skipped,
+            'rows_copied' => $rowsCopied,
+            'rows_conflicted' => $rowsConflicted,
+            'tables' => $this->log,
+        ]);
+
+        return [
+            'tables_total' => count($tables),
+            'tables_ok' => $ok,
+            'tables_failed' => $failed,
+            'tables_skipped' => $skipped,
+            'rows_copied' => $rowsCopied,
+            'rows_conflicted' => $rowsConflicted,
+            'dry_run' => $dryRun,
+            'merge_batch' => $mergeBatch,
+            'day_start' => $dayStart,
+            'day_end_exclusive' => $dayEndExclusive,
+            'errors' => array_values(array_filter(
+                $this->log,
+                static fn (array $r): bool => ! in_array(($r['status'] ?? ''), ['ok', 'skipped'], true)
+            )),
+            'report_path' => $reportPath,
+        ];
+    }
+
+    /**
+     * @param  list<string>  $tables
+     * @return list<string>
+     */
+    public static function orderDayMergeTables(array $tables): array
+    {
+        $wanted = array_fill_keys(array_map('strval', $tables), true);
+        $ordered = [];
+
+        foreach (self::DAY_MERGE_TABLE_ORDER as $table) {
+            if (isset($wanted[$table])) {
+                $ordered[] = $table;
+                unset($wanted[$table]);
+            }
+        }
+
+        foreach (array_keys($wanted) as $leftover) {
+            $ordered[] = $leftover;
+        }
+
+        return $ordered;
+    }
+
+    /**
+     * @return array{status:string,phase?:string,message?:string,candidates:int,inserted:int,conflicts:int}
+     */
+    private function mergeTableDayWindow(
+        string $table,
+        string $dayStart,
+        string $dayEndExclusive,
+        bool $dryRun,
+        string $mergeBatch
+    ): array {
+        if (! $this->tableExists($this->target, $this->targetSchema, $table)) {
+            return [
+                'status' => 'skipped',
+                'phase' => 'missing_target_table',
+                'message' => 'Table does not exist on target.',
+                'candidates' => 0,
+                'inserted' => 0,
+                'conflicts' => 0,
+            ];
+        }
+
+        if (! $this->tableExists($this->source, $this->sourceSchema, $table)) {
+            return [
+                'status' => 'skipped',
+                'phase' => 'missing_source_table',
+                'message' => 'Table does not exist on production.',
+                'candidates' => 0,
+                'inserted' => 0,
+                'conflicts' => 0,
+            ];
+        }
+
+        $sourceColumns = $this->tableColumns($this->source, $this->sourceSchema, $table);
+        $targetColumns = $this->tableColumns($this->target, $this->targetSchema, $table);
+        $copyColumns = array_values(array_intersect($sourceColumns, $targetColumns));
+
+        if ($copyColumns === []) {
+            return [
+                'status' => 'failed',
+                'phase' => 'no_shared_columns',
+                'message' => 'No shared columns between production and target.',
+                'candidates' => 0,
+                'inserted' => 0,
+                'conflicts' => 0,
+            ];
+        }
+
+        $timeCols = array_values(array_intersect(['created_at', 'updated_at'], $copyColumns));
+        if ($timeCols === []) {
+            return [
+                'status' => 'skipped',
+                'phase' => 'no_timestamp_columns',
+                'message' => 'Neither created_at nor updated_at exists on shared columns.',
+                'candidates' => 0,
+                'inserted' => 0,
+                'conflicts' => 0,
+            ];
+        }
+
+        $pkColumns = $this->primaryKeyColumns($this->target, $this->targetSchema, $table);
+        $q = self::qid($table);
+        $colList = implode(',', array_map([self::class, 'qid'], $copyColumns));
+        $dayClauses = [];
+        $dayParams = [];
+        foreach ($timeCols as $col) {
+            $dayClauses[] = '('.self::qid($col).' >= ? AND '.self::qid($col).' < ?)';
+            $dayParams[] = $dayStart;
+            $dayParams[] = $dayEndExclusive;
+        }
+        $daySql = '('.implode(' OR ', $dayClauses).')';
+
+        $countStmt = $this->source->prepare('SELECT COUNT(*) FROM '.$q.' WHERE '.$daySql);
+        $countStmt->execute($dayParams);
+        $candidates = (int) $countStmt->fetchColumn();
+
+        if ($candidates === 0) {
+            return [
+                'status' => 'ok',
+                'candidates' => 0,
+                'inserted' => 0,
+                'conflicts' => 0,
+            ];
+        }
+
+        $inserted = 0;
+        $conflicts = 0;
+        $placeholders = implode(',', array_fill(0, count($copyColumns), '?'));
+        $insertSql = 'INSERT INTO '.$q.' ('.$colList.') VALUES ('.$placeholders.')';
+        $insertStmt = $dryRun ? null : $this->target->prepare($insertSql);
+
+        $usePkCursor = count($pkColumns) === 1 && in_array($pkColumns[0], $copyColumns, true);
+        $pkCol = $usePkCursor ? $pkColumns[0] : null;
+        $lastPk = null;
+        $offset = 0;
+
+        while (true) {
+            if ($usePkCursor && $pkCol !== null) {
+                $sql = 'SELECT '.$colList.' FROM '.$q.' WHERE '.$daySql;
+                $params = $dayParams;
+                if ($lastPk !== null) {
+                    $sql .= ' AND '.self::qid($pkCol).' > ?';
+                    $params[] = $lastPk;
+                }
+                $sql .= ' ORDER BY '.self::qid($pkCol).' ASC LIMIT '.(int) self::CHUNK_SIZE;
+                $stmt = $this->source->prepare($sql);
+                $stmt->execute($params);
+            } else {
+                $sql = 'SELECT '.$colList.' FROM '.$q.' WHERE '.$daySql
+                    .' LIMIT '.(int) self::CHUNK_SIZE.' OFFSET '.(int) $offset;
+                $stmt = $this->source->prepare($sql);
+                $stmt->execute($dayParams);
+            }
+
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            if ($rows === []) {
+                break;
+            }
+
+            foreach ($rows as $row) {
+                if ($usePkCursor && $pkCol !== null) {
+                    $lastPk = $row[$pkCol] ?? $lastPk;
+                }
+
+                foreach ($row as $key => $value) {
+                    if (is_string($value)) {
+                        $row[$key] = self::sanitizeUtf8ForMysql($value);
+                    }
+                }
+
+                $sourcePk = $this->formatSourcePk($row, $pkColumns);
+
+                if ($pkColumns !== [] && $this->targetRowExistsByPk($table, $pkColumns, $row)) {
+                    $conflicts++;
+                    if (! $dryRun) {
+                        $this->storeConflictRow($mergeBatch, $table, $sourcePk, 'pk_exists', $row);
+                    }
+
+                    continue;
+                }
+
+                if ($dryRun) {
+                    $inserted++;
+
+                    continue;
+                }
+
+                if ($pkColumns === []) {
+                    $conflicts++;
+                    $this->storeConflictRow($mergeBatch, $table, null, 'no_pk', $row);
+
+                    continue;
+                }
+
+                try {
+                    $values = [];
+                    foreach ($copyColumns as $col) {
+                        $values[] = $row[$col] ?? null;
+                    }
+                    $insertStmt->execute($values);
+                    $inserted++;
+                } catch (\Throwable $e) {
+                    $conflicts++;
+                    $reason = $this->conflictReasonFromException($e);
+                    $this->storeConflictRow($mergeBatch, $table, $sourcePk, $reason, $row);
+                }
+            }
+
+            if (! $usePkCursor) {
+                $offset += count($rows);
+            }
+
+            if (count($rows) < self::CHUNK_SIZE) {
+                break;
+            }
+        }
+
+        return [
+            'status' => 'ok',
+            'candidates' => $candidates,
+            'inserted' => $inserted,
+            'conflicts' => $conflicts,
+        ];
+    }
+
+    private function ensureSidecarTable(): void
+    {
+        $table = self::qid(self::SIDECAR_TABLE);
+        $this->target->exec(
+            "CREATE TABLE IF NOT EXISTS {$table} (
+                `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+                `merge_batch` VARCHAR(64) NOT NULL,
+                `table_name` VARCHAR(191) NOT NULL,
+                `source_pk` VARCHAR(191) NULL,
+                `reason` VARCHAR(64) NOT NULL,
+                `row_json` LONGTEXT NOT NULL,
+                `created_at` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+                PRIMARY KEY (`id`),
+                KEY `sync_day_conflict_batch_table` (`merge_batch`, `table_name`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci"
+        );
+    }
+
+    /**
+     * @param  list<string>  $pkColumns
+     * @param  array<string, mixed>  $row
+     */
+    private function targetRowExistsByPk(string $table, array $pkColumns, array $row): bool
+    {
+        if ($pkColumns === []) {
+            return false;
+        }
+
+        $parts = [];
+        $params = [];
+        foreach ($pkColumns as $col) {
+            if (! array_key_exists($col, $row) || $row[$col] === null) {
+                return false;
+            }
+            $parts[] = self::qid($col).' = ?';
+            $params[] = $row[$col];
+        }
+
+        $sql = 'SELECT 1 FROM '.self::qid($table).' WHERE '.implode(' AND ', $parts).' LIMIT 1';
+        $stmt = $this->target->prepare($sql);
+        $stmt->execute($params);
+
+        return (bool) $stmt->fetchColumn();
+    }
+
+    /**
+     * @param  list<string>  $pkColumns
+     * @param  array<string, mixed>  $row
+     */
+    private function formatSourcePk(array $row, array $pkColumns): ?string
+    {
+        if ($pkColumns === []) {
+            return null;
+        }
+
+        $parts = [];
+        foreach ($pkColumns as $col) {
+            if (! array_key_exists($col, $row)) {
+                return null;
+            }
+            $parts[] = $col.'='.(string) $row[$col];
+        }
+
+        $joined = implode(',', $parts);
+
+        return strlen($joined) > 191 ? substr($joined, 0, 191) : $joined;
+    }
+
+    /**
+     * @param  array<string, mixed>  $row
+     */
+    private function storeConflictRow(
+        string $mergeBatch,
+        string $table,
+        ?string $sourcePk,
+        string $reason,
+        array $row
+    ): void {
+        $json = json_encode($row, JSON_UNESCAPED_UNICODE);
+        if ($json === false) {
+            $json = '{"error":"unable to encode row"}';
+        }
+
+        $stmt = $this->target->prepare(
+            'INSERT INTO '.self::qid(self::SIDECAR_TABLE)
+            .' (`merge_batch`, `table_name`, `source_pk`, `reason`, `row_json`, `created_at`)
+             VALUES (?, ?, ?, ?, ?, NOW())'
+        );
+        $stmt->execute([$mergeBatch, $table, $sourcePk, $reason, $json]);
+    }
+
+    private function conflictReasonFromException(\Throwable $e): string
+    {
+        $message = strtolower($e->getMessage());
+
+        if (str_contains($message, 'duplicate') || str_contains($message, '1062')) {
+            return 'unique_conflict';
+        }
+
+        if (str_contains($message, 'foreign key') || str_contains($message, '1452')) {
+            return 'fk_fail';
+        }
+
+        return 'insert_fail';
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function primaryKeyColumns(PDO $pdo, string $schema, string $table): array
+    {
+        $stmt = $pdo->prepare(
+            'SELECT COLUMN_NAME FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND CONSTRAINT_NAME = ?
+             ORDER BY ORDINAL_POSITION'
+        );
+        $stmt->execute([$schema, $table, 'PRIMARY']);
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return is_array($columns) ? array_values($columns) : [];
     }
 
     /**

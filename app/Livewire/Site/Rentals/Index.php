@@ -12,6 +12,7 @@ class Index extends Component
     public function mount()
     {
         $this->rentals = Motorbike::whereHas('rentingPricings')
+            ->whereRaw("NOT (UPPER(COALESCE(make, '')) LIKE '%HONDA%' AND UPPER(COALESCE(model, '')) LIKE '%PCX%')")
             ->with('currentRentingPricing')
             ->get();
     }

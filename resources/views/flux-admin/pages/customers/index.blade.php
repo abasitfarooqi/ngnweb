@@ -112,6 +112,8 @@
                                 </a>
                                 <flux:button size="xs" variant="ghost" icon="key"
                                     wire:click="sendPortalCredentials({{ $customer->id }})"
+                                    wire:loading.attr="disabled"
+                                    wire:target="sendPortalCredentials"
                                     wire:confirm="Send portal login credentials to this customer?"
                                     class="!rounded-none">Creds</flux:button>
                                 <flux:button size="xs" variant="danger" icon="trash"

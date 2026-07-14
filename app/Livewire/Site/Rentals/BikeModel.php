@@ -41,9 +41,15 @@ class BikeModel extends Component
         $slug = $slug ?? (string) request()->route('slug', '');
         $this->modelSlug = $slug;
 
+        // Hidden from public rental catalogue (still retained for admin / legacy redirects).
+        if ($slug === 'honda-pcx-125') {
+            $this->redirect(route('site.rentals'), navigate: true);
+
+            return;
+        }
+
         $mapping = [
             'honda-forza-125' => ['Honda', 'Forza 125'],
-            'honda-pcx-125' => ['Honda', 'PCX 125'],
             'honda-sh-125' => ['Honda', 'SH 125'],
             'honda-vision-125' => ['Honda', 'Vision 125'],
             'yamaha-nmax-125' => ['Yamaha', 'NMAX 125'],
@@ -57,11 +63,6 @@ class BikeModel extends Component
                 'honda-forza-125' => [
                     'weekly_base' => 100.0,
                     'hero_image' => 'img/rentals/honda-forza-125.jpg',
-                    'tagline' => 'For this or similar model, prices start from…',
-                ],
-                'honda-pcx-125' => [
-                    'weekly_base' => 75.0,
-                    'hero_image' => 'img/rentals/honda-pcx-125.jpg',
                     'tagline' => 'For this or similar model, prices start from…',
                 ],
                 'honda-sh-125' => [

@@ -73,17 +73,26 @@ class CustomerPortalCredentialIssuer
             ]);
         }
 
+        // One SMS only — credentials, no URL (email already has the portal link).
         if ($phone !== '') {
-            try {
-                app(\App\Http\Controllers\SMSController::class)->sendSms(
-                    $phone,
-                    "NGN Portal login\nEmail: {$email}\nPassword: {$temporaryPassword}\n{$portalUrl}"
-                );
-            } catch (\Throwable $e) {
-                Log::warning('Failed to send portal credentials SMS', [
+            $smsLockKey = 'portal_creds_sms_'.$customer->id;
+            if (! cache()->add($smsLockKey, 1, now()->addSeconds(45))) {
+                Log::info('Skipped duplicate portal credentials SMS', [
                     'customer_id' => $customer->id,
-                    'error' => $e->getMessage(),
                 ]);
+            } else {
+                try {
+                    app(\App\Http\Controllers\SMSController::class)->sendSms(
+                        $phone,
+                        "NGN Portal login\nEmail: {$email}\nPassword: {$temporaryPassword}"
+                    );
+                } catch (\Throwable $e) {
+                    cache()->forget($smsLockKey);
+                    Log::warning('Failed to send portal credentials SMS', [
+                        'customer_id' => $customer->id,
+                        'error' => $e->getMessage(),
+                    ]);
+                }
             }
         }
 

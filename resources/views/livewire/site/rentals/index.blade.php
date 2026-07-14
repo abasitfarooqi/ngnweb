@@ -16,7 +16,6 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @foreach([
             ['slug' => 'honda-forza-125', 'name' => 'Honda Forza 125cc', 'price' => 100, 'img' => '/img/rentals/honda-forza-125.jpg'],
-            ['slug' => 'honda-pcx-125', 'name' => 'Honda PCX 125cc', 'price' => 75, 'img' => '/img/rentals/honda-pcx-125.jpg'],
             ['slug' => 'honda-sh-125', 'name' => 'Honda SH 125cc', 'price' => 75, 'img' => '/img/rentals/honda-sh-125.jpg'],
             ['slug' => 'honda-vision-125', 'name' => 'Honda Vision 125cc', 'price' => 70, 'img' => '/img/rentals/honda-vision-125.jpg'],
             ['slug' => 'yamaha-nmax-125', 'name' => 'Yamaha NMAX 125cc', 'price' => 75, 'img' => '/img/rentals/yamaha-nmax-125.jpg'],

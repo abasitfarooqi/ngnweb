@@ -100,7 +100,7 @@ class FluxAdminSearchRegistry
             self::entry(Permission::class, 'Permissions', 'flux-admin.permissions.index'),
             self::entry(IpRestriction::class, 'IP restrictions', 'flux-admin.ip-restrictions.index', edit: 'flux-admin.ip-restrictions.edit', param: 'ipRestriction'),
             self::entry(AccessLog::class, 'Access logs', 'flux-admin.access-logs.index'),
-            self::entry(Branch::class, 'Branches', 'flux-admin.branches.index', 'flux-admin.branches.show', param: 'branch'),
+            self::entry(Branch::class, 'Branches', 'flux-admin.branches.index', 'flux-admin.branches.show', 'flux-admin.branches.edit', 'branch'),
             self::entry(MotorbikesSale::class, 'Vehicle sales', 'flux-admin.motorbike-sales.index', edit: 'flux-admin.motorbike-sales.edit', param: 'motorbikesSale'),
             self::entry(NewMotorbike::class, 'New arrivals', 'flux-admin.motorbike-new.index', edit: 'flux-admin.motorbike-new.edit', param: 'newMotorbike'),
             self::entry(Motorcycle::class, 'For-sale catalogue', 'flux-admin.motorbike-for-sale.index', edit: 'flux-admin.motorbike-for-sale.edit', param: 'motorcycle'),

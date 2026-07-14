@@ -165,7 +165,9 @@ Route::prefix('/')->name('site.')->group(function () {
     Route::get('/rentals', \App\Livewire\Site\Rentals\Index::class)->name('rentals');
     Route::get('/rentals/{id}', \App\Livewire\Site\Rentals\Show::class)->name('rentals.show');
     Route::get('/honda-forza-125', \App\Livewire\Site\Rentals\BikeModel::class)->defaults('slug', 'honda-forza-125')->name('rental.forza125');
-    Route::get('/honda-pcx-125', \App\Livewire\Site\Rentals\BikeModel::class)->defaults('slug', 'honda-pcx-125')->name('rental.pcx125');
+    Route::get('/honda-pcx-125', function () {
+        return redirect()->route('site.rentals', status: 301);
+    })->name('rental.pcx125');
     Route::get('/honda-sh-125', \App\Livewire\Site\Rentals\BikeModel::class)->defaults('slug', 'honda-sh-125')->name('rental.sh125');
     Route::get('/honda-vision-125', \App\Livewire\Site\Rentals\BikeModel::class)->defaults('slug', 'honda-vision-125')->name('rental.vision125');
     Route::get('/yamaha-nmax-125', \App\Livewire\Site\Rentals\BikeModel::class)->defaults('slug', 'yamaha-nmax-125')->name('rental.nmax125');

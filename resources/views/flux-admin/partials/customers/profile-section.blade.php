@@ -7,6 +7,8 @@
                 variant="ghost"
                 icon="envelope"
                 wire:click="sendPortalCredentials"
+                wire:loading.attr="disabled"
+                wire:target="sendPortalCredentials"
                 wire:confirm="Send portal login credentials to this customer via email and SMS?"
                 class="!rounded-none"
             >Send portal credentials</flux:button>

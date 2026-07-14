@@ -1,6 +1,6 @@
     <section class="header-operation container-fluid animated fadeIn d-flex mb-2 align-items-baseline d-print-none" bp-section="page-header">
         <h5 class="text-capitalize mb-0 ml-2" bp-section="page-heading">MIT Payment Dashboard</h5>
-        <div class="ml-auto d-flex align-items-center">
+        <div class="ml-auto d-flex align-items-center" style="gap: 0.5rem;">
             <div class="btn-group" role="group" aria-label="Judopay navigation">
                 <a href="{{ judopay_route('index') }}" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; border-radius: 0;">
                     <i class="fa fa-home"></i> Judopay Home
@@ -12,6 +12,9 @@
                     <i class="fa fa-calendar"></i> Weekly Schedule
                 </a>
             </div>
+            @unless(judopay_using_flux())
+                <x-judopay-ui-switch variant="bootstrap" />
+            @endunless
         </div>
     </section>
 

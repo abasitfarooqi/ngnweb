@@ -46,13 +46,6 @@ class Home extends Component
                 'alt' => 'HONDA FORZA 125CC motorcycle rental in London, Catford, Tooting and Sutton',
             ],
             [
-                'href' => route('site.rental.pcx125'),
-                'img' => 'img/rentals/honda-pcx-125.jpg',
-                'title' => 'HONDA PCX 125CC',
-                'weekly' => 75,
-                'alt' => 'HONDA PCX 125CC motorcycle rental in London, Catford, Tooting and Sutton',
-            ],
-            [
                 'href' => route('site.rental.sh125'),
                 'img' => 'img/rentals/honda-sh-125.jpg',
                 'title' => 'HONDA SH 125CC',

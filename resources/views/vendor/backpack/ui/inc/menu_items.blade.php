@@ -211,6 +211,10 @@
     <x-backpack::menu-dropdown-item title="Judo Pay" icon="la la-credit-card" :link="backpack_url('judopay')" />
     <x-backpack::menu-dropdown-item title="MIT Dashboard" icon="la la-chart-line" :link="backpack_url('judopay/mit-dashboard')" />
     <x-backpack::menu-dropdown-item title="Weekly Schedule" icon="la la-calendar-week" :link="backpack_url('judopay/weekly-mit-queue')" />
+    <x-backpack::menu-dropdown-item title="Subscriptions" icon="la la-sync" :link="backpack_url('dev-judopay-subscription')" />
+    <x-backpack::menu-dropdown-item title="NGN MIT queue" icon="la la-list" :link="backpack_url('dev-ngn-mit-queue')" />
+    <x-backpack::menu-dropdown-item title="Judopay MIT queue" icon="la la-stream" :link="backpack_url('dev-judopay-mit-queue')" />
+    <x-backpack::menu-dropdown-item title="Open in Flux UI" icon="la la-exchange-alt" :link="url('/flux-admin/judopay')" />
 </x-backpack::menu-dropdown>
 @endcan
 

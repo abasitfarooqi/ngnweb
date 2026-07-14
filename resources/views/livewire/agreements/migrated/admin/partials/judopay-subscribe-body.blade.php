@@ -1,10 +1,13 @@
     <section class="header-operation container-fluid animated fadeIn d-flex mb-2 align-items-baseline d-print-none"
         bp-section="page-header">
         <h5 class="text-capitalize mb-0 ml-2" bp-section="page-heading">Payment Setup</h5>
-        <div class="ml-auto">
-            <a href="{{ judopay_route('index') }}" class="btn btn-secondary btn-sm ml-2" style="font-size: 0.8rem;">
+        <div class="ml-auto d-flex align-items-center" style="gap: 0.5rem;">
+            <a href="{{ judopay_route('index') }}" class="btn btn-secondary btn-sm" style="font-size: 0.8rem; border-radius: 0;">
                 <i class="fa fa-arrow-left"></i> Back to Subscriptions
             </a>
+            @unless(judopay_using_flux())
+                <x-judopay-ui-switch variant="bootstrap" />
+            @endunless
         </div>
     </section>
     @can('can-run-cit')

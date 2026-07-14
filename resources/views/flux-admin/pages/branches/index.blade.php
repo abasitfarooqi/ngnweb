@@ -25,7 +25,7 @@
                             {{ $branch->motorbikes_count }} {{ Str::plural('motorbike', $branch->motorbikes_count) }}
                         </flux:badge>
                         <div class="flex gap-1">
-                            <a href="{{ route('flux-admin.branches.edit', $branch->id) }}">
+                            <a href="{{ route('flux-admin.branches.edit', $branch) }}" wire:navigate>
                                 <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                             </a>
                             <flux:button size="xs" variant="ghost" wire:click="delete({{ $branch->id }})" wire:confirm="Delete this branch?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>

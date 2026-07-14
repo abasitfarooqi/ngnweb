@@ -29,6 +29,7 @@ class Show extends Component
     {
         try {
             $this->motorbike = Motorbike::with(['images', 'currentRentingPricing', 'branch'])
+                ->whereRaw("NOT (UPPER(COALESCE(make, '')) LIKE '%HONDA%' AND UPPER(COALESCE(model, '')) LIKE '%PCX%')")
                 ->findOrFail($id);
             $this->pricing = $this->motorbike->currentRentingPricing;
         } catch (\Exception $e) {

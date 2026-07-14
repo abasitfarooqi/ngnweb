@@ -30,6 +30,8 @@ class RecurringController extends Controller
     {
         if (request()->routeIs('flux-admin.judopay.*')) {
             session(['judopay_ui' => 'flux']);
+        } elseif (request()->routeIs('page.judopay.*')) {
+            session(['judopay_ui' => 'backpack']);
         }
     }
 
