@@ -5,23 +5,35 @@ namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Motorbike;
 use App\Models\MotorbikesSale;
+use App\Support\NgnMotorcycleImage;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('flux-admin.layouts.app')]
 #[Title('Motorbike Sale — Flux Admin')]
 class SaleForm extends Component
 {
     use WithAuthorization;
+    use WithFileUploads;
 
     public ?MotorbikesSale $motorbikesSale = null;
 
     public array $form = [];
 
     public string $motorbikeSearch = '';
+
     public array $motorbikeSuggestions = [];
+
+    public $imageOneUpload = null;
+
+    public $imageTwoUpload = null;
+
+    public $imageThreeUpload = null;
+
+    public $imageFourUpload = null;
 
     public function mount(?MotorbikesSale $motorbikesSale = null): void
     {
@@ -36,7 +48,7 @@ class SaleForm extends Component
             $this->motorbikeSearch = $motorbikesSale->motorbike?->reg_no ?? '';
         } else {
             $this->form = [
-                'is_sold'      => false,
+                'is_sold' => false,
                 'v5_available' => false,
                 'date_of_purchase' => now()->toDateString(),
                 'date_of_sale' => now()->toDateString(),
@@ -54,11 +66,12 @@ class SaleForm extends Component
     {
         if (strlen($this->motorbikeSearch) < 2) {
             $this->motorbikeSuggestions = [];
+
             return;
         }
         $this->motorbikeSuggestions = Motorbike::where('reg_no', 'like', "%{$this->motorbikeSearch}%")
             ->limit(8)->get(['id', 'reg_no'])->map(fn ($m) => [
-                'id'  => $m->id,
+                'id' => $m->id,
                 'reg' => $m->reg_no,
             ])->toArray();
     }
@@ -66,33 +79,77 @@ class SaleForm extends Component
     public function selectMotorbike(int $id, string $reg): void
     {
         $this->form['motorbike_id'] = $id;
-        $this->motorbikeSearch      = $reg;
+        $this->motorbikeSearch = $reg;
         $this->motorbikeSuggestions = [];
+    }
+
+    public function commitMotorbikeSearch(): void
+    {
+        if (! empty($this->form['motorbike_id'])) {
+            return;
+        }
+
+        if ($this->motorbikeSuggestions === [] && strlen($this->motorbikeSearch) >= 2) {
+            $this->updatingMotorbikeSearch();
+        }
+
+        if ($this->motorbikeSuggestions === []) {
+            return;
+        }
+
+        $compact = strtoupper(preg_replace('/\s+/', '', $this->motorbikeSearch) ?? '');
+        foreach ($this->motorbikeSuggestions as $suggestion) {
+            $reg = strtoupper(preg_replace('/\s+/', '', (string) ($suggestion['reg'] ?? '')) ?? '');
+            if ($compact !== '' && $reg === $compact) {
+                $this->selectMotorbike((int) $suggestion['id'], (string) $suggestion['reg']);
+
+                return;
+            }
+        }
+
+        if (count($this->motorbikeSuggestions) === 1) {
+            $first = $this->motorbikeSuggestions[0];
+            $this->selectMotorbike((int) $first['id'], (string) $first['reg']);
+        }
+    }
+
+    public function removeExistingImage(string $field): void
+    {
+        if (! in_array($field, ['image_one', 'image_two', 'image_three', 'image_four'], true)) {
+            return;
+        }
+        $this->form[$field] = null;
     }
 
     public function save(): void
     {
+        $this->commitMotorbikeSearch();
+
         $this->validate([
-            'form.motorbike_id'  => ['required', 'integer'],
-            'form.condition'     => ['nullable', 'string', 'max:120'],
-            'form.mileage'       => ['nullable', 'numeric'],
+            'form.motorbike_id' => ['required', 'integer'],
+            'form.condition' => ['nullable', 'string', 'max:120'],
+            'form.mileage' => ['nullable', 'numeric'],
             'form.date_of_purchase' => ['nullable', 'date'],
-            'form.date_of_sale'  => ['nullable', 'date'],
-            'form.price'         => ['nullable', 'numeric'],
-            'form.engine'        => ['nullable', 'string', 'max:255'],
-            'form.suspension'    => ['nullable', 'string', 'max:255'],
-            'form.brakes'        => ['nullable', 'string', 'max:255'],
-            'form.belt'          => ['nullable', 'string', 'max:255'],
-            'form.electrical'    => ['nullable', 'string', 'max:255'],
-            'form.tires'         => ['nullable', 'string', 'max:255'],
-            'form.accessories'   => ['nullable', 'string'],
-            'form.note'          => ['nullable', 'string'],
-            'form.is_sold'       => ['boolean'],
-            'form.buyer_name'    => ['nullable', 'string', 'max:255'],
-            'form.buyer_phone'   => ['nullable', 'string', 'max:50'],
-            'form.buyer_email'   => ['nullable', 'email', 'max:255'],
+            'form.date_of_sale' => ['nullable', 'date'],
+            'form.price' => ['nullable', 'numeric'],
+            'form.engine' => ['nullable', 'string', 'max:255'],
+            'form.suspension' => ['nullable', 'string', 'max:255'],
+            'form.brakes' => ['nullable', 'string', 'max:255'],
+            'form.belt' => ['nullable', 'string', 'max:255'],
+            'form.electrical' => ['nullable', 'string', 'max:255'],
+            'form.tires' => ['nullable', 'string', 'max:255'],
+            'form.accessories' => ['nullable', 'string'],
+            'form.note' => ['nullable', 'string'],
+            'form.is_sold' => ['boolean'],
+            'form.buyer_name' => ['nullable', 'string', 'max:255'],
+            'form.buyer_phone' => ['nullable', 'string', 'max:50'],
+            'form.buyer_email' => ['nullable', 'email', 'max:255'],
             'form.buyer_address' => ['nullable', 'string', 'max:500'],
-            'form.v5_available'  => ['boolean'],
+            'form.v5_available' => ['boolean'],
+            'imageOneUpload' => ['nullable', 'image', 'max:8192'],
+            'imageTwoUpload' => ['nullable', 'image', 'max:8192'],
+            'imageThreeUpload' => ['nullable', 'image', 'max:8192'],
+            'imageFourUpload' => ['nullable', 'image', 'max:8192'],
         ]);
 
         if (! (bool) ($this->form['is_sold'] ?? false)) {
@@ -103,28 +160,43 @@ class SaleForm extends Component
         }
 
         $data = [
-            'motorbike_id'  => $this->form['motorbike_id'] ?? null,
-            'condition'     => ($this->form['condition'] ?? null) ?: '-',
-            'mileage'       => $this->form['mileage'] ?? 0,
+            'motorbike_id' => $this->form['motorbike_id'] ?? null,
+            'condition' => ($this->form['condition'] ?? null) ?: '-',
+            'mileage' => $this->form['mileage'] ?? 0,
             'date_of_purchase' => ($this->form['date_of_purchase'] ?? null) ?: now()->toDateString(),
-            'date_of_sale'  => ($this->form['date_of_sale'] ?? null) ?: now()->toDateString(),
-            'price'         => $this->form['price'] ?? 0,
-            'engine'        => ($this->form['engine'] ?? null) ?: 'NOT CHECKED',
-            'suspension'    => ($this->form['suspension'] ?? null) ?: 'NOT CHECKED',
-            'brakes'        => ($this->form['brakes'] ?? null) ?: 'NOT CHECKED',
-            'belt'          => ($this->form['belt'] ?? null) ?: 'NOT CHECKED',
-            'electrical'    => ($this->form['electrical'] ?? null) ?: 'NOT CHECKED',
-            'tires'         => ($this->form['tires'] ?? null) ?: 'NOT CHECKED',
-            'accessories'   => $this->form['accessories'] ?? null,
-            'note'          => $this->form['note'] ?? '',
-            'is_sold'       => (bool) ($this->form['is_sold'] ?? false),
-            'buyer_name'    => $this->form['buyer_name'] ?? null,
-            'buyer_phone'   => $this->form['buyer_phone'] ?? null,
-            'buyer_email'   => $this->form['buyer_email'] ?? null,
+            'date_of_sale' => ($this->form['date_of_sale'] ?? null) ?: now()->toDateString(),
+            'price' => $this->form['price'] ?? 0,
+            'engine' => ($this->form['engine'] ?? null) ?: 'NOT CHECKED',
+            'suspension' => ($this->form['suspension'] ?? null) ?: 'NOT CHECKED',
+            'brakes' => ($this->form['brakes'] ?? null) ?: 'NOT CHECKED',
+            'belt' => ($this->form['belt'] ?? null) ?: 'NOT CHECKED',
+            'electrical' => ($this->form['electrical'] ?? null) ?: 'NOT CHECKED',
+            'tires' => ($this->form['tires'] ?? null) ?: 'NOT CHECKED',
+            'accessories' => $this->form['accessories'] ?? null,
+            'note' => $this->form['note'] ?? '',
+            'is_sold' => (bool) ($this->form['is_sold'] ?? false),
+            'buyer_name' => $this->form['buyer_name'] ?? null,
+            'buyer_phone' => $this->form['buyer_phone'] ?? null,
+            'buyer_email' => $this->form['buyer_email'] ?? null,
             'buyer_address' => $this->form['buyer_address'] ?? null,
-            'v5_available'  => (bool) ($this->form['v5_available'] ?? false),
-            'user_id'       => auth()->id(),
+            'v5_available' => (bool) ($this->form['v5_available'] ?? false),
+            'user_id' => auth()->id(),
+            'image_one' => $this->form['image_one'] ?? null,
+            'image_two' => $this->form['image_two'] ?? null,
+            'image_three' => $this->form['image_three'] ?? null,
+            'image_four' => $this->form['image_four'] ?? null,
         ];
+
+        foreach ([
+            'image_one' => $this->imageOneUpload,
+            'image_two' => $this->imageTwoUpload,
+            'image_three' => $this->imageThreeUpload,
+            'image_four' => $this->imageFourUpload,
+        ] as $field => $upload) {
+            if ($upload) {
+                $data[$field] = $upload->store('', 'used_motorbikes');
+            }
+        }
 
         if ($this->motorbikesSale && $this->motorbikesSale->exists) {
             $this->motorbikesSale->update($data);
@@ -135,6 +207,15 @@ class SaleForm extends Component
         }
 
         $this->redirect(route('flux-admin.motorbike-sales.index'), navigate: true);
+    }
+
+    public function currentImageUrl(?string $path): ?string
+    {
+        if ($path === null || trim($path) === '') {
+            return null;
+        }
+
+        return NgnMotorcycleImage::urlForUsedSale($path);
     }
 
     public function render()

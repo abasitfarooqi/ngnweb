@@ -27,6 +27,10 @@ class Motorcycle extends Model
         'engine',
         'file_name',
         'file_path',
+        'image_two',
+        'image_three',
+        'image_four',
+        'video_path',
         'type',
     ];
 

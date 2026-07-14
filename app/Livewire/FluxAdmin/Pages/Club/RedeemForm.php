@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Club;
 
+use App\Livewire\FluxAdmin\Concerns\SearchesClubMembers;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\ClubMember;
 use App\Models\ClubMemberPurchase;
@@ -16,6 +17,7 @@ use Livewire\Component;
 #[Title('Club Redemption — Flux Admin')]
 class RedeemForm extends Component
 {
+    use SearchesClubMembers;
     use WithAuthorization;
 
     public ?ClubMemberRedeem $redeem = null;
@@ -37,10 +39,22 @@ class RedeemForm extends Component
             if (! empty($this->form['date'])) {
                 $this->form['date'] = Carbon::parse($this->form['date'])->format('Y-m-d');
             }
+            $this->form['include_today'] = false;
+            $this->fillMemberSearchLabel((int) $this->redeem->club_member_id);
         } else {
-            $this->form = ['date' => now()->toDateString(), 'redeem_total' => 0, 'include_today' => false];
+            $this->form = [
+                'date' => now()->toDateString(),
+                'redeem_total' => 0,
+                'include_today' => false,
+                'branch_id' => '',
+            ];
         }
 
+        $this->refreshMemberBalance();
+    }
+
+    public function onClubMemberSelected(ClubMember $member): void
+    {
         $this->refreshMemberBalance();
     }
 
@@ -53,8 +67,8 @@ class RedeemForm extends Component
     {
         $this->validate([
             'form.club_member_id' => ['required', 'integer', 'exists:club_members,id'],
-            'form.date'           => ['required', 'date'],
-            'form.redeem_total'   => [
+            'form.date' => ['required', 'date'],
+            'form.redeem_total' => [
                 'required',
                 'numeric',
                 'min:0',
@@ -65,20 +79,20 @@ class RedeemForm extends Component
                     }
                 },
             ],
-            'form.pos_invoice'    => ['nullable', 'string', 'max:120'],
-            'form.branch_id'      => ['nullable', 'string', 'in:CATFORD,SUTTON,TOOTING'],
-            'form.note'           => ['nullable', 'string', 'max:255'],
-            'form.include_today'  => ['boolean'],
+            'form.pos_invoice' => ['nullable', 'string', 'max:120'],
+            'form.branch_id' => ['nullable', 'string', 'in:CATFORD,SUTTON,TOOTING'],
+            'form.note' => ['nullable', 'string', 'max:255'],
+            'form.include_today' => ['boolean'],
         ]);
 
         $payload = [
             'club_member_id' => $this->form['club_member_id'],
-            'date'           => $this->form['date'],
-            'redeem_total'   => $this->form['redeem_total'],
-            'pos_invoice'    => $this->form['pos_invoice'] ?? null,
-            'branch_id'      => $this->form['branch_id'] ?: null,
-            'note'           => $this->form['note'] ?? null,
-            'user_id'        => auth()->id(),
+            'date' => $this->form['date'],
+            'redeem_total' => $this->form['redeem_total'],
+            'pos_invoice' => $this->form['pos_invoice'] ?: null,
+            'branch_id' => $this->form['branch_id'] ?: null,
+            'note' => $this->form['note'] ?? null,
+            'user_id' => backpack_user()?->id ?? auth()->id(),
         ];
 
         DB::transaction(function () use ($payload): void {

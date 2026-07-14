@@ -20,15 +20,25 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">TOL details</h2>
 
-            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="PCN case update ID" required :error="$errors->first('form.update_id')">
-                    <flux:input type="number" wire:model.live.debounce.300ms="form.update_id" placeholder="Update record ID" />
-                </x-flux-admin::field-group>
-                @if($updateDisplay !== '')
-                    <div class="sm:col-span-2 border border-blue-200 bg-blue-50 px-3 py-2 text-sm text-blue-900 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-200">
-                        {{ $updateDisplay }}
+            <div class="mb-4">
+                <x-flux-admin::field-group label="PCN case update" required :error="$errors->first('form.update_id')">
+                    <div class="{{ count($updateSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input wire:model.live.debounce.300ms="updateSearch" placeholder="Search by PCN number or update ID…" autocomplete="off" />
+                        @if(count($updateSuggestions))
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
+                                @foreach($updateSuggestions as $s)
+                                    <li role="option" wire:mousedown.prevent="selectUpdate({{ $s['id'] }})">{{ $s['label'] }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
                     </div>
-                @endif
+                    @if($updateDisplay !== '')
+                        <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Selected: {{ $updateDisplay }}</p>
+                    @endif
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <x-flux-admin::field-group label="Request date" required :error="$errors->first('form.request_date')">
                     <flux:input type="date" wire:model="form.request_date" />
                 </x-flux-admin::field-group>
@@ -56,7 +66,7 @@
             <a href="{{ route('flux-admin.pcn-tol-requests.index') }}">
                 <flux:button type="button" variant="ghost" class="!rounded-none">Cancel</flux:button>
             </a>
-            <flux:button type="submit" variant="primary" class="!rounded-none">Save</flux:button>
+            <flux:button type="submit" variant="primary" class="!rounded-none">{{ $recordId ? 'Save changes' : 'Save and download PDF' }}</flux:button>
         </div>
     </form>
 </div>

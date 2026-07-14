@@ -77,17 +77,16 @@ class ContractAccessCrudController extends BaseCrudController
 
         $this->crud->addColumn([
             'name' => 'contract_links',
-            'label' => 'Contract links',
+            'label' => 'Contract link',
             'type' => 'closure',
             'function' => function ($entry) {
-                $customerId = (int) ($entry->customer_id ?? 0);
-                $passcode = (string) ($entry->passcode ?? '');
-                if ($customerId < 1 || $passcode === '') {
-                    return '<span class="text-muted">Missing customer or passcode</span>';
+                $links = FinanceContractLinkResolver::linksForContractAccess($entry);
+                if ($links === []) {
+                    return '<span class="text-muted">No matching latest contract for this application</span>';
                 }
 
                 $html = '<ul class="mb-0 ps-3">';
-                foreach (FinanceContractLinkResolver::accessLinks($customerId, $passcode) as $link) {
+                foreach ($links as $link) {
                     $html .= '<li class="mb-1"><strong>'.e($link['label']).'</strong><br>'
                         .'<a href="'.e($link['url']).'" target="_blank">'.e($link['url']).'</a></li>';
                 }
@@ -124,15 +123,14 @@ class ContractAccessCrudController extends BaseCrudController
         $this->setupCreateOperation();
 
         $entry = $this->crud->getCurrentEntry();
-        $customerId = (int) ($entry->customer_id ?? 0);
-        $passcode = (string) ($entry->passcode ?? '');
+        $links = FinanceContractLinkResolver::linksForContractAccess($entry);
 
-        if ($customerId < 1 || $passcode === '') {
+        if ($links === []) {
             CRUD::addField([
                 'name' => 'link_missing',
-                'label' => 'Contract links',
+                'label' => 'Contract link',
                 'type' => 'text',
-                'value' => 'Save a customer ID and passcode to generate the three contract links.',
+                'value' => 'Link appears only for a latest finance application (new, new + subscription, or used + subscription).',
                 'attributes' => [
                     'readonly' => 'readonly',
                 ],
@@ -142,7 +140,7 @@ class ContractAccessCrudController extends BaseCrudController
             return;
         }
 
-        foreach (FinanceContractLinkResolver::accessLinks($customerId, $passcode) as $link) {
+        foreach ($links as $link) {
             CRUD::addField([
                 'name' => 'link_'.$link['key'],
                 'label' => $link['label'],

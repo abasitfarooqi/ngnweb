@@ -23,7 +23,7 @@
                 </a>
             </div>
             <div class="col-md-4 col-xl-3">
-                <a href="{{ route('admin.renting.bookings') }}" class="text-decoration-none">
+                <a href="{{ route('page.rental_operations.bookings_management') }}" class="text-decoration-none">
                     <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title mb-1">Bookings Management</h5>

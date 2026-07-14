@@ -35,13 +35,7 @@
                         </div>
                     </div>
                     @php
-                        $contractLinks = ($access->application && filled($access->passcode))
-                            ? \App\Services\FinanceContractLinkResolver::linksForApplication($access->application, (string) $access->passcode)
-                            : (((int) ($access->customer_id ?? 0) > 0 && filled($access->passcode))
-                                ? collect(\App\Services\FinanceContractLinkResolver::accessLinks((int) $access->customer_id, (string) $access->passcode))
-                                    ->map(fn ($link) => $link + ['is_customer' => false])
-                                    ->all()
-                                : []);
+                        $contractLinks = \App\Services\FinanceContractLinkResolver::linksForContractAccess($access);
                     @endphp
                     @if($contractLinks)
                         <div class="mt-4 grid grid-cols-1 gap-3">
@@ -49,14 +43,14 @@
                                 <div>
                                     <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400">
                                         {{ $link['label'] }}
-                                        @if(!empty($link['is_customer']))
-                                            <span class="ml-1 text-emerald-700 dark:text-emerald-400">(customer email / copy-paste)</span>
-                                        @endif
+                                        <span class="ml-1 text-emerald-700 dark:text-emerald-400">(customer email / copy-paste)</span>
                                     </p>
                                     <a href="{{ $link['url'] }}" target="_blank" rel="noopener noreferrer" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $link['url'] }}</a>
                                 </div>
                             @endforeach
                         </div>
+                    @else
+                        <p class="mt-4 text-xs text-zinc-400">No matching latest contract link for this application.</p>
                     @endif
                 </div>
             @endforeach

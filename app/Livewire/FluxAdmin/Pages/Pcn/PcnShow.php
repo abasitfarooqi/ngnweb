@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Pcn;
 
+use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\PcnCase;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -9,12 +10,15 @@ use Livewire\Component;
 #[Layout('flux-admin.layouts.app')]
 class PcnShow extends Component
 {
+    use WithAuthorization;
+
     public PcnCase $pcnCase;
 
     public string $activeTab = 'details';
 
     public function mount(PcnCase $pcnCase): void
     {
+        $this->authorizeModule('see-menu-pcns');
         $this->pcnCase = $pcnCase->load('customer', 'motorbike', 'user');
     }
 

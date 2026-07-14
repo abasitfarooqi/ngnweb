@@ -14,7 +14,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 #[Layout('flux-admin.layouts.app')]
-#[Title('Finance Applications — Flux Admin')]
+#[Title('Payment Plan Applications — Flux Admin')]
 class FinanceIndex extends Component
 {
     use WithCrudForm, WithDataTable, WithExport, WithPagination;
@@ -127,10 +127,17 @@ class FinanceIndex extends Component
 
     protected function beforeSave(array $attributes): array
     {
-        // Only one contract type can be true at once; handled by the form toggle
         if (empty($attributes['user_id'])) {
             $attributes['user_id'] = backpack_user()?->id;
         }
+
+        $attributes['is_new'] = false;
+        $attributes['is_used'] = false;
+        $attributes['is_used_extended'] = false;
+        $attributes['is_used_extended_custom'] = false;
+        $attributes['is_new_latest'] = (bool) ($attributes['is_new_latest'] ?? false);
+        $attributes['is_used_latest'] = (bool) ($attributes['is_used_latest'] ?? false);
+
         if (empty($attributes['is_subscription'])) {
             $attributes['subscription_option'] = null;
         }
@@ -201,18 +208,17 @@ class FinanceIndex extends Component
 
     public function setContractType(string $type): void
     {
-        $all = ['is_new', 'is_used', 'is_new_latest', 'is_used_latest', 'is_used_extended', 'is_used_extended_custom', 'is_subscription'];
-        foreach ($all as $t) {
-            $this->formData[$t] = ($t === $type);
+        $allowed = ['is_new_latest', 'is_used_latest'];
+        if (! in_array($type, $allowed, true)) {
+            return;
         }
-        if ($type !== 'is_subscription') {
-            $this->formData['subscription_option'] = null;
-        } elseif (empty($this->formData['subscription_option'])) {
-            $this->formData['subscription_option'] = 'A';
-        }
-        if (! in_array($type, ['is_subscription', 'is_new_latest', 'is_used_latest'], true)) {
-            $this->formData['subs_payment_date'] = null;
-        }
+
+        $this->formData['is_new'] = false;
+        $this->formData['is_used'] = false;
+        $this->formData['is_used_extended'] = false;
+        $this->formData['is_used_extended_custom'] = false;
+        $this->formData['is_new_latest'] = ($type === 'is_new_latest');
+        $this->formData['is_used_latest'] = ($type === 'is_used_latest');
     }
 
     protected function buildQuery(): Builder

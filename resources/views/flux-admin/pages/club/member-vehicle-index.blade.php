@@ -29,9 +29,12 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->model ?: '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->year ?: '—' }}</flux:table.cell>
                         <flux:table.cell>
-                            <a href="{{ route('flux-admin.club-member-vehicles.edit', $r) }}" wire:navigate>
-                                <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit vehicle</flux:button>
-                            </a>
+                            <div class="flex items-center gap-1">
+                                <a href="{{ route('flux-admin.club-member-vehicles.edit', $r) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit vehicle</flux:button>
+                                </a>
+                                <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this club member?" icon="trash" class="!rounded-none">Delete</flux:button>
+                            </div>
                         </flux:table.cell>
                     </flux:table.row>
                 @empty

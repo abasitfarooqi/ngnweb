@@ -121,6 +121,7 @@ use App\Livewire\FluxAdmin\Pages\Ecommerce\DigitalInvoiceItemIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\DsOrderItemIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairUpdateForm;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairUpdateIndex as MotorbikeRepairUpdateIndex;
+use App\Http\Controllers\Admin\RecurringController as JudopayRecurringController;
 use App\Livewire\FluxAdmin\Pages\Judopay\RecurringIndex as JudopayRecurringIndex;
 use App\Livewire\FluxAdmin\Pages\Misc\CalendarIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\ActiveRentalsIndex;
@@ -144,10 +145,13 @@ use App\Livewire\FluxAdmin\Pages\Rentals\AllBookingsIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\BookingInvoiceDatesIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\BookingsManagementIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\ChangeStartDateIndex;
+use App\Livewire\FluxAdmin\Pages\Rentals\EndedWithPendingsIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\InactiveBookingsIndex;
+use App\Livewire\FluxAdmin\Pages\Rentals\MotorbikePricingHub;
 use App\Livewire\FluxAdmin\Pages\Rentals\NewBookingWizard;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\DvlaAddVehicle;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyAnswerIndex;
+use App\Livewire\FluxAdmin\Pages\Surveys\SurveyCampaignIndex;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyIndex;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyOptionIndex;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyQuestionIndex;
@@ -210,6 +214,7 @@ use App\Livewire\FluxAdmin\Pages\Vehicles\VehicleNotificationForm;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', Dashboard::class)->name('flux-admin.dashboard');
+Route::get('/dashboard', Dashboard::class)->name('flux-admin.dashboard.path');
 Route::get('/search', GlobalSearchIndex::class)->name('flux-admin.search');
 
 Route::get('/modules/{module}', ModuleHub::class)->name('flux-admin.modules.show');
@@ -579,7 +584,27 @@ Route::get('/adjust-weekday', AdjustWeekdayIndex::class)->name('flux-admin.adjus
 Route::get('/mot-stats', MotStatsIndex::class)->name('flux-admin.mot-stats.index');
 Route::get('/mot-stats/create', MotStatsForm::class)->name('flux-admin.mot-stats.create');
 Route::get('/mot-stats/{notifier}/edit', MotStatsForm::class)->name('flux-admin.mot-stats.edit');
-Route::get('/judopay-recurring', JudopayRecurringIndex::class)->name('flux-admin.judopay-recurring.index');
+// Judopay ops — same RecurringController as Backpack (GET + POST under Flux)
+Route::prefix('judopay')->name('flux-admin.judopay.')->group(function () {
+    Route::get('/', [JudopayRecurringController::class, 'index'])->name('index');
+    Route::get('subscribe/{id}', [JudopayRecurringController::class, 'subscribe'])->name('subscribe');
+    Route::get('mit-dashboard', [JudopayRecurringController::class, 'mitDashboard'])->name('mit-dashboard');
+    Route::get('weekly-mit-queue', [JudopayRecurringController::class, 'weeklyMitQueue'])->name('weekly-mit-queue');
+
+    Route::post('create-cit-session', [JudopayRecurringController::class, 'createCitSession'])->name('create-cit-session');
+    Route::post('generate-authorization-access', [JudopayRecurringController::class, 'generateAuthorizationAccess'])->name('generate-authorization-access');
+    Route::post('kill-previous-links', [JudopayRecurringController::class, 'killPreviousLinks'])->name('kill-previous-links');
+    Route::post('send-authorization-email', [JudopayRecurringController::class, 'sendAuthorizationEmail'])->name('send-authorization-email');
+    Route::post('fire-direct-mit', [JudopayRecurringController::class, 'fireDirectMit'])->name('fire-direct-mit');
+    Route::post('add-to-queue', [JudopayRecurringController::class, 'addToQueue'])->name('add-to-queue');
+    Route::delete('stop-live-queue/{id}', [JudopayRecurringController::class, 'stopLiveQueue'])->name('stop-live-queue');
+    Route::post('update-billing-day', [JudopayRecurringController::class, 'updateBillingDay'])->name('update-billing-day');
+    Route::post('update-amount', [JudopayRecurringController::class, 'updateAmount'])->name('update-amount');
+    Route::post('close-subscription', [JudopayRecurringController::class, 'closeSubscription'])->name('close-subscription');
+    Route::post('cit/{session}/refund', [\App\Http\Controllers\Judopay\JudopayController::class, 'manualRefund'])->name('cit-refund');
+});
+
+Route::redirect('/judopay-recurring', '/flux-admin/judopay')->name('flux-admin.judopay-recurring.index');
 Route::get('/calendar', CalendarIndex::class)->name('flux-admin.calendar.index');
 Route::get('/agent-settings', AgentSettingsForm::class)->name('flux-admin.agent-settings.index');
 Route::get('/support-inbox', SupportInbox::class)->name('flux-admin.support-inbox.index');
@@ -589,8 +614,8 @@ Route::get('/vehicle-history', MotorbikeRecordViewIndex::class)->name('flux-admi
 Route::get('/club-member-vehicles', ClubMemberVehicleIndex::class)->name('flux-admin.club-member-vehicles.index');
 Route::get('/club-member-vehicles/{clubMember}/edit', MemberVehicleForm::class)->name('flux-admin.club-member-vehicles.edit');
 Route::get('/active-bookings-summary', ActiveBookingsSummary::class)->name('flux-admin.active-bookings-summary.index');
-Route::get('/judopay-mit-dashboard', JudopayMitDashboard::class)->name('flux-admin.judopay-mit-dashboard.index');
-Route::get('/judopay-weekly-queue', JudopayWeeklyMitQueueIndex::class)->name('flux-admin.judopay-weekly-queue.index');
+Route::redirect('/judopay-mit-dashboard', '/flux-admin/judopay/mit-dashboard')->name('flux-admin.judopay-mit-dashboard.index');
+Route::redirect('/judopay-weekly-queue', '/flux-admin/judopay/weekly-mit-queue')->name('flux-admin.judopay-weekly-queue.index');
 Route::get('/store-front', EcommerceStoreIndex::class)->name('flux-admin.store-front.index');
 Route::get('/store-front/create', StoreProductForm::class)->name('flux-admin.store-front.create');
 Route::get('/store-front/{product}/edit', StoreProductForm::class)->name('flux-admin.store-front.edit');
@@ -599,6 +624,8 @@ Route::get('/store-front/{product}/edit', StoreProductForm::class)->name('flux-a
 Route::get('/new-booking', NewBookingWizard::class)->name('flux-admin.new-booking.index');
 Route::get('/bookings-management', BookingsManagementIndex::class)->name('flux-admin.bookings-management.index');
 Route::get('/inactive-bookings', InactiveBookingsIndex::class)->name('flux-admin.inactive-bookings.index');
+Route::get('/ended-with-pendings', EndedWithPendingsIndex::class)->name('flux-admin.ended-with-pendings.index');
+Route::get('/motorbike-pricing', MotorbikePricingHub::class)->name('flux-admin.motorbike-pricing.index');
 Route::get('/all-bookings', AllBookingsIndex::class)->name('flux-admin.all-bookings.index');
 Route::get('/booking-invoice-dates', BookingInvoiceDatesIndex::class)->name('flux-admin.booking-invoice-dates.index');
 Route::get('/change-start-date', ChangeStartDateIndex::class)->name('flux-admin.change-start-date.index');
@@ -606,6 +633,7 @@ Route::get('/motorbikes-dvla/create', DvlaAddVehicle::class)->name('flux-admin.m
 
 // Phase 3 — Surveys
 Route::get('/surveys', SurveyIndex::class)->name('flux-admin.surveys.index');
+Route::get('/surveys/{survey}/campaign', SurveyCampaignIndex::class)->name('flux-admin.surveys.campaign');
 Route::get('/survey-questions', SurveyQuestionIndex::class)->name('flux-admin.survey-questions.index');
 Route::get('/survey-options', SurveyOptionIndex::class)->name('flux-admin.survey-options.index');
 Route::get('/survey-responses', SurveyResponseIndex::class)->name('flux-admin.survey-responses.index');

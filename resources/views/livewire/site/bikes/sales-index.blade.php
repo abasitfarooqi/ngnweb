@@ -94,7 +94,7 @@
                                 </p>
                                 <p class="mt-3 text-2xl md:text-3xl font-bold text-brand-red tabular-nums tracking-tight">
                                     @if($motorcycle->sale_new_price)
-                                        £{{ number_format((float) $motorcycle->sale_new_price, 0) }}
+                                        £{{ number_format((float) $motorcycle->sale_new_price, 2) }}
                                     @else
                                         <span class="text-base text-gray-500 font-normal">Call for price</span>
                                     @endif

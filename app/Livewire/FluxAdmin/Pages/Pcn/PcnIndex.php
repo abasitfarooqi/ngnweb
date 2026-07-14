@@ -35,6 +35,8 @@ class PcnIndex extends Component
 
     public string $filterEverAppealed = '';
 
+    public string $filterUpdateStatus = '';
+
     /** @var array<int, array<string, mixed>> Inline repeatable case updates */
     public array $caseUpdates = [];
 
@@ -46,9 +48,17 @@ class PcnIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-pcn-portal');
+        $this->authorizeModule('see-menu-pcns');
         $this->sortField = 'date_of_contravention';
         $this->sortDirection = 'desc';
+
+        // Honour Backpack-style query links from the overview dashboard.
+        if (request()->filled('isClosed')) {
+            $this->status = request('isClosed') === '0' || request('isClosed') === 'false' ? 'open' : 'closed';
+        }
+        if (request()->filled('has_been_appealed')) {
+            $this->filterEverAppealed = request('has_been_appealed') ? '1' : '0';
+        }
     }
 
     protected function formModel(): string { return PcnCase::class; }
@@ -57,17 +67,17 @@ class PcnIndex extends Component
     {
         return [
             'formData.pcn_number'            => ['required', 'string', 'max:100'],
-            'formData.date_of_contravention' => ['nullable', 'date'],
-            'formData.time_of_contravention' => ['nullable', 'string', 'max:10'],
-            'formData.full_amount'           => ['nullable', 'numeric', 'min:0'],
+            'formData.date_of_contravention' => ['required', 'date'],
+            'formData.time_of_contravention' => ['required', 'string', 'max:10'],
+            'formData.full_amount'           => ['required', 'numeric', 'min:0'],
             'formData.reduced_amount'        => ['nullable', 'numeric', 'min:0'],
             'formData.is_police'             => ['boolean'],
             'formData.isClosed'              => ['boolean'],
-            'formData.council_link'          => ['nullable', 'url', 'max:500'],
+            'formData.council_link'          => ['nullable', 'string', 'max:500'],
             'formData.note'                  => ['nullable', 'string', 'max:2000'],
             'formData.date_of_letter_issued' => ['nullable', 'date'],
-            'formData.motorbike_id'          => ['nullable', 'integer'],
-            'formData.customer_id'           => ['nullable', 'integer'],
+            'formData.motorbike_id'          => ['required', 'integer', 'exists:motorbikes,id'],
+            'formData.customer_id'           => ['nullable', 'integer', 'exists:customers,id'],
         ];
     }
 
@@ -77,48 +87,65 @@ class PcnIndex extends Component
     /** @var array<int, array<string, mixed>> */
     public array $motorbikeSuggestions = [];
 
-    public function updatingMotorbikeSearch(): void
+    public function updatedMotorbikeSearch(string $value): void
     {
-        if (strlen($this->motorbikeSearch) < 2) {
+        if (strlen($value) < 2) {
             $this->motorbikeSuggestions = [];
+
             return;
         }
-        $this->motorbikeSuggestions = Motorbike::where('reg_no', 'like', "%{$this->motorbikeSearch}%")
-            ->limit(8)->get(['id', 'reg_no'])->map(fn ($m) => [
-                'id'  => $m->id,
-                'reg' => $m->reg_no,
-            ])->toArray();
-    }
 
-    public function selectPcnMotorbike(int $id, string $reg): void
-    {
-        $this->formData['motorbike_id'] = $id;
-        $this->motorbikeSearch          = $reg;
-        $this->motorbikeSuggestions     = [];
-    }
-
-    public function updatingCustomerSearch(): void
-    {
-        if (strlen($this->customerSearch) < 2) {
-            $this->customerSuggestions = [];
-            return;
-        }
-        $this->customerSuggestions = Customer::where(function ($q) {
-            $q->where('first_name', 'like', "%{$this->customerSearch}%")
-                ->orWhere('last_name', 'like', "%{$this->customerSearch}%")
-                ->orWhere('email', 'like', "%{$this->customerSearch}%")
-                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$this->customerSearch}%"]);
-        })->limit(8)->get(['id', 'first_name', 'last_name', 'email'])->map(fn ($c) => [
-            'id'   => $c->id,
-            'name' => $c->first_name . ' ' . $c->last_name . ' — ' . $c->email,
+        $needle = preg_replace('/\s+/', '', $value);
+        $this->motorbikeSuggestions = Motorbike::where(function ($q) use ($value, $needle) {
+            $q->where('reg_no', 'like', "%{$value}%")
+                ->orWhereRaw("REPLACE(reg_no, ' ', '') LIKE ?", ["%{$needle}%"]);
+        })->limit(8)->get(['id', 'reg_no'])->map(fn ($m) => [
+            'id' => $m->id,
+            'reg' => $m->reg_no,
         ])->toArray();
     }
 
-    public function selectPcnCustomer(int $id, string $name): void
+    public function selectPcnMotorbike(int $id): void
     {
-        $this->formData['customer_id'] = $id;
-        $this->customerSearch          = $name;
-        $this->customerSuggestions     = [];
+        $motorbike = Motorbike::find($id);
+        if (! $motorbike) {
+            return;
+        }
+
+        $this->formData['motorbike_id'] = $motorbike->id;
+        $this->motorbikeSearch = $motorbike->reg_no;
+        $this->motorbikeSuggestions = [];
+    }
+
+    public function updatedCustomerSearch(string $value): void
+    {
+        if (strlen($value) < 2) {
+            $this->customerSuggestions = [];
+
+            return;
+        }
+
+        $this->customerSuggestions = Customer::where(function ($q) use ($value) {
+            $q->where('first_name', 'like', "%{$value}%")
+                ->orWhere('last_name', 'like', "%{$value}%")
+                ->orWhere('email', 'like', "%{$value}%")
+                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$value}%"]);
+        })->limit(8)->get(['id', 'first_name', 'last_name', 'email'])->map(fn ($c) => [
+            'id' => $c->id,
+            'name' => $c->first_name.' '.$c->last_name.' — '.$c->email,
+        ])->toArray();
+    }
+
+    public function selectPcnCustomer(int $id): void
+    {
+        $customer = Customer::find($id);
+        if (! $customer) {
+            return;
+        }
+
+        $this->formData['customer_id'] = $customer->id;
+        $this->customerSearch = $customer->first_name.' '.$customer->last_name.' — '.$customer->email;
+        $this->customerSuggestions = [];
     }
 
     public function openCreate(): void
@@ -267,19 +294,27 @@ class PcnIndex extends Component
         $this->resetPage();
     }
 
+    public function updatingFilterUpdateStatus(): void
+    {
+        $this->resetPage();
+    }
+
     public function render()
     {
-        $query = PcnCase::with('customer', 'motorbike', 'user');
+        $query = PcnCase::with(['customer', 'motorbike', 'user', 'updates' => fn ($q) => $q->select('id', 'case_id', 'is_appealed')]);
 
         if ($this->search !== '') {
-            $query->where(function ($q) {
-                $q->where('pcn_number', 'like', "%{$this->search}%")
-                    ->orWhereHas('customer', function ($cq) {
-                        $cq->where('first_name', 'like', "%{$this->search}%")
-                            ->orWhere('last_name', 'like', "%{$this->search}%");
+            $term = $this->search;
+            $query->where(function ($q) use ($term) {
+                $q->where('pcn_number', 'like', "%{$term}%")
+                    ->orWhere('note', 'like', "%{$term}%")
+                    ->orWhereHas('customer', function ($cq) use ($term) {
+                        $cq->where('first_name', 'like', "%{$term}%")
+                            ->orWhere('last_name', 'like', "%{$term}%")
+                            ->orWhere('email', 'like', "%{$term}%");
                     })
-                    ->orWhereHas('motorbike', function ($mq) {
-                        $mq->where('reg_no', 'like', "%{$this->search}%");
+                    ->orWhereHas('motorbike', function ($mq) use ($term) {
+                        $mq->where('reg_no', 'like', "%{$term}%");
                     });
             });
         }
@@ -310,6 +345,12 @@ class PcnIndex extends Component
             $query->whereHas('updates', fn ($q) => $q->where('is_appealed', true));
         } elseif ($this->filterEverAppealed === '0') {
             $query->whereDoesntHave('updates', fn ($q) => $q->where('is_appealed', true));
+        }
+
+        if ($this->filterUpdateStatus === 'cancelled') {
+            $query->whereHas('updates', fn ($q) => $q->where('is_cancled', true));
+        } elseif ($this->filterUpdateStatus === 'transferred') {
+            $query->whereHas('updates', fn ($q) => $q->where('is_transferred', true));
         }
 
         $cases = $query

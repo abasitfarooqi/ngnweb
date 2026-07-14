@@ -26,6 +26,50 @@ use Illuminate\Support\Facades\Mail;
 
 class RecurringController extends Controller
 {
+    protected function markJudopayUiFromRequest(): void
+    {
+        if (request()->routeIs('flux-admin.judopay.*')) {
+            session(['judopay_ui' => 'flux']);
+        }
+    }
+
+    protected function judopayView(string $backpackView, string $fluxView, array $data = [], ?string $fluxTitle = null)
+    {
+        $this->markJudopayUiFromRequest();
+
+        if (! judopay_using_flux()) {
+            return view($backpackView, $data);
+        }
+
+        return view('flux-admin.layouts.app', [
+            'title' => $fluxTitle ?? 'Judopay',
+            'slot' => new \Illuminate\Support\HtmlString(view($fluxView, $data)->render()),
+        ]);
+    }
+
+    /**
+     * @param  mixed  $with  array flash data, or with($key, $value) style key
+     * @param  mixed  $value
+     */
+    protected function redirectToSubscribe($subscriptionId, $with = [], $value = null)
+    {
+        if (judopay_using_flux() || str_contains((string) url()->previous(), '/flux-admin/judopay')) {
+            session(['judopay_ui' => 'flux']);
+        }
+
+        $redirect = redirect()->to(judopay_route('subscribe', $subscriptionId));
+
+        if ($with === [] || $with === null) {
+            return $redirect;
+        }
+
+        if (is_string($with)) {
+            return $redirect->with($with, $value);
+        }
+
+        return $redirect->with($with);
+    }
+
     // /judopay
     public function index()
     {
@@ -67,9 +111,12 @@ class RecurringController extends Controller
             ])
             ->get();
 
-        return view('livewire.agreements.migrated.admin.judopay', [
-            'customers' => $customers,
-        ]);
+        return $this->judopayView(
+            'livewire.agreements.migrated.admin.judopay',
+            'flux-admin.pages.judopay.ops-index',
+            ['customers' => $customers],
+            'Recurring payments'
+        );
     }
 
     // /judopay/subscribe/{id}
@@ -119,24 +166,28 @@ class RecurringController extends Controller
         }
 
         // Prepare MIT payment data (avoid inline PHP in Blade)
-        $hasCardToken = !empty($subscription->card_token);
+        $hasCardToken = ! empty($subscription->card_token);
         $isActive = $subscription->status === 'active';
         $mitPaymentsToday = $subscription->mitPaymentSessions()
             ->whereDate('created_at', today())
             ->orderBy('created_at', 'desc')
             ->get(); // Show all payments today
 
-        return view('livewire.agreements.migrated.admin.judopay-subscribe', [
-            'subscription' => $subscription,
-            'customer' => $customer,
-            'serviceData' => $serviceData,
-            'latestPaymentOutcome' => $latestPaymentOutcome,
-            'citAccesses' => $subscription->citAccesses()->orderBy('created_at', 'desc')->get(),
-            // MIT data
-            'hasCardToken' => $hasCardToken,
-            'isActive' => $isActive,
-            'mitPaymentsToday' => $mitPaymentsToday,
-        ]);
+        return $this->judopayView(
+            'livewire.agreements.migrated.admin.judopay-subscribe',
+            'flux-admin.pages.judopay.ops-subscribe',
+            [
+                'subscription' => $subscription,
+                'customer' => $customer,
+                'serviceData' => $serviceData,
+                'latestPaymentOutcome' => $latestPaymentOutcome,
+                'citAccesses' => $subscription->citAccesses()->orderBy('created_at', 'desc')->get(),
+                'hasCardToken' => $hasCardToken,
+                'isActive' => $isActive,
+                'mitPaymentsToday' => $mitPaymentsToday,
+            ],
+            'Payment setup'
+        );
     }
 
     /**
@@ -167,7 +218,7 @@ class RecurringController extends Controller
         session(['cit_consent_data' => $consentData]);
 
         // Redirect to subscription page
-        return redirect()->route('page.judopay.subscribe', $request->input('subscription_id'));
+        return $this->redirectToSubscribe($request->input('subscription_id'));
     }
 
     /**
@@ -487,8 +538,7 @@ class RecurringController extends Controller
                 'created_at' => $activeSession->created_at,
             ]);
 
-            return redirect()->route('page.judopay.subscribe', $subscriptionId)
-                ->with('active_session_warning', [
+            return $this->redirectToSubscribe($subscriptionId, 'active_session_warning', [
                     'session_id' => $activeSession->id,
                     'status' => $activeSession->status,
                     'created_at' => $activeSession->created_at->format('d/m/Y H:i:s'),
@@ -517,8 +567,7 @@ class RecurringController extends Controller
         );
 
         if ($result['success']) {
-            return redirect()->route('page.judopay.subscribe', $request->input('subscription_id'))
-                ->with([
+            return $this->redirectToSubscribe($request->input('subscription_id'), [
                     'link_generated' => true,
                     'generated_link' => $result['url'],
                     'expires_at' => $result['access']->expires_at->format('d/m/Y, H:i:s'),
@@ -526,8 +575,7 @@ class RecurringController extends Controller
                     'customer_phone' => $adminFormData['customer_mobile'],
                 ]);
         } else {
-            return redirect()->route('page.judopay.subscribe', $request->input('subscription_id'))
-                ->with('error', $result['message']);
+            return $this->redirectToSubscribe($request->input('subscription_id'), 'error', $result['message']);
         }
     }
 
@@ -729,8 +777,7 @@ class RecurringController extends Controller
                 'total_cancelled' => $totalCancelled,
             ]);
 
-            return redirect()->route('page.judopay.subscribe', $subscriptionId)
-                ->with([
+            return $this->redirectToSubscribe($subscriptionId, [
                     'links_killed' => true,
                     'killed_count' => $totalCancelled,
                 ]);
@@ -742,8 +789,7 @@ class RecurringController extends Controller
                 'trace' => $e->getTraceAsString(),
             ]);
 
-            return redirect()->route('page.judopay.subscribe', $subscriptionId)
-                ->with('error', 'Failed to kill previous links: '.$e->getMessage());
+            return $this->redirectToSubscribe($subscriptionId, 'error', 'Failed to kill previous links: '.$e->getMessage());
         }
     }
 
@@ -853,8 +899,7 @@ class RecurringController extends Controller
 
             // Validate that subscription is finance type only
             if ($subscription->subscribable_type !== FinanceApplication::class) {
-                return redirect()->route('page.judopay.subscribe', $subscription->id)
-                    ->with('error', 'Billing settings can only be modified for finance subscriptions.');
+                return $this->redirectToSubscribe($subscription->id, 'error', 'Billing settings can only be modified for finance subscriptions.');
             }
 
             // Store old values for logging
@@ -964,8 +1009,7 @@ class RecurringController extends Controller
                 $successMessage = 'Billing frequency updated successfully to Monthly on the '.$subscription->billing_day.$ordinal.'.';
             }
 
-            return redirect()->route('page.judopay.subscribe', $subscription->id)
-                ->with('success', $successMessage);
+            return $this->redirectToSubscribe($subscription->id, 'success', $successMessage);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -994,8 +1038,7 @@ class RecurringController extends Controller
 
             // Validate that subscription is finance type only
             if ($subscription->subscribable_type !== FinanceApplication::class) {
-                return redirect()->route('page.judopay.subscribe', $subscription->id)
-                    ->with('error', 'Amount can only be modified for finance subscriptions.');
+                return $this->redirectToSubscribe($subscription->id, 'error', 'Amount can only be modified for finance subscriptions.');
             }
 
             // Store old value for logging
@@ -1075,8 +1118,7 @@ class RecurringController extends Controller
 
             $successMessage = 'Amount updated successfully from £'.number_format($oldAmount, 2).' to £'.number_format($subscription->amount, 2).'.';
 
-            return redirect()->route('page.judopay.subscribe', $subscription->id)
-                ->with('success', $successMessage);
+            return $this->redirectToSubscribe($subscription->id, 'success', $successMessage);
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -1104,8 +1146,7 @@ class RecurringController extends Controller
 
             // Check if subscription is already closed/cancelled
             if (in_array($subscription->status, ['completed', 'cancelled', 'inactive'])) {
-                return redirect()->route('page.judopay.subscribe', $subscription->id)
-                    ->with('error', 'Subscription is already closed or cancelled.');
+                return $this->redirectToSubscribe($subscription->id, 'error', 'Subscription is already closed or cancelled.');
             }
 
             // Store old status for logging
@@ -1125,8 +1166,7 @@ class RecurringController extends Controller
                 'closed_at' => now(),
             ]);
 
-            return redirect()->route('page.judopay.subscribe', $subscription->id)
-                ->with('success', 'Subscription has been closed successfully.');
+            return $this->redirectToSubscribe($subscription->id, 'success', 'Subscription has been closed successfully.');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return redirect()->back()
@@ -1209,10 +1249,15 @@ class RecurringController extends Controller
             });
         }
 
-        return view('livewire.agreements.migrated.admin.judopay-mit-dashboard', [
-            'subscriptions' => $subscriptions,
-            'recentMitPayments' => $recentMitPayments,
-        ]);
+        return $this->judopayView(
+            'livewire.agreements.migrated.admin.judopay-mit-dashboard',
+            'flux-admin.pages.judopay.ops-mit-dashboard',
+            [
+                'subscriptions' => $subscriptions,
+                'recentMitPayments' => $recentMitPayments,
+            ],
+            'MIT dashboard'
+        );
     }
 
     /**
@@ -1452,7 +1497,7 @@ class RecurringController extends Controller
                 $currentWeekStart = Carbon::parse($weekParam)->startOfWeek();
             } catch (\Exception $e) {
                 // Invalid date, redirect to current week
-                return redirect()->route('page.judopay.weekly-mit-queue');
+                return redirect()->to(judopay_route('weekly-mit-queue'));
             }
         } else {
             $currentWeekStart = Carbon::now()->startOfWeek();
@@ -1521,16 +1566,21 @@ class RecurringController extends Controller
         // Get weekly summary using helper function
         $summary = JudopayWeeklyMitSummary::getWeeklySummary($weekParam);
 
-        return view('livewire.agreements.migrated.admin.judopay-weekly-mit-queue', [
-            'queueItems' => $queueItems,
-            'liveQueueItems' => $liveQueueItems,
-            'currentWeekStart' => $currentWeekStart,
-            'currentWeekEnd' => $currentWeekEnd,
-            'previousWeek' => $previousWeek,
-            'nextWeek' => $nextWeek,
-            'summary' => $summary,
-            'sortParam' => $sortParam,
-        ]);
+        return $this->judopayView(
+            'livewire.agreements.migrated.admin.judopay-weekly-mit-queue',
+            'flux-admin.pages.judopay.ops-weekly-mit-queue',
+            [
+                'queueItems' => $queueItems,
+                'liveQueueItems' => $liveQueueItems,
+                'currentWeekStart' => $currentWeekStart,
+                'currentWeekEnd' => $currentWeekEnd,
+                'previousWeek' => $previousWeek,
+                'nextWeek' => $nextWeek,
+                'summary' => $summary,
+                'sortParam' => $sortParam,
+            ],
+            'Weekly MIT schedule'
+        );
     }
 
 }

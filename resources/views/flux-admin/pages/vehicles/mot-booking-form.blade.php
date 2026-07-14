@@ -31,15 +31,15 @@
                     <flux:input wire:model="form.vehicle_registration" placeholder="VRM" class="uppercase" />
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Contact number" :error="$errors->first('form.customer_contact')">
+                <x-flux-admin::field-group label="Contact number" required :error="$errors->first('form.customer_contact')">
                     <flux:input wire:model="form.customer_contact" placeholder="Phone number" />
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Email" :error="$errors->first('form.customer_email')">
+                <x-flux-admin::field-group label="Email" required :error="$errors->first('form.customer_email')">
                     <flux:input type="email" wire:model="form.customer_email" placeholder="Email address" />
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Branch" :error="$errors->first('form.branch_id')">
+                <x-flux-admin::field-group label="Branch" required :error="$errors->first('form.branch_id')">
                     <flux:select wire:model="form.branch_id">
                         <flux:select.option value="">— Select branch —</flux:select.option>
                         @foreach($branches as $branch)
@@ -48,27 +48,41 @@
                     </flux:select>
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Title / reference" :error="$errors->first('form.title')">
-                    <flux:input wire:model="form.title" placeholder="Optional title" />
-                </x-flux-admin::field-group>
-
-                <x-flux-admin::field-group label="Date of appointment" :error="$errors->first('form.date_of_appointment')">
-                    <flux:input type="date" wire:model="form.date_of_appointment" />
-                </x-flux-admin::field-group>
-
-                <x-flux-admin::field-group label="Status" :error="$errors->first('form.status')">
+                <x-flux-admin::field-group label="Status" required :error="$errors->first('form.status')">
                     <flux:select wire:model="form.status">
-                        <flux:select.option value="">— Select —</flux:select.option>
-                        <flux:select.option value="pending">Pending</flux:select.option>
-                        <flux:select.option value="confirmed">Confirmed</flux:select.option>
+                        <flux:select.option value="booked">Booked</flux:select.option>
+                        <flux:select.option value="available">Available</flux:select.option>
                         <flux:select.option value="completed">Completed</flux:select.option>
                         <flux:select.option value="cancelled">Cancelled</flux:select.option>
+                        <flux:select.option value="pending">Pending</flux:select.option>
                     </flux:select>
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Slot start" required :error="$errors->first('form.start')">
+                    <flux:input type="datetime-local" wire:model="form.start" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Slot end" required :error="$errors->first('form.end')">
+                    <flux:input type="datetime-local" wire:model="form.end" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Payment method" required :error="$errors->first('form.payment_method')">
+                    <flux:input wire:model="form.payment_method" placeholder="e.g. Card, Cash" />
+                </x-flux-admin::field-group>
+
+                <x-flux-admin::field-group label="Payment link" span="2" :error="$errors->first('form.payment_link')">
+                    <flux:input wire:model="form.payment_link" placeholder="https://…" />
                 </x-flux-admin::field-group>
             </div>
 
             <div class="mt-4">
-                <x-flux-admin::field-group label="Notes" :error="$errors->first('form.notes')">
+                <x-flux-admin::field-group label="Payment notes" required :error="$errors->first('form.payment_notes')">
+                    <flux:textarea wire:model="form.payment_notes" rows="2" />
+                </x-flux-admin::field-group>
+            </div>
+
+            <div class="mt-4">
+                <x-flux-admin::field-group label="Notes" required :error="$errors->first('form.notes')">
                     <flux:textarea wire:model="form.notes" placeholder="Internal notes…" rows="3" />
                 </x-flux-admin::field-group>
             </div>

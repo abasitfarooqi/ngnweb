@@ -22,13 +22,12 @@
 
             <div class="mb-4">
                 <x-flux-admin::field-group label="PCN case" required :error="$errors->first('form.case_id')">
-                    <div class="relative">
+                    <div class="{{ count($caseSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
                         <flux:input wire:model.live.debounce.300ms="caseSearch" placeholder="Search by PCN number…" autocomplete="off" />
                         @if(count($caseSuggestions))
-                            <ul class="absolute z-50 mt-0.5 w-full border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 shadow-lg max-h-44 overflow-y-auto">
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
                                 @foreach($caseSuggestions as $s)
-                                    <li wire:click="selectCase({{ $s['id'] }}, '{{ addslashes($s['label']) }}')"
-                                        class="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">{{ $s['label'] }}</li>
+                                    <li role="option" wire:mousedown.prevent="selectCase({{ $s['id'] }})">{{ $s['label'] }}</li>
                                 @endforeach
                             </ul>
                         @endif
@@ -38,18 +37,22 @@
 
             <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Update date" required :error="$errors->first('form.update_date')">
-                    <flux:input type="date" wire:model="form.update_date" />
+                    <flux:input type="datetime-local" wire:model="form.update_date" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Additional fee (£)" :error="$errors->first('form.additional_fee')">
+                <x-flux-admin::field-group label="Additional fee (£)" required :error="$errors->first('form.additional_fee')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.additional_fee" />
                 </x-flux-admin::field-group>
             </div>
 
             <div class="mt-4">
-                <x-flux-admin::field-group label="Note" :error="$errors->first('form.note')">
-                    <flux:textarea wire:model="form.note" rows="3" />
+                <x-flux-admin::field-group label="Note" required :error="$errors->first('form.note')">
+                    <flux:textarea wire:model="form.note" rows="3" placeholder="Include Office365 document link if available" />
                 </x-flux-admin::field-group>
             </div>
+
+            <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+                Cancelled and paid-by-keeper flags reverse PCN dues across the system, as in Backpack.
+            </p>
 
             <div class="mt-4 flex flex-wrap gap-5">
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">

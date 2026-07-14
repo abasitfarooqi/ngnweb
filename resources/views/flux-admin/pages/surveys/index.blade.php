@@ -35,6 +35,9 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.surveys.campaign', $r) }}">
+                                    <flux:button size="xs" variant="ghost" class="!rounded-none">Campaign</flux:button>
+                                </a>
                                 <a href="{{ route('flux-admin.surveys.edit', $r->id) }}">
                                     <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                                 </a>

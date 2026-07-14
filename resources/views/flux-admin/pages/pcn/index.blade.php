@@ -13,25 +13,24 @@
         </div>
     </div>
 
-    {{-- Toolbar: no leading icon (avoids mis-sized icon rail); one row on lg, stacked on small screens. --}}
     <div class="flux-admin-toolbar mb-4 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
         <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
             <div class="min-w-0 w-full lg:flex-1 lg:min-w-[14rem]">
                 <flux:input
                     wire:model.live.debounce.300ms="search"
-                    placeholder="Search PCN number, customer, registration…"
+                    placeholder="Search PCN number, customer, email, registration…"
                     variant="filled"
                 />
             </div>
             <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-44 lg:flex-none">
+                <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-36 lg:flex-none">
                     <flux:select wire:model.live="status" placeholder="All statuses">
                         <flux:select.option value="">All statuses</flux:select.option>
                         <flux:select.option value="open">Open</flux:select.option>
                         <flux:select.option value="closed">Closed</flux:select.option>
                     </flux:select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
+                <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
                     <flux:select wire:model.live="isPolice" placeholder="Police filter">
                         <flux:select.option value="">All</flux:select.option>
                         <flux:select.option value="yes">Police only</flux:select.option>
@@ -43,6 +42,13 @@
                         <flux:select.option value="">Ever appealed</flux:select.option>
                         <flux:select.option value="1">Appealed</flux:select.option>
                         <flux:select.option value="0">Not appealed</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
+                    <flux:select wire:model.live="filterUpdateStatus" placeholder="Update status">
+                        <flux:select.option value="">Update status</flux:select.option>
+                        <flux:select.option value="cancelled">Cancelled</flux:select.option>
+                        <flux:select.option value="transferred">Transferred</flux:select.option>
                     </flux:select>
                 </div>
                 <div class="min-w-0 w-full sm:min-w-[8rem] sm:flex-1 lg:w-32 lg:flex-none">
@@ -62,21 +68,24 @@
         </div>
     </div>
 
-    {{-- Table: horizontal pan on small viewports; min width keeps columns readable. --}}
     <div class="flux-admin-table-panel border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div class="touch-pan-x overflow-x-auto">
-            <div class="min-w-[72rem] md:min-w-0">
+            <div class="min-w-[88rem]">
                 <flux:table>
                     <flux:table.columns>
-                        <flux:table.column sortable :sorted="$sortField === 'pcn_number'" :direction="$sortField === 'pcn_number' ? $sortDirection : null" wire:click="sortBy('pcn_number')">PCN number</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'pcn_number'" :direction="$sortField === 'pcn_number' ? $sortDirection : null" wire:click="sortBy('pcn_number')">PCN no.</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'date_of_contravention'" :direction="$sortField === 'date_of_contravention' ? $sortDirection : null" wire:click="sortBy('date_of_contravention')">Date of contr.</flux:table.column>
+                        <flux:table.column>Time</flux:table.column>
+                        <flux:table.column>Elapsed</flux:table.column>
+                        <flux:table.column>VRN</flux:table.column>
                         <flux:table.column>Customer</flux:table.column>
-                        <flux:table.column>Motorbike</flux:table.column>
-                        <flux:table.column sortable :sorted="$sortField === 'date_of_contravention'" :direction="$sortField === 'date_of_contravention' ? $sortDirection : null" wire:click="sortBy('date_of_contravention')">Contravention date</flux:table.column>
-                        <flux:table.column>Contravention time</flux:table.column>
-                        <flux:table.column sortable :sorted="$sortField === 'full_amount'" :direction="$sortField === 'full_amount' ? $sortDirection : null" wire:click="sortBy('full_amount')">Full amount</flux:table.column>
+                        <flux:table.column>Email</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'isClosed'" :direction="$sortField === 'isClosed' ? $sortDirection : null" wire:click="sortBy('isClosed')">Closed</flux:table.column>
+                        <flux:table.column>Appealed</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'full_amount'" :direction="$sortField === 'full_amount' ? $sortDirection : null" wire:click="sortBy('full_amount')">Full</flux:table.column>
                         <flux:table.column sortable :sorted="$sortField === 'reduced_amount'" :direction="$sortField === 'reduced_amount' ? $sortDirection : null" wire:click="sortBy('reduced_amount')">Reduced</flux:table.column>
-                        <flux:table.column>Police?</flux:table.column>
-                        <flux:table.column sortable :sorted="$sortField === 'isClosed'" :direction="$sortField === 'isClosed' ? $sortDirection : null" wire:click="sortBy('isClosed')">Status</flux:table.column>
+                        <flux:table.column>Updated by</flux:table.column>
+                        <flux:table.column>Note</flux:table.column>
                         <flux:table.column sortable :sorted="$sortField === 'created_at'" :direction="$sortField === 'created_at' ? $sortDirection : null" wire:click="sortBy('created_at')">Created</flux:table.column>
                         <flux:table.column>Actions</flux:table.column>
                     </flux:table.columns>
@@ -85,29 +94,33 @@
                         @forelse($cases as $row)
                             <flux:table.row wire:key="pcn-{{ $row->id }}">
                                 <flux:table.cell>
-                                    <a href="{{ route('flux-admin.pcn.show', $row->id) }}" class="font-medium text-zinc-900 hover:underline dark:text-white">
+                                    <a href="{{ route('flux-admin.pcn.show', $row->id) }}" class="font-medium text-zinc-900 hover:underline dark:text-white" wire:navigate>
                                         {{ $row->pcn_number }}
                                     </a>
                                 </flux:table.cell>
-                                <flux:table.cell>{{ $row->customer?->first_name }} {{ $row->customer?->last_name }}</flux:table.cell>
-                                <flux:table.cell>{{ $row->motorbike?->reg_no ?? '—' }}</flux:table.cell>
-                                <flux:table.cell>{{ $row->date_of_contravention?->format('d M Y') ?? '—' }}</flux:table.cell>
+                                <flux:table.cell class="whitespace-nowrap">{{ $row->date_of_contravention?->format('d M Y') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $row->time_of_contravention ?? '—' }}</flux:table.cell>
-                                <flux:table.cell>£{{ number_format($row->full_amount ?? 0, 2) }}</flux:table.cell>
-                                <flux:table.cell>£{{ number_format($row->reduced_amount ?? 0, 2) }}</flux:table.cell>
-                                <flux:table.cell>
-                                    @if($row->is_police)
-                                        <flux:badge color="red" size="sm">Police</flux:badge>
-                                    @else
-                                        <span class="text-zinc-400 dark:text-zinc-500">—</span>
-                                    @endif
-                                </flux:table.cell>
+                                <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $row->getDaysSinceContravention() ?? '—' }}</flux:table.cell>
+                                <flux:table.cell class="font-mono text-xs">{{ $row->motorbike?->reg_no ?? '—' }}</flux:table.cell>
+                                <flux:table.cell>{{ $row->customer?->first_name }} {{ $row->customer?->last_name }}</flux:table.cell>
+                                <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">{{ $row->customer?->email ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>
                                     <flux:badge :color="$row->isClosed ? 'zinc' : 'green'" size="sm">
                                         {{ $row->isClosed ? 'Closed' : 'Open' }}
                                     </flux:badge>
                                 </flux:table.cell>
-                                <flux:table.cell class="text-zinc-500 dark:text-zinc-400 text-xs">{{ $row->created_at?->format('d M Y') ?? '—' }}</flux:table.cell>
+                                <flux:table.cell>
+                                    @if($row->has_been_appealed)
+                                        <flux:badge color="purple" size="sm">Yes</flux:badge>
+                                    @else
+                                        <span class="text-zinc-400 dark:text-zinc-500">No</span>
+                                    @endif
+                                </flux:table.cell>
+                                <flux:table.cell>£{{ number_format($row->full_amount ?? 0, 2) }}</flux:table.cell>
+                                <flux:table.cell>£{{ number_format($row->reduced_amount ?? 0, 2) }}</flux:table.cell>
+                                <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">{{ $row->user?->first_name ?? '—' }}</flux:table.cell>
+                                <flux:table.cell class="max-w-[10rem] truncate text-xs text-zinc-500 dark:text-zinc-400" title="{{ $row->note }}">{{ $row->note ?: '—' }}</flux:table.cell>
+                                <flux:table.cell class="text-zinc-500 dark:text-zinc-400 text-xs whitespace-nowrap">{{ $row->created_at?->format('d M Y') ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>
                                     <div class="flex gap-1">
                                         <a href="{{ route('flux-admin.pcn.edit', $row->id) }}" wire:navigate>
@@ -119,7 +132,7 @@
                             </flux:table.row>
                         @empty
                             <flux:table.row>
-                                <flux:table.cell class="py-8 text-center text-zinc-500 dark:text-zinc-400" colspan="11">
+                                <flux:table.cell class="py-8 text-center text-zinc-500 dark:text-zinc-400" colspan="15">
                                     No PCN cases found.
                                 </flux:table.cell>
                             </flux:table.row>
@@ -133,5 +146,4 @@
     <div class="mt-4">
         {{ $cases->links() }}
     </div>
-
 </div>

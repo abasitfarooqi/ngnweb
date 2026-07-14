@@ -1,8 +1,9 @@
 <div>
-    <x-flux-admin::data-table title="Judopay MIT queue" description="Scheduled merchant-initiated transactions via Judopay.">
+    @include('flux-admin.partials.judopay-ops-hub')
+    <x-flux-admin::data-table title="Judopay MIT queue" description="Live chamber entries — edit fire date here; run weekly schedule / fire actions in Judopay ops (same power as Backpack).">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <a href="{{ route('flux-admin.judopay-mit-queue.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New entry</flux:button></a>
+            <a href="{{ route('flux-admin.judopay.weekly-mit-queue') }}"><flux:button size="sm" variant="primary" icon="calendar-days" class="!rounded-none">Weekly schedule</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search Judo payment reference…">
@@ -45,8 +46,8 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->cleared_at?->format('d M H:i') ?? '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex gap-1">
+                                <a href="{{ route('flux-admin.judopay.weekly-mit-queue') }}"><flux:button size="xs" variant="ghost" icon="calendar-days" class="!rounded-none">Schedule</flux:button></a>
                                 <a href="{{ route('flux-admin.judopay-mit-queue.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
-                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this MIT queue entry?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>
                     </flux:table.row>

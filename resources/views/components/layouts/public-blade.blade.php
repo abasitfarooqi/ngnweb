@@ -16,7 +16,7 @@
 <body class="font-sans antialiased bg-white dark:bg-gray-900">
     @livewire('site.header')
 
-    <main>
+    <main class="pb-14 lg:pb-0">
         @yield('content')
     </main>
 

@@ -1,4 +1,5 @@
 <div>
+    @include('flux-admin.partials.judopay-ops-hub')
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-1">
@@ -7,6 +8,7 @@
                 <span>{{ $recordId ? 'Edit' : 'New' }}</span>
             </div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $recordId ? 'Edit MIT queue entry' : 'New MIT queue entry' }}</h1>
+            <a href="{{ route('flux-admin.judopay.weekly-mit-queue') }}" class="mt-2 inline-block text-sm font-medium text-brand-red hover:underline">Open weekly schedule / live chamber →</a>
         </div>
         <div class="flex items-center gap-2">
             <a href="{{ route('flux-admin.judopay-mit-queue.index') }}">

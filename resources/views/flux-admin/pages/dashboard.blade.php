@@ -16,36 +16,42 @@
             :value="number_format($stats['total_motorbikes'])"
             icon="truck"
             colour="blue"
+            :href="route('flux-admin.motorbikes.index')"
         />
         <x-flux-admin::stat-card
             label="Active Rentals"
             :value="number_format($stats['active_rentals'])"
             icon="key"
             colour="green"
+            :href="route('flux-admin.rentals.index')"
         />
         <x-flux-admin::stat-card
-            label="Finance Applications"
+            label="Payment Plan Applications"
             :value="number_format($stats['finance_applications'])"
             icon="banknotes"
             colour="purple"
+            :href="route('flux-admin.finance.index')"
         />
         <x-flux-admin::stat-card
             label="Open PCN Cases"
             :value="number_format($stats['open_pcn_cases'])"
             icon="exclamation-triangle"
             colour="amber"
+            :href="route('flux-admin.pcn.index')"
         />
         <x-flux-admin::stat-card
             label="Active Club Members"
             :value="number_format($stats['club_members'])"
             icon="star"
             colour="pink"
+            :href="route('flux-admin.club.index')"
         />
         <x-flux-admin::stat-card
             label="Total Bookings"
             :value="number_format($stats['total_bookings'])"
             icon="calendar-days"
             colour="indigo"
+            :href="route('flux-admin.all-bookings.index')"
         />
     </div>
 
@@ -69,7 +75,7 @@
             </a>
             <a href="{{ route('flux-admin.finance.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
                 <flux:icon name="banknotes" variant="outline" class="w-5 h-5 text-zinc-400" />
-                Finance
+                Payment Plan
             </a>
             <a href="{{ route('flux-admin.pcn.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
                 <flux:icon name="exclamation-triangle" variant="outline" class="w-5 h-5 text-zinc-400" />

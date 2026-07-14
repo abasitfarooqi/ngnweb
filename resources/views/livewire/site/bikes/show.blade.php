@@ -9,20 +9,9 @@
     </div>
 </div>
 
-@if($layoutMode === 'premium' && ! $isNew)
+@if(! $isNew)
     @include('livewire.site.bikes.partials.show-premium')
 @else
-    @if(! $isNew)
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
-            <div class="flex justify-end gap-2 text-xs">
-                <span class="px-3 py-1 bg-brand-red text-white">Classic view</span>
-                <a href="{{ request()->fullUrlWithQuery(['layout' => 'premium']) }}"
-                   class="px-3 py-1 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:border-brand-red hover:text-brand-red">
-                    Premium view
-                </a>
-            </div>
-        </div>
-    @endif
     @include('livewire.site.bikes.partials.show-classic')
 @endif
 

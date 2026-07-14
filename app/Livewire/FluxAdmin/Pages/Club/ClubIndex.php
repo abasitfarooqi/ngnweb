@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Club;
 
+use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
@@ -16,7 +17,7 @@ use Livewire\WithPagination;
 #[Title('Club Members — Flux Admin')]
 class ClubIndex extends Component
 {
-    use WithCrudForm, WithDataTable, WithExport, WithPagination;
+    use WithAuthorization, WithCrudForm, WithDataTable, WithExport, WithPagination;
 
     public bool $showForm = false;
 
@@ -28,6 +29,7 @@ class ClubIndex extends Component
 
     public function mount(): void
     {
+        $this->authorizeModule('see-menu-club');
         $this->sortField = 'full_name';
         $this->sortDirection = 'asc';
         $this->exportFilename = 'club-members';

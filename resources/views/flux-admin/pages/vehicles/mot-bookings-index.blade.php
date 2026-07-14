@@ -1,5 +1,5 @@
 <div>
-    <x-flux-admin::data-table title="MOT bookings" description="Appointments scheduled for MOT Booking.">
+    <x-flux-admin::data-table title="MOT bookings" description="MOT appointment slots — booked, available, completed or cancelled.">
         <x-slot:actions>
             <x-flux-admin::export-button />
             <a href="{{ route('flux-admin.mot-bookings.create') }}" wire:navigate>
@@ -7,13 +7,15 @@
             </a>
         </x-slot:actions>
         <x-slot:toolbar>
-            <x-flux-admin::filter-bar search-placeholder="Search VRM, customer name, phone or email…">
+            <x-flux-admin::filter-bar search-placeholder="Search VRM, customer, title or payment link…">
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:select wire:model.live="filters.status" placeholder="Status">
                         <flux:select.option value="">Any</flux:select.option>
-                        <flux:select.option value="scheduled">Scheduled</flux:select.option>
+                        <flux:select.option value="booked">Booked</flux:select.option>
+                        <flux:select.option value="available">Available</flux:select.option>
                         <flux:select.option value="completed">Completed</flux:select.option>
                         <flux:select.option value="cancelled">Cancelled</flux:select.option>
+                        <flux:select.option value="pending">Pending</flux:select.option>
                     </flux:select>
                 </div>
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
@@ -35,25 +37,39 @@
         </x-slot:toolbar>
         <flux:table>
             <flux:table.columns>
-                <flux:table.column sortable :sorted="$sortField === 'date_of_appointment'" :direction="$sortField === 'date_of_appointment' ? $sortDirection : null" wire:click="sortBy('date_of_appointment')">Date</flux:table.column>
+                <flux:table.column>ID</flux:table.column>
+                <flux:table.column sortable :sorted="$sortField === 'start'" :direction="$sortField === 'start' ? $sortDirection : null" wire:click="sortBy('start')">Start</flux:table.column>
+                <flux:table.column>End</flux:table.column>
+                <flux:table.column>Title</flux:table.column>
                 <flux:table.column>VRM</flux:table.column>
                 <flux:table.column>Customer</flux:table.column>
-                <flux:table.column>Contact</flux:table.column>
-                <flux:table.column>Branch</flux:table.column>
                 <flux:table.column>Status</flux:table.column>
                 <flux:table.column>Paid</flux:table.column>
+                <flux:table.column>Payment link</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
             <flux:table.rows>
                 @forelse($bookings as $b)
                     <flux:table.row wire:key="mot-{{ $b->id }}">
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->date_of_appointment ? \Carbon\Carbon::parse($b->date_of_appointment)->format('d M Y') : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->id }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->start ? \Carbon\Carbon::parse($b->start)->format('d M Y H:i') : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->end ? \Carbon\Carbon::parse($b->end)->format('d M Y H:i') : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-xs text-zinc-700 dark:text-zinc-300 max-w-[14rem] truncate" title="{{ $b->title }}">{{ $b->title ?: '—' }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $b->vehicle_registration }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-900 dark:text-white">{{ $b->customer_name }}</flux:table.cell>
-                        <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">{{ $b->customer_contact }}<br>{{ $b->customer_email }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->branch?->name ?? '—' }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->status }}</flux:table.cell>
+                        <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">
+                            <div class="text-zinc-900 dark:text-white">{{ $b->customer_name }}</div>
+                            <div>{{ $b->customer_contact }}</div>
+                            <div>{{ $b->customer_email }}</div>
+                        </flux:table.cell>
+                        <flux:table.cell><x-flux-admin::status-badge :status="$b->status" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $b->is_paid" /></flux:table.cell>
+                        <flux:table.cell class="text-xs max-w-[10rem] truncate">
+                            @if($b->payment_link)
+                                <a href="{{ $b->payment_link }}" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 underline">Link</a>
+                            @else
+                                —
+                            @endif
+                        </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
                                 <a href="{{ route('flux-admin.mot-bookings.edit', $b) }}" wire:navigate>
@@ -64,11 +80,10 @@
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
-                    <flux:table.row><flux:table.cell colspan="8" class="text-center py-8 text-zinc-500 dark:text-zinc-400">None.</flux:table.cell></flux:table.row>
+                    <flux:table.row><flux:table.cell colspan="10" class="text-center py-8 text-zinc-500 dark:text-zinc-400">None.</flux:table.cell></flux:table.row>
                 @endforelse
             </flux:table.rows>
         </flux:table>
         <x-slot:footer>{{ $bookings->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
-
 </div>

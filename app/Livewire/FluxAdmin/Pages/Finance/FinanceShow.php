@@ -8,7 +8,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('flux-admin.layouts.app')]
-#[Title('Finance Application — Flux Admin')]
+#[Title('Payment Plan Application — Flux Admin')]
 class FinanceShow extends Component
 {
     public FinanceApplication $application;

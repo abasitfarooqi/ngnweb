@@ -49,7 +49,7 @@
     <section class="content container-fluid animated fadeIn">
         <div class="d-flex flex-wrap gap-2 mb-3">
             <a href="{{ route('page.rental_operations.index') }}" class="btn btn-sm btn-outline-secondary">Rental Operations</a>
-            <a href="{{ route('admin.renting.bookings') }}" class="btn btn-sm btn-outline-primary">Bookings management</a>
+            <a href="{{ route('page.rental_operations.bookings_management') }}" class="btn btn-sm btn-outline-primary">Bookings management</a>
         </div>
 
         <div class="card mb-0">

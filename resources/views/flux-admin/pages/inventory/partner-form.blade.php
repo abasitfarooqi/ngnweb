@@ -60,6 +60,9 @@
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.is_approved" class="accent-zinc-900 dark:accent-zinc-200"> Approved
                 </label>
+                <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                    Approving syncs / creates the matching club member (B2B partner). Unapproving clears <code>is_partner</code> on linked members.
+                </p>
             </div>
         </div>
         <div class="flex justify-end gap-3 pt-2">

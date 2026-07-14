@@ -45,10 +45,18 @@ class MotorbikesSale extends Model
         'image_two',
         'image_three',
         'image_four',
+        'video_path',
         'user_id',
     ];
 
     public $timestamps = true;
+
+    protected $casts = [
+        'price' => 'decimal:2',
+        'mileage' => 'decimal:2',
+        'is_sold' => 'boolean',
+        'v5_available' => 'boolean',
+    ];
 
     public function motorbike()
     {

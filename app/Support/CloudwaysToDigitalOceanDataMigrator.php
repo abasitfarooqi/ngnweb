@@ -73,8 +73,28 @@ class CloudwaysToDigitalOceanDataMigrator
      */
     public function syncAll(?callable $onTable = null): array
     {
+        return $this->syncTables($this->listProductionTables(), $onTable);
+    }
+
+    /**
+     * Overwrite only the given tables (truncate + insert from production).
+     *
+     * @param  list<string>  $tables
+     * @param  callable(string, array<string, mixed>): void|null  $onTable
+     * @return array{
+     *     tables_total:int,
+     *     tables_ok:int,
+     *     tables_failed:int,
+     *     tables_skipped:int,
+     *     rows_copied:int,
+     *     errors:list<array{table:string,status:string,phase?:string,message?:string,rows:int}>,
+     *     report_path:string
+     * }
+     */
+    public function syncTables(array $tables, ?callable $onTable = null): array
+    {
         $this->log = [];
-        $tables = $this->listProductionTables();
+        $tables = array_values(array_unique(array_filter(array_map('strval', $tables))));
         $rowsCopied = 0;
         $ok = 0;
         $failed = 0;
@@ -148,7 +168,7 @@ class CloudwaysToDigitalOceanDataMigrator
             'tables_failed' => $failed,
             'tables_skipped' => $skipped,
             'rows_copied' => $rowsCopied,
-            'errors' => array_values(array_filter($this->log, static fn (array $r): bool => $r['status'] !== 'ok')),
+            'errors' => array_values(array_filter($this->log, static fn (array $r): bool => ($r['status'] ?? '') !== 'ok')),
             'report_path' => $reportPath,
         ];
     }

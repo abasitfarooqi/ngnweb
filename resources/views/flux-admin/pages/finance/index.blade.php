@@ -1,7 +1,7 @@
 <div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Finance Applications</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Payment Plan Applications</h1>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage all finance applications and contracts.</p>
         </div>
         <div class="flex items-center gap-2">
@@ -23,12 +23,8 @@
             <div class="min-w-0 w-full sm:min-w-[12rem] sm:flex-1 lg:w-48 lg:flex-none">
                 <flux:select wire:model.live="contractType" placeholder="Contract type">
                     <flux:select.option value="">All Types</flux:select.option>
-                    <flux:select.option value="is_new">New Motorcycle</flux:select.option>
-                    <flux:select.option value="is_used">Used</flux:select.option>
                     <flux:select.option value="is_new_latest">New Latest</flux:select.option>
                     <flux:select.option value="is_used_latest">Used Latest</flux:select.option>
-                    <flux:select.option value="is_used_extended">Used Extended</flux:select.option>
-                    <flux:select.option value="is_used_extended_custom">Used Extended Custom</flux:select.option>
                     <flux:select.option value="is_subscription">Subscription</flux:select.option>
                 </flux:select>
             </div>

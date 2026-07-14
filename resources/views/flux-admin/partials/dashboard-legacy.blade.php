@@ -13,18 +13,27 @@
     </div>
 
     <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Club member visits</h3>
-    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-flux-admin::stat-card label="{{ $legacy['club_visits']['day_before_label'] ?? '' }} visits" :value="number_format($legacy['club_visits']['day_before'] ?? 0)" icon="calendar" colour="indigo" :href="route('flux-admin.club.index')" />
-        <x-flux-admin::stat-card label="Yesterday's visits" :value="number_format($legacy['club_visits']['yesterday'] ?? 0)" icon="calendar-days" colour="blue" :href="route('flux-admin.club.index')" />
-        <x-flux-admin::stat-card label="Today's visits" :value="number_format($legacy['club_visits']['today'] ?? 0)" icon="calendar-days" colour="green" :href="route('flux-admin.club.index')" />
+    <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <x-flux-admin::stat-card label="{{ $legacy['club_visits']['day_before_label'] ?? '' }} visits" :value="number_format($legacy['club_visits']['day_before'] ?? 0)" icon="calendar" colour="indigo" :href="route('flux-admin.club-purchases.index')" />
+        <x-flux-admin::stat-card label="Yesterday's visits" :value="number_format($legacy['club_visits']['yesterday'] ?? 0)" icon="calendar-days" colour="blue" :href="route('flux-admin.club-purchases.index')" />
+        <x-flux-admin::stat-card label="Today's visits" :value="number_format($legacy['club_visits']['today'] ?? 0)" icon="calendar-days" colour="green" :href="route('flux-admin.club-purchases.index')" />
+    </div>
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <x-flux-admin::stat-card label="All-time visits" :value="number_format($legacy['club_visits']['all_time'] ?? 0)" icon="chart-bar" colour="purple" :href="route('flux-admin.club-purchases.index')" />
+        <x-flux-admin::stat-card label="This month's visits ({{ $legacy['club_visits']['this_month_label'] ?? now()->format('M Y') }})" :value="number_format($legacy['club_visits']['this_month'] ?? 0)" icon="calendar-days" colour="amber" :href="route('flux-admin.club-purchases.index')" />
     </div>
 
-    <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Bikes sold (finance)</h3>
-    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-flux-admin::stat-card label="This week" :value="number_format($legacy['sales']['this_week'] ?? 0)" icon="chart-bar" colour="green" />
-        <x-flux-admin::stat-card label="Last week" :value="number_format($legacy['sales']['last_week'] ?? 0)" icon="chart-bar" colour="indigo" />
-        <x-flux-admin::stat-card label="This month" :value="number_format($legacy['sales']['this_month'] ?? 0)" icon="chart-bar" colour="amber" />
-        <x-flux-admin::stat-card label="Last month" :value="number_format($legacy['sales']['last_month'] ?? 0)" icon="chart-bar" colour="purple" />
+    <h3 class="mb-1 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">Vehicle Sold</h3>
+    <p class="mb-3 text-xs text-zinc-500 dark:text-zinc-400">Includes brand new cash, brand new payment plan, used cash, and used payment plan.</p>
+    <div class="mb-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <x-flux-admin::stat-card label="Total vehicles sold" :value="number_format($legacy['sales']['total'] ?? 0)" icon="chart-bar" colour="purple" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Vehicles sold this year ({{ $legacy['sales']['this_year_label'] ?? now()->format('Y') }})" :value="number_format($legacy['sales']['this_year'] ?? 0)" icon="calendar-days" colour="indigo" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Vehicles sold this month" :value="number_format($legacy['sales']['this_month'] ?? 0)" icon="calendar-days" colour="amber" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Vehicles sold last month" :value="number_format($legacy['sales']['last_month'] ?? 0)" icon="chart-bar" colour="blue" :href="route('flux-admin.finance.index')" />
+    </div>
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <x-flux-admin::stat-card label="Vehicles sold this week" :value="number_format($legacy['sales']['this_week'] ?? 0)" icon="chart-bar" colour="green" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Vehicles sold last week" :value="number_format($legacy['sales']['last_week'] ?? 0)" icon="chart-bar" colour="indigo" :href="route('flux-admin.finance.index')" />
     </div>
 
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -35,9 +44,9 @@
     </div>
 
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-flux-admin::stat-card label="Active finance" :value="number_format($legacy['finance']['active'] ?? 0)" icon="banknotes" colour="green" :href="route('flux-admin.finance.index')" />
-        <x-flux-admin::stat-card label="Terminated finance" :value="number_format($legacy['finance']['terminated'] ?? 0)" icon="x-circle" colour="red" :href="route('flux-admin.finance.index')" />
-        <x-flux-admin::stat-card label="Closed finance" :value="number_format($legacy['finance']['closed'] ?? 0)" icon="check-circle" colour="indigo" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Active payment plan" :value="number_format($legacy['finance']['active'] ?? 0)" icon="banknotes" colour="green" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Terminated payment plan" :value="number_format($legacy['finance']['terminated'] ?? 0)" icon="x-circle" colour="red" :href="route('flux-admin.finance.index')" />
+        <x-flux-admin::stat-card label="Closed payment plan" :value="number_format($legacy['finance']['closed'] ?? 0)" icon="check-circle" colour="indigo" :href="route('flux-admin.finance.index')" />
     </div>
 
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">

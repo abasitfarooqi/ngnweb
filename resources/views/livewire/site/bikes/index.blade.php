@@ -59,7 +59,7 @@
                         {{ $bike->type }} @if($bike->engine) · {{ $bike->engine }}CC @endif
                     </p>
                     @if($bike->sale_new_price ?? $bike->price)
-                        <p class="text-brand-red font-bold mt-1">£{{ number_format((float) ($bike->sale_new_price ?? $bike->price), 0) }}</p>
+                        <p class="text-brand-red font-bold mt-1">£{{ number_format((float) ($bike->sale_new_price ?? $bike->price), 2) }}</p>
                     @else
                         <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Call for price</p>
                     @endif

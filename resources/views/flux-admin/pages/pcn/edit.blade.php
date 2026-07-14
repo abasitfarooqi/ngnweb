@@ -28,13 +28,12 @@
             {{-- Customer search --}}
             <div class="mb-4">
                 <x-flux-admin::field-group label="Customer" :error="$errors->first('form.customer_id')">
-                    <div class="relative">
+                    <div class="{{ count($customerSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
                         <flux:input wire:model.live.debounce.300ms="customerSearch" placeholder="Search by name or email…" autocomplete="off" />
                         @if(count($customerSuggestions))
-                            <ul class="absolute z-50 mt-0.5 w-full border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 shadow-lg max-h-52 overflow-y-auto">
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
                                 @foreach($customerSuggestions as $s)
-                                    <li wire:click="selectCustomer({{ $s['id'] }}, '{{ addslashes($s['name']) }}')"
-                                        class="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">{{ $s['name'] }}</li>
+                                    <li role="option" wire:mousedown.prevent="selectCustomer({{ $s['id'] }})">{{ $s['name'] }}</li>
                                 @endforeach
                             </ul>
                         @endif
@@ -42,33 +41,33 @@
                 </x-flux-admin::field-group>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 <x-flux-admin::field-group label="PCN number" required :error="$errors->first('form.pcn_number')">
                     <flux:input wire:model="form.pcn_number" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Date of contravention" :error="$errors->first('form.date_of_contravention')">
+                <x-flux-admin::field-group label="Date of contravention" required :error="$errors->first('form.date_of_contravention')">
                     <flux:input type="date" wire:model="form.date_of_contravention" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Time" :error="$errors->first('form.time_of_contravention')">
+                <x-flux-admin::field-group label="Time" required :error="$errors->first('form.time_of_contravention')">
                     <flux:input type="time" wire:model="form.time_of_contravention" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Date of letter issued" :error="$errors->first('form.date_of_letter_issued')">
                     <flux:input type="date" wire:model="form.date_of_letter_issued" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Full amount (£)" :error="$errors->first('form.full_amount')">
+                <x-flux-admin::field-group label="Full amount (£)" required :error="$errors->first('form.full_amount')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.full_amount" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Reduced amount (£)" :error="$errors->first('form.reduced_amount')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.reduced_amount" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Motorbike (reg)" :error="$errors->first('form.motorbike_id')">
-                    <div class="relative">
-                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by reg…" autocomplete="off" />
+                <x-flux-admin::field-group label="Motorbike (reg)" required :error="$errors->first('form.motorbike_id')">
+                    <div class="{{ count($motorbikeSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by reg…" autocomplete="off"
+                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()" />
                         @if(count($motorbikeSuggestions))
-                            <ul class="absolute z-50 mt-0.5 w-full border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 shadow-lg max-h-44 overflow-y-auto">
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
                                 @foreach($motorbikeSuggestions as $ms)
-                                    <li wire:click="selectMotorbike({{ $ms['id'] }}, '{{ addslashes($ms['reg']) }}')"
-                                        class="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">{{ $ms['reg'] }}</li>
+                                    <li role="option" wire:mousedown.prevent="selectMotorbike({{ $ms['id'] }})">{{ $ms['reg'] }}</li>
                                 @endforeach
                             </ul>
                         @endif
@@ -78,7 +77,7 @@
 
             <div class="mt-4">
                 <x-flux-admin::field-group label="Payment link (council)" :error="$errors->first('form.council_link')">
-                    <flux:input type="url" wire:model="form.council_link" placeholder="https://…" />
+                    <flux:input wire:model="form.council_link" placeholder="https://… or payment note" />
                 </x-flux-admin::field-group>
             </div>
 
@@ -95,7 +94,19 @@
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.isClosed" class="accent-zinc-900 dark:accent-zinc-200"> Mark as closed
                 </label>
+                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <input type="checkbox" wire:model="sendEmail" class="accent-zinc-900 dark:accent-zinc-200"> Send email on save
+                </label>
             </div>
+        </div>
+
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5"
+             x-data="{ copied: false, copyLetter() { navigator.clipboard.writeText($refs.letter.value).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2000) }) } }">
+            <div class="mb-3 flex items-center justify-between gap-3">
+                <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">Copy liability letter</h2>
+                <flux:button type="button" size="xs" variant="primary" class="!rounded-none" x-on:click="copyLetter()" x-text="copied ? 'Copied' : 'Copy letter'"></flux:button>
+            </div>
+            <textarea x-ref="letter" readonly rows="12" class="w-full border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200">{{ $this->liabilityLetter }}</textarea>
         </div>
 
         {{-- Repeatable Case Updates --}}

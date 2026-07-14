@@ -26,7 +26,7 @@ class PcnTolIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-pcn-portal');
+        $this->authorizeModule('see-menu-pcns');
         $this->sortField = 'request_date';
     }
 
@@ -77,10 +77,10 @@ class PcnTolIndex extends Component
 
         $pdf = Pdf::loadView('pcn.template.tol_letter', [
             'tolRequest' => $tolRequest,
-            'pcnNumber' => $tolRequest->pcnCaseUpdate->pcnCase->pcn_number ?? '',
-            'customerName' => optional($tolRequest->pcnCaseUpdate->pcnCase->customer)->full_name ?? '',
-            'vehicleVrm' => $tolRequest->pcnCaseUpdate->pcnCase->motorbike->reg_no ?? '',
-            'userName' => $tolRequest->user->full_name ?? '',
+            'pcnNumber' => $tolRequest->pcnCaseUpdate?->pcnCase?->pcn_number ?? '',
+            'customerName' => $tolRequest->pcnCaseUpdate?->pcnCase?->customer?->full_name ?? '',
+            'vehicleVrm' => $tolRequest->pcnCaseUpdate?->pcnCase?->motorbike?->reg_no ?? '',
+            'userName' => $tolRequest->user?->full_name ?? '',
         ]);
 
         return response()->streamDownload(fn () => print($pdf->output()), 'tol_request_'.$tolRequest->id.'.pdf');

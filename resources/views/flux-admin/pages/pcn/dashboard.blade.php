@@ -1,22 +1,38 @@
 <div class="space-y-6">
-    <div class="px-4 sm:px-6 lg:px-8 pt-4">
-        <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white">PCN statistics</h1>
-        <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Operational overview of penalty charge notices across the fleet.</p>
+    <div class="px-4 sm:px-6 lg:px-8 pt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white">PCN statistics</h1>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Operational overview of penalty charge notices across the fleet.</p>
+        </div>
+        <a href="{{ route('flux-admin.pcn.index') }}" wire:navigate>
+            <flux:button size="sm" variant="ghost" class="!rounded-none">Open PCN cases</flux:button>
+        </a>
     </div>
 
     <div class="px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-5 gap-3">
-        @foreach([
-            ['Total', $totalCases, 'text-zinc-900 dark:text-white'],
-            ['Open', $openCases, 'text-amber-600 dark:text-amber-400'],
-            ['Closed', $closedCases, 'text-emerald-600 dark:text-emerald-400'],
-            ['Cancelled', $cancelledCases, 'text-blue-600 dark:text-blue-400'],
-            ['Appealed', $appealedCases, 'text-purple-600 dark:text-purple-400'],
-        ] as [$label, $value, $colour])
-            <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-                <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">{{ $label }}</div>
-                <div class="mt-1 text-2xl font-semibold {{ $colour }}">{{ number_format($value) }}</div>
-            </div>
-        @endforeach
+        <a href="{{ route('flux-admin.pcn.index') }}" wire:navigate class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+            <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Total</div>
+            <div class="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white">{{ number_format($totalCases) }}</div>
+        </a>
+        <a href="{{ route('flux-admin.pcn.index', ['isClosed' => 0]) }}" wire:navigate class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+            <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Open</div>
+            <div class="mt-1 text-2xl font-semibold text-amber-600 dark:text-amber-400">{{ number_format($openCases) }}</div>
+            <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Outstanding £{{ number_format((float) $totalFullAmount, 2) }}</div>
+        </a>
+        <a href="{{ route('flux-admin.pcn.index', ['isClosed' => 0, 'has_been_appealed' => 1]) }}" wire:navigate class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 hover:border-zinc-400 dark:hover:border-zinc-600 transition">
+            <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Appealed (open)</div>
+            <div class="mt-1 text-2xl font-semibold text-purple-600 dark:text-purple-400">{{ number_format($appealedCases) }}</div>
+            <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Police {{ $appealedStats['police'] }} · Regular {{ $appealedStats['regular'] }}</div>
+        </a>
+        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Closed</div>
+            <div class="mt-1 text-2xl font-semibold text-emerald-600 dark:text-emerald-400">{{ number_format($closedCases) }}</div>
+        </div>
+        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Cancelled</div>
+            <div class="mt-1 text-2xl font-semibold text-blue-600 dark:text-blue-400">{{ number_format($cancelledCases) }}</div>
+            <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Police {{ $cancelledStats['police'] }} · Regular {{ $cancelledStats['regular'] }}</div>
+        </div>
     </div>
 
     <div class="px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -38,12 +54,39 @@
         </div>
     </div>
 
+    <div class="px-4 sm:px-6 lg:px-8 grid grid-cols-1 xl:grid-cols-2 gap-4"
+         x-data="pcnCharts(@js([
+             'months' => $monthlyStats->pluck('month'),
+             'total' => $monthlyStats->pluck('total'),
+             'open' => $monthlyStats->pluck('open'),
+             'closed' => $monthlyStats->pluck('closed'),
+             'status' => [$openCases, $closedCases, $cancelledCases, $appealedCases],
+             'police' => [$policeStats['police'], $policeStats['regular']],
+             'amounts' => [(float) $outstandingAmounts['police'], (float) $outstandingAmounts['regular']],
+         ]))"
+         x-init="init()">
+        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Monthly trend (12 months)</div>
+            <canvas x-ref="monthly" height="140"></canvas>
+        </div>
+        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Status mix</div>
+            <canvas x-ref="status" height="140"></canvas>
+        </div>
+        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Police vs regular</div>
+            <canvas x-ref="police" height="140"></canvas>
+        </div>
+        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Outstanding by type</div>
+            <canvas x-ref="amounts" height="140"></canvas>
+        </div>
+    </div>
+
     <div class="px-4 sm:px-6 lg:px-8">
         <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-            <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex items-center justify-between">
-                <div>
-                    <div class="text-sm font-semibold text-zinc-900 dark:text-white">Top offending vehicles (open PCNs)</div>
-                </div>
+            <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
+                <div class="text-sm font-semibold text-zinc-900 dark:text-white">Top offending vehicles (open PCNs)</div>
             </div>
             <div class="touch-pan-x overflow-x-auto">
                 <div class="min-w-[32rem] md:min-w-0">
@@ -72,17 +115,22 @@
 
     <div class="px-4 sm:px-6 lg:px-8 pb-8">
         <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
-            <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
+            <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div class="text-sm font-semibold text-zinc-900 dark:text-white">Open PCN list with WhatsApp reminder</div>
+                <flux:select wire:model.live="listSort" class="w-44">
+                    <flux:select.option value="desc">Newest created</flux:select.option>
+                    <flux:select.option value="asc">Oldest created</flux:select.option>
+                </flux:select>
             </div>
             <div class="touch-pan-x overflow-x-auto">
-                <div class="min-w-[44rem] md:min-w-0">
+                <div class="min-w-[48rem] md:min-w-0">
                     <flux:table>
                         <flux:table.columns>
                             <flux:table.column>PCN</flux:table.column>
                             <flux:table.column>Customer</flux:table.column>
                             <flux:table.column>VRN</flux:table.column>
                             <flux:table.column>Amount</flux:table.column>
+                            <flux:table.column>WhatsApp sent</flux:table.column>
                             <flux:table.column>Last reminder</flux:table.column>
                             <flux:table.column>Actions</flux:table.column>
                         </flux:table.columns>
@@ -93,6 +141,7 @@
                                     <flux:table.cell class="text-zinc-900 dark:text-white">{{ $p->customer_name }}</flux:table.cell>
                                     <flux:table.cell class="font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ $p->reg_no }}</flux:table.cell>
                                     <flux:table.cell class="text-zinc-900 dark:text-white">£{{ number_format((float) $p->amount, 2) }}</flux:table.cell>
+                                    <flux:table.cell>{{ $p->is_whatsapp_sent ? 'Yes' : 'No' }}</flux:table.cell>
                                     <flux:table.cell class="text-zinc-600 dark:text-zinc-400 text-xs">{{ $p->whatsapp_last_reminder_sent_at }}</flux:table.cell>
                                     <flux:table.cell>
                                         <div class="flex gap-1">
@@ -104,7 +153,7 @@
                                     </flux:table.cell>
                                 </flux:table.row>
                             @empty
-                                <flux:table.row><flux:table.cell colspan="6" class="text-center py-4 text-zinc-500 dark:text-zinc-400">No open PCNs.</flux:table.cell></flux:table.row>
+                                <flux:table.row><flux:table.cell colspan="7" class="text-center py-4 text-zinc-500 dark:text-zinc-400">No open PCNs.</flux:table.cell></flux:table.row>
                             @endforelse
                         </flux:table.rows>
                     </flux:table>
@@ -113,3 +162,55 @@
         </div>
     </div>
 </div>
+
+@assets
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+@endassets
+
+@script
+<script>
+Alpine.data('pcnCharts', (payload) => ({
+    payload,
+    charts: [],
+    init() {
+        if (typeof Chart === 'undefined') return;
+        this.charts.push(new Chart(this.$refs.monthly, {
+            type: 'line',
+            data: {
+                labels: this.payload.months,
+                datasets: [
+                    { label: 'Total', data: this.payload.total, borderColor: '#18181b', tension: 0.25 },
+                    { label: 'Open', data: this.payload.open, borderColor: '#d97706', tension: 0.25 },
+                    { label: 'Closed', data: this.payload.closed, borderColor: '#059669', tension: 0.25 },
+                ],
+            },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } },
+        }));
+        this.charts.push(new Chart(this.$refs.status, {
+            type: 'doughnut',
+            data: {
+                labels: ['Open', 'Closed', 'Cancelled', 'Appealed'],
+                datasets: [{ data: this.payload.status, backgroundColor: ['#d97706', '#059669', '#2563eb', '#9333ea'] }],
+            },
+            options: { plugins: { legend: { position: 'bottom' } } },
+        }));
+        this.charts.push(new Chart(this.$refs.police, {
+            type: 'pie',
+            data: {
+                labels: ['Police', 'Regular'],
+                datasets: [{ data: this.payload.police, backgroundColor: ['#dc2626', '#52525b'] }],
+            },
+            options: { plugins: { legend: { position: 'bottom' } } },
+        }));
+        this.charts.push(new Chart(this.$refs.amounts, {
+            type: 'bar',
+            data: {
+                labels: ['Police', 'Regular'],
+                datasets: [{ label: 'Outstanding £', data: this.payload.amounts, backgroundColor: ['#dc2626', '#52525b'] }],
+            },
+            options: { plugins: { legend: { display: false } } },
+        }));
+    },
+}));
+</script>
+@endscript

@@ -47,7 +47,7 @@
                             @if($bike->engine)<span> · {{ $bike->engine }}</span>@endif
                         </p>
                         <p class="mt-3 text-2xl font-bold text-brand-red tabular-nums">
-                            £{{ number_format((float) $bike->price, 0) }}
+                            £{{ number_format((float) $bike->price, 2) }}
                         </p>
                         <button type="button" @click="open = !open" class="mt-2 text-xs font-semibold tracking-wide uppercase text-gray-600 dark:text-gray-300 text-left">
                             <span x-show="!open">Show details</span>

@@ -59,7 +59,7 @@
         @endif
     @endisset
 
-    <main id="main-content">
+    <main id="main-content" class="pb-14 lg:pb-0">
         {{ $slot }}
     </main>
 

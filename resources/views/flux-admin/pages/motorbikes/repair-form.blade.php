@@ -25,13 +25,13 @@
             {{-- Motorbike search --}}
             <div class="mb-4">
                 <x-flux-admin::field-group label="Motorbike (reg)" required :error="$errors->first('form.motorbike_id')">
-                    <div class="relative">
-                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by registration…" autocomplete="off" />
+                    <div class="{{ count($motorbikeSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by registration…" autocomplete="off"
+                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()" />
                         @if(count($motorbikeSuggestions))
-                            <ul class="absolute z-50 mt-0.5 w-full border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 shadow-lg max-h-44 overflow-y-auto">
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
                                 @foreach($motorbikeSuggestions as $ms)
-                                    <li wire:click="selectMotorbike({{ $ms['id'] }}, '{{ addslashes($ms['reg']) }}')"
-                                        class="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">{{ $ms['reg'] }}</li>
+                                    <li role="option" wire:mousedown.prevent="selectMotorbike({{ $ms['id'] }}, @js($ms['reg']))">{{ $ms['reg'] }}</li>
                                 @endforeach
                             </ul>
                         @endif

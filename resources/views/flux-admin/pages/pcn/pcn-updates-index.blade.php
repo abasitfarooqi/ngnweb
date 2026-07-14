@@ -21,6 +21,7 @@
                         <flux:select.option value="owner">Paid by NGN</flux:select.option>
                         <flux:select.option value="keeper">Paid by keeper</flux:select.option>
                         <flux:select.option value="cancelled">Cancelled</flux:select.option>
+                        <flux:select.option value="transferred">Transferred</flux:select.option>
                     </flux:select>
                 </div>
             </x-flux-admin::filter-bar>
@@ -33,6 +34,7 @@
                 <flux:table.column>Appealed</flux:table.column>
                 <flux:table.column>NGN paid</flux:table.column>
                 <flux:table.column>Keeper paid</flux:table.column>
+                <flux:table.column>Transferred</flux:table.column>
                 <flux:table.column>Cancelled</flux:table.column>
                 <flux:table.column>Fee</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>
@@ -40,12 +42,13 @@
             <flux:table.rows>
                 @forelse($rows as $r)
                     <flux:table.row wire:key="pcn-u-{{ $r->id }}">
-                        <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $r->pcncase?->pcn_number }}</flux:table.cell>
-                        <flux:table.cell class="font-mono text-xs text-zinc-600 dark:text-zinc-400">{{ $r->pcncase?->motorbike?->reg_no }}</flux:table.cell>
+                        <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $r->pcnCase?->pcn_number }}</flux:table.cell>
+                        <flux:table.cell class="font-mono text-xs text-zinc-600 dark:text-zinc-400">{{ $r->pcnCase?->motorbike?->reg_no }}</flux:table.cell>
                         <flux:table.cell class="whitespace-nowrap text-zinc-600 dark:text-zinc-400">{{ $r->update_date ? \Carbon\Carbon::parse($r->update_date)->format('d M Y H:i') : '—' }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_appealed" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_paid_by_owner" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_paid_by_keeper" /></flux:table.cell>
+                        <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_transferred" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->is_cancled" /></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">£{{ number_format((float) $r->additional_fee, 2) }}</flux:table.cell>
                         <flux:table.cell>
@@ -62,7 +65,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="9" class="py-8 text-center text-zinc-500 dark:text-zinc-400">No updates found.</flux:table.cell>
+                        <flux:table.cell colspan="10" class="py-8 text-center text-zinc-500 dark:text-zinc-400">No updates found.</flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>

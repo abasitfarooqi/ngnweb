@@ -27,10 +27,10 @@
                 <x-flux-admin::field-group label="Full name" required :error="$errors->first('form.full_name')" class="sm:col-span-2">
                     <flux:input wire:model="form.full_name" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Email" :error="$errors->first('form.email')">
+                <x-flux-admin::field-group label="Email" required :error="$errors->first('form.email')">
                     <flux:input type="email" wire:model="form.email" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Phone" :error="$errors->first('form.phone')">
+                <x-flux-admin::field-group label="Phone" required :error="$errors->first('form.phone')">
                     <flux:input wire:model="form.phone" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="VRM" :error="$errors->first('form.vrm')">
@@ -48,6 +48,14 @@
                 <x-flux-admin::field-group label="Passkey" :error="$errors->first('form.passkey')">
                     <flux:input wire:model="form.passkey" />
                 </x-flux-admin::field-group>
+                <x-flux-admin::field-group label="NGN partner" :error="$errors->first('form.ngn_partner_id')">
+                    <flux:select wire:model="form.ngn_partner_id" placeholder="Select partner">
+                        <flux:select.option value="">None</flux:select.option>
+                        @foreach($partners as $partner)
+                            <flux:select.option value="{{ $partner->id }}">{{ $partner->companyname }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </x-flux-admin::field-group>
             </div>
 
             <div class="mt-4 flex flex-wrap gap-6">
@@ -56,6 +64,12 @@
                 </label>
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.is_partner" class="accent-zinc-900 dark:accent-zinc-200"> Partner
+                </label>
+                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <input type="checkbox" wire:model="form.email_sent" class="accent-zinc-900 dark:accent-zinc-200"> Email sent
+                </label>
+                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <input type="checkbox" wire:model="form.tc_agreed" class="accent-zinc-900 dark:accent-zinc-200"> T&amp;C agreed
                 </label>
             </div>
         </div>

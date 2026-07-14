@@ -2,7 +2,7 @@
     <div class="mb-6">
         <h1 class="flux-admin-page-title text-2xl font-bold text-zinc-900 dark:text-white">Global search</h1>
         <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            Search across {{ number_format($registryCount) }} Flux Admin lists (any text column). Minimum 2 characters.
+            Jump to menu pages or search across {{ number_format($registryCount) }} lists. Minimum 2 characters.
         </p>
     </div>
 
@@ -12,7 +12,7 @@
                 <flux:input
                     wire:model.live.debounce.400ms="query"
                     icon="magnifying-glass"
-                    placeholder="Search customers, registrations, PCNs, parts, emails…"
+                    placeholder="Search menu (e.g. Finance, Used bike) or records…"
                     variant="outline"
                     autofocus
                 />
@@ -54,17 +54,21 @@
                                 <div class="flex flex-wrap items-center gap-1">
                                     @if($hit['show_url'])
                                         <a href="{{ $hit['show_url'] }}">
-                                            <flux:button size="xs" variant="ghost" icon="eye" class="!rounded-none">View</flux:button>
+                                            <flux:button size="xs" variant="{{ !empty($hit['is_menu']) ? 'primary' : 'ghost' }}" icon="{{ !empty($hit['is_menu']) ? 'arrow-right' : 'eye' }}" class="!rounded-none">
+                                                {{ !empty($hit['is_menu']) ? 'Open' : 'View' }}
+                                            </flux:button>
                                         </a>
                                     @endif
-                                    @if($hit['edit_url'])
+                                    @if(($hit['edit_url'] ?? null) && empty($hit['is_menu']))
                                         <a href="{{ $hit['edit_url'] }}">
                                             <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                                         </a>
                                     @endif
+                                    @if(empty($hit['is_menu']))
                                     <a href="{{ $hit['index_url'] }}">
                                         <flux:button size="xs" variant="ghost" icon="queue-list" class="!rounded-none">List</flux:button>
                                     </a>
+                                    @endif
                                 </div>
                             </flux:table.cell>
                         </flux:table.row>
@@ -74,7 +78,7 @@
         </div>
     @else
         <flux:callout variant="info" icon="light-bulb">
-            <flux:callout.text>Enter a keyword to search motorbikes, customers, finance, PCNs, inventory, spare parts, club, blog, support, and more.</flux:callout.text>
+            <flux:callout.text>Type a menu name (Rentals, Used Motorcycle Sale, PCN…) for a shortcut, or search records across motorbikes, customers, finance, and more.</flux:callout.text>
         </flux:callout>
     @endif
 </div>

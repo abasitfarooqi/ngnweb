@@ -30,6 +30,12 @@ class MemberVehicleIndex extends Component
         $this->sortDirection = 'asc';
     }
 
+    public function delete(int $id): void
+    {
+        ClubMember::findOrFail($id)->delete();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Club member deleted.');
+    }
+
     public function render()
     {
         $rows = $this->baseQuery()

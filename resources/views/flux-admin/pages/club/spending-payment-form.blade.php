@@ -19,10 +19,21 @@
     <form wire:submit.prevent="save" class="space-y-5" novalidate>
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Payment details</h2>
-            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <x-flux-admin::field-group label="Club member ID" required :error="$errors->first('form.club_member_id')">
-                    <flux:input type="number" wire:model.live.debounce.300ms="form.club_member_id" min="1" />
+            <div class="mb-4">
+                <x-flux-admin::field-group label="Club member" required :error="$errors->first('form.club_member_id')">
+                    <div class="{{ count($memberSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input wire:model.live.debounce.300ms="memberSearch" placeholder="Search name, phone, email or VRM…" autocomplete="off" />
+                        @if(count($memberSuggestions))
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
+                                @foreach($memberSuggestions as $s)
+                                    <li role="option" wire:mousedown.prevent="selectClubMember({{ $s['id'] }})">{{ $s['label'] }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
                 </x-flux-admin::field-group>
+            </div>
+            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 <x-flux-admin::field-group label="Total spending">
                     <flux:input :value="$totalSpending !== null ? '£'.number_format($totalSpending, 2) : ''" readonly />
                 </x-flux-admin::field-group>
@@ -31,9 +42,6 @@
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Date" required :error="$errors->first('form.date')">
                     <flux:input type="date" wire:model="form.date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Spending ID" :error="$errors->first('form.spending_id')">
-                    <flux:input type="number" wire:model="form.spending_id" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="POS invoice" :error="$errors->first('form.pos_invoice')">
                     <flux:input wire:model="form.pos_invoice" />
@@ -51,7 +59,7 @@
                 </x-flux-admin::field-group>
             </div>
             <label class="mt-4 flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                <flux:checkbox wire:model="form.include_today" />
+                <input type="checkbox" wire:model="form.include_today" class="accent-zinc-900 dark:accent-zinc-200">
                 Include today's spendings when applying this payment
             </label>
             <div class="mt-4">
@@ -59,6 +67,7 @@
                     <flux:textarea wire:model="form.note" rows="2" />
                 </x-flux-admin::field-group>
             </div>
+            <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Payments are applied FIFO across unpaid spendings. Editing or deleting reverts the previous allocation first.</p>
         </div>
         <div class="flex justify-end gap-3 pt-2">
             <a href="{{ route('flux-admin.club-spending-payments.index') }}">

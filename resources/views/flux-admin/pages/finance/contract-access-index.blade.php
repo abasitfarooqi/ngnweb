@@ -19,9 +19,7 @@
             <flux:table.rows>
                 @forelse($rows as $r)
                     @php
-                        $accessLinks = ((int) $r->customer_id > 0 && filled($r->passcode))
-                            ? \App\Services\FinanceContractLinkResolver::accessLinks((int) $r->customer_id, (string) $r->passcode)
-                            : [];
+                        $accessLinks = \App\Services\FinanceContractLinkResolver::linksForContractAccess($r);
                     @endphp
                     <flux:table.row wire:key="ca-{{ $r->id }}">
                         <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $r->id }}</flux:table.cell>
@@ -40,7 +38,7 @@
                                     @endforeach
                                 </div>
                             @else
-                                <span class="text-xs text-zinc-400">—</span>
+                                <span class="text-xs text-zinc-400">No matching latest contract</span>
                             @endif
                         </flux:table.cell>
                         <flux:table.cell>

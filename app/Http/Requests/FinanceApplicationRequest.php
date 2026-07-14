@@ -40,8 +40,30 @@ class FinanceApplicationRequest extends FormRequest
             'is_cancelled' => 'boolean',
             'cancelled_at' => 'nullable|date',
         ];
-        
+
         return $rules;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        // Latest contracts only — never persist legacy contract flags from this form.
+        $this->merge([
+            'is_new' => false,
+            'is_used' => false,
+            'is_used_extended' => false,
+            'is_used_extended_custom' => false,
+            'is_new_latest' => (bool) $this->boolean('is_new_latest'),
+            'is_used_latest' => (bool) $this->boolean('is_used_latest'),
+        ]);
+    }
+
+    public function withValidator($validator): void
+    {
+        $validator->after(function ($validator) {
+            if (! $this->boolean('is_new_latest') && ! $this->boolean('is_used_latest')) {
+                $validator->errors()->add('is_new_latest', 'Select New Latest or Used Latest contract.');
+            }
+        });
     }
 
     public function attributes()

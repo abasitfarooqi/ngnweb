@@ -19,10 +19,10 @@
         <flux:callout.text>Catford only. Sundays are closed and booked time slots cannot be selected again.</flux:callout.text>
     </flux:callout>
 
-    @if($activeCustomerBooking)
+    @if($this->activeCustomerBooking)
         <flux:callout variant="warning" icon="information-circle" class="mb-6">
             <flux:callout.text>
-                We already have a MOT booking for {{ $activeCustomerBooking['registration'] }} on {{ $activeCustomerBooking['date'] }} at {{ $activeCustomerBooking['time'] }}.
+                We already have a MOT booking for {{ $this->activeCustomerBooking['registration'] }} on {{ $this->activeCustomerBooking['date'] }} at {{ $this->activeCustomerBooking['time'] }}.
             </flux:callout.text>
         </flux:callout>
     @endif

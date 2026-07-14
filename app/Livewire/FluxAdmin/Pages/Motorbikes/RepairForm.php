@@ -93,8 +93,39 @@ class RepairForm extends Component
         $this->motorbikeSuggestions = [];
     }
 
+    public function commitMotorbikeSearch(): void
+    {
+        if (! empty($this->form['motorbike_id'])) {
+            return;
+        }
+
+        if ($this->motorbikeSuggestions === [] && strlen($this->motorbikeSearch) >= 2) {
+            $this->updatingMotorbikeSearch();
+        }
+
+        if ($this->motorbikeSuggestions === []) {
+            return;
+        }
+
+        $compact = strtoupper(preg_replace('/\s+/', '', $this->motorbikeSearch) ?? '');
+        foreach ($this->motorbikeSuggestions as $suggestion) {
+            $reg = strtoupper(preg_replace('/\s+/', '', (string) ($suggestion['reg'] ?? '')) ?? '');
+            if ($compact !== '' && $reg === $compact) {
+                $this->selectMotorbike((int) $suggestion['id'], (string) $suggestion['reg']);
+
+                return;
+            }
+        }
+
+        if (count($this->motorbikeSuggestions) === 1) {
+            $first = $this->motorbikeSuggestions[0];
+            $this->selectMotorbike((int) $first['id'], (string) $first['reg']);
+        }
+    }
+
     public function save(): void
     {
+        $this->commitMotorbikeSearch();
         $this->observations = array_values(array_filter($this->observations, fn (array $observation): bool => trim((string) ($observation['observation_description'] ?? '')) !== ''));
 
         $this->validate([

@@ -22,8 +22,9 @@ class FluxAdminGlobalSearch
             return ['results' => [], 'total' => 0, 'resources_searched' => 0];
         }
 
+        $menuHits = FluxAdminMenuShortcuts::search($term);
         $like = '%'.str_replace(['%', '_'], ['\\%', '\\_'], $term).'%';
-        $results = [];
+        $results = $menuHits;
         $searched = 0;
 
         foreach (FluxAdminSearchRegistry::resources() as $resource) {

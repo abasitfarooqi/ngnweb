@@ -47,11 +47,11 @@
 
             <div class="mb-6">
                 @if($isNew && ($bike->sale_new_price ?? null))
-                    <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format((float) $bike->sale_new_price, 0) }}</div>
+                    <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format((float) $bike->sale_new_price, 2) }}</div>
                 @elseif($isNew)
                     <div class="text-2xl font-bold text-gray-500 mb-1">Call for price</div>
                 @elseif(!$isNew && $saleInfo)
-                    <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format($saleInfo->price ?? 0, 0) }}</div>
+                    <div class="text-4xl font-bold text-brand-red mb-1">£{{ number_format((float) ($saleInfo->price ?? 0), 2) }}</div>
                 @else
                     <div class="text-2xl font-bold text-gray-500 mb-1">Call for Price</div>
                 @endif

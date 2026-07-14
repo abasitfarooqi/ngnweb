@@ -63,6 +63,10 @@ class PcnCase extends Model
 
     public function getDaysSinceContravention()
     {
+        if (blank($this->date_of_contravention)) {
+            return null;
+        }
+
         return Carbon::parse($this->date_of_contravention)->diffInDays(Carbon::now());
     }
 

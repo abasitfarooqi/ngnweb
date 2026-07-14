@@ -18,7 +18,7 @@ class Show extends Component
 
     public $saleInfo = null;
 
-    public string $layoutMode = 'classic';
+    public string $layoutMode = 'premium';
 
     public $compliance = null;
 
@@ -42,6 +42,7 @@ class Show extends Component
             } catch (\Exception $e) {
                 abort(404, 'Motorcycle not found');
             }
+            $this->layoutMode = 'classic';
         } else {
             try {
                 $this->bike = Motorbike::with([
@@ -57,16 +58,7 @@ class Show extends Component
             } catch (\Exception $e) {
                 abort(404, 'Motorcycle not found');
             }
-        }
-
-        $requestedLayout = request()->query('layout');
-        $configuredLayout = (string) config('site.used_bike_detail_layout', 'classic');
-        $this->layoutMode = in_array($requestedLayout, ['classic', 'premium'], true)
-            ? (string) $requestedLayout
-            : (in_array($configuredLayout, ['classic', 'premium'], true) ? $configuredLayout : 'classic');
-
-        if ($this->isNew) {
-            $this->layoutMode = 'classic';
+            $this->layoutMode = 'premium';
         }
 
         $customer = auth('customer')->user();
@@ -209,6 +201,28 @@ class Show extends Component
         }
 
         return $this->formatAccessoriesText($raw);
+    }
+
+    /**
+     * Catford WhatsApp with bike enquiry details prefilled.
+     */
+    public function whatsappEnquiryUrl(): string
+    {
+        $number = (string) config('site.locations.0.whatsapp', '447951790568');
+        $price = $this->isNew
+            ? (float) ($this->bike->sale_new_price ?? $this->bike->price ?? 0)
+            : (float) ($this->saleInfo?->price ?? 0);
+
+        $lines = array_filter([
+            'Hello NGN Catford — I want to enquire about this bike:',
+            trim(($this->bike->make ?? '').' '.($this->bike->model ?? '')),
+            ! empty($this->bike->year) ? 'Year: '.$this->bike->year : null,
+            ! empty($this->bike->reg_no) ? 'Reg: '.$this->bike->reg_no : null,
+            $price > 0 ? 'Price: £'.number_format($price, 2) : null,
+            'Link: '.url()->current(),
+        ]);
+
+        return 'https://wa.me/'.$number.'?text='.rawurlencode(implode("\n", $lines));
     }
 
     private function formatAccessoriesText(string $raw): string

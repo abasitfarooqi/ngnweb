@@ -23,7 +23,7 @@ class PcnUpdateIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-pcn-portal');
+        $this->authorizeModule('see-menu-pcns');
         $this->exportable = true;
         $this->exportFilename = 'pcn-updates';
         $this->sortField = 'update_date';
@@ -38,7 +38,7 @@ class PcnUpdateIndex extends Component
     public function render()
     {
         $rows = $this->baseQuery()
-            ->with(['pcncase:id,pcn_number,motorbike_id,user_id', 'pcncase.motorbike:id,reg_no', 'pcncase.user:id,first_name'])
+            ->with(['pcnCase:id,pcn_number,motorbike_id,user_id', 'pcnCase.motorbike:id,reg_no', 'pcnCase.user:id,first_name'])
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
@@ -50,7 +50,7 @@ class PcnUpdateIndex extends Component
         return PcnCaseUpdate::query()
             ->when($this->search, function ($q): void {
                 $term = $this->search;
-                $q->where(fn ($q) => $q->whereHas('pcncase', fn ($q) => $q->where('pcn_number', 'like', "%{$term}%"))->orWhereHas('pcncase.motorbike', fn ($q) => $q->where('reg_no', 'like', "%{$term}%")));
+                $q->where(fn ($q) => $q->whereHas('pcnCase', fn ($q) => $q->where('pcn_number', 'like', "%{$term}%"))->orWhereHas('pcnCase.motorbike', fn ($q) => $q->where('reg_no', 'like', "%{$term}%")));
             })
             ->when($this->filter('is_appealed') !== '', fn ($q) => $q->where('is_appealed', $this->filter('is_appealed') === '1'))
             ->when($this->filter('paid_status'), function ($q, $v): void {
@@ -58,19 +58,20 @@ class PcnUpdateIndex extends Component
                     'owner' => $q->where('is_paid_by_owner', true),
                     'keeper' => $q->where('is_paid_by_keeper', true),
                     'cancelled' => $q->where('is_cancled', true),
+                    'transferred' => $q->where('is_transferred', true),
                     default => null,
                 };
             });
     }
 
-    protected function exportQuery(): Builder { return $this->baseQuery()->with(['pcncase.motorbike', 'pcncase.user']); }
+    protected function exportQuery(): Builder { return $this->baseQuery()->with(['pcnCase.motorbike', 'pcnCase.user']); }
 
     protected function exportColumns(): array
     {
         return [
             'ID' => 'id',
-            'PCN Number' => fn ($r) => $r->pcncase?->pcn_number,
-            'VRN' => fn ($r) => $r->pcncase?->motorbike?->reg_no,
+            'PCN Number' => fn ($r) => $r->pcnCase?->pcn_number,
+            'VRN' => fn ($r) => $r->pcnCase?->motorbike?->reg_no,
             'Update date' => fn ($r) => $r->update_date ? \Carbon\Carbon::parse($r->update_date)->format('Y-m-d H:i') : '',
             'Appealed' => fn ($r) => $r->is_appealed ? 'Yes' : 'No',
             'Paid by NGN' => fn ($r) => $r->is_paid_by_owner ? 'Yes' : 'No',

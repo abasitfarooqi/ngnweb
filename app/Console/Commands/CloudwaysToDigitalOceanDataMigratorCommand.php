@@ -8,9 +8,11 @@ use Illuminate\Support\Facades\Artisan;
 
 class CloudwaysToDigitalOceanDataMigratorCommand extends Command
 {
-    protected $signature = 'cloudways-to-digital-ocean:sync-data';
+    protected $signature = 'cloudways-to-digital-ocean:sync-data
+                            {--only= : Comma-separated tables to overwrite only (skips full DB sync)}
+                            {--skip-migrate : Skip CREATE DATABASE + migrate (fast partial overwrite)}';
 
-    protected $description = 'Create target DB, migrate schema, overwrite all row data from production (Cloudways → connected DB).';
+    protected $description = 'Create target DB, migrate schema, overwrite row data from production (Cloudways → connected DB). Use --only=club_members for a quick club-only overwrite.';
 
     public function handle(): int
     {
@@ -35,33 +37,50 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
             return self::FAILURE;
         }
 
+        $onlyRaw = trim((string) $this->option('only'));
+        $onlyTables = $onlyRaw === ''
+            ? []
+            : array_values(array_filter(array_map(
+                static fn (string $t): string => trim($t),
+                explode(',', $onlyRaw)
+            )));
+
+        $skipMigrate = (bool) $this->option('skip-migrate') || $onlyTables !== [];
+
         $this->line('');
-        $this->info('Cloudways → DigitalOcean data sync');
+        $this->info($onlyTables === []
+            ? 'Cloudways → DigitalOcean data sync (full)'
+            : 'Cloudways → DigitalOcean data sync (tables only: '.implode(', ', $onlyTables).')');
         $this->line('SOURCE (production, read-only): '.$source['host'].':'.$source['port'].'/'.$source['database']);
         $this->line('TARGET (overwrite): '.$target['host'].':'.$target['port'].'/'.$target['database']);
         $this->line('');
 
         try {
-            $this->info('Step 1/3: ensure target database exists…');
-            CloudwaysToDigitalOceanDataMigrator::ensureDatabaseExists($target);
-            $this->info('  Database ready: '.$target['database']);
+            if (! $skipMigrate) {
+                $this->info('Step 1/3: ensure target database exists…');
+                CloudwaysToDigitalOceanDataMigrator::ensureDatabaseExists($target);
+                $this->info('  Database ready: '.$target['database']);
 
-            $this->info('Step 2/3: migrate schema on target…');
-            Artisan::call('migrate', ['--force' => true]);
-            $migrateOutput = trim(Artisan::output());
-            if ($migrateOutput !== '') {
-                $this->line($migrateOutput);
+                $this->info('Step 2/3: migrate schema on target…');
+                Artisan::call('migrate', ['--force' => true]);
+                $migrateOutput = trim(Artisan::output());
+                if ($migrateOutput !== '') {
+                    $this->line($migrateOutput);
+                }
+
+                $this->info('Step 3/3: copy production data (truncate + insert, preserve PKs)…');
+            } else {
+                $this->info('Quick mode: truncate + insert selected table(s) only (no migrate).');
             }
 
-            $this->info('Step 3/3: copy production data (truncate + insert, preserve PKs)…');
             $migrator = new CloudwaysToDigitalOceanDataMigrator($source, $target);
-            $tables = $migrator->listProductionTables();
+            $tables = $onlyTables === [] ? $migrator->listProductionTables() : $onlyTables;
             $bar = $this->output->createProgressBar(count($tables));
             $bar->setFormat(' %current%/%max% [%bar%] %percent:3s%% %message%');
             $bar->setMessage('starting');
             $bar->start();
 
-            $result = $migrator->syncAll(function (string $table, array $entry) use ($bar): void {
+            $result = $migrator->syncTables($tables, function (string $table, array $entry) use ($bar): void {
                 $bar->setMessage($table);
                 $bar->advance();
             });

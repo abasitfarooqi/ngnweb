@@ -186,6 +186,20 @@ php artisan cloudways-to-digital-ocean:sync-data
 
 No flags. Change `DB_DATABASE` in `.env` if you want a different target.
 
+### Quick: club members only (overwrite `club_members` from production)
+
+Does **not** run full DB migrate/sync. Truncates + inserts latest `club_members` only.
+
+```bash
+php artisan cloudways-to-digital-ocean:sync-club-members
+```
+
+Same as:
+
+```bash
+php artisan cloudways-to-digital-ocean:sync-data --only=club_members
+```
+
 ---
 
 ## What the command does (3 steps)

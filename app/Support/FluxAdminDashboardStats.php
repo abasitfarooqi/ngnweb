@@ -57,6 +57,13 @@ class FluxAdminDashboardStats
                 ->distinct('club_member_id')
                 ->count('club_member_id');
 
+            // Visit records: day one → today, and calendar month (1st → today)
+            $allTimeVisits = ClubMemberPurchase::whereDate('date', '<=', $today)->count();
+            $thisMonthVisits = ClubMemberPurchase::whereBetween('date', [
+                Carbon::now()->startOfMonth()->toDateString(),
+                $today->toDateString(),
+            ])->count();
+
             $currentWeekStart = Carbon::now()->startOfWeek();
             $currentWeekEnd = Carbon::now()->endOfWeek();
             $lastWeekStart = Carbon::now()->subWeek()->startOfWeek();
@@ -79,8 +86,17 @@ class FluxAdminDashboardStats
                     'day_before_label' => $dayBeforeYesterday->format('D, M j'),
                     'yesterday' => $yesterdayVisitors,
                     'today' => $todayVisitors,
+                    'all_time' => $allTimeVisits,
+                    'this_month' => $thisMonthVisits,
+                    'this_month_label' => Carbon::now()->format('M Y'),
                 ],
                 'sales' => [
+                    'total' => $postedFinance()->count(),
+                    'this_year' => $postedFinance()->whereBetween('contract_date', [
+                        Carbon::now()->startOfYear(),
+                        Carbon::now()->endOfYear(),
+                    ])->count(),
+                    'this_year_label' => Carbon::now()->format('Y'),
                     'this_week' => $postedFinance()->whereBetween('contract_date', [$currentWeekStart, $currentWeekEnd])->count(),
                     'last_week' => $postedFinance()->whereBetween('contract_date', [$lastWeekStart, $lastWeekEnd])->count(),
                     'this_month' => $postedFinance()->whereBetween('contract_date', [$currentMonthStart, $currentMonthEnd])->count(),

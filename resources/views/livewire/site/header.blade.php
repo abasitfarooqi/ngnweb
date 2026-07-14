@@ -33,16 +33,16 @@
 {{-- Main sticky header (below mobile drawer so menu overlay wins) --}}
 <header class="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 sticky top-0 z-40">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex items-center h-14 sm:h-16 gap-3">
+        <div class="flex items-center h-12 sm:h-16 gap-3">
 
             {{-- Hamburger (mobile/tablet) --}}
             <button type="button"
                 @click="mobileOpen = !mobileOpen"
-                class="lg:hidden p-2 -m-2 text-gray-600 dark:text-gray-400 hover:text-brand-red transition"
+                class="lg:hidden relative inline-flex items-center justify-center h-10 w-10 -m-1 text-gray-600 dark:text-gray-400 hover:text-brand-red transition"
                 :aria-expanded="mobileOpen.toString()"
                 aria-label="Toggle navigation">
                 <svg x-show="!mobileOpen" class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                <svg x-show="mobileOpen" x-cloak class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                <svg x-show="mobileOpen" x-cloak class="h-6 w-6 absolute" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
 
             {{-- Logo --}}
@@ -381,8 +381,5 @@
         <span class="text-[10px] font-medium">Account</span>
     </a>
 </div>
-
-{{-- Spacer for mobile bottom bar --}}
-<div class="lg:hidden h-14"></div>
 
 </div>

@@ -49,7 +49,7 @@
                                     <h3 class="font-semibold text-gray-900 dark:text-white">{{ $motorcycle->make }} {{ $motorcycle->model }}</h3>
                                     <p class="text-brand-red font-bold text-lg mt-2">
                                         @if($motorcycle->sale_new_price)
-                                            £{{ number_format((float) $motorcycle->sale_new_price, 0) }}
+                                            £{{ number_format((float) $motorcycle->sale_new_price, 2) }}
                                         @else
                                             <span class="text-sm text-gray-500 font-normal">Call for price</span>
                                         @endif

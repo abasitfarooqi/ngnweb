@@ -1,8 +1,9 @@
 <div>
-    <x-flux-admin::data-table title="NGN MIT queue" description="Upcoming scheduled recurring billing runs.">
+    @include('flux-admin.partials.judopay-ops-hub')
+    <x-flux-admin::data-table title="NGN MIT queue" description="Upcoming runs — Add to queue / Stop use the same JudopayMit helpers as Backpack; open weekly schedule for the full firing chamber UI.">
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <a href="{{ route('flux-admin.ngn-mit-queue.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New entry</flux:button></a>
+            <a href="{{ route('flux-admin.judopay.weekly-mit-queue') }}"><flux:button size="sm" variant="primary" icon="calendar-days" class="!rounded-none">Weekly schedule</flux:button></a>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search invoice #…">
@@ -44,10 +45,12 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="$r->status" /></flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="(bool) $r->cleared" /></flux:table.cell>
                         <flux:table.cell>
-                            <div class="flex gap-1">
+                            <div class="flex flex-wrap gap-1">
+                                @if($r->subscribable_id)
+                                    <a href="{{ route('flux-admin.judopay.subscribe', $r->subscribable_id) }}"><flux:button size="xs" variant="primary" icon="credit-card" class="!rounded-none">Manage</flux:button></a>
+                                @endif
                                 <a href="{{ route('flux-admin.ngn-mit-queue.edit', $r->id) }}"><flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button></a>
-                                <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this queue entry?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
-                                @if(!$r->is_in_live_chamber && in_array($r->status, ['pending', 'failed']))
+                                @if(!$r->is_in_live_chamber && in_array($r->status, ['pending', 'failed'], true))
                                     <flux:button size="xs" variant="ghost" wire:click="addToQueue({{ $r->id }})" wire:confirm="Add this item to the live firing chamber?" icon="play" class="!rounded-none text-green-600 dark:text-green-400">Add to queue</flux:button>
                                 @endif
                                 @if($r->is_in_live_chamber && $r->live_chamber_item_id)

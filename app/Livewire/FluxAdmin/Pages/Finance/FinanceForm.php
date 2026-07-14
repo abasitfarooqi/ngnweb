@@ -96,6 +96,17 @@ class FinanceForm extends Component
             $this->applyContractTypeSelection('is_new_latest');
         }
 
+        // Legacy records must re-select a latest contract type before save.
+        if (! in_array((string) ($this->form['contract_type'] ?? ''), ['is_new_latest', 'is_used_latest'], true)) {
+            $this->form['contract_type'] = '';
+            $this->form['is_new'] = false;
+            $this->form['is_used'] = false;
+            $this->form['is_used_extended'] = false;
+            $this->form['is_used_extended_custom'] = false;
+            $this->form['is_new_latest'] = false;
+            $this->form['is_used_latest'] = false;
+        }
+
         if ($this->itemRows === []) {
             $this->addItemRow();
         }
@@ -116,10 +127,22 @@ class FinanceForm extends Component
 
         if (! $this->form['is_subscription']) {
             $this->form['subscription_option'] = null;
-            if (! in_array(($this->form['contract_type'] ?? ''), ['is_new_latest', 'is_used_latest'], true)) {
-                $this->form['subs_payment_date'] = null;
-            }
         }
+    }
+
+    /**
+     * Match Backpack finance-application-checkboxes.js:
+     * payment day shows for New/Used Latest OR when subscription is ticked.
+     */
+    public function shouldShowPaymentDayField(): bool
+    {
+        if (! empty($this->form['is_subscription'])) {
+            return true;
+        }
+
+        return in_array((string) ($this->form['contract_type'] ?? ''), ['is_new_latest', 'is_used_latest'], true)
+            || ! empty($this->form['is_new_latest'])
+            || ! empty($this->form['is_used_latest']);
     }
 
     public function updatingCustomerSearch(): void
@@ -157,20 +180,36 @@ class FinanceForm extends Component
     public function updatedMotorbikeSearches($value, $key): void
     {
         $index = (int) $key;
+        $term = trim((string) $value);
 
-        if (strlen((string) $value) < 2) {
+        if (isset($this->itemRows[$index])) {
+            $this->itemRows[$index]['motorbike_id'] = null;
+            $this->resetErrorBag('itemRows.'.$index.'.motorbike_id');
+            $this->resetErrorBag('itemRows');
+        }
+
+        if (strlen($term) < 1) {
             $this->motorbikeSuggestions[$index] = [];
 
             return;
         }
 
+        $compact = strtoupper(preg_replace('/\s+/', '', $term) ?? $term);
+
         $this->motorbikeSuggestions[$index] = Motorbike::query()
-            ->where(function ($q) use ($value) {
-                $q->where('reg_no', 'like', '%' . $value . '%')
-                    ->orWhere('make', 'like', '%' . $value . '%')
-                    ->orWhere('model', 'like', '%' . $value . '%')
-                    ->orWhere('vin_number', 'like', '%' . $value . '%');
+            ->where(function ($q) use ($term, $compact) {
+                $q->where('reg_no', 'like', '%'.$term.'%')
+                    ->orWhereRaw("REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') LIKE ?", ['%'.$compact.'%'])
+                    ->orWhere('make', 'like', '%'.$term.'%')
+                    ->orWhere('model', 'like', '%'.$term.'%')
+                    ->orWhere('vin_number', 'like', '%'.$term.'%');
             })
+            ->orderByRaw(
+                "CASE WHEN REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') = ? THEN 0
+                      WHEN REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') LIKE ? THEN 1
+                      ELSE 2 END",
+                [$compact, $compact.'%']
+            )
             ->limit(10)
             ->get(['id', 'reg_no', 'make', 'model', 'year', 'vin_number'])
             ->map(fn (Motorbike $motorbike) => [
@@ -178,6 +217,32 @@ class FinanceForm extends Component
                 'label' => $motorbike->detail,
             ])
             ->toArray();
+    }
+
+    public function commitMotorbikeSearch(int $index): void
+    {
+        $suggestions = $this->motorbikeSuggestions[$index] ?? [];
+        if ($suggestions === []) {
+            $this->updatedMotorbikeSearches($this->motorbikeSearches[$index] ?? '', (string) $index);
+            $suggestions = $this->motorbikeSuggestions[$index] ?? [];
+        }
+
+        if ($suggestions === []) {
+            return;
+        }
+
+        $compact = strtoupper(preg_replace('/\s+/', '', (string) ($this->motorbikeSearches[$index] ?? '')) ?? '');
+        foreach ($suggestions as $suggestion) {
+            $labelReg = strtoupper(preg_replace('/\s+/', '', explode('|', (string) $suggestion['label'])[0] ?? '') ?? '');
+            if ($compact !== '' && $labelReg === $compact) {
+                $this->selectMotorbike($index, (int) $suggestion['id'], (string) $suggestion['label']);
+
+                return;
+            }
+        }
+
+        $first = $suggestions[0];
+        $this->selectMotorbike($index, (int) $first['id'], (string) $first['label']);
     }
 
     public function selectMotorbike(int $index, int $id, string $label): void
@@ -189,6 +254,8 @@ class FinanceForm extends Component
         $this->itemRows[$index]['motorbike_id'] = $id;
         $this->motorbikeSearches[$index] = $label;
         $this->motorbikeSuggestions[$index] = [];
+        $this->resetErrorBag('itemRows.'.$index.'.motorbike_id');
+        $this->resetErrorBag('itemRows');
     }
 
     public function addItemRow(): void
@@ -234,33 +301,25 @@ class FinanceForm extends Component
 
     protected function applyContractTypeSelection(string $type): void
     {
-        $all = ['is_new', 'is_used', 'is_used_extended', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest'];
-        foreach ($all as $flag) {
-            $this->form[$flag] = ($flag === $type);
+        $legacy = ['is_new', 'is_used', 'is_used_extended', 'is_used_extended_custom'];
+        foreach ($legacy as $flag) {
+            $this->form[$flag] = false;
         }
+
+        $this->form['is_new_latest'] = ($type === 'is_new_latest');
+        $this->form['is_used_latest'] = ($type === 'is_used_latest');
+        $this->form['is_monthly'] = true;
 
         if (! empty($this->form['is_subscription']) && empty($this->form['subscription_option'])) {
             $this->form['subscription_option'] = 'A';
-        }
-
-        if (empty($this->form['is_subscription']) && ! in_array($type, ['is_new_latest', 'is_used_latest'], true)) {
-            $this->form['subs_payment_date'] = null;
-        }
-
-        if (! in_array($type, ['is_new', 'is_used'], true)) {
-            $this->form['is_monthly'] = false;
         }
     }
 
     protected function resolveContractType(FinanceApplication $application): string
     {
         return match (true) {
-            (bool) $application->is_new => 'is_new',
-            (bool) $application->is_used_extended => 'is_used_extended',
             (bool) $application->is_new_latest => 'is_new_latest',
             (bool) $application->is_used_latest => 'is_used_latest',
-            (bool) $application->is_used_extended_custom => 'is_used_extended_custom',
-            (bool) $application->is_used => 'is_used',
             default => '',
         };
     }
@@ -272,7 +331,7 @@ class FinanceForm extends Component
         return [
             'form.customer_id'              => ['required', 'integer', 'exists:customers,id'],
             'form.user_id'                  => ['nullable', 'integer', 'exists:users,id'],
-            'form.contract_type'            => ['required', Rule::in(['is_new', 'is_used', 'is_used_extended', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest'])],
+            'form.contract_type'            => ['required', Rule::in(['is_new_latest', 'is_used_latest'])],
             'form.contract_date'            => ['required', 'date'],
             'form.first_instalment_date'    => ['nullable', 'date'],
             'form.motorbike_price'          => ['required', 'numeric', 'min:0', 'decimal:0,2'],
@@ -323,11 +382,14 @@ class FinanceForm extends Component
 
         $this->applyContractTypeSelection((string) ($payload['contract_type'] ?? ''));
 
-        foreach (['is_used', 'is_used_extended', 'is_used_extended_custom', 'is_new_latest', 'is_used_latest'] as $flag) {
-            $payload[$flag] = (bool) ($this->form[$flag] ?? false);
-        }
-        $payload['is_new'] = (bool) ($this->form['is_new'] ?? false);
+        $payload['is_new'] = false;
+        $payload['is_used'] = false;
+        $payload['is_used_extended'] = false;
+        $payload['is_used_extended_custom'] = false;
+        $payload['is_new_latest'] = (bool) ($this->form['is_new_latest'] ?? false);
+        $payload['is_used_latest'] = (bool) ($this->form['is_used_latest'] ?? false);
         $payload['is_subscription'] = (bool) ($this->form['is_subscription'] ?? false);
+        $payload['is_monthly'] = true;
         if (! $payload['is_subscription']) {
             $payload['subscription_option'] = null;
         }
@@ -341,14 +403,14 @@ class FinanceForm extends Component
         $generationContext = [
             'insurance_pcn' => (bool) ($payload['insurance_pcn'] ?? true),
             'no_email' => (bool) ($payload['no_email'] ?? true),
-            'is_new' => (bool) ($payload['is_new'] ?? false),
-            'is_used' => (bool) ($payload['is_used'] ?? false),
-            'is_used_extended' => (bool) ($payload['is_used_extended'] ?? false),
-            'is_used_extended_custom' => (bool) ($payload['is_used_extended_custom'] ?? false),
+            'is_new' => false,
+            'is_used' => false,
+            'is_used_extended' => false,
+            'is_used_extended_custom' => false,
             'is_new_latest' => (bool) ($payload['is_new_latest'] ?? false),
             'is_used_latest' => (bool) ($payload['is_used_latest'] ?? false),
             'is_subscription' => (bool) ($payload['is_subscription'] ?? false),
-            'is_monthly' => (bool) ($payload['is_monthly'] ?? true),
+            'is_monthly' => true,
             'log_book_sent' => (bool) ($payload['log_book_sent'] ?? false),
         ];
 

@@ -1,13 +1,14 @@
 {{-- DASHBOARD --}}
 <x-backpack::menu-item title="Dashboard" icon="la la-home" :link="backpack_url('dashboard')" />
+<x-backpack::menu-item title="Flux Admin" icon="la la-th-large" :link="url('/flux-admin/dashboard')" />
 
 @can('see-menu-ecommerce')
 <x-backpack::menu-item title="ONLINE STORE" icon="la la-shopping-cart" :link="backpack_url('ec-order')" />
 @endcan
 
-{{-- FINANCE --}}
+{{-- PAYMENT PLAN --}}
 @can('see-menu-finance')
-<x-backpack::menu-dropdown title="FINANCE" icon="las la-chevron-circle-down">
+<x-backpack::menu-dropdown title="PAYMENT PLAN" icon="las la-chevron-circle-down">
     <x-backpack::menu-dropdown-item title="Create New / Edit" icon="la la-user" :link="backpack_url('finance-application')" />
     <x-backpack::menu-dropdown-item title="Contract Signature Expire" icon="la la-external-link-alt" :link="backpack_url('contract-access')" />
 </x-backpack::menu-dropdown>
@@ -18,7 +19,7 @@
 <x-backpack::menu-dropdown title="RENTALS" icon="las la-chevron-circle-down">
     <x-backpack::menu-dropdown-item title="Rental Operations" icon="la la-columns" :link="backpack_url('rental-operations')" />
     <x-backpack::menu-dropdown-item title="New Booking" icon="la la-plus" :link="route('page.rental_operations.new_booking')" />
-    <x-backpack::menu-dropdown-item title="Bookings Management" icon="la la-list" :link="route('admin.renting.bookings')" />
+    <x-backpack::menu-dropdown-item title="Bookings Management" icon="la la-list" :link="route('page.rental_operations.bookings_management')" />
     <x-backpack::menu-dropdown-item title="Motorbike Pricing" icon="la la-pound-sign" :link="route('admin.motorbikes.pricing')" />
     <x-backpack::menu-dropdown-item title="Inactive Bookings" icon="la la-toggle-off" :link="route('admin.renting.bookings.inactive')" />
     <x-backpack::menu-dropdown-item title="Ended with pendings" icon="la la-exclamation-circle" :link="route('admin.renting.bookings.ended-with-pendings')" />

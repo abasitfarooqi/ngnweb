@@ -38,6 +38,13 @@
             ->distinct('club_member_id')
             ->count('club_member_id');
 
+        $allTimeVisits = \App\Models\ClubMemberPurchase::whereDate('date', '<=', $today)->count();
+        $thisMonthVisits = \App\Models\ClubMemberPurchase::whereBetween('date', [
+            \Carbon\Carbon::now()->startOfMonth()->toDateString(),
+            $today->toDateString(),
+        ])->count();
+        $thisMonthLabel = \Carbon\Carbon::now()->format('M Y');
+
         \Backpack\CRUD\app\Library\Widget::add([
             'type' => 'div',
             'class' => 'row mb-2',
@@ -56,7 +63,7 @@
 
         \Backpack\CRUD\app\Library\Widget::add([
             'type' => 'div',
-            'class' => 'row mb-4',
+            'class' => 'row mb-2',
             'content' => [
                 [
                     'type' => 'view',
@@ -86,6 +93,33 @@
                     'color' => 'success',
                     'value' => $todayVisitors,
                     'label' => "Today's Visits",
+                    'link' => backpack_url('ngn_club'),
+                ],
+            ],
+        ])->to('before_content');
+
+        \Backpack\CRUD\app\Library\Widget::add([
+            'type' => 'div',
+            'class' => 'row mb-4',
+            'content' => [
+                [
+                    'type' => 'view',
+                    'view' => 'components.stat-card',
+                    'wrapper' => ['class' => 'col-md-6'],
+                    'icon' => 'la la-chart-bar',
+                    'color' => 'purple',
+                    'value' => $allTimeVisits,
+                    'label' => 'All-time Visits',
+                    'link' => backpack_url('ngn_club'),
+                ],
+                [
+                    'type' => 'view',
+                    'view' => 'components.stat-card',
+                    'wrapper' => ['class' => 'col-md-6'],
+                    'icon' => 'la la-calendar',
+                    'color' => 'warning',
+                    'value' => $thisMonthVisits,
+                    'label' => "This Month's Visits ({$thisMonthLabel})",
                     'link' => backpack_url('ngn_club'),
                 ],
             ],
@@ -128,28 +162,54 @@
         $lastMonthSales = \App\Models\FinanceApplication::where('is_posted', true)
             ->whereBetween('contract_date', [$lastMonthStart, $lastMonthEnd])
             ->count();
+        $totalBikesSold = \App\Models\FinanceApplication::where('is_posted', true)->count();
+        $thisYearSales = \App\Models\FinanceApplication::where('is_posted', true)
+            ->whereBetween('contract_date', [
+                \Carbon\Carbon::now()->startOfYear(),
+                \Carbon\Carbon::now()->endOfYear(),
+            ])
+            ->count();
+        $thisYearLabel = \Carbon\Carbon::now()->format('Y');
 
         \Backpack\CRUD\app\Library\Widget::add([
             'type' => 'div',
-            'class' => 'row mb-4',
+            'class' => 'row mb-2',
+            'content' => [
+                [
+                    'type' => 'view',
+                    'view' => 'components.stat-card',
+                    'wrapper' => ['class' => 'col-md-12'],
+                    'icon' => 'la la-motorcycle',
+                    'color' => 'text-black',
+                    'value' => 'VEHICLE SOLD',
+                    'label' => 'Brand new cash · Brand new payment plan · Used cash · Used payment plan',
+                ],
+            ],
+        ])->to('before_content');
+
+        \Backpack\CRUD\app\Library\Widget::add([
+            'type' => 'div',
+            'class' => 'row mb-2',
             'content' => [
                 [
                     'type' => 'view',
                     'view' => 'components.stat-card',
                     'wrapper' => ['class' => 'col-md-3'],
-                    'icon' => 'la la-calendar-check',
-                    'color' => 'success',
-                    'value' => $currentWeekSales,
-                    'label' => 'Bikes Sold This Week',
+                    'icon' => 'la la-motorcycle',
+                    'color' => 'purple',
+                    'value' => $totalBikesSold,
+                    'label' => 'Total Vehicles Sold',
+                    'link' => backpack_url('finance-application'),
                 ],
                 [
                     'type' => 'view',
                     'view' => 'components.stat-card',
                     'wrapper' => ['class' => 'col-md-3'],
-                    'icon' => 'la la-calendar-minus',
+                    'icon' => 'la la-calendar',
                     'color' => 'info',
-                    'value' => $lastWeekSales,
-                    'label' => 'Bikes Sold Last Week',
+                    'value' => $thisYearSales,
+                    'label' => "Vehicles Sold This Year ({$thisYearLabel})",
+                    'link' => backpack_url('finance-application'),
                 ],
                 [
                     'type' => 'view',
@@ -158,7 +218,8 @@
                     'icon' => 'la la-calendar',
                     'color' => 'warning',
                     'value' => $currentMonthSales,
-                    'label' => 'Bikes Sold This Month',
+                    'label' => 'Vehicles Sold This Month',
+                    'link' => backpack_url('finance-application'),
                 ],
                 [
                     'type' => 'view',
@@ -167,7 +228,35 @@
                     'icon' => 'la la-calendar-alt',
                     'color' => 'primary',
                     'value' => $lastMonthSales,
-                    'label' => 'Bikes Sold Last Month',
+                    'label' => 'Vehicles Sold Last Month',
+                    'link' => backpack_url('finance-application'),
+                ],
+            ],
+        ])->to('before_content');
+
+        \Backpack\CRUD\app\Library\Widget::add([
+            'type' => 'div',
+            'class' => 'row mb-4',
+            'content' => [
+                [
+                    'type' => 'view',
+                    'view' => 'components.stat-card',
+                    'wrapper' => ['class' => 'col-md-6'],
+                    'icon' => 'la la-calendar-check',
+                    'color' => 'success',
+                    'value' => $currentWeekSales,
+                    'label' => 'Vehicles Sold This Week',
+                    'link' => backpack_url('finance-application'),
+                ],
+                [
+                    'type' => 'view',
+                    'view' => 'components.stat-card',
+                    'wrapper' => ['class' => 'col-md-6'],
+                    'icon' => 'la la-calendar-minus',
+                    'color' => 'info',
+                    'value' => $lastWeekSales,
+                    'label' => 'Vehicles Sold Last Week',
+                    'link' => backpack_url('finance-application'),
                 ],
             ],
         ])->to('before_content');
@@ -247,7 +336,7 @@
                     'icon' => 'la la-money-bill',
                     'color' => 'success',
                     'value' => $activeFinance,
-                    'label' => 'Active Finance',
+                    'label' => 'Active Payment Plan',
                     'link' => backpack_url('finance-application').'?log_book_sent=0',
                 ],
                 [
@@ -257,7 +346,7 @@
                     'icon' => 'la la-times-circle',
                     'color' => 'danger',
                     'value' => $terminatedFinance,
-                    'label' => 'Terminated Finance',
+                    'label' => 'Terminated Payment Plan',
                 ],
                 [
                     'type' => 'view',
@@ -266,7 +355,7 @@
                     'icon' => 'la la-check-circle',
                     'color' => 'info',
                     'value' => $closedFinance,
-                    'label' => 'Closed Finance',
+                    'label' => 'Closed Payment Plan',
                 ],
             ],
         ])->to('before_content');

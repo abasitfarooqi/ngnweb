@@ -249,7 +249,7 @@
                             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
                                 @if($mileage !== null && $mileage !== ''){{ number_format((int) $mileage) }} miles · @endif{{ $bike->year ?? '—' }}
                             </p>
-                            <p class="text-brand-green font-black text-lg mt-2">£{{ number_format((float) ($bike->price ?? 0), 0) }}</p>
+                            <p class="text-brand-green font-black text-lg mt-2">£{{ number_format((float) ($bike->price ?? 0), 2) }}</p>
                             <div class="mt-auto pt-3">
                                 <flux:button href="{{ route('detail.used-motorcycle', ['id' => $bike->id]) }}" variant="outline" size="sm" class="w-full justify-center ring-1 ring-gray-300 dark:ring-gray-600">
                                     View details

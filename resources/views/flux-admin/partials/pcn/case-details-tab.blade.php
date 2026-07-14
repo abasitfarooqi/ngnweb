@@ -27,7 +27,9 @@
                         ? '<a href="' . e($pcnCase->picture_url) . '" target="_blank" rel="noopener" class="text-blue-600 dark:text-blue-400 hover:underline">View ↗</a>'
                         : '—',
                     'Date of Letter Issued' => $pcnCase->date_of_letter_issued ?? '—',
-                    'Assigned User' => $pcnCase->user?->first_name . ' ' . ($pcnCase->user?->last_name ?? '') ?: '—',
+                    'Assigned User' => $pcnCase->user
+                        ? trim(($pcnCase->user->first_name ?? '').' '.($pcnCase->user->last_name ?? ''))
+                        : '—',
                     'Status' => $pcnCase->isClosed ? 'Closed' : 'Open',
                 ];
             @endphp

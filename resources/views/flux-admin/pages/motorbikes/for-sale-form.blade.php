@@ -63,6 +63,23 @@
             </div>
         </div>
 
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Listing image (website)</h2>
+            <p class="mb-4 text-xs text-zinc-500 dark:text-zinc-400">Shown on the brand-new vehicles catalogue and detail page.</p>
+            <x-flux-admin::field-group label="Main image" :error="$errors->first('imageUpload')">
+                <input type="file" wire:model="imageUpload" accept="image/*" class="block w-full text-sm text-zinc-700 dark:text-zinc-300">
+            </x-flux-admin::field-group>
+            <div wire:loading wire:target="imageUpload" class="mt-1 text-xs text-zinc-500">Uploading…</div>
+            @if($imageUpload)
+                <img src="{{ $imageUpload->temporaryUrl() }}" alt="Preview" class="mt-3 h-40 w-auto max-w-full object-contain border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950">
+            @elseif($this->currentImageUrl())
+                <div class="mt-3">
+                    <img src="{{ $this->currentImageUrl() }}" alt="Current listing image" class="h-40 w-auto max-w-full object-contain border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950">
+                    <button type="button" wire:click="removeExistingImage" class="mt-2 text-xs font-medium text-red-600 hover:underline">Remove current image</button>
+                </div>
+            @endif
+        </div>
+
         <div class="flex justify-end gap-3 pt-2">
             <a href="{{ route('flux-admin.motorbike-for-sale.index') }}">
                 <flux:button type="button" variant="ghost" class="!rounded-none">Cancel</flux:button>

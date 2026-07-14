@@ -24,13 +24,13 @@
 
             <x-flux-admin::form-grid cols="3" class="mb-4">
                 <x-flux-admin::field-group label="Motorbike (reg)" required span="full" :error="$errors->first('form.motorbike_id')">
-                    <div class="relative">
-                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by registration…" autocomplete="off" />
+                    <div class="{{ count($motorbikeSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by registration…" autocomplete="off"
+                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()" />
                         @if(count($motorbikeSuggestions))
-                            <ul class="absolute z-50 mt-0.5 w-full border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 shadow-lg max-h-44 overflow-y-auto">
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
                                 @foreach($motorbikeSuggestions as $ms)
-                                    <li wire:click="selectMotorbike({{ $ms['id'] }}, '{{ addslashes($ms['reg']) }}')"
-                                        class="cursor-pointer px-3 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">{{ $ms['reg'] }}</li>
+                                    <li role="option" wire:mousedown.prevent="selectMotorbike({{ $ms['id'] }}, @js($ms['reg']))">{{ $ms['reg'] }}</li>
                                 @endforeach
                             </ul>
                         @endif
@@ -121,6 +121,34 @@
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.v5_available" class="accent-zinc-900 dark:accent-zinc-200"> V5 available
                 </label>
+            </div>
+        </div>
+
+        <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
+            <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Sale images (website)</h2>
+            <p class="mb-4 text-xs text-zinc-500 dark:text-zinc-400">These appear on the used-bike listing and detail pages. Image one is the main card photo.</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                @foreach([
+                    ['field' => 'image_one', 'upload' => 'imageOneUpload', 'label' => 'Image one (main)'],
+                    ['field' => 'image_two', 'upload' => 'imageTwoUpload', 'label' => 'Image two'],
+                    ['field' => 'image_three', 'upload' => 'imageThreeUpload', 'label' => 'Image three'],
+                    ['field' => 'image_four', 'upload' => 'imageFourUpload', 'label' => 'Image four'],
+                ] as $slot)
+                    <div class="border border-zinc-200 dark:border-zinc-700 p-3">
+                        <x-flux-admin::field-group :label="$slot['label']" :error="$errors->first($slot['upload'])">
+                            <input type="file" wire:model="{{ $slot['upload'] }}" accept="image/*" class="block w-full text-sm text-zinc-700 dark:text-zinc-300">
+                        </x-flux-admin::field-group>
+                        @if($this->{$slot['upload']})
+                            <img src="{{ $this->{$slot['upload']}->temporaryUrl() }}" alt="Preview" class="mt-2 h-28 w-full object-contain border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950">
+                        @elseif($this->currentImageUrl($form[$slot['field']] ?? null))
+                            <div class="mt-2 relative">
+                                <img src="{{ $this->currentImageUrl($form[$slot['field']] ?? null) }}" alt="Current" class="h-28 w-full object-contain border border-zinc-200 dark:border-zinc-700 bg-zinc-50 dark:bg-zinc-950">
+                                <button type="button" wire:click="removeExistingImage('{{ $slot['field'] }}')" class="mt-2 text-xs font-medium text-red-600 hover:underline">Remove current</button>
+                            </div>
+                        @endif
+                        <div wire:loading wire:target="{{ $slot['upload'] }}" class="mt-1 text-xs text-zinc-500">Uploading…</div>
+                    </div>
+                @endforeach
             </div>
         </div>
 

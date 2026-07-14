@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 #[Layout('flux-admin.layouts.app')]
@@ -16,9 +17,16 @@ class PcnDashboard extends Component
 {
     use WithAuthorization;
 
+    #[Url]
+    public string $listSort = 'desc';
+
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-pcn-portal');
+        $this->authorizeModule('see-menu-pcns');
+
+        if (! in_array($this->listSort, ['asc', 'desc'], true)) {
+            $this->listSort = 'desc';
+        }
     }
 
     public function sendReminder(int $id): void
@@ -39,6 +47,16 @@ class PcnDashboard extends Component
         $cancelledCases = PcnCase::whereHas('updates', fn ($q) => $q->where('is_cancled', true))->count();
         $appealedCases = PcnCase::where('isClosed', false)->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count();
 
+        $appealedStats = [
+            'police' => PcnCase::where('is_police', true)->where('isClosed', false)->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count(),
+            'regular' => PcnCase::where('is_police', false)->where('isClosed', false)->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count(),
+        ];
+
+        $cancelledStats = [
+            'police' => PcnCase::where('is_police', true)->whereHas('updates', fn ($q) => $q->where('is_cancled', true))->count(),
+            'regular' => PcnCase::where('is_police', false)->whereHas('updates', fn ($q) => $q->where('is_cancled', true))->count(),
+        ];
+
         $totalFullAmount = PcnCase::where('isClosed', false)->sum('full_amount');
         $totalReducedAmount = PcnCase::where('isClosed', false)->sum('reduced_amount');
 
@@ -58,7 +76,7 @@ class PcnDashboard extends Component
             DB::raw('SUM(CASE WHEN isClosed = 1 THEN 1 ELSE 0 END) as closed'),
             DB::raw('SUM(CASE WHEN isClosed = 0 THEN 1 ELSE 0 END) as open')
         )->where('date_of_contravention', '>=', Carbon::now()->subMonths(12))
-          ->groupBy('month')->orderBy('month')->get();
+            ->groupBy('month')->orderBy('month')->get();
 
         $topVehicles = PcnCase::select('motorbike_id', 'customer_id')
             ->selectRaw('COUNT(*) as pcn_count')
@@ -72,17 +90,16 @@ class PcnDashboard extends Component
 
         $pcnList = PcnCase::with(['customer:id,first_name,last_name,phone,whatsapp', 'motorbike:id,reg_no'])
             ->where('isClosed', false)
-            ->orderByDesc('created_at')
-            ->limit(100)
+            ->orderBy('created_at', $this->listSort)
             ->get()
             ->map(function ($pcn) {
                 $customerName = $pcn->customer ? trim($pcn->customer->first_name.' '.$pcn->customer->last_name) : 'N/A';
-                $phone = $pcn->customer ? ($pcn->customer->whatsapp ?? $pcn->customer->phone ?? '') : '';
+                $phone = $pcn->customer ? ($pcn->customer->whatsapp ?: $pcn->customer->phone ?: '') : '';
                 $phone = preg_replace('/\s+|^0/', '', (string) $phone);
                 $phone = preg_replace('/^(\+44)+/', '', $phone);
                 $phone = preg_replace('/^44/', '', $phone);
                 $phone = $phone !== '' ? '+44'.$phone : '';
-                $message = "Dear {$customerName}, this is a reminder regarding Penalty Charge Notice {$pcn->pcn_number} for vehicle ".($pcn->motorbike?->reg_no ?? 'N/A').". The outstanding amount of £{$pcn->reduced_amount} remains unpaid.";
+                $message = "Dear {$customerName}, this is a reminder regarding Penalty Charge Notice {$pcn->pcn_number} for vehicle ".($pcn->motorbike?->reg_no ?? 'N/A').". The outstanding amount of £{$pcn->reduced_amount} remains unpaid. Please make payment promptly to avoid further increases. If you have already paid, contact us on 0208 314 1498 or WhatsApp 07951790568. NGN Motors.";
 
                 return (object) [
                     'id' => $pcn->id,
@@ -92,13 +109,14 @@ class PcnDashboard extends Component
                     'amount' => $pcn->reduced_amount,
                     'is_whatsapp_sent' => $pcn->is_whatsapp_sent,
                     'whatsapp_last_reminder_sent_at' => $pcn->whatsapp_last_reminder_sent_at
-                        ? \Carbon\Carbon::parse($pcn->whatsapp_last_reminder_sent_at)->format('d/m/Y H:i') : 'N/A',
+                        ? Carbon::parse($pcn->whatsapp_last_reminder_sent_at)->format('d/m/Y H:i') : 'N/A',
                     'whatsapp_url' => $phone !== '' ? 'https://wa.me/'.$phone.'?text='.urlencode($message) : '#',
                 ];
             });
 
         return view('flux-admin.pages.pcn.dashboard', compact(
             'totalCases', 'openCases', 'closedCases', 'cancelledCases', 'appealedCases',
+            'appealedStats', 'cancelledStats',
             'totalFullAmount', 'totalReducedAmount', 'policeStats', 'outstandingAmounts',
             'monthlyStats', 'topVehicles', 'pcnList'
         ));

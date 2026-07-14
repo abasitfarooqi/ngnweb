@@ -2,10 +2,11 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Club;
 
+use App\Livewire\FluxAdmin\Concerns\SearchesClubMembers;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\ClubMember;
-use App\Models\ClubMemberSpending;
 use App\Models\ClubMemberSpendingPayment;
+use App\Services\ClubSpendingPaymentAllocator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -16,6 +17,7 @@ use Livewire\Component;
 #[Title('Club Spending Payment — Flux Admin')]
 class SpendingPaymentForm extends Component
 {
+    use SearchesClubMembers;
     use WithAuthorization;
 
     public ?ClubMemberSpendingPayment $spendingPayment = null;
@@ -35,10 +37,23 @@ class SpendingPaymentForm extends Component
         if ($this->spendingPayment) {
             $this->form = $this->spendingPayment->getAttributes();
             $this->form['date'] = $this->spendingPayment->date ? Carbon::parse($this->spendingPayment->date)->format('Y-m-d') : null;
+            $this->form['include_today'] = true;
+            $this->fillMemberSearchLabel((int) $this->spendingPayment->club_member_id);
         } else {
-            $this->form = ['date' => now()->toDateString(), 'include_today' => true];
+            $this->form = [
+                'date' => now()->toDateString(),
+                'include_today' => true,
+                'branch_id' => '',
+                'received_total' => '',
+                'spending_id' => null,
+            ];
         }
 
+        $this->refreshSpendingTotals();
+    }
+
+    public function onClubMemberSelected(ClubMember $member): void
+    {
         $this->refreshSpendingTotals();
     }
 
@@ -47,51 +62,57 @@ class SpendingPaymentForm extends Component
         $this->refreshSpendingTotals();
     }
 
-    public function save(): void
+    public function save(ClubSpendingPaymentAllocator $allocator): void
     {
         $this->validate([
-            'form.date'           => ['required', 'date'],
+            'form.date' => ['required', 'date'],
             'form.club_member_id' => ['required', 'integer', 'exists:club_members,id'],
-            'form.spending_id'    => ['nullable', 'integer', 'exists:club_member_spendings,id'],
-            'form.pos_invoice'    => ['nullable', 'string', 'max:50'],
+            'form.pos_invoice' => ['nullable', 'string', 'max:50'],
             'form.received_total' => [
                 'required',
                 'numeric',
                 'min:0.01',
                 function ($attribute, $value, $fail): void {
                     $member = ClubMember::find($this->form['club_member_id'] ?? null);
-                    if ($member && (float) $value > (float) $member->total_unpaid_spending) {
-                        $fail("The payment amount (£{$value}) exceeds total unpaid amount (£{$member->total_unpaid_spending}).");
+                    if (! $member) {
+                        return;
+                    }
+                    $available = (float) $member->total_unpaid_spending;
+                    if ($this->spendingPayment) {
+                        $available += (float) $this->spendingPayment->received_total;
+                    }
+                    if ((float) $value > round($available, 2) + 0.001) {
+                        $fail("The payment amount (£{$value}) exceeds total unpaid amount (£".number_format($available, 2).').');
                     }
                 },
             ],
-            'form.branch_id'      => ['required', 'string', 'in:CATFORD,SUTTON,TOOTING'],
-            'form.note'           => ['nullable', 'string', 'max:255'],
-            'form.include_today'  => ['boolean'],
+            'form.branch_id' => ['required', 'string', 'in:CATFORD,SUTTON,TOOTING'],
+            'form.note' => ['nullable', 'string', 'max:255'],
+            'form.include_today' => ['boolean'],
         ]);
 
         $payload = [
-            'date'           => $this->form['date'],
+            'date' => $this->form['date'],
             'club_member_id' => $this->form['club_member_id'],
-            'spending_id'    => $this->form['spending_id'] ?: null,
-            'pos_invoice'    => $this->form['pos_invoice'] ?? null,
+            'spending_id' => null, // FIFO across unpaid spendings (Backpack behaviour)
+            'pos_invoice' => $this->form['pos_invoice'] ?: null,
             'received_total' => $this->form['received_total'],
-            'branch_id'      => $this->form['branch_id'],
-            'note'           => $this->form['note'] ?? null,
-            'user_id'        => auth()->id(),
+            'branch_id' => $this->form['branch_id'],
+            'note' => $this->form['note'] ?? null,
+            'user_id' => backpack_user()?->id ?? auth()->id(),
         ];
 
-        DB::transaction(function () use ($payload): void {
+        DB::transaction(function () use ($payload, $allocator): void {
             if ($this->spendingPayment) {
                 $original = $this->spendingPayment->replicate();
-                $this->revertPayment($original);
+                $allocator->revert($original);
                 $this->spendingPayment->update($payload);
                 $entry = $this->spendingPayment->refresh();
             } else {
                 $entry = ClubMemberSpendingPayment::create($payload);
             }
 
-            $this->applyPaymentToSpendings($entry);
+            $allocator->apply($entry, (bool) ($this->form['include_today'] ?? true));
         });
 
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Payment saved.');
@@ -110,102 +131,5 @@ class SpendingPaymentForm extends Component
 
         $this->totalSpending = $member ? round((float) $member->total_spending, 2) : null;
         $this->totalUnpaid = $member ? round((float) $member->total_unpaid_spending, 2) : null;
-    }
-
-    protected function applyPaymentToSpendings(ClubMemberSpendingPayment $entry): void
-    {
-        $remainingPayment = round((float) $entry->received_total, 2);
-        if ($remainingPayment <= 0) {
-            return;
-        }
-
-        $affectedSpendings = [];
-        $query = ClubMemberSpending::query()
-            ->where('club_member_id', $entry->club_member_id)
-            ->where(function ($q): void {
-                $q->where('is_paid', false)
-                    ->orWhere(function ($subQ): void {
-                        $subQ->where('is_paid', true)
-                            ->whereRaw('ROUND(total - COALESCE(paid_amount, 0), 2) > 0.01');
-                    });
-            });
-
-        if ($entry->spending_id) {
-            $query->where('id', $entry->spending_id);
-        }
-
-        if ($entry->spending_id && empty($this->form['include_today'])) {
-            $query->whereDate('date', '<>', now()->toDateString());
-        }
-
-        $spendings = $query->orderBy('date')->orderBy('id')->get();
-
-        foreach ($spendings as $spending) {
-            if ($remainingPayment <= 0) {
-                break;
-            }
-
-            $paidAmount = round((float) ($spending->paid_amount ?? 0), 2);
-            $unpaidAmount = round((float) $spending->total - $paidAmount, 2);
-            if ($unpaidAmount <= 0.01) {
-                continue;
-            }
-
-            $appliedAmount = min($remainingPayment, $unpaidAmount);
-            $newPaidAmount = round($paidAmount + $appliedAmount, 2);
-
-            $spending->forceFill([
-                'paid_amount' => $newPaidAmount,
-                'is_paid' => round((float) $spending->total - $newPaidAmount, 2) <= 0.01,
-            ])->save();
-
-            $affectedSpendings[] = $spending->id;
-            $remainingPayment = round($remainingPayment - $appliedAmount, 2);
-        }
-
-        if ($affectedSpendings) {
-            $appliedTotal = round((float) $entry->received_total - $remainingPayment, 2);
-            $note = 'Applied £'.number_format($appliedTotal, 2, '.', '').' using FIFO to spending IDs: '.implode(', ', $affectedSpendings);
-            if ($remainingPayment > 0) {
-                $note .= '. Remaining £'.number_format($remainingPayment, 2, '.', '').' could not be applied.';
-            }
-
-            $entry->forceFill([
-                'note' => trim(($entry->note ?? '')."\n".$note),
-                'spending_id' => null,
-            ])->save();
-        }
-    }
-
-    protected function revertPayment(ClubMemberSpendingPayment $payment): void
-    {
-        $remainingRevert = round((float) ($payment->received_total ?? 0), 2);
-        if ($remainingRevert <= 0) {
-            return;
-        }
-
-        $spendings = ClubMemberSpending::query()
-            ->where('club_member_id', $payment->club_member_id)
-            ->where('paid_amount', '>', 0)
-            ->orderByDesc('date')
-            ->orderByDesc('id')
-            ->get();
-
-        foreach ($spendings as $spending) {
-            if ($remainingRevert <= 0) {
-                break;
-            }
-
-            $currentPaid = round((float) ($spending->paid_amount ?? 0), 2);
-            $revertAmount = min($remainingRevert, $currentPaid);
-            $newPaid = max(0, round($currentPaid - $revertAmount, 2));
-
-            $spending->forceFill([
-                'paid_amount' => $newPaid,
-                'is_paid' => round((float) $spending->total - $newPaid, 2) <= 0.01,
-            ])->save();
-
-            $remainingRevert = round($remainingRevert - $revertAmount, 2);
-        }
     }
 }

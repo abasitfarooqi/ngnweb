@@ -17,7 +17,7 @@
         <x-slot:stats>
             <x-flux-admin::stat-card label="Full Amount" :value="'£' . number_format($pcnCase->full_amount ?? 0, 2)" icon="banknotes" colour="red" />
             <x-flux-admin::stat-card label="Reduced Amount" :value="'£' . number_format($pcnCase->reduced_amount ?? 0, 2)" icon="receipt-percent" colour="amber" />
-            <x-flux-admin::stat-card label="Days Since" :value="$pcnCase->getDaysSinceContravention()" icon="clock" colour="blue" />
+            <x-flux-admin::stat-card label="Days Since" :value="$pcnCase->getDaysSinceContravention() ?? '—'" icon="clock" colour="blue" />
             <x-flux-admin::stat-card label="Updates" :value="$pcnCase->updates()->count()" icon="arrow-path" colour="purple" />
         </x-slot:stats>
     </x-flux-admin::summary-header>

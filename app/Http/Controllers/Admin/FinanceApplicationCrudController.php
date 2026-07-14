@@ -136,16 +136,17 @@ class FinanceApplicationCrudController extends BaseCrudController
 
         CRUD::addFilter(
             [
-                'name' => 'is_used',
+                'name' => 'contract_type_latest',
                 'type' => 'select2',
-                'label' => 'Vehicle Condition',
+                'label' => 'Contract Type',
             ],
             [
-                0 => 'New',
-                1 => 'Used',
+                'is_new_latest' => 'New Latest',
+                'is_used_latest' => 'Used Latest',
+                'is_subscription' => 'Subscription',
             ],
             function ($value) {
-                $this->crud->addClause('where', 'is_used', $value);
+                $this->crud->addClause('where', $value, true);
             }
         );
 
@@ -384,27 +385,6 @@ class FinanceApplicationCrudController extends BaseCrudController
         ]);
 
         CRUD::addField([
-            'name' => 'is_new',
-            'label' => 'New Motorcycle',
-            'type' => 'checkbox',
-            'wrapper' => ['class' => 'form-group col-md-2 d-none'],
-        ]);
-
-        CRUD::addField([
-            'name' => 'is_used',
-            'label' => 'Used Vehicle',
-            'type' => 'checkbox',
-            'wrapper' => ['class' => 'form-group col-md-2 d-none'],
-        ]);
-
-        CRUD::addField([
-            'name' => 'is_used_extended_custom',
-            'label' => 'Used Vehicle 18 Months (NGN)',
-            'type' => 'checkbox',
-            'wrapper' => ['class' => 'form-group col-md-2 d-none'],
-        ]);
-
-        CRUD::addField([
             'name' => 'is_new_latest',
             'label' => 'New Latest Contract',
             'type' => 'checkbox',
@@ -475,7 +455,7 @@ class FinanceApplicationCrudController extends BaseCrudController
                 'placeholder' => 'e.g. 15',
             ],
             'wrapper' => [
-                'class' => 'form-group col-md-6',
+                'class' => 'form-group col-md-3',
                 'id' => 'subs-payment-date-wrapper',
             ],
         ]);

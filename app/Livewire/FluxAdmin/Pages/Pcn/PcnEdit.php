@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Models\Motorbike;
 use App\Models\PcnCase;
 use App\Models\PcnCaseUpdate;
+use App\Services\PcnCaseNotifier;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -19,21 +20,25 @@ class PcnEdit extends Component
 
     public array $form = [];
 
-    /** Customer search */
     public string $customerSearch = '';
+
     public array $customerSuggestions = [];
 
-    /** Motorbike reg search */
     public string $motorbikeSearch = '';
+
     public array $motorbikeSuggestions = [];
 
-    /** Inline repeatable case updates */
     public array $caseUpdates = [];
+
+    /** @var array<int, int> */
+    public array $removedUpdateIds = [];
+
+    public bool $sendEmail = false;
 
     public function mount(PcnCase $pcnCase): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-pcn-portal');
+        $this->authorizeModule('see-menu-pcns');
         $this->pcnCase = $pcnCase->load(['updates', 'customer', 'motorbike', 'user']);
 
         $attrs = $this->pcnCase->getAttributes();
@@ -49,151 +54,284 @@ class PcnEdit extends Component
         $this->form = $attrs;
 
         $this->customerSearch = $this->pcnCase->customer
-            ? $this->pcnCase->customer->first_name . ' ' . $this->pcnCase->customer->last_name . ' — ' . $this->pcnCase->customer->email
+            ? $this->pcnCase->customer->first_name.' '.$this->pcnCase->customer->last_name.' — '.$this->pcnCase->customer->email
             : '';
 
         $this->motorbikeSearch = $this->pcnCase->motorbike?->reg_no ?? '';
 
         $this->caseUpdates = $this->pcnCase->updates->map(fn ($u) => [
-            'id'               => $u->id,
-            'update_date'      => $u->update_date ? \Carbon\Carbon::parse($u->update_date)->format('Y-m-d') : null,
-            'note'             => $u->note ?? '',
-            'additional_fee'   => $u->additional_fee ?? '',
-            'is_appealed'      => (bool) $u->is_appealed,
+            'id' => $u->id,
+            'update_date' => $u->update_date ? \Carbon\Carbon::parse($u->update_date)->format('Y-m-d') : null,
+            'note' => $u->note ?? '',
+            'additional_fee' => $u->additional_fee ?? '',
+            'is_appealed' => (bool) $u->is_appealed,
             'is_paid_by_owner' => (bool) $u->is_paid_by_owner,
-            'is_paid_by_keeper'=> (bool) $u->is_paid_by_keeper,
-            'is_transferred'   => (bool) $u->is_transferred,
-            'is_cancled'       => (bool) $u->is_cancled,
+            'is_paid_by_keeper' => (bool) $u->is_paid_by_keeper,
+            'is_transferred' => (bool) $u->is_transferred,
+            'is_cancled' => (bool) $u->is_cancled,
         ])->toArray();
     }
 
     public function getTitle(): string
     {
-        return 'Edit PCN ' . $this->pcnCase->pcn_number . ' — Flux Admin';
+        return 'Edit PCN '.$this->pcnCase->pcn_number.' — Flux Admin';
     }
 
-    public function updatingCustomerSearch(): void
+    public function getLiabilityLetterProperty(): string
     {
-        if (strlen($this->customerSearch) < 2) {
+        $this->pcnCase->loadMissing(['customer', 'motorbike']);
+
+        $pcnNumber = $this->pcnCase->pcn_number ?? 'N/A';
+        $regNo = $this->pcnCase->motorbike?->reg_no ?? 'N/A';
+        $hirer = $this->pcnCase->customer?->full_name ?? 'N/A';
+        $user = backpack_user() ?? auth()->user();
+        $userName = trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?? 'NGN Staff');
+
+        $customer = $this->pcnCase->customer;
+        $dobStr = '';
+        if ($customer?->dob) {
+            try {
+                $dobStr = $customer->dob instanceof \DateTimeInterface
+                    ? $customer->dob->format('d/m/Y')
+                    : \Carbon\Carbon::parse($customer->dob)->format('d/m/Y');
+            } catch (\Throwable) {
+                $dobStr = '';
+            }
+        }
+
+        $addressStr = trim(implode(', ', array_filter([
+            $customer?->address,
+            $customer?->postcode,
+        ])));
+        $licenceStr = $customer?->license_number ?? '';
+        $contactNumber = trim((string) ($customer?->phone ?: $customer?->whatsapp ?: 'N/A'));
+        $emailAddress = $customer?->email ?? '';
+
+        return <<<EOT
+Dear Sir/Madam,
+
+I am writing on behalf of Neguinho Motors Ltd to request the transfer of liability for the Penalty Charge Notice {$pcnNumber}, that was issued to vehicle registration {$regNo}.
+
+Please be advised that this vehicle was hired to the following customer:
+
+Name: "{$hirer}"
+Address: {$addressStr}
+Driving Licence No.: {$licenceStr}
+Date of Birth: {$dobStr}
+Contact Number: {$contactNumber}
+Email Address: {$emailAddress}
+
+We would be grateful if you could confirm by email once the liability has been successfully transferred to the hirer.
+
+Thank you for your urgent attention to this matter.
+
+Kind regards,
+{$userName}
+Office Manager
+Neguinho Motors Ltd
+Phone: +44 7929 554539
+Email: Catford@neguinhomotors.co.uk
+4A Penwortham Road, London, SW16 6RE
+EOT;
+    }
+
+    public function updatedCustomerSearch(string $value): void
+    {
+        if (strlen($value) < 2) {
             $this->customerSuggestions = [];
+
             return;
         }
-        $this->customerSuggestions = Customer::where(function ($q) {
-            $q->where('first_name', 'like', "%{$this->customerSearch}%")
-                ->orWhere('last_name', 'like', "%{$this->customerSearch}%")
-                ->orWhere('email', 'like', "%{$this->customerSearch}%")
-                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$this->customerSearch}%"]);
+
+        $this->customerSuggestions = Customer::where(function ($q) use ($value) {
+            $q->where('first_name', 'like', "%{$value}%")
+                ->orWhere('last_name', 'like', "%{$value}%")
+                ->orWhere('email', 'like', "%{$value}%")
+                ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$value}%"]);
         })->limit(8)->get(['id', 'first_name', 'last_name', 'email'])->map(fn ($c) => [
-            'id'   => $c->id,
-            'name' => $c->first_name . ' ' . $c->last_name . ' — ' . $c->email,
+            'id' => $c->id,
+            'name' => $c->first_name.' '.$c->last_name.' — '.$c->email,
         ])->toArray();
     }
 
-    public function selectCustomer(int $id, string $name): void
+    public function selectCustomer(int $id): void
     {
-        $this->form['customer_id']     = $id;
-        $this->customerSearch          = $name;
-        $this->customerSuggestions     = [];
-    }
-
-    public function updatingMotorbikeSearch(): void
-    {
-        if (strlen($this->motorbikeSearch) < 2) {
-            $this->motorbikeSuggestions = [];
+        $customer = Customer::find($id);
+        if (! $customer) {
             return;
         }
-        $this->motorbikeSuggestions = Motorbike::where('reg_no', 'like', "%{$this->motorbikeSearch}%")
-            ->limit(8)->get(['id', 'reg_no'])->map(fn ($m) => [
-                'id'  => $m->id,
-                'reg' => $m->reg_no,
-            ])->toArray();
+
+        $this->form['customer_id'] = $customer->id;
+        $this->customerSearch = $customer->first_name.' '.$customer->last_name.' — '.$customer->email;
+        $this->customerSuggestions = [];
     }
 
-    public function selectMotorbike(int $id, string $reg): void
+    public function updatedMotorbikeSearch(string $value): void
     {
-        $this->form['motorbike_id']    = $id;
-        $this->motorbikeSearch         = $reg;
-        $this->motorbikeSuggestions    = [];
+        if (! empty($this->form['motorbike_id'])) {
+            $selected = Motorbike::find($this->form['motorbike_id']);
+            $selectedCompact = strtoupper(preg_replace('/\s+/', '', (string) ($selected?->reg_no ?? '')) ?? '');
+            $valueCompact = strtoupper(preg_replace('/\s+/', '', $value) ?? '');
+            if ($selected && $selectedCompact !== '' && $selectedCompact === $valueCompact) {
+                $this->motorbikeSuggestions = [];
+
+                return;
+            }
+        }
+
+        $this->form['motorbike_id'] = null;
+
+        if (strlen($value) < 2) {
+            $this->motorbikeSuggestions = [];
+
+            return;
+        }
+
+        $needle = preg_replace('/\s+/', '', $value);
+        $this->motorbikeSuggestions = Motorbike::where(function ($q) use ($value, $needle) {
+            $q->where('reg_no', 'like', "%{$value}%")
+                ->orWhereRaw("REPLACE(reg_no, ' ', '') LIKE ?", ["%{$needle}%"]);
+        })->limit(8)->get(['id', 'reg_no'])->map(fn ($m) => [
+            'id' => $m->id,
+            'reg' => $m->reg_no,
+        ])->toArray();
+    }
+
+    public function selectMotorbike(int $id): void
+    {
+        $motorbike = Motorbike::find($id);
+        if (! $motorbike) {
+            return;
+        }
+
+        $this->form['motorbike_id'] = $motorbike->id;
+        $this->motorbikeSearch = $motorbike->reg_no;
+        $this->motorbikeSuggestions = [];
+    }
+
+    public function commitMotorbikeSearch(): void
+    {
+        if (! empty($this->form['motorbike_id'])) {
+            return;
+        }
+
+        if ($this->motorbikeSuggestions === []) {
+            $this->updatedMotorbikeSearch($this->motorbikeSearch);
+        }
+
+        if ($this->motorbikeSuggestions === []) {
+            return;
+        }
+
+        $compact = strtoupper(preg_replace('/\s+/', '', $this->motorbikeSearch) ?? '');
+        foreach ($this->motorbikeSuggestions as $suggestion) {
+            $reg = strtoupper(preg_replace('/\s+/', '', (string) ($suggestion['reg'] ?? '')) ?? '');
+            if ($compact !== '' && $reg === $compact) {
+                $this->selectMotorbike((int) $suggestion['id']);
+
+                return;
+            }
+        }
+
+        if (count($this->motorbikeSuggestions) === 1) {
+            $this->selectMotorbike((int) $this->motorbikeSuggestions[0]['id']);
+        }
     }
 
     public function addCaseUpdate(): void
     {
         $this->caseUpdates[] = [
-            'id'               => null,
-            'update_date'      => now()->format('Y-m-d'),
-            'note'             => '',
-            'additional_fee'   => '',
-            'is_appealed'      => false,
+            'id' => null,
+            'update_date' => now()->format('Y-m-d'),
+            'note' => '',
+            'additional_fee' => '',
+            'is_appealed' => false,
             'is_paid_by_owner' => false,
-            'is_paid_by_keeper'=> false,
-            'is_transferred'   => false,
-            'is_cancled'       => false,
+            'is_paid_by_keeper' => false,
+            'is_transferred' => false,
+            'is_cancled' => false,
         ];
     }
 
     public function removeCaseUpdate(int $index): void
     {
+        $removed = $this->caseUpdates[$index] ?? null;
+        if (! empty($removed['id'])) {
+            $this->removedUpdateIds[] = (int) $removed['id'];
+        }
         array_splice($this->caseUpdates, $index, 1);
     }
 
-    public function save(): void
+    public function save(PcnCaseNotifier $notifier): void
     {
+        $this->commitMotorbikeSearch();
+
         $this->validate([
-            'form.pcn_number'            => ['required', 'string', 'max:100'],
-            'form.date_of_contravention' => ['nullable', 'date'],
-            'form.time_of_contravention' => ['nullable', 'string', 'max:10'],
-            'form.full_amount'           => ['nullable', 'numeric', 'min:0'],
-            'form.reduced_amount'        => ['nullable', 'numeric', 'min:0'],
-            'form.is_police'             => ['boolean'],
-            'form.isClosed'              => ['boolean'],
-            'form.council_link'          => ['nullable', 'url', 'max:500'],
-            'form.note'                  => ['nullable', 'string', 'max:2000'],
+            'form.pcn_number' => ['required', 'string', 'max:100'],
+            'form.date_of_contravention' => ['required', 'date'],
+            'form.time_of_contravention' => ['required', 'string', 'max:10'],
+            'form.full_amount' => ['required', 'numeric', 'min:0'],
+            'form.reduced_amount' => ['nullable', 'numeric', 'min:0'],
+            'form.is_police' => ['boolean'],
+            'form.isClosed' => ['boolean'],
+            'form.council_link' => ['nullable', 'string', 'max:500'],
+            'form.note' => ['nullable', 'string', 'max:2000'],
             'form.date_of_letter_issued' => ['nullable', 'date'],
-            'form.motorbike_id'          => ['nullable', 'integer'],
-            'form.customer_id'           => ['nullable', 'integer'],
+            'form.motorbike_id' => ['required', 'integer', 'exists:motorbikes,id'],
+            'form.customer_id' => ['nullable', 'integer', 'exists:customers,id'],
+            'caseUpdates.*.update_date' => ['required', 'date'],
+            'caseUpdates.*.note' => ['required', 'string', 'max:2000'],
+            'caseUpdates.*.additional_fee' => ['required', 'numeric', 'min:0'],
+            'sendEmail' => ['boolean'],
         ]);
 
         $this->pcnCase->update([
-            'pcn_number'            => $this->form['pcn_number'] ?? null,
-            'date_of_contravention' => $this->form['date_of_contravention'] ?? null,
-            'time_of_contravention' => $this->form['time_of_contravention'] ?? null,
-            'full_amount'           => $this->form['full_amount'] ?? null,
-            'reduced_amount'        => $this->form['reduced_amount'] ?? null,
-            'is_police'             => (bool) ($this->form['is_police'] ?? false),
-            'isClosed'              => (bool) ($this->form['isClosed'] ?? false),
-            'council_link'          => $this->form['council_link'] ?? null,
-            'note'                  => $this->form['note'] ?? null,
-            'date_of_letter_issued' => $this->form['date_of_letter_issued'] ?? null,
-            'motorbike_id'          => $this->form['motorbike_id'] ?? null,
-            'customer_id'           => $this->form['customer_id'] ?? null,
+            'pcn_number' => $this->form['pcn_number'] ?: null,
+            'date_of_contravention' => $this->form['date_of_contravention'] ?: null,
+            'time_of_contravention' => $this->form['time_of_contravention'] ?: null,
+            'full_amount' => $this->form['full_amount'],
+            'reduced_amount' => ($this->form['reduced_amount'] ?? '') !== '' ? $this->form['reduced_amount'] : null,
+            'is_police' => (bool) ($this->form['is_police'] ?? false),
+            'isClosed' => (bool) ($this->form['isClosed'] ?? false),
+            'council_link' => $this->form['council_link'] ?: null,
+            'note' => $this->form['note'] ?: null,
+            'date_of_letter_issued' => $this->form['date_of_letter_issued'] ?: null,
+            'motorbike_id' => $this->form['motorbike_id'] ?: null,
+            'customer_id' => $this->form['customer_id'] ?: null,
         ]);
 
+        if ($this->removedUpdateIds !== []) {
+            PcnCaseUpdate::where('case_id', $this->pcnCase->id)
+                ->whereIn('id', $this->removedUpdateIds)
+                ->delete();
+            $this->removedUpdateIds = [];
+        }
+
         foreach ($this->caseUpdates as $upd) {
+            $payload = [
+                'update_date' => $upd['update_date'] ?: null,
+                'note' => $upd['note'] ?? '',
+                'additional_fee' => ($upd['additional_fee'] ?? '') !== '' ? $upd['additional_fee'] : null,
+                'is_appealed' => (bool) ($upd['is_appealed'] ?? false),
+                'is_paid_by_owner' => (bool) ($upd['is_paid_by_owner'] ?? false),
+                'is_paid_by_keeper' => (bool) ($upd['is_paid_by_keeper'] ?? false),
+                'is_transferred' => (bool) ($upd['is_transferred'] ?? false),
+                'is_cancled' => (bool) ($upd['is_cancled'] ?? false),
+            ];
+
             if (! empty($upd['id'])) {
-                PcnCaseUpdate::where('id', $upd['id'])->update([
-                    'update_date'      => $upd['update_date'] ?: null,
-                    'note'             => $upd['note'] ?? '',
-                    'additional_fee'   => $upd['additional_fee'] ?: null,
-                    'is_appealed'      => (bool) ($upd['is_appealed'] ?? false),
-                    'is_paid_by_owner' => (bool) ($upd['is_paid_by_owner'] ?? false),
-                    'is_paid_by_keeper'=> (bool) ($upd['is_paid_by_keeper'] ?? false),
-                    'is_transferred'   => (bool) ($upd['is_transferred'] ?? false),
-                    'is_cancled'       => (bool) ($upd['is_cancled'] ?? false),
-                ]);
+                PcnCaseUpdate::where('id', $upd['id'])->where('case_id', $this->pcnCase->id)->update($payload);
             } else {
-                PcnCaseUpdate::create([
-                    'case_id'          => $this->pcnCase->id,
-                    'user_id'          => auth()->id(),
-                    'update_date'      => $upd['update_date'] ?: now(),
-                    'note'             => $upd['note'] ?? '',
-                    'additional_fee'   => $upd['additional_fee'] ?: null,
-                    'is_appealed'      => (bool) ($upd['is_appealed'] ?? false),
-                    'is_paid_by_owner' => (bool) ($upd['is_paid_by_owner'] ?? false),
-                    'is_paid_by_keeper'=> (bool) ($upd['is_paid_by_keeper'] ?? false),
-                    'is_transferred'   => (bool) ($upd['is_transferred'] ?? false),
-                    'is_cancled'       => (bool) ($upd['is_cancled'] ?? false),
-                ]);
+                PcnCaseUpdate::create(array_merge($payload, [
+                    'case_id' => $this->pcnCase->id,
+                    'user_id' => auth()->id(),
+                    'update_date' => $upd['update_date'] ?: now(),
+                ]));
             }
+        }
+
+        if ($this->sendEmail) {
+            $notifier->sendEmail($this->pcnCase->id);
         }
 
         $this->dispatch('flux-admin:toast', type: 'success', message: 'PCN case updated.');

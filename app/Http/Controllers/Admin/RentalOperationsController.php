@@ -56,9 +56,18 @@ class RentalOperationsController extends Controller
         ]));
     }
 
-    public function bookingsManagement(): RedirectResponse
+    public function bookingsManagement()
     {
-        return redirect()->route('admin.renting.bookings');
+        $view = app(LegacyRentingController::class)->renting_bookings();
+
+        return $view->with([
+            'title' => 'Bookings Management',
+            'breadcrumbs' => [
+                trans('backpack::crud.admin') => backpack_url('dashboard'),
+                'Rental Operations' => route('page.rental_operations.index'),
+                'Bookings Management' => false,
+            ],
+        ]);
     }
 
     public function inactiveBookings(): RedirectResponse

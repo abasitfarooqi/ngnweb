@@ -23,7 +23,7 @@
     $tag = $href ? 'a' : 'div';
 @endphp
 
-<{{ $tag }} @if($href) href="{{ $href }}" @endif {{ $attributes->merge(['class' => 'block border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5'.($href ? ' hover:border-zinc-300 dark:hover:border-zinc-600 transition' : '')]) }}>
+<{{ $tag }} @if($href) href="{{ $href }}" @endif {{ $attributes->merge(['class' => 'block border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-5'.($href ? ' cursor-pointer hover:border-zinc-300 dark:hover:border-zinc-600 hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition' : '')]) }}>
     <div class="flex items-start justify-between">
         <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400 truncate">{{ $label }}</p>

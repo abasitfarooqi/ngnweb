@@ -21,17 +21,21 @@ class PcnTolForm extends Component
 
     public array $form = [];
 
+    public string $updateSearch = '';
+
+    public array $updateSuggestions = [];
+
     public string $updateDisplay = '';
 
     public function mount(?int $id = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-pcn-portal');
+        $this->authorizeModule('see-menu-pcns');
 
         if ($id) {
             $this->recordId = $id;
-            $record         = PcnTolRequest::findOrFail($id);
-            $this->form     = $record->getAttributes();
+            $record = PcnTolRequest::findOrFail($id);
+            $this->form = $record->getAttributes();
 
             foreach (['request_date', 'letter_sent_at'] as $field) {
                 if (! empty($this->form[$field])) {
@@ -46,50 +50,95 @@ class PcnTolForm extends Component
             }
         } else {
             $this->form = [
-                'status'       => 'pending',
+                'status' => 'pending',
                 'request_date' => now()->format('Y-m-d'),
                 'update_id' => request()->integer('update_id') ?: null,
             ];
         }
 
         $this->refreshUpdateDisplay();
+        if ($this->updateDisplay !== '') {
+            $this->updateSearch = $this->updateDisplay;
+        }
+    }
+
+    public function updatedUpdateSearch(string $value): void
+    {
+        if (strlen($value) < 2) {
+            $this->updateSuggestions = [];
+
+            return;
+        }
+
+        $this->updateSuggestions = PcnCaseUpdate::with(['pcnCase.customer', 'pcnCase.motorbike'])
+            ->where(function ($q) use ($value) {
+                $q->whereHas('pcnCase', fn ($q) => $q->where('pcn_number', 'like', "%{$value}%"));
+                if (ctype_digit($value)) {
+                    $q->orWhere('id', (int) $value);
+                }
+            })
+            ->latest('id')
+            ->limit(8)
+            ->get()
+            ->map(fn ($u) => [
+                'id' => $u->id,
+                'label' => trim(($u->pcnCase?->pcn_number ?? '').' | Update #'.$u->id.' | '.($u->pcnCase?->customer?->full_name ?? '').' | '.($u->pcnCase?->motorbike?->reg_no ?? '')),
+            ])->toArray();
+    }
+
+    public function selectUpdate(int $id): void
+    {
+        $this->form['update_id'] = $id;
+        $this->refreshUpdateDisplay();
+        $this->updateSearch = $this->updateDisplay;
+        $this->updateSuggestions = [];
     }
 
     public function updatedFormUpdateId(): void
     {
         $this->refreshUpdateDisplay();
+        if ($this->updateDisplay !== '') {
+            $this->updateSearch = $this->updateDisplay;
+        }
     }
 
-    public function save(): void
+    public function save()
     {
         $this->validate([
-            'form.update_id'      => ['required', 'integer', 'exists:pcn_case_updates,id'],
-            'form.request_date'   => ['required', 'date'],
-            'form.status'         => ['required', 'string', 'in:pending,sent,approved,rejected'],
+            'form.update_id' => ['required', 'integer', 'exists:pcn_case_updates,id'],
+            'form.request_date' => ['required', 'date'],
+            'form.status' => ['required', 'string', 'in:pending,sent,approved,rejected'],
             'form.letter_sent_at' => ['nullable', 'date'],
-            'form.note'           => ['nullable', 'string', 'max:2000'],
+            'form.note' => ['nullable', 'string', 'max:2000'],
         ]);
 
         $data = [
-            'update_id'      => $this->form['update_id'],
-            'request_date'   => $this->form['request_date'],
-            'status'         => $this->form['status'],
-            'letter_sent_at' => $this->form['letter_sent_at'] ?? null,
-            'note'           => $this->form['note'] ?? null,
+            'update_id' => $this->form['update_id'],
+            'request_date' => $this->form['request_date'],
+            'status' => $this->form['status'],
+            'letter_sent_at' => $this->form['letter_sent_at'] ?: null,
+            'note' => $this->form['note'] ?: null,
         ];
+
+        $isCreate = ! $this->recordId;
 
         if ($this->recordId) {
             $tolRequest = PcnTolRequest::findOrFail($this->recordId);
             $tolRequest->update($data);
-        } else {
-            $data['user_id'] = auth()->id();
-            $tolRequest = PcnTolRequest::create($data);
+            $this->syncCaseAndPdf($tolRequest->refresh(), regeneratePdf: false);
+            $this->dispatch('flux-admin:toast', type: 'success', message: 'TOL request updated.');
+            $this->redirect(route('flux-admin.pcn-tol-requests.index'), navigate: true);
+
+            return null;
         }
 
-        $this->syncCaseAndPdf($tolRequest->refresh());
+        $data['user_id'] = auth()->id();
+        $tolRequest = PcnTolRequest::create($data);
+        $this->syncCaseAndPdf($tolRequest->refresh(), regeneratePdf: true);
 
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'TOL request saved.');
-        $this->redirect(route('flux-admin.pcn-tol-requests.index'), navigate: true);
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'TOL request saved. Downloading PDF.');
+
+        return $this->downloadPdf($tolRequest);
     }
 
     public function render()
@@ -109,12 +158,17 @@ class PcnTolForm extends Component
             : '';
     }
 
-    protected function syncCaseAndPdf(PcnTolRequest $tolRequest): void
+    protected function syncCaseAndPdf(PcnTolRequest $tolRequest, bool $regeneratePdf = true): void
     {
         $tolRequest->loadMissing(['pcnCaseUpdate.pcnCase.customer', 'pcnCaseUpdate.pcnCase.motorbike', 'user']);
 
         if ($tolRequest->pcnCaseUpdate) {
             $tolRequest->pcn_case_id = $tolRequest->pcnCaseUpdate->case_id;
+            $tolRequest->save();
+        }
+
+        if (! $regeneratePdf) {
+            return;
         }
 
         $directory = storage_path('app/public/tol_letters');
@@ -125,7 +179,7 @@ class PcnTolForm extends Component
         $pdf = Pdf::loadView('pcn.template.tol_letter', [
             'tolRequest' => $tolRequest,
             'pcnNumber' => $tolRequest->pcnCaseUpdate?->pcnCase?->pcn_number ?? '',
-            'customerName' => optional($tolRequest->pcnCaseUpdate?->pcnCase?->customer)->full_name ?? '',
+            'customerName' => $tolRequest->pcnCaseUpdate?->pcnCase?->customer?->full_name ?? '',
             'vehicleVrm' => $tolRequest->pcnCaseUpdate?->pcnCase?->motorbike?->reg_no ?? '',
             'userName' => $tolRequest->user?->full_name ?? '',
         ]);
@@ -136,5 +190,20 @@ class PcnTolForm extends Component
         $tolRequest->forceFill([
             'full_path' => 'storage/tol_letters/'.$fileName,
         ])->save();
+    }
+
+    protected function downloadPdf(PcnTolRequest $tolRequest)
+    {
+        $tolRequest->loadMissing(['pcnCaseUpdate.pcnCase.customer', 'pcnCaseUpdate.pcnCase.motorbike', 'user']);
+
+        $pdf = Pdf::loadView('pcn.template.tol_letter', [
+            'tolRequest' => $tolRequest,
+            'pcnNumber' => $tolRequest->pcnCaseUpdate?->pcnCase?->pcn_number ?? '',
+            'customerName' => $tolRequest->pcnCaseUpdate?->pcnCase?->customer?->full_name ?? '',
+            'vehicleVrm' => $tolRequest->pcnCaseUpdate?->pcnCase?->motorbike?->reg_no ?? '',
+            'userName' => $tolRequest->user?->full_name ?? '',
+        ]);
+
+        return response()->streamDownload(fn () => print ($pdf->output()), 'tol_request_'.$tolRequest->id.'.pdf');
     }
 }

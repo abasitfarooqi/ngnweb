@@ -1,4 +1,20 @@
-@extends('layouts.admin')
+@php
+    $useBackpackLayout = request()->routeIs('page.rental_operations.bookings_management');
+@endphp
+@extends($useBackpackLayout ? backpack_view('blank') : 'layouts.admin')
+
+@if ($useBackpackLayout)
+@push('after_styles')
+    <link href="{{ asset('assets/css/custom-css.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/style_admin.css') }}" rel="stylesheet" type="text/css" />
+    <link href="{{ asset('assets/css/icons.min.css') }}" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
+@endpush
+@endif
 
 @section('content')
     <style>
