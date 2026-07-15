@@ -22,6 +22,8 @@ storage/*.key
 !/storage/framework/views/.gitignore
 /storage/logs/*
 !/storage/logs/.gitignore
+/storage/backups/*
+!/storage/backups/.gitignore
 vendor/*
 vendor*
 /vender/*

@@ -127,6 +127,111 @@ Replace `newnewnewngn` with your `DB_DATABASE` name.
 | Add missing tables/columns on Cloudways | `production:align-schema-from-local` | Yes (default) | **No** |
 | Apply schema changes on Cloudways | `production:align-schema-from-local --execute --confirm=nqfkhvtysa` | No | **No** (schema only) |
 | Copy all production rows to local/DO | `cloudways-to-digital-ocean:sync-data` | No | **No** (read-only from prod) |
+| Overwrite **0 → date** only; keep post-cutoff target rows | `cloudways-to-digital-ocean:sync-data --through=YYYY-MM-DD` | Yes (`--dry-run`) | **No** (read-only from source; writes only target historical rows) |
+
+---
+
+### C) Through-cutoff overwrite — 0 → date only (protect days ahead)
+
+**Use when:** older production (`SYNC_PROD_DB_*`) should replace historical data on the connected DB (`DB_*`) up to a specific date, but the **days after that date** on the target must stay as they are (no truncate of those rows, no update, no delete).
+
+Example: cutoff `2026-07-11` while today is `2026-07-15` (4 days ahead):
+
+| On target | Action |
+|-----------|--------|
+| Rows with `created_at` / `updated_at` **before** `2026-07-12 00:00:00` | Deleted, then replaced from older production |
+| Rows with `created_at` / `updated_at` **on or after** `2026-07-12 00:00:00` | **Untouched** |
+| Tables with no `created_at` / `updated_at` | **Skipped** (cannot date-bound safely) |
+| Source PK clashes with a protected (post-cutoff) target row | Left alone; source row logged to `sync_day_conflict_rows` |
+
+#### 1. Verify `.env` (mandatory)
+
+```bash
+cd /Users/abdulbasit/NGNWEBTONGN
+grep -E '^DB_(HOST|DATABASE)=' .env
+grep -E '^SYNC_PROD_DB_(HOST|DATABASE)=' .env
+```
+
+`DB_*` = “here” (target). `SYNC_PROD_DB_*` = older production (source, read-only). They must not be the same database.
+
+#### 2. Dry run first (safe — counts only)
+
+```bash
+php artisan config:clear
+php artisan cloudways-to-digital-ocean:sync-data --through=2026-07-11 --dry-run
+```
+
+Replace `2026-07-11` with your cutoff date (inclusive last day to overwrite).
+
+Progress shows `d=` would-delete, `i=` would-insert, `x=` would-conflict, `p=` protected post-cutoff rows.
+
+```bash
+ls -t storage/logs/cloudways-do-data-migrate-*.json | head -1
+cat "$(ls -t storage/logs/cloudways-do-data-migrate-*.json | head -1)"
+```
+
+Check `"mode": "through_cutoff_overwrite"`, `"dry_run": true`, `rows_deleted` / `rows_copied` / `rows_protected`.
+
+#### 3. Live run (SQL backup of connected DB first, then overwrite)
+
+Live mode **always** dumps the connected (`DB_*`) database with `mysqldump | gzip` **before any delete/insert**. If backup fails, overwrite is aborted.
+
+Backup path:
+
+```
+storage/backups/pre-through-cutoff/{DB_DATABASE}_pre-through-{YYYY-MM-DD}_{timestamp}.sql.gz
+```
+
+Requires `mysqldump` and `gzip` on the server PATH.
+
+```bash
+# Ensure mysqldump exists on the production box
+command -v mysqldump && command -v gzip
+
+php artisan cloudways-to-digital-ocean:sync-data --through=2026-07-11 --confirm=YOUR_DB_DATABASE
+```
+
+Type `yes` at the prompt. `--confirm` must match `DB_DATABASE` exactly.
+
+You will see:
+
+```
+Step 0: taking SQL backup of connected DB (mandatory — abort if this fails)…
+  Backup OK: storage/backups/pre-through-cutoff/...sql.gz
+  Size: …
+  SHA256: …
+```
+
+Only after that does the historical overwrite start. Post-cutoff (“ahead”) rows on the connected DB stay untouched.
+
+Optional — limit tables:
+
+```bash
+php artisan cloudways-to-digital-ocean:sync-data --through=2026-07-11 --only=customers,motorbikes --dry-run
+php artisan cloudways-to-digital-ocean:sync-data --through=2026-07-11 --only=customers,motorbikes --confirm=YOUR_DB_DATABASE
+```
+
+#### 4. Restore from backup if something goes wrong
+
+```bash
+# Inspect
+ls -lh storage/backups/pre-through-cutoff/
+
+# Restore (destroys current DB contents — only if you need to roll back)
+gunzip -c storage/backups/pre-through-cutoff/YOUR_FILE.sql.gz | mysql -h … -u … -p YOUR_DB_DATABASE
+```
+
+#### 5. Conflicts after live run
+
+```bash
+# replace BATCH from the command summary / JSON report
+mysql -u root -p YOUR_DB_DATABASE -e "
+  SELECT table_name, reason, COUNT(*) c
+  FROM sync_day_conflict_rows
+  WHERE merge_batch = 'through_YYYYMMDD_...'
+  GROUP BY table_name, reason;
+"
+```
 
 ---
 
@@ -312,6 +417,10 @@ php artisan cache:clear
 ```bash
 # Full sync production → connected DB
 php artisan cloudways-to-digital-ocean:sync-data
+
+# Through-cutoff: overwrite 0→date only; protect post-cutoff on target
+php artisan cloudways-to-digital-ocean:sync-data --through=2026-07-11 --dry-run
+php artisan cloudways-to-digital-ocean:sync-data --through=2026-07-11 --confirm=YOUR_DB_DATABASE
 
 # Latest error report
 ls -t storage/logs/cloudways-do-data-migrate-*.json | head -1

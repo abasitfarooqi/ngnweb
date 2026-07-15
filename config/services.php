@@ -34,4 +34,9 @@ return [
         'api_key' => env('DVLA_VEH_API'),
     ],
 
+    'geoapify' => [
+        'key' => env('GEOAPIFY_API_KEY'),
+        'url' => env('GEOAPIFY_API_URL'),
+    ],
+
 ];

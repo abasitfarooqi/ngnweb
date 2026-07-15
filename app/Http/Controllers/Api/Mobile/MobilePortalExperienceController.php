@@ -22,6 +22,7 @@ use App\Models\MotorbikeDeliveryOrderEnquiries;
 use App\Models\NgnMitQueue;
 use App\Models\RentingBooking;
 use App\Models\SystemCountry;
+use App\Services\GeoapifyDistanceService;
 use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -851,6 +852,40 @@ class MobilePortalExperienceController extends Controller
                 'time_surcharge_peak' => '15% for 07:00-08:59 and 17:00-19:59',
                 'time_surcharge_night' => '25% for 21:00-06:59',
             ],
+        ]);
+    }
+
+    /**
+     * Step 1 of the portal recovery flow: postcodes -> driving distance in
+     * miles, mirroring Portal\Recovery\Request's Geoapify lookup. Call this
+     * before recoveryQuote/createRecoveryRequest, which both need distance_miles.
+     */
+    public function recoveryDistance(Request $request, GeoapifyDistanceService $geoapify): JsonResponse
+    {
+        $payload = $request->validate([
+            'pickup_postcode' => ['required', 'string', 'max:20'],
+            'dropoff_postcode' => ['required', 'string', 'max:20'],
+        ]);
+
+        $result = $geoapify->distanceBetweenPostcodes($payload['pickup_postcode'], $payload['dropoff_postcode']);
+
+        if ($result === null) {
+            return response()->json([
+                'message' => 'Unable to calculate distance between these postcodes. Please check them or call us on 0208 314 1498.',
+            ], 422);
+        }
+
+        return response()->json([
+            'distance_miles' => $result['distance_miles'],
+            'duration_minutes' => $result['duration_minutes'],
+            'pickup_postcode' => strtoupper(trim($payload['pickup_postcode'])),
+            'dropoff_postcode' => strtoupper(trim($payload['dropoff_postcode'])),
+            'pickup_address' => $result['pickup']['formatted'],
+            'dropoff_address' => $result['dropoff']['formatted'],
+            'pickup_lat' => $result['pickup']['lat'],
+            'pickup_lon' => $result['pickup']['lon'],
+            'dropoff_lat' => $result['dropoff']['lat'],
+            'dropoff_lon' => $result['dropoff']['lon'],
         ]);
     }
 

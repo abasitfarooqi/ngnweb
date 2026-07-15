@@ -7,8 +7,12 @@ use App\Http\Controllers\Api\Mobile\MobileCheckoutController;
 use App\Http\Controllers\Api\Mobile\MobileClubController;
 use App\Http\Controllers\Api\Mobile\MobileClubParityController;
 use App\Http\Controllers\Api\Mobile\MobileContentController;
+use App\Http\Controllers\Api\Mobile\MobileAgreementsController;
 use App\Http\Controllers\Api\Mobile\MobileEnquiryController;
 use App\Http\Controllers\Api\Mobile\MobileExperienceController;
+use App\Http\Controllers\Api\Mobile\MobileMiscController;
+use App\Http\Controllers\Api\Mobile\MobileNotificationsController;
+use App\Http\Controllers\Api\Mobile\MobilePaymentsController;
 use App\Http\Controllers\Api\Mobile\MobilePortalAccountController;
 use App\Http\Controllers\Api\Mobile\MobilePortalController;
 use App\Http\Controllers\Api\Mobile\MobilePortalExperienceController;
@@ -19,6 +23,7 @@ use App\Http\Controllers\Api\StaffAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\CustomerVerificationController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\ChatAgentController;
 use App\Http\Controllers\ECommerceShop;
 use App\Http\Controllers\ImageSyncController;
 use App\Http\Controllers\NgnClubController;
@@ -392,8 +397,18 @@ Route::prefix('v1/mobile')->group(function () {
     Route::post('bikes/{type}/{id}/enquiry', [MobilePublicFormsController::class, 'bikeEnquiry'])->where('type', 'new|used');
     Route::post('mot/book', [MobilePublicFormsController::class, 'motBook']);
     Route::get('recovery/vehicle-types', [MobilePublicFormsController::class, 'recoveryVehicleTypes']);
+    Route::post('recovery/distance', [MobilePublicFormsController::class, 'recoveryDistance']);
     Route::post('recovery/quote', [MobilePublicFormsController::class, 'recoveryQuotePublic']);
     Route::post('recovery/request', [MobilePublicFormsController::class, 'recoveryRequestPublic']);
+
+    Route::get('search', [MobileMiscController::class, 'search']);
+    Route::post('newsletter/subscribe', [MobileMiscController::class, 'newsletterSubscribe']);
+    Route::get('surveys/{id}', [MobileMiscController::class, 'surveyShow'])->whereNumber('id');
+    Route::post('surveys/submit', [MobileMiscController::class, 'surveySubmit']);
+    Route::post('partners/subscribe', [MobileMiscController::class, 'partnerSubscribe']);
+    Route::post('accident-management/claim', [MobileMiscController::class, 'accidentClaim']);
+    Route::post('chat/agent/message', [ChatAgentController::class, 'send']);
+    Route::get('paypal/return', [MobilePaymentsController::class, 'paypalReturnBridge'])->name('mobile.paypal.return');
     Route::prefix('auth/customer')->group(function () {
         Route::post('register', [CustomerAuthController::class, 'register']);
         Route::post('login', [CustomerAuthController::class, 'login']);
@@ -474,10 +489,18 @@ Route::prefix('v1/mobile')->group(function () {
         Route::delete('portal/payment-methods', [MobilePortalAccountController::class, 'clearPaymentMethod']);
         Route::get('cart', [MobileCheckoutController::class, 'cart']);
         Route::post('cart/items', [MobileCheckoutController::class, 'addItem']);
+        Route::post('cart/items/sparepart', [MobileCheckoutController::class, 'addSparePartItem']);
         Route::patch('cart/items/{id}', [MobileCheckoutController::class, 'updateItem']);
         Route::delete('cart/items/{id}', [MobileCheckoutController::class, 'removeItem']);
         Route::post('checkout/quote', [MobileCheckoutController::class, 'quote']);
         Route::post('checkout/place-order', [MobileCheckoutController::class, 'placeOrder']);
+        Route::post('checkout/paypal/create', [MobilePaymentsController::class, 'paypalCreateOrder']);
+        Route::post('checkout/paypal/capture', [MobilePaymentsController::class, 'paypalCaptureOrder']);
+        Route::post('portal/rentals/{bookingId}/payment-session', [MobilePaymentsController::class, 'judopayRentalSession'])->whereNumber('bookingId');
+        Route::post('portal/rentals/payment-status', [MobilePaymentsController::class, 'judopayRentalStatus']);
+        Route::get('portal/agreements/pending', [MobileAgreementsController::class, 'pending']);
+        Route::post('notifications/register-device', [MobileNotificationsController::class, 'registerDevice']);
+        Route::delete('notifications/unregister-device', [MobileNotificationsController::class, 'unregisterDevice']);
         Route::get('portal/rentals/browse/options', [MobilePortalExperienceController::class, 'rentalBrowseOptions']);
         Route::get('portal/rentals/available', [MobilePortalExperienceController::class, 'rentalAvailable']);
         Route::get('portal/rentals/create/{motorbikeId}/blueprint', [MobilePortalExperienceController::class, 'rentalCreateBlueprint']);
@@ -487,6 +510,7 @@ Route::prefix('v1/mobile')->group(function () {
         Route::post('portal/repairs/appointments', [MobilePortalExperienceController::class, 'createRepairsAppointment']);
 
         Route::get('portal/recovery/options', [MobilePortalExperienceController::class, 'recoveryOptions']);
+        Route::post('portal/recovery/distance', [MobilePortalExperienceController::class, 'recoveryDistance']);
         Route::post('portal/recovery/quote', [MobilePortalExperienceController::class, 'recoveryQuote']);
         Route::post('portal/recovery/requests', [MobilePortalExperienceController::class, 'createRecoveryRequest']);
         Route::get('enquiries', [MobileEnquiryController::class, 'index']);

@@ -9,6 +9,7 @@ use App\Models\Ecommerce\EcOrderItem;
 use App\Models\Ecommerce\EcPaymentMethod;
 use App\Models\Ecommerce\EcShippingMethod;
 use App\Models\NgnProduct;
+use App\Models\SpPart;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -82,6 +83,60 @@ class MobileCheckoutController extends Controller
 
         return response()->json([
             'message' => 'Item added to cart.',
+            'data' => $this->mapOrder($order->fresh('items.product', 'shippingMethod', 'paymentMethod')),
+        ], 201);
+    }
+
+    /**
+     * Adds a spare part to the same cart/checkout used by the shop, tagged
+     * `item_type = sparepart` so PayPal and order routing send the customer
+     * back to the spare-parts checkout (see EcOrderItem, PayPalController).
+     */
+    public function addSparePartItem(Request $request): JsonResponse
+    {
+        $customer = $this->customer($request);
+        if (! $customer) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+
+        $payload = $request->validate([
+            'part_number' => ['required', 'string', 'max:100', 'exists:sp_parts,part_number'],
+            'quantity' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ]);
+
+        $part = SpPart::query()
+            ->where('part_number', $payload['part_number'])
+            ->where(function ($q) {
+                $q->whereNull('is_active')->orWhere('is_active', true);
+            })
+            ->firstOrFail();
+
+        $order = $this->getOrCreateCartOrder($customer);
+        $quantityToAdd = (int) ($payload['quantity'] ?? 1);
+
+        $item = EcOrderItem::query()
+            ->where('order_id', $order->id)
+            ->where('item_type', 'sparepart')
+            ->where('part_number', $part->part_number)
+            ->first();
+
+        if (! $item) {
+            $item = new EcOrderItem([
+                'order_id' => $order->id,
+                'item_type' => 'sparepart',
+                'part_number' => $part->part_number,
+                'sp_part_id' => $part->id,
+            ]);
+        }
+
+        $item->quantity = min(100, (int) ($item->quantity ?? 0) + $quantityToAdd);
+        $this->fillSparePartItemPricing($item, $part);
+        $item->save();
+
+        $this->recalculateOrder($order->fresh());
+
+        return response()->json([
+            'message' => 'Spare part added to cart.',
             'data' => $this->mapOrder($order->fresh('items.product', 'shippingMethod', 'paymentMethod')),
         ], 201);
     }
@@ -284,6 +339,20 @@ class MobileCheckoutController extends Controller
         $item->tax = 0;
     }
 
+    private function fillSparePartItemPricing(EcOrderItem $item, SpPart $part): void
+    {
+        $unit = round((float) ($part->price_gbp_inc_vat ?? 0), 2);
+        $lineTotal = round($unit * (int) $item->quantity, 2);
+
+        $item->product_name = $part->name ?: $part->part_number;
+        $item->sku = $part->part_number;
+        $item->unit_price = $unit;
+        $item->total_price = $lineTotal;
+        $item->line_total = $lineTotal;
+        $item->discount = 0;
+        $item->tax = 0;
+    }
+
     private function recalculateOrder(EcOrder $order): void
     {
         $order->loadMissing('items');
@@ -325,6 +394,7 @@ class MobileCheckoutController extends Controller
                 'id' => $item->id,
                 'item_type' => $item->item_type,
                 'product_id' => $item->product_id,
+                'part_number' => $item->part_number,
                 'name' => $item->product_name ?: $item->product?->name,
                 'sku' => $item->sku ?: $item->product?->sku,
                 'quantity' => (int) $item->quantity,
