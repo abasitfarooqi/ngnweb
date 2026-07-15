@@ -4,6 +4,7 @@ namespace App\Livewire\Site\Club;
 
 use App\Models\ClubMember;
 use App\Models\ClubMemberPurchase;
+use App\Services\Club\ClubMemberSession;
 use App\Services\Club\ClubReferralSubmissionService;
 use Livewire\Component;
 
@@ -24,7 +25,7 @@ class Referral extends Component
     public function mount(int $id): void
     {
         $this->id = $id;
-        $clubMemberId = session('club_member_id');
+        $clubMemberId = ClubMemberSession::id();
 
         if (! $clubMemberId || (int) $clubMemberId !== (int) $id) {
             session()->flash('error', 'Something went wrong. Log out and log in again.');

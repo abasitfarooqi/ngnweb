@@ -79,59 +79,25 @@ class PcnEdit extends Component
 
     public function getLiabilityLetterProperty(): string
     {
-        $this->pcnCase->loadMissing(['customer', 'motorbike']);
+        return <<<'EOT'
+Dear Enforcement Team,
 
-        $pcnNumber = $this->pcnCase->pcn_number ?? 'N/A';
-        $regNo = $this->pcnCase->motorbike?->reg_no ?? 'N/A';
-        $hirer = $this->pcnCase->customer?->full_name ?? 'N/A';
-        $user = backpack_user() ?? auth()->user();
-        $userName = trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?? 'NGN Staff');
+Please find attached the required documents for the transfer of liability for the above Penalty Charge Notice, in accordance with:
+• Traffic Management Act 2004 (Sections 82–92)
+• Road Traffic Act 1988 (Section 66(2) & Schedule 2)
+• Road Traffic Offenders Act 1988
+• Road Traffic Regulation Act 1984
+• Where applicable: London Local Authorities and TfL Acts
 
-        $customer = $this->pcnCase->customer;
-        $dobStr = '';
-        if ($customer?->dob) {
-            try {
-                $dobStr = $customer->dob instanceof \DateTimeInterface
-                    ? $customer->dob->format('d/m/Y')
-                    : \Carbon\Carbon::parse($customer->dob)->format('d/m/Y');
-            } catch (\Throwable) {
-                $dobStr = '';
-            }
-        }
+At the material time, the vehicle was in the possession and control of the customer identified in the enclosed agreement.
 
-        $addressStr = trim(implode(', ', array_filter([
-            $customer?->address,
-            $customer?->postcode,
-        ])));
-        $licenceStr = $customer?->license_number ?? '';
-        $contactNumber = trim((string) ($customer?->phone ?: $customer?->whatsapp ?: 'N/A'));
-        $emailAddress = $customer?->email ?? '';
+The attached documents meet all statutory requirements for transfer of liability.
+Attached documents:
+Agreement
+Statutory Extract
+Authorisation Certificate
 
-        return <<<EOT
-Dear Sir/Madam,
-
-I am writing on behalf of Neguinho Motors Ltd to request the transfer of liability for the Penalty Charge Notice {$pcnNumber}, that was issued to vehicle registration {$regNo}.
-
-Please be advised that this vehicle was hired to the following customer:
-
-Name: "{$hirer}"
-Address: {$addressStr}
-Driving Licence No.: {$licenceStr}
-Date of Birth: {$dobStr}
-Contact Number: {$contactNumber}
-Email Address: {$emailAddress}
-
-We would be grateful if you could confirm by email once the liability has been successfully transferred to the hirer.
-
-Thank you for your urgent attention to this matter.
-
-Kind regards,
-{$userName}
-Office Manager
-Neguinho Motors Ltd
-Phone: +44 7929 554539
-Email: Catford@neguinhomotors.co.uk
-4A Penwortham Road, London, SW16 6RE
+Please confirm that liability has been transferred to the customer.
 EOT;
     }
 

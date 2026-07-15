@@ -3,6 +3,7 @@
 namespace App\Livewire\Site\Club;
 
 use App\Models\ClubMember;
+use App\Services\Club\ClubMemberSession;
 use Livewire\Component;
 
 class Index extends Component
@@ -68,10 +69,7 @@ class Index extends Component
 
     public function render()
     {
-        $loggedInMember = null;
-        if (session('club_member_id')) {
-            $loggedInMember = ClubMember::find(session('club_member_id'));
-        }
+        $loggedInMember = ClubMemberSession::member();
 
         return view('livewire.site.club.index', compact('loggedInMember'))
             ->layout('components.layouts.public', [

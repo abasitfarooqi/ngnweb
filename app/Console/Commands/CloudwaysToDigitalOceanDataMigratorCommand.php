@@ -14,9 +14,10 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
                             {--day= : YYYY-MM-DD insert-only day merge from production (no truncate/update/delete)}
                             {--through= : YYYY-MM-DD overwrite 0→that date inclusive; leave target rows after that date untouched}
                             {--dry-run : With --day or --through, report counts only (no business writes)}
-                            {--confirm= : For live --through, must equal target DB_DATABASE name}';
+                            {--confirm= : For live --through, must equal target DB_DATABASE name}
+                            {--backup-db= : Dump SQL only then exit: source (older prod / nqfkhvtysa), target (connected), or both}';
 
-    protected $description = 'Create target DB, migrate schema, overwrite row data from production (Cloudways → connected DB). Use --day= for insert-only day merge, or --through=YYYY-MM-DD for cutoff overwrite (protect post-cutoff target data).';
+    protected $description = 'Create target DB, migrate schema, overwrite row data from production (Cloudways → connected DB). Use --day= for insert-only day merge, or --through=YYYY-MM-DD for cutoff overwrite (protect post-cutoff target data). Use --backup-db=source|target|both for SQL dumps only.';
 
     public function handle(): int
     {
@@ -41,6 +42,11 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
             return self::FAILURE;
         }
 
+        $backupDb = strtolower(trim((string) $this->option('backup-db')));
+        if ($backupDb !== '') {
+            return $this->handleBackupOnly($source, $target, $backupDb);
+        }
+
         $dayRaw = trim((string) $this->option('day'));
         $throughRaw = trim((string) $this->option('through'));
 
@@ -59,6 +65,56 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
         }
 
         return $this->handleFullOverwrite($source, $target);
+    }
+
+    /**
+     * SQL dump only (no row overwrite).
+     *
+     * @param  array{host:string,port:int,database:string,username:string,password:string}  $source
+     * @param  array{host:string,port:int,database:string,username:string,password:string}  $target
+     */
+    private function handleBackupOnly(array $source, array $target, string $which): int
+    {
+        if (! in_array($which, ['source', 'target', 'both'], true)) {
+            $this->error('Invalid --backup-db. Use source, target, or both.');
+
+            return self::FAILURE;
+        }
+
+        $jobs = [];
+        if ($which === 'source' || $which === 'both') {
+            $jobs[] = ['label' => 'older-production-'.$source['database'], 'config' => $source, 'role' => 'SOURCE (older production)'];
+        }
+        if ($which === 'target' || $which === 'both') {
+            $jobs[] = ['label' => 'connected-'.$target['database'], 'config' => $target, 'role' => 'TARGET (connected)'];
+        }
+
+        $this->line('');
+        $this->info('SQL backup only — no data overwrite');
+        foreach ($jobs as $job) {
+            $this->line($job['role'].': '.$job['config']['host'].':'.$job['config']['port'].'/'.$job['config']['database']);
+        }
+        $this->line('');
+
+        foreach ($jobs as $job) {
+            $this->info('Dumping '.$job['role'].'…');
+            try {
+                $backup = CloudwaysToDigitalOceanDataMigrator::dumpDatabaseSqlGzip($job['config'], $job['label']);
+            } catch (\Throwable $e) {
+                $this->error('Backup failed for '.$job['role'].': '.$e->getMessage());
+
+                return self::FAILURE;
+            }
+            $this->info('  OK: '.$backup['path']);
+            $this->info('  Size: '.number_format($backup['bytes']).' bytes');
+            $this->info('  SHA256: '.$backup['sha256']);
+            $this->info('  Method: '.($backup['method'] ?? 'unknown'));
+            $this->line('');
+        }
+
+        $this->info('All requested backups finished.');
+
+        return self::SUCCESS;
     }
 
     /**
@@ -178,7 +234,7 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
             }
 
             if (! $this->confirm(
-                'This will (1) mysqldump+gzip the ENTIRE connected DB first, then (2) DELETE target rows'
+                'This will (1) mysqldump+gzip older production AND the connected DB first, then (2) DELETE target rows'
                 .' with created_at/updated_at before '.$cutoffEndExclusive
                 .' and replace them from older production. Rows on/after that stay untouched. Continue?',
                 false
@@ -189,23 +245,40 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
             }
 
             $this->line('');
-            $this->info('Step 0: taking SQL backup of connected DB (mandatory — abort if this fails)…');
+            $this->info('Step 0a: SQL backup of older production (source) — mandatory…');
             try {
-                $backup = CloudwaysToDigitalOceanDataMigrator::dumpDatabaseSqlGzip(
-                    $target,
-                    'pre-through-'.$throughRaw
+                $sourceBackup = CloudwaysToDigitalOceanDataMigrator::dumpDatabaseSqlGzip(
+                    $source,
+                    'older-production-pre-through-'.$throughRaw
                 );
             } catch (\Throwable $e) {
-                $this->error('Backup failed — refusing to run overwrite: '.$e->getMessage());
+                $this->error('Source backup failed — refusing to run overwrite: '.$e->getMessage());
 
                 return self::FAILURE;
             }
-            $this->info('  Backup OK: '.$backup['path']);
+            $this->info('  Source backup OK: '.$sourceBackup['path']);
+            $this->info('  Size: '.number_format($sourceBackup['bytes']).' bytes');
+            $this->info('  SHA256: '.$sourceBackup['sha256']);
+            $this->line('');
+
+            $this->info('Step 0b: SQL backup of connected DB (target) — mandatory…');
+            try {
+                $backup = CloudwaysToDigitalOceanDataMigrator::dumpDatabaseSqlGzip(
+                    $target,
+                    'connected-pre-through-'.$throughRaw
+                );
+            } catch (\Throwable $e) {
+                $this->error('Target backup failed — refusing to run overwrite: '.$e->getMessage());
+
+                return self::FAILURE;
+            }
+            $this->info('  Target backup OK: '.$backup['path']);
             $this->info('  Size: '.number_format($backup['bytes']).' bytes');
             $this->info('  SHA256: '.$backup['sha256']);
             $this->line('');
         } else {
             $backup = null;
+            $sourceBackup = null;
         }
 
         $this->line('');
@@ -218,6 +291,9 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
         $this->line('TARGET (here): '.$target['host'].':'.$target['port'].'/'.$target['database']);
         if ($backup !== null) {
             $this->line('TARGET BACKUP: '.$backup['path']);
+        }
+        if (isset($sourceBackup) && $sourceBackup !== null) {
+            $this->line('SOURCE BACKUP: '.$sourceBackup['path']);
         }
         if ($onlyTables !== []) {
             $this->line('TABLES (only): '.implode(', ', $onlyTables));
@@ -277,13 +353,20 @@ class CloudwaysToDigitalOceanDataMigratorCommand extends Command
             $this->info('Target rows protected (post-cutoff): '.number_format($result['rows_protected']));
             if ($backup !== null) {
                 $this->info('Target SQL backup: '.$backup['path']);
-                $this->info('Backup SHA256: '.$backup['sha256']);
+                $this->info('Target backup SHA256: '.$backup['sha256']);
+            }
+            if (isset($sourceBackup) && $sourceBackup !== null) {
+                $this->info('Source SQL backup: '.$sourceBackup['path']);
+                $this->info('Source backup SHA256: '.$sourceBackup['sha256']);
             }
             $this->info('Report: '.$result['report_path']);
 
             return $result['tables_failed'] > 0 ? self::FAILURE : self::SUCCESS;
         } catch (\Throwable $e) {
             $this->error('Through-cutoff overwrite aborted: '.$e->getMessage());
+            if (isset($sourceBackup) && $sourceBackup !== null) {
+                $this->warn('Older production was backed up before failure: '.$sourceBackup['path']);
+            }
             if ($backup !== null) {
                 $this->warn('Target was backed up before failure: '.$backup['path']);
             }

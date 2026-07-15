@@ -3,6 +3,7 @@
 namespace App\Livewire\Site\Club;
 
 use App\Models\ClubMember;
+use App\Services\Club\ClubMemberSession;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -14,6 +15,12 @@ class Login extends Component
 
     public function mount(): void
     {
+        if (ClubMemberSession::check()) {
+            $this->redirectRoute('ngnclub.dashboard', navigate: false);
+
+            return;
+        }
+
         $q = request()->query('phone');
         if (is_string($q) && $q !== '') {
             $this->phone = $q;
@@ -29,7 +36,6 @@ class Login extends Component
     {
         $this->validate();
 
-        // Normalise UK phone number
         $normalised = preg_replace('/\s+/', '', $this->phone);
         $normalised = preg_replace('/^\+44/', '0', $normalised);
 
@@ -49,14 +55,13 @@ class Login extends Component
             return;
         }
 
-        session(['club_member_id' => $member->id]);
+        ClubMemberSession::login($member);
 
         $this->redirectRoute('ngnclub.dashboard');
     }
 
     public function loginWithStaff(): void
     {
-        // Redirect staff to admin area if already authenticated
         if (Auth::guard('web')->check()) {
             $this->redirect(url('/admin'), navigate: false);
 

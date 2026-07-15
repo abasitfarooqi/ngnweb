@@ -1336,17 +1336,14 @@ class CloudwaysToDigitalOceanDataMigrator
     }
 
     /**
-     * Full mysqldump (+ gzip) of a database. Used as a mandatory pre-flight
-     * backup of the connected target before live through-cutoff overwrite.
+     * Full database dump (+ gzip). Tries mysqldump first; on client/auth failure
+     * falls back to a PDO streamed dump (same credentials as the sync itself).
      *
      * @param  array{host:string,port:int,database:string,username:string,password:string}  $config
-     * @return array{path:string,bytes:int,sha256:string}
+     * @return array{path:string,bytes:int,sha256:string,method:string}
      */
     public static function dumpDatabaseSqlGzip(array $config, ?string $label = null): array
     {
-        $mysqldump = self::resolveBinary('mysqldump');
-        $gzip = self::resolveBinary('gzip');
-
         $dir = storage_path('backups/pre-through-cutoff');
         if (! is_dir($dir) && ! mkdir($dir, 0755, true) && ! is_dir($dir)) {
             throw new RuntimeException('Unable to create backup directory: '.$dir);
@@ -1357,6 +1354,50 @@ class CloudwaysToDigitalOceanDataMigrator
             ? preg_replace('/[^A-Za-z0-9_\-]+/', '_', $label)
             : 'backup';
         $path = $dir.'/'.$safeDb.'_'.$safeLabel.'_'.date('Y-m-d_His').'.sql.gz';
+
+        try {
+            self::dumpViaMysqldump($config, $path);
+            $method = 'mysqldump';
+        } catch (\Throwable $mysqldumpError) {
+            @unlink($path);
+            try {
+                self::dumpViaPdo($config, $path);
+                $method = 'pdo';
+            } catch (\Throwable $pdoError) {
+                @unlink($path);
+                throw new RuntimeException(
+                    'SQL backup failed. mysqldump: '.$mysqldumpError->getMessage()
+                    .' | pdo: '.$pdoError->getMessage()
+                );
+            }
+        }
+
+        if (! is_file($path) || filesize($path) < 64) {
+            @unlink($path);
+            throw new RuntimeException('Backup file missing or empty: '.$path);
+        }
+
+        $bytes = (int) filesize($path);
+        $hash = hash_file('sha256', $path);
+        if ($hash === false) {
+            throw new RuntimeException('Unable to hash backup file: '.$path);
+        }
+
+        return [
+            'path' => $path,
+            'bytes' => $bytes,
+            'sha256' => $hash,
+            'method' => $method,
+        ];
+    }
+
+    /**
+     * @param  array{host:string,port:int,database:string,username:string,password:string}  $config
+     */
+    private static function dumpViaMysqldump(array $config, string $path): void
+    {
+        $mysqldump = self::resolveBinary('mysqldump');
+        $gzip = self::resolveBinary('gzip');
 
         $cnf = tempnam(sys_get_temp_dir(), 'ngn_mysql_');
         if ($cnf === false) {
@@ -1394,31 +1435,137 @@ class CloudwaysToDigitalOceanDataMigrator
             exec($cmd.' 2>&1', $output, $exitCode);
 
             if ($exitCode !== 0) {
-                @unlink($path);
                 throw new RuntimeException(
                     'mysqldump failed (exit '.$exitCode.'): '.implode("\n", $output)
                 );
             }
-
-            if (! is_file($path) || filesize($path) < 64) {
-                @unlink($path);
-                throw new RuntimeException('Backup file missing or empty after mysqldump: '.$path);
-            }
-
-            $bytes = (int) filesize($path);
-            $hash = hash_file('sha256', $path);
-            if ($hash === false) {
-                throw new RuntimeException('Unable to hash backup file: '.$path);
-            }
-
-            return [
-                'path' => $path,
-                'bytes' => $bytes,
-                'sha256' => $hash,
-            ];
         } finally {
             @unlink($cnf);
         }
+    }
+
+    /**
+     * Schema + data dump via PDO (works when local mysqldump cannot load older auth plugins).
+     *
+     * @param  array{host:string,port:int,database:string,username:string,password:string}  $config
+     */
+    private static function dumpViaPdo(array $config, string $path): void
+    {
+        $pdo = self::connect($config, $config['database']);
+        $gz = gzopen($path, 'wb9');
+        if ($gz === false) {
+            throw new RuntimeException('Unable to open gzip stream for backup: '.$path);
+        }
+
+        try {
+            $pdo->exec('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+            $pdo->beginTransaction();
+
+            $header = "-- NGN PDO SQL backup\n"
+                ."-- Database: {$config['database']}\n"
+                .'-- Host: '.$config['host']."\n"
+                .'-- Generated: '.date('c')."\n"
+                ."SET NAMES utf8mb4;\n"
+                ."SET FOREIGN_KEY_CHECKS=0;\n"
+                ."SET UNIQUE_CHECKS=0;\n\n";
+            gzwrite($gz, $header);
+
+            $tablesStmt = $pdo->prepare(
+                'SELECT TABLE_NAME FROM information_schema.TABLES
+                 WHERE TABLE_SCHEMA = ? AND TABLE_TYPE = ?
+                 ORDER BY TABLE_NAME'
+            );
+            $tablesStmt->execute([$config['database'], 'BASE TABLE']);
+            $tables = $tablesStmt->fetchAll(PDO::FETCH_COLUMN);
+            if (! is_array($tables)) {
+                $tables = [];
+            }
+
+            foreach ($tables as $table) {
+                $table = (string) $table;
+                $q = self::qid($table);
+
+                $create = $pdo->query('SHOW CREATE TABLE '.$q)->fetch(PDO::FETCH_ASSOC);
+                $createSql = is_array($create)
+                    ? (string) ($create['Create Table'] ?? $create['Create Table'] ?? '')
+                    : '';
+                if ($createSql === '' && is_array($create)) {
+                    $createSql = (string) (array_values($create)[1] ?? '');
+                }
+                if ($createSql === '') {
+                    throw new RuntimeException('SHOW CREATE TABLE failed for '.$table);
+                }
+
+                gzwrite($gz, "--\n-- Table structure for `{$table}`\n--\n");
+                gzwrite($gz, "DROP TABLE IF EXISTS {$q};\n");
+                gzwrite($gz, $createSql.";\n\n");
+                gzwrite($gz, "--\n-- Dumping data for `{$table}`\n--\n");
+
+                $count = (int) $pdo->query('SELECT COUNT(*) FROM '.$q)->fetchColumn();
+                if ($count === 0) {
+                    gzwrite($gz, "\n");
+
+                    continue;
+                }
+
+                $columns = self::tableColumnsStatic($pdo, $config['database'], $table);
+                $colList = implode(',', array_map([self::class, 'qid'], $columns));
+                $offset = 0;
+
+                while ($offset < $count) {
+                    $select = 'SELECT '.$colList.' FROM '.$q
+                        .' LIMIT '.(int) self::CHUNK_SIZE.' OFFSET '.(int) $offset;
+                    $rows = $pdo->query($select)->fetchAll(PDO::FETCH_NUM);
+                    if ($rows === []) {
+                        break;
+                    }
+
+                    foreach ($rows as $row) {
+                        $values = [];
+                        foreach ($row as $value) {
+                            if ($value === null) {
+                                $values[] = 'NULL';
+                            } elseif (is_int($value) || is_float($value)) {
+                                $values[] = (string) $value;
+                            } else {
+                                $values[] = $pdo->quote(self::sanitizeUtf8ForMysql((string) $value));
+                            }
+                        }
+                        gzwrite($gz, 'INSERT INTO '.$q.' ('.$colList.') VALUES ('.implode(',', $values).");\n");
+                    }
+
+                    $offset += self::CHUNK_SIZE;
+                }
+
+                gzwrite($gz, "\n");
+            }
+
+            gzwrite($gz, "SET UNIQUE_CHECKS=1;\nSET FOREIGN_KEY_CHECKS=1;\n");
+            $pdo->commit();
+        } catch (\Throwable $e) {
+            if ($pdo->inTransaction()) {
+                $pdo->rollBack();
+            }
+            throw $e;
+        } finally {
+            gzclose($gz);
+        }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private static function tableColumnsStatic(PDO $pdo, string $schema, string $table): array
+    {
+        $stmt = $pdo->prepare(
+            'SELECT COLUMN_NAME FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ?
+             ORDER BY ORDINAL_POSITION'
+        );
+        $stmt->execute([$schema, $table]);
+        $columns = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return is_array($columns) ? array_values($columns) : [];
     }
 
     private static function resolveBinary(string $name): string

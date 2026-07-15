@@ -16,6 +16,7 @@ use App\Models\User;
 use App\Models\UserFeedback;
 use App\Models\UserSession;
 use App\Models\VehicleEstimator;
+use App\Services\Club\ClubMemberSession;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
@@ -2197,8 +2198,8 @@ class NgnClubController extends Controller
 
             Log::info('ClubMember created with ID: '.$clubMember->id);
 
-            // Assign the session
-            session(['club_member_id' => $clubMember->id]);
+            // Assign the session (persists across navigations until logout)
+            ClubMemberSession::login($clubMember);
 
             // Handle referral acceptance
             if ($referralAccepted && $referrer) {
@@ -3258,7 +3259,7 @@ class NgnClubController extends Controller
 
         // If a matching club member is found, log them in
         if ($clubMember) {
-            session(['club_member_id' => $clubMember->id]);
+            ClubMemberSession::login($clubMember);
 
             // Start user session tracking
             $userSession = UserSession::create([
@@ -3283,7 +3284,6 @@ class NgnClubController extends Controller
      */
     public function logout()
     {
-        $clubMemberId = session('club_member_id');
         $userSessionId = session('user_session_id');
 
         if ($userSessionId) {
@@ -3295,7 +3295,7 @@ class NgnClubController extends Controller
             }
         }
 
-        session()->forget(['club_member_id', 'user_session_id']);
+        ClubMemberSession::logout();
 
         return redirect()->route('ngnclub.subscribe')->with('success', 'You have been logged out successfully.');
     }

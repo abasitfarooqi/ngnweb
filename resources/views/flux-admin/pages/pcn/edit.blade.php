@@ -102,11 +102,16 @@
 
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5"
              x-data="{ copied: false, copyLetter() { navigator.clipboard.writeText($refs.letter.value).then(() => { this.copied = true; setTimeout(() => this.copied = false, 2000) }) } }">
-            <div class="mb-3 flex items-center justify-between gap-3">
-                <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide">Copy liability letter</h2>
-                <flux:button type="button" size="xs" variant="primary" class="!rounded-none" x-on:click="copyLetter()" x-text="copied ? 'Copied' : 'Copy letter'"></flux:button>
+            <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                <h2 class="min-w-0 flex-1 text-sm font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-300">Copy liability letter</h2>
+                <button
+                    type="button"
+                    x-on:click="copyLetter()"
+                    class="shrink-0 whitespace-nowrap border-0 bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-700"
+                    x-text="copied ? 'Copied' : 'Copy letter'"
+                ></button>
             </div>
-            <textarea x-ref="letter" readonly rows="12" class="w-full border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200">{{ $this->liabilityLetter }}</textarea>
+            <textarea x-ref="letter" readonly rows="16" class="w-full border border-zinc-200 bg-zinc-50 p-3 text-sm leading-relaxed text-zinc-800 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-200">{{ $this->liabilityLetter }}</textarea>
         </div>
 
         {{-- Repeatable Case Updates --}}

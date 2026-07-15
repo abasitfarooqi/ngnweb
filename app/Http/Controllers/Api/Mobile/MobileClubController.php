@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Api\Mobile;
 use App\Http\Controllers\Controller;
 use App\Models\ClubMember;
 use App\Models\ClubMemberPurchase;
-use App\Models\Customer;
 use App\Services\Club\ClubMemberDashboardData;
+use App\Services\Club\ClubMemberRegistrationService;
 use App\Services\Club\ClubReferralSubmissionService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -37,7 +37,7 @@ class MobileClubController extends Controller
         ]);
     }
 
-    public function register(Request $request): JsonResponse
+    public function register(Request $request, ClubMemberRegistrationService $registration): JsonResponse
     {
         $payload = $request->validate([
             'full_name' => ['required', 'string', 'min:2', 'max:100'],
@@ -50,62 +50,33 @@ class MobileClubController extends Controller
             'tc_agreed' => ['accepted'],
         ]);
 
-        $email = strtolower(trim((string) $payload['email']));
-        $phone = $this->normalisePhone((string) $payload['phone']);
+        $result = $registration->register([
+            'full_name' => $payload['full_name'],
+            'email' => $payload['email'],
+            'phone' => $payload['phone'],
+            'make' => $payload['make'] ?? null,
+            'model' => $payload['model'] ?? null,
+            'year' => $payload['year'] ?? null,
+            'vrm' => $payload['vrm'] ?? null,
+            'tc_agreed' => true,
+        ]);
 
-        $existing = ClubMember::query()
-            ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
-            ->orWhere('phone', $phone)
-            ->first();
-
-        if ($existing) {
-            $sameIdentity = strtolower(trim((string) $existing->email)) === $email
-                && $this->normalisePhone((string) $existing->phone) === $phone;
-            if (! $sameIdentity) {
-                return response()->json(['message' => 'A membership already exists with this email or phone number.'], 422);
-            }
+        if (! ($result['ok'] ?? false)) {
+            return response()->json([
+                'message' => implode(' ', array_values($result['errors'] ?? ['Registration failed.'])),
+                'errors' => $result['errors'] ?? null,
+            ], 422);
         }
 
-        $customerByEmail = Customer::query()->whereRaw('LOWER(TRIM(email)) = ?', [$email])->first();
-        $customerByPhone = Customer::query()->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])->first();
-        if (($customerByEmail && ! $customerByPhone) || (! $customerByEmail && $customerByPhone)) {
-            return response()->json(['message' => 'For existing customers, email and phone must both match.'], 422);
-        }
-
-        $customer = $customerByEmail ?: $customerByPhone;
-        if ($customer && ! $customer->is_register) {
-            return response()->json(['message' => 'Customer account is not fully registered yet.'], 422);
-        }
-
-        $passkey = (string) rand(100000, 999999);
-        $clubMember = ClubMember::query()->updateOrCreate(
-            ['id' => $existing?->id],
-            [
-                'full_name' => trim((string) $payload['full_name']),
-                'email' => $email,
-                'phone' => $phone,
-                'make' => $payload['make'] ?? null,
-                'model' => $payload['model'] ?? null,
-                'year' => $payload['year'] ?? null,
-                'vrm' => ! empty($payload['vrm']) ? strtoupper(trim((string) $payload['vrm'])) : null,
-                'tc_agreed' => true,
-                'is_active' => true,
-                'passkey' => $existing?->passkey ?: $passkey,
-                'customer_id' => $customer?->id,
-            ]
-        );
-
-        if ($customer) {
-            $customer->is_club = true;
-            $customer->save();
-        }
+        $clubMember = $result['member'];
 
         return response()->json([
-            'message' => 'Club membership created.',
+            'message' => 'Club membership created. Login details sent via SMS and email.',
             'data' => [
                 'member_id' => $clubMember->id,
                 'phone' => $clubMember->phone,
-                'existing_member' => (bool) $existing,
+                'existing_member' => (bool) ($result['was_existing'] ?? false),
+                'linked_customer' => (bool) ($result['linked_customer'] ?? false),
             ],
         ], 201);
     }

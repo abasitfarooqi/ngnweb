@@ -174,7 +174,7 @@
         body.flux-admin-app .flux-admin-autocomplete-open {
             z-index: 10040;
         }
-        {{-- Absolute fallback; Popover API (top layer) is applied in JS so menus are not clipped by overflow scroll panes. --}}
+        {{-- Absolute fallback under the field. Popover top-layer + fixed coords are applied in JS. --}}
         body.flux-admin-app .flux-admin-autocomplete-menu {
             position: absolute;
             left: 0;
@@ -192,12 +192,17 @@
             margin: 0;
             box-sizing: border-box;
         }
-        body.flux-admin-app .flux-admin-autocomplete-menu:popover-open {
-            position: fixed;
-            inset: unset;
-            margin: 0;
+        {{-- UA popover uses inset:0 + margin:auto (misplaces to centre/side). Override hard. --}}
+        body.flux-admin-app .flux-admin-autocomplete-menu:popover-open,
+        body.flux-admin-app .flux-admin-autocomplete-menu[popover]:popover-open {
+            position: fixed !important;
+            inset: auto !important;
+            margin: 0 !important;
+            right: auto !important;
+            bottom: auto !important;
             overflow-x: hidden;
             overflow-y: auto;
+            z-index: 10070 !important;
         }
         html.dark body.flux-admin-app .flux-admin-autocomplete-menu {
             border-color: rgb(63 63 70);
@@ -1007,65 +1012,66 @@
         (function () {
             var scheduled = false;
 
-            function anchorFor(menu) {
-                var wrap = menu.closest('.flux-admin-autocomplete');
-                if (!wrap) {
-                    return null;
-                }
-                return wrap.querySelector('input') || wrap.querySelector('[data-flux-control] input');
+            function wrapFor(menu) {
+                return menu.closest('.flux-admin-autocomplete');
             }
 
-            function positionMenu(menu, anchor) {
-                var rect = anchor.getBoundingClientRect();
+            function positionMenu(menu, wrap) {
+                // Anchor to the whole autocomplete field (not an inner/hidden input node).
+                var rect = wrap.getBoundingClientRect();
+                if (!rect.width && !rect.height) {
+                    return;
+                }
+
                 var width = Math.max(rect.width, 220);
+                var left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
                 var spaceBelow = window.innerHeight - rect.bottom;
                 var preferUp = spaceBelow < 200 && rect.top > spaceBelow;
 
-                menu.style.setProperty('position', 'fixed');
-                menu.style.setProperty('left', Math.max(8, Math.min(rect.left, window.innerWidth - width - 8)) + 'px');
-                menu.style.setProperty('width', width + 'px');
-                menu.style.setProperty('right', 'auto');
-                menu.style.setProperty('inset', 'unset');
-                menu.style.setProperty('margin', '0');
-                menu.style.setProperty('max-width', 'calc(100vw - 16px)');
+                // Must clear UA popover shorthand (inset:0; margin:auto) or left/top are ignored.
+                menu.style.setProperty('position', 'fixed', 'important');
+                menu.style.setProperty('inset', 'auto', 'important');
+                menu.style.setProperty('margin', '0', 'important');
+                menu.style.setProperty('right', 'auto', 'important');
+                menu.style.setProperty('left', left + 'px', 'important');
+                menu.style.setProperty('width', width + 'px', 'important');
+                menu.style.setProperty('max-width', 'calc(100vw - 16px)', 'important');
+                menu.style.setProperty('z-index', '10070', 'important');
 
                 if (preferUp) {
-                    menu.style.setProperty('top', 'auto');
-                    menu.style.setProperty('bottom', (window.innerHeight - rect.top + 2) + 'px');
+                    menu.style.setProperty('top', 'auto', 'important');
+                    menu.style.setProperty('bottom', (window.innerHeight - rect.top + 2) + 'px', 'important');
                 } else {
-                    menu.style.setProperty('bottom', 'auto');
-                    menu.style.setProperty('top', (rect.bottom + 2) + 'px');
+                    menu.style.setProperty('bottom', 'auto', 'important');
+                    menu.style.setProperty('top', (rect.bottom + 2) + 'px', 'important');
                 }
             }
 
             function syncAutocompletes() {
                 scheduled = false;
                 document.querySelectorAll('.flux-admin-autocomplete .flux-admin-autocomplete-menu').forEach(function (menu) {
-                    var anchor = anchorFor(menu);
-                    if (!anchor) {
+                    var wrap = wrapFor(menu);
+                    if (!wrap || !wrap.classList.contains('flux-admin-autocomplete-open')) {
+                        if (typeof menu.hidePopover === 'function' && menu.matches(':popover-open')) {
+                            try { menu.hidePopover(); } catch (e) {}
+                        }
                         return;
                     }
 
-                    // Fixed positioning first so lists escape overflow scroll panes immediately.
-                    positionMenu(menu, anchor);
-
-                    if (typeof menu.showPopover !== 'function') {
-                        return;
-                    }
-
-                    if (!menu.hasAttribute('popover')) {
-                        menu.setAttribute('popover', 'manual');
-                    }
-
-                    if (!menu.matches(':popover-open')) {
-                        try {
-                            menu.showPopover();
-                        } catch (e) {
-                            // Keep fixed positioning if the Popover API rejects the element.
+                    if (typeof menu.showPopover === 'function') {
+                        if (!menu.hasAttribute('popover')) {
+                            menu.setAttribute('popover', 'manual');
+                        }
+                        if (!menu.matches(':popover-open')) {
+                            try {
+                                menu.showPopover();
+                            } catch (e) {
+                                // Fall through to fixed positioning below the field.
+                            }
                         }
                     }
 
-                    positionMenu(menu, anchor);
+                    positionMenu(menu, wrap);
                 });
             }
 
@@ -1074,7 +1080,9 @@
                     return;
                 }
                 scheduled = true;
-                requestAnimationFrame(syncAutocompletes);
+                requestAnimationFrame(function () {
+                    requestAnimationFrame(syncAutocompletes);
+                });
             }
 
             document.addEventListener('scroll', scheduleSync, true);

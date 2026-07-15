@@ -2,34 +2,33 @@
 
 namespace App\Livewire\Site\Club;
 
-use App\Models\ClubMember;
 use App\Services\Club\ClubMemberDashboardData;
+use App\Services\Club\ClubMemberSession;
 use Livewire\Component;
 
 class Dashboard extends Component
 {
     public function mount(): void
     {
-        if (! session('club_member_id')) {
-            $this->redirectRoute('ngnclub.register', navigate: false);
+        if (! ClubMemberSession::check()) {
+            $this->redirectRoute('ngnclub.login', navigate: false);
         }
     }
 
     public function logout(): void
     {
-        session()->forget(['club_member_id', 'user_session_id']);
+        ClubMemberSession::logout();
         $this->redirectRoute('ngnclub.home');
     }
 
     public function render()
     {
-        $memberId = session('club_member_id');
-        $member = ClubMember::find($memberId);
+        $member = ClubMemberSession::member();
 
         if (! $member) {
-            session()->forget('club_member_id');
+            ClubMemberSession::logout();
 
-            return $this->redirectRoute('ngnclub.register');
+            return $this->redirectRoute('ngnclub.login');
         }
 
         $dash = ClubMemberDashboardData::forMember($member);

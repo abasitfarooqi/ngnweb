@@ -172,14 +172,31 @@ cat "$(ls -t storage/logs/cloudways-do-data-migrate-*.json | head -1)"
 
 Check `"mode": "through_cutoff_overwrite"`, `"dry_run": true`, `rows_deleted` / `rows_copied` / `rows_protected`.
 
-#### 3. Live run (SQL backup of connected DB first, then overwrite)
+#### 2b. Optional — SQL backup of older production only (nqfkhvtysa)
 
-Live mode **always** dumps the connected (`DB_*`) database with `mysqldump | gzip` **before any delete/insert**. If backup fails, overwrite is aborted.
+Saves mysqldump+gzip of `SYNC_PROD_DB_*` onto this server (no overwrite):
+
+```bash
+php artisan cloudways-to-digital-ocean:sync-data --backup-db=source
+# or both sides:
+php artisan cloudways-to-digital-ocean:sync-data --backup-db=both
+```
+
+Files go under `storage/backups/pre-through-cutoff/`.
+
+#### 3. Live run (SQL backup of older production AND connected DB first, then overwrite)
+
+Live mode **always** dumps **both**:
+
+1. older production (`SYNC_PROD_DB_*` / `nqfkhvtysa`)  
+2. connected DB (`DB_*`)
+
+If either backup fails, overwrite is aborted.
 
 Backup path:
 
 ```
-storage/backups/pre-through-cutoff/{DB_DATABASE}_pre-through-{YYYY-MM-DD}_{timestamp}.sql.gz
+storage/backups/pre-through-cutoff/{DB_DATABASE}_…_{timestamp}.sql.gz
 ```
 
 Requires `mysqldump` and `gzip` on the server PATH.
@@ -196,10 +213,10 @@ Type `yes` at the prompt. `--confirm` must match `DB_DATABASE` exactly.
 You will see:
 
 ```
-Step 0: taking SQL backup of connected DB (mandatory — abort if this fails)…
-  Backup OK: storage/backups/pre-through-cutoff/...sql.gz
-  Size: …
-  SHA256: …
+Step 0a: SQL backup of older production (source) — mandatory…
+  Source backup OK: storage/backups/pre-through-cutoff/...sql.gz
+Step 0b: SQL backup of connected DB (target) — mandatory…
+  Target backup OK: storage/backups/pre-through-cutoff/...sql.gz
 ```
 
 Only after that does the historical overwrite start. Post-cutoff (“ahead”) rows on the connected DB stay untouched.
