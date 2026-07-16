@@ -17,7 +17,7 @@
     <div class="flux-admin-toolbar mb-4 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
         <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
             <div class="min-w-0 w-full lg:flex-1">
-                <flux:input wire:model.live.debounce.300ms="search" placeholder="Search by ID or customer name…" variant="filled" />
+                <flux:input wire:model.live.debounce.300ms="search" placeholder="Search by ID, customer name, or reg no…" variant="filled" />
             </div>
             <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">
             <div class="min-w-0 w-full sm:min-w-[12rem] sm:flex-1 lg:w-48 lg:flex-none">
@@ -73,14 +73,11 @@
             <flux:table.columns>
                 <flux:table.column sortable :sorted="$sortField === 'id'" :direction="$sortDirection" wire:click="sortBy('id')">ID</flux:table.column>
                 <flux:table.column>Customer</flux:table.column>
-                <flux:table.column>User</flux:table.column>
+                <flux:table.column sortable :sorted="$sortField === 'contract_date'" :direction="$sortDirection" wire:click="sortBy('contract_date')">Contract Start Date</flux:table.column>
+                <flux:table.column>Status</flux:table.column>
                 <flux:table.column>Contract Type</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'deposit'" :direction="$sortDirection" wire:click="sortBy('deposit')">Deposit</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'weekly_instalment'" :direction="$sortDirection" wire:click="sortBy('weekly_instalment')">Monthly Instalment</flux:table.column>
-                <flux:table.column sortable :sorted="$sortField === 'contract_date'" :direction="$sortDirection" wire:click="sortBy('contract_date')">Contract Date</flux:table.column>
-                <flux:table.column sortable :sorted="$sortField === 'first_instalment_date'" :direction="$sortDirection" wire:click="sortBy('first_instalment_date')">First Instalment</flux:table.column>
-                <flux:table.column>Items</flux:table.column>
-                <flux:table.column>Status</flux:table.column>
                 <flux:table.column>Posted</flux:table.column>
                 <flux:table.column>Log Book</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>
@@ -99,8 +96,13 @@
                                 <span class="text-zinc-400">—</span>
                             @endif
                         </flux:table.cell>
-                        <flux:table.cell class="text-xs text-zinc-500 dark:text-zinc-400">
-                            {{ $app->user?->name ?? '—' }}
+                        <flux:table.cell class="text-xs">{{ $app->contract_date ? \Carbon\Carbon::parse($app->contract_date)->format('d M Y') : '—' }}</flux:table.cell>
+                        <flux:table.cell>
+                            @if($app->is_cancelled)
+                                <flux:badge color="red" size="sm">Cancelled</flux:badge>
+                            @else
+                                <flux:badge color="green" size="sm">Active</flux:badge>
+                            @endif
                         </flux:table.cell>
                         <flux:table.cell>
                             @php
@@ -121,16 +123,6 @@
                         </flux:table.cell>
                         <flux:table.cell>£{{ number_format($app->deposit ?? 0, 2) }}</flux:table.cell>
                         <flux:table.cell>£{{ number_format($app->weekly_instalment ?? 0, 2) }}</flux:table.cell>
-                        <flux:table.cell class="text-xs">{{ $app->contract_date ? \Carbon\Carbon::parse($app->contract_date)->format('d M Y') : '—' }}</flux:table.cell>
-                        <flux:table.cell class="text-xs">{{ $app->first_instalment_date ? \Carbon\Carbon::parse($app->first_instalment_date)->format('d M Y') : '—' }}</flux:table.cell>
-                        <flux:table.cell>{{ $app->items_count }}</flux:table.cell>
-                        <flux:table.cell>
-                            @if($app->is_cancelled)
-                                <flux:badge color="red" size="sm">Cancelled</flux:badge>
-                            @else
-                                <flux:badge color="green" size="sm">Active</flux:badge>
-                            @endif
-                        </flux:table.cell>
                         <flux:table.cell>
                             @if($app->is_posted)
                                 <flux:badge color="green" size="sm">Yes</flux:badge>
@@ -157,7 +149,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="13" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                        <flux:table.cell colspan="10" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
                             No finance applications found.
                         </flux:table.cell>
                     </flux:table.row>

@@ -20,6 +20,10 @@ class AgreementAccess extends Model
         'booking_id',
     ];
 
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
     protected $appends = ['link_html'];
 
     public function customer()

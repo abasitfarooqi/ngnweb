@@ -227,17 +227,40 @@ class NewBookingWizard extends Component
 
     public function confirmPayment(): void
     {
+        $dueToday = (float) ($this->weeklyRent ?? 0) + (float) $this->deposit;
+
         $this->validate([
             'weeklyRent' => ['required', 'numeric', 'min:0.01'],
             'deposit' => ['required', 'numeric', 'min:0'],
-            'initialPayment' => ['required', 'numeric', 'min:0'],
+            'initialPayment' => [
+                'required',
+                'numeric',
+                'min:0',
+                'max:'.number_format($dueToday, 2, '.', ''),
+            ],
             'paymentMethod' => ['required', 'in:cash,card,bank,none'],
         ], [
             'weeklyRent.min' => 'Enter a weekly rent greater than zero.',
+            'initialPayment.max' => 'Initial payment cannot exceed £'.number_format($dueToday, 2).' (weekly rent + deposit).',
         ]);
 
-        $this->step = 5;
-        $this->syncDraft(5);
+        if ((float) $this->initialPayment > 0 && $this->paymentMethod === 'none') {
+            $this->addError('paymentMethod', 'Choose cash, card, or bank transfer when recording an amount received.');
+
+            return;
+        }
+
+        if ((float) $this->initialPayment <= 0 && $this->paymentMethod !== 'none') {
+            $this->paymentMethod = 'none';
+        }
+
+        try {
+            $this->step = 5;
+            $this->syncDraft(5);
+        } catch (\Throwable $e) {
+            $this->addError('initialPayment', $e->getMessage());
+            $this->step = 4;
+        }
     }
 
     public function createBooking(): void

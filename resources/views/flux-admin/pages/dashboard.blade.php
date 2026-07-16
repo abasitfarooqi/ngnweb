@@ -12,11 +12,11 @@
     {{-- Stat cards grid --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <x-flux-admin::stat-card
-            label="Total Motorbikes"
-            :value="number_format($stats['total_motorbikes'])"
+            label="Total Vehicles"
+            :value="number_format($stats['total_vehicles'])"
             icon="truck"
             colour="blue"
-            :href="route('flux-admin.motorbikes.index')"
+            :href="route('flux-admin.total-vehicles.index')"
         />
         <x-flux-admin::stat-card
             label="Active Rentals"
@@ -26,7 +26,7 @@
             :href="route('flux-admin.rentals.index')"
         />
         <x-flux-admin::stat-card
-            label="Payment Plan Applications"
+            label="Active Payment Plans"
             :value="number_format($stats['finance_applications'])"
             icon="banknotes"
             colour="purple"
@@ -40,52 +40,12 @@
             :href="route('flux-admin.pcn.index')"
         />
         <x-flux-admin::stat-card
-            label="Active Club Members"
+            label="Total Club Member"
             :value="number_format($stats['club_members'])"
             icon="star"
             colour="pink"
             :href="route('flux-admin.club.index')"
         />
-        <x-flux-admin::stat-card
-            label="Total Bookings"
-            :value="number_format($stats['total_bookings'])"
-            icon="calendar-days"
-            colour="indigo"
-            :href="route('flux-admin.all-bookings.index')"
-        />
-    </div>
-
-    {{-- Quick navigation --}}
-    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900">
-        <div class="px-5 py-4 border-b border-zinc-200 dark:border-zinc-700">
-            <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Quick Navigation</h2>
-        </div>
-        <div class="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            <a href="{{ route('flux-admin.motorbikes.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
-                <flux:icon name="truck" variant="outline" class="w-5 h-5 text-zinc-400" />
-                Motorbikes
-            </a>
-            <a href="{{ route('flux-admin.customers.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
-                <flux:icon name="users" variant="outline" class="w-5 h-5 text-zinc-400" />
-                Customers
-            </a>
-            <a href="{{ route('flux-admin.rentals.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
-                <flux:icon name="key" variant="outline" class="w-5 h-5 text-zinc-400" />
-                Rentals
-            </a>
-            <a href="{{ route('flux-admin.finance.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
-                <flux:icon name="banknotes" variant="outline" class="w-5 h-5 text-zinc-400" />
-                Payment Plan
-            </a>
-            <a href="{{ route('flux-admin.pcn.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
-                <flux:icon name="exclamation-triangle" variant="outline" class="w-5 h-5 text-zinc-400" />
-                PCN Cases
-            </a>
-            <a href="{{ route('flux-admin.club.index') }}" class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-zinc-700 dark:text-zinc-300 bg-zinc-50 dark:bg-zinc-700/50 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition">
-                <flux:icon name="star" variant="outline" class="w-5 h-5 text-zinc-400" />
-                Club Members
-            </a>
-        </div>
     </div>
 
     @include('flux-admin.partials.dashboard-legacy', ['legacy' => $legacy])

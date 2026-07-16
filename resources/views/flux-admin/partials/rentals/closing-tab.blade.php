@@ -46,8 +46,10 @@
                         </div>
                     </div>
                     <button
+                        type="button"
                         wire:click="saveNoticePeriod"
-                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition"
+                        wire:loading.attr="disabled"
+                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition disabled:opacity-50"
                     >CHECK</button>
                     <p class="text-xs text-zinc-400 italic mt-1.5">Example: <em>"Received call from customer — motorbike to be handed over on 12-Jun-2025."</em></p>
                 </div>
@@ -89,11 +91,19 @@
                             />
                         </div>
                     </div>
-                    @if($pendingRent > 0)
-                        <p class="text-xs text-amber-600 dark:text-amber-400 mb-2">Outstanding rent: £{{ number_format($pendingRent, 2) }}. Clear invoices or proceed anyway.</p>
+                    @if($pendingTotal > 0)
+                        <div class="border border-amber-300 bg-amber-50 dark:bg-amber-950 dark:border-amber-700 p-3 text-sm mb-3">
+                            <p class="font-medium text-amber-800 dark:text-amber-300">Outstanding £{{ number_format($pendingTotal, 2) }} (due on/before collect date)</p>
+                            <ul class="mt-1 text-amber-700 dark:text-amber-400 text-xs space-y-0.5">
+                                <li>Rent (outstanding on invoices): £{{ number_format($pendingRent, 2) }}</li>
+                                <li>Other charges: £{{ number_format($pendingAdditional, 2) }}</li>
+                                <li>Open PCN: £{{ number_format($pcnTotal, 2) }}</li>
+                            </ul>
+                            <p class="mt-2 text-xs text-amber-700 dark:text-amber-400">Future invoices after collect date are removed on end and do not count here. Proceed anyway emails enquiries + you.</p>
+                        </div>
                         <label class="flex items-center gap-2 cursor-pointer mb-3">
                             <input wire:model="proceedAnyway" type="checkbox" class="w-5 h-5 accent-amber-600" />
-                            <span class="text-sm text-zinc-700 dark:text-zinc-300">Proceed anyway (unpaid rent logged)</span>
+                            <span class="text-sm text-zinc-700 dark:text-zinc-300">Proceed anyway — I accept responsibility for collecting without clearing balances</span>
                         </label>
                     @endif
                     <div class="flex items-center gap-4 mb-3">
@@ -103,8 +113,11 @@
                         </label>
                     </div>
                     <button
+                        type="button"
                         wire:click="saveCollectMotorbike"
-                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition"
+                        wire:loading.attr="disabled"
+                        wire:target="saveCollectMotorbike"
+                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition disabled:opacity-50"
                     >CHECK</button>
                 </div>
             </div>
@@ -137,8 +150,10 @@
                         <span class="text-sm text-zinc-700 dark:text-zinc-300">All additional charges cleared</span>
                     </label>
                     <button
+                        type="button"
                         wire:click="saveDamagesCost"
-                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition"
+                        wire:loading.attr="disabled"
+                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition disabled:opacity-50"
                     >CHECK</button>
                     <p class="text-xs text-zinc-400 italic mt-1.5">All additional charges are from the <em>Charges</em> tab and must be paid there.</p>
                 </div>
@@ -169,8 +184,10 @@
                         <span class="text-sm text-zinc-700 dark:text-zinc-300">All PCN pendings cleared</span>
                     </label>
                     <button
+                        type="button"
                         wire:click="savePcnPendings"
-                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition"
+                        wire:loading.attr="disabled"
+                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition disabled:opacity-50"
                     >CHECK</button>
                     <p class="text-xs text-zinc-400 italic mt-1.5">If PCN is missing it will not reflect here. Search for the registration on the PCN page.</p>
                 </div>
@@ -199,8 +216,10 @@
                         <span class="text-sm text-zinc-700 dark:text-zinc-300">No pending rent outstanding</span>
                     </label>
                     <button
+                        type="button"
                         wire:click="savePendingRent"
-                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition"
+                        wire:loading.attr="disabled"
+                        class="px-4 py-1.5 text-xs font-bold bg-zinc-800 hover:bg-zinc-700 dark:bg-zinc-200 dark:hover:bg-white text-white dark:text-zinc-900 transition disabled:opacity-50"
                     >CHECK</button>
                 </div>
             </div>
@@ -225,8 +244,10 @@
                         <span class="text-sm text-zinc-700 dark:text-zinc-300">Deposit returned to customer</span>
                     </label>
                     <button
+                        type="button"
                         wire:click="saveDepositReturn"
-                        class="px-4 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                        wire:loading.attr="disabled"
+                        class="px-4 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition disabled:opacity-50"
                     >RETURN</button>
                     <p class="text-xs text-zinc-400 italic mt-1.5">Deposit can only be returned at least <strong>15 days</strong> after the motorbike is handed over.</p>
                 </div>

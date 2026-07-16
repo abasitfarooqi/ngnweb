@@ -4,6 +4,8 @@ use App\Livewire\FluxAdmin\Pages\Branches\BranchIndex;
 use App\Livewire\FluxAdmin\Pages\Branches\BranchShow;
 use App\Livewire\FluxAdmin\Pages\Club\ClubForm;
 use App\Livewire\FluxAdmin\Pages\Club\ClubIndex;
+use App\Livewire\FluxAdmin\Pages\Club\ClubMembersIndex;
+use App\Livewire\FluxAdmin\Pages\Club\ClubMembersShow;
 use App\Livewire\FluxAdmin\Pages\Club\ClubShow;
 use App\Livewire\FluxAdmin\Pages\Customers\AppointmentForm;
 use App\Livewire\FluxAdmin\Pages\Customers\AppointmentIndex;
@@ -29,8 +31,11 @@ use App\Livewire\FluxAdmin\Pages\Motorbikes\ComplianceIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\DeliveryEnquiryIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\EbikeIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\ForSaleIndex as MotorbikeForSaleIndex;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeAvailableForm;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeAvailableIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeForm;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeIndex;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\TotalVehiclesIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\MotorbikeShow;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\NewMotorbikeIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairForm as MotorbikeRepairForm;
@@ -326,7 +331,7 @@ $backpackCrudAlias('motorbike-delivery-order-enquiries', DeliveryEnquiryIndex::c
 $backpackCrudAlias('ip-restriction', IpRestrictionIndex::class, IpRestrictionForm::class, 'ipRestriction');
 $backpackCrudAlias('access-log', AccessLogIndex::class);
 $backpackCrudAlias('renting-service-video', ServiceVideoIndex::class, ServiceVideoForm::class, 'serviceVideo');
-$backpackCrudAlias('motorbike-available', MotorbikeIndex::class, MotorbikeForm::class, 'motorbike', MotorbikeShow::class);
+$backpackCrudAlias('motorbike-available', MotorbikeAvailableIndex::class, MotorbikeAvailableForm::class, 'motorbike');
 $backpackCrudAlias('ngn-digital-invoice', DigitalInvoiceIndex::class, DigitalInvoiceForm::class, 'digitalInvoice');
 $backpackCrudAlias('ngn-digital-invoice-item', DigitalInvoiceItemIndex::class, DigitalInvoiceItemForm::class, 'invoiceItem');
 $backpackCrudAlias('pcn-tol-request', PcnTolIndex::class, PcnTolForm::class, 'id');
@@ -338,6 +343,8 @@ Route::get('/ngn-renting-booking', AllBookingsIndex::class)->name('flux-admin.ba
 Route::get('/ngn-renting-booking/create', NewBookingWizard::class)->name('flux-admin.backpack.ngn-renting-booking.create');
 Route::get('/ngn-renting-booking/{booking}/edit', RentalShow::class)->name('flux-admin.backpack.ngn-renting-booking.edit');
 Route::get('/ngn-renting-booking/{booking}', RentalShow::class)->name('flux-admin.backpack.ngn-renting-booking.show');
+
+Route::get('/total-vehicles', TotalVehiclesIndex::class)->name('flux-admin.total-vehicles.index');
 
 Route::get('/motorbikes', MotorbikeIndex::class)->name('flux-admin.motorbikes.index');
 Route::get('/motorbikes/create', MotorbikeForm::class)->name('flux-admin.motorbikes.create');
@@ -366,6 +373,9 @@ Route::get('/club', ClubIndex::class)->name('flux-admin.club.index');
 Route::get('/club/create', ClubForm::class)->name('flux-admin.club.create');
 Route::get('/club/{clubMember}/edit', ClubForm::class)->name('flux-admin.club.edit');
 Route::get('/club/{clubMember}', ClubShow::class)->name('flux-admin.club.show');
+
+Route::get('/club-members', ClubMembersIndex::class)->name('flux-admin.club-members.index');
+Route::get('/club-members/{clubMember}', ClubMembersShow::class)->name('flux-admin.club-members.show');
 
 Route::get('/branches', BranchIndex::class)->name('flux-admin.branches.index');
 Route::get('/branches/create', BranchForm::class)->name('flux-admin.branches.create');

@@ -4,7 +4,6 @@ namespace App\Support;
 
 use App\Models\Customer;
 use App\Models\FinanceApplication;
-use App\Models\PcnCase;
 use App\Models\RentingBooking;
 
 class FluxAdminModuleRegistry
@@ -52,12 +51,14 @@ class FluxAdminModuleRegistry
                 ['label' => 'Active rentals', 'value' => $active],
             ],
             'links' => [
-                ['label' => 'Operations hub', 'route' => 'flux-admin.rental-operations.index', 'icon' => 'squares-2x2'],
-                ['label' => 'Bookings management', 'route' => 'flux-admin.bookings-management.index', 'icon' => 'list-bullet'],
+                ['label' => 'Rentals home', 'route' => 'flux-admin.rental-operations.index', 'icon' => 'squares-2x2'],
                 ['label' => 'New booking', 'route' => 'flux-admin.new-booking.index', 'icon' => 'plus-circle'],
-                ['label' => 'Booking invoices', 'route' => 'flux-admin.booking-invoices.index', 'icon' => 'document-text'],
-                ['label' => 'Due payments', 'route' => 'flux-admin.rental-due-payments.index', 'icon' => 'exclamation-triangle'],
+                ['label' => 'Active bookings rental', 'route' => 'flux-admin.rentals.index', 'icon' => 'list-bullet'],
                 ['label' => 'Inactive bookings', 'route' => 'flux-admin.inactive-bookings.index', 'icon' => 'archive-box'],
+                ['label' => 'Inactive pendings payments', 'route' => 'flux-admin.ended-with-pendings.index', 'icon' => 'exclamation-triangle'],
+                ['label' => 'All bookings', 'route' => 'flux-admin.all-bookings.index', 'icon' => 'clock'],
+                ['label' => 'E-bike manager', 'route' => 'flux-admin.ebikes.index', 'icon' => 'bolt'],
+                ['label' => 'Due payments', 'route' => 'flux-admin.rental-due-payments.index', 'icon' => 'banknotes'],
             ],
         ];
     }
@@ -74,7 +75,6 @@ class FluxAdminModuleRegistry
             'links' => [
                 ['label' => 'Finance applications', 'route' => 'flux-admin.finance.index', 'icon' => 'banknotes'],
                 ['label' => 'Contract access', 'route' => 'flux-admin.contract-access.index', 'icon' => 'key'],
-                ['label' => 'Application items', 'route' => 'flux-admin.application-items.index', 'icon' => 'queue-list'],
             ],
         ];
     }
@@ -83,16 +83,12 @@ class FluxAdminModuleRegistry
     {
         return [
             'title'       => 'PCN module',
-            'description' => 'Penalty charge notices, updates, TOL requests and dashboard.',
-            'stats'       => [
-                ['label' => 'Total cases', 'value' => PcnCase::count()],
-                ['label' => 'Open', 'value' => PcnCase::where('isClosed', false)->count()],
-            ],
+            'description' => 'Penalty charge notices, updates, TOL requests and operational overview.',
+            'stats'       => [],
             'links' => [
                 ['label' => 'PCN cases', 'route' => 'flux-admin.pcn.index', 'icon' => 'shield-exclamation'],
                 ['label' => 'PCN updates', 'route' => 'flux-admin.pcn-updates.index', 'icon' => 'chat-bubble-left-right'],
                 ['label' => 'TOL requests', 'route' => 'flux-admin.pcn-tol-requests.index', 'icon' => 'document'],
-                ['label' => 'Dashboard', 'route' => 'flux-admin.pcn-dashboard.index', 'icon' => 'chart-bar'],
             ],
         ];
     }

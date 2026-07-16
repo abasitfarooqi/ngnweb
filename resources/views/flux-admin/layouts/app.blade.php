@@ -265,6 +265,124 @@
         [data-flux-navlist-group][data-open] > button > div > svg.block,
         [data-flux-navlist-group] > button[data-open] > div > svg.block { display: none; }
 
+        {{-- Flux tabs — global site button styles + Tailwind v4 data-selected:* variants break tab affordance. --}}
+        body.flux-admin-app [data-flux-tabs] {
+            border-bottom: 1px solid rgb(228 228 231);
+        }
+        html.dark body.flux-admin-app [data-flux-tabs] {
+            border-bottom-color: rgb(63 63 70);
+        }
+        body.flux-admin-app [data-flux-tab] {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: -1px;
+            padding: 0 0.5rem !important;
+            border: none !important;
+            border-bottom: 2px solid transparent !important;
+            border-radius: 0 !important;
+            background-color: transparent !important;
+            color: rgb(161 161 170) !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            line-height: 2.5rem !important;
+            text-transform: none !important;
+            letter-spacing: normal !important;
+            cursor: pointer;
+            box-shadow: none !important;
+        }
+        body.flux-admin-app [data-flux-tab]:hover {
+            color: rgb(39 39 42) !important;
+            background-color: transparent !important;
+        }
+        html.dark body.flux-admin-app [data-flux-tab] {
+            color: rgb(161 161 170) !important;
+        }
+        html.dark body.flux-admin-app [data-flux-tab]:hover {
+            color: rgb(255 255 255) !important;
+        }
+        body.flux-admin-app [data-flux-tab][data-selected] {
+            color: rgb(24 24 27) !important;
+            border-bottom-color: rgb(24 24 27) !important;
+            font-weight: 600 !important;
+            background-color: transparent !important;
+        }
+        html.dark body.flux-admin-app [data-flux-tab][data-selected] {
+            color: rgb(255 255 255) !important;
+            border-bottom-color: rgb(255 255 255) !important;
+        }
+        body.flux-admin-app [data-flux-tabs].inline-flex [data-flux-tab] {
+            margin-bottom: 0;
+            border-bottom: none !important;
+            border-radius: 0.375rem !important;
+            padding: 0 1rem !important;
+            line-height: 2rem !important;
+        }
+        body.flux-admin-app [data-flux-tabs].inline-flex [data-flux-tab][data-selected] {
+            background-color: rgb(24 24 27) !important;
+            color: rgb(255 255 255) !important;
+        }
+        html.dark body.flux-admin-app [data-flux-tabs].inline-flex [data-flux-tab][data-selected] {
+            background-color: rgb(255 255 255) !important;
+            color: rgb(24 24 27) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button {
+            border: 1px solid rgb(228 228 231) !important;
+            border-radius: 0 !important;
+            background-color: rgb(255 255 255) !important;
+            color: rgb(63 63 70) !important;
+            font-size: 0.875rem !important;
+            font-weight: 500 !important;
+            line-height: 1.25rem !important;
+            padding: 0.375rem 0.75rem !important;
+            text-transform: none !important;
+            letter-spacing: normal !important;
+            box-shadow: none !important;
+            cursor: pointer;
+        }
+        html.dark body.flux-admin-app .flux-admin-segment-tabs button {
+            border-color: rgb(63 63 70) !important;
+            background-color: rgb(24 24 27) !important;
+            color: rgb(212 212 216) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button:hover {
+            background-color: rgb(250 250 250) !important;
+        }
+        html.dark body.flux-admin-app .flux-admin-segment-tabs button:hover {
+            background-color: rgb(39 39 42) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-active="true"] {
+            color: rgb(255 255 255) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-segment="all"][data-active="true"] {
+            background-color: rgb(24 24 27) !important;
+            border-color: rgb(24 24 27) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-segment="rental"][data-active="true"] {
+            background-color: rgb(4 120 87) !important;
+            border-color: rgb(4 120 87) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-segment="finance_new"][data-active="true"] {
+            background-color: rgb(29 78 216) !important;
+            border-color: rgb(29 78 216) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-segment="finance_used"][data-active="true"] {
+            background-color: rgb(109 40 217) !important;
+            border-color: rgb(109 40 217) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-segment="company"][data-active="true"] {
+            background-color: rgb(180 83 9) !important;
+            border-color: rgb(180 83 9) !important;
+        }
+        body.flux-admin-app .flux-admin-segment-tabs button[data-segment="for_sale"][data-active="true"] {
+            background-color: rgb(3 105 161) !important;
+            border-color: rgb(3 105 161) !important;
+        }
+        body.flux-admin-app .club-members-tab-body > div > div.border {
+            border-width: 0 !important;
+            background: transparent !important;
+        }
+
         {{-- Sidebar redesign: clear left navigation with compact operations shortcuts and sectioned menus. --}}
         body.flux-admin-app [data-flux-sidebar] {
             min-width: 18rem;
@@ -280,9 +398,61 @@
             box-shadow: 1px 0 0 rgb(255 255 255 / .04) inset, 16px 0 36px rgb(0 0 0 / .32);
         }
         @media (min-width: 1024px) {
+            body.flux-admin-app ui-sidebar[data-flux-sidebar],
             body.flux-admin-app [data-flux-sidebar] {
                 min-width: 19rem;
                 width: 19rem;
+                max-width: 19rem;
+                transform: none !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                position: sticky !important;
+            }
+        }
+        @media (max-width: 1023px) {
+            body.flux-admin-app ui-sidebar[data-flux-sidebar][data-flux-sidebar-on-mobile],
+            body.flux-admin-app [data-flux-sidebar][data-flux-sidebar-on-mobile] {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                min-width: 0 !important;
+                width: 100vw !important;
+                max-width: 100vw !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                z-index: 50 !important;
+                transition: transform 0.25s ease, visibility 0.25s ease;
+            }
+            body.flux-admin-app ui-sidebar[data-flux-sidebar][data-flux-sidebar-on-mobile][data-flux-sidebar-collapsed-mobile],
+            body.flux-admin-app [data-flux-sidebar][data-flux-sidebar-on-mobile][data-flux-sidebar-collapsed-mobile] {
+                transform: translateX(-100%) !important;
+                visibility: hidden !important;
+                pointer-events: none !important;
+            }
+            html[dir="rtl"] body.flux-admin-app ui-sidebar[data-flux-sidebar][data-flux-sidebar-on-mobile][data-flux-sidebar-collapsed-mobile],
+            html[dir="rtl"] body.flux-admin-app [data-flux-sidebar][data-flux-sidebar-on-mobile][data-flux-sidebar-collapsed-mobile] {
+                transform: translateX(100%) !important;
+            }
+            body.flux-admin-app ui-sidebar[data-flux-sidebar][data-flux-sidebar-on-mobile]:not([data-flux-sidebar-collapsed-mobile]),
+            body.flux-admin-app [data-flux-sidebar][data-flux-sidebar-on-mobile]:not([data-flux-sidebar-collapsed-mobile]) {
+                transform: translateX(0) !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+            }
+            body.flux-admin-app [data-flux-sidebar-backdrop] {
+                display: none !important;
+                position: fixed;
+                inset: 0;
+                z-index: 40;
+                background: rgb(0 0 0 / 0.35);
+            }
+            body.flux-admin-app [data-flux-sidebar-backdrop][data-flux-sidebar-on-mobile]:not([data-flux-sidebar-collapsed-mobile]) {
+                display: block !important;
+            }
+            body.flux-admin-app .flux-admin-main-column {
+                width: 100%;
+                min-width: 0;
+                flex: 1 1 100%;
             }
         }
         {{-- Ensure sidebar fills viewport height and inner navlist scrolls properly
@@ -304,6 +474,85 @@
         body.flux-admin-app [data-flux-sidebar] [data-flux-navlist]::-webkit-scrollbar-thumb {
             background: rgb(161 161 170);
             border-radius: 999px;
+        }
+        @media (max-width: 1023px) {
+            body.flux-admin-app ui-sidebar[data-flux-sidebar] {
+                gap: 0.5rem !important;
+                padding: 0.5rem !important;
+            }
+            body.flux-admin-app .flux-admin-sidebar-top {
+                display: flex;
+                align-items: center;
+                gap: 0.35rem;
+                margin: 0 0 0.2rem;
+            }
+            body.flux-admin-app .flux-admin-sidebar-top .flux-admin-brand {
+                margin: 0;
+                flex: 1;
+                min-width: 0;
+                border: 0;
+                box-shadow: none;
+                padding: 0;
+                background: transparent;
+            }
+            body.flux-admin-app .flux-admin-brand-mark {
+                height: 1.375rem;
+            }
+            body.flux-admin-app .flux-admin-brand-mark img {
+                height: 1.375rem;
+            }
+            body.flux-admin-app .flux-admin-quick-grid {
+                grid-template-columns: repeat(4, minmax(0, 1fr));
+                margin: 0 0.35rem 0.25rem;
+                gap: 0.2rem;
+            }
+            body.flux-admin-app .flux-admin-quick-link {
+                min-height: 1.85rem;
+                justify-content: center;
+                padding: 0.25rem;
+                gap: 0;
+            }
+            body.flux-admin-app .flux-admin-quick-label {
+                display: none;
+            }
+            body.flux-admin-app .flux-admin-quick-icon {
+                height: auto;
+                width: auto;
+                border: 0;
+                background: transparent;
+                padding: 0;
+            }
+        }
+        .flux-admin-top-header {
+            gap: 0.5rem;
+        }
+        .flux-admin-header-search-form {
+            min-width: 0;
+        }
+        @media (max-width: 1023px) {
+            .flux-admin-header-search-row {
+                flex: 1 1 auto;
+                min-width: 0;
+                width: 100%;
+            }
+            .flux-admin-header-search-form {
+                flex: 1 1 auto;
+                min-width: 0;
+                width: 100%;
+            }
+            .flux-admin-header-search-field {
+                flex: 1 1 0%;
+                min-width: 0;
+                width: 100%;
+            }
+            .flux-admin-header-search-field [data-flux-input],
+            .flux-admin-header-search-field ui-input {
+                width: 100%;
+            }
+            .flux-admin-header-search-field input {
+                width: 100%;
+                min-width: 0;
+            }
         }
         .flux-admin-brand {
             margin: .5rem .65rem .35rem;
@@ -502,6 +751,30 @@
                 z-index: 5;
             }
         }
+
+        /* Flux modals: centre in the viewport across the admin panel. Flyouts keep edge positioning. */
+        body.flux-admin-app [data-flux-modal] > dialog:not([data-flux-flyout]),
+        body.flux-admin-app ui-modal > dialog:not([data-flux-flyout]) {
+            position: fixed;
+            inset: 0;
+            width: fit-content;
+            height: fit-content;
+            max-width: min(calc(100vw - 2rem), 42rem);
+            max-height: calc(100dvh - 2rem);
+            margin: auto;
+            overflow-y: auto;
+            border: 0;
+        }
+
+        body.flux-admin-app [data-flux-modal] > dialog:not([data-flux-flyout])::backdrop,
+        body.flux-admin-app ui-modal > dialog:not([data-flux-flyout])::backdrop {
+            background-color: rgb(0 0 0 / 0.45);
+        }
+
+        body.flux-admin-app [data-flux-modal] > dialog:not([open]):not([data-flux-flyout]),
+        body.flux-admin-app ui-modal > dialog:not([open]):not([data-flux-flyout]) {
+            display: none;
+        }
     </style>
 </head>
 <body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row">
@@ -509,38 +782,33 @@
 
     {{-- Sidebar: same dark surface as main canvas (no half-light / half-dark split). --}}
     <flux:sidebar sticky stashable class="flux-admin-sidebar z-20 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:z-auto lg:min-h-screen lg:shrink-0">
-        <button
-            type="button"
-            class="lg:hidden flex h-10 w-10 shrink-0 items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-            aria-label="Close menu"
-            onclick="document.dispatchEvent(new CustomEvent('flux-sidebar-toggle',{bubbles:true}))"
-        >
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12"/></svg>
-        </button>
+        <div class="flux-admin-sidebar-top lg:contents">
+            <flux:sidebar.toggle class="shrink-0 lg:hidden" icon="x-mark" aria-label="Close menu" />
 
-        {{-- Brand --}}
-        <a href="{{ route('flux-admin.dashboard') }}" class="flux-admin-brand flex items-center" aria-label="NGN Motors admin">
-            <span class="flux-admin-brand-mark">
-                <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-8 w-auto">
-            </span>
-        </a>
+            {{-- Brand --}}
+            <a href="{{ route('flux-admin.dashboard') }}" class="flux-admin-brand flex items-center" aria-label="NGN Motors admin">
+                <span class="flux-admin-brand-mark">
+                    <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-8 w-auto">
+                </span>
+            </a>
+        </div>
 
         <div class="flux-admin-quick-grid">
-            <a href="{{ route('flux-admin.new-booking.index') }}" class="flux-admin-quick-link">
-                <span class="flux-admin-quick-icon"><flux:icon name="calendar-days" class="h-4 w-4" /></span>
-                <span>Booking</span>
+            <a href="{{ route('flux-admin.delivery-enquiries.index') }}" class="flux-admin-quick-link">
+                <span class="flux-admin-quick-icon"><flux:icon name="truck" class="h-4 w-4" /></span>
+                <span class="flux-admin-quick-label">Delivery enquiries</span>
             </a>
             <a href="{{ route('flux-admin.mot-bookings.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="clipboard-document-check" class="h-4 w-4" /></span>
-                <span>MOT</span>
+                <span class="flux-admin-quick-label">MOT</span>
             </a>
             <a href="{{ route('flux-admin.service-bookings.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="wrench-screwdriver" class="h-4 w-4" /></span>
-                <span>Services</span>
+                <span class="flux-admin-quick-label">Services</span>
             </a>
             <a href="{{ route('flux-admin.support-inbox.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="inbox" class="h-4 w-4" /></span>
-                <span>Inbox</span>
+                <span class="flux-admin-quick-label">Inbox</span>
             </a>
         </div>
 
@@ -548,33 +816,26 @@
 
         <flux:navlist id="flux-admin-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
             <flux:navlist.item href="{{ route('flux-admin.dashboard') }}" icon="home" :current="request()->routeIs('flux-admin.dashboard*')">Dashboard</flux:navlist.item>
-            <flux:navlist.item href="{{ route('flux-admin.search') }}" icon="magnifying-glass" :current="request()->routeIs('flux-admin.search')">Global search</flux:navlist.item>
-
+         
             {{-- 1. Payment Plan --}}
             @can('see-menu-finance')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.finance.*','flux-admin.contract-access.*','flux-admin.application-items.*','flux-admin.modules.show')" heading="Payment Plan">
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.finance.*','flux-admin.contract-access.*','flux-admin.modules.show')" heading="Payment Plan">
                     <flux:navlist.item href="{{ route('flux-admin.modules.show', 'finance') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'finance'">Module home</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.finance.index') }}" :current="request()->routeIs('flux-admin.finance.*')">Create / Edit</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.contract-access.index') }}" :current="request()->routeIs('flux-admin.contract-access.*')">Contract signature expire</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.application-items.index') }}" :current="request()->routeIs('flux-admin.application-items.*')">Application items</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
             {{-- 2. Rentals --}}
             @can('see-menu-rentals')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.rentals.*','flux-admin.rental-*','flux-admin.new-booking.*','flux-admin.bookings-management.*','flux-admin.inactive-bookings.*','flux-admin.ended-with-pendings.*','flux-admin.motorbike-pricing.*','flux-admin.all-bookings.*','flux-admin.booking-invoices.*','flux-admin.booking-invoice-dates.*','flux-admin.change-start-date.*','flux-admin.renting-pricing.*','flux-admin.upload-document-links.*','flux-admin.agreement-access.*','flux-admin.active-rentals.*','flux-admin.rental-due-payments.*','flux-admin.service-videos.*','flux-admin.adjust-weekday.*','flux-admin.active-bookings-summary.*','flux-admin.modules.show')" heading="Rentals">
-                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'rentals') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'rentals'">Module home</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.rental-operations.index') }}" :current="request()->routeIs('flux-admin.rental-operations.*')">Operations hub</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.rentals.index') }}" :current="request()->routeIs('flux-admin.rentals.*')">Rentals list</flux:navlist.item>
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.rentals.*','flux-admin.rental-*','flux-admin.new-booking.*','flux-admin.bookings-management.*','flux-admin.inactive-bookings.*','flux-admin.ended-with-pendings.*','flux-admin.motorbike-pricing.*','flux-admin.all-bookings.*','flux-admin.renting-pricing.*','flux-admin.upload-document-links.*','flux-admin.agreement-access.*','flux-admin.active-rentals.*','flux-admin.rental-due-payments.*','flux-admin.service-videos.*','flux-admin.ebikes.*','flux-admin.modules.show')" heading="Rentals">
+                    <flux:navlist.item href="{{ route('flux-admin.rental-operations.index') }}" :current="request()->routeIs('flux-admin.rental-operations.*') || (request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'rentals')">Rentals home</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.new-booking.index') }}" :current="request()->routeIs('flux-admin.new-booking.*')">New booking</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.bookings-management.index') }}" :current="request()->routeIs('flux-admin.bookings-management.*')">Bookings management</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/ngn-admin/rental-operations/bookings-management') }}">Bookings management (legacy)</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.rentals.index') }}" :current="request()->routeIs('flux-admin.rentals.index') || request()->routeIs('flux-admin.rentals.show') || request()->routeIs('flux-admin.bookings-management.*')">Active bookings rental</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.inactive-bookings.index') }}" :current="request()->routeIs('flux-admin.inactive-bookings.*')">Inactive bookings</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ended-with-pendings.index') }}" :current="request()->routeIs('flux-admin.ended-with-pendings.*')">Ended with pendings</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.ended-with-pendings.index') }}" :current="request()->routeIs('flux-admin.ended-with-pendings.*')">Inactive pendings payments</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.all-bookings.index') }}" :current="request()->routeIs('flux-admin.all-bookings.*')">All bookings</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.booking-invoices.index') }}" :current="request()->routeIs('flux-admin.booking-invoices.*')">Booking invoices</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.booking-invoice-dates.index') }}" :current="request()->routeIs('flux-admin.booking-invoice-dates.*')">Booking invoice dates</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.change-start-date.index') }}" :current="request()->routeIs('flux-admin.change-start-date.*')">Change booking start date</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.ebikes.index') }}" :current="request()->routeIs('flux-admin.ebikes.*')">E-bike manager</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbike-pricing.index') }}" :current="request()->routeIs('flux-admin.motorbike-pricing.*')">Motorbike pricing</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.renting-pricing.index') }}" :current="request()->routeIs('flux-admin.renting-pricing.*')">Add new vehicle (pricing)</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.upload-document-links.index') }}" :current="request()->routeIs('flux-admin.upload-document-links.*')">Document expire date</flux:navlist.item>
@@ -583,28 +844,22 @@
                     <flux:navlist.item href="{{ route('flux-admin.active-rentals.index') }}" :current="request()->routeIs('flux-admin.active-rentals.*')">Overview</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.rental-due-payments.index') }}" :current="request()->routeIs('flux-admin.rental-due-payments.*')">Due payments</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.service-videos.index') }}" :current="request()->routeIs('flux-admin.service-videos.*')">Renting service videos</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.adjust-weekday.index') }}" :current="request()->routeIs('flux-admin.adjust-weekday.*')">Adjust booking weekday</flux:navlist.item>
-                    @role('Admin')
-                    <flux:navlist.item href="{{ route('flux-admin.active-bookings-summary.index') }}" :current="request()->routeIs('flux-admin.active-bookings-summary.*')">Active bookings summary</flux:navlist.item>
-                    @endrole
                 </flux:navlist.group>
             @endcan
 
             {{-- 3. PCNs --}}
             @can('see-menu-pcns')
                 <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.pcn.*','flux-admin.pcn-*','flux-admin.modules.show')" heading="PCNs">
-                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'pcn') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'pcn'">Module home</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'pcn') }}" :current="(request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'pcn') || request()->routeIs('flux-admin.pcn-dashboard.*')">Module home</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.pcn.index') }}" :current="request()->routeIs('flux-admin.pcn.index') || request()->routeIs('flux-admin.pcn.show')">Add / Edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.pcn-updates.index') }}" :current="request()->routeIs('flux-admin.pcn-updates.*')">PCN updates</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.pcn-tol-requests.index') }}" :current="request()->routeIs('flux-admin.pcn-tol-requests.*')">TOL requests</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.pcn-dashboard.index') }}" :current="request()->routeIs('flux-admin.pcn-dashboard.*')">Overview</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
             {{-- 4. Vehicles (+ vehicle commons items that belong here) --}}
             @can('see-menu-vehicles')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbikes*','flux-admin.motorbike-compliance.*','flux-admin.motorbike-new.*','flux-admin.ebikes.*','flux-admin.vehicle-notifications.*','flux-admin.recovered-motorbikes.*','flux-admin.motorbike-cat-b.*','flux-admin.vehicle-history.*','flux-admin.company-vehicles.*','flux-admin.club-member-vehicles.*')" heading="Vehicles">
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbikes*','flux-admin.motorbike-compliance.*','flux-admin.motorbike-new.*','flux-admin.ebikes.*','flux-admin.vehicle-notifications.*','flux-admin.recovered-motorbikes.*','flux-admin.motorbike-cat-b.*','flux-admin.vehicle-history.*','flux-admin.company-vehicles.*','flux-admin.club-member-vehicles.*','flux-admin.backpack.motorbike-available.*')" heading="Vehicles">
                     <flux:navlist.item href="{{ route('flux-admin.motorbikes-dvla.create') }}" :current="request()->routeIs('flux-admin.motorbikes-dvla.*')">DVLA add / edit</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.backpack.motorbike-available.index') }}" :current="request()->routeIs('flux-admin.backpack.motorbike-available.*')">Repair rental availability</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbikes.index') }}" :current="request()->routeIs('flux-admin.motorbikes*')">Manual add / edit</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbike-compliance.index') }}" :current="request()->routeIs('flux-admin.motorbike-compliance.*')">MOT / TAX compliance</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.motorbike-compliance.index') }}" :current="request()->routeIs('flux-admin.motorbike-compliance.*')">Vehicle database</flux:navlist.item>
@@ -623,13 +878,12 @@
                 </flux:navlist.group>
             @endcan
 
-            {{-- 5. Chat --}}
+            {{-- 5. Customers (was Chat position) --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.support-*','flux-admin.contact-queries.*')" heading="Chat">
-                    <flux:navlist.item href="{{ route('flux-admin.support-inbox.index') }}" :current="request()->routeIs('flux-admin.support-inbox.*')">Conversations inbox</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.support-conversations.index') }}" :current="request()->routeIs('flux-admin.support-conversations.*')">Support conversations</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.support-messages.index') }}" :current="request()->routeIs('flux-admin.support-messages.*')">Support messages</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.contact-queries.index') }}" :current="request()->routeIs('flux-admin.contact-queries.*')">Contact queries</flux:navlist.item>
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.customers.*','flux-admin.customer-documents.*','flux-admin.modules.show')" heading="Customers">
+                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'customers') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'customers'">Module home</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.customers.index') }}" :current="request()->routeIs('flux-admin.customers.*')">Customer list</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.customer-documents.index') }}" :current="request()->routeIs('flux-admin.customer-documents.*')">Verify documents</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
@@ -646,11 +900,16 @@
                     <flux:navlist.item href="{{ route('flux-admin.motorbike-repair-updates.index') }}" :current="request()->routeIs('flux-admin.motorbike-repair-updates.*')">Repair updates</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
-
+            @role('see-menu-commons')
+            <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')" heading="Club">
+                <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club member access</flux:navlist.item>
+            </flux:navlist.group>
+            @endrole
             {{-- 7. Club (same Admin gate as Backpack Misc Club Members) --}}
             @role('Admin')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.dev-club-otp.*')" heading="Club">
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')" heading="Club">
                     <flux:navlist.item href="{{ route('flux-admin.club.index') }}" :current="request()->routeIs('flux-admin.club.index') || request()->routeIs('flux-admin.club.show')">Club members</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club member access</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.club-purchases.index') }}" :current="request()->routeIs('flux-admin.club-purchases.*')">Club member purchases</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.club-redemptions.index') }}" :current="request()->routeIs('flux-admin.club-redemptions.*')">Club member redeems</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.club-spending.index') }}" :current="request()->routeIs('flux-admin.club-spending.*')">0% spendings</flux:navlist.item>
@@ -658,6 +917,12 @@
                     <flux:navlist.item href="{{ route('flux-admin.dev-club-otp.index') }}" :current="request()->routeIs('flux-admin.dev-club-otp.*')">Dev Club OTP</flux:navlist.item>
                 </flux:navlist.group>
             @endrole
+
+            @unless(\App\Support\FluxAdminAccess::canFullClubAdmin())
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club-members.*')" heading="Club">
+                    <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club members</flux:navlist.item>
+                </flux:navlist.group>
+            @endunless
 
             {{-- 8. Delivery order --}}
             @canany(['see-menu-vehicles', 'see-menu-commons'])
@@ -755,12 +1020,13 @@
                 </flux:navlist.group>
             @endcan
 
-            {{-- Customers / B2B (Backpack placement after MOT block area; keep after core ops) --}}
+            {{-- Chat after Customers, before Careers --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.customers.*','flux-admin.customer-documents.*','flux-admin.modules.show')" heading="Customers">
-                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'customers') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'customers'">Module home</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.customers.index') }}" :current="request()->routeIs('flux-admin.customers.*')">Customer list</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.customer-documents.index') }}" :current="request()->routeIs('flux-admin.customer-documents.*')">Verify documents</flux:navlist.item>
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.support-*','flux-admin.contact-queries.*')" heading="Chat">
+                    <flux:navlist.item href="{{ route('flux-admin.support-inbox.index') }}" :current="request()->routeIs('flux-admin.support-inbox.*')">Conversations inbox</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.support-conversations.index') }}" :current="request()->routeIs('flux-admin.support-conversations.*')">Support conversations</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.support-messages.index') }}" :current="request()->routeIs('flux-admin.support-messages.*')">Support messages</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.contact-queries.index') }}" :current="request()->routeIs('flux-admin.contact-queries.*')">Contact queries</flux:navlist.item>
                 </flux:navlist.group>
                 <flux:navlist.item href="{{ route('flux-admin.careers.index') }}" :current="request()->routeIs('flux-admin.careers.*')">Careers</flux:navlist.item>
             @endcan
@@ -802,10 +1068,10 @@
             @endcan
 
             @can('see-menu-permissions')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.users.*','flux-admin.roles.*','flux-admin.permissions.*')" heading="Permissions">
-                    <flux:navlist.item href="{{ route('flux-admin.users.index') }}" :current="request()->routeIs('flux-admin.users.*')">Users</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.roles.index') }}" :current="request()->routeIs('flux-admin.roles.*')">Roles</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.permissions.index') }}" :current="request()->routeIs('flux-admin.permissions.*')">Permissions</flux:navlist.item>
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.users.*','flux-admin.user','flux-admin.user.*','flux-admin.backpack.user.*','flux-admin.roles.*','flux-admin.role','flux-admin.role.*','flux-admin.backpack.role.*','flux-admin.permissions.*','flux-admin.permission','flux-admin.permission.*','flux-admin.backpack.permission.*')" heading="Permissions">
+                    <flux:navlist.item href="{{ route('flux-admin.users.index') }}" :current="request()->routeIs('flux-admin.users.*','flux-admin.user','flux-admin.user.*','flux-admin.backpack.user.*')">Users</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.roles.index') }}" :current="request()->routeIs('flux-admin.roles.*','flux-admin.role','flux-admin.role.*','flux-admin.backpack.role.*')">Roles</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.permissions.index') }}" :current="request()->routeIs('flux-admin.permissions.*','flux-admin.permission','flux-admin.permission.*','flux-admin.backpack.permission.*')">Permissions</flux:navlist.item>
                 </flux:navlist.group>
             @endcan
 
@@ -848,22 +1114,68 @@
 
     {{-- Main column: min-w-0 stops wide tables from growing under the sidebar; overflow-y keeps scroll in this pane. --}}
     <div class="flux-admin-main-column flex min-h-dvh w-full min-w-0 flex-1 flex-col lg:min-h-screen">
-        <flux:header class="hidden shrink-0 items-center border-b border-zinc-200 bg-white px-6 py-3 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 lg:flex">
-            <div class="min-w-0">
+        <flux:header
+            class="flux-admin-top-header flex shrink-0 items-center border-b border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 sm:px-4 lg:px-6 lg:py-3"
+            x-data="{ searchOpen: false }"
+            @keydown.escape.window="searchOpen = false"
+        >
+            <flux:sidebar.toggle class="shrink-0 lg:hidden" icon="bars-2" aria-label="Open menu" x-show="!searchOpen" x-cloak />
+
+            <div class="flux-admin-header-search-row flex min-w-0 flex-1 items-center gap-2 lg:hidden" x-show="searchOpen" x-cloak>
+                <button
+                    type="button"
+                    class="inline-flex h-8 w-8 shrink-0 items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
+                    @click="searchOpen = false"
+                    aria-label="Close search"
+                >
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                </button>
+
+                <form action="{{ route('flux-admin.search') }}" method="get" class="flux-admin-header-search-form flex min-w-0 flex-1 items-center gap-2">
+                    <div class="flux-admin-header-search-field min-w-0 flex-1">
+                        <flux:input
+                            id="flux-admin-header-search"
+                            name="q"
+                            value="{{ request('q') }}"
+                            icon="magnifying-glass"
+                            placeholder="Search…"
+                            variant="outline"
+                            size="sm"
+                            class="w-full"
+                        />
+                    </div>
+                    <flux:button type="submit" size="sm" variant="primary" class="!rounded-none shrink-0">Search</flux:button>
+                </form>
+            </div>
+
+            <div class="hidden min-w-0 sm:block lg:max-w-[12rem] lg:shrink-0" x-show="!searchOpen" x-cloak>
                 <div class="text-xs font-medium uppercase text-zinc-500 dark:text-zinc-500">NGN Motors</div>
                 <div class="truncate text-sm font-semibold text-zinc-900 dark:text-white">{{ $title ?? 'Flux Admin' }}</div>
             </div>
-            <flux:spacer />
-            <form action="{{ route('flux-admin.search') }}" method="get" class="hidden min-w-0 max-w-md flex-1 lg:flex">
-                <div class="w-full">
-                    <flux:input name="q" value="{{ request('q') }}" icon="magnifying-glass" placeholder="Search menu or records…" variant="outline" size="sm" />
-                </div>
+
+            <flux:spacer class="!hidden lg:!block" />
+
+            <form action="{{ route('flux-admin.search') }}" method="get" class="hidden min-w-0 lg:flex lg:max-w-md lg:flex-none">
+                <flux:input name="q" value="{{ request('q') }}" icon="magnifying-glass" placeholder="Search menu or records…" variant="outline" size="sm" class="w-full" />
             </form>
-            <flux:spacer />
-            <div class="flex items-center gap-2">
-                <a href="{{ route('flux-admin.search') }}" class="lg:hidden">
-                    <flux:button size="sm" variant="ghost" icon="magnifying-glass" class="!rounded-none" title="Global search">Search</flux:button>
-                </a>
+
+            <flux:spacer class="!hidden lg:!block" />
+
+            <flux:button
+                type="button"
+                size="sm"
+                variant="ghost"
+                icon="magnifying-glass"
+                class="!rounded-none shrink-0 lg:hidden"
+                x-show="!searchOpen"
+                x-cloak
+                @click="searchOpen = true; $nextTick(() => document.getElementById('flux-admin-header-search')?.focus())"
+                aria-label="Open search"
+            >
+                Search
+            </flux:button>
+
+            <div class="flex shrink-0 items-center gap-2" x-show="!searchOpen" x-cloak>
                 <a href="{{ route('flux-admin.dashboard') }}">
                     <flux:button size="sm" variant="ghost" icon="home" class="!rounded-none">Dashboard</flux:button>
                 </a>
@@ -886,30 +1198,6 @@
             </div>
         </flux:header>
 
-        <flux:header class="flex shrink-0 items-center border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-100 lg:hidden">
-            <button
-                type="button"
-                class="flex h-10 w-10 shrink-0 items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-                aria-label="Open menu"
-                onclick="document.dispatchEvent(new CustomEvent('flux-sidebar-toggle',{bubbles:true}))"
-            >
-                <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5"/></svg>
-            </button>
-            <flux:spacer />
-            <a href="{{ route('flux-admin.dashboard') }}" class="text-sm font-medium text-zinc-700 dark:text-zinc-300">Dashboard</a>
-            <flux:spacer />
-            <button
-                type="button"
-                x-data
-                @click="window.ngnSetColourMode && window.ngnSetColourMode(document.documentElement.classList.contains('dark') ? 'light' : 'dark')"
-                class="flex h-10 w-10 shrink-0 items-center justify-center text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
-                aria-label="Toggle light and dark mode"
-            >
-                <svg class="h-5 w-5 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
-                <svg class="h-5 w-5 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            </button>
-        </flux:header>
-
         <flux:main id="flux-admin-main" class="min-h-0 min-w-0 flex-1 overflow-y-auto bg-zinc-100 !p-0 dark:bg-zinc-950 dark:text-zinc-100">
             <div class="flux-admin-content mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
                 {{ $slot }}
@@ -920,6 +1208,58 @@
     <flux:toast />
     @livewireScripts
     @fluxScripts
+    <script>
+        (function () {
+            function ensureFluxDialogModal(dialog) {
+                if (!(dialog instanceof HTMLDialogElement)) {
+                    return;
+                }
+                if (dialog.hasAttribute('data-flux-flyout')) {
+                    return;
+                }
+                if (!dialog.open || typeof dialog.showModal !== 'function') {
+                    return;
+                }
+                try {
+                    if (!dialog.matches(':modal')) {
+                        dialog.showModal();
+                    }
+                } catch (err) {}
+            }
+
+            function scanFluxDialogs(root) {
+                root.querySelectorAll('[data-flux-modal] > dialog:not([data-flux-flyout]), ui-modal > dialog:not([data-flux-flyout])')
+                    .forEach(ensureFluxDialogModal);
+            }
+
+            document.addEventListener('livewire:init', function () {
+                scanFluxDialogs(document.body);
+                Livewire.hook('morph.updated', function () {
+                    scanFluxDialogs(document.body);
+                });
+            });
+
+            new MutationObserver(function (mutations) {
+                mutations.forEach(function (mutation) {
+                    if (mutation.type === 'attributes'
+                        && mutation.attributeName === 'open'
+                        && mutation.target instanceof HTMLDialogElement) {
+                        ensureFluxDialogModal(mutation.target);
+                    }
+                    mutation.addedNodes.forEach(function (node) {
+                        if (node.nodeType === 1) {
+                            scanFluxDialogs(node);
+                        }
+                    });
+                });
+            }).observe(document.body, {
+                subtree: true,
+                childList: true,
+                attributes: true,
+                attributeFilter: ['open'],
+            });
+        })();
+    </script>
     <script>
         (function () {
             var key = 'flux-admin:navlist-scroll';
@@ -988,6 +1328,12 @@
             document.addEventListener('click', function (event) {
                 if (event.target.closest('[data-flux-sidebar] a[href]')) {
                     saveScroll();
+                    if (window.matchMedia('(max-width: 1023px)').matches) {
+                        var sidebar = document.querySelector('[data-flux-sidebar]');
+                        if (sidebar && !sidebar.hasAttribute('data-flux-sidebar-collapsed-mobile')) {
+                            document.dispatchEvent(new CustomEvent('flux-sidebar-toggle', { bubbles: true }));
+                        }
+                    }
                 }
             }, true);
 
@@ -1097,6 +1443,38 @@
                 Livewire.hook('morph.updated', scheduleSync);
                 Livewire.hook('commit', function ({ succeed }) {
                     succeed(scheduleSync);
+                });
+            });
+
+            document.addEventListener('livewire:init', function () {
+                if (typeof Livewire === 'undefined' || !Livewire.on) {
+                    return;
+                }
+
+                Livewire.on('flux-admin:toast', function (payload) {
+                    var type = payload && payload.type ? payload.type : 'success';
+                    var message = payload && payload.message ? payload.message : '';
+                    var heading = payload && payload.heading ? payload.heading : null;
+                    var variantMap = { success: 'success', warning: 'warning', error: 'danger', danger: 'danger' };
+                    var variant = variantMap[type] || 'success';
+                    var duration = (type === 'error' || type === 'danger') ? 15000 : 5000;
+
+                    if (!heading && (type === 'error' || type === 'danger')) {
+                        heading = 'Action failed';
+                    }
+
+                    document.dispatchEvent(new CustomEvent('toast-show', {
+                        detail: {
+                            duration: duration,
+                            slots: {
+                                text: message,
+                                heading: heading,
+                            },
+                            dataset: {
+                                variant: variant,
+                            },
+                        },
+                    }));
                 });
             });
 

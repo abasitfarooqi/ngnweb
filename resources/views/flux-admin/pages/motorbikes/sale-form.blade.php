@@ -14,7 +14,7 @@
             <a href="{{ route('flux-admin.motorbike-sales.index') }}">
                 <flux:button variant="ghost" size="sm" class="!rounded-none">Cancel</flux:button>
             </a>
-            <flux:button wire:click="save" variant="primary" size="sm" class="!rounded-none">Save</flux:button>
+            <flux:button type="button" wire:click="save" variant="primary" size="sm" class="!rounded-none">Save</flux:button>
         </div>
     </div>
 
@@ -25,8 +25,13 @@
             <x-flux-admin::form-grid cols="3" class="mb-4">
                 <x-flux-admin::field-group label="Motorbike (reg)" required span="full" :error="$errors->first('form.motorbike_id')">
                     <div class="{{ count($motorbikeSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
-                        <flux:input wire:model.live.debounce.300ms="motorbikeSearch" placeholder="Search by registration…" autocomplete="off"
-                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()" />
+                        <flux:input
+                            wire:model.live.debounce.300ms="motorbikeSearch"
+                            placeholder="Search by registration…"
+                            autocomplete="off"
+                            :disabled="$motorbikesSale && $motorbikesSale->exists"
+                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()"
+                        />
                         @if(count($motorbikeSuggestions))
                             <ul class="flux-admin-autocomplete-menu" role="listbox">
                                 @foreach($motorbikeSuggestions as $ms)
@@ -35,10 +40,6 @@
                             </ul>
                         @endif
                     </div>
-                </x-flux-admin::field-group>
-
-                <x-flux-admin::field-group label="Condition" :error="$errors->first('form.condition')">
-                    <flux:input wire:model="form.condition" placeholder="e.g. Good, Fair" />
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Mileage" :error="$errors->first('form.mileage')">
@@ -84,6 +85,11 @@
                 </x-flux-admin::field-group>
             </x-flux-admin::form-grid>
 
+            <div class="mt-4 flex flex-wrap items-center gap-6">
+                <flux:checkbox wire:model.live="form.is_sold" label="Sold" />
+                <flux:checkbox wire:model.live="form.v5_available" label="V5 available" />
+            </div>
+
             @if($form['is_sold'] ?? false)
                 <x-flux-admin::form-grid cols="3" class="mt-4">
                     <x-flux-admin::field-group label="Buyer name" :error="$errors->first('form.buyer_name')">
@@ -113,15 +119,6 @@
                     <flux:textarea wire:model="form.note" rows="2" />
                 </x-flux-admin::field-group>
             </x-flux-admin::form-grid>
-
-            <div class="mt-4 flex items-center gap-6">
-                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                    <input type="checkbox" wire:model.live="form.is_sold" class="accent-zinc-900 dark:accent-zinc-200"> Sold
-                </label>
-                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
-                    <input type="checkbox" wire:model="form.v5_available" class="accent-zinc-900 dark:accent-zinc-200"> V5 available
-                </label>
-            </div>
         </div>
 
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">

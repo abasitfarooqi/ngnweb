@@ -78,11 +78,15 @@
             @if(in_array($booking->state, ['Awaiting Documents & Payment', 'Awaiting Documents']))
                 <button
                     wire:click="markDocumentsComplete"
-                    wire:confirm="Have all documents been thoroughly reviewed and verified?"
-                    class="inline-flex items-center gap-1.5 px-3 py-2 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                    wire:confirm="Have all ID / insurance / licence documents been thoroughly reviewed and verified?"
+                    class="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
                 >
-                    Documents complete (state only)
+                    Documents Completed
                 </button>
+            @elseif(str_contains($booking->state ?? '', 'Completed') || $booking->state === 'Awaiting Payment')
+                <span class="inline-flex items-center px-3 py-2 text-sm font-semibold border border-emerald-600 text-emerald-700 dark:text-emerald-300">
+                    Documents Completed
+                </span>
             @endif
             <button
                 wire:click="generateDocumentLink(false)"

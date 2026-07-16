@@ -2,10 +2,10 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-zinc-200 dark:border-zinc-700">
         <div>
             <p class="text-sm font-semibold text-zinc-900 dark:text-white">Rental agreement</p>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate the V6 signing link (same URL emailed to the customer).</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate / email the V6 signing link, then verify signed PDFs (same as legacy Documents tab “Verified: FILE”).</p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2">
-            <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled">
+            <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled" class="!rounded-none">
                 Generate agreement &amp; QR
             </flux:button>
             <flux:button
@@ -14,6 +14,7 @@
                 wire:click="sendAgreementLinkEmail"
                 wire:loading.attr="disabled"
                 wire:target="sendAgreementLinkEmail,generateAgreement"
+                class="!rounded-none"
             >
                 Email signing link
             </flux:button>
@@ -39,8 +40,38 @@
         </div>
     @endif
 
+    {{-- Signed PDFs after customer signs (customer_agreements) --}}
+    <div class="mx-4 mt-4 border border-zinc-200 dark:border-zinc-700">
+        <div class="px-4 py-2 border-b border-zinc-200 dark:border-zinc-700 text-xs font-bold uppercase tracking-wide text-zinc-500">
+            Signed rental agreements
+        </div>
+        @if($signedAgreements->isEmpty())
+            <p class="p-4 text-sm text-zinc-500 dark:text-zinc-400">No signed PDF yet. Send the signing link — files appear here after the customer signs.</p>
+        @else
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 p-4">
+                @foreach($signedAgreements as $signed)
+                    <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-3" wire:key="signed-{{ $signed->id }}">
+                        <p class="text-sm font-semibold text-zinc-900 dark:text-white">Rental Agreement</p>
+                        <p class="text-xs text-zinc-500 mt-1 truncate" title="{{ $signed->file_name }}">{{ $signed->file_name ?: 'PDF' }}</p>
+                        <div class="mt-3 flex flex-wrap items-center gap-2">
+                            @if($signed->is_verified)
+                                <span class="inline-flex items-center border border-emerald-600 px-2 py-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300">Verified: FILE ✓</span>
+                            @else
+                                <span class="inline-flex items-center border border-red-500 px-2 py-1 text-xs font-semibold text-red-600">Not verified</span>
+                                <flux:button size="xs" variant="primary" wire:click="verifySignedAgreement({{ $signed->id }})" class="!rounded-none">Verify</flux:button>
+                            @endif
+                            @if($signed->public_url)
+                                <a href="{{ $signed->public_url }}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 underline">Open file</a>
+                            @endif
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+        @endif
+    </div>
+
     @if($agreements->isNotEmpty())
-        <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
+        <div class="divide-y divide-zinc-200 dark:divide-zinc-700 mt-2">
             @foreach($agreements as $agreement)
                 @php
                     $customerUrl = \App\Models\AgreementAccess::customerSigningUrl((int) $agreement->customer_id, (string) $agreement->passcode);
@@ -68,23 +99,11 @@
                     <div class="mt-4 grid grid-cols-1 gap-4">
                         <div>
                             <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Customer signing link (V6)</p>
-                            <a
-                                href="{{ $customerUrl }}"
-                                target="_blank"
-                                class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                            >
-                                {{ $customerUrl }}
-                            </a>
+                            <a href="{{ $customerUrl }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $customerUrl }}</a>
                         </div>
                         <div>
-                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Loyalty Scheme (optional — copy if customer chooses to sign)</p>
-                            <a
-                                href="{{ $loyaltyUrl }}"
-                                target="_blank"
-                                class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all"
-                            >
-                                {{ $loyaltyUrl }}
-                            </a>
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Loyalty Scheme (optional)</p>
+                            <a href="{{ $loyaltyUrl }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $loyaltyUrl }}</a>
                         </div>
                     </div>
                     <div class="mt-4">
@@ -93,6 +112,7 @@
                             variant="outline"
                             wire:click="sendAgreementLinkEmail({{ $agreement->id }})"
                             wire:loading.attr="disabled"
+                            class="!rounded-none"
                         >
                             Email this signing link
                         </flux:button>

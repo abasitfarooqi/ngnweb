@@ -1113,6 +1113,7 @@
                             data: {
                                 _token: csrf_token,
                                 booking_id: booking_id,
+                                invoice_id: invoice_id,
                                 payment_method_id: payment_method,
                                 amount: payment_value
                             },

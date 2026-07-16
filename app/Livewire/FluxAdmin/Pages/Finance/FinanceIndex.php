@@ -223,14 +223,24 @@ class FinanceIndex extends Component
 
     protected function buildQuery(): Builder
     {
-        $query = FinanceApplication::with('customer', 'user')->withCount('items');
+        $query = FinanceApplication::with('customer');
 
         if ($this->search !== '') {
-            $query->where(function ($q) {
-                $q->where('id', 'like', "%{$this->search}%")
-                    ->orWhereHas('customer', function ($cq) {
-                        $cq->where('first_name', 'like', "%{$this->search}%")
-                            ->orWhere('last_name', 'like', "%{$this->search}%");
+            $term = trim($this->search);
+            $like = '%'.$term.'%';
+            $query->where(function ($q) use ($like, $term) {
+                $q->where('id', 'like', $like)
+                    ->orWhereHas('customer', function ($cq) use ($like) {
+                        $cq->where('first_name', 'like', $like)
+                            ->orWhere('last_name', 'like', $like)
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", [$like]);
+                    })
+                    ->orWhereHas('items.motorbike', function ($mq) use ($like, $term) {
+                        $mq->where('reg_no', 'like', $like);
+                        $needle = preg_replace('/\s+/', '', $term) ?? '';
+                        if ($needle !== '') {
+                            $mq->orWhereRaw("REPLACE(reg_no, ' ', '') LIKE ?", ['%'.$needle.'%']);
+                        }
                     });
             });
         }

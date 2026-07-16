@@ -30,12 +30,13 @@ class FluxAdminDashboardStats
                 ->count();
 
             return [
+                'total_vehicles' => TotalVehiclesQuery::count(),
                 'total_motorbikes' => Motorbike::count(),
                 'active_rentals' => $activeRentals,
-                'finance_applications' => FinanceApplication::where('is_cancelled', false)->count(),
+                // Active contract: not posted (posted = fully sold) and not cancelled.
+                'finance_applications' => FinanceApplication::activeContract()->count(),
                 'open_pcn_cases' => PcnCase::where('isClosed', false)->count(),
-                'club_members' => ClubMember::where('is_active', true)->count(),
-                'total_bookings' => RentingBooking::where('is_posted', true)->count(),
+                'club_members' => ClubMember::count(),
             ];
         });
     }

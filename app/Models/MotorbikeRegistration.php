@@ -9,6 +9,7 @@ class MotorbikeRegistration extends Model
     protected $fillable = [
         'motorbike_id',
         'registration_number',
+        'active',
         'start_date',
         'end_date',
     ];

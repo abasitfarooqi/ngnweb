@@ -1,7 +1,11 @@
 <div class="space-y-6">
-    <div class="px-4 sm:px-6 lg:px-8 pt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+    <div class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white">PCN statistics</h1>
+            @if(empty($embedded))
+                <h1 class="text-2xl font-semibold text-zinc-900 dark:text-white">PCN statistics</h1>
+            @else
+                <h2 class="text-lg font-semibold text-zinc-900 dark:text-white">PCN statistics</h2>
+            @endif
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Operational overview of penalty charge notices across the fleet.</p>
         </div>
         <a href="{{ route('flux-admin.pcn.index') }}" wire:navigate>
@@ -9,7 +13,7 @@
         </a>
     </div>
 
-    <div class="px-4 sm:px-6 lg:px-8 grid grid-cols-2 md:grid-cols-5 gap-3">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
         <a href="{{ route('flux-admin.pcn.index') }}" wire:navigate class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 hover:border-zinc-400 dark:hover:border-zinc-600 transition">
             <div class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase">Total</div>
             <div class="mt-1 text-2xl font-semibold text-zinc-900 dark:text-white">{{ number_format($totalCases) }}</div>
@@ -35,7 +39,7 @@
         </div>
     </div>
 
-    <div class="px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-4">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
             <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Outstanding amounts (open cases)</div>
             <dl class="divide-y divide-zinc-100 dark:divide-zinc-800 text-sm">
@@ -54,7 +58,7 @@
         </div>
     </div>
 
-    <div class="px-4 sm:px-6 lg:px-8 grid grid-cols-1 xl:grid-cols-2 gap-4"
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4"
          x-data="pcnCharts(@js([
              'months' => $monthlyStats->pluck('month'),
              'total' => $monthlyStats->pluck('total'),
@@ -83,7 +87,7 @@
         </div>
     </div>
 
-    <div class="px-4 sm:px-6 lg:px-8">
+    <div class="">
         <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
             <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800">
                 <div class="text-sm font-semibold text-zinc-900 dark:text-white">Top offending vehicles (open PCNs)</div>
@@ -113,7 +117,7 @@
         </div>
     </div>
 
-    <div class="px-4 sm:px-6 lg:px-8 pb-8">
+    <div class="pb-8">
         <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900">
             <div class="px-4 py-3 border-b border-zinc-200 dark:border-zinc-800 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                 <div class="text-sm font-semibold text-zinc-900 dark:text-white">Open PCN list with WhatsApp reminder</div>

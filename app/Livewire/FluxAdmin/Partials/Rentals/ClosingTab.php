@@ -2,15 +2,15 @@
 
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
+use App\Mail\RentalEndedWithPendingsMail;
 use App\Models\BookingClosing;
-use App\Models\BookingInvoice;
-use App\Models\MotorbikeMaintenanceLog;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
-use App\Models\RentingOtherCharge;
-use App\Models\RentingServiceVideo;
 use App\Support\RentalBookingLifecycle;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -21,44 +21,89 @@ class ClosingTab extends Component
 
     public int $bookingId;
 
+    public bool $prefillCollect = false;
+
     public string $noticeDetails = '';
+
     public bool $noticeChecked = false;
 
     public string $collectDetails = '';
+
     public string $collectDate = '';
+
     public string $collectTime = '';
+
     public bool $collectChecked = false;
+
     public bool $proceedAnyway = false;
 
     public bool $damagesChecked = false;
+
     public bool $pcnChecked = false;
+
     public bool $pendingChecked = false;
+
     public bool $depositChecked = false;
 
     public ?string $flashMessage = null;
+
     public ?string $flashType = null;
 
-    public function mount(): void
+    public function mount(bool $prefillCollect = false): void
     {
+        $this->prefillCollect = $prefillCollect;
+
         $closing = BookingClosing::where('booking_id', $this->bookingId)->first();
 
         if ($closing) {
-            $this->noticeDetails  = $closing->notice_details ?? '';
-            $this->noticeChecked  = (bool) $closing->notice_checked;
+            $this->noticeDetails = $closing->notice_details ?? '';
+            $this->noticeChecked = (bool) $closing->notice_checked;
             $this->collectDetails = $closing->collect_details ?? '';
-            $this->collectDate    = $closing->collect_date ?? '';
-            $this->collectTime    = $closing->collect_time ?? '';
+            $this->collectDate = $closing->collect_date
+                ? \Carbon\Carbon::parse($closing->collect_date)->toDateString()
+                : '';
+            $this->collectTime = $closing->collect_time
+                ? substr((string) $closing->collect_time, 0, 5)
+                : '';
             $this->collectChecked = (bool) $closing->collect_checked;
             $this->damagesChecked = (bool) $closing->damages_checked;
-            $this->pcnChecked     = (bool) $closing->pcn_checked;
+            $this->pcnChecked = (bool) $closing->pcn_checked;
             $this->pendingChecked = (bool) $closing->pending_checked;
             $this->depositChecked = (bool) $closing->deposit_checked;
+        }
+
+        if ($this->prefillCollect) {
+            $this->prefillCollectMotorbike();
         }
     }
 
     public function placeholder()
     {
         return view('flux-admin.partials.loading-placeholder');
+    }
+
+    #[On('prefill-collect-motorbike')]
+    public function prefillCollectMotorbike(): void
+    {
+        $user = backpack_user() ?? auth()->user();
+        $this->collectDate = now()->toDateString();
+        $this->collectTime = now()->format('H:i');
+
+        $name = trim((string) ($user->name ?? $user->full_name ?? (($user->first_name ?? '').' '.($user->last_name ?? ''))));
+        $stamp = sprintf(
+            'Ended by user #%s%s',
+            $user?->id ?? '?',
+            $name !== '' ? " ({$name})" : ''
+        );
+
+        if (trim($this->collectDetails) === '' || ! str_contains($this->collectDetails, 'Ended by user #')) {
+            $this->collectDetails = trim($this->collectDetails) === ''
+                ? $stamp
+                : trim($this->collectDetails).' | '.$stamp;
+        }
+
+        $this->flashMessage = 'Collect date, time and ending staff filled. Confirm step 2 (Collect Motorbike) to end the rental.';
+        $this->flashType = 'success';
     }
 
     public function saveNoticePeriod(): void
@@ -73,48 +118,84 @@ class ClosingTab extends Component
         );
 
         $this->flashMessage = 'Notice period saved.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
     }
 
     public function saveCollectMotorbike(): void
     {
-        $unpaidRent = BookingInvoice::where('booking_id', $this->bookingId)
-            ->where('is_paid', false)
-            ->where('invoice_date', '<=', now())
-            ->sum('amount');
+        try {
+            $lifecycle = app(RentalBookingLifecycle::class);
+            $booking = RentingBooking::with(['customer', 'rentingBookingItems'])->findOrFail($this->bookingId);
 
-        if ($unpaidRent > 0 && ! $this->proceedAnyway) {
-            $this->flashMessage = 'There is still £'.number_format($unpaidRent, 2).' unpaid rent. Tick proceed anyway or clear invoices first.';
-            $this->flashType    = 'error';
+            if (! $this->collectDate) {
+                $this->collectDate = now()->toDateString();
+            }
+            if (! $this->collectTime) {
+                $this->collectTime = now()->format('H:i');
+            }
 
-            return;
+            $pendings = $lifecycle->closingPendings($booking, $this->collectDate);
+
+            if ($pendings['total'] > 0 && ! $this->proceedAnyway) {
+                $this->flashMessage = 'Outstanding £'.number_format($pendings['total'], 2)
+                    .' (rent £'.number_format($pendings['rental'], 2)
+                    .', charges £'.number_format($pendings['additional'], 2)
+                    .', PCN £'.number_format($pendings['pcn'], 2)
+                    .'). Clear balances or tick proceed anyway — you will be responsible.';
+                $this->flashType = 'error';
+
+                return;
+            }
+
+            $this->validate(['collectChecked' => 'accepted'], [
+                'collectChecked.accepted' => 'Please tick the checkbox to confirm motorbike collected.',
+            ]);
+
+            $item = RentingBookingItem::query()
+                ->where('booking_id', $this->bookingId)
+                ->whereNull('end_date')
+                ->orderByDesc('id')
+                ->first();
+
+            if (! $item) {
+                $this->flashMessage = 'This rental is already ended (no open booking item). Refresh the page.';
+                $this->flashType = 'error';
+                $this->dispatch('rental-updated');
+
+                return;
+            }
+
+            $closing = $lifecycle->endRental(
+                $booking,
+                $item,
+                [
+                    'collect_details' => $this->collectDetails,
+                    'collect_date' => $this->collectDate,
+                    'collect_time' => $this->collectTime,
+                    'collect_checked' => $this->collectChecked,
+                ],
+                $this->proceedAnyway && $pendings['total'] > 0
+            );
+
+            $this->collectDetails = (string) ($closing->collect_details ?? $this->collectDetails);
+            $this->collectChecked = true;
+
+            if ($this->proceedAnyway && $pendings['total'] > 0) {
+                $this->notifyEndedWithPendings($booking, $pendings);
+            }
+
+            $this->flashMessage = 'Motorbike collection recorded — rental ended. Future invoices after '.$this->collectDate.' removed.';
+            $this->flashType = 'success';
+            $this->dispatch('rental-updated');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw $e;
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('saveCollectMotorbike failed: '.$e->getMessage(), [
+                'booking_id' => $this->bookingId,
+            ]);
+            $this->flashMessage = 'Could not end rental: '.$e->getMessage();
+            $this->flashType = 'error';
         }
-
-        $this->validate(['collectChecked' => 'accepted'], [
-            'collectChecked.accepted' => 'Please tick the checkbox to confirm motorbike collected.',
-        ]);
-
-        $booking = RentingBooking::findOrFail($this->bookingId);
-        $item = RentingBookingItem::where('booking_id', $this->bookingId)
-            ->whereNull('end_date')
-            ->latest()
-            ->firstOrFail();
-
-        app(RentalBookingLifecycle::class)->endRental(
-            $booking,
-            $item,
-            [
-                'collect_details' => $this->collectDetails,
-                'collect_date'    => $this->collectDate ?: null,
-                'collect_time'    => $this->collectTime ?: null,
-                'collect_checked' => $this->collectChecked,
-            ],
-            $this->proceedAnyway
-        );
-
-        $this->flashMessage = 'Motorbike collection recorded — rental ended.';
-        $this->flashType    = 'success';
-        $this->dispatch('rental-updated');
     }
 
     public function saveDamagesCost(): void
@@ -129,7 +210,7 @@ class ClosingTab extends Component
         );
 
         $this->flashMessage = 'Damages/additional cost step confirmed.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
     }
 
     public function savePcnPendings(): void
@@ -144,19 +225,18 @@ class ClosingTab extends Component
         );
 
         $this->flashMessage = 'PCN pendings step confirmed.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
     }
 
     public function savePendingRent(): void
     {
-        $unpaidRent = BookingInvoice::where('booking_id', $this->bookingId)
-            ->where('is_paid', false)
-            ->where('invoice_date', '<=', now())
-            ->sum('amount');
+        $lifecycle = app(RentalBookingLifecycle::class);
+        $booking = RentingBooking::with('rentingBookingItems')->findOrFail($this->bookingId);
+        $pendings = $lifecycle->closingPendings($booking, $this->collectDate ?: null);
 
-        if ($unpaidRent > 0) {
-            $this->flashMessage = 'There is still £'.number_format($unpaidRent, 2).' unpaid rent. Clear all invoices in the Invoices tab first.';
-            $this->flashType    = 'error';
+        if ($pendings['rental'] > 0) {
+            $this->flashMessage = 'There is still £'.number_format($pendings['rental'], 2).' unpaid rent. Clear invoices on the Invoices tab first.';
+            $this->flashType = 'error';
 
             return;
         }
@@ -171,7 +251,7 @@ class ClosingTab extends Component
         );
 
         $this->flashMessage = 'Pending rent step confirmed.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
     }
 
     public function saveDepositReturn(): void
@@ -186,42 +266,80 @@ class ClosingTab extends Component
         );
 
         $this->flashMessage = 'Deposit return step confirmed. Booking closing complete.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
     }
 
     public function render()
     {
-        $booking = RentingBooking::findOrFail($this->bookingId);
+        $lifecycle = app(RentalBookingLifecycle::class);
+        $booking = RentingBooking::with(['rentingBookingItems'])->findOrFail($this->bookingId);
+        $asOf = $this->collectDate !== '' ? $this->collectDate : now()->toDateString();
+        $pendings = $lifecycle->closingPendings($booking, $asOf);
 
-        $totalAdditional = RentingOtherCharge::where('booking_id', $this->bookingId)->sum('amount');
-        $paidAdditional  = RentingOtherCharge::where('booking_id', $this->bookingId)
+        $totalAdditional = (float) \App\Models\RentingOtherCharge::where('booking_id', $this->bookingId)->sum('amount');
+        $paidAdditional = (float) \App\Models\RentingOtherCharge::where('booking_id', $this->bookingId)
             ->where('is_paid', true)
             ->sum('amount');
 
-        $pcnTotal = 0;
-        $latestItem = RentingBookingItem::where('booking_id', $this->bookingId)
-            ->whereNotNull('motorbike_id')
-            ->latest()
-            ->first();
+        return view('flux-admin.partials.rentals.closing-tab', [
+            'booking' => $booking,
+            'totalAdditional' => $totalAdditional,
+            'paidAdditional' => $paidAdditional,
+            'pcnTotal' => $pendings['pcn'],
+            'pcnReceived' => 0.0,
+            'pendingRent' => $pendings['rental'],
+            'pendingAdditional' => $pendings['additional'],
+            'pendingTotal' => $pendings['total'],
+        ]);
+    }
 
-        if ($latestItem && $latestItem->motorbike_id) {
-            $pcnTotal = \App\Models\PcnCase::where('motorbike_id', $latestItem->motorbike_id)
-                ->where(fn ($q) => $q->where('isClosed', false)->orWhereNull('isClosed'))
-                ->sum('full_amount') ?? 0;
+    /** @param  array{rental: float, additional: float, pcn: float, total: float}  $pendings */
+    protected function notifyEndedWithPendings(RentingBooking $booking, array $pendings): void
+    {
+        $user = backpack_user() ?? auth()->user();
+        $staffName = trim((string) ($user->name ?? $user->full_name ?? (($user->first_name ?? '').' '.($user->last_name ?? ''))));
+        $recipients = config('mail.rental_ending_pending_notify', []);
+
+        if ($user?->email) {
+            $recipients[] = $user->email;
         }
 
-        $pendingRent = BookingInvoice::where('booking_id', $this->bookingId)
-            ->where('is_paid', false)
-            ->where('invoice_date', '<=', now())
-            ->sum('amount');
+        $recipients = array_values(array_unique(array_filter($recipients)));
+        if ($recipients === []) {
+            return;
+        }
 
-        return view('flux-admin.partials.rentals.closing-tab', [
-            'booking'         => $booking,
-            'totalAdditional' => (float) $totalAdditional,
-            'paidAdditional'  => (float) $paidAdditional,
-            'pcnTotal'        => (float) $pcnTotal,
-            'pcnReceived'     => 0.0,
-            'pendingRent'     => (float) $pendingRent,
-        ]);
+        $customer = $booking->customer;
+        $customerName = $customer
+            ? trim(($customer->first_name ?? '').' '.($customer->last_name ?? ''))
+            : '—';
+
+        $mailData = [
+            'booking_id' => $booking->id,
+            'customer_name' => $customerName,
+            'staff_id' => $user?->id,
+            'staff_name' => $staffName !== '' ? $staffName : 'Staff',
+            'collect_date' => $this->collectDate,
+            'collect_time' => $this->collectTime,
+            'rental' => $pendings['rental'],
+            'additional' => $pendings['additional'],
+            'pcn' => $pendings['pcn'],
+            'total' => $pendings['total'],
+            'show_url' => null,
+        ];
+
+        try {
+            $mailData['show_url'] = route('flux-admin.rentals.show', ['booking' => $booking->id]);
+        } catch (\Throwable) {
+            $mailData['show_url'] = url('/flux-admin/rentals/'.$booking->id);
+        }
+
+        try {
+            Mail::to($recipients)->send(new RentalEndedWithPendingsMail($mailData));
+        } catch (\Throwable $e) {
+            Log::error('RentalEndedWithPendingsMail failed: '.$e->getMessage(), [
+                'booking_id' => $booking->id,
+            ]);
+        }
     }
 }

@@ -12,6 +12,7 @@ use App\Models\MotorbikeAnnualCompliance;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingPricing;
+use App\Support\MotorbikeDeletion;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -45,6 +46,8 @@ class MotorbikeIndex extends Component
 
     /** Preview of open rental links before confirming execute */
     public array $maPreview = [];
+
+    public ?string $deleteError = null;
 
     public function mount(): void
     {
@@ -100,8 +103,20 @@ class MotorbikeIndex extends Component
 
     public function delete(int $id): void
     {
-        Motorbike::findOrFail($id)->delete();
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
+        $this->deleteError = null;
+
+        try {
+            MotorbikeDeletion::delete(Motorbike::findOrFail($id));
+            $this->dispatch('flux-admin:toast', type: 'success', message: 'Motorbike deleted.');
+        } catch (\Throwable $e) {
+            $this->deleteError = $e->getMessage();
+            $this->dispatch('flux-admin:toast', type: 'error', heading: 'Delete failed', message: $e->getMessage());
+        }
+    }
+
+    public function dismissDeleteError(): void
+    {
+        $this->deleteError = null;
     }
 
     public function openMakeAvailable(int $id): void

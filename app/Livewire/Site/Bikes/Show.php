@@ -6,6 +6,7 @@ use App\Http\Controllers\MailController;
 use App\Models\Motorbike;
 use App\Models\Motorcycle;
 use App\Models\ServiceBooking;
+use App\Support\RegistrationMask;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -75,7 +76,7 @@ class Show extends Component
             "I'm interested in %s %s (%s).",
             (string) ($this->bike->make ?? ''),
             (string) ($this->bike->model ?? ''),
-            (string) ($this->bike->reg_no ?? 'no reg')
+            RegistrationMask::hint($this->bike->reg_no ?? null) ?? 'no reg'
         );
     }
 
@@ -157,9 +158,7 @@ class Show extends Component
 
     public function regLastThree(): ?string
     {
-        $reg = strtoupper(preg_replace('/\s+/', '', (string) ($this->bike->reg_no ?? '')));
-
-        return $reg !== '' ? substr($reg, -3) : null;
+        return RegistrationMask::lastThree($this->bike->reg_no ?? null);
     }
 
     public function motStatusLabel(): ?string
@@ -217,7 +216,7 @@ class Show extends Component
             'Hello NGN Catford — I want to enquire about this bike:',
             trim(($this->bike->make ?? '').' '.($this->bike->model ?? '')),
             ! empty($this->bike->year) ? 'Year: '.$this->bike->year : null,
-            ! empty($this->bike->reg_no) ? 'Reg: '.$this->bike->reg_no : null,
+            ($regHint = RegistrationMask::hint($this->bike->reg_no ?? null)) !== null ? 'Reg: '.$regHint : null,
             $price > 0 ? 'Price: £'.number_format($price, 2) : null,
             'Link: '.url()->current(),
         ]);

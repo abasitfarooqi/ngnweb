@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Rentals;
 
+use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
@@ -14,18 +15,32 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
+/**
+ * Merged active bookings list (formerly /rentals + /bookings-management).
+ */
 #[Layout('flux-admin.layouts.app')]
-#[Title('Rentals — Flux Admin')]
+#[Title('Active bookings — Flux Admin')]
 class RentalIndex extends Component
 {
+    use WithAuthorization;
     use WithDataTable;
     use WithPagination;
+
+    public string $pageTitle = 'Active bookings rental';
+
+    public string $pageDescription = 'Active rentals — filters, outstanding balances, and open booking detail.';
+
+    /** @var 'active'|'inactive'|'all' */
+    public string $scope = 'active';
 
     #[Url]
     public string $status = 'all';
 
     #[Url]
     public string $filterMotorbikeId = '';
+
+    #[Url]
+    public string $filterReg = '';
 
     #[Url]
     public string $bookingStateFilter = '';
@@ -36,12 +51,30 @@ class RentalIndex extends Component
     #[Url]
     public string $startDateTo = '';
 
+    public function mount(): void
+    {
+        $this->authorizeModule('see-menu-commons');
+
+        if ($this->scope === 'inactive') {
+            $this->pageTitle = 'Inactive bookings';
+            $this->pageDescription = 'Ended rentals — open a booking to view history and pendings.';
+        } elseif ($this->scope === 'all') {
+            $this->pageTitle = 'All bookings';
+            $this->pageDescription = 'All rental booking items.';
+        }
+    }
+
     public function updatingStatus(): void
     {
         $this->resetPage();
     }
 
     public function updatingFilterMotorbikeId(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterReg(): void
     {
         $this->resetPage();
     }
@@ -80,12 +113,13 @@ class RentalIndex extends Component
             ->join('renting_bookings as rb', 'rb.id', '=', 'rbi.booking_id')
             ->join('customers as c', 'c.id', '=', 'rb.customer_id')
             ->join('motorbikes as mb', 'mb.id', '=', 'rbi.motorbike_id')
+            ->leftJoin('motorbike_registrations as mr', function ($j) {
+                $j->on('mr.motorbike_id', '=', 'mb.id')->where('mr.active', true);
+            })
             ->leftJoinSub($invoiceSummary, 'invoice_summary', function ($join) {
                 $join->on('invoice_summary.booking_id', '=', 'rb.id');
             })
-            ->where('rb.is_posted', true)
-            ->where('rbi.is_posted', true)
-            ->whereNull('rbi.end_date')
+            ->where('rb.state', '!=', 'DRAFT')
             ->select([
                 'rb.id as booking_id',
                 'rb.customer_id',
@@ -93,25 +127,32 @@ class RentalIndex extends Component
                 'rb.start_date as booking_start_date',
                 'rb.due_date as booking_due_date',
                 'rb.state as booking_state',
+                'rb.is_posted as booking_is_posted',
                 'rbi.id as booking_item_id',
                 'rbi.motorbike_id',
                 'rbi.start_date as item_start_date',
+                'rbi.end_date as item_end_date',
                 'rbi.due_date as item_due_date',
                 'rbi.weekly_rent',
                 'c.first_name',
                 'c.last_name',
                 'c.phone',
                 'c.email',
-                'mb.reg_no',
                 'mb.make',
                 'mb.model',
             ])
+            ->selectRaw('COALESCE(mr.registration_number, mb.reg_no) as reg_no')
             ->selectRaw('COALESCE(invoice_summary.outstanding_amount, 0) as outstanding_amount')
             ->selectRaw('invoice_summary.next_unpaid_invoice_date as next_unpaid_invoice_date');
 
+        if ($this->scope === 'active') {
+            $query->whereNull('rbi.end_date');
+        } elseif ($this->scope === 'inactive') {
+            $query->whereNotNull('rbi.end_date');
+        }
+
         if ($this->search !== '') {
             $search = '%'.$this->search.'%';
-
             $query->where(function ($q) use ($search) {
                 $q->where('rb.id', 'like', $search)
                     ->orWhere('c.first_name', 'like', $search)
@@ -120,6 +161,7 @@ class RentalIndex extends Component
                     ->orWhere('c.email', 'like', $search)
                     ->orWhere('c.phone', 'like', $search)
                     ->orWhere('mb.reg_no', 'like', $search)
+                    ->orWhere('mr.registration_number', 'like', $search)
                     ->orWhere('mb.make', 'like', $search)
                     ->orWhere('mb.model', 'like', $search);
             });
@@ -133,6 +175,18 @@ class RentalIndex extends Component
 
         if ($this->filterMotorbikeId !== '') {
             $query->where('rbi.motorbike_id', (int) $this->filterMotorbikeId);
+        }
+
+        if ($this->filterReg !== '') {
+            $reg = '%'.trim($this->filterReg).'%';
+            $needle = preg_replace('/\s+/', '', $this->filterReg) ?? '';
+            $query->where(function ($q) use ($reg, $needle) {
+                $q->where('mb.reg_no', 'like', $reg)
+                    ->orWhere('mr.registration_number', 'like', $reg);
+                if ($needle !== '') {
+                    $q->orWhereRaw("REPLACE(COALESCE(mr.registration_number, mb.reg_no), ' ', '') LIKE ?", ['%'.$needle.'%']);
+                }
+            });
         }
 
         if ($this->bookingStateFilter !== '') {
@@ -152,6 +206,7 @@ class RentalIndex extends Component
             'customer' => 'c.first_name',
             'weekly_rent' => 'rbi.weekly_rent',
             'start_date' => 'rbi.start_date',
+            'end_date' => 'rbi.end_date',
             'due_date' => 'rbi.due_date',
             'outstanding' => 'outstanding_amount',
             default => 'rb.id',
@@ -167,6 +222,7 @@ class RentalIndex extends Component
             'bookingInvoices' => fn ($q) => $q->where('is_paid', false),
         ])
             ->where('is_posted', true)
+            ->where('state', '!=', 'DRAFT')
             ->whereHas('rentingBookingItems', fn ($q) => $q->whereNull('end_date'))
             ->get();
 
@@ -180,9 +236,19 @@ class RentalIndex extends Component
 
     public function render()
     {
+        $states = DB::table('renting_bookings')
+            ->whereNotNull('state')
+            ->where('state', '!=', 'DRAFT')
+            ->distinct()
+            ->orderBy('state')
+            ->pluck('state')
+            ->filter()
+            ->values();
+
         return view('flux-admin.pages.rentals.index', [
             'rows' => $this->rowsQuery()->paginate($this->perPage),
-            'stats' => $this->stats(),
+            'stats' => $this->scope === 'active' ? $this->stats() : null,
+            'states' => $states,
         ]);
     }
 }

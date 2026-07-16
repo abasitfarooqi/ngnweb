@@ -19,19 +19,33 @@ class PermissionForm extends Component
 
     public array $form = ['name' => '', 'guard_name' => 'web'];
 
+    public bool $allowCreate = true;
+
+    public bool $allowUpdate = true;
+
+    public bool $multipleGuards = false;
+
     public function mount(?int $id = null): void
     {
         $this->resetErrorBag();
         $this->authorizeModule('see-menu-permissions');
 
+        $this->allowCreate = (bool) config('backpack.permissionmanager.allow_permission_create', true);
+        $this->allowUpdate = (bool) config('backpack.permissionmanager.allow_permission_update', true);
+        $this->multipleGuards = (bool) config('backpack.permissionmanager.multiple_guards', false);
+
         if ($id) {
+            abort_unless($this->allowUpdate, 403);
+
             $model = config('permission.models.permission');
             $permission = $model::findOrFail($id);
             $this->permissionId = $permission->id;
             $this->form = [
-                'name'       => $permission->name,
+                'name' => $permission->name,
                 'guard_name' => $permission->guard_name,
             ];
+        } else {
+            abort_unless($this->allowCreate, 403);
         }
     }
 
@@ -39,25 +53,40 @@ class PermissionForm extends Component
     {
         $model = config('permission.models.permission');
 
-        $this->validate([
+        $rules = [
             'form.name' => [
-                'required', 'string', 'max:125',
+                'required', 'string', 'max:255',
                 Rule::unique((new $model)->getTable(), 'name')->ignore($this->permissionId),
             ],
-            'form.guard_name' => ['required', 'string'],
-        ]);
+        ];
+
+        if ($this->multipleGuards) {
+            $rules['form.guard_name'] = ['required', 'string'];
+        }
+
+        $this->validate($rules);
+
+        if (! $this->multipleGuards) {
+            $this->form['guard_name'] = 'web';
+        }
 
         $permission = $this->permissionId ? $model::findOrFail($this->permissionId) : new $model;
         $permission->fill($this->form)->save();
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
-        $this->dispatch('flux-admin:toast', type: 'success', message: $this->permissionId ? 'Permission updated.' : 'Permission created.');
-        $this->redirect(route('flux-admin.permissions.index'), navigate: true);
+        session()->flash('flux-admin.flash', $this->permissionId ? 'Permission updated.' : 'Permission created.');
+
+        $this->redirect(route('flux-admin.permissions.index', [
+            'sort' => 'name',
+            'dir' => 'asc',
+        ]), navigate: true);
     }
 
     public function render()
     {
-        return view('flux-admin.pages.permissions.permission-form');
+        return view('flux-admin.pages.permissions.permission-form', [
+            'guardOptions' => collect(config('auth.guards', []))->keys(),
+        ]);
     }
 }

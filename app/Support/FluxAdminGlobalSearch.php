@@ -32,6 +32,11 @@ class FluxAdminGlobalSearch
                 continue;
             }
 
+            if (! FluxAdminSearchGate::allowsResource($resource['model'])
+                || ! FluxAdminSearchGate::allowsMenuRoute($resource['index'])) {
+                continue;
+            }
+
             if (count($results) >= $maxResults) {
                 break;
             }
@@ -143,9 +148,9 @@ class FluxAdminGlobalSearch
 
     protected static function recordTitle(Model $row): string
     {
-        foreach (['name', 'title', 'label', 'email', 'reg_no', 'registration', 'pcn_number', 'sku', 'ip_address', 'slug', 'first_name', 'full_name', 'topic', 'subject'] as $field) {
+        foreach (['name', 'title', 'label', 'full_name', 'email', 'reg_no', 'registration', 'pcn_number', 'sku', 'ip_address', 'slug', 'first_name', 'topic', 'subject', 'phone'] as $field) {
             $value = data_get($row, $field);
-            if (is_string($value) && trim($value) !== '') {
+            if (is_string($value) && trim($value) !== '' && trim($value) !== '-') {
                 if ($field === 'first_name' && filled($row->last_name ?? null)) {
                     return trim($row->first_name.' '.$row->last_name);
                 }

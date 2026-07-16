@@ -3,6 +3,7 @@
         <h1 class="flux-admin-page-title text-2xl font-bold text-zinc-900 dark:text-white">Global search</h1>
         <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
             Jump to menu pages or search across {{ number_format($registryCount) }} lists. Minimum 2 characters.
+            Results respect permission gates in <span class="font-mono text-xs">config/flux-admin-search.php</span>.
         </p>
     </div>
 

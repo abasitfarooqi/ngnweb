@@ -1,21 +1,21 @@
 <div class="space-y-6">
     <div>
-        <flux:heading size="xl">Rental operations</flux:heading>
-        <flux:text class="mt-1">Same-day rental workflows in Flux Admin — intake, documents, payments, issuance and closing.</flux:text>
+        <flux:heading size="xl">Rentals</flux:heading>
+        <flux:text class="mt-1">Intake, active rentals, ending, pricing and e-bikes — one home for rental operations.</flux:text>
     </div>
 
     @php
         $cards = [
-            ['Bookings management', 'Active and inactive rentals — open any booking to run the full lifecycle.', route('flux-admin.bookings-management.index'), 'list-bullet'],
             ['New booking', 'Same-day intake wizard.', route('flux-admin.new-booking.index'), 'plus-circle'],
-            ['Active rentals', 'Live dashboard of open items and outstanding invoices.', route('flux-admin.active-rentals.index'), 'truck'],
-            ['Due payments', 'Overdue invoices with WhatsApp reminders.', route('flux-admin.rental-due-payments.index'), 'exclamation-triangle'],
+            ['Repair rental availability', 'Fix bikes missing from New booking select (pricing, registration, MOT/tax, stuck rentals).', route('flux-admin.backpack.motorbike-available.index'), 'wrench-screwdriver'],
+            ['Active bookings rental', 'Filters, outstanding balances, open booking detail.', route('flux-admin.rentals.index'), 'list-bullet'],
             ['Inactive bookings', 'Ended rentals (end date set on item).', route('flux-admin.inactive-bookings.index'), 'archive-box'],
+            ['Inactive pendings payments', 'Ended with balances still outstanding (proceed-anyway).', route('flux-admin.ended-with-pendings.index'), 'exclamation-triangle'],
             ['All bookings', 'Historical bookings list.', route('flux-admin.all-bookings.index'), 'clock'],
-            ['Adjust weekday', 'Shift a booking\'s invoicing day.', route('flux-admin.adjust-weekday.index'), 'arrow-path'],
-            ['Booking invoices', 'All invoices across every booking.', route('flux-admin.booking-invoices.index'), 'document-text'],
-            ['Rental pricing', 'Weekly-rate matrix by vehicle class.', route('flux-admin.renting-pricing.index'), 'currency-pound'],
-            ['Rentals module', 'Module hub with related links.', route('flux-admin.modules.show', 'rentals'), 'squares-2x2'],
+            ['E-bike manager', 'Add and edit fleet e-bikes.', route('flux-admin.ebikes.index'), 'bolt'],
+            ['Active rentals overview', 'Live dashboard of open items and outstanding invoices.', route('flux-admin.active-rentals.index'), 'truck'],
+            ['Due payments', 'Overdue invoices with WhatsApp reminders.', route('flux-admin.rental-due-payments.index'), 'banknotes'],
+            ['Rental pricing', 'Weekly rates by vehicle — search by reg when adding.', route('flux-admin.renting-pricing.index'), 'currency-pound'],
         ];
     @endphp
 

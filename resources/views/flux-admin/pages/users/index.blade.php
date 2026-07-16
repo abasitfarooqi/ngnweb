@@ -20,6 +20,14 @@
                         @endforeach
                     </flux:select>
                 </div>
+                <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-48 lg:flex-none">
+                    <flux:select wire:model.live="filters.permission" placeholder="Extra permission">
+                        <flux:select.option value="">All permissions</flux:select.option>
+                        @foreach($permissions as $permission)
+                            <flux:select.option value="{{ $permission->id }}">{{ $permission->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </div>
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:select wire:model.live="filters.admin" placeholder="Admin">
                         <flux:select.option value="">All users</flux:select.option>
@@ -45,8 +53,9 @@
             <flux:table.columns>
                 <flux:table.column sortable :sorted="$sortField === 'first_name'" :direction="$sortField === 'first_name' ? $sortDirection : null" wire:click="sortBy('first_name')">Name</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'email'" :direction="$sortField === 'email' ? $sortDirection : null" wire:click="sortBy('email')">Email</flux:table.column>
-                <flux:table.column>Username</flux:table.column>
+                <flux:table.column sortable :sorted="$sortField === 'username'" :direction="$sortField === 'username' ? $sortDirection : null" wire:click="sortBy('username')">Username</flux:table.column>
                 <flux:table.column>Roles</flux:table.column>
+                <flux:table.column>Extra permissions</flux:table.column>
                 <flux:table.column>Admin</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
@@ -54,18 +63,20 @@
                 @forelse($users as $user)
                     <flux:table.row wire:key="user-{{ $user->id }}">
                         <flux:table.cell>
-                            <a href="{{ route('flux-admin.users.show', $user) }}" class="font-medium text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 transition">
-                                {{ trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: $user->email }}
+                            <a href="{{ route('flux-admin.users.show', $user) }}" wire:navigate class="font-medium text-zinc-900 dark:text-white hover:text-zinc-600 dark:hover:text-zinc-300 transition">
+                                {{ trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?: $user->email) }}
                             </a>
                         </flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $user->email }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $user->username }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $user->roles->pluck('name')->implode(', ') ?: '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $user->permissions->pluck('name')->implode(', ') ?: '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <x-flux-admin::status-badge :status="(bool) $user->is_admin" />
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
+                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.users.show', $user)" icon="eye" class="!rounded-none">Show</flux:button>
                                 <flux:button size="xs" variant="ghost" :href="route('flux-admin.users.edit', $user)" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                                 <flux:button size="xs" variant="danger" wire:click="deleteUser({{ $user->id }})" wire:confirm="Delete this user? This cannot be undone." icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
@@ -73,7 +84,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="6" class="text-center py-8 text-zinc-500 dark:text-zinc-400">No users found.</flux:table.cell>
+                        <flux:table.cell colspan="7" class="text-center py-8 text-zinc-500 dark:text-zinc-400">No users found.</flux:table.cell>
                     </flux:table.row>
                 @endforelse
             </flux:table.rows>

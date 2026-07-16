@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\BookingIssuanceItem;
+use App\Models\CustomerAgreement;
 use App\Models\MotorbikeMaintenanceLog;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
@@ -33,8 +34,21 @@ class IssuanceTab extends Component
     public string $logServicedAt = '';
     public string $logNote = '';
 
+    public bool $showExtras = false;
+
     public ?string $flashMessage = null;
     public ?string $flashType = null;
+
+    public function mount(int $bookingId): void
+    {
+        $this->bookingId = $bookingId;
+
+        $user = function_exists('backpack_user') ? backpack_user() : auth()->user();
+        if ($user) {
+            $name = trim(((string) ($user->first_name ?? '')).' '.((string) ($user->last_name ?? '')));
+            $this->issuanceNotes = $name !== '' ? $name : (string) ($user->name ?? '');
+        }
+    }
 
     public function placeholder()
     {
@@ -44,36 +58,64 @@ class IssuanceTab extends Component
     public function issueMotorbike(): void
     {
         $this->validate([
-            'issuanceNotes'        => 'required|string|min:3',
-            'currentMileage'       => 'required|numeric|min:0',
-            'isVideoRecorded'      => 'accepted',
-            'accessoriesChecked'   => 'accepted',
-            'issuanceBranch'       => 'required|string',
+            'issuanceNotes' => 'required|string|min:2',
+            'currentMileage' => 'required|numeric|min:0',
+            'isVideoRecorded' => 'accepted',
+            'accessoriesChecked' => 'accepted',
+            'issuanceBranch' => 'required|string|in:Catford,Tooting,Sutton',
         ]);
 
         $booking = RentingBooking::findOrFail($this->bookingId);
+
+        if ($booking->state !== 'Completed') {
+            $this->flashMessage = 'Booking must be in "Completed" state before ISSUE NOW (documents + payment done). Current: '.($booking->state ?: 'Unknown');
+            $this->flashType = 'error';
+
+            return;
+        }
+
         $bookingItem = RentingBookingItem::where('booking_id', $this->bookingId)
             ->whereNull('end_date')
             ->latest()
-            ->firstOrFail();
+            ->first();
 
-        DB::transaction(function () use ($booking, $bookingItem) {
-            $booking->update(['state' => 'Completed & Issued', 'is_posted' => true]);
+        if (! $bookingItem) {
+            $this->flashMessage = 'No open booking item found to issue.';
+            $this->flashType = 'error';
 
-            BookingIssuanceItem::create([
-                'booking_item_id'     => $bookingItem->id,
-                'issued_by_user_id'   => auth()->id(),
-                'notes'               => $this->issuanceNotes,
-                'is_insured'          => $this->isInsured,
-                'current_mileage'     => (int) $this->currentMileage,
-                'is_video_recorded'   => $this->isVideoRecorded,
-                'accessories_checked' => $this->accessoriesChecked,
-                'issuance_branch'     => $this->issuanceBranch,
-            ]);
-        });
+            return;
+        }
 
-        $this->flashMessage = 'Motorbike issued successfully.';
-        $this->flashType    = 'success';
+        $issuedBy = $this->resolveStaffUserId();
+
+        try {
+            DB::transaction(function () use ($booking, $bookingItem, $issuedBy) {
+                $booking->update([
+                    'state' => 'Completed & Issued',
+                    'is_posted' => true,
+                    'notes' => 'Issued on '.now()->toDateTimeString(),
+                ]);
+
+                BookingIssuanceItem::create([
+                    'booking_item_id' => $bookingItem->id,
+                    'issued_by_user_id' => $issuedBy,
+                    'notes' => $this->issuanceNotes,
+                    'is_insured' => $this->isInsured,
+                    'current_mileage' => (int) $this->currentMileage,
+                    'is_video_recorded' => $this->isVideoRecorded,
+                    'accessories_checked' => $this->accessoriesChecked,
+                    'issuance_branch' => $this->issuanceBranch,
+                ]);
+            });
+        } catch (\Throwable $e) {
+            $this->flashMessage = 'Issue failed: '.$e->getMessage();
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $this->flashMessage = 'Motorbike issued — state is now Completed & Issued.';
+        $this->flashType = 'success';
         $this->resetForm();
         $this->dispatch('rental-updated');
     }
@@ -81,32 +123,48 @@ class IssuanceTab extends Component
     public function reissueMotorbike(): void
     {
         $this->validate([
-            'issuanceNotes'      => 'required|string|min:3',
-            'currentMileage'     => 'required|numeric|min:0',
-            'isVideoRecorded'    => 'accepted',
+            'issuanceNotes' => 'required|string|min:2',
+            'currentMileage' => 'required|numeric|min:0',
+            'isVideoRecorded' => 'accepted',
             'accessoriesChecked' => 'accepted',
-            'issuanceBranch'     => 'required|string',
+            'issuanceBranch' => 'required|string|in:Catford,Tooting,Sutton',
         ]);
+
+        $booking = RentingBooking::findOrFail($this->bookingId);
+        if ($booking->state !== 'Completed & Issued') {
+            $this->flashMessage = 'Re-inspection is only for Completed & Issued bookings.';
+            $this->flashType = 'error';
+
+            return;
+        }
 
         $bookingItem = RentingBookingItem::where('booking_id', $this->bookingId)
             ->whereNull('end_date')
             ->latest()
-            ->firstOrFail();
+            ->first();
+
+        if (! $bookingItem) {
+            $this->flashMessage = 'No open booking item found.';
+            $this->flashType = 'error';
+
+            return;
+        }
 
         BookingIssuanceItem::create([
-            'booking_item_id'     => $bookingItem->id,
-            'issued_by_user_id'   => auth()->id(),
-            'notes'               => $this->issuanceNotes,
-            'is_insured'          => $this->isInsured,
-            'current_mileage'     => (int) $this->currentMileage,
-            'is_video_recorded'   => $this->isVideoRecorded,
+            'booking_item_id' => $bookingItem->id,
+            'issued_by_user_id' => $this->resolveStaffUserId(),
+            'notes' => $this->issuanceNotes,
+            'is_insured' => $this->isInsured,
+            'current_mileage' => (int) $this->currentMileage,
+            'is_video_recorded' => $this->isVideoRecorded,
             'accessories_checked' => $this->accessoriesChecked,
-            'issuance_branch'     => $this->issuanceBranch,
+            'issuance_branch' => $this->issuanceBranch,
         ]);
 
         $this->flashMessage = 'Inspection and re-issuance saved.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
         $this->resetForm();
+        $this->dispatch('rental-updated');
     }
 
     public function uploadVideo(): void
@@ -121,12 +179,13 @@ class IssuanceTab extends Component
         $storePath = $this->videoFile->storeAs('public/rental_service_videos', $fileName);
 
         RentingServiceVideo::create([
-            'booking_id'  => $this->bookingId,
-            'video_path'  => $storePath,
+            'booking_id' => $this->bookingId,
+            'video_path' => $storePath,
             'recorded_at' => now(),
         ]);
 
         $this->videoFile = null;
+        $this->isVideoRecorded = true;
         $this->flashMessage = 'Service video uploaded.';
         $this->flashType = 'success';
     }
@@ -136,21 +195,28 @@ class IssuanceTab extends Component
         $activeItem = RentingBookingItem::where('booking_id', $this->bookingId)
             ->whereNull('end_date')
             ->latest()
-            ->firstOrFail();
+            ->first();
+
+        if (! $activeItem) {
+            $this->flashMessage = 'No open booking item for maintenance log.';
+            $this->flashType = 'error';
+
+            return;
+        }
 
         $this->validate([
             'logDescription' => 'required|string|max:255',
-            'logCost'          => 'required|numeric|min:0',
-            'logServicedAt'    => 'required|date',
-            'logNote'          => 'nullable|string',
+            'logCost' => 'required|numeric|min:0',
+            'logServicedAt' => 'required|date',
+            'logNote' => 'nullable|string',
         ]);
 
         MotorbikeMaintenanceLog::create([
             'motorbike_id' => $activeItem->motorbike_id,
-            'cost'         => $this->logCost,
-            'serviced_at'  => $this->logServicedAt,
-            'description'  => $this->logDescription,
-            'note'         => $this->logNote ?: null,
+            'cost' => $this->logCost,
+            'serviced_at' => $this->logServicedAt,
+            'description' => $this->logDescription,
+            'note' => $this->logNote ?: null,
         ]);
 
         $this->logDescription = '';
@@ -163,13 +229,31 @@ class IssuanceTab extends Component
 
     private function resetForm(): void
     {
-        $this->issuanceNotes = '';
+        $user = function_exists('backpack_user') ? backpack_user() : auth()->user();
+        $name = '';
+        if ($user) {
+            $name = trim(((string) ($user->first_name ?? '')).' '.((string) ($user->last_name ?? '')));
+            if ($name === '') {
+                $name = (string) ($user->name ?? '');
+            }
+        }
+
+        $this->issuanceNotes = $name;
         $this->currentMileage = '';
         $this->isVideoRecorded = false;
         $this->accessoriesChecked = false;
         $this->isInsured = false;
         $this->issuanceBranch = '';
         $this->resetValidation();
+    }
+
+    private function resolveStaffUserId(): ?int
+    {
+        if (function_exists('backpack_user') && backpack_user()) {
+            return (int) backpack_user()->id;
+        }
+
+        return auth()->id();
     }
 
     public function render()
@@ -198,12 +282,17 @@ class IssuanceTab extends Component
                 ->get()
             : collect();
 
+        $signedCount = CustomerAgreement::where('booking_id', $this->bookingId)->count();
+        $signedVerifiedCount = CustomerAgreement::where('booking_id', $this->bookingId)->where('is_verified', true)->count();
+
         return view('flux-admin.partials.rentals.issuance-tab', [
-            'booking'         => $booking,
-            'activeItem'      => $activeItem,
+            'booking' => $booking,
+            'activeItem' => $activeItem,
             'issuanceHistory' => $issuanceHistory,
-            'videos'          => $videos,
+            'videos' => $videos,
             'maintenanceLogs' => $maintenanceLogs,
+            'signedCount' => $signedCount,
+            'signedVerifiedCount' => $signedVerifiedCount,
         ]);
     }
 }

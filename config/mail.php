@@ -128,6 +128,15 @@ return [
     'contact_inbox' => env('MAIL_CONTACT_INBOX', 'customerservice@neguinhomotors.co.uk'),
 
     /*
+    | Recipients when a rental is ended with proceed-anyway outstanding balances.
+    | Comma-separated. Staff who ended it are also notified when they have an email.
+    */
+    'rental_ending_pending_notify' => array_values(array_filter(array_map(
+        'trim',
+        explode(',', (string) env('RENTAL_ENDING_PENDING_NOTIFY', 'enquiries@neguinhomotors.co.uk'))
+    ))),
+
+    /*
     | Optional mailer for finance contract review e-mails (Backpack save flow).
     | Example: MAIL_FINANCE_CONTRACT_MAILER=log for local testing without SMTP.
     */

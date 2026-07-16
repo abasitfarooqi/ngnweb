@@ -172,7 +172,11 @@
                     <a href="{{ route('register') }}" class="px-3 py-1.5 text-sm font-semibold bg-brand-red text-white hover:bg-red-700 transition">Register</a>
                 @endauth
 
-                <a href="{{ route('ngnclub.subscribe') }}"
+                @php
+                    $clubLoggedIn = \App\Services\Club\ClubMemberSession::check();
+                    $clubHref = $clubLoggedIn ? route('ngnclub.dashboard') : route('ngnclub.subscribe');
+                @endphp
+                <a href="{{ $clubHref }}"
                    class="flex items-center gap-1 px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-gray-900 text-xs font-bold uppercase tracking-wide transition">
                     ★ Club
                 </a>
@@ -334,9 +338,13 @@
 
         {{-- Club CTA at bottom of drawer --}}
         <div class="flex-shrink-0 p-4 border-t border-gray-200 dark:border-gray-800">
-            <a href="{{ route('ngnclub.subscribe') }}" @click="closeMobile()"
+            @php
+                $clubLoggedIn = \App\Services\Club\ClubMemberSession::check();
+                $clubHref = $clubLoggedIn ? route('ngnclub.dashboard') : route('ngnclub.subscribe');
+            @endphp
+            <a href="{{ $clubHref }}" @click="closeMobile()"
                class="flex items-center justify-center gap-2 w-full py-3 bg-amber-400 hover:bg-amber-300 text-gray-900 text-sm font-bold uppercase tracking-wide transition">
-                ★ Join NGN Club for Free
+                {{ $clubLoggedIn ? '★ My Club Dashboard' : '★ Join NGN Club for Free' }}
             </a>
             {{-- Phones --}}
             @if($branches && $branches->isNotEmpty())

@@ -26,21 +26,38 @@ class UserIndex extends Component
         $this->authorizeModule('see-menu-permissions');
         $this->exportable = true;
         $this->exportFilename = 'users';
+
+        if (request()->filled('role')) {
+            $this->filters['role'] = (string) request()->integer('role');
+        }
+
+        if (request()->filled('permissions')) {
+            $this->filters['permission'] = (string) request()->integer('permissions');
+        }
+
+        if (! request()->has('sort')) {
+            $this->sortField = 'first_name';
+            $this->sortDirection = 'asc';
+        }
     }
 
     public function render()
     {
         $roleModel = config('permission.models.role');
+        $permissionModel = config('permission.models.permission');
+
         $roles = $roleModel::query()->orderBy('name')->get(['id', 'name']);
+        $permissions = $permissionModel::query()->orderBy('name')->get(['id', 'name']);
 
         $users = $this->baseQuery()
-            ->with(['roles:id,name'])
+            ->with(['roles:id,name', 'permissions:id,name'])
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
         return view('flux-admin.pages.users.index', [
             'users' => $users,
             'roles' => $roles,
+            'permissions' => $permissions,
         ]);
     }
 
@@ -52,6 +69,7 @@ class UserIndex extends Component
                 $q->where(function ($q) use ($term): void {
                     $q->where('first_name', 'like', "%{$term}%")
                         ->orWhere('last_name', 'like', "%{$term}%")
+                        ->orWhere('name', 'like', "%{$term}%")
                         ->orWhere('email', 'like', "%{$term}%")
                         ->orWhere('username', 'like', "%{$term}%")
                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
@@ -60,6 +78,9 @@ class UserIndex extends Component
             ->when($this->filter('role'), function ($q, $roleId): void {
                 $q->whereHas('roles', fn ($q) => $q->where('roles.id', $roleId));
             })
+            ->when($this->filter('permission'), function ($q, $permissionId): void {
+                $q->whereHas('permissions', fn ($q) => $q->where('permissions.id', $permissionId));
+            })
             ->when($this->filter('admin') !== '', function ($q): void {
                 $q->where('is_admin', $this->filter('admin') === '1');
             });
@@ -67,7 +88,7 @@ class UserIndex extends Component
 
     protected function exportQuery(): Builder
     {
-        return $this->baseQuery()->with('roles:id,name');
+        return $this->baseQuery()->with(['roles:id,name', 'permissions:id,name']);
     }
 
     protected function exportColumns(): array
@@ -80,6 +101,7 @@ class UserIndex extends Component
             'Email' => 'email',
             'Admin' => fn ($u) => $u->is_admin ? 'Yes' : 'No',
             'Roles' => fn ($u) => $u->roles->pluck('name')->implode(', '),
+            'Extra permissions' => fn ($u) => $u->permissions->pluck('name')->implode(', '),
             'Created' => fn ($u) => $u->created_at?->format('Y-m-d H:i'),
         ];
     }

@@ -2,15 +2,22 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-                {{ trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: $user->email }}
+                {{ trim(($user->first_name ?? '').' '.($user->last_name ?? '')) ?: ($user->name ?: $user->email) }}
             </h1>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">User profile, roles and extra permissions.</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">User profile, roles and permissions.</p>
         </div>
         <div class="flex items-center gap-2">
             <flux:button size="sm" variant="ghost" :href="route('flux-admin.users.index')" class="!rounded-none">Back</flux:button>
             <flux:button size="sm" variant="primary" :href="route('flux-admin.users.edit', $user)" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+            <flux:button size="sm" variant="danger" wire:click="deleteUser" wire:confirm="Delete this user? This cannot be undone." icon="trash" class="!rounded-none">Delete</flux:button>
         </div>
     </div>
+
+    @if(session('flux-admin.error'))
+        <div class="border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
+            {{ session('flux-admin.error') }}
+        </div>
+    @endif
 
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
@@ -22,6 +29,7 @@
                 <div class="flex justify-between py-2"><dt class="text-zinc-500">Client</dt><dd><x-flux-admin::status-badge :status="(bool) $user->is_client" /></dd></div>
                 <div class="flex justify-between py-2"><dt class="text-zinc-500">Employee ID</dt><dd class="text-zinc-900 dark:text-white">{{ $user->employee_id ?? '—' }}</dd></div>
                 <div class="flex justify-between py-2"><dt class="text-zinc-500">Created</dt><dd class="text-zinc-900 dark:text-white">{{ $user->created_at?->format('d M Y H:i') }}</dd></div>
+                <div class="flex justify-between py-2"><dt class="text-zinc-500">Updated</dt><dd class="text-zinc-900 dark:text-white">{{ $user->updated_at?->format('d M Y H:i') }}</dd></div>
             </dl>
         </div>
 
@@ -37,13 +45,24 @@
                 </div>
             @endif
 
+            <h2 class="text-sm font-semibold text-zinc-900 dark:text-white mt-5 mb-3">Permissions via roles</h2>
+            @if($rolePermissions->isEmpty())
+                <p class="text-sm text-zinc-500 dark:text-zinc-400">No permissions from assigned roles.</p>
+            @else
+                <div class="flex flex-wrap gap-1">
+                    @foreach($rolePermissions as $permission)
+                        <flux:badge color="zinc" size="sm">{{ $permission->name }}</flux:badge>
+                    @endforeach
+                </div>
+            @endif
+
             <h2 class="text-sm font-semibold text-zinc-900 dark:text-white mt-5 mb-3">Extra permissions</h2>
             @if($user->permissions->isEmpty())
                 <p class="text-sm text-zinc-500 dark:text-zinc-400">No extra permissions beyond the user's roles.</p>
             @else
                 <div class="flex flex-wrap gap-1">
                     @foreach($user->permissions as $permission)
-                        <flux:badge color="zinc" size="sm">{{ $permission->name }}</flux:badge>
+                        <flux:badge color="green" size="sm">{{ $permission->name }}</flux:badge>
                     @endforeach
                 </div>
             @endif

@@ -30,6 +30,7 @@
                 <flux:table.column>Mileage</flux:table.column>
                 <flux:table.column>Purchased</flux:table.column>
                 <flux:table.column>Sold</flux:table.column>
+                <flux:table.column>V5</flux:table.column>
                 <flux:table.column>Buyer</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
@@ -42,6 +43,7 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $sale->mileage }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $sale->date_of_purchase ? \Carbon\Carbon::parse($sale->date_of_purchase)->format('d M Y') : '—' }}</flux:table.cell>
                         <flux:table.cell><x-flux-admin::status-badge :status="$sale->is_sold ? 'yes' : 'no'" :map="['yes' => ['red', 'Sold'], 'no' => ['green', 'Available']]" /></flux:table.cell>
+                        <flux:table.cell><x-flux-admin::status-badge :status="$sale->v5_available ? 'yes' : 'no'" :map="['yes' => ['green', 'Yes'], 'no' => ['zinc', 'No']]" /></flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $sale->buyer_name ?: '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
@@ -53,7 +55,7 @@
                         </flux:table.cell>
                     </flux:table.row>
                 @empty
-                    <flux:table.row><flux:table.cell colspan="8" class="text-center py-8 text-zinc-500 dark:text-zinc-400">No sales records.</flux:table.cell></flux:table.row>
+                    <flux:table.row><flux:table.cell colspan="9" class="text-center py-8 text-zinc-500 dark:text-zinc-400">No sales records.</flux:table.cell></flux:table.row>
                 @endforelse
             </flux:table.rows>
         </flux:table>

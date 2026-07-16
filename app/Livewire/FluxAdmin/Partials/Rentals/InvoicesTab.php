@@ -4,8 +4,8 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\BookingInvoice;
 use App\Models\PaymentMethod;
-use App\Models\RentingTransaction;
 use App\Support\RentalBookingLifecycle;
+use App\Support\RentalInvoiceTabData;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -14,28 +14,74 @@ class InvoicesTab extends Component
 {
     public int $bookingId;
 
+    public bool $showPayModal = false;
+
     public ?int $payingInvoiceId = null;
+
     public ?int $paymentMethodId = null;
+
     public string $paymentAmount = '';
 
+    public float $paymentOutstanding = 0.0;
+
+    public ?int $expandedInvoiceId = null;
+
+    /** @var array<string, mixed>|null */
+    public ?array $expandedDetail = null;
+
     public ?string $flashMessage = null;
+
     public ?string $flashType = null;
+
+    public function mount(int $bookingId): void
+    {
+        $this->bookingId = $bookingId;
+    }
 
     public function placeholder()
     {
         return view('flux-admin.partials.loading-placeholder');
     }
 
-    public function openPayModal(int $invoiceId): void
+    public function toggleInvoice(int $invoiceId): void
     {
-        $invoice = BookingInvoice::findOrFail($invoiceId);
-        $paid = (float) RentingTransaction::where('invoice_id', $invoiceId)->sum('amount');
-        $remaining = max((float) $invoice->amount - $paid, 0);
+        $invoice = BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($invoiceId)
+            ->first();
+
+        if (! $invoice || $invoice->is_paid) {
+            return;
+        }
+
+        if ($this->expandedInvoiceId === $invoiceId) {
+            $this->expandedInvoiceId = null;
+            $this->expandedDetail = null;
+
+            return;
+        }
+
+        $this->expandedInvoiceId = $invoiceId;
+        $this->expandedDetail = RentalInvoiceTabData::detail($invoiceId) ?? [];
+    }
+
+    public function openPayModal(int $invoiceId, float $outstandingBalance): void
+    {
+        $remaining = max($outstandingBalance, 0);
 
         $this->payingInvoiceId = $invoiceId;
+        $this->paymentOutstanding = $remaining;
         $this->paymentMethodId = PaymentMethod::where('title', 'Cash')->value('id');
-        $this->paymentAmount   = number_format($remaining, 2, '.', '');
-        $this->dispatch('open-modal', name: 'pay-invoice-modal');
+        $this->paymentAmount = number_format($remaining, 2, '.', '');
+        $this->showPayModal = true;
+    }
+
+    public function closePayModal(): void
+    {
+        $this->showPayModal = false;
+        $this->payingInvoiceId = null;
+        $this->paymentAmount = '';
+        $this->paymentOutstanding = 0.0;
     }
 
     public function markPaid(): void
@@ -47,23 +93,26 @@ class InvoicesTab extends Component
         ]);
 
         try {
-            app(RentalBookingLifecycle::class)->recordPayment(
+            $result = app(RentalBookingLifecycle::class)->recordPayment(
                 $this->bookingId,
                 $this->payingInvoiceId,
                 $this->paymentMethodId,
                 (float) $this->paymentAmount
             );
 
-            $this->payingInvoiceId = null;
-            $this->paymentMethodId = null;
-            $this->paymentAmount   = '';
-            $this->dispatch('close-modal', name: 'pay-invoice-modal');
-            $this->flashMessage = 'Payment recorded.';
-            $this->flashType    = 'success';
+            $this->closePayModal();
+            $this->expandedInvoiceId = null;
+            $this->expandedDetail = null;
+
+            $balance = (float) ($result['balance'] ?? 0);
+            $this->flashMessage = $balance > 0
+                ? 'Payment received. Remaining balance on this invoice: £'.number_format($balance, 2).'.'
+                : 'Payment recorded. Invoice marked as paid.';
+            $this->flashType = 'success';
             $this->dispatch('rental-updated');
         } catch (\Throwable $e) {
             $this->flashMessage = $e->getMessage();
-            $this->flashType    = 'error';
+            $this->flashType = 'error';
         }
     }
 
@@ -72,41 +121,70 @@ class InvoicesTab extends Component
         try {
             $invoice = BookingInvoice::where('booking_id', $this->bookingId)->findOrFail($invoiceId);
             app(RentalBookingLifecycle::class)->reversePayment($invoice);
-            $this->flashMessage = 'Latest payment reversed for invoice #'.$invoiceId.'.';
-            $this->flashType    = 'success';
+            $this->expandedInvoiceId = null;
+            $this->expandedDetail = null;
+            $this->flashMessage = 'Latest payment reversed for invoice #'.$invoiceId.'. Customer notified.';
+            $this->flashType = 'success';
             $this->dispatch('rental-updated');
         } catch (\Throwable $e) {
             $this->flashMessage = $e->getMessage();
-            $this->flashType    = 'error';
+            $this->flashType = 'error';
         }
     }
 
-    public function markWhatsAppSent(int $invoiceId): void
+    public function sendWhatsAppReminder(int $invoiceId): void
     {
-        BookingInvoice::findOrFail($invoiceId)->update([
-            'is_whatsapp_sent'               => true,
-            'whatsapp_last_reminder_sent_at' => now(),
-        ]);
+        $detail = RentalInvoiceTabData::detail($invoiceId);
+        if ($detail === null) {
+            $this->flashMessage = 'Invoice not found.';
+            $this->flashType = 'error';
 
-        $this->flashMessage = 'WhatsApp reminder marked as sent.';
-        $this->flashType    = 'success';
+            return;
+        }
+
+        BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($invoiceId)
+            ->firstOrFail()
+            ->update([
+                'is_whatsapp_sent'               => true,
+                'whatsapp_last_reminder_sent_at' => now(),
+            ]);
+
+        if ($this->expandedInvoiceId === $invoiceId) {
+            $this->expandedDetail = RentalInvoiceTabData::detail($invoiceId);
+        }
+
+        if (! empty($detail['whatsapp_url'])) {
+            $this->js('window.open('.json_encode($detail['whatsapp_url']).', "_blank")');
+        }
+
+        $this->flashMessage = 'WhatsApp reminder marked as sent.'
+            .(! empty($detail['whatsapp_url']) ? ' WhatsApp opened in a new tab.' : '');
+        $this->flashType = 'success';
     }
 
     public function updateInvoiceDate(int $invoiceId, string $date): void
     {
-        BookingInvoice::findOrFail($invoiceId)->update(['invoice_date' => $date]);
+        validator(['date' => $date], ['date' => ['required', 'date']])->validate();
+
+        BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($invoiceId)
+            ->update(['invoice_date' => $date]);
+
+        if ($this->expandedInvoiceId === $invoiceId) {
+            $this->expandedDetail = RentalInvoiceTabData::detail($invoiceId);
+        }
+
         $this->flashMessage = 'Invoice date updated.';
-        $this->flashType    = 'success';
+        $this->flashType = 'success';
     }
 
     public function render()
     {
-        $invoices = BookingInvoice::with('user')
-            ->where('booking_id', $this->bookingId)
-            ->orderByDesc('invoice_date')
-            ->get();
-
-        $totalUnpaid = $invoices->where('is_paid', false)->sum('amount');
+        $invoices = RentalInvoiceTabData::rows($this->bookingId);
+        $totalUnpaid = $invoices->where('is_paid', false)->sum('outstanding_balance');
         $paymentMethods = PaymentMethod::query()->where('is_enabled', true)->orderBy('title')->get();
 
         return view('flux-admin.partials.rentals.invoices-tab', [

@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\BookingInvoice;
+use App\Models\PaymentMethod;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingPricing;
@@ -162,6 +163,8 @@ class RentalIntakeDraft
                     ]);
                 }
 
+                $this->syncInitialPayment($booking->id, $step, $meta);
+
                 return $booking->id;
             }
 
@@ -199,8 +202,102 @@ class RentalIntakeDraft
                 'is_paid'      => false,
             ]);
 
+            $this->syncInitialPayment($booking->id, $step, $meta);
+
             return $booking->id;
         });
+    }
+
+    /** @param  array<string, mixed>  $meta */
+    private function syncInitialPayment(int $bookingId, int $step, array $meta): void
+    {
+        if ($step < 4) {
+            return;
+        }
+
+        $invoice = BookingInvoice::query()
+            ->where('booking_id', $bookingId)
+            ->orderBy('id')
+            ->first();
+
+        if (! $invoice) {
+            return;
+        }
+
+        $paymentMethod = (string) ($meta['payment_method'] ?? 'none');
+        $initialPayment = (float) ($meta['initial_payment'] ?? 0);
+
+        if ($paymentMethod === 'none' || $initialPayment <= 0) {
+            if ($step >= 4) {
+                $invoice->update(['is_posted' => true]);
+            }
+
+            return;
+        }
+
+        $alreadyReceived = (float) DB::table('renting_transactions')
+            ->where('invoice_id', $invoice->id)
+            ->sum('amount');
+
+        $toRecord = round($initialPayment - $alreadyReceived, 2);
+
+        if ($toRecord > 0) {
+            $remaining = round((float) $invoice->amount - $alreadyReceived, 2);
+
+            if ($toRecord > $remaining) {
+                throw new InvalidArgumentException(
+                    'Initial payment cannot exceed £'.number_format($remaining, 2).' outstanding on this invoice.'
+                );
+            }
+
+            $methodId = $this->resolvePaymentMethodId($paymentMethod);
+
+            if (! $methodId) {
+                throw new RuntimeException('Selected payment method is not available. Check payment methods in admin.');
+            }
+
+            app(RentalBookingLifecycle::class)->recordPayment(
+                $bookingId,
+                (int) $invoice->id,
+                $methodId,
+                $toRecord
+            );
+        }
+
+        $invoice->refresh();
+        $invoice->update(['is_posted' => true]);
+    }
+
+    private function resolvePaymentMethodId(string $key): ?int
+    {
+        $titles = match ($key) {
+            'cash' => ['Cash'],
+            'card' => ['Card'],
+            'bank' => ['Bank transfer', 'Bank Transfer', 'Bank'],
+            default => [],
+        };
+
+        foreach ($titles as $title) {
+            $id = PaymentMethod::query()
+                ->where('is_enabled', true)
+                ->where('title', $title)
+                ->value('id');
+
+            if ($id) {
+                return (int) $id;
+            }
+        }
+
+        if ($key === 'bank') {
+            $id = PaymentMethod::query()
+                ->where('is_enabled', true)
+                ->where('title', 'like', '%Bank%')
+                ->value('id');
+
+            return $id ? (int) $id : null;
+        }
+
+        return null;
     }
 
     public function complete(int $bookingId, int $userId): void

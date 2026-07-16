@@ -38,6 +38,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Support\QrCodeGenerator;
+use App\Support\RentalAvailabilityRepair;
 use App\Support\RentalBookingLifecycle;
 
 class RentingController extends Controller
@@ -1888,15 +1889,14 @@ class RentingController extends Controller
     public function previewMakeMotorbikeAvailable(Request $request, int $motorbikeId)
     {
         $motorbike = Motorbike::findOrFail($motorbikeId);
-        $snapshot = $this->buildMakeAvailableSnapshot($motorbikeId);
-        $checks = $this->buildAvailabilityChecks($motorbikeId);
+        $repair = app(RentalAvailabilityRepair::class);
 
         return response()->json([
             'success' => true,
             'motorbike_id' => $motorbike->id,
             'reg_no' => $motorbike->reg_no,
-            'preview' => $snapshot,
-            'checks' => $checks,
+            'preview' => $repair->snapshot($motorbikeId),
+            'checks' => $repair->checks($motorbikeId),
         ]);
     }
 
@@ -1907,249 +1907,21 @@ class RentingController extends Controller
         ]);
 
         $motorbike = Motorbike::findOrFail($motorbikeId);
-        $snapshot = $this->buildMakeAvailableSnapshot($motorbikeId);
-        $openItems = $snapshot['items'];
-        $itemIds = collect($openItems)->pluck('item_id')->filter()->values();
-        $bookingIds = collect($openItems)->pluck('booking_id')->filter()->unique()->values();
-
-        $auditUserId = $this->resolveAuditUserId();
-        DB::beginTransaction();
-        try {
-            $itemsClosed = 0;
-            $bookingsUpdated = 0;
-
-            if ($itemIds->isNotEmpty()) {
-                $itemsClosed = RentingBookingItem::whereIn('id', $itemIds)
-                    ->update([
-                        'end_date' => now(),
-                        'is_posted' => false,
-                        'updated_at' => now(),
-                    ]);
-            }
-
-            foreach ($bookingIds as $bookingId) {
-                $hasOpenPosted = RentingBookingItem::where('booking_id', $bookingId)
-                    ->where('is_posted', true)
-                    ->whereNull('end_date')
-                    ->exists();
-
-                if (! $hasOpenPosted) {
-                    $bookingsUpdated += RentingBooking::where('id', $bookingId)
-                        ->where('is_posted', true)
-                        ->update([
-                            'is_posted' => false,
-                            'updated_at' => now(),
-                        ]);
-                }
-            }
-
-            DB::commit();
-        } catch (\Throwable $e) {
-            DB::rollBack();
-            Log::error('executeMakeMotorbikeAvailable failed: '.$e->getMessage());
-
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to force-end active rental linkage: '.$e->getMessage(),
-                'error' => $e->getMessage(),
-            ], 500);
-        }
-
-        $repairActions = [];
-        $repairErrors = [];
-        try {
-            $repairActions = $this->repairAvailabilityPrerequisites($motorbikeId, $auditUserId);
-        } catch (\Throwable $e) {
-            $repairErrors[] = $e->getMessage();
-            Log::error('repairAvailabilityPrerequisites failed: '.$e->getMessage());
-        }
-
-        $checks = $this->buildAvailabilityChecks($motorbikeId);
-        $isVisibleByRules = $checks['vehicle_profile_ok'] && $checks['has_current_pricing'] && $checks['has_registration'] && $checks['compliance_pass'] && ! $checks['has_open_posted_item'];
-        $message = $isVisibleByRules
-            ? 'Bike is now available for New Booking.'
-            : 'Force end completed, but pricing/compliance still blocks visibility.';
-
-        Log::info('force_make_available_executed', [
-            'motorbike_id' => $motorbike->id,
-            'reg_no' => $motorbike->reg_no,
-            'backpack_user_id' => $auditUserId,
-            'items_closed' => $itemsClosed,
-            'bookings_updated' => $bookingsUpdated,
-            'repair_actions' => $repairActions,
-            'remaining_blockers' => $checks['blockers'],
-            'ip' => $request->ip(),
-        ]);
+        $repair = app(RentalAvailabilityRepair::class);
+        $result = $repair->execute($motorbikeId, $this->resolveAuditUserId());
 
         return response()->json([
             'success' => true,
             'motorbike_id' => $motorbike->id,
             'reg_no' => $motorbike->reg_no,
-            'items_closed' => $itemsClosed,
-            'bookings_updated' => $bookingsUpdated,
-            'repair_actions' => $repairActions,
-            'repair_errors' => $repairErrors,
-            'remaining_blockers' => $checks['blockers'],
-            'checks' => $checks,
-            'message' => $message,
+            'items_closed' => $result['items_closed'],
+            'bookings_updated' => $result['bookings_updated'],
+            'repair_actions' => $result['repair_actions'],
+            'repair_errors' => $result['repair_errors'],
+            'remaining_blockers' => $result['checks']['blockers'],
+            'checks' => $result['checks'],
+            'message' => $result['message'],
         ]);
-    }
-
-    private function buildMakeAvailableSnapshot(int $motorbikeId): array
-    {
-        $items = RentingBookingItem::query()
-            ->leftJoin('renting_bookings as rb', 'rb.id', '=', 'renting_booking_items.booking_id')
-            ->where('renting_booking_items.motorbike_id', $motorbikeId)
-            ->where('renting_booking_items.is_posted', true)
-            ->whereNull('renting_booking_items.end_date')
-            ->orderByDesc('renting_booking_items.id')
-            ->get([
-                'renting_booking_items.id as item_id',
-                'renting_booking_items.booking_id',
-                'renting_booking_items.is_posted',
-                'renting_booking_items.start_date',
-                'renting_booking_items.end_date',
-                'rb.state as booking_state',
-                'rb.is_posted as booking_is_posted',
-            ])
-            ->map(function ($item) {
-                return [
-                    'item_id' => $item->item_id,
-                    'booking_id' => $item->booking_id,
-                    'is_posted' => (bool) $item->is_posted,
-                    'start_date' => $item->start_date,
-                    'end_date' => $item->end_date,
-                    'booking_state' => $item->booking_state,
-                    'booking_is_posted' => (bool) $item->booking_is_posted,
-                ];
-            })
-            ->values()
-            ->all();
-
-        return [
-            'open_posted_items_count' => count($items),
-            'items' => $items,
-        ];
-    }
-
-    private function buildAvailabilityChecks(int $motorbikeId): array
-    {
-        $motorbike = Motorbike::query()
-            ->leftJoin('motorbike_annual_compliance as mac', 'mac.motorbike_id', '=', 'motorbikes.id')
-            ->where('motorbikes.id', $motorbikeId)
-            ->select(
-                'motorbikes.id',
-                'motorbikes.vehicle_profile_id',
-                'motorbikes.is_ebike',
-                'mac.mot_status',
-                'mac.road_tax_status'
-            )
-            ->firstOrFail();
-
-        $hasCurrentPricing = RentingPricing::where('motorbike_id', $motorbikeId)
-            ->where('iscurrent', true)
-            ->exists();
-        $hasRegistration = MotorbikeRegistration::where('motorbike_id', $motorbikeId)->exists();
-
-        $hasOpenPostedItem = RentingBookingItem::where('motorbike_id', $motorbikeId)
-            ->where('is_posted', true)
-            ->whereNull('end_date')
-            ->exists();
-
-        $vehicleProfileOk = (int) $motorbike->vehicle_profile_id === 1;
-        $compliancePass = $motorbike->is_ebike
-            ? true
-            : ($motorbike->road_tax_status === 'Taxed'
-                && in_array($motorbike->mot_status, ['Valid', 'No details held by DVLA'], true));
-
-        $blockers = [];
-        if (! $vehicleProfileOk) {
-            $blockers[] = 'vehicle_profile_id must be 1';
-        }
-        if (! $hasCurrentPricing) {
-            $blockers[] = 'current pricing is missing';
-        }
-        if (! $hasRegistration) {
-            $blockers[] = 'registration row is missing';
-        }
-        if ($hasOpenPostedItem) {
-            $blockers[] = 'open posted booking item still exists';
-        }
-        if (! $compliancePass) {
-            $blockers[] = 'MOT/tax compliance does not meet booking rules';
-        }
-
-        return [
-            'vehicle_profile_ok' => $vehicleProfileOk,
-            'has_current_pricing' => $hasCurrentPricing,
-            'has_registration' => $hasRegistration,
-            'has_open_posted_item' => $hasOpenPostedItem,
-            'compliance_pass' => $compliancePass,
-            'mot_status' => $motorbike->mot_status,
-            'road_tax_status' => $motorbike->road_tax_status,
-            'blockers' => $blockers,
-        ];
-    }
-
-    private function repairAvailabilityPrerequisites(int $motorbikeId, ?int $auditUserId = null): array
-    {
-        $actions = [];
-        $motorbike = Motorbike::findOrFail($motorbikeId);
-
-        if ((int) $motorbike->vehicle_profile_id !== 1) {
-            $motorbike->vehicle_profile_id = 1;
-            $motorbike->save();
-            $actions[] = 'set vehicle_profile_id to 1';
-        }
-
-        $hasRegistration = MotorbikeRegistration::where('motorbike_id', $motorbikeId)->exists();
-        if (! $hasRegistration && ! empty($motorbike->reg_no)) {
-            MotorbikeRegistration::create([
-                'motorbike_id' => $motorbikeId,
-                'registration_number' => $motorbike->reg_no,
-                'start_date' => now(),
-            ]);
-            $actions[] = 'created missing motorbike registration row';
-        }
-
-        $currentPricing = RentingPricing::where('motorbike_id', $motorbikeId)
-            ->where('iscurrent', true)
-            ->first();
-        if (! $currentPricing) {
-            $latestPricing = RentingPricing::where('motorbike_id', $motorbikeId)
-                ->orderByDesc('id')
-                ->first();
-
-            RentingPricing::where('motorbike_id', $motorbikeId)->update(['iscurrent' => false]);
-
-            if ($latestPricing) {
-                $latestPricing->iscurrent = true;
-                $latestPricing->update_date = now();
-                $latestPricing->save();
-                $actions[] = 'promoted latest pricing row as current';
-            } else {
-                RentingPricing::create([
-                    'motorbike_id' => $motorbikeId,
-                    'user_id' => $auditUserId,
-                    'iscurrent' => true,
-                    'weekly_price' => 70,
-                    'minimum_deposit' => 0,
-                    'update_date' => now(),
-                ]);
-                $actions[] = 'created fallback pricing row';
-            }
-        }
-
-        if (! $motorbike->is_ebike) {
-            $mac = MotorbikeAnnualCompliance::firstOrNew(['motorbike_id' => $motorbikeId]);
-            $mac->year = $mac->year ?: (int) now()->format('Y');
-            $mac->road_tax_status = 'Taxed';
-            $mac->mot_status = 'No details held by DVLA';
-            $mac->save();
-            $actions[] = 'forced compliance to Taxed + No details held by DVLA';
-        }
-
-        return $actions;
     }
 
     private function resolveAuditUserId(): ?int

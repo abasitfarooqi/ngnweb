@@ -7,13 +7,11 @@ use Livewire\Attributes\Title;
 
 #[Layout('flux-admin.layouts.app')]
 #[Title('Inactive bookings — Flux Admin')]
-class InactiveBookingsIndex extends BookingsManagementIndex
+class InactiveBookingsIndex extends RentalIndex
 {
     public function mount(): void
     {
-        parent::mount();
         $this->scope = 'inactive';
-        $this->pageTitle = 'Inactive bookings';
-        $this->pageDescription = 'Rental bookings whose current item has ended — click a booking to view history.';
+        parent::mount();
     }
 }

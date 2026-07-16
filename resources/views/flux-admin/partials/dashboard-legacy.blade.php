@@ -36,15 +36,12 @@
         <x-flux-admin::stat-card label="Vehicles sold last week" :value="number_format($legacy['sales']['last_week'] ?? 0)" icon="chart-bar" colour="indigo" :href="route('flux-admin.finance.index')" />
     </div>
 
-    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <x-flux-admin::stat-card label="NGN club members" :value="number_format($legacy['total_club_members'] ?? 0)" icon="star" colour="pink" :href="route('flux-admin.club.index')" />
-        <x-flux-admin::stat-card label="Active rentals" :value="number_format($legacy['active_rentals'] ?? 0)" icon="key" colour="green" :href="route('flux-admin.rentals.index')" />
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <x-flux-admin::stat-card label="Regular customers" :value="number_format($legacy['total_customers'] ?? 0)" icon="users" colour="blue" :href="route('flux-admin.customers.index')" />
         <x-flux-admin::stat-card label="E-commerce subscribers" :value="number_format($legacy['total_ecommerce_customers'] ?? 0)" icon="shopping-cart" colour="amber" :href="route('flux-admin.customers.index')" />
     </div>
 
-    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <x-flux-admin::stat-card label="Active payment plan" :value="number_format($legacy['finance']['active'] ?? 0)" icon="banknotes" colour="green" :href="route('flux-admin.finance.index')" />
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <x-flux-admin::stat-card label="Terminated payment plan" :value="number_format($legacy['finance']['terminated'] ?? 0)" icon="x-circle" colour="red" :href="route('flux-admin.finance.index')" />
         <x-flux-admin::stat-card label="Closed payment plan" :value="number_format($legacy['finance']['closed'] ?? 0)" icon="check-circle" colour="indigo" :href="route('flux-admin.finance.index')" />
     </div>
@@ -58,9 +55,8 @@
     <x-flux-admin::stat-card class="mb-6" label="Our motorbikes" :value="number_format($legacy['owned_bikes_count'] ?? 0)" icon="truck" colour="purple" :href="route('flux-admin.motorbikes.index')" />
 
     <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">PCN cases</h3>
-    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <x-flux-admin::stat-card label="Total PCN cases" :value="number_format($legacy['pcn']['total'] ?? 0)" icon="ticket" colour="blue" :href="route('flux-admin.pcn.index')" />
-        <x-flux-admin::stat-card label="Open cases" :value="number_format($legacy['pcn']['open'] ?? 0)" icon="exclamation-triangle" colour="amber" :href="route('flux-admin.pcn.index')" />
         <x-flux-admin::stat-card label="Closed cases" :value="number_format($legacy['pcn']['closed'] ?? 0)" icon="check-circle" colour="green" :href="route('flux-admin.pcn.index')" />
         <x-flux-admin::stat-card label="Police PCN cases" :value="number_format($legacy['pcn']['police'] ?? 0)" icon="shield-check" colour="indigo" :href="route('flux-admin.pcn.index')" />
     </div>

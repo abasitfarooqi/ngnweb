@@ -28,9 +28,16 @@ class ForSaleForm extends Component
         $this->motorcycle = $motorcycle;
 
         if ($motorcycle && $motorcycle->exists) {
-            $this->form = $motorcycle->getAttributes();
+            $this->form = $motorcycle->only([
+                'make', 'model', 'year', 'colour', 'engine', 'type',
+                'sale_new_price', 'description', 'availability',
+                'file_path', 'file_name', 'category',
+            ]);
         } else {
-            $this->form = ['availability' => 'for sale'];
+            $this->form = [
+                'availability' => 'for sale',
+                'category' => 'new for sale',
+            ];
         }
     }
 
@@ -42,7 +49,7 @@ class ForSaleForm extends Component
             'form.year' => ['nullable', 'string', 'max:4'],
             'form.colour' => ['nullable', 'string', 'max:255'],
             'form.engine' => ['nullable', 'string', 'max:255'],
-            'form.type' => ['nullable', 'string', 'in:manual,automatic,other'],
+            'form.type' => ['nullable', 'string', 'in:Scooter,Standard,Super Sport,Touring,Other'],
             'form.sale_new_price' => ['nullable', 'numeric', 'min:0'],
             'form.description' => ['nullable', 'string'],
             'form.availability' => ['nullable', 'string', 'in:for sale,sold,reserved'],
@@ -60,6 +67,8 @@ class ForSaleForm extends Component
     {
         $data = $this->validate($this->formRules());
         $payload = $data['form'];
+        $payload['category'] = $payload['category'] ?? ($this->form['category'] ?? 'new for sale');
+        $payload['availability'] = $payload['availability'] ?? 'for sale';
 
         if ($this->imageUpload) {
             $stored = $this->imageUpload->store('', 'used_motorbikes');

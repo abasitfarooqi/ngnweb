@@ -27,8 +27,25 @@
                 <x-flux-admin::field-group label="Minimum deposit (£)" :error="$errors->first('form.minimum_deposit')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.minimum_deposit" placeholder="0.00" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Motorbike ID" :error="$errors->first('form.motorbike_id')">
-                    <flux:input type="number" wire:model="form.motorbike_id" placeholder="e.g. 42" />
+                <x-flux-admin::field-group label="Motorbike (reg / VRM)" required :error="$errors->first('form.motorbike_id')">
+                    <div class="{{ count($motorbikeSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input
+                            wire:model.live.debounce.300ms="motorbikeSearch"
+                            placeholder="Type registration e.g. AB12 CDE"
+                            autocomplete="off"
+                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()"
+                        />
+                        @if(count($motorbikeSuggestions))
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
+                                @foreach($motorbikeSuggestions as $ms)
+                                    <li role="option" wire:mousedown.prevent="selectMotorbike({{ $ms['id'] }})">{{ $ms['label'] }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
+                    @if(!empty($form['motorbike_id']))
+                        <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Selected ID #{{ $form['motorbike_id'] }}</p>
+                    @endif
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Effective date" :error="$errors->first('form.update_date')">
                     <flux:input type="date" wire:model="form.update_date" />

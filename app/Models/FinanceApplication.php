@@ -82,6 +82,27 @@ class FinanceApplication extends Model
             }]);
     }
 
+    /**
+     * Active finance contract (dashboard / listings):
+     * - status active = not cancelled
+     * - not posted (is_posted true = fully sold → not active)
+     */
+    public function scopeActiveContract($query)
+    {
+        return $query
+            ->where(function ($q) {
+                $q->where('is_cancelled', false)->orWhereNull('is_cancelled');
+            })
+            ->where(function ($q) {
+                $q->whereNull('is_posted')->orWhere('is_posted', 0);
+            });
+    }
+
+    public function isActiveContract(): bool
+    {
+        return ! (bool) $this->is_cancelled && ! (bool) $this->is_posted;
+    }
+
     public function application_items()
     {
         return $this->hasMany('App\Models\ApplicationItem', 'application_id');

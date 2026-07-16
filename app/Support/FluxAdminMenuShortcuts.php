@@ -23,19 +23,16 @@ final class FluxAdminMenuShortcuts
             ['Payment Plan module home', 'Payment Plan', 'flux-admin.modules.show', 'finance', ['module' => 'finance']],
             ['Payment Plan create / edit', 'Payment Plan', 'flux-admin.finance.index', 'applications contracts'],
             ['Contract signature expire', 'Payment Plan', 'flux-admin.contract-access.index', 'passcode link'],
-            ['Application items', 'Payment Plan', 'flux-admin.application-items.index', 'payment plan items'],
             ['Contract extras', 'Payment Plan', 'flux-admin.contract-extra-items.index', 'extras'],
 
-            ['Rentals module home', 'Rentals', 'flux-admin.modules.show', 'rentals', ['module' => 'rentals']],
-            ['Rental operations hub', 'Rentals', 'flux-admin.rental-operations.index', 'hub'],
-            ['Rentals list', 'Rentals', 'flux-admin.rentals.index', 'bookings'],
+            ['Rentals home', 'Rentals', 'flux-admin.rental-operations.index', 'hub rentals module'],
             ['New booking', 'Rentals', 'flux-admin.new-booking.index', 'create booking'],
-            ['Bookings management', 'Rentals', 'flux-admin.bookings-management.index', 'manage'],
-            ['Inactive bookings', 'Rentals', 'flux-admin.inactive-bookings.index', ''],
+            ['Repair rental availability', 'Vehicles', 'flux-admin.backpack.motorbike-available.index', 'make available pricing registration motorbike-available'],
+            ['Active bookings rental', 'Rentals', 'flux-admin.rentals.index', 'manage active bookings'],
+            ['Inactive bookings', 'Rentals', 'flux-admin.inactive-bookings.index', 'ended'],
+            ['Inactive pendings payments', 'Rentals', 'flux-admin.ended-with-pendings.index', 'proceed anyway'],
             ['All bookings', 'Rentals', 'flux-admin.all-bookings.index', ''],
-            ['Booking invoices', 'Rentals', 'flux-admin.booking-invoices.index', 'invoice'],
-            ['Booking invoice dates', 'Rentals', 'flux-admin.booking-invoice-dates.index', ''],
-            ['Change booking start date', 'Rentals', 'flux-admin.change-start-date.index', ''],
+            ['E-bike manager', 'Rentals', 'flux-admin.ebikes.index', 'ebike electric'],
             ['Add new vehicle pricing', 'Rentals', 'flux-admin.renting-pricing.index', 'pricing'],
             ['Document expire date', 'Rentals', 'flux-admin.upload-document-links.index', 'upload'],
             ['Signature expire date', 'Rentals', 'flux-admin.agreement-access.index', 'agreement'],
@@ -43,14 +40,11 @@ final class FluxAdminMenuShortcuts
             ['Active rentals overview', 'Rentals', 'flux-admin.active-rentals.index', ''],
             ['Due payments', 'Rentals', 'flux-admin.rental-due-payments.index', ''],
             ['Renting service videos', 'Rentals', 'flux-admin.service-videos.index', ''],
-            ['Adjust booking weekday', 'Rentals', 'flux-admin.adjust-weekday.index', ''],
-            ['Active bookings summary', 'Rentals', 'flux-admin.active-bookings-summary.index', ''],
 
             ['PCN module home', 'PCNs', 'flux-admin.modules.show', 'pcn', ['module' => 'pcn']],
             ['PCN add / edit', 'PCNs', 'flux-admin.pcn.index', 'cases'],
             ['PCN updates', 'PCNs', 'flux-admin.pcn-updates.index', ''],
             ['TOL requests', 'PCNs', 'flux-admin.pcn-tol-requests.index', ''],
-            ['PCN overview', 'PCNs', 'flux-admin.pcn-dashboard.index', 'dashboard'],
 
             ['Services / repairs booking', 'Bookings', 'flux-admin.customer-appointments.index', 'appointments'],
             ['Repairs report', 'Bookings', 'flux-admin.motorbike-repairs.index', ''],
@@ -83,6 +77,7 @@ final class FluxAdminMenuShortcuts
             ['SP models', 'Spare parts', 'flux-admin.sp-models.index', ''],
 
             ['Club members', 'Club', 'flux-admin.club.index', 'ngn club'],
+            ['Club members (staff)', 'Club', 'flux-admin.club-members.index', 'ngn club staff'],
             ['Support inbox', 'Support', 'flux-admin.support-inbox.index', 'inbox'],
             ['Users', 'Permissions', 'flux-admin.users.index', 'staff'],
             ['Roles', 'Permissions', 'flux-admin.roles.index', ''],
@@ -101,6 +96,9 @@ final class FluxAdminMenuShortcuts
             [$label, $group, $route, $keywords] = [$row[0], $row[1], $row[2], $row[3] ?? ''];
             $params = $row[4] ?? [];
             if (! Route::has($route)) {
+                continue;
+            }
+            if (! FluxAdminSearchGate::allowsMenuRoute($route)) {
                 continue;
             }
             try {

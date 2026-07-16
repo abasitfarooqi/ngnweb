@@ -42,7 +42,7 @@
             <ul class="space-y-2 mt-3">
                 <li><a href="{{ route('v2.about') }}" class="ngn-footer-link">About NGN Motors</a></li>
                 <li><a href="{{ route('v2.contact') }}" class="ngn-footer-link">Contact Us</a></li>
-                <li><a href="{{ route('ngnclub.subscribe') }}" class="ngn-footer-link">NGN Club</a></li>
+                <li><a href="{{ \App\Services\Club\ClubMemberSession::check() ? route('ngnclub.dashboard') : route('ngnclub.subscribe') }}" class="ngn-footer-link">NGN Club</a></li>
                 <li><a href="{{ route('ngnpartner.subscribe') }}" class="ngn-footer-link">NGN Partner</a></li>
                 <li><a href="{{ route('careers.index') }}" class="ngn-footer-link">Careers</a></li>
             </ul>

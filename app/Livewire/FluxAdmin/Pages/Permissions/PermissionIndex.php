@@ -4,7 +4,6 @@ namespace App\Livewire\FluxAdmin\Pages\Permissions;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
-use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -19,18 +18,23 @@ class PermissionIndex extends Component
     use WithDataTable;
     use WithPagination;
 
-    public bool $editorOpen = false;
+    public bool $allowCreate = true;
 
-    public ?int $editingId = null;
+    public bool $allowUpdate = true;
 
-    /** @var array<string, mixed> */
-    public array $form = ['name' => '', 'guard_name' => 'web'];
+    public bool $allowDelete = true;
+
+    public bool $multipleGuards = false;
 
     public function mount(): void
     {
         $this->authorizeModule('see-menu-permissions');
-        $this->sortField = 'name';
-        $this->sortDirection = 'asc';
+        $this->sortField = request()->query('sort', 'name');
+        $this->sortDirection = request()->query('dir', 'asc');
+        $this->allowCreate = (bool) config('backpack.permissionmanager.allow_permission_create', true);
+        $this->allowUpdate = (bool) config('backpack.permissionmanager.allow_permission_update', true);
+        $this->allowDelete = (bool) config('backpack.permissionmanager.allow_permission_delete', true);
+        $this->multipleGuards = (bool) config('backpack.permissionmanager.multiple_guards', false);
     }
 
     public function render()
@@ -47,48 +51,12 @@ class PermissionIndex extends Component
         ]);
     }
 
-    public function openCreate(): void
-    {
-        $this->reset('form', 'editingId');
-        $this->form = ['name' => '', 'guard_name' => 'web'];
-        $this->editorOpen = true;
-    }
-
-    public function openEdit(int $id): void
-    {
-        $model = config('permission.models.permission');
-        $permission = $model::findOrFail($id);
-        $this->editingId = $permission->id;
-        $this->form = [
-            'name' => $permission->name,
-            'guard_name' => $permission->guard_name,
-        ];
-        $this->editorOpen = true;
-    }
-
-    public function save(): void
-    {
-        $model = config('permission.models.permission');
-
-        $this->validate([
-            'form.name' => [
-                'required', 'string', 'max:125',
-                Rule::unique((new $model)->getTable(), 'name')->ignore($this->editingId),
-            ],
-            'form.guard_name' => ['required', 'string'],
-        ]);
-
-        $permission = $this->editingId ? $model::findOrFail($this->editingId) : new $model;
-        $permission->fill($this->form)->save();
-
-        app(PermissionRegistrar::class)->forgetCachedPermissions();
-
-        $this->editorOpen = false;
-        session()->flash('flux-admin.flash', $this->editingId ? 'Permission updated.' : 'Permission created.');
-    }
-
     public function deletePermission(int $id): void
     {
+        if (! $this->allowDelete) {
+            return;
+        }
+
         $model = config('permission.models.permission');
         $model::findOrFail($id)->delete();
         app(PermissionRegistrar::class)->forgetCachedPermissions();

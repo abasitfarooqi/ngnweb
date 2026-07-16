@@ -15,6 +15,16 @@
         </div>
     </div>
 
+    @if($deleteError)
+        <flux:callout variant="danger" icon="exclamation-triangle" class="mb-4">
+            <flux:callout.heading>Delete failed</flux:callout.heading>
+            <flux:callout.text class="whitespace-pre-line">{{ $deleteError }}</flux:callout.text>
+            <div class="mt-3">
+                <flux:button size="sm" variant="ghost" wire:click="dismissDeleteError" class="!rounded-none">Dismiss</flux:button>
+            </div>
+        </flux:callout>
+    @endif
+
     <div class="flux-admin-toolbar mb-4 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
         <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
             {{-- Search --}}

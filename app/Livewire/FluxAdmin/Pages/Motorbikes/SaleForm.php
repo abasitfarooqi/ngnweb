@@ -42,14 +42,20 @@ class SaleForm extends Component
         $this->motorbikesSale = $motorbikesSale;
 
         if ($motorbikesSale && $motorbikesSale->exists) {
-            $this->form = $motorbikesSale->getAttributes();
-            $this->form['date_of_purchase'] = $motorbikesSale->date_of_purchase ? Carbon::parse($motorbikesSale->date_of_purchase)->format('Y-m-d') : null;
-            $this->form['date_of_sale'] = $motorbikesSale->date_of_sale ? Carbon::parse($motorbikesSale->date_of_sale)->format('Y-m-d') : null;
+            $this->fillFormFromSale($motorbikesSale);
             $this->motorbikeSearch = $motorbikesSale->motorbike?->reg_no ?? '';
         } else {
             $this->form = [
+                'motorbike_id' => null,
+                'condition' => 'USED',
                 'is_sold' => false,
                 'v5_available' => false,
+                'buyer_name' => null,
+                'buyer_phone' => null,
+                'buyer_email' => null,
+                'buyer_address' => null,
+                'mileage' => null,
+                'price' => null,
                 'date_of_purchase' => now()->toDateString(),
                 'date_of_sale' => now()->toDateString(),
                 'engine' => 'NOT CHECKED',
@@ -58,8 +64,45 @@ class SaleForm extends Component
                 'belt' => 'NOT CHECKED',
                 'electrical' => 'NOT CHECKED',
                 'tires' => 'NOT CHECKED',
+                'accessories' => null,
+                'note' => null,
+                'image_one' => null,
+                'image_two' => null,
+                'image_three' => null,
+                'image_four' => null,
             ];
         }
+    }
+
+    protected function fillFormFromSale(MotorbikesSale $sale): void
+    {
+        // Use cast values — raw getAttributes() breaks checkbox truthiness (0/"0"/1).
+        $this->form = [
+            'motorbike_id' => $sale->motorbike_id,
+            'condition' => $sale->condition ?: 'USED',
+            'is_sold' => (bool) $sale->is_sold,
+            'v5_available' => (bool) $sale->v5_available,
+            'buyer_name' => $sale->buyer_name,
+            'buyer_phone' => $sale->buyer_phone,
+            'buyer_email' => $sale->buyer_email,
+            'buyer_address' => $sale->buyer_address,
+            'mileage' => $sale->mileage,
+            'price' => $sale->price,
+            'date_of_purchase' => $sale->date_of_purchase ? Carbon::parse($sale->date_of_purchase)->format('Y-m-d') : null,
+            'date_of_sale' => $sale->date_of_sale ? Carbon::parse($sale->date_of_sale)->format('Y-m-d') : null,
+            'engine' => $sale->engine ?: 'NOT CHECKED',
+            'suspension' => $sale->suspension ?: 'NOT CHECKED',
+            'brakes' => $sale->brakes ?: 'NOT CHECKED',
+            'belt' => $sale->belt ?: 'NOT CHECKED',
+            'electrical' => $sale->electrical ?: 'NOT CHECKED',
+            'tires' => $sale->tires ?: 'NOT CHECKED',
+            'accessories' => $sale->accessories,
+            'note' => $sale->note,
+            'image_one' => $sale->image_one,
+            'image_two' => $sale->image_two,
+            'image_three' => $sale->image_three,
+            'image_four' => $sale->image_four,
+        ];
     }
 
     public function updatingMotorbikeSearch(): void
@@ -69,8 +112,23 @@ class SaleForm extends Component
 
             return;
         }
-        $this->motorbikeSuggestions = Motorbike::where('reg_no', 'like', "%{$this->motorbikeSearch}%")
-            ->limit(8)->get(['id', 'reg_no'])->map(fn ($m) => [
+
+        $query = Motorbike::query()
+            ->where('reg_no', 'like', '%'.$this->motorbikeSearch.'%');
+
+        // Match Backpack create: exclude bikes already on a finance application.
+        if (! ($this->motorbikesSale && $this->motorbikesSale->exists)) {
+            $query->whereNotIn('id', function ($sub) {
+                $sub->select('motorbike_id')
+                    ->from('application_items')
+                    ->whereNotNull('motorbike_id');
+            });
+        }
+
+        $this->motorbikeSuggestions = $query
+            ->limit(8)
+            ->get(['id', 'reg_no'])
+            ->map(fn ($m) => [
                 'id' => $m->id,
                 'reg' => $m->reg_no,
             ])->toArray();
@@ -125,9 +183,13 @@ class SaleForm extends Component
     {
         $this->commitMotorbikeSearch();
 
+        $this->form['is_sold'] = (bool) ($this->form['is_sold'] ?? false);
+        $this->form['v5_available'] = (bool) ($this->form['v5_available'] ?? false);
+        $this->form['condition'] = 'USED';
+
         $this->validate([
             'form.motorbike_id' => ['required', 'integer'],
-            'form.condition' => ['nullable', 'string', 'max:120'],
+            'form.condition' => ['required', 'string', 'max:120'],
             'form.mileage' => ['nullable', 'numeric'],
             'form.date_of_purchase' => ['nullable', 'date'],
             'form.date_of_sale' => ['nullable', 'date'],
@@ -152,7 +214,7 @@ class SaleForm extends Component
             'imageFourUpload' => ['nullable', 'image', 'max:8192'],
         ]);
 
-        if (! (bool) ($this->form['is_sold'] ?? false)) {
+        if (! $this->form['is_sold']) {
             $this->form['buyer_name'] = null;
             $this->form['buyer_phone'] = null;
             $this->form['buyer_email'] = null;
@@ -161,7 +223,7 @@ class SaleForm extends Component
 
         $data = [
             'motorbike_id' => $this->form['motorbike_id'] ?? null,
-            'condition' => ($this->form['condition'] ?? null) ?: '-',
+            'condition' => 'USED',
             'mileage' => $this->form['mileage'] ?? 0,
             'date_of_purchase' => ($this->form['date_of_purchase'] ?? null) ?: now()->toDateString(),
             'date_of_sale' => ($this->form['date_of_sale'] ?? null) ?: now()->toDateString(),
@@ -174,12 +236,12 @@ class SaleForm extends Component
             'tires' => ($this->form['tires'] ?? null) ?: 'NOT CHECKED',
             'accessories' => $this->form['accessories'] ?? null,
             'note' => $this->form['note'] ?? '',
-            'is_sold' => (bool) ($this->form['is_sold'] ?? false),
+            'is_sold' => $this->form['is_sold'],
             'buyer_name' => $this->form['buyer_name'] ?? null,
             'buyer_phone' => $this->form['buyer_phone'] ?? null,
             'buyer_email' => $this->form['buyer_email'] ?? null,
             'buyer_address' => $this->form['buyer_address'] ?? null,
-            'v5_available' => (bool) ($this->form['v5_available'] ?? false),
+            'v5_available' => $this->form['v5_available'],
             'user_id' => auth()->id(),
             'image_one' => $this->form['image_one'] ?? null,
             'image_two' => $this->form['image_two'] ?? null,

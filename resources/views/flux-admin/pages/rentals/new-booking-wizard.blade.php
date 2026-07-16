@@ -198,11 +198,12 @@
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">Initial payment</h2>
 
                 <form wire:submit.prevent="confirmPayment" class="grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
-                    <flux:input type="number" step="0.01" min="0.01" label="Weekly rent (£)" wire:model="weeklyRent" description="{{ ($weeklyRent ?? 0) > 0 ? 'Default from bike pricing — adjust if agreed otherwise.' : 'No pricing on file — enter the agreed weekly rate.' }}" />
+                    <flux:input type="number" step="0.01" min="0.01" label="Weekly rent (£)" wire:model.live="weeklyRent" description="{{ ($weeklyRent ?? 0) > 0 ? 'Default from bike pricing — adjust if agreed otherwise.' : 'No pricing on file — enter the agreed weekly rate.' }}" />
                     @error('weeklyRent') <p class="sm:col-span-2 text-sm text-red-600">{{ $message }}</p> @enderror
-                    <flux:input type="number" step="0.01" min="0" label="Deposit (£)" wire:model="deposit" />
-                    <flux:input type="number" step="0.01" min="0" label="Initial payment received (£)" wire:model="initialPayment" description="Marks deposit as paid when ≥ deposit amount." />
-                    <flux:select label="Payment method" wire:model="paymentMethod">
+                    <flux:input type="number" step="0.01" min="0" label="Deposit (£)" wire:model.live="deposit" />
+                    <flux:input type="number" step="0.01" min="0" label="Initial payment received (£)" wire:model.live="initialPayment" description="Enter 0 if nothing collected yet (pay later). Any amount recorded here is saved as cash/card/bank payment on the invoice." />
+                    @error('initialPayment') <p class="sm:col-span-2 text-sm text-red-600">{{ $message }}</p> @enderror
+                    <flux:select label="Payment method" wire:model.live="paymentMethod">
                         <flux:select.option value="cash">Cash</flux:select.option>
                         <flux:select.option value="card">Card</flux:select.option>
                         <flux:select.option value="bank">Bank transfer</flux:select.option>

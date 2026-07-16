@@ -40,9 +40,11 @@
                 <x-flux-admin::field-group label="Type" :error="$errors->first('form.type')">
                     <flux:select wire:model="form.type" placeholder="— Select —">
                         <flux:select.option value="">— Select —</flux:select.option>
-                        <flux:select.option value="manual">Manual</flux:select.option>
-                        <flux:select.option value="automatic">Automatic</flux:select.option>
-                        <flux:select.option value="other">Other</flux:select.option>
+                        <flux:select.option value="Scooter">Scooter</flux:select.option>
+                        <flux:select.option value="Standard">Standard</flux:select.option>
+                        <flux:select.option value="Super Sport">Super Sport</flux:select.option>
+                        <flux:select.option value="Touring">Touring</flux:select.option>
+                        <flux:select.option value="Other">Other</flux:select.option>
                     </flux:select>
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Sale price (£)" :error="$errors->first('form.sale_new_price')">

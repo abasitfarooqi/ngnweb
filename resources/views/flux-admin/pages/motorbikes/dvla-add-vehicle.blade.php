@@ -21,7 +21,7 @@
                         label="Registration"
                         wire:model="regInput"
                         placeholder="e.g. AB12 CDE"
-                        description="Leave a VIN below if you have one. DVLA can only verify VRM."
+                        description="VIN is required when saving (blank gets a temporary RND value, as legacy). DVLA only verifies VRM."
                         class="uppercase"
                         autofocus
                     />
@@ -73,7 +73,7 @@
 
                     <form wire:submit.prevent="saveVehicle" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
                         <flux:input label="Model (required)" wire:model="model" description="DVLA does not return the model for every VRM." />
-                        <flux:input label="VIN (optional)" wire:model="vinNumber" />
+                        <flux:input label="VIN (required)" wire:model="vinNumber" description="Leave blank only if unavailable — a temporary RND-… VIN is stored, same as legacy." />
                         <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300 sm:col-span-2">
                             <input type="checkbox" wire:model="internal" class="h-4 w-4" />
                             Internal vehicle (profile 1)
@@ -92,8 +92,8 @@
                 <li>Type a UK VRM and click <em>Look up DVLA</em>.</li>
                 <li>We check if the reg is already in the fleet; if so, you'll be sent to the existing record.</li>
                 <li>Otherwise we fetch make, year, colour, engine, MOT and tax status.</li>
-                <li>Confirm the <em>model</em> (DVLA does not always return it) and save.</li>
-                <li>We create the motorbike, its active registration, and an annual compliance row in one go.</li>
+                <li>Confirm the <em>model</em> and enter a <em>VIN</em> (or leave blank for a temporary RND value), then save.</li>
+                <li>We create the motorbike, active registration, and annual compliance (MOT/tax + insurance N/A) in one go — same tables as legacy.</li>
             </ol>
             <p class="mt-4 text-xs text-zinc-500">Requires <code>services.dvla.api_key</code> to be configured.</p>
         </aside>

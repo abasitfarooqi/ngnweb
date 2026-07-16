@@ -98,6 +98,11 @@ class RentingBooking extends Model
         return $this->hasMany(BookingInvoice::class, 'booking_id');
     }
 
+    public function bookingClosing()
+    {
+        return $this->hasOne(BookingClosing::class, 'booking_id');
+    }
+
     public function bookingItems()
     {
         return $this->hasMany(RentingBookingItem::class, 'booking_id');

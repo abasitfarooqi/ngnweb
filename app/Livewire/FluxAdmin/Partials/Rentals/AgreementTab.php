@@ -4,10 +4,13 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Mail\RentalAgreement;
 use App\Models\AgreementAccess;
+use App\Models\CustomerAgreement;
 use App\Models\RentingBooking;
 use App\Support\RentalBookingLifecycle;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -79,7 +82,7 @@ class AgreementTab extends Component
             return;
         }
 
-        if ($access->expires_at && $access->expires_at->isPast()) {
+        if ($this->accessHasExpired($access)) {
             $this->flashMessage = 'This agreement link has expired. Generate a new one first.';
             $this->flashType = 'error';
 
@@ -105,6 +108,47 @@ class AgreementTab extends Component
         }
     }
 
+    public function verifySignedAgreement(int $agreementId): void
+    {
+        $booking = RentingBooking::findOrFail($this->bookingId);
+        $row = CustomerAgreement::query()
+            ->where('id', $agreementId)
+            ->where('booking_id', $this->bookingId)
+            ->where('customer_id', $booking->customer_id)
+            ->first();
+
+        if (! $row) {
+            $this->flashMessage = 'Signed agreement not found for this booking.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $row->is_verified = true;
+        $row->save();
+
+        $this->flashMessage = 'Signed rental agreement verified.';
+        $this->flashType = 'success';
+        $this->dispatch('rental-updated');
+    }
+
+    protected function accessHasExpired(AgreementAccess $access): bool
+    {
+        if (! $access->expires_at) {
+            return false;
+        }
+
+        try {
+            $expires = $access->expires_at instanceof Carbon
+                ? $access->expires_at
+                : Carbon::parse($access->expires_at);
+
+            return $expires->isPast();
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
     public function render()
     {
         $agreements = AgreementAccess::with('customer')
@@ -112,8 +156,22 @@ class AgreementTab extends Component
             ->orderByDesc('created_at')
             ->get();
 
+        $signedAgreements = CustomerAgreement::query()
+            ->where('booking_id', $this->bookingId)
+            ->orderByDesc('created_at')
+            ->get()
+            ->map(function (CustomerAgreement $row) {
+                $path = ltrim((string) $row->file_path, '/');
+                $row->public_url = $path !== ''
+                    ? (str_starts_with($path, 'storage/') ? url($path) : Storage::disk('public')->url($path))
+                    : null;
+
+                return $row;
+            });
+
         return view('flux-admin.partials.rentals.agreement-tab', [
             'agreements' => $agreements,
+            'signedAgreements' => $signedAgreements,
         ]);
     }
 }

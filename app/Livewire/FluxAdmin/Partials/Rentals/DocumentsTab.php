@@ -56,9 +56,18 @@ class DocumentsTab extends Component
     public function markDocumentsComplete(): void
     {
         $booking = RentingBooking::findOrFail($this->bookingId);
-        app(RentalBookingLifecycle::class)->confirmDocuments($booking);
-        $this->flashMessage = 'Document step confirmed. State: '.$booking->fresh()->state;
+
+        if (! in_array($booking->state, ['Awaiting Documents & Payment', 'Awaiting Documents'], true)) {
+            $this->flashMessage = 'Documents already completed. Current state: '.($booking->state ?: 'Unknown');
+            $this->flashType = 'info';
+
+            return;
+        }
+
+        $result = app(RentalBookingLifecycle::class)->confirmDocuments($booking);
+        $this->flashMessage = 'Documents completed. State is now: '.$result['state'].'. Next: payments (if needed) → Agreement → Issuance.';
         $this->flashType = 'success';
+        $this->dispatch('rental-updated');
     }
 
     public function generateDocumentLink(bool $forceNew = false): void

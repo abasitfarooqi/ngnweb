@@ -21,7 +21,7 @@
             $lifecycleBadge,
             ['label' => ucfirst($booking->state ?? 'N/A'), 'color' => str_contains($booking->state ?? '', 'Issued') ? 'emerald' : (str_contains($booking->state ?? '', 'Await') ? 'amber' : 'zinc')],
         ]"
-        :backUrl="route('flux-admin.bookings-management.index')"
+        :backUrl="route('flux-admin.rentals.index')"
         backLabel="Back to bookings"
     >
         <x-slot:actions>
@@ -39,14 +39,25 @@
                     Abort intake
                 </flux:button>
             @elseif($lifecycle === 'active')
-                <flux:button size="sm" variant="ghost" wire:click="$set('activeTab', 'closing')">End rental</flux:button>
+                <flux:button size="sm" variant="ghost" wire:click="startEndRental" class="!rounded-none">End rental</flux:button>
             @endif
         </x-slot:actions>
         <x-slot:stats>
             <div>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400">Start Date</p>
-                <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $booking->start_date?->format('d M Y') ?? '—' }}</p>
+                <p class="text-sm font-semibold text-zinc-900 dark:text-white">
+                    {{ $booking->start_date?->format('d M Y') ?? '—' }}
+                    @if($booking->start_date)
+                        <span class="font-normal text-zinc-500">({{ $booking->start_date->format('l') }})</span>
+                    @endif
+                </p>
             </div>
+            @if($lifecycle === 'ended' && $endedMeta)
+                <div>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Ended</p>
+                    <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $endedMeta['label'] }}</p>
+                </div>
+            @endif
             <div>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400">Due Date</p>
                 <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $booking->due_date?->format('d M Y') ?? '—' }}</p>
@@ -125,7 +136,11 @@
                     <livewire:flux-admin.partials.rentals.issuance-tab :bookingId="$booking->id" :key="'issuance-' . $booking->id" />
                     @break
                 @case('closing')
-                    <livewire:flux-admin.partials.rentals.closing-tab :bookingId="$booking->id" :key="'closing-' . $booking->id" />
+                    <livewire:flux-admin.partials.rentals.closing-tab
+                        :bookingId="$booking->id"
+                        :prefillCollect="$prefillCollect"
+                        :key="'closing-' . $booking->id . '-' . ($prefillCollect ? 'prefill' : 'plain')"
+                    />
                     @break
             @endswitch
         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Concerns;
 
+use App\Support\FluxAdminAccess;
 use Illuminate\Auth\Access\AuthorizationException;
 
 /**
@@ -19,7 +20,7 @@ trait WithAuthorization
             abort(403);
         }
 
-        if (method_exists($user, 'hasRole') && $user->hasRole('super-admin')) {
+        if (FluxAdminAccess::isSuperAdmin($user)) {
             return;
         }
 

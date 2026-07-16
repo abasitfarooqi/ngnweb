@@ -9,6 +9,7 @@ use App\Models\MotorbikeRegistration;
 use App\Services\DvlaVehicleEnquiryService;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -74,10 +75,15 @@ class DvlaAddVehicle extends Component
 
     public function saveVehicle(): void
     {
+        // Legacy: blank VIN is accepted then replaced with RND-… so staff may leave it empty.
+        if (trim($this->vinNumber) === '') {
+            $this->vinNumber = 'RND-'.Str::random(17);
+        }
+
         $this->validate([
             'regInput' => ['required', 'string', 'max:10'],
             'model' => ['required', 'string', 'max:100'],
-            'vinNumber' => ['nullable', 'string', 'max:100', 'unique:motorbikes,vin_number'],
+            'vinNumber' => ['required', 'string', 'max:100', 'unique:motorbikes,vin_number'],
         ]);
 
         if (! is_array($this->dvla) || ! isset($this->dvla['make'])) {
@@ -99,7 +105,7 @@ class DvlaAddVehicle extends Component
         $motorbike = DB::transaction(function () use ($payload, $reg) {
             $mb = Motorbike::create([
                 'vehicle_profile_id' => $this->internal ? 1 : 2,
-                'vin_number' => $this->vinNumber ?: null,
+                'vin_number' => $this->vinNumber,
                 'make' => (string) ($payload['make'] ?? ''),
                 'model' => $this->model,
                 'year' => $payload['yearOfManufacture'] ?? null,
@@ -107,12 +113,13 @@ class DvlaAddVehicle extends Component
                 'color' => $payload['colour'] ?? null,
                 'co2_emissions' => $payload['co2Emissions'] ?? null,
                 'fuel_type' => $payload['fuelType'] ?? null,
-                'marked_for_export' => $payload['markedForExport'] ?? null,
+                'marked_for_export' => $this->asExportFlag($payload['markedForExport'] ?? null),
                 'type_approval' => $payload['typeApproval'] ?? null,
                 'wheel_plan' => $payload['wheelplan'] ?? null,
-                'month_of_first_registration' => $payload['monthOfFirstRegistration'] ?? null,
+                // DVLA returns YYYY-MM; column is DATE — same as MotorbikeController::store.
+                'month_of_first_registration' => $this->toDateOrNull($payload['monthOfFirstRegistration'] ?? null),
                 'reg_no' => $reg,
-                'date_of_last_v5c_issuance' => $payload['dateOfLastV5CIssued'] ?? null,
+                'date_of_last_v5c_issuance' => $this->toDateOrNull($payload['dateOfLastV5CIssued'] ?? null),
             ]);
 
             MotorbikeRegistration::create([
@@ -120,6 +127,7 @@ class DvlaAddVehicle extends Component
                 'registration_number' => $reg,
                 'active' => true,
                 'start_date' => now()->toDateString(),
+                'end_date' => now()->toDateString(),
             ]);
 
             MotorbikeAnnualCompliance::create([
@@ -127,15 +135,46 @@ class DvlaAddVehicle extends Component
                 'year' => (int) now()->year,
                 'mot_status' => $payload['motStatus'] ?? null,
                 'road_tax_status' => $payload['taxStatus'] ?? null,
-                'mot_due_date' => isset($payload['motExpiryDate']) ? Carbon::parse($payload['motExpiryDate'])->toDateString() : null,
-                'tax_due_date' => isset($payload['taxDueDate']) ? Carbon::parse($payload['taxDueDate'])->toDateString() : null,
+                'insurance_status' => 'N/A',
+                'tax_due_date' => $this->toDateOrNull($payload['taxDueDate'] ?? null),
+                'insurance_due_date' => now()->toDateString(),
+                'mot_due_date' => $this->toDateOrNull($payload['motExpiryDate'] ?? null),
             ]);
 
             return $mb;
         });
 
         $this->savedMotorbikeId = $motorbike->id;
-        session()->flash('status', 'Vehicle saved (#' . $motorbike->id . ').');
+        session()->flash('status', 'Vehicle saved (#'.$motorbike->id.').');
+    }
+
+    /** Normalise DVLA month (YYYY-MM) or full date to Y-m-d for DATE columns. */
+    protected function toDateOrNull(mixed $value): ?string
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        $raw = trim((string) $value);
+
+        if (preg_match('/^\d{4}-\d{2}$/', $raw)) {
+            $raw .= '-01';
+        }
+
+        try {
+            return Carbon::parse($raw)->toDateString();
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    protected function asExportFlag(mixed $value): int
+    {
+        if ($value === null || $value === '' || $value === false || $value === 0 || $value === '0' || $value === 'no') {
+            return 0;
+        }
+
+        return 1;
     }
 
     public function render()

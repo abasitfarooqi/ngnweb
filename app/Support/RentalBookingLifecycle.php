@@ -12,6 +12,7 @@ use App\Models\Customer;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
 use App\Models\PaymentMethod;
+use App\Models\PcnCase;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingOtherCharge;
@@ -468,6 +469,95 @@ class RentalBookingLifecycle
         });
     }
 
+    /**
+     * Outstanding amounts that matter when ending a rental.
+     * Future invoices (invoice_date after the cut-off) are excluded — they are extras to purge.
+     *
+     * @return array{rental: float, additional: float, pcn: float, total: float, as_of: string}
+     */
+    public function closingPendings(RentingBooking $booking, ?string $asOfDate = null): array
+    {
+        $asOf = Carbon::parse($asOfDate ?? now())->toDateString();
+        $booking->loadMissing(['rentingBookingItems']);
+
+        $invoicePaymentSums = DB::table('renting_transactions')
+            ->selectRaw('invoice_id, SUM(amount) as total_paid_amount')
+            ->whereNotNull('invoice_id')
+            ->groupBy('invoice_id');
+
+        $rental = (float) DB::table('booking_invoices as BI')
+            ->leftJoinSub($invoicePaymentSums, 'IPS', fn ($join) => $join->on('IPS.invoice_id', '=', 'BI.id'))
+            ->where('BI.booking_id', $booking->id)
+            ->whereDate('BI.invoice_date', '<=', $asOf)
+            ->whereRaw('(BI.amount - COALESCE(IPS.total_paid_amount, 0)) > 0')
+            ->selectRaw('SUM(BI.amount - COALESCE(IPS.total_paid_amount, 0)) as outstanding')
+            ->value('outstanding');
+
+        $additional = (float) RentingOtherCharge::query()
+            ->where('booking_id', $booking->id)
+            ->where(function ($q) {
+                $q->where('is_paid', false)->orWhereNull('is_paid');
+            })
+            ->sum('amount');
+
+        $pcn = 0.0;
+        $motorbikeId = $booking->rentingBookingItems->firstWhere('motorbike_id')?->motorbike_id
+            ?? $booking->rentingBookingItems->first()?->motorbike_id;
+
+        if ($motorbikeId) {
+            $pcnQuery = PcnCase::query()
+                ->where('motorbike_id', $motorbikeId)
+                ->where(fn ($q) => $q->where('isClosed', false)->orWhereNull('isClosed'));
+
+            if ($booking->customer_id) {
+                $pcnQuery->where('customer_id', $booking->customer_id);
+            }
+
+            $pcn = (float) $pcnQuery->sum(
+                Schema::hasColumn('pcn_cases', 'reduced_amount') ? 'reduced_amount' : 'full_amount'
+            );
+        }
+
+        return [
+            'rental' => round($rental, 2),
+            'additional' => round($additional, 2),
+            'pcn' => round($pcn, 2),
+            'total' => round($rental + $additional + $pcn, 2),
+            'as_of' => $asOf,
+        ];
+    }
+
+    /**
+     * Delete unpaid future invoices after the collect/end date (no payment history).
+     */
+    public function purgeFutureInvoices(int $bookingId, string $collectDate): int
+    {
+        $cutOff = Carbon::parse($collectDate)->toDateString();
+
+        $invoiceIdsWithTransactions = RentingTransaction::query()
+            ->where('booking_id', $bookingId)
+            ->whereNotNull('invoice_id')
+            ->pluck('invoice_id')
+            ->unique()
+            ->all();
+
+        $deleted = 0;
+
+        BookingInvoice::query()
+            ->where('booking_id', $bookingId)
+            ->where('is_paid', false)
+            ->whereNull('paid_date')
+            ->whereDate('invoice_date', '>', $cutOff)
+            ->when($invoiceIdsWithTransactions !== [], fn ($q) => $q->whereNotIn('id', $invoiceIdsWithTransactions))
+            ->get()
+            ->each(function (BookingInvoice $invoice) use (&$deleted) {
+                $invoice->delete();
+                $deleted++;
+            });
+
+        return $deleted;
+    }
+
     public function endRental(
         RentingBooking $booking,
         RentingBookingItem $bookingItem,
@@ -475,15 +565,28 @@ class RentalBookingLifecycle
         bool $proceedAnyway = false
     ): BookingClosing {
         return DB::transaction(function () use ($booking, $bookingItem, $closingData, $proceedAnyway) {
+            $user = function_exists('backpack_user') ? backpack_user() : auth()->user();
+            $userId = $user?->id ?? auth()->id();
+
+            $collectDate = $closingData['collect_date'] ?? now()->toDateString();
+            $collectTime = $closingData['collect_time'] ?? now()->format('H:i');
+            $details = trim((string) ($closingData['collect_details'] ?? ''));
+
+            if ($userId && ! str_contains($details, 'Ended by user #')) {
+                $name = trim((string) ($user->name ?? $user->full_name ?? (($user->first_name ?? '').' '.($user->last_name ?? ''))));
+                $stamp = sprintf('Ended by user #%s%s', $userId, $name !== '' ? " ({$name})" : '');
+                $details = $details === '' ? $stamp : $details.' | '.$stamp;
+            }
+
             $updateData = [
-                'collect_details' => $closingData['collect_details'] ?? null,
-                'collect_date'    => $closingData['collect_date'] ?? null,
-                'collect_time'    => $closingData['collect_time'] ?? null,
+                'collect_details' => $details !== '' ? $details : null,
+                'collect_date' => $collectDate,
+                'collect_time' => $collectTime,
                 'collect_checked' => (bool) ($closingData['collect_checked'] ?? false),
             ];
 
             if ($proceedAnyway) {
-                $updateData['collect_proceeded_anyway_user_id'] = auth()->id();
+                $updateData['collect_proceeded_anyway_user_id'] = $userId;
                 $updateData['collect_proceeded_anyway_at'] = now();
             }
 
@@ -492,11 +595,11 @@ class RentalBookingLifecycle
                 $updateData
             );
 
-            $collectDate = $closingData['collect_date'] ?? now()->toDateString();
             $bookingItem->update(['end_date' => $collectDate]);
+            $this->purgeFutureInvoices($booking->id, $collectDate);
             $booking->touch();
 
-            return $closing;
+            return $closing->fresh();
         });
     }
 
