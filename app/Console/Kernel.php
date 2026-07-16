@@ -26,7 +26,6 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\AdministrativeEmailsCommand::class,
         \App\Console\Commands\PopulateMOTNotifier::class,
         \App\Console\Commands\SendMOTNotifications::class,
-        \App\Console\Commands\FtpSync::class,
         \App\Console\Commands\SendWeeklyBusiestDaysReport::class,
         \App\Console\Commands\SendWeeklyLeastBusiestDaysReport::class,
         \App\Console\Commands\ClubVisitReportCommand::class,
@@ -34,7 +33,6 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SendSoldNewMotorbikesYearsReport::class,
         \App\Console\Commands\SendContractsPendingLogbookReport::class,
         \App\Console\Commands\SendQuarterlyVehicleVisitsReport::class,
-        \App\Console\Commands\CustomerDocsSecurelyTransferSFTP::class,
         \App\Console\Commands\ImportSparePartsCatalogue::class,
     ];
 
@@ -176,16 +174,6 @@ class Kernel extends ConsoleKernel
         $schedule->command('report:monthly-sales')
             ->monthlyOn(1, '09:00')
             ->description('Sends out the monthly sales report on the 1st of every month at 9 AM.');
-
-        // FTP Sync
-        $schedule->command('ftp:sync')
-            ->dailyAt('04:00')
-            ->description('Syncs the FTP directories daily at 3 AM.');
-
-        // Customer Docs Transfer - Move files from public to private every 2 days
-        $schedule->command('storage:customer-docs-transfer-sftp')
-            ->cron('0 5 */2 * *')
-            ->description('Moves customer documents from public/customers to private/customers every 2 days at 5:00 AM.');
 
         // Send Weekly Busiest Days Report
         // $schedule->command('app:send-weekly-busiest-days-report')

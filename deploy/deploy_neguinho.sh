@@ -11,6 +11,7 @@ CANONICAL_HOST="${CANONICAL_HOST:-ngnmotors.co.uk}"
 
 PHP_FPM_SERVICE="${PHP_FPM_SERVICE:-php8.3-fpm}"
 NGINX_SERVICE="${NGINX_SERVICE:-nginx}"
+SUPERVISOR_SERVICE="${SUPERVISOR_SERVICE:-supervisor}"
 
 KNOWN_BAD_NGINX_LINK="/etc/nginx/sites-enabled/ngnmotors.co.uk"
 
@@ -82,6 +83,34 @@ safe_reload_php_fpm() {
 
   systemctl reload "$PHP_FPM_SERVICE"
   echo "$PHP_FPM_SERVICE reloaded successfully."
+}
+
+install_queue_worker() {
+  log "INSTALL QUEUE WORKER"
+
+  mkdir -p "$BASE/shared/storage/logs"
+
+  cat > /etc/supervisor/conf.d/neguinhomotors-queue.conf <<EOF
+[program:neguinhomotors-queue]
+process_name=%(program_name)s_%(process_num)02d
+command=/usr/bin/php $BASE/current/artisan queue:work redis --queue=default --sleep=3 --tries=3 --timeout=120 --memory=256
+directory=$BASE/current
+autostart=true
+autorestart=true
+stopasgroup=true
+killasgroup=true
+user=deploy
+numprocs=1
+redirect_stderr=true
+stdout_logfile=$BASE/shared/storage/logs/queue-worker.log
+stopwaitsecs=180
+EOF
+
+  systemctl enable --now "$SUPERVISOR_SERVICE"
+  supervisorctl reread
+  supervisorctl update
+  supervisorctl restart neguinhomotors-queue:* || supervisorctl start neguinhomotors-queue:*
+  supervisorctl status neguinhomotors-queue:*
 }
 
 rollback_current() {
@@ -299,6 +328,7 @@ log "SWITCH LIVE"
 ln -sfn "$REL" "$BASE/current"
 
 log "RELOAD SERVICES"
+install_queue_worker
 safe_reload_php_fpm
 safe_reload_nginx
 

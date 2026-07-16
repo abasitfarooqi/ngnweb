@@ -103,8 +103,15 @@ class PopulateMOTNotifier extends Command
                             continue;
                         }
 
-                        $response = Http::withHeaders([
-                            'x-api-key' => env('DVLA_VEH_API'),
+                        $apiKey = config('services.dvla.api_key');
+                        if (blank($apiKey)) {
+                            Log::error('Skipping DVLA lookup because DVLA API key is not configured.');
+
+                            continue;
+                        }
+
+                        $response = Http::timeout(20)->withHeaders([
+                            'x-api-key' => $apiKey,
                             'Content-Type' => 'application/json',
                         ])->post('https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles', [
                             'registrationNumber' => $reg,

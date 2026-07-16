@@ -28,9 +28,17 @@ class NgnManagerController extends Controller
                 'registration_number' => 'required|string|max:10',
             ]);
 
+            $apiKey = config('services.dvla.api_key');
+            if (blank($apiKey)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'DVLA service is not configured',
+                ], 503);
+            }
+
             // Call DVLA API
-            $response = Http::withHeaders([
-                'x-api-key' => env('DVLA_VEH_API'),
+            $response = Http::timeout(20)->withHeaders([
+                'x-api-key' => $apiKey,
                 'Content-Type' => 'application/json',
             ])->post('https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles', [
                 'registrationNumber' => strtoupper($validated['registration_number']),
@@ -66,9 +74,17 @@ class NgnManagerController extends Controller
                 'registration_number' => 'required|string|max:10',
             ]);
 
+            $apiKey = config('services.dvla.api_key');
+            if (blank($apiKey)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'DVLA service is not configured',
+                ], 503);
+            }
+
             // Call DVLA API
-            $response = Http::withHeaders([
-                'x-api-key' => env('DVLA_VEH_API'),
+            $response = Http::timeout(20)->withHeaders([
+                'x-api-key' => $apiKey,
                 'Content-Type' => 'application/json',
             ])->post('https://driver-vehicle-licensing.api.gov.uk/vehicle-enquiry/v1/vehicles', [
                 'registrationNumber' => strtoupper($validated['registration_number']),
