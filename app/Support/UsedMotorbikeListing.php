@@ -16,6 +16,7 @@ class UsedMotorbikeListing
     ): Builder {
         $query = Motorbike::query()
             ->join('motorbikes_sale', 'motorbikes.id', '=', 'motorbikes_sale.motorbike_id')
+            ->where('motorbikes.ngn_vehicle', true)
             ->select(
                 'motorbikes.*',
                 'motorbikes_sale.price',
@@ -24,6 +25,8 @@ class UsedMotorbikeListing
                 'motorbikes_sale.is_sold',
                 'motorbikes_sale.id as sale_id',
             );
+
+        $financeSoldIds = MotorbikeSoldStatus::financeSoldMotorbikeIdsSubquery();
 
         if ($search !== '') {
             $term = '%'.$search.'%';
@@ -35,12 +38,16 @@ class UsedMotorbikeListing
         }
 
         if ($availability === 'sold') {
-            $query->where('motorbikes_sale.is_sold', 1);
+            $query->where(function ($q) use ($financeSoldIds) {
+                $q->where('motorbikes_sale.is_sold', 1)
+                    ->orWhereIn('motorbikes.id', $financeSoldIds);
+            });
         } elseif ($availability === 'available') {
             $query->where('motorbikes_sale.is_sold', 0)
                 ->where(function ($q) {
                     $q->where('motorbikes_sale.is_rented', false)->orWhereNull('motorbikes_sale.is_rented');
-                });
+                })
+                ->whereNotIn('motorbikes.id', $financeSoldIds);
         }
 
         if ($minPrice !== '' && is_numeric($minPrice)) {

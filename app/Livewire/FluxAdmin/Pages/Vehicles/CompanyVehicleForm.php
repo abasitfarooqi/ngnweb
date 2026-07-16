@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\CompanyVehicle;
+use App\Models\Motorbike;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -16,6 +17,10 @@ class CompanyVehicleForm extends Component
 
     public array $form = [];
 
+    public string $motorbikeSearch = '';
+
+    public array $motorbikeSuggestions = [];
+
     public function mount(?CompanyVehicle $companyVehicle = null): void
     {
         $this->resetErrorBag();
@@ -24,8 +29,64 @@ class CompanyVehicleForm extends Component
 
         if ($companyVehicle && $companyVehicle->exists) {
             $this->form = $companyVehicle->getAttributes();
+            $this->motorbikeSearch = $companyVehicle->motorbike?->reg_no ?? '';
         } else {
             $this->form = [];
+        }
+    }
+
+    public function updatingMotorbikeSearch(): void
+    {
+        if (strlen($this->motorbikeSearch) < 2) {
+            $this->motorbikeSuggestions = [];
+
+            return;
+        }
+
+        $this->motorbikeSuggestions = Motorbike::query()
+            ->where('reg_no', 'like', '%'.$this->motorbikeSearch.'%')
+            ->limit(8)
+            ->get(['id', 'reg_no'])
+            ->map(fn ($m) => [
+                'id' => $m->id,
+                'reg' => $m->reg_no,
+            ])->toArray();
+    }
+
+    public function selectMotorbike(int $id, string $reg): void
+    {
+        $this->form['motorbike_id'] = $id;
+        $this->motorbikeSearch = $reg;
+        $this->motorbikeSuggestions = [];
+    }
+
+    public function commitMotorbikeSearch(): void
+    {
+        if (! empty($this->form['motorbike_id'])) {
+            return;
+        }
+
+        if ($this->motorbikeSuggestions === [] && strlen($this->motorbikeSearch) >= 2) {
+            $this->updatingMotorbikeSearch();
+        }
+
+        if ($this->motorbikeSuggestions === []) {
+            return;
+        }
+
+        $compact = strtoupper(preg_replace('/\s+/', '', $this->motorbikeSearch) ?? '');
+        foreach ($this->motorbikeSuggestions as $suggestion) {
+            $reg = strtoupper(preg_replace('/\s+/', '', (string) ($suggestion['reg'] ?? '')) ?? '');
+            if ($compact !== '' && $reg === $compact) {
+                $this->selectMotorbike((int) $suggestion['id'], (string) $suggestion['reg']);
+
+                return;
+            }
+        }
+
+        if (count($this->motorbikeSuggestions) === 1) {
+            $first = $this->motorbikeSuggestions[0];
+            $this->selectMotorbike((int) $first['id'], (string) $first['reg']);
         }
     }
 
@@ -39,6 +100,8 @@ class CompanyVehicleForm extends Component
 
     public function save(): void
     {
+        $this->commitMotorbikeSearch();
+
         $data = $this->validate($this->formRules());
         $payload = $data['form'];
 

@@ -75,22 +75,6 @@
                 <dd class="mt-1 text-sm text-zinc-900 dark:text-white">{{ $customer->license_expiry_date?->format('d M Y') ?? '—' }}</dd>
             </div>
 
-            {{-- Verification Status --}}
-            <div>
-                <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Verification Status</dt>
-                <dd class="mt-1">
-                    @php
-                        $vColour = match($customer->verification_status) {
-                            'verified' => 'green',
-                            'pending' => 'amber',
-                            'rejected' => 'red',
-                            default => 'zinc',
-                        };
-                    @endphp
-                    <flux:badge :color="$vColour" size="sm">{{ ucfirst($customer->verification_status ?? 'unverified') }}</flux:badge>
-                </dd>
-            </div>
-
             {{-- Rating --}}
             <div>
                 <dt class="text-xs font-medium text-zinc-500 dark:text-zinc-400 uppercase tracking-wide">Rating</dt>

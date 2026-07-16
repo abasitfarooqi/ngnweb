@@ -19,7 +19,7 @@ final class TotalVehiclesQuery
     {
         return Motorbike::query()
             ->from('motorbikes')
-            ->where('motorbikes.vehicle_profile_id', 1);
+            ->where('motorbikes.ngn_vehicle', true);
     }
 
     public static function count(): int
@@ -122,7 +122,7 @@ final class TotalVehiclesQuery
     {
         $internalCount = function ($sub) {
             return Motorbike::query()
-                ->where('vehicle_profile_id', 1)
+                ->where('ngn_vehicle', true)
                 ->whereIn('id', $sub)
                 ->count();
         };

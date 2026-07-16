@@ -19,15 +19,6 @@
                 <flux:input wire:model.live.debounce.300ms="search" placeholder="Search by name, email or phone…" variant="filled" />
             </div>
             <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-48 lg:flex-none">
-                    <flux:select wire:model.live="filterVerification" placeholder="Verification">
-                        <flux:select.option value="">All statuses</flux:select.option>
-                        <flux:select.option value="verified">Verified</flux:select.option>
-                        <flux:select.option value="pending">Pending</flux:select.option>
-                        <flux:select.option value="rejected">Rejected</flux:select.option>
-                        <flux:select.option value="unverified">Unverified</flux:select.option>
-                    </flux:select>
-                </div>
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:select wire:model.live="filterClub" placeholder="Club">
                         <flux:select.option value="">All members</flux:select.option>
@@ -56,7 +47,6 @@
                 <flux:table.column sortable :sorted="$sortField === 'email'" :direction="$sortField === 'email' ? $sortDirection : null" wire:click="sortBy('email')">Email</flux:table.column>
                 <flux:table.column>Phone</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'dob'" :direction="$sortField === 'dob' ? $sortDirection : null" wire:click="sortBy('dob')">DOB</flux:table.column>
-                <flux:table.column sortable :sorted="$sortField === 'verification_status'" :direction="$sortField === 'verification_status' ? $sortDirection : null" wire:click="sortBy('verification_status')">Verification</flux:table.column>
                 <flux:table.column>Club</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'is_register'" :direction="$sortField === 'is_register' ? $sortDirection : null" wire:click="sortBy('is_register')">Portal</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'rating'" :direction="$sortField === 'rating' ? $sortDirection : null" wire:click="sortBy('rating')">Rating</flux:table.column>
@@ -76,17 +66,6 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $customer->email }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $customer->phone }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $customer->dob?->format('d M Y') ?? '—' }}</flux:table.cell>
-                        <flux:table.cell>
-                            @php
-                                $vColour = match($customer->verification_status) {
-                                    'verified' => 'green',
-                                    'pending' => 'amber',
-                                    'rejected' => 'red',
-                                    default => 'zinc',
-                                };
-                            @endphp
-                            <flux:badge :color="$vColour" size="sm">{{ ucfirst($customer->verification_status ?? 'unverified') }}</flux:badge>
-                        </flux:table.cell>
                         <flux:table.cell>
                             @if($customer->is_club)
                                 <flux:badge color="green" size="sm">Yes</flux:badge>
@@ -125,7 +104,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="11" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                        <flux:table.cell colspan="10" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
                             No customers found.
                         </flux:table.cell>
                     </flux:table.row>

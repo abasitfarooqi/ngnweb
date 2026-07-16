@@ -274,8 +274,12 @@ class SaleForm extends Component
             $this->dispatch('flux-admin:toast', type: 'success', message: 'Sale created.');
         }
 
-        if (! empty($data['motorbike_id']) && ! empty($data['is_rented'])) {
-            Motorbike::whereKey($data['motorbike_id'])->update(['vehicle_profile_id' => 1]);
+        if (! empty($data['motorbike_id'])) {
+            Motorbike::whereKey($data['motorbike_id'])->update(['ngn_vehicle' => true]);
+
+            if (! empty($data['is_rented'])) {
+                Motorbike::whereKey($data['motorbike_id'])->update(['vehicle_profile_id' => 1]);
+            }
         }
 
         $this->redirect(route('flux-admin.motorbike-sales.index'), navigate: true);

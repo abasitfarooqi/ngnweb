@@ -5,12 +5,6 @@
         backUrl="{{ route('flux-admin.customers.index') }}"
         backLabel="Back to Customers"
         :badges="array_filter([
-            ['label' => ucfirst($customer->verification_status ?? 'unverified'), 'color' => match($customer->verification_status) {
-                'verified' => 'green',
-                'pending' => 'amber',
-                'rejected' => 'red',
-                default => 'zinc',
-            }],
             $customer->is_club ? ['label' => 'Club Member', 'color' => 'green'] : null,
         ])"
     />

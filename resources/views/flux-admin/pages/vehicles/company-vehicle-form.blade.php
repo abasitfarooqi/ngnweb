@@ -25,8 +25,22 @@
                 <x-flux-admin::field-group label="Custodian" required :error="$errors->first('form.custodian')">
                     <flux:input wire:model="form.custodian" placeholder="Name of custodian" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Motorbike ID" required :error="$errors->first('form.motorbike_id')">
-                    <flux:input type="number" wire:model="form.motorbike_id" />
+                <x-flux-admin::field-group label="Motorbike (reg)" required :error="$errors->first('form.motorbike_id')">
+                    <div class="{{ count($motorbikeSuggestions) ? 'flux-admin-autocomplete flux-admin-autocomplete-open' : 'flux-admin-autocomplete' }}">
+                        <flux:input
+                            wire:model.live.debounce.300ms="motorbikeSearch"
+                            placeholder="Search by registration…"
+                            autocomplete="off"
+                            x-on:keydown.enter.prevent="$wire.commitMotorbikeSearch()"
+                        />
+                        @if(count($motorbikeSuggestions))
+                            <ul class="flux-admin-autocomplete-menu" role="listbox">
+                                @foreach($motorbikeSuggestions as $ms)
+                                    <li role="option" wire:mousedown.prevent="selectMotorbike({{ $ms['id'] }}, @js($ms['reg']))">{{ $ms['reg'] }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                    </div>
                 </x-flux-admin::field-group>
             </div>
         </div>

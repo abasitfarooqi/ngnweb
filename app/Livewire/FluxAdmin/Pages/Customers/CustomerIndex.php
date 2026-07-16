@@ -25,8 +25,6 @@ class CustomerIndex extends Component
 
     public bool $showForm = false;
 
-    public string $filterVerification = '';
-
     public string $filterClub = '';
 
     public function mount(): void
@@ -63,7 +61,6 @@ class CustomerIndex extends Component
             'formData.reputation_note'          => ['nullable', 'string', 'max:2000'],
             'formData.rating'                   => ['nullable', 'integer', 'min:1', 'max:5'],
             'formData.preferred_branch_id'      => ['nullable', 'integer'],
-            'formData.verification_status'      => ['nullable', 'string', 'in:verified,pending,rejected,unverified'],
         ];
     }
 
@@ -71,7 +68,7 @@ class CustomerIndex extends Component
     {
         $this->resetValidation();
         $this->recordId = null;
-        $this->formData = ['verification_status' => 'unverified'];
+        $this->formData = [];
         $this->showForm = true;
     }
 
@@ -126,7 +123,6 @@ class CustomerIndex extends Component
                         ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$this->search}%"]);
                 });
             })
-            ->when($this->filterVerification !== '', fn ($q) => $q->where('verification_status', $this->filterVerification))
             ->when($this->filterClub !== '', fn ($q) => $q->where('is_club', $this->filterClub === '1'))
             ->orderBy($this->sortField, $this->sortDirection);
     }
@@ -163,11 +159,6 @@ class CustomerIndex extends Component
         }
 
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Portal credentials sent via email and SMS.');
-    }
-
-    public function updatingFilterVerification(): void
-    {
-        $this->resetPage();
     }
 
     public function updatingFilterClub(): void

@@ -6,6 +6,7 @@ use App\Http\Controllers\MailController;
 use App\Models\Motorbike;
 use App\Models\Motorcycle;
 use App\Models\ServiceBooking;
+use App\Support\MotorbikeSoldStatus;
 use App\Support\RegistrationMask;
 use Mews\Purifier\Facades\Purifier;
 use Illuminate\Support\Facades\DB;
@@ -52,6 +53,15 @@ class Show extends Component
                     'branch',
                     'annualCompliances' => fn ($query) => $query->latest()->limit(1),
                 ])->findOrFail($id);
+
+                if (! $this->bike->ngn_vehicle) {
+                    abort(404, 'Motorcycle not found');
+                }
+
+                if (MotorbikeSoldStatus::isSold((int) $id)) {
+                    abort(404, 'Motorcycle not found');
+                }
+
                 $this->saleInfo = DB::table('motorbikes_sale')
                     ->where('motorbike_id', $id)
                     ->where('is_sold', 0)

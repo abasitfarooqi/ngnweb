@@ -34,6 +34,7 @@ class Motorbike extends Model
         'reg_no',
         'branch_id',
         'vehicle_profile_id',
+        'ngn_vehicle',
         'date_of_last_v5c_issuance',
         'is_ebike',
     ];
@@ -70,6 +71,7 @@ class Motorbike extends Model
 
     protected $casts = [
         'marked_for_export' => 'integer',
+        'ngn_vehicle' => 'boolean',
     ];
 
     protected $hidden = ['deleted_at'];

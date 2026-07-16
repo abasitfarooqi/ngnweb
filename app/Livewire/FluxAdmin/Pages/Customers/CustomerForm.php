@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Customers;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Branch;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -36,7 +37,7 @@ class CustomerForm extends Component
             $this->form = $attrs;
         } else {
             $this->form = [
-                'verification_status' => 'unverified',
+                'verification_status' => 'pending',
             ];
         }
     }
@@ -70,7 +71,7 @@ class CustomerForm extends Component
     public function save(): void
     {
         $data = $this->validate($this->formRules());
-        $payload = $data['form'];
+        $payload = $this->sanitisePayload($data['form']);
 
         if ($this->customer && $this->customer->exists) {
             $this->customer->update($payload);
@@ -107,6 +108,18 @@ class CustomerForm extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: $unlocked
             ? 'Customer may replace approved documents.'
             : 'Approved document re-upload locked.');
+    }
+
+    /** @param  array<string, mixed>  $payload */
+    private function sanitisePayload(array $payload): array
+    {
+        static $allowed = null;
+        $allowed ??= array_flip(array_diff(
+            Schema::getColumnListing('customers'),
+            ['id', 'created_at', 'updated_at']
+        ));
+
+        return array_intersect_key($payload, $allowed);
     }
 
     public function render()

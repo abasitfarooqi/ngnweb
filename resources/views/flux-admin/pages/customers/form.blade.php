@@ -105,15 +105,6 @@
                     <flux:input type="number" min="1" max="5" step="1" wire:model="form.rating" />
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Verification status" :error="$errors->first('form.verification_status')">
-                    <flux:select wire:model="form.verification_status">
-                        <flux:select.option value="unverified">Unverified</flux:select.option>
-                        <flux:select.option value="pending">Pending</flux:select.option>
-                        <flux:select.option value="verified">Verified</flux:select.option>
-                        <flux:select.option value="rejected">Rejected</flux:select.option>
-                    </flux:select>
-                </x-flux-admin::field-group>
-
                 <x-flux-admin::field-group label="Preferred branch" :error="$errors->first('form.preferred_branch_id')">
                     <flux:select wire:model="form.preferred_branch_id">
                         <flux:select.option value="">— None —</flux:select.option>
