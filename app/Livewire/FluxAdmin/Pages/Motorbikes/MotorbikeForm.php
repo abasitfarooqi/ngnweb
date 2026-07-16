@@ -46,7 +46,6 @@ class MotorbikeForm extends Component
                 'date_of_last_v5c_issuance' => $this->formatDate($attrs['date_of_last_v5c_issuance'] ?? null, 'Y-m-d\\TH:i'),
                 'co2_emissions' => $attrs['co2_emissions'] ?? '',
                 'marked_for_export' => (bool) ($attrs['marked_for_export'] ?? false),
-                'accessories' => $attrs['accessories'] ?? '',
             ];
         } else {
             $this->form = [
@@ -67,7 +66,6 @@ class MotorbikeForm extends Component
                 'date_of_last_v5c_issuance' => '',
                 'co2_emissions' => '',
                 'marked_for_export' => false,
-                'accessories' => '',
             ];
         }
     }
@@ -95,7 +93,6 @@ class MotorbikeForm extends Component
             'form.date_of_last_v5c_issuance' => ['nullable', 'date'],
             'form.co2_emissions' => ['nullable', 'string', 'max:50'],
             'form.marked_for_export' => ['boolean'],
-            'form.accessories' => ['nullable', 'string', 'max:5000'],
         ]);
 
         $data = [
@@ -116,7 +113,6 @@ class MotorbikeForm extends Component
             'date_of_last_v5c_issuance' => $this->form['date_of_last_v5c_issuance'] ?: null,
             'co2_emissions' => $this->form['co2_emissions'] !== '' ? $this->form['co2_emissions'] : null,
             'marked_for_export' => (bool) ($this->form['marked_for_export'] ?? false) ? 1 : 0,
-            'accessories' => $this->form['accessories'] ?: null,
         ];
 
         if ($this->motorbikeId) {

@@ -17,11 +17,11 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Internal fleet overview: active rentals ∪ active new/used finance ∪ company vehicles.
+ * Internal fleet overview: all NGN vehicles (vehicle profile 1).
  * /flux-admin/total-vehicles
  */
 #[Layout('flux-admin.layouts.app')]
-#[Title('Total Vehicles — Flux Admin')]
+#[Title('Total NGN Vehicles — Flux Admin')]
 class TotalVehiclesIndex extends Component
 {
     use WithAuthorization;
@@ -37,7 +37,7 @@ class TotalVehiclesIndex extends Component
 
     public string $filterMotStatus = '';
 
-    /** @var ''|'rental'|'finance_new'|'finance_used'|'company'|'for_sale' */
+    /** @var ''|'rental'|'finance_new'|'finance_used'|'company'|'sale_rental'|'for_sale' */
     #[Url]
     public string $filterCategory = '';
 
@@ -105,8 +105,8 @@ class TotalVehiclesIndex extends Component
             $query->whereIn('motorbikes.id', TotalVehiclesQuery::activeFinanceUsedMotorbikeIdsSubquery());
         } elseif ($this->filterCategory === 'company') {
             $query->whereIn('motorbikes.id', CompanyVehicle::query()->select('motorbike_id'));
-        } elseif ($this->filterCategory === 'for_sale') {
-            $query->whereIn('motorbikes.id', TotalVehiclesQuery::availableForSaleMotorbikeIdsSubquery());
+        } elseif (in_array($this->filterCategory, ['for_sale', 'sale_rental'], true)) {
+            $query->whereIn('motorbikes.id', TotalVehiclesQuery::saleRentalMotorbikeIdsSubquery());
         }
 
         return $query

@@ -7,6 +7,7 @@ use App\Models\Motorbike;
 use App\Models\Motorcycle;
 use App\Models\ServiceBooking;
 use App\Support\RegistrationMask;
+use Mews\Purifier\Facades\Purifier;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -54,6 +55,9 @@ class Show extends Component
                 $this->saleInfo = DB::table('motorbikes_sale')
                     ->where('motorbike_id', $id)
                     ->where('is_sold', 0)
+                    ->where(function ($q) {
+                        $q->where('is_rented', false)->orWhereNull('is_rented');
+                    })
                     ->first();
                 $this->compliance = $this->bike->annualCompliances->first();
             } catch (\Exception $e) {
@@ -188,18 +192,16 @@ class Show extends Component
         return $raw !== '' ? $raw : null;
     }
 
-    public function accessoriesLabel(): ?string
+    public function accessoriesHtml(): ?string
     {
         $raw = trim((string) ($this->saleInfo?->accessories ?? ''));
-        if ($raw === '') {
-            $raw = trim((string) ($this->bike->accessories ?? ''));
-        }
-
         if ($raw === '') {
             return null;
         }
 
-        return $this->formatAccessoriesText($raw);
+        $clean = trim(Purifier::clean($raw, 'motorbike_accessories'));
+
+        return $clean !== '' ? $clean : null;
     }
 
     /**
@@ -222,18 +224,6 @@ class Show extends Component
         ]);
 
         return 'https://wa.me/'.$number.'?text='.rawurlencode(implode("\n", $lines));
-    }
-
-    private function formatAccessoriesText(string $raw): string
-    {
-        $text = preg_replace('/<br\s*\/?>/i', ', ', $raw) ?? $raw;
-        $text = preg_replace('/<\/p>/i', ', ', $text) ?? $text;
-        $text = strip_tags($text);
-        $text = html_entity_decode($text, ENT_QUOTES | ENT_HTML5, 'UTF-8');
-        $text = preg_replace('/\s*,\s*/', ', ', $text) ?? $text;
-        $text = preg_replace('/,+/', ',', $text) ?? $text;
-
-        return trim($text, " \t\n\r\0\x0B,");
     }
 
     public function resolveImageUrl(?string $rawPath): string

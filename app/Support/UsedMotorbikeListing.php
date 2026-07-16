@@ -37,7 +37,10 @@ class UsedMotorbikeListing
         if ($availability === 'sold') {
             $query->where('motorbikes_sale.is_sold', 1);
         } elseif ($availability === 'available') {
-            $query->where('motorbikes_sale.is_sold', 0);
+            $query->where('motorbikes_sale.is_sold', 0)
+                ->where(function ($q) {
+                    $q->where('motorbikes_sale.is_rented', false)->orWhereNull('motorbikes_sale.is_rented');
+                });
         }
 
         if ($minPrice !== '' && is_numeric($minPrice)) {

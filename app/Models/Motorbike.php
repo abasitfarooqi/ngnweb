@@ -35,7 +35,6 @@ class Motorbike extends Model
         'branch_id',
         'vehicle_profile_id',
         'date_of_last_v5c_issuance',
-        'accessories',
         'is_ebike',
     ];
 

@@ -246,6 +246,15 @@
         body.flux-admin-app .flux-admin-autocomplete > * {
             overflow: visible !important;
         }
+        body.flux-admin-app .flux-admin-flux-editor,
+        body.flux-admin-app .flux-admin-flux-editor ui-editor,
+        body.flux-admin-app .flux-admin-flux-editor ui-toolbar,
+        body.flux-admin-app .flux-admin-flux-editor [data-slot=content] {
+            border-radius: 0 !important;
+        }
+        body.flux-admin-app .flux-admin-flux-editor ui-editor-content {
+            min-height: 8rem;
+        }
         {{-- Flux UI select / listbox / menu popovers — top of stacking within the document top layer. --}}
         body.flux-admin-app [data-flux-select-options],
         body.flux-admin-app [data-flux-options],

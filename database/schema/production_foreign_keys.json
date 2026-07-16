@@ -1,0 +1,2015 @@
+{
+    "source_database": "nqfkhvtysa",
+    "exported_at": "2026-07-16T16:45:18+01:00",
+    "count": 251,
+    "foreign_keys": {
+        "1": {
+            "table": "ngn_digital_invoice_items",
+            "column": "invoice_id",
+            "ref_table": "ngn_digital_invoices",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "agreement_accesses_booking_id_foreign": {
+            "table": "agreement_accesses",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "agreement_accesses_customer_id_foreign": {
+            "table": "agreement_accesses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "application_items_application_id_foreign": {
+            "table": "application_items",
+            "column": "application_id",
+            "ref_table": "finance_applications",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "application_items_motorbike_id_foreign": {
+            "table": "application_items",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "application_items_user_id_foreign": {
+            "table": "application_items",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "attribute_values_attribute_id_foreign": {
+            "table": "attribute_values",
+            "column": "attribute_id",
+            "ref_table": "attributes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "attribute_value_product_attributes_attribute_value_id_foreign": {
+            "table": "attribute_value_product_attributes",
+            "column": "attribute_value_id",
+            "ref_table": "attribute_values",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "attribute_value_product_attributes_product_attribute_id_foreign": {
+            "table": "attribute_value_product_attributes",
+            "column": "product_attribute_id",
+            "ref_table": "product_attributes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "attribute_value_product_attribute_attribute_value_id_foreign": {
+            "table": "attribute_value_product_attribute",
+            "column": "attribute_value_id",
+            "ref_table": "attribute_values",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "attribute_value_product_attribute_product_attribute_id_foreign": {
+            "table": "attribute_value_product_attribute",
+            "column": "product_attribute_id",
+            "ref_table": "product_attributes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "bike_models_brand_name_id_foreign": {
+            "table": "bike_models",
+            "column": "brand_name_id",
+            "ref_table": "makes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "blog_images_blog_post_id_foreign": {
+            "table": "blog_images",
+            "column": "blog_post_id",
+            "ref_table": "blog_posts",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "blog_posts_category_id_foreign": {
+            "table": "blog_posts",
+            "column": "category_id",
+            "ref_table": "blog_categories",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "booking_closing_booking_id_foreign": {
+            "table": "booking_closing",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "booking_closing_collect_proceeded_anyway_user_id_foreign": {
+            "table": "booking_closing",
+            "column": "collect_proceeded_anyway_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "booking_closing_deposit_refund_user_id_foreign": {
+            "table": "booking_closing",
+            "column": "deposit_refund_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "booking_invoices_booking_id_foreign": {
+            "table": "booking_invoices",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "booking_invoices_user_id_foreign": {
+            "table": "booking_invoices",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "booking_issuance_items_booking_item_id_foreign": {
+            "table": "booking_issuance_items",
+            "column": "booking_item_id",
+            "ref_table": "renting_booking_items",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "booking_issuance_items_issued_by_user_id_foreign": {
+            "table": "booking_issuance_items",
+            "column": "issued_by_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "categories_parent_id_foreign": {
+            "table": "categories",
+            "column": "parent_id",
+            "ref_table": "categories",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "claim_motorbikes_branch_id_foreign": {
+            "table": "claim_motorbikes",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "claim_motorbikes_motorbike_id_foreign": {
+            "table": "claim_motorbikes",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "claim_motorbikes_user_id_foreign": {
+            "table": "claim_motorbikes",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_members_customer_id_foreign": {
+            "table": "club_members",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "club_members_ngn_partner_id_foreign": {
+            "table": "club_members",
+            "column": "ngn_partner_id",
+            "ref_table": "ngn_partners",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_members_user_id_foreign": {
+            "table": "club_members",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "club_member_purchases_club_member_id_foreign": {
+            "table": "club_member_purchases",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_purchases_user_id_foreign": {
+            "table": "club_member_purchases",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_redeem_club_member_id_foreign": {
+            "table": "club_member_redeem",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_redeem_user_id_foreign": {
+            "table": "club_member_redeem",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_spendings_club_member_id_foreign": {
+            "table": "club_member_spendings",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_spendings_user_id_foreign": {
+            "table": "club_member_spendings",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_spending_payments_club_member_id_foreign": {
+            "table": "club_member_spending_payments",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "club_member_spending_payments_spending_id_foreign": {
+            "table": "club_member_spending_payments",
+            "column": "spending_id",
+            "ref_table": "club_member_spendings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "collection_rules_collection_id_foreign": {
+            "table": "collection_rules",
+            "column": "collection_id",
+            "ref_table": "collections",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "company_vehicles_motorbike_id_foreign": {
+            "table": "company_vehicles",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "contact_queries_dealt_by_user_id_foreign": {
+            "table": "contact_queries",
+            "column": "dealt_by_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "contract_access_application_id_foreign": {
+            "table": "contract_access",
+            "column": "application_id",
+            "ref_table": "finance_applications",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "contract_extra_items_application_id_foreign": {
+            "table": "contract_extra_items",
+            "column": "application_id",
+            "ref_table": "finance_applications",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_addresses_country_id_foreign": {
+            "table": "customer_addresses",
+            "column": "country_id",
+            "ref_table": "system_countries",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_addresses_customer_id_foreign": {
+            "table": "customer_addresses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_agreements_booking_id_foreign": {
+            "table": "customer_agreements",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_agreements_customer_id_foreign": {
+            "table": "customer_agreements",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_agreements_document_type_id_foreign": {
+            "table": "customer_agreements",
+            "column": "document_type_id",
+            "ref_table": "document_types",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_auths_current_terms_version_id_foreign": {
+            "table": "customer_auths",
+            "column": "current_terms_version_id",
+            "ref_table": "terms_versions",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "customer_auths_customer_id_foreign": {
+            "table": "customer_auths",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "customer_contracts_application_id_foreign": {
+            "table": "customer_contracts",
+            "column": "application_id",
+            "ref_table": "finance_applications",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_contracts_customer_id_foreign": {
+            "table": "customer_contracts",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_contracts_document_type_id_foreign": {
+            "table": "customer_contracts",
+            "column": "document_type_id",
+            "ref_table": "document_types",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_documents_booking_id_foreign": {
+            "table": "customer_documents",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_documents_customer_id_foreign": {
+            "table": "customer_documents",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_documents_document_type_id_foreign": {
+            "table": "customer_documents",
+            "column": "document_type_id",
+            "ref_table": "document_types",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_documents_motorbike_id_foreign": {
+            "table": "customer_documents",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_profiles_customer_auth_id_foreign": {
+            "table": "customer_profiles",
+            "column": "customer_auth_id",
+            "ref_table": "customer_auths",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "customer_profiles_preferred_branch_id_foreign": {
+            "table": "customer_profiles",
+            "column": "preferred_branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "customer_terms_agreements_customer_id_foreign": {
+            "table": "customer_terms_agreements",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "customer_terms_agreements_terms_version_id_foreign": {
+            "table": "customer_terms_agreements",
+            "column": "terms_version_id",
+            "ref_table": "terms_versions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "delete_request_otps_purchase_id_foreign": {
+            "table": "delete_request_otps",
+            "column": "purchase_id",
+            "ref_table": "club_member_purchases",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "delivery_agreement_accesses_customer_id_foreign": {
+            "table": "delivery_agreement_accesses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "delivery_agreement_accesses_enquiry_id_foreign": {
+            "table": "delivery_agreement_accesses",
+            "column": "enquiry_id",
+            "ref_table": "motorbike_delivery_order_enquiries",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "discountables_discount_id_foreign": {
+            "table": "discountables",
+            "column": "discount_id",
+            "ref_table": "discounts",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "document_change_requests_customer_profile_id_foreign": {
+            "table": "document_change_requests",
+            "column": "customer_profile_id",
+            "ref_table": "customer_profiles",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "document_change_requests_document_id_foreign": {
+            "table": "document_change_requests",
+            "column": "document_id",
+            "ref_table": "customer_documents",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "document_change_requests_new_document_id_foreign": {
+            "table": "document_change_requests",
+            "column": "new_document_id",
+            "ref_table": "customer_documents",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "document_change_requests_reviewed_by_foreign": {
+            "table": "document_change_requests",
+            "column": "reviewed_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "ds_order_items_ds_order_id_foreign": {
+            "table": "ds_order_items",
+            "column": "ds_order_id",
+            "ref_table": "ds_orders",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_orders_branch_id_foreign": {
+            "table": "ec_orders",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_orders_customer_address_id_foreign": {
+            "table": "ec_orders",
+            "column": "customer_address_id",
+            "ref_table": "customer_addresses",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_orders_customer_id_foreign": {
+            "table": "ec_orders",
+            "column": "customer_id",
+            "ref_table": "customer_auths",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_orders_payment_method_id_foreign": {
+            "table": "ec_orders",
+            "column": "payment_method_id",
+            "ref_table": "ec_payment_methods",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_orders_shipping_method_id_foreign": {
+            "table": "ec_orders",
+            "column": "shipping_method_id",
+            "ref_table": "ec_shipping_methods",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_order_items_order_id_foreign": {
+            "table": "ec_order_items",
+            "column": "order_id",
+            "ref_table": "ec_orders",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ec_order_items_product_id_foreign": {
+            "table": "ec_order_items",
+            "column": "product_id",
+            "ref_table": "ngn_products",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "ec_order_shippings_order_id_foreign": {
+            "table": "ec_order_shippings",
+            "column": "order_id",
+            "ref_table": "ec_orders",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "email_jobs_customer_id_foreign": {
+            "table": "email_jobs",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "email_jobs_user_id_foreign": {
+            "table": "email_jobs",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "employee_schedules_user_id_foreign": {
+            "table": "employee_schedules",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "finance_applications_customer_id_foreign": {
+            "table": "finance_applications",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "finance_applications_user_id_foreign": {
+            "table": "finance_applications",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "inventories_country_id_foreign": {
+            "table": "inventories",
+            "column": "country_id",
+            "ref_table": "system_countries",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "inventory_histories_inventory_id_foreign": {
+            "table": "inventory_histories",
+            "column": "inventory_id",
+            "ref_table": "inventories",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "inventory_histories_user_id_foreign": {
+            "table": "inventory_histories",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "judopay_cit_accesses_customer_id_foreign": {
+            "table": "judopay_cit_accesses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_cit_accesses_subscription_id_foreign": {
+            "table": "judopay_cit_accesses",
+            "column": "subscription_id",
+            "ref_table": "judopay_subscriptions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_cit_payment_sessions_subscription_id_foreign": {
+            "table": "judopay_cit_payment_sessions",
+            "column": "subscription_id",
+            "ref_table": "judopay_subscriptions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_cit_payment_sessions_user_id_foreign": {
+            "table": "judopay_cit_payment_sessions",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_enquiry_records_payment_session_outcome_id_foreign": {
+            "table": "judopay_enquiry_records",
+            "column": "payment_session_outcome_id",
+            "ref_table": "judopay_payment_session_outcomes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_mit_payment_sessions_subscription_id_foreign": {
+            "table": "judopay_mit_payment_sessions",
+            "column": "subscription_id",
+            "ref_table": "judopay_subscriptions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_mit_payment_sessions_user_id_foreign": {
+            "table": "judopay_mit_payment_sessions",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_mit_queues_authorized_by_foreign": {
+            "table": "judopay_mit_queues",
+            "column": "authorized_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_mit_queues_ngn_mit_queue_id_foreign": {
+            "table": "judopay_mit_queues",
+            "column": "ngn_mit_queue_id",
+            "ref_table": "ngn_mit_queues",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_payment_session_outcomes_subscription_id_foreign": {
+            "table": "judopay_payment_session_outcomes",
+            "column": "subscription_id",
+            "ref_table": "judopay_subscriptions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "judopay_recurring_holds_created_by_foreign": {
+            "table": "judopay_recurring_holds",
+            "column": "created_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "judopay_recurring_holds_updated_by_foreign": {
+            "table": "judopay_recurring_holds",
+            "column": "updated_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "judopay_subscriptions_judopay_onboarding_id_foreign": {
+            "table": "judopay_subscriptions",
+            "column": "judopay_onboarding_id",
+            "ref_table": "judopay_onboardings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "model_has_permissions_permission_id_foreign": {
+            "table": "model_has_permissions",
+            "column": "permission_id",
+            "ref_table": "permissions",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "model_has_roles_role_id_foreign": {
+            "table": "model_has_roles",
+            "column": "role_id",
+            "ref_table": "userroles",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_branch_id_foreign": {
+            "table": "motorbikes",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_cat_b_branch_id_foreign": {
+            "table": "motorbikes_cat_b",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_cat_b_motorbike_id_foreign": {
+            "table": "motorbikes_cat_b",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_repair_branch_id_foreign": {
+            "table": "motorbikes_repair",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_repair_motorbike_id_foreign": {
+            "table": "motorbikes_repair",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_repair_user_id_foreign": {
+            "table": "motorbikes_repair",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_sale_motorbike_id_foreign": {
+            "table": "motorbikes_sale",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_sale_user_id_foreign": {
+            "table": "motorbikes_sale",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_sold_listing_id_foreign": {
+            "table": "motorbikes_sold",
+            "column": "listing_id",
+            "ref_table": "motorbikes_sale",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbikes_vehicle_profile_id_foreign": {
+            "table": "motorbikes",
+            "column": "vehicle_profile_id",
+            "ref_table": "vehicle_profiles",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_annual_compliance_motorbike_id_foreign": {
+            "table": "motorbike_annual_compliance",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_images_motorbike_id_foreign": {
+            "table": "motorbike_images",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_maintenance_logs_booking_id_foreign": {
+            "table": "motorbike_maintenance_logs",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_maintenance_logs_motorbike_id_foreign": {
+            "table": "motorbike_maintenance_logs",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_maintenance_logs_user_id_foreign": {
+            "table": "motorbike_maintenance_logs",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_registrations_motorbike_id_foreign": {
+            "table": "motorbike_registrations",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_repair_observations_motorbike_repair_id_foreign": {
+            "table": "motorbike_repair_observations",
+            "column": "motorbike_repair_id",
+            "ref_table": "motorbikes_repair",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_repair_updates_motorbike_repair_id_foreign": {
+            "table": "motorbike_repair_updates",
+            "column": "motorbike_repair_id",
+            "ref_table": "motorbikes_repair",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_sale_logs_motorbikes_sale_id_foreign": {
+            "table": "motorbike_sale_logs",
+            "column": "motorbikes_sale_id",
+            "ref_table": "motorbikes_sale",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "motorbike_sale_logs_motorbike_id_foreign": {
+            "table": "motorbike_sale_logs",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "mot_bookings_branch_id_foreign": {
+            "table": "mot_bookings",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "new_motorbikes_branch_id_foreign": {
+            "table": "new_motorbikes",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "new_motorbikes_user_id_foreign": {
+            "table": "new_motorbikes",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "ngn_attributes_product_id_foreign": {
+            "table": "ngn_attributes",
+            "column": "product_id",
+            "ref_table": "ngn_products",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_campaign_referrals_ngn_campaign_id_foreign": {
+            "table": "ngn_campaign_referrals",
+            "column": "ngn_campaign_id",
+            "ref_table": "ngn_campaigns",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_campaign_referrals_referrer_club_member_id_foreign": {
+            "table": "ngn_campaign_referrals",
+            "column": "referrer_club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_categories_super_category_id_foreign": {
+            "table": "ngn_categories",
+            "column": "super_category_id",
+            "ref_table": "ngn_super_categories",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_digital_invoices_booking_invoice_id_foreign": {
+            "table": "ngn_digital_invoices",
+            "column": "booking_invoice_id",
+            "ref_table": "booking_invoices",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_digital_invoices_created_by_foreign": {
+            "table": "ngn_digital_invoices",
+            "column": "created_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_mit_queues_cleared_by_foreign": {
+            "table": "ngn_mit_queues",
+            "column": "cleared_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_mit_queues_subscribable_id_foreign": {
+            "table": "ngn_mit_queues",
+            "column": "subscribable_id",
+            "ref_table": "judopay_subscriptions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_products_brand_id_foreign": {
+            "table": "ngn_products",
+            "column": "brand_id",
+            "ref_table": "ngn_brands",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_products_category_id_foreign": {
+            "table": "ngn_products",
+            "column": "category_id",
+            "ref_table": "ngn_categories",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_products_model_id_foreign": {
+            "table": "ngn_products",
+            "column": "model_id",
+            "ref_table": "ngn_models",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_product_images_product_id_foreign": {
+            "table": "ngn_product_images",
+            "column": "product_id",
+            "ref_table": "ngn_products",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_stock_movements_branch_id_foreign": {
+            "table": "ngn_stock_movements",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_stock_movements_product_id_foreign": {
+            "table": "ngn_stock_movements",
+            "column": "product_id",
+            "ref_table": "ngn_products",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_stock_movements_user_id_foreign": {
+            "table": "ngn_stock_movements",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_answers_option_id_foreign": {
+            "table": "ngn_survey_answers",
+            "column": "option_id",
+            "ref_table": "ngn_survey_options",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_answers_question_id_foreign": {
+            "table": "ngn_survey_answers",
+            "column": "question_id",
+            "ref_table": "ngn_survey_questions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_answers_response_id_foreign": {
+            "table": "ngn_survey_answers",
+            "column": "response_id",
+            "ref_table": "ngn_survey_responses",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_options_question_id_foreign": {
+            "table": "ngn_survey_options",
+            "column": "question_id",
+            "ref_table": "ngn_survey_questions",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_questions_survey_id_foreign": {
+            "table": "ngn_survey_questions",
+            "column": "survey_id",
+            "ref_table": "ngn_surveys",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_responses_club_member_id_foreign": {
+            "table": "ngn_survey_responses",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_responses_customer_id_foreign": {
+            "table": "ngn_survey_responses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "ngn_survey_responses_survey_id_foreign": {
+            "table": "ngn_survey_responses",
+            "column": "survey_id",
+            "ref_table": "ngn_surveys",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "orders_parent_order_id_foreign": {
+            "table": "orders",
+            "column": "parent_order_id",
+            "ref_table": "orders",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "orders_payment_method_id_foreign": {
+            "table": "orders",
+            "column": "payment_method_id",
+            "ref_table": "payment_methods",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "orders_shipping_address_id_foreign": {
+            "table": "orders",
+            "column": "shipping_address_id",
+            "ref_table": "user_addresses",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "orders_user_id_foreign": {
+            "table": "orders",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "order_items_order_id_foreign": {
+            "table": "order_items",
+            "column": "order_id",
+            "ref_table": "orders",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "order_refunds_order_id_foreign": {
+            "table": "order_refunds",
+            "column": "order_id",
+            "ref_table": "orders",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "order_refunds_user_id_foreign": {
+            "table": "order_refunds",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "order_shippings_carrier_id_foreign": {
+            "table": "order_shippings",
+            "column": "carrier_id",
+            "ref_table": "carriers",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "order_shippings_order_id_foreign": {
+            "table": "order_shippings",
+            "column": "order_id",
+            "ref_table": "orders",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "otp_verifications_club_member_id_foreign": {
+            "table": "otp_verifications",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "payments_paypal_customer_id_foreign": {
+            "table": "payments_paypal",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "paypal_webhook_events_payment_id_foreign": {
+            "table": "paypal_webhook_events",
+            "column": "payment_id",
+            "ref_table": "payments_paypal",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_cases_customer_id_foreign": {
+            "table": "pcn_cases",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_cases_motorbike_id_foreign": {
+            "table": "pcn_cases",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_cases_user_id_foreign": {
+            "table": "pcn_cases",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_case_updates_case_id_foreign": {
+            "table": "pcn_case_updates",
+            "column": "case_id",
+            "ref_table": "pcn_cases",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_case_updates_user_id_foreign": {
+            "table": "pcn_case_updates",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_email_jobs_case_id_foreign": {
+            "table": "pcn_email_jobs",
+            "column": "case_id",
+            "ref_table": "pcn_cases",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_email_jobs_customer_id_foreign": {
+            "table": "pcn_email_jobs",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_email_jobs_motorbike_id_foreign": {
+            "table": "pcn_email_jobs",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_email_jobs_user_id_foreign": {
+            "table": "pcn_email_jobs",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_tol_requests_pcn_case_id_foreign": {
+            "table": "pcn_tol_requests",
+            "column": "pcn_case_id",
+            "ref_table": "pcn_cases",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_tol_requests_update_id_foreign": {
+            "table": "pcn_tol_requests",
+            "column": "update_id",
+            "ref_table": "pcn_case_updates",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "pcn_tol_requests_user_id_foreign": {
+            "table": "pcn_tol_requests",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "posts_user_id_foreign": {
+            "table": "posts",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "products_brand_id_foreign": {
+            "table": "products",
+            "column": "brand_id",
+            "ref_table": "brands",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "products_parent_id_foreign": {
+            "table": "products",
+            "column": "parent_id",
+            "ref_table": "products",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "product_attributes_attribute_id_foreign": {
+            "table": "product_attributes",
+            "column": "attribute_id",
+            "ref_table": "attributes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "product_attributes_product_id_foreign": {
+            "table": "product_attributes",
+            "column": "product_id",
+            "ref_table": "products",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "product_has_relations_product_id_foreign": {
+            "table": "product_has_relations",
+            "column": "product_id",
+            "ref_table": "products",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "purchase_agreement_accesses_purchase_id_foreign": {
+            "table": "purchase_agreement_accesses",
+            "column": "purchase_id",
+            "ref_table": "purchase_used_vehicles",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_requests_created_by_foreign": {
+            "table": "purchase_requests",
+            "column": "created_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_request_created_by_foreign": {
+            "table": "purchase_request",
+            "column": "created_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_request_items_bike_model_id_foreign": {
+            "table": "purchase_request_items",
+            "column": "bike_model_id",
+            "ref_table": "bike_models",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_request_items_brand_name_id_foreign": {
+            "table": "purchase_request_items",
+            "column": "brand_name_id",
+            "ref_table": "makes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_request_items_created_by_foreign": {
+            "table": "purchase_request_items",
+            "column": "created_by",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_request_items_pr_id_foreign": {
+            "table": "purchase_request_items",
+            "column": "pr_id",
+            "ref_table": "purchase_requests",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "purchase_used_vehicles_user_id_foreign": {
+            "table": "purchase_used_vehicles",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "recovered_motorbikes_branch_id_foreign": {
+            "table": "recovered_motorbikes",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "recovered_motorbikes_motorbike_id_foreign": {
+            "table": "recovered_motorbikes",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "recovered_motorbikes_user_id_foreign": {
+            "table": "recovered_motorbikes",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "rental_terminate_accesses_booking_id_foreign": {
+            "table": "rental_terminate_accesses",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "rental_terminate_accesses_customer_id_foreign": {
+            "table": "rental_terminate_accesses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_bookings_customer_id_foreign": {
+            "table": "renting_bookings",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_bookings_user_id_foreign": {
+            "table": "renting_bookings",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_booking_items_booking_id_foreign": {
+            "table": "renting_booking_items",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_booking_items_motorbike_id_foreign": {
+            "table": "renting_booking_items",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_booking_items_user_id_foreign": {
+            "table": "renting_booking_items",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_other_charges_booking_id_foreign": {
+            "table": "renting_other_charges",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_other_charges_transactions_charges_id_foreign": {
+            "table": "renting_other_charges_transactions",
+            "column": "charges_id",
+            "ref_table": "renting_other_charges",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_other_charges_transactions_user_id_foreign": {
+            "table": "renting_other_charges_transactions",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_pricings_user_id_foreign": {
+            "table": "renting_pricings",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_service_videos_booking_id_foreign": {
+            "table": "renting_service_videos",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_transactions_booking_id_foreign": {
+            "table": "renting_transactions",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_transactions_invoice_id_foreign": {
+            "table": "renting_transactions",
+            "column": "invoice_id",
+            "ref_table": "booking_invoices",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_transactions_payment_method_id_foreign": {
+            "table": "renting_transactions",
+            "column": "payment_method_id",
+            "ref_table": "payment_methods",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_transactions_transaction_type_id_foreign": {
+            "table": "renting_transactions",
+            "column": "transaction_type_id",
+            "ref_table": "transaction_types",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "renting_transactions_user_id_foreign": {
+            "table": "renting_transactions",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "repair_update_service_service_id_foreign": {
+            "table": "repair_update_service",
+            "column": "service_id",
+            "ref_table": "motorbike_repair_services_lists",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "repair_update_service_update_id_foreign": {
+            "table": "repair_update_service",
+            "column": "update_id",
+            "ref_table": "motorbike_repair_updates",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "requirements_requirement_set_id_foreign": {
+            "table": "requirements",
+            "column": "requirement_set_id",
+            "ref_table": "requirement_sets",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "role_has_permissions_permission_id_foreign": {
+            "table": "role_has_permissions",
+            "column": "permission_id",
+            "ref_table": "permissions",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "role_has_permissions_role_id_foreign": {
+            "table": "role_has_permissions",
+            "column": "role_id",
+            "ref_table": "roles",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "role_users_user_id_foreign": {
+            "table": "role_users",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sales_product_id_foreign": {
+            "table": "sales",
+            "column": "product_id",
+            "ref_table": "products",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "CASCADE"
+        },
+        "sales_user_id_foreign": {
+            "table": "sales",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "CASCADE"
+        },
+        "service_bookings_conversation_id_foreign": {
+            "table": "service_bookings",
+            "column": "conversation_id",
+            "ref_table": "support_conversations",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "sp_assemblies_fitment_id_foreign": {
+            "table": "sp_assemblies",
+            "column": "fitment_id",
+            "ref_table": "sp_fitments",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_assembly_parts_assembly_id_foreign": {
+            "table": "sp_assembly_parts",
+            "column": "assembly_id",
+            "ref_table": "sp_assemblies",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_assembly_parts_part_id_foreign": {
+            "table": "sp_assembly_parts",
+            "column": "part_id",
+            "ref_table": "sp_parts",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_fitments_model_id_foreign": {
+            "table": "sp_fitments",
+            "column": "model_id",
+            "ref_table": "sp_models",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_models_make_id_foreign": {
+            "table": "sp_models",
+            "column": "make_id",
+            "ref_table": "sp_makes",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_stock_movements_branch_id_foreign": {
+            "table": "sp_stock_movements",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_stock_movements_sp_part_id_foreign": {
+            "table": "sp_stock_movements",
+            "column": "sp_part_id",
+            "ref_table": "sp_parts",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "sp_stock_movements_user_id_foreign": {
+            "table": "sp_stock_movements",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "stock_logs_branch_id_foreign": {
+            "table": "stock_logs",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "stock_logs_user_id_foreign": {
+            "table": "stock_logs",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "support_attachments_message_id_foreign": {
+            "table": "support_attachments",
+            "column": "message_id",
+            "ref_table": "support_messages",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "support_attachments_uploaded_by_customer_auth_id_foreign": {
+            "table": "support_attachments",
+            "column": "uploaded_by_customer_auth_id",
+            "ref_table": "customer_auths",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "support_attachments_uploaded_by_user_id_foreign": {
+            "table": "support_attachments",
+            "column": "uploaded_by_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "support_conversations_assigned_backpack_user_id_foreign": {
+            "table": "support_conversations",
+            "column": "assigned_backpack_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "support_conversations_customer_auth_id_foreign": {
+            "table": "support_conversations",
+            "column": "customer_auth_id",
+            "ref_table": "customer_auths",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "support_conversations_service_booking_id_foreign": {
+            "table": "support_conversations",
+            "column": "service_booking_id",
+            "ref_table": "service_bookings",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "support_messages_conversation_id_foreign": {
+            "table": "support_messages",
+            "column": "conversation_id",
+            "ref_table": "support_conversations",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "support_messages_sender_customer_auth_id_foreign": {
+            "table": "support_messages",
+            "column": "sender_customer_auth_id",
+            "ref_table": "customer_auths",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "support_messages_sender_user_id_foreign": {
+            "table": "support_messages",
+            "column": "sender_user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "survey_email_campaigns_ngn_survey_id_foreign": {
+            "table": "survey_email_campaigns",
+            "column": "ngn_survey_id",
+            "ref_table": "ngn_surveys",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "system_application_links_system_application_id_foreign": {
+            "table": "system_application_links",
+            "column": "system_application_id",
+            "ref_table": "system_applications",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "upload_document_accesses_booking_id_foreign": {
+            "table": "upload_document_accesses",
+            "column": "booking_id",
+            "ref_table": "renting_bookings",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "upload_document_accesses_customer_id_foreign": {
+            "table": "upload_document_accesses",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "users_geolocation_history_order_id_foreign": {
+            "table": "users_geolocation_history",
+            "column": "order_id",
+            "ref_table": "orders",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "users_geolocation_history_user_id_foreign": {
+            "table": "users_geolocation_history",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "user_addresses_country_id_foreign": {
+            "table": "user_addresses",
+            "column": "country_id",
+            "ref_table": "system_countries",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "RESTRICT"
+        },
+        "user_addresses_user_id_foreign": {
+            "table": "user_addresses",
+            "column": "user_id",
+            "ref_table": "users-old",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "user_feedback_club_member_id_foreign": {
+            "table": "user_feedback",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "user_segments_club_member_id_foreign": {
+            "table": "user_segments",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "user_sessions_club_member_id_foreign": {
+            "table": "user_sessions",
+            "column": "club_member_id",
+            "ref_table": "club_members",
+            "ref_column": "id",
+            "on_delete": "CASCADE",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_delivery_orders_branch_id_foreign": {
+            "table": "vehicle_delivery_orders",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_delivery_orders_delivery_vehicle_type_id_foreign": {
+            "table": "vehicle_delivery_orders",
+            "column": "delivery_vehicle_type_id",
+            "ref_table": "delivery_vehicle_types",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_delivery_orders_items_drop_branch_id_foreign": {
+            "table": "vehicle_delivery_orders_items",
+            "column": "drop_branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_delivery_orders_items_vehicle_delivery_order_id_foreign": {
+            "table": "vehicle_delivery_orders_items",
+            "column": "vehicle_delivery_order_id",
+            "ref_table": "vehicle_delivery_orders",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_delivery_orders_user_id_foreign": {
+            "table": "vehicle_delivery_orders",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_issuances_branch_id_foreign": {
+            "table": "vehicle_issuances",
+            "column": "branch_id",
+            "ref_table": "branches",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_issuances_customer_id_foreign": {
+            "table": "vehicle_issuances",
+            "column": "customer_id",
+            "ref_table": "customers",
+            "ref_column": "id",
+            "on_delete": "SET NULL",
+            "on_update": "CASCADE"
+        },
+        "vehicle_issuances_motorbike_id_foreign": {
+            "table": "vehicle_issuances",
+            "column": "motorbike_id",
+            "ref_table": "motorbikes",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        },
+        "vehicle_issuances_user_id_foreign": {
+            "table": "vehicle_issuances",
+            "column": "user_id",
+            "ref_table": "users",
+            "ref_column": "id",
+            "on_delete": "RESTRICT",
+            "on_update": "RESTRICT"
+        }
+    }
+}

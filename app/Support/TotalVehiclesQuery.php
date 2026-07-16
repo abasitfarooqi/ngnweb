@@ -11,7 +11,7 @@ use App\Models\RentingBookingItem;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * Internal (profile 1) vehicles on active rentals, active finance, company list, and/or available used sales.
+ * All internal NGN vehicles (vehicle profile 1). Category subqueries are used for filters and role badges only.
  */
 final class TotalVehiclesQuery
 {
@@ -19,13 +19,7 @@ final class TotalVehiclesQuery
     {
         return Motorbike::query()
             ->from('motorbikes')
-            ->where('motorbikes.vehicle_profile_id', 1)
-            ->where(function (Builder $q) {
-                $q->whereIn('motorbikes.id', self::activeRentalMotorbikeIdsSubquery())
-                    ->orWhereIn('motorbikes.id', self::activeFinanceMotorbikeIdsSubquery())
-                    ->orWhereIn('motorbikes.id', CompanyVehicle::query()->select('motorbike_id'))
-                    ->orWhereIn('motorbikes.id', self::availableForSaleMotorbikeIdsSubquery());
-            });
+            ->where('motorbikes.vehicle_profile_id', 1);
     }
 
     public static function count(): int
@@ -43,15 +37,22 @@ final class TotalVehiclesQuery
             ->whereHas('booking', fn ($q) => $q->where('is_posted', true));
     }
 
-    /** Available used listings from /flux-admin/motorbike-sales (not sold). */
-    public static function availableForSaleMotorbikeIdsSubquery(): Builder
+    /** Used-sale bikes moved into internal rental stock (not sold, hidden from website). */
+    public static function saleRentalMotorbikeIdsSubquery(): Builder
     {
         return MotorbikesSale::query()
             ->select('motorbike_id')
             ->whereNotNull('motorbike_id')
+            ->where('is_rented', true)
             ->where(function ($q) {
                 $q->where('is_sold', false)->orWhereNull('is_sold');
             });
+    }
+
+    /** @deprecated Use saleRentalMotorbikeIdsSubquery() — kept for any legacy callers. */
+    public static function availableForSaleMotorbikeIdsSubquery(): Builder
+    {
+        return self::saleRentalMotorbikeIdsSubquery();
     }
 
     /**
@@ -116,7 +117,7 @@ final class TotalVehiclesQuery
             );
     }
 
-    /** @return array{rental:int,finance_new:int,finance_used:int,company:int,for_sale:int,total:int} */
+    /** @return array{rental:int,finance_new:int,finance_used:int,company:int,sale_rental:int,total:int} */
     public static function categoryCounts(): array
     {
         $internalCount = function ($sub) {
@@ -131,7 +132,8 @@ final class TotalVehiclesQuery
             'finance_new' => $internalCount(self::activeFinanceNewMotorbikeIdsSubquery()),
             'finance_used' => $internalCount(self::activeFinanceUsedMotorbikeIdsSubquery()),
             'company' => $internalCount(CompanyVehicle::query()->select('motorbike_id')),
-            'for_sale' => $internalCount(self::availableForSaleMotorbikeIdsSubquery()),
+            'sale_rental' => $internalCount(self::saleRentalMotorbikeIdsSubquery()),
+            'for_sale' => $internalCount(self::saleRentalMotorbikeIdsSubquery()),
             'total' => self::count(),
         ];
     }
@@ -168,7 +170,7 @@ final class TotalVehiclesQuery
             ->unique()
             ->flip();
 
-        $forSale = self::availableForSaleMotorbikeIdsSubquery()
+        $forSale = self::saleRentalMotorbikeIdsSubquery()
             ->whereIn('motorbike_id', $ids)
             ->pluck('motorbike_id')
             ->unique()
@@ -190,7 +192,10 @@ final class TotalVehiclesQuery
                 $roles[] = 'Company';
             }
             if (isset($forSale[$id])) {
-                $roles[] = 'For sale';
+                $roles[] = 'Sale rental';
+            }
+            if ($roles === []) {
+                $roles[] = 'Internal fleet';
             }
             $map[$id] = $roles;
         }

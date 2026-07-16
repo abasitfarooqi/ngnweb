@@ -124,6 +124,7 @@ class CloudwaysToDigitalOceanDataMigrator
     {
         $this->log = [];
         $tables = array_values(array_unique(array_filter(array_map('strval', $tables))));
+        $tables = $this->sortTablesByForeignKeyDependencies($tables);
         $rowsCopied = 0;
         $ok = 0;
         $failed = 0;
@@ -1614,5 +1615,73 @@ class CloudwaysToDigitalOceanDataMigrator
         $clean = @iconv('UTF-8', 'UTF-8//IGNORE', $value);
 
         return $clean !== false ? $clean : '';
+    }
+
+    /**
+     * Parent tables first (referenced table before referencing table).
+     *
+     * @param  list<string>  $tables
+     * @return list<string>
+     */
+    private function sortTablesByForeignKeyDependencies(array $tables): array
+    {
+        if ($tables === []) {
+            return [];
+        }
+
+        $set = array_fill_keys($tables, true);
+        $deps = [];
+        foreach ($tables as $table) {
+            $deps[$table] = [];
+        }
+
+        $stmt = $this->target->prepare(
+            'SELECT TABLE_NAME, REFERENCED_TABLE_NAME
+             FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = ?
+               AND REFERENCED_TABLE_NAME IS NOT NULL
+               AND TABLE_NAME IN ('.implode(',', array_fill(0, count($tables), '?')).')'
+        );
+        $stmt->execute(array_merge([$this->targetSchema], $tables));
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        foreach ($rows as $row) {
+            $table = (string) ($row['TABLE_NAME'] ?? '');
+            $ref = (string) ($row['REFERENCED_TABLE_NAME'] ?? '');
+            if ($table === '' || $ref === '' || ! isset($set[$ref])) {
+                continue;
+            }
+            $deps[$table][$ref] = $ref;
+        }
+
+        $ordered = [];
+        $visited = [];
+        $visiting = [];
+
+        $visit = function (string $table) use (&$visit, &$ordered, &$visited, &$visiting, $deps, $set): void {
+            if (isset($visited[$table])) {
+                return;
+            }
+            if (isset($visiting[$table])) {
+                return;
+            }
+            $visiting[$table] = true;
+            foreach ($deps[$table] ?? [] as $dep) {
+                if (isset($set[$dep])) {
+                    $visit($dep);
+                }
+            }
+            unset($visiting[$table]);
+            $visited[$table] = true;
+            $ordered[] = $table;
+        };
+
+        $sorted = $tables;
+        sort($sorted);
+        foreach ($sorted as $table) {
+            $visit($table);
+        }
+
+        return $ordered;
     }
 }

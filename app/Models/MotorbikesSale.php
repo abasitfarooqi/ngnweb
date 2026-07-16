@@ -24,6 +24,7 @@ class MotorbikesSale extends Model
         'condition',
         'motorbike_id',
         'is_sold',
+        'is_rented',
         'buyer_name',
         'buyer_phone',
         'buyer_email',
@@ -55,6 +56,7 @@ class MotorbikesSale extends Model
         'price' => 'decimal:2',
         'mileage' => 'decimal:2',
         'is_sold' => 'boolean',
+        'is_rented' => 'boolean',
         'v5_available' => 'boolean',
     ];
 

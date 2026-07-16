@@ -1,9 +1,9 @@
 <div>
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Total Vehicles</h1>
+            <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Total NGN Vehicles</h1>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                Internal vehicles on active rentals, payment plans, company list, or available used sales — {{ number_format($motorbikes->total()) }} shown
+                Internal NGN vehicles (profile 1) — {{ number_format($motorbikes->total()) }} shown
             </p>
         </div>
         <div class="flex items-center gap-2">
@@ -49,10 +49,10 @@
         >Company ({{ number_format($categoryCounts['company']) }})</button>
         <button
             type="button"
-            wire:click="$set('filterCategory', 'for_sale')"
-            data-segment="for_sale"
-            data-active="{{ $filterCategory === 'for_sale' ? 'true' : 'false' }}"
-        >For sale ({{ number_format($categoryCounts['for_sale']) }})</button>
+            wire:click="$set('filterCategory', 'sale_rental')"
+            data-segment="sale_rental"
+            data-active="{{ in_array($filterCategory, ['sale_rental', 'for_sale'], true) ? 'true' : 'false' }}"
+        >Sale rental ({{ number_format($categoryCounts['sale_rental'] ?? $categoryCounts['for_sale'] ?? 0) }})</button>
     </div>
 
     <div class="flux-admin-toolbar mb-4 border border-zinc-200 bg-white p-3 sm:p-4 dark:border-zinc-800 dark:bg-zinc-900">
@@ -147,7 +147,8 @@
                                             'Finance new' => 'blue',
                                             'Finance used' => 'purple',
                                             'Company' => 'amber',
-                                            'For sale' => 'cyan',
+                                            'Sale rental' => 'cyan',
+                                            'Internal fleet' => 'zinc',
                                             default => 'zinc',
                                         } }}"
                                     >{{ $role }}</flux:badge>

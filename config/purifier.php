@@ -34,6 +34,12 @@ return [
         'test' => [
             'Attr.EnableID' => 'true',
         ],
+        'motorbike_accessories' => [
+            'HTML.Doctype' => 'HTML 4.01 Transitional',
+            'HTML.Allowed' => 'p,br,ul,ol,li,strong,b,em,i,span',
+            'AutoFormat.AutoParagraph' => false,
+            'AutoFormat.RemoveEmpty' => true,
+        ],
         'youtube' => [
             'HTML.SafeIframe' => 'true',
             'URI.SafeIframeRegexp' => '%^(http://|https://|//)(www.youtube.com/embed/|player.vimeo.com/video/)%',

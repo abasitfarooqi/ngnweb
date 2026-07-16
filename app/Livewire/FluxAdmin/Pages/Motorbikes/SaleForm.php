@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Motorbike;
 use App\Models\MotorbikesSale;
 use App\Support\NgnMotorcycleImage;
+use Mews\Purifier\Facades\Purifier;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -49,6 +50,7 @@ class SaleForm extends Component
                 'motorbike_id' => null,
                 'condition' => 'USED',
                 'is_sold' => false,
+                'is_rented' => false,
                 'v5_available' => false,
                 'buyer_name' => null,
                 'buyer_phone' => null,
@@ -81,6 +83,7 @@ class SaleForm extends Component
             'motorbike_id' => $sale->motorbike_id,
             'condition' => $sale->condition ?: 'USED',
             'is_sold' => (bool) $sale->is_sold,
+            'is_rented' => (bool) ($sale->is_rented ?? false),
             'v5_available' => (bool) $sale->v5_available,
             'buyer_name' => $sale->buyer_name,
             'buyer_phone' => $sale->buyer_phone,
@@ -184,6 +187,7 @@ class SaleForm extends Component
         $this->commitMotorbikeSearch();
 
         $this->form['is_sold'] = (bool) ($this->form['is_sold'] ?? false);
+        $this->form['is_rented'] = (bool) ($this->form['is_rented'] ?? false);
         $this->form['v5_available'] = (bool) ($this->form['v5_available'] ?? false);
         $this->form['condition'] = 'USED';
 
@@ -203,6 +207,7 @@ class SaleForm extends Component
             'form.accessories' => ['nullable', 'string'],
             'form.note' => ['nullable', 'string'],
             'form.is_sold' => ['boolean'],
+            'form.is_rented' => ['boolean'],
             'form.buyer_name' => ['nullable', 'string', 'max:255'],
             'form.buyer_phone' => ['nullable', 'string', 'max:50'],
             'form.buyer_email' => ['nullable', 'email', 'max:255'],
@@ -234,9 +239,10 @@ class SaleForm extends Component
             'belt' => ($this->form['belt'] ?? null) ?: 'NOT CHECKED',
             'electrical' => ($this->form['electrical'] ?? null) ?: 'NOT CHECKED',
             'tires' => ($this->form['tires'] ?? null) ?: 'NOT CHECKED',
-            'accessories' => $this->form['accessories'] ?? null,
+            'accessories' => self::cleanAccessories($this->form['accessories'] ?? null),
             'note' => $this->form['note'] ?? '',
             'is_sold' => $this->form['is_sold'],
+            'is_rented' => $this->form['is_rented'],
             'buyer_name' => $this->form['buyer_name'] ?? null,
             'buyer_phone' => $this->form['buyer_phone'] ?? null,
             'buyer_email' => $this->form['buyer_email'] ?? null,
@@ -264,11 +270,27 @@ class SaleForm extends Component
             $this->motorbikesSale->update($data);
             $this->dispatch('flux-admin:toast', type: 'success', message: 'Sale updated.');
         } else {
-            MotorbikesSale::create($data);
+            $this->motorbikesSale = MotorbikesSale::create($data);
             $this->dispatch('flux-admin:toast', type: 'success', message: 'Sale created.');
         }
 
+        if (! empty($data['motorbike_id']) && ! empty($data['is_rented'])) {
+            Motorbike::whereKey($data['motorbike_id'])->update(['vehicle_profile_id' => 1]);
+        }
+
         $this->redirect(route('flux-admin.motorbike-sales.index'), navigate: true);
+    }
+
+    private static function cleanAccessories(?string $raw): ?string
+    {
+        $raw = trim((string) $raw);
+        if ($raw === '') {
+            return null;
+        }
+
+        $clean = trim(Purifier::clean($raw, 'motorbike_accessories'));
+
+        return $clean !== '' ? $clean : null;
     }
 
     public function currentImageUrl(?string $path): ?string

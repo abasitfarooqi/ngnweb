@@ -81,12 +81,6 @@
                 </x-flux-admin::field-group>
             </div>
 
-            <div class="mt-4">
-                <x-flux-admin::field-group label="Accessories" :error="$errors->first('form.accessories')">
-                    <flux:textarea wire:model="form.accessories" rows="3" />
-                </x-flux-admin::field-group>
-            </div>
-
             <div class="mt-4 flex flex-wrap gap-6">
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.is_ebike" class="accent-zinc-900 dark:accent-zinc-200"> E-bike

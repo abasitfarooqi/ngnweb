@@ -87,8 +87,15 @@
 
             <div class="mt-4 flex flex-wrap items-center gap-6">
                 <flux:checkbox wire:model.live="form.is_sold" label="Sold" />
+                <flux:checkbox wire:model.live="form.is_rented" label="Use for rental (hide from used sale page)" />
                 <flux:checkbox wire:model.live="form.v5_available" label="V5 available" />
             </div>
+
+            @if($form['is_rented'] ?? false)
+                <p class="mt-2 text-xs text-amber-700 dark:text-amber-300">
+                    This bike stays off the public used-sale listing and counts towards Total NGN Vehicles as internal rental stock (profile 1).
+                </p>
+            @endif
 
             @if($form['is_sold'] ?? false)
                 <x-flux-admin::form-grid cols="3" class="mt-4">
@@ -111,8 +118,12 @@
             @endif
 
             <x-flux-admin::form-grid cols="1" class="mt-4">
-                <x-flux-admin::field-group label="Accessories" :error="$errors->first('form.accessories')">
-                    <flux:textarea wire:model="form.accessories" rows="3" />
+                <x-flux-admin::field-group label="Accessories" span="full" :error="$errors->first('form.accessories')">
+                    <flux:editor
+                        wire:model="form.accessories"
+                        toolbar="bold bullet ordered | undo redo"
+                        class="flux-admin-flux-editor !rounded-none"
+                    />
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Notes" :error="$errors->first('form.note')">

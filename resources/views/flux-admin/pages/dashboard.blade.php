@@ -12,7 +12,7 @@
     {{-- Stat cards grid --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         <x-flux-admin::stat-card
-            label="Total Vehicles"
+            label="Total NGN Vehicles"
             :value="number_format($stats['total_vehicles'])"
             icon="truck"
             colour="blue"

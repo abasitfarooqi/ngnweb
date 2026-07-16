@@ -11,7 +11,6 @@
         ['label' => 'MOT Status', 'value' => $motStatus, 'icon' => 'exclamation-triangle', 'alert' => $motStatus && strcasecmp($motStatus, 'Expired') === 0],
         ['label' => 'Date of first registration', 'value' => $this->firstRegistrationLabel(), 'icon' => 'document-text'],
         ['label' => 'Mileage', 'value' => $mileage ? number_format((float) $mileage).' miles' : null, 'icon' => 'chart-bar'],
-        ['label' => 'Accessories', 'value' => $this->accessoriesLabel(), 'icon' => 'list-bullet'],
         ['label' => 'Branch', 'value' => $bike->branch?->name, 'icon' => 'map-pin'],
     ], fn ($row) => filled($row['value'] ?? null)));
 @endphp
@@ -129,6 +128,18 @@
                         </div>
                     @endforeach
                 </div>
+
+                @if($accessoriesHtml = $this->accessoriesHtml())
+                    <flux:card class="mt-6 border border-gray-200 dark:border-gray-700 p-4">
+                        <div class="flex items-center gap-2 mb-3">
+                            <flux:icon name="list-bullet" class="size-5 text-slate-900 dark:text-white" />
+                            <flux:heading size="sm" class="uppercase tracking-wide">Accessories included</flux:heading>
+                        </div>
+                        <div class="text-sm leading-relaxed text-gray-700 dark:text-gray-300 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-1 [&_p]:my-1">
+                            {!! $accessoriesHtml !!}
+                        </div>
+                    </flux:card>
+                @endif
 
                 <div class="mt-8 space-y-3">
                     <a href="{{ $this->whatsappEnquiryUrl() }}"
