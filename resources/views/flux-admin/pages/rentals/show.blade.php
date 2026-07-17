@@ -12,6 +12,20 @@
             'ended' => ['label' => 'Ended', 'color' => 'zinc'],
             default => ['label' => 'Intake (unposted)', 'color' => 'amber'],
         };
+        $showRestartTab = $lifecycle !== 'active';
+        $bookingTabs = [
+            'items'        => 'Booking Items',
+            'documents'    => 'Documents',
+            'invoices'     => 'Invoices',
+            'transactions' => 'Transactions',
+            'agreement'    => 'Agreement',
+            'charges'      => 'Other Charges',
+            'issuance'     => 'Issuance',
+            'closing'      => 'Closing',
+        ];
+        if ($showRestartTab) {
+            $bookingTabs['restart'] = 'Restart';
+        }
     @endphp
 
     <x-flux-admin::summary-header
@@ -90,17 +104,7 @@
     {{-- Tabs --}}
     <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 mb-6">
         <div class="flex overflow-x-auto border-b border-zinc-200 dark:border-zinc-700">
-            @foreach([
-                'items'        => 'Booking Items',
-                'documents'    => 'Documents',
-                'invoices'     => 'Invoices',
-                'transactions' => 'Transactions',
-                'agreement'    => 'Agreement',
-                'charges'      => 'Other Charges',
-                'issuance'     => 'Issuance',
-                'closing'      => 'Closing',
-                'restart'      => 'Restart',
-            ] as $tab => $label)
+            @foreach($bookingTabs as $tab => $label)
                 <button
                     wire:click="$set('activeTab', '{{ $tab }}')"
                     class="px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition
@@ -150,7 +154,9 @@
                     />
                     @break
                 @case('restart')
-                    <livewire:flux-admin.partials.rentals.restart-tab :bookingId="$booking->id" :key="'restart-' . $booking->id" />
+                    @if($showRestartTab)
+                        <livewire:flux-admin.partials.rentals.restart-tab :bookingId="$booking->id" :key="'restart-' . $booking->id" />
+                    @endif
                     @break
             @endswitch
         </div>
