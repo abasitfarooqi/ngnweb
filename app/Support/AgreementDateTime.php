@@ -72,7 +72,7 @@ final class AgreementDateTime
 
     private static function formatParsedInput(mixed $value, string $format): string
     {
-        if ($value instanceof Carbon) {
+        if ($value instanceof \DateTimeInterface) {
             return self::resolve($value)->format($format);
         }
 
