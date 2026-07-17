@@ -35,6 +35,11 @@ class RentalShow extends Component
         }
 
         $this->booking = $booking->load(['customer', 'rentingBookingItems.motorbike', 'bookingClosing']);
+
+        if (session()->has('status')) {
+            $this->flashMessage = (string) session('status');
+            $this->flashType = 'success';
+        }
     }
 
     public function getTitle(): string

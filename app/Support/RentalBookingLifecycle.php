@@ -8,6 +8,7 @@ use App\Mail\RentalPaymentReversedNotice;
 use App\Models\AgreementAccess;
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
+use App\Models\BookingIssuanceItem;
 use App\Models\Customer;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
@@ -36,6 +37,9 @@ class RentalBookingLifecycle
     public const STATUS_ACTIVE = 'active';
 
     public const STATUS_ENDED = 'ended';
+
+    /** Placeholder path when staff verified a document via WhatsApp (no portal upload). */
+    public const WHATSAPP_VERIFIED_PATH = 'whatsapp-verified';
 
     public function lifecycleStatus(RentingBooking $booking): string
     {
@@ -116,8 +120,9 @@ class RentalBookingLifecycle
                 'slug'          => $type->slug,
                 'approved'      => $status === 'approved',
                 'status'        => $status,
-                'status_label'  => $this->documentStatusLabel($status),
+                'status_label'  => $this->documentStatusLabel($status, $document),
                 'document_id'   => $document?->id,
+                'verified_via_whatsapp' => $this->documentVerifiedViaWhatsapp($document),
                 'valid_until'   => $document?->valid_until
                     ? Carbon::parse($document->valid_until)->toDateString()
                     : null,
@@ -171,15 +176,27 @@ class RentalBookingLifecycle
         return in_array($status, ['missing', 'expired', 'rejected'], true);
     }
 
-    public function documentStatusLabel(string $status): string
+    public function documentStatusLabel(string $status, ?CustomerDocument $document = null): string
     {
-        return match ($status) {
+        $label = match ($status) {
             'approved' => 'Approved',
             'rejected' => 'Re-upload requested',
             'pending_review' => 'Awaiting review',
             'expired' => 'Expired — re-upload',
             default => 'Not uploaded',
         };
+
+        if ($status === 'approved' && $this->documentVerifiedViaWhatsapp($document)) {
+            return 'Approved (WhatsApp)';
+        }
+
+        return $label;
+    }
+
+    public function documentVerifiedViaWhatsapp(?CustomerDocument $document): bool
+    {
+        return $document !== null
+            && (string) $document->file_path === self::WHATSAPP_VERIFIED_PATH;
     }
 
     public function setCustomerDocumentReviewStatus(CustomerDocument $document, string $status, ?string $rejectionReason = null): void
@@ -226,6 +243,79 @@ class RentalBookingLifecycle
                 $document->booking_id ? (int) $document->booking_id : null
             );
         }
+    }
+
+    public function approveDocumentViaWhatsapp(RentingBooking $booking, int $documentTypeId): CustomerDocument
+    {
+        $booking->loadMissing('customer');
+
+        if (! $booking->customer_id) {
+            throw new RuntimeException('No customer linked to this booking.');
+        }
+
+        $document = CustomerDocument::query()
+            ->where('customer_id', $booking->customer_id)
+            ->where('document_type_id', $documentTypeId)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $document) {
+            $document = CustomerDocument::create([
+                'customer_id'       => $booking->customer_id,
+                'document_type_id'  => $documentTypeId,
+                'booking_id'        => $booking->id,
+                'file_name'         => 'Verified via WhatsApp',
+                'file_path'         => self::WHATSAPP_VERIFIED_PATH,
+                'file_format'       => 'whatsapp',
+                'document_number'   => '',
+            ]);
+        } elseif (! $this->documentVerifiedViaWhatsapp($document) && ! $document->file_path) {
+            $document->update([
+                'file_path'  => self::WHATSAPP_VERIFIED_PATH,
+                'file_name'  => $document->file_name ?: 'Verified via WhatsApp',
+                'file_format'=> $document->file_format ?: 'whatsapp',
+            ]);
+        }
+
+        $this->setCustomerDocumentReviewStatus($document->fresh(), 'approved');
+
+        return $document->fresh();
+    }
+
+    public function approveAllMandatoryDocumentsViaWhatsapp(RentingBooking $booking): int
+    {
+        $approved = 0;
+
+        foreach ($this->documentChecklist($booking) as $item) {
+            if (($item['status'] ?? '') === 'approved') {
+                continue;
+            }
+
+            $this->approveDocumentViaWhatsapp($booking, (int) $item['id']);
+            $approved++;
+        }
+
+        return $approved;
+    }
+
+    public function customerWhatsappUrl(?Customer $customer): ?string
+    {
+        if (! $customer) {
+            return null;
+        }
+
+        $number = trim((string) ($customer->whatsapp ?: $customer->phone));
+        if ($number === '') {
+            return null;
+        }
+
+        $number = preg_replace('/\s+|^0/', '', $number);
+        $number = preg_replace('/^(\+44)+/', '', $number);
+        $number = preg_replace('/^44/', '', $number);
+        $number = '+44'.$number;
+        $number = preg_replace('/\s+/', '', $number);
+
+        return 'https://wa.me/'.$number;
     }
 
     /**
@@ -705,13 +795,206 @@ class RentalBookingLifecycle
 
     public function confirmDocuments(RentingBooking $booking): array
     {
-        if ($booking->state === 'Awaiting Documents & Payment') {
+        $state = (string) ($booking->state ?? '');
+
+        if ($state === 'Awaiting Documents & Payment') {
             $booking->update(['state' => 'Awaiting Payment']);
-        } elseif ($booking->state === 'Awaiting Documents') {
+        } elseif ($state === 'Awaiting Documents') {
             $booking->update(['state' => 'Completed']);
+        } elseif (($state === 'DRAFT' || $state === '') && $booking->is_posted) {
+            $hasUnpaid = BookingInvoice::where('booking_id', $booking->id)
+                ->where('is_paid', false)
+                ->exists();
+
+            $booking->update(['state' => $hasUnpaid ? 'Awaiting Payment' : 'Completed']);
         }
 
         return ['state' => $booking->fresh()->state];
+    }
+
+    /** Booking states where staff can still mark the documents step complete. */
+    public function documentsPhasePending(RentingBooking $booking): bool
+    {
+        return in_array((string) ($booking->state ?? ''), [
+            'DRAFT',
+            'Awaiting Documents & Payment',
+            'Awaiting Documents',
+        ], true);
+    }
+
+    /**
+     * Restart / reopen a booking after accidental close or to redo workflow steps.
+     *
+     * Modes:
+     * - reopen_ongoing — ended rental back to active (same completion level)
+     * - reset_draft — unposted intake (redo from documents)
+     * - resume_documents — ongoing at documents step
+     * - resume_completed — ongoing at agreement / issuance step
+     *
+     * @return array{mode: string, state: string, is_posted: bool, message: string}
+     */
+    public function restartBooking(RentingBooking $booking, \DateTimeInterface $startAt, string $mode): array
+    {
+        $startAt = Carbon::parse($startAt);
+        $allowed = ['reopen_ongoing', 'reset_draft', 'resume_documents', 'resume_completed'];
+        if (! in_array($mode, $allowed, true)) {
+            throw new InvalidArgumentException('Invalid restart mode.');
+        }
+
+        if ($mode === 'reopen_ongoing' && $this->lifecycleStatus($booking) !== self::STATUS_ENDED) {
+            throw new RuntimeException('Reopen ongoing is only for ended bookings.');
+        }
+
+        $booking->loadMissing('rentingBookingItems');
+        $item = $booking->rentingBookingItems->sortByDesc('id')->first();
+        if (! $item) {
+            throw new RuntimeException('No booking item found for this rental.');
+        }
+
+        if (in_array($mode, ['reopen_ongoing', 'resume_documents', 'resume_completed'], true)) {
+            $this->assertMotorbikeAvailableForReopen((int) $item->motorbike_id, (int) $booking->id);
+        }
+
+        return DB::transaction(function () use ($booking, $item, $startAt, $mode) {
+            $this->clearEndedState($booking, $item);
+            $this->applyRestartDates($booking, $item, $startAt);
+
+            $message = match ($mode) {
+                'reopen_ongoing' => $this->applyReopenOngoing($booking, $item),
+                'reset_draft' => $this->applyResetDraft($booking, $item),
+                'resume_documents' => $this->applyResumeDocuments($booking, $item),
+                'resume_completed' => $this->applyResumeCompleted($booking, $item),
+            };
+
+            $booking->refresh();
+
+            return [
+                'booking_id' => (int) $booking->id,
+                'mode'       => $mode,
+                'state'      => (string) $booking->state,
+                'is_posted'  => (bool) $booking->is_posted,
+                'message'    => $message,
+            ];
+        });
+    }
+
+    private function applyReopenOngoing(RentingBooking $booking, RentingBookingItem $item): string
+    {
+        $wasIssued = $this->bookingWasIssued($booking);
+        $state = $wasIssued ? 'Completed & Issued' : 'Completed';
+
+        $booking->update(['state' => $state, 'is_posted' => true]);
+        $item->update(['is_posted' => true, 'end_date' => null]);
+
+        $this->markInvoicesPosted($booking->id, true);
+
+        return 'Rental reopened as ongoing'.($wasIssued ? ' (issued).' : '.');
+    }
+
+    private function applyResetDraft(RentingBooking $booking, RentingBookingItem $item): string
+    {
+        $booking->update([
+            'state'       => 'DRAFT',
+            'is_posted'   => false,
+            'intake_step' => max((int) ($booking->intake_step ?? 0), 6),
+        ]);
+        $item->update(['is_posted' => false, 'end_date' => null]);
+        $this->markInvoicesPosted($booking->id, false);
+
+        return 'Booking reset to draft intake — continue on this same booking (#'.$booking->id.'), not a new one.';
+    }
+
+    private function applyResumeDocuments(RentingBooking $booking, RentingBookingItem $item): string
+    {
+        $state = $this->resolveDocumentsState($booking);
+        $booking->update(['state' => $state, 'is_posted' => true]);
+        $item->update(['is_posted' => true, 'end_date' => null]);
+        $this->markInvoicesPosted($booking->id, true);
+
+        return 'Booking resumed at documents step ('.$state.').';
+    }
+
+    private function applyResumeCompleted(RentingBooking $booking, RentingBookingItem $item): string
+    {
+        $wasIssued = $this->bookingWasIssued($booking);
+        $state = $wasIssued ? 'Completed & Issued' : 'Completed';
+
+        $booking->update(['state' => $state, 'is_posted' => true]);
+        $item->update(['is_posted' => true, 'end_date' => null]);
+        $this->markInvoicesPosted($booking->id, true);
+
+        return 'Booking resumed at agreement / issuance step ('.$state.').';
+    }
+
+    private function applyRestartDates(RentingBooking $booking, RentingBookingItem $item, \DateTimeInterface $startAt): void
+    {
+        $startAt = Carbon::parse($startAt);
+        $stamp = $startAt->format('Y-m-d H:i:s');
+        $due = $startAt->copy()->addDays(7)->format('Y-m-d H:i:s');
+
+        $booking->update(['start_date' => $stamp, 'due_date' => $due]);
+        $item->update(['start_date' => $stamp, 'due_date' => $due]);
+    }
+
+    private function clearEndedState(RentingBooking $booking, RentingBookingItem $item): void
+    {
+        if ($item->end_date !== null) {
+            $item->update(['end_date' => null]);
+        }
+
+        BookingClosing::where('booking_id', $booking->id)->delete();
+    }
+
+    private function resolveDocumentsState(RentingBooking $booking): string
+    {
+        $hasUnpaid = BookingInvoice::where('booking_id', $booking->id)
+            ->where('is_paid', false)
+            ->exists();
+
+        return $hasUnpaid ? 'Awaiting Documents & Payment' : 'Awaiting Documents';
+    }
+
+    private function markInvoicesPosted(int $bookingId, bool $posted): void
+    {
+        $invoices = BookingInvoice::where('booking_id', $bookingId)->get();
+
+        foreach ($invoices as $invoice) {
+            $payload = ['is_posted' => $posted];
+
+            if (! $posted) {
+                $payload['state'] = 'DRAFT';
+            } elseif ($invoice->is_paid) {
+                $payload['state'] = 'Completed';
+            } else {
+                $payload['state'] = 'Awaiting Payment';
+            }
+
+            $invoice->update($payload);
+        }
+    }
+
+    private function bookingWasIssued(RentingBooking $booking): bool
+    {
+        $itemIds = $booking->rentingBookingItems->pluck('id')->filter()->all();
+        if ($itemIds === []) {
+            return false;
+        }
+
+        return BookingIssuanceItem::query()->whereIn('booking_item_id', $itemIds)->exists();
+    }
+
+    private function assertMotorbikeAvailableForReopen(int $motorbikeId, int $bookingId): void
+    {
+        $conflict = RentingBookingItem::query()
+            ->where('motorbike_id', $motorbikeId)
+            ->where('booking_id', '!=', $bookingId)
+            ->where('is_posted', true)
+            ->whereNull('end_date')
+            ->exists();
+
+        if ($conflict) {
+            throw new RuntimeException('Motorbike is on another open rental. End that booking first.');
+        }
     }
 
     private function applyPaymentStateTransition(int $bookingId): void

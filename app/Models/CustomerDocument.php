@@ -86,7 +86,7 @@ class CustomerDocument extends Model
 
     public function getFileUrlAttribute(): ?string
     {
-        if (! $this->file_path) {
+        if (! $this->file_path || $this->file_path === \App\Support\RentalBookingLifecycle::WHATSAPP_VERIFIED_PATH) {
             return null;
         }
 

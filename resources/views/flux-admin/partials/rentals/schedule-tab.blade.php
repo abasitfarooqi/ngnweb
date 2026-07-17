@@ -18,7 +18,7 @@
                     (collect date {{ \Carbon\Carbon::parse($closing->collect_date)->format('d M Y') }}{{ $closing->collect_time ? ' '.$closing->collect_time : '' }})
                 @endif
             </p>
-            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">You can still correct individual invoice dates below on the Invoices tab, or tweak start date for records.</p>
+            <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">For a full reopen with a new start date, use the <button type="button" wire:click="$dispatch('set-rental-tab', { tab: 'restart' })" class="underline text-zinc-700 dark:text-zinc-300">Restart</button> tab.</p>
         </div>
     @endif
 

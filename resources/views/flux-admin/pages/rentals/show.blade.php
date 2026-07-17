@@ -35,11 +35,14 @@
                         {{ $missingDocs }} doc(s) pending
                     </flux:button>
                 @endif
+                <flux:button size="sm" variant="ghost" wire:click="$set('activeTab', 'restart')" class="!rounded-none">Restart</flux:button>
                 <flux:button size="sm" variant="danger" wire:click="abortIntake" wire:confirm="Remove this unposted intake? This cannot be undone.">
                     Abort intake
                 </flux:button>
             @elseif($lifecycle === 'active')
                 <flux:button size="sm" variant="ghost" wire:click="startEndRental" class="!rounded-none">End rental</flux:button>
+            @elseif($lifecycle === 'ended')
+                <flux:button size="sm" variant="primary" wire:click="$set('activeTab', 'restart')" class="!rounded-none">Restart booking</flux:button>
             @endif
         </x-slot:actions>
         <x-slot:stats>
@@ -96,6 +99,7 @@
                 'charges'      => 'Other Charges',
                 'issuance'     => 'Issuance',
                 'closing'      => 'Closing',
+                'restart'      => 'Restart',
             ] as $tab => $label)
                 <button
                     wire:click="$set('activeTab', '{{ $tab }}')"
@@ -107,6 +111,9 @@
                     {{ $label }}
                     @if($tab === 'closing')
                         <span class="ml-1 text-xs">(6 steps)</span>
+                    @endif
+                    @if($tab === 'restart' && $lifecycle === 'ended')
+                        <span class="ml-1 text-xs text-amber-600">!</span>
                     @endif
                 </button>
             @endforeach
@@ -141,6 +148,9 @@
                         :prefillCollect="$prefillCollect"
                         :key="'closing-' . $booking->id . '-' . ($prefillCollect ? 'prefill' : 'plain')"
                     />
+                    @break
+                @case('restart')
+                    <livewire:flux-admin.partials.rentals.restart-tab :bookingId="$booking->id" :key="'restart-' . $booking->id" />
                     @break
             @endswitch
         </div>

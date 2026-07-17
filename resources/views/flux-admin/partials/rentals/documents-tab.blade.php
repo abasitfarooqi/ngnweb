@@ -19,6 +19,38 @@
         </div>
     @endif
 
+    @if($documentsPhasePending ?? false)
+        <div class="mx-4 mt-4 p-4 border-2 border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20 dark:border-emerald-600">
+            <p class="text-sm font-bold text-emerald-900 dark:text-emerald-200 mb-1">Mark documents as completed</p>
+            <p class="text-xs text-emerald-800 dark:text-emerald-300 mb-3">
+                Choose how you verified this customer's documents — reviewed here on the portal, or checked on WhatsApp.
+            </p>
+            <div class="flex flex-wrap gap-2">
+                <button
+                    wire:click="markDocumentsComplete"
+                    wire:confirm="Confirm all mandatory documents were reviewed and approved on the portal?"
+                    class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                >
+                    Documents completed
+                </button>
+                <button
+                    wire:click="markDocumentsCompleteViaWhatsapp"
+                    wire:confirm="Confirm all mandatory documents were verified via WhatsApp and mark documents completed?"
+                    class="inline-flex items-center gap-1.5 px-4 py-2.5 text-sm font-semibold bg-green-700 hover:bg-green-800 text-white transition"
+                >
+                    Documents completed (WhatsApp)
+                </button>
+                @if($customerWhatsappUrl ?? null)
+                    <flux:button size="sm" variant="ghost" href="{{ $customerWhatsappUrl }}" target="_blank" rel="noopener noreferrer">Open WhatsApp chat</flux:button>
+                @endif
+            </div>
+        </div>
+    @elseif(in_array($booking->state, ['Awaiting Payment']) || str_contains($booking->state ?? '', 'Completed'))
+        <div class="mx-4 mt-4 p-3 border border-emerald-500 bg-emerald-50 text-sm text-emerald-800 dark:bg-emerald-900/20 dark:border-emerald-600 dark:text-emerald-200">
+            Documents step completed — current state: <strong>{{ $booking->state }}</strong>
+        </div>
+    @endif
+
     {{-- Document link display --}}
     @if($docUploadLink)
         <div class="mx-4 mt-3 p-3 border border-amber-400 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700">
@@ -35,6 +67,9 @@
         <div class="mx-4 mt-3 p-3 border border-zinc-300 bg-zinc-50 text-sm dark:border-zinc-600 dark:bg-zinc-900/40">
             <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Customer portal controls</p>
             <div class="flex flex-wrap gap-2">
+                @if($customerWhatsappUrl ?? null)
+                    <flux:button size="xs" variant="ghost" href="{{ $customerWhatsappUrl }}" target="_blank" rel="noopener noreferrer">Open customer WhatsApp</flux:button>
+                @endif
                 @if($booking->customer->profile_initialised_at && ! $booking->customer->profile_editing_unlocked)
                     <flux:button size="xs" variant="primary" wire:click="setProfileEditingUnlocked(true)">Unlock profile editing</flux:button>
                 @elseif($booking->customer->profile_editing_unlocked)
@@ -74,19 +109,6 @@
                 </button>
             @elseif($lifecycleStatus === 'intake' && count($missing) > 0)
                 <span class="text-xs text-amber-700 dark:text-amber-300 self-center">{{ count($missing) }} mandatory document(s) still pending approval.</span>
-            @endif
-            @if(in_array($booking->state, ['Awaiting Documents & Payment', 'Awaiting Documents']))
-                <button
-                    wire:click="markDocumentsComplete"
-                    wire:confirm="Have all ID / insurance / licence documents been thoroughly reviewed and verified?"
-                    class="inline-flex items-center gap-1.5 px-3 py-2.5 text-sm font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
-                >
-                    Documents Completed
-                </button>
-            @elseif(str_contains($booking->state ?? '', 'Completed') || $booking->state === 'Awaiting Payment')
-                <span class="inline-flex items-center px-3 py-2 text-sm font-semibold border border-emerald-600 text-emerald-700 dark:text-emerald-300">
-                    Documents Completed
-                </span>
             @endif
             <button
                 wire:click="generateDocumentLink(false)"
@@ -129,6 +151,16 @@
                     </span>
                     <div class="flex items-center gap-2">
                         <flux:badge size="sm" :color="$badgeColor">{{ $item['status_label'] }}</flux:badge>
+                        @if($item['status'] !== 'approved')
+                            <flux:button
+                                size="xs"
+                                variant="ghost"
+                                wire:click="approveDocumentViaWhatsapp({{ $item['id'] }})"
+                                wire:confirm="Mark {{ $item['name'] }} as verified via WhatsApp?"
+                            >
+                                WhatsApp verified
+                            </flux:button>
+                        @endif
                         @if($item['document_id'] && $item['status'] === 'pending_review')
                             <flux:button size="xs" variant="primary" wire:click="approveDocument({{ $item['document_id'] }})">Approve</flux:button>
                             <flux:button size="xs" variant="danger" wire:click="requestReupload({{ $item['document_id'] }})" wire:confirm="Ask the customer to upload this document again?">Re-upload</flux:button>
@@ -170,6 +202,9 @@
                                         && (! $doc->reviewed_at || $doc->updated_at->gt($doc->reviewed_at));
                                 @endphp
                                 <flux:badge size="sm" :color="$statusColor">{{ $doc->review_status_label ?? 'Unknown' }}</flux:badge>
+                                @if($doc->verified_via_whatsapp ?? false)
+                                    <flux:badge size="sm" color="green" class="ml-1">WhatsApp</flux:badge>
+                                @endif
                                 @if($isNewUpload)
                                     <flux:badge size="sm" color="sky" class="ml-1">New upload</flux:badge>
                                 @endif
@@ -192,8 +227,20 @@
                                     @elseif($doc->review_status === 'rejected')
                                         <flux:button size="xs" variant="ghost" wire:click="markPendingReview({{ $doc->id }})">Clear</flux:button>
                                     @endif
+                                    @if($doc->review_status !== 'approved')
+                                        <flux:button
+                                            size="xs"
+                                            variant="ghost"
+                                            wire:click="approveDocumentViaWhatsapp({{ $doc->document_type_id }})"
+                                            wire:confirm="Mark this document as verified via WhatsApp?"
+                                        >
+                                            WhatsApp verified
+                                        </flux:button>
+                                    @endif
                                     @if($doc->file_url)
                                         <flux:button size="xs" variant="ghost" icon="eye" href="{{ $doc->file_url }}" target="_blank">View</flux:button>
+                                    @elseif($doc->verified_via_whatsapp ?? false)
+                                        <span class="text-xs text-green-700 dark:text-green-300 self-center">WhatsApp only</span>
                                     @else
                                         <span class="text-xs text-zinc-400 self-center">No file</span>
                                     @endif
@@ -224,6 +271,7 @@
             <strong class="text-zinc-700 dark:text-zinc-300">Note:</strong>
             Customers can upload via the public link above (no login) or from the customer portal
             <a href="{{ route('account.documents', ['tab' => 'rental', 'booking_id' => $booking->id]) }}" class="underline" target="_blank">My Documents</a>.
+            If documents were sent on WhatsApp instead, use <strong>WhatsApp verified</strong> on each mandatory item, or <strong>Documents completed (WhatsApp)</strong> to approve all mandatory documents and advance the booking.
             Approve or request re-upload before activating the rental. Customers receive an email when re-upload is requested; staff receive one email when all mandatory documents are uploaded. Customers see status in their account and on the upload link.
         </p>
     </div>

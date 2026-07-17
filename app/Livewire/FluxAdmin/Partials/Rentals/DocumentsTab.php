@@ -56,18 +56,73 @@ class DocumentsTab extends Component
     public function markDocumentsComplete(): void
     {
         $booking = RentingBooking::findOrFail($this->bookingId);
+        $lifecycle = app(RentalBookingLifecycle::class);
 
-        if (! in_array($booking->state, ['Awaiting Documents & Payment', 'Awaiting Documents'], true)) {
+        if (! $lifecycle->documentsPhasePending($booking)) {
             $this->flashMessage = 'Documents already completed. Current state: '.($booking->state ?: 'Unknown');
             $this->flashType = 'info';
 
             return;
         }
 
-        $result = app(RentalBookingLifecycle::class)->confirmDocuments($booking);
-        $this->flashMessage = 'Documents completed. State is now: '.$result['state'].'. Next: payments (if needed) → Agreement → Issuance.';
+        $missing = $lifecycle->missingRequiredDocuments($booking);
+        if ($missing !== []) {
+            $this->flashMessage = 'Still missing approved documents: '.implode(', ', $missing).'. Approve each upload below, or use Documents completed (WhatsApp).';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $result = $lifecycle->confirmDocuments($booking);
+        $message = $result['state'] === 'DRAFT'
+            ? 'Documents marked complete. Use Activate rental when ready.'
+            : 'Documents completed. State is now: '.$result['state'].'. Next: payments (if needed) → Agreement → Issuance.';
+        $this->flashMessage = $message;
         $this->flashType = 'success';
         $this->dispatch('rental-updated');
+    }
+
+    public function approveDocumentViaWhatsapp(int $documentTypeId): void
+    {
+        $booking = RentingBooking::findOrFail($this->bookingId);
+
+        try {
+            app(RentalBookingLifecycle::class)->approveDocumentViaWhatsapp($booking, $documentTypeId);
+            $this->flashMessage = 'Document marked as verified via WhatsApp.';
+            $this->flashType = 'success';
+            $this->dispatch('rental-updated');
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+        }
+    }
+
+    public function markDocumentsCompleteViaWhatsapp(): void
+    {
+        $booking = RentingBooking::findOrFail($this->bookingId);
+        $lifecycle = app(RentalBookingLifecycle::class);
+
+        if (! $lifecycle->documentsPhasePending($booking)) {
+            $this->flashMessage = 'Documents already completed. Current state: '.($booking->state ?: 'Unknown');
+            $this->flashType = 'info';
+
+            return;
+        }
+
+        try {
+            $approved = $lifecycle->approveAllMandatoryDocumentsViaWhatsapp($booking);
+            $result = $lifecycle->confirmDocuments($booking->fresh());
+            $this->flashMessage = $result['state'] === 'DRAFT'
+                ? "Documents verified via WhatsApp ({$approved} item(s)). Use Activate rental when ready."
+                : ($approved > 0
+                    ? "Documents verified via WhatsApp ({$approved} item(s)). State is now: {$result['state']}."
+                    : 'Documents already approved — state is now: '.$result['state'].'.');
+            $this->flashType = 'success';
+            $this->dispatch('rental-updated');
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+        }
     }
 
     public function generateDocumentLink(bool $forceNew = false): void
@@ -182,7 +237,8 @@ class DocumentsTab extends Component
             ->get()
             ->map(function (CustomerDocument $doc) use ($lifecycle) {
                 $doc->review_status = $lifecycle->resolveCustomerDocumentStatus($doc);
-                $doc->review_status_label = $lifecycle->documentStatusLabel($doc->review_status);
+                $doc->review_status_label = $lifecycle->documentStatusLabel($doc->review_status, $doc);
+                $doc->verified_via_whatsapp = $lifecycle->documentVerifiedViaWhatsapp($doc);
 
                 return $doc;
             });
@@ -214,6 +270,8 @@ class DocumentsTab extends Component
             'pendingInvoiceAmount' => $pendingInvoiceAmount,
             'pendingReviewCount'   => $pendingReviewCount,
             'newUploadCount'       => $newUploadCount,
+            'customerWhatsappUrl'  => $lifecycle->customerWhatsappUrl($booking->customer),
+            'documentsPhasePending'=> $lifecycle->documentsPhasePending($booking),
         ]);
     }
 }
