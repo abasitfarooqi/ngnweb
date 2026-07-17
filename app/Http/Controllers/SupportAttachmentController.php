@@ -5,12 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\SupportAttachment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SupportAttachmentController extends Controller
 {
-    public function show(SupportAttachment $attachment)
+    public function show(SupportAttachment $attachment): StreamedResponse
     {
-        $staff = backpack_auth()->user();
+        $attachment->loadMissing('message.conversation');
+
+        $staff = function_exists('backpack_auth') ? backpack_auth()->user() : null;
         $customerAuth = Auth::guard('customer')->user();
 
         $conversation = $attachment->message?->conversation;
@@ -23,10 +26,14 @@ class SupportAttachmentController extends Controller
         }
 
         $disk = $attachment->disk ?: 'public';
-        if (! Storage::disk($disk)->exists($attachment->path)) {
+        $storage = Storage::disk($disk);
+
+        if (! $storage->exists($attachment->path)) {
             abort(404);
         }
 
-        return Storage::disk($disk)->download($attachment->path, $attachment->original_name);
+        $filename = $attachment->original_name ?: basename($attachment->path);
+
+        return $storage->download($attachment->path, $filename);
     }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Exports\MotorbikesSaleExport;
 use App\Http\Requests\MotorbikesSaleRequest;
 use App\Models\Motorbike;
+use App\Support\MotorbikeMediaStorage;
 use Backpack\CRUD\app\Http\Controllers\CrudController;
 use Backpack\CRUD\app\Library\CrudPanel\CrudPanelFacade as CRUD;
 use Backpack\CRUD\app\Library\Widget;
@@ -381,23 +382,22 @@ class MotorbikesSaleCrudController extends BaseCrudController
     protected function syncImages($motorbike)
     {
         $fields = ['image_one', 'image_two', 'image_three', 'image_four'];
-        $syncService = app(\App\Services\FtpSyncService::class);
+        $updates = [];
 
         foreach ($fields as $field) {
-            if ($motorbike->{$field}) {
-                // Build absolute local path – same logic as your working PDF code
-                $absoluteLocalPath = storage_path('app/public/motorbikes/' . $motorbike->{$field});
-
-                \Log::info("📁 Local file saved at: " . $absoluteLocalPath);
-
-                $success = $syncService->uploadFile($absoluteLocalPath);
-
-                \Log::info("📤 Actual remote mirror path: " . ($success ? 'SUCCESS' : 'FAILED'));
-
-                if (!$success) {
-                    \Log::warning("Uploaded file locally but failed to sync to remote domain: $absoluteLocalPath");
-                }
+            if (! $motorbike->{$field}) {
+                continue;
             }
+
+            $promoted = MotorbikeMediaStorage::promoteLocalToSpaces((string) $motorbike->{$field});
+
+            if ($promoted !== $motorbike->{$field}) {
+                $updates[$field] = $promoted;
+            }
+        }
+
+        if ($updates !== []) {
+            $motorbike->updateQuietly($updates);
         }
     }
 

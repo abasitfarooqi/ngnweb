@@ -64,10 +64,10 @@ return [
     */
 
     'temporary_file_upload' => [
-        'disk' => null,        // Example: 'local', 's3'              | Default: 'default'
+        'disk' => env('LIVEWIRE_TEMP_DISK', 'local'),
         'rules' => ['file', 'max:51200'], // 50MB — sale listing photos + short video
-        'directory' => null,   // Example: 'tmp'                      | Default: 'livewire-tmp'
-        'middleware' => null,  // Example: 'throttle:5,1'             | Default: 'throttle:60,1'
+        'directory' => env('LIVEWIRE_TEMP_DIRECTORY', 'livewire-tmp'),
+        'middleware' => 'web',
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...
             'png', 'gif', 'bmp', 'svg', 'wav', 'mp4',
             'mov', 'avi', 'wmv', 'mp3', 'm4a',

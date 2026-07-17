@@ -7,6 +7,7 @@ use App\Models\ServiceBooking;
 use App\Models\SupportAttachment;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
+use App\Support\SupportChatFileRules;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -73,11 +74,9 @@ class SupportPortalController extends Controller
             ->where('customer_auth_id', $customerAuth->id)
             ->firstOrFail();
 
-        $validated = $request->validate([
+        $validated = $request->validate(array_merge([
             'body' => ['nullable', 'string', 'max:4000'],
-            'files' => ['nullable', 'array', 'max:5'],
-            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
-        ]);
+        ], SupportChatFileRules::arrayWithFiles('files', 5)));
 
         $body = trim((string) ($validated['body'] ?? ''));
         $uploads = $request->file('files', []);

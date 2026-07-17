@@ -353,16 +353,27 @@
                 </div>
                 <div class="p-6">
                     @if($customerId)
-                        <div class="space-y-4">
+                        <form
+                            method="POST"
+                            action="{{ route('account.documents.upload') }}"
+                            enctype="multipart/form-data"
+                            class="space-y-4"
+                        >
+                            @csrf
+                            <input type="hidden" name="document_type_id" value="{{ $uploadingFor }}">
+                            <input type="hidden" name="tab" value="{{ $activeTab }}">
+                            @if($rentalBookingId)
+                                <input type="hidden" name="booking_id" value="{{ $rentalBookingId }}">
+                            @endif
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Select file</label>
                                 <input
                                     type="file"
-                                    wire:model="file"
                                     name="file"
+                                    required
+                                    accept=".jpg,.jpeg,.png,.pdf,image/*,application/pdf"
                                     class="mt-1 block w-full text-sm text-gray-700 dark:text-gray-300 file:mr-4 file:py-2 file:px-4 file:border file:border-gray-300 dark:file:border-gray-600 file:bg-gray-100 dark:file:bg-gray-700 file:text-gray-800 dark:file:text-gray-200 file:cursor-pointer"
                                 />
-                                <p wire:loading wire:target="file" class="mt-1 text-xs text-gray-500 dark:text-gray-400">Preparing file…</p>
                                 @error('file')
                                     <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                                 @enderror
@@ -370,17 +381,16 @@
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Valid until (optional)</label>
-                                <input type="date" wire:model="valid_until" class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
+                                <input type="date" name="valid_until" class="mt-1 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white">
                             </div>
 
                             <div class="flex justify-end gap-2">
-                                <flux:button wire:click="cancelUpload" variant="outline">Cancel</flux:button>
-                                <flux:button wire:click="submitDocumentUpload" wire:loading.attr="disabled" wire:target="submitDocumentUpload,file" variant="filled" class="bg-brand-red text-white">
-                                    <span wire:loading.remove wire:target="submitDocumentUpload">Upload</span>
-                                    <span wire:loading wire:target="submitDocumentUpload">Uploading…</span>
+                                <flux:button type="button" wire:click="cancelUpload" variant="outline">Cancel</flux:button>
+                                <flux:button type="submit" variant="filled" class="bg-brand-red text-white">
+                                    Upload
                                 </flux:button>
                             </div>
-                        </div>
+                        </form>
                     @else
                         <flux:callout variant="warning" icon="exclamation-triangle">
                             <flux:callout.text>Please complete your profile before uploading documents.</flux:callout.text>

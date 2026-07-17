@@ -39,37 +39,40 @@
     </flux:card>
 
     <flux:card class="p-4">
-        <form wire:submit.prevent="sendMessage" class="site-form site-form-stack">
+        <form
+            action="{{ route('account.support.send-message', ['conversationUuid' => $conversation->uuid]) }}"
+            method="POST"
+            enctype="multipart/form-data"
+            class="site-form site-form-stack"
+        >
+            @csrf
             <flux:field>
                 <flux:label>Message</flux:label>
                 <textarea
-                    wire:model="messageBody"
+                    name="body"
                     rows="4"
                     class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
                     placeholder="Write your message..."
-                    x-on:keydown.shift.enter.prevent="$el.closest('form')?.requestSubmit()"
-                ></textarea>
+                >{{ old('body') }}</textarea>
                 <p class="text-[11px] text-gray-500 mt-1">Tip: press Shift + Enter to send quickly.</p>
-                @error('messageBody')
+                @error('body')
                     <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>
                 @enderror
             </flux:field>
             <flux:field>
                 <flux:label>Attachments (optional)</flux:label>
-                <input type="file" wire:model="messageFiles" multiple class="block w-full text-sm text-gray-700 dark:text-gray-300" />
-                <p class="text-xs text-gray-500 mt-1">Up to 5 files, 10MB each. Types allowed: JPG, PNG, WebP, PDF, Word, plain text (server checks MIME type).</p>
-                <div wire:loading wire:target="messageFiles" class="text-xs text-gray-500 mt-1">Uploading files…</div>
-                @error('messageFiles')
+                <input type="file" name="files[]" multiple class="block w-full text-sm text-gray-700 dark:text-gray-300" />
+                <p class="text-xs text-gray-500 mt-1">Up to 5 files, 10MB each. Types allowed: JPG, PNG, WebP, PDF, Word, plain text.</p>
+                @error('files')
                     <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>
                 @enderror
-                @error('messageFiles.*')
+                @error('files.*')
                     <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>
                 @enderror
             </flux:field>
             <div class="flex justify-end">
-                <flux:button type="submit" variant="filled" wire:loading.attr="disabled" wire:target="sendMessage,messageFiles" class="bg-brand-red text-white hover:bg-brand-red-dark px-6 py-2 font-semibold">
-                    <span wire:loading.remove wire:target="sendMessage">Send</span>
-                    <span wire:loading wire:target="sendMessage">Sending…</span>
+                <flux:button type="submit" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark px-6 py-2 font-semibold">
+                    Send
                 </flux:button>
             </div>
         </form>

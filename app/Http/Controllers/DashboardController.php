@@ -371,20 +371,6 @@ class DashboardController extends Controller
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
 
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
-
             return to_route('dashboard', [$user_id])
                 ->with('success', 'The front of the driving licence has been uploaded.');
         }
@@ -421,19 +407,6 @@ class DashboardController extends Controller
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
 
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
-
             return to_route('dashboard', [$user_id])
                 ->with('success', 'The back of the driving licence has been uploaded.');
         }
@@ -469,19 +442,6 @@ class DashboardController extends Controller
             $fileModel->name = time().'_'.$req->file->getClientOriginalName();
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
-
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
 
             return to_route('dashboard', [$user_id])
                 ->with('success', 'Proof of ID has been uploaded.');
@@ -521,19 +481,6 @@ class DashboardController extends Controller
             $fileModel->name = time().'_'.$req->file->getClientOriginalName();
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
-
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
 
             return to_route('dashboard', [$user_id])
                 ->with('success', 'Proof of Address has been uploaded.');
@@ -576,20 +523,6 @@ class DashboardController extends Controller
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
 
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
-
             return to_route('dashboard', [$user_id])
                 ->with('success', 'Insurance has been uploaded.');
         }
@@ -631,20 +564,6 @@ class DashboardController extends Controller
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
 
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                // Optionally, you can log or return a warning about sync failure
-                // Log::warning("Video uploaded locally but failed to sync to remote domain: $absolutePath");
-            }
-
             return to_route('dashboard', [$user_id])
                 ->with('success', 'Statement of Fact has been uploaded.');
         }
@@ -681,19 +600,6 @@ class DashboardController extends Controller
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
 
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
-
             return to_route('dashboard', [$user_id])
                 ->with('success', 'CBT has been uploaded.');
         }
@@ -727,19 +633,6 @@ class DashboardController extends Controller
             $fileModel->name = time().'_'.$req->file->getClientOriginalName();
             $fileModel->file_path = '/storage/'.$filePath;
             $fileModel->save();
-
-            // LOGGING & SFTP SYNC LOGIC (Add these lines)
-            $absoluteLocalPath = storage_path('app/'.$filePath);
-            \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$filePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-            \Log::info('📤 Actual remote mirror path: '.$success);
-
-            if (! $success) {
-                \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-            }
 
             return to_route('dashboard', [$user_id])
                 ->with('success', 'The front of the driving licence has been uploaded.');

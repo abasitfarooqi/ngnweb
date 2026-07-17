@@ -326,43 +326,8 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/', \App\Livewire\Portal\Dashboard::class)->name('dashboard');
     Route::get('/profile', \App\Livewire\Portal\Profile::class)->name('profile');
     Route::get('/documents', \App\Livewire\Portal\Documents::class)->name('documents');
-    Route::post('/documents/upload-curl', function () {
-        $valid = request()->validate([
-            'file' => 'required|file|max:10240',
-            'document_type_id' => 'required|integer|exists:document_types,id',
-        ]);
-        $customerAuth = auth('customer')->user();
-        if (! $customerAuth) {
-            return response()->json(['ok' => false, 'message' => 'Unauthenticated'], 401);
-        }
-        $customerId = $customerAuth->customer_id ?? $customerAuth->customer?->id;
-        if (! $customerId) {
-            return response()->json(['ok' => false, 'message' => 'Customer account is not linked yet.'], 422);
-        }
-        $file = request()->file('file');
-        $path = 'customer-documents/'.\Illuminate\Support\Str::uuid()->toString().'.'.$file->getClientOriginalExtension();
-        \App\Support\CustomerDocumentStorage::put($path, $file->get());
-        $doc = \App\Models\CustomerDocument::updateOrCreate([
-            'customer_id' => $customerId,
-            'document_type_id' => $valid['document_type_id'],
-        ], [
-            'customer_id' => $customerId,
-            'document_type_id' => $valid['document_type_id'],
-            'file_name' => $file->getClientOriginalName(),
-            'file_path' => $path,
-            'file_format' => $file->getClientOriginalExtension(),
-            'document_number' => request('document_number', '') ?: '',
-            'valid_until' => request('valid_until') ?: null,
-            'status' => 'pending_review',
-        ]);
-
-        return response()->json([
-            'ok' => true,
-            'message' => 'Document uploaded.',
-            'document_id' => $doc->id,
-            'file_url' => $doc->file_url,
-        ]);
-    })->name('documents.upload-curl');
+    Route::post('/documents/upload', [\App\Http\Controllers\Portal\DocumentUploadController::class, 'store'])
+        ->name('documents.upload');
     Route::get('/security', \App\Livewire\Portal\Security::class)->name('security');
     Route::get('/club', \App\Livewire\Portal\Club::class)->name('club');
     Route::get('/bookings', \App\Livewire\Portal\Bookings\Index::class)->name('bookings');

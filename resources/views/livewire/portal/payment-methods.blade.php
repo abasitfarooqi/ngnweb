@@ -19,7 +19,7 @@
                         @else
                             <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                                 <flux:icon name="credit-card" class="h-5 w-5 text-gray-400" />
-                            </x-site.form-grid>
+                            </div>
                         @endif
                         <div>
                             <p class="font-semibold text-gray-900 dark:text-white">{{ $method->title }}</p>
@@ -36,7 +36,7 @@
                     </div>
                 </flux:card>
             @endforeach
-        </div>
+        </x-site.form-grid>
     @endif
 
     <flux:callout icon="shield-check" color="green">

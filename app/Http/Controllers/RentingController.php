@@ -2369,20 +2369,9 @@ class RentingController extends Controller
             ]);
             $videoRecord->save();
 
-            // --- SFTP Sync Logic ---
-            $absolutePath = storage_path('app/'.$storePath);
-            $syncService = app(\App\Services\FtpSyncService::class);
-            $success = $syncService->uploadFile($absolutePath);
-
-            if (! $success) {
-                // Optionally, you can log or return a warning about sync failure
-                // Log::warning("Video uploaded locally but failed to sync to remote domain: $absolutePath");
-            }
-
             return response()->json([
                 'message' => 'Video uploaded successfully',
                 'video' => $videoRecord,
-                'sync' => $success ? 'Synced to remote domain' : 'Sync to remote domain failed',
             ]);
         } catch (\Exception $e) {
             return response()->json([

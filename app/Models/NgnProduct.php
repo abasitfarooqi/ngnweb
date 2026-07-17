@@ -2,12 +2,9 @@
 
 namespace App\Models;
 
-use App\Services\FtpSyncService;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Mews\Purifier\Facades\Purifier;
 use Spatie\Permission\Traits\HasRoles;
 
@@ -193,28 +190,5 @@ class NgnProduct extends Model
         }
 
         return ! empty($locations) ? implode(', ', $locations) : 'Out of Stock after this order';
-    }
-
-    protected static function booted()
-    {
-        static::saved(function ($model) {
-            // Sync all productImages files after save
-            if ($model->productImages) {
-                foreach ($model->productImages as $image) {
-                    $filePath = $image->image_url; // Adjust if your field name is different
-                    if ($filePath && Storage::disk('product_images')->exists($filePath)) {
-                        $fullLocalPath = Storage::disk('product_images')->path($filePath);
-
-                        Log::info("[📦 NgnProduct Sync] Syncing file: $fullLocalPath");
-
-                        $success = app(FtpSyncService::class)->uploadFile($fullLocalPath);
-
-                        Log::info('[📦 NgnProduct Sync] Upload result: '.($success ? '✅ success' : '❌ failure'));
-                    } else {
-                        Log::warning("[📦 NgnProduct Sync] File does not exist or path empty: $filePath");
-                    }
-                }
-            }
-        });
     }
 }

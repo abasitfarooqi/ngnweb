@@ -40,7 +40,7 @@
                     <flux:label>First Name</flux:label>
                     <flux:input wire:model="first_name" />
                     @error('first_name') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
-                </x-site.form-grid>
+                </div>
                 <div>
                     <flux:label>Last Name</flux:label>
                     <flux:input wire:model="last_name" />
@@ -89,7 +89,7 @@
                         <flux:select.option value="billing">Billing</flux:select.option>
                     </flux:select>
                 </div>
-            </div>
+            </x-site.form-grid>
             <div class="flex gap-3 mt-5">
                 <flux:button wire:click="save" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
                     {{ $editId ? 'Update Address' : 'Save Address' }}
@@ -122,7 +122,7 @@
                             @if($address->is_default)
                                 <flux:badge color="red" size="sm" class="mt-1">Default</flux:badge>
                             @endif
-                        </x-site.form-grid>
+                        </div>
                         <flux:badge color="{{ $address->type === 'billing' ? 'blue' : 'zinc' }}" size="sm">
                             {{ ucfirst($address->type) }}
                         </flux:badge>
@@ -153,6 +153,6 @@
                     </div>
                 </flux:card>
             @endforeach
-        </div>
+        </x-site.form-grid>
     @endif
 </div>

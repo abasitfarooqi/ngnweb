@@ -60,7 +60,11 @@ class SupportMessage extends Model
                 $conversation->save();
             }
 
-            event(new SupportMessageSent($message->fresh(['conversation', 'senderCustomerAuth', 'senderUser', 'attachments'])));
+            try {
+                event(new SupportMessageSent($message->fresh(['conversation', 'senderCustomerAuth', 'senderUser', 'attachments'])));
+            } catch (Throwable) {
+                // Never block chat delivery if realtime broadcast fails.
+            }
 
             if ($message->sender_type === 'customer' && $conversation && Schema::hasTable('notifications')) {
                 $customerMsgCount = self::query()

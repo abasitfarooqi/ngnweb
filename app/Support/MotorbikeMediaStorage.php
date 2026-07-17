@@ -69,15 +69,16 @@ final class MotorbikeMediaStorage
     /** @param  resource|string  $contents */
     public static function put(string $relativePath, $contents): string
     {
-        $key = self::spacesKey($relativePath);
+        $local = self::normalizeStoredPath($relativePath);
 
         if (self::spacesConfigured()) {
-            Storage::disk('spaces')->put($key, $contents, ['visibility' => 'public']);
+            $key = self::spacesKey($relativePath);
 
-            return $key;
+            if (self::spacesPut($key, $contents)) {
+                return $key;
+            }
         }
 
-        $local = self::normalizeStoredPath($relativePath);
         Storage::disk('used_motorbikes')->put($local, $contents);
 
         return $local;
@@ -92,7 +93,7 @@ final class MotorbikeMediaStorage
 
         $key = self::spacesKey($path);
 
-        if (Storage::disk('spaces')->exists($key)) {
+        if (self::spacesExists($key)) {
             self::deleteLocalCopies($path);
 
             return $key;
@@ -104,9 +105,7 @@ final class MotorbikeMediaStorage
             return $path;
         }
 
-        Storage::disk('spaces')->put($key, $contents, ['visibility' => 'public']);
-
-        if (Storage::disk('spaces')->exists($key)) {
+        if (self::spacesPut($key, $contents)) {
             self::deleteLocalCopies($path);
 
             return $key;
@@ -120,7 +119,7 @@ final class MotorbikeMediaStorage
         $path = trim((string) $path);
 
         if ($path === '') {
-            return self::REMOTE_LEGACY_BASE.'/assets/img/no-image.png';
+            return self::noImageUrl();
         }
 
         if (Str::startsWith($path, ['http://', 'https://'])) {
@@ -129,37 +128,21 @@ final class MotorbikeMediaStorage
 
         $key = self::spacesKey($path);
 
-        if (self::spacesConfigured()) {
-            try {
-                if (Storage::disk('spaces')->exists($key)) {
-                    return Storage::disk('spaces')->url($key);
-                }
-            } catch (\Throwable) {
-            }
-
-            try {
-                return Storage::disk('spaces')->url($key);
-            } catch (\Throwable) {
-            }
+        if (self::spacesConfigured() && self::spacesExists($key)) {
+            return self::spacesUrl($key);
         }
 
-        $local = self::normalizeStoredPath($path);
+        $localUrl = self::localUrlForPath($path);
 
-        if ($local !== '' && Storage::disk('used_motorbikes')->exists($local)) {
-            return asset('storage/motorbikes/'.$local);
-        }
-
-        $publicPath = Str::startsWith($path, 'motorbikes/') ? $path : self::spacesPrefix().$local;
-
-        if ($publicPath !== '' && Storage::disk('public')->exists($publicPath)) {
-            return Storage::disk('public')->url($publicPath);
+        if ($localUrl !== null) {
+            return $localUrl;
         }
 
         if (Str::startsWith($path, ['/storage/', '/assets/'])) {
-            return self::REMOTE_LEGACY_BASE.$path;
+            return self::siteBaseUrl().$path;
         }
 
-        return self::REMOTE_LEGACY_BASE.'/storage/'.self::spacesPrefix().ltrim($local, '/');
+        return self::siteBaseUrl().'/storage/'.self::spacesPrefix().ltrim(self::normalizeStoredPath($path), '/');
     }
 
     public static function delete(?string $path): void
@@ -171,13 +154,83 @@ final class MotorbikeMediaStorage
         $key = self::spacesKey($path);
 
         try {
-            if (self::spacesConfigured() && Storage::disk('spaces')->exists($key)) {
+            if (self::spacesConfigured() && self::spacesExists($key)) {
                 Storage::disk('spaces')->delete($key);
             }
         } catch (\Throwable) {
         }
 
         self::deleteLocalCopies($path);
+    }
+
+    private static function noImageUrl(): string
+    {
+        return self::siteBaseUrl().'/assets/img/no-image.png';
+    }
+
+    private static function siteBaseUrl(): string
+    {
+        $url = rtrim((string) config('app.url'), '/');
+
+        return $url !== '' ? $url : self::REMOTE_LEGACY_BASE;
+    }
+
+    private static function localUrlForPath(string $path): ?string
+    {
+        $local = self::normalizeStoredPath($path);
+
+        if ($local !== '' && Storage::disk('used_motorbikes')->exists($local)) {
+            return self::siteBaseUrl().'/storage/motorbikes/'.$local;
+        }
+
+        $publicPath = Str::startsWith($path, 'motorbikes/') ? $path : self::spacesPrefix().$local;
+
+        if ($publicPath !== '' && Storage::disk('public')->exists($publicPath)) {
+            return Storage::disk('public')->url($publicPath);
+        }
+
+        return null;
+    }
+
+    /** @param  resource|string  $contents */
+    private static function spacesPut(string $key, $contents): bool
+    {
+        if ($key === '') {
+            return false;
+        }
+
+        try {
+            Storage::disk('spaces')->put($key, $contents, [
+                'visibility' => 'public',
+                'ACL' => 'public-read',
+            ]);
+
+            return self::spacesExists($key);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private static function spacesExists(string $key): bool
+    {
+        if ($key === '') {
+            return false;
+        }
+
+        try {
+            return Storage::disk('spaces')->exists($key);
+        } catch (\Throwable) {
+            return false;
+        }
+    }
+
+    private static function spacesUrl(string $key): string
+    {
+        try {
+            return Storage::disk('spaces')->url($key);
+        } catch (\Throwable) {
+            return self::siteBaseUrl().'/'.ltrim($key, '/');
+        }
     }
 
     private static function readLocalContents(string $path): ?string

@@ -174,24 +174,11 @@ class CustomerController extends Controller
             'local'
         );
 
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/'.$path);
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $absolutePath = storage_path('app/'.$path);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absolutePath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
-
         if (! $path) {
             return back()->with('error', 'Document upload failed.');
         }
 
         \Log::info('Document uploaded:', ['path' => $path, 'name' => $documentFriendlyName, 'timestamp' => $timestamp, 'extension' => $extension]);
-
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-        }
 
         return back()->with('success', 'Document uploaded successfully.');
     }
@@ -249,15 +236,6 @@ class CustomerController extends Controller
         ]);
 
         $customerDocument->save();
-
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/'.$path);
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $absolutePath = storage_path('app/'.$path);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absolutePath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
 
         \Log::info("Document stored at: {$path}");
 
@@ -334,19 +312,6 @@ class CustomerController extends Controller
         }
 
         \Log::info("Document stored at: {$path}");
-
-        // LOGGING & SFTP SYNC LOGIC (Add these lines)
-        $absoluteLocalPath = storage_path('app/'.$path);
-        \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-        // --- SFTP Sync Logic ---
-        $absolutePath = storage_path('app/'.$path);
-        $syncService = app(\App\Services\FtpSyncService::class);
-        $success = $syncService->uploadFile($absolutePath);
-        \Log::info('📤 Actual remote mirror path: '.$success);
-
-        if (! $success) {
-            \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-        }
 
         return response()->json([
             'success' => true,
