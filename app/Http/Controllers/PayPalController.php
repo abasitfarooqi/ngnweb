@@ -8,6 +8,7 @@ use App\Models\Ecommerce\EcOrder;
 use App\Models\Ecommerce\EcOrderItem;
 use App\Models\PaymentsPaypal;
 use App\Models\PaypalWebhookEvent;
+use App\Support\EcCheckoutPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Srmklive\PayPal\Services\PayPal as PayPalClient;
@@ -45,7 +46,7 @@ class PayPalController extends Controller
         $returnUrl = route('paypal.success');
 
         // Get pending order with items
-        $pendingOrder = EcOrder::with(['orderItems.product', 'shippingMethod'])
+        $pendingOrder = EcOrder::with(['orderItems.product', 'shippingMethod', 'paymentMethod'])
             ->where('customer_id', $customer->id)
             ->where('order_status', 'pending')
             ->where('payment_status', 'pending')
@@ -53,6 +54,23 @@ class PayPalController extends Controller
 
         if (! $pendingOrder) {
             return redirect($returnUrl.'?payment_status=error&message='.urlencode('No pending order found.'));
+        }
+
+        $paymentMethod = $pendingOrder->paymentMethod;
+        if ($paymentMethod && EcCheckoutPayment::isOffline($paymentMethod)) {
+            return redirect($this->checkoutPathForOrder($pendingOrder->id))
+                ->with([
+                    'payment_status' => 'error',
+                    'message' => 'This order is set to pay in store. Return to checkout and choose PayPal if you want to pay online.',
+                ]);
+        }
+
+        if ($paymentMethod && ! EcCheckoutPayment::isPayPal($paymentMethod)) {
+            return redirect($this->checkoutPathForOrder($pendingOrder->id))
+                ->with([
+                    'payment_status' => 'error',
+                    'message' => 'Please choose PayPal, cash, or in store payment at checkout.',
+                ]);
         }
 
         // Get shipping method or stopped payment

@@ -7,11 +7,10 @@ use App\Models\CustomerAddress;
 use App\Models\Ecommerce\EcOrder;
 use App\Models\Ecommerce\EcOrderItem;
 use App\Models\Ecommerce\EcOrderShipping;
-use App\Models\Ecommerce\EcPaymentMethod;
 use App\Models\Ecommerce\EcShippingMethod;
 use App\Models\NgnProduct;
 use App\Services\CartService;
-use Illuminate\Database\Eloquent\Builder;
+use App\Support\EcCheckoutPayment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
@@ -60,6 +59,8 @@ class Checkout extends Component
     public string $paymentMessage = '';
 
     public ?string $transactionId = null;
+
+    public string $placedPaymentMethodTitle = '';
 
     protected CartService $cart;
 
@@ -126,7 +127,7 @@ class Checkout extends Component
             $this->shippingMethodId = $defaultShipping->id;
         }
 
-        $defaultPayment = $this->checkoutPaymentMethodsQuery()->first();
+        $defaultPayment = EcCheckoutPayment::checkoutMethodsQuery()->first();
         if ($defaultPayment) {
             $this->paymentMethodId = $defaultPayment->id;
         }
@@ -222,11 +223,11 @@ class Checkout extends Component
             return;
         }
 
-        $paymentMethod = $this->checkoutPaymentMethodsQuery()
+        $paymentMethod = EcCheckoutPayment::checkoutMethodsQuery()
             ->where('id', $this->paymentMethodId)
             ->first();
         if (! $paymentMethod) {
-            $this->errorMessage = 'Please select a valid payment method (PayPal or pay in store).';
+            $this->errorMessage = 'Please select a valid payment method (PayPal, cash, or in store payment).';
 
             return;
         }
@@ -297,8 +298,7 @@ class Checkout extends Component
                 EcOrder::query()->whereIn('id', $staleOrderIds)->delete();
             }
 
-            $isPayPal = str_contains(strtolower((string) $paymentMethod->slug), 'paypal')
-                || str_contains(strtolower((string) $paymentMethod->title), 'paypal');
+            $isPayPal = EcCheckoutPayment::isPayPal($paymentMethod);
 
             $order = EcOrder::create([
                 'customer_id' => $customer->id,
@@ -359,6 +359,7 @@ class Checkout extends Component
                 return;
             }
 
+            $this->placedPaymentMethodTitle = (string) $paymentMethod->title;
             $this->cart->clear();
             $this->dispatch('cart-updated', count: 0)->to('site.header');
             $this->step = 4;
@@ -378,7 +379,7 @@ class Checkout extends Component
             : collect();
         $shippingMethods = EcShippingMethod::active()->get();
         $branches = Branch::orderBy('name')->get();
-        $paymentMethods = $this->checkoutPaymentMethodsQuery()->get();
+        $paymentMethods = EcCheckoutPayment::checkoutMethodsQuery()->get();
         $items = $this->cart->getItems();
         $subtotal = $this->cart->subtotal();
         $shippingMethod = $this->shippingMethodId
@@ -400,27 +401,5 @@ class Checkout extends Component
                 ? 'Complete your spareparts order at NGN Motors.'
                 : 'Complete your order at NGN Motors.',
         ]);
-    }
-
-    /**
-     * Payment methods customers may use on this checkout (matches live DB slugs such as paypal, pay-on-store).
-     */
-    protected function checkoutPaymentMethodsQuery(): Builder
-    {
-        return EcPaymentMethod::active()
-            ->where(function ($query): void {
-                $query->whereIn('slug', [
-                    'paypal',
-                    'pay-on-store',
-                    'pay_on_store',
-                    'cash',
-                    'cash-on-branch',
-                    'cash_on_branch',
-                ])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%paypal%'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%pay on store%'])
-                    ->orWhereRaw('LOWER(title) LIKE ?', ['%cash%']);
-            })
-            ->orderBy('id');
     }
 }

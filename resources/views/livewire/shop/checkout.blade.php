@@ -11,6 +11,14 @@
                 {{ $paymentResult === 'success' ? 'Payment Successful!' : 'Order Placed!' }}
             </h1>
             <p class="text-gray-600 dark:text-gray-400 mb-2">Your order <strong>#{{ $orderId }}</strong> has been confirmed.</p>
+            @if($placedPaymentMethodTitle && $paymentResult !== 'success')
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                    Payment method: <strong>{{ $placedPaymentMethodTitle }}</strong>.
+                    @if(str_contains(strtolower($placedPaymentMethodTitle), 'cash') || str_contains(strtolower($placedPaymentMethodTitle), 'store'))
+                        Please pay when you collect your order at the branch.
+                    @endif
+                </p>
+            @endif
             @if($transactionId)
                 <p class="text-sm text-gray-500 dark:text-gray-500 mb-2">PayPal reference: <strong>{{ $transactionId }}</strong></p>
             @endif
@@ -220,7 +228,7 @@
                             @if($paymentMethods->isEmpty())
                                 <p class="text-sm text-amber-700 dark:text-amber-300">No payment methods are available. Please contact us.</p>
                             @else
-                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Pay with PayPal online, or choose cash when you collect at a branch.</p>
+                                <p class="text-xs text-gray-500 dark:text-gray-400 mb-3">Pay with PayPal online, or choose cash / in store payment when you collect at a branch.</p>
                                 <div class="space-y-2">
                                     @foreach($paymentMethods as $method)
                                         <label class="flex items-center gap-3 text-sm cursor-pointer p-3 border-2 transition

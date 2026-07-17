@@ -21,8 +21,9 @@ class EcPaymentMethodsTableSeeder extends Seeder
         DB::unprepared(<<<'SQL'
 INSERT INTO `ec_payment_methods` (`id`, `title`, `slug`, `logo`, `link_url`, `instructions`, `is_enabled`, `created_at`, `updated_at`) VALUES
 ('1', 'No Payment Method', 'no-payment-method', '-', '-', '-', '0', NULL, NULL),
-('2', 'Pay On Store', 'pay-on-store', '-', '-', '-', '0', NULL, NULL),
-('3', 'Paypal', 'paypal', '-', '-', '-', '1', NULL, NULL);
+('2', 'In Store Payment', 'pay-on-store', '-', '-', 'Pay when you collect your order at the branch.', '1', NULL, NULL),
+('3', 'Paypal', 'paypal', '-', '-', '-', '1', NULL, NULL),
+('4', 'Cash', 'cash', '-', '-', 'Pay with cash when you collect your order at the branch.', '1', NULL, NULL);
 SQL
         );
         
