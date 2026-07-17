@@ -102,7 +102,7 @@ class PcnUpdateForm extends Component
             'form.is_paid_by_keeper' => ['boolean'],
             'form.is_transferred' => ['boolean'],
             'form.is_cancled' => ['boolean'],
-            'form.additional_fee' => ['required', 'numeric', 'min:0'],
+            'form.additional_fee' => ['nullable', 'numeric', 'min:0'],
             'form.note' => ['required', 'string', 'max:2000'],
         ]);
 
@@ -114,7 +114,7 @@ class PcnUpdateForm extends Component
             'is_paid_by_keeper' => $this->form['is_paid_by_keeper'],
             'is_transferred' => $this->form['is_transferred'],
             'is_cancled' => $this->form['is_cancled'],
-            'additional_fee' => $this->form['additional_fee'],
+            'additional_fee' => ($this->form['additional_fee'] ?? '') !== '' ? $this->form['additional_fee'] : null,
             'note' => $this->form['note'],
         ];
 

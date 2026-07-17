@@ -2,10 +2,24 @@
     {{-- Header --}}
     <div class="flex items-center justify-between flex-wrap gap-3">
         <flux:heading size="xl">My Addresses</flux:heading>
-        <flux:button wire:click="openNew" icon="plus" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
-            Add Address
-        </flux:button>
+        @if($canEditPortal ?? false)
+            <flux:button wire:click="openNew" icon="plus" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
+                Add Address
+            </flux:button>
+        @endif
     </div>
+
+    @if(! ($canEditPortal ?? false))
+        <flux:callout variant="warning" icon="lock-closed">
+            <flux:callout.text>Your account is read-only until NGN authorises editing.</flux:callout.text>
+        </flux:callout>
+    @endif
+
+    @if(session('error'))
+        <flux:callout variant="danger" icon="x-circle">
+            <flux:callout.text>{{ session('error') }}</flux:callout.text>
+        </flux:callout>
+    @endif
 
     {{-- Success message --}}
     @if($successMessage)
@@ -90,9 +104,11 @@
         <flux:card class="p-12 text-center">
             <flux:icon name="map-pin" class="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <p class="text-gray-600 dark:text-gray-400 mb-4">No addresses saved yet.</p>
+            @if($canEditPortal ?? false)
             <flux:button wire:click="openNew" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
                 Add Your First Address
             </flux:button>
+            @endif
         </flux:card>
     @else
         <x-site.form-grid :cols="2">
@@ -120,6 +136,7 @@
                         @if($address->phone_number) <p>{{ $address->phone_number }}</p> @endif
                     </address>
                     <div class="flex gap-2 flex-wrap">
+                        @if($canEditPortal ?? false)
                         <flux:button wire:click="edit({{ $address->id }})" size="sm" variant="outline">Edit</flux:button>
                         @if(!$address->is_default)
                             <flux:button wire:click="setDefault({{ $address->id }})" size="sm" variant="ghost">
@@ -131,6 +148,7 @@
                                          class="text-red-500 hover:text-red-700">
                                 Remove
                             </flux:button>
+                        @endif
                         @endif
                     </div>
                 </flux:card>

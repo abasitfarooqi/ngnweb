@@ -64,26 +64,10 @@ class ClubMembersIndex extends Component
     protected function baseQuery(): Builder
     {
         $term = trim($this->search);
-        $phoneDigits = ClubMemberStaffAccess::digitsOnly($term);
 
         return ClubMember::with('partner')
-            ->when($term !== '', fn ($q) => $q->where(function ($q) use ($term, $phoneDigits) {
-                $q->where('full_name', 'like', "%{$term}%")
-                    ->orWhere('email', 'like', "%{$term}%")
-                    ->orWhere('phone', 'like', "%{$term}%")
-                    ->orWhere('vrm', 'like', "%{$term}%")
-                    ->orWhere('make', 'like', "%{$term}%")
-                    ->orWhere('model', 'like', "%{$term}%")
-                    ->orWhere('year', 'like', "%{$term}%");
-
-                if (strlen($phoneDigits) >= 3) {
-                    $q->orWhereRaw(
-                        "REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '+', ''), '(', '') LIKE ?",
-                        ['%'.$phoneDigits.'%']
-                    );
-                }
-            }))
-            ->when($this->activeOnly, fn ($q) => $q->where('is_active', true))
+            ->when($term !== '', fn (Builder $q) => ClubMemberStaffAccess::applyAdminListSearch($q, $term))
+            ->when($term === '' && $this->activeOnly, fn (Builder $q) => $q->where('is_active', true))
             ->when($this->filterYear !== '', fn ($q) => $q->where('year', $this->filterYear))
             ->when($this->filterPartner !== '', fn ($q) => $q->where('is_partner', (bool) $this->filterPartner));
     }

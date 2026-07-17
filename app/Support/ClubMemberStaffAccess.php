@@ -3,6 +3,7 @@
 namespace App\Support;
 
 use App\Models\ClubMember;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 final class ClubMemberStaffAccess
@@ -104,6 +105,52 @@ final class ClubMemberStaffAccess
     public static function digitsOnly(string $value): string
     {
         return preg_replace('/\D+/', '', $value) ?? '';
+    }
+
+    /** Admin list search — name, email, phone (digits), VRM, vehicle, linked customer. */
+    public static function applyAdminListSearch(Builder $query, string $term): void
+    {
+        $term = trim($term);
+        if ($term === '') {
+            return;
+        }
+
+        $phoneDigits = self::digitsOnly($term);
+
+        $query->where(function (Builder $q) use ($term, $phoneDigits) {
+            $q->where('full_name', 'like', "%{$term}%")
+                ->orWhere('email', 'like', "%{$term}%")
+                ->orWhere('phone', 'like', "%{$term}%")
+                ->orWhere('vrm', 'like', "%{$term}%")
+                ->orWhere('make', 'like', "%{$term}%")
+                ->orWhere('model', 'like', "%{$term}%")
+                ->orWhere('year', 'like', "%{$term}%");
+
+            if (strlen($phoneDigits) >= 3) {
+                $q->orWhereRaw(
+                    "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '+', ''), '(', ''), ')', '') LIKE ?",
+                    ['%'.$phoneDigits.'%']
+                );
+            }
+
+            $q->orWhereHas('customer', function (Builder $cq) use ($term, $phoneDigits) {
+                $cq->where('first_name', 'like', "%{$term}%")
+                    ->orWhere('last_name', 'like', "%{$term}%")
+                    ->orWhere('phone', 'like', "%{$term}%")
+                    ->orWhere('whatsapp', 'like', "%{$term}%")
+                    ->orWhere('email', 'like', "%{$term}%");
+
+                if (strlen($phoneDigits) >= 3) {
+                    $cq->orWhereRaw(
+                        "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(phone, ' ', ''), '-', ''), '+', ''), '(', ''), ')', '') LIKE ?",
+                        ['%'.$phoneDigits.'%']
+                    )->orWhereRaw(
+                        "REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(whatsapp, ' ', ''), '-', ''), '+', ''), '(', ''), ')', '') LIKE ?",
+                        ['%'.$phoneDigits.'%']
+                    );
+                }
+            });
+        });
     }
 
     public static function formatField(mixed $value): string

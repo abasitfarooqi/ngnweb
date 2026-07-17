@@ -101,6 +101,12 @@ class Profile extends Component
     {
         $profile = $this->resolvePortalCustomer();
 
+        if (! $profile->canCustomerEditPortal()) {
+            session()->flash('error', 'Your profile is read-only until NGN authorises editing. Please contact us if you need changes.');
+
+            return;
+        }
+
         $rules = [
             'first_name' => 'required|string|max:255',
             'last_name' => 'required|string|max:255',

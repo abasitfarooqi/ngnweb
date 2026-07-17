@@ -17,6 +17,9 @@
         <div class="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-stretch">
             <div class="min-w-0 w-full lg:flex-1">
                 <flux:input wire:model.live.debounce.300ms="search" placeholder="Search name, email, phone, VRM…" variant="filled" />
+                @if(trim($search) !== '')
+                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Search includes inactive members — use Edit to activate.</p>
+                @endif
             </div>
             <div class="min-w-0 w-full sm:min-w-[8rem] sm:max-w-[9rem]">
                 <flux:input type="number" wire:model.live.debounce.400ms="filterYear" placeholder="Year…" variant="filled" />
@@ -31,7 +34,7 @@
             <div class="flex w-full flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-stretch lg:w-auto lg:shrink-0">
                 <div class="flex h-10 min-w-0 shrink-0 items-center gap-2 sm:h-auto sm:min-h-[2.5rem] lg:h-10">
                     <flux:switch wire:model.live="activeOnly" />
-                    <span class="text-sm text-zinc-600 dark:text-zinc-400">Active only</span>
+                    <span class="text-sm text-zinc-600 dark:text-zinc-400">Active only @if(trim($search) !== '')<span class="text-xs">(off whilst searching)</span>@endif</span>
                 </div>
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:max-w-[11rem] lg:w-36">
                     <flux:select wire:model.live="perPage">

@@ -4,6 +4,14 @@
         <p class="text-sm text-gray-500 mt-1">Upload and manage rental and general documents, and finance documents, from one place.</p>
     </div>
 
+    @if($profile && ! $profile->canCustomerEditPortal())
+        <flux:callout variant="warning" icon="lock-closed" class="mb-5">
+            <flux:callout.text>
+                Your account is read-only until NGN authorises editing. You can view documents below but cannot upload or replace them yet.
+            </flux:callout.text>
+        </flux:callout>
+    @endif
+
     @if(session('success'))
         <flux:callout variant="success" icon="check-circle" class="mb-5">
             <flux:callout.text>{{ session('success') }}</flux:callout.text>

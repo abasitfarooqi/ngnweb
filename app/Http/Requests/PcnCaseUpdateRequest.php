@@ -22,7 +22,7 @@ class PcnCaseUpdateRequest extends FormRequest
             'is_paid_by_keeper' => 'boolean',
             'is_transferred' => 'boolean',
             'is_cancled' => 'boolean',
-            'additional_fee' => 'required|numeric',
+            'additional_fee' => 'nullable|numeric|min:0',
             'picture_url' => 'nullable|mimes:jpeg,png,gif,pdf|max:64024',
             'note' => 'required|string',
         ];

@@ -49,8 +49,24 @@ class Addresses extends Component
         ];
     }
 
+    protected function assertPortalEditable(): bool
+    {
+        $customer = Auth::guard('customer')->user()?->customer;
+        if ($customer && ! $customer->canCustomerEditPortal()) {
+            session()->flash('error', 'Your account is read-only until NGN authorises editing.');
+
+            return false;
+        }
+
+        return true;
+    }
+
     public function openNew(): void
     {
+        if (! $this->assertPortalEditable()) {
+            return;
+        }
+
         $this->resetForm();
         $this->editId = null;
         $this->showForm = true;
@@ -58,6 +74,10 @@ class Addresses extends Component
 
     public function edit(int $id): void
     {
+        if (! $this->assertPortalEditable()) {
+            return;
+        }
+
         $customer = Auth::guard('customer')->user();
         $address = CustomerAddress::where('id', $id)
             ->where('customer_id', $customer->customer_id)
@@ -79,6 +99,10 @@ class Addresses extends Component
 
     public function save(): void
     {
+        if (! $this->assertPortalEditable()) {
+            return;
+        }
+
         $this->validate();
 
         $customer = Auth::guard('customer')->user();
@@ -116,6 +140,10 @@ class Addresses extends Component
 
     public function setDefault(int $id): void
     {
+        if (! $this->assertPortalEditable()) {
+            return;
+        }
+
         $customer = Auth::guard('customer')->user();
 
         CustomerAddress::where('customer_id', $customer->customer_id)
@@ -130,6 +158,10 @@ class Addresses extends Component
 
     public function delete(int $id): void
     {
+        if (! $this->assertPortalEditable()) {
+            return;
+        }
+
         $customer = Auth::guard('customer')->user();
         $address = CustomerAddress::where('id', $id)
             ->where('customer_id', $customer->customer_id)
@@ -182,8 +214,9 @@ class Addresses extends Component
             ->orderByDesc('is_default')
             ->get();
         $countries = SystemCountry::orderBy('name')->get();
+        $canEditPortal = (bool) $customer->customer?->canCustomerEditPortal();
 
-        return view('livewire.portal.addresses', compact('addresses', 'countries'))
+        return view('livewire.portal.addresses', compact('addresses', 'countries', 'canEditPortal'))
             ->layout('components.layouts.portal', [
                 'title' => 'My Addresses | My Account',
             ]);

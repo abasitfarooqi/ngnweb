@@ -7,9 +7,11 @@ use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\ClubMember;
+use App\Support\ClubMemberStaffAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -21,6 +23,7 @@ class ClubIndex extends Component
 
     public bool $showForm = false;
 
+    #[Url(as: 'active', except: true)]
     public bool $activeOnly = true;
 
     public string $filterYear = '';
@@ -115,14 +118,11 @@ class ClubIndex extends Component
 
     protected function baseQuery(): Builder
     {
+        $term = trim($this->search);
+
         return ClubMember::with('partner', 'customer')
-            ->when($this->search !== '', fn ($q) => $q->where(function ($q) {
-                $q->where('full_name', 'like', "%{$this->search}%")
-                    ->orWhere('email', 'like', "%{$this->search}%")
-                    ->orWhere('phone', 'like', "%{$this->search}%")
-                    ->orWhere('vrm', 'like', "%{$this->search}%");
-            }))
-            ->when($this->activeOnly, fn ($q) => $q->where('is_active', true))
+            ->when($term !== '', fn (Builder $q) => ClubMemberStaffAccess::applyAdminListSearch($q, $term))
+            ->when($term === '' && $this->activeOnly, fn (Builder $q) => $q->where('is_active', true))
             ->when($this->filterYear !== '', fn ($q) => $q->where('year', $this->filterYear))
             ->when($this->filterPartner !== '', fn ($q) => $q->where('is_partner', (bool) $this->filterPartner));
     }

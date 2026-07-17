@@ -114,6 +114,13 @@ class Documents extends Component
     public function startUpload($documentTypeId)
     {
         $profile = Auth::guard('customer')->user()?->customer;
+
+        if ($profile && ! $profile->canCustomerEditPortal()) {
+            session()->flash('error', 'Document uploads are read-only until NGN authorises your account.');
+
+            return;
+        }
+
         $existing = null;
         $customerId = $this->getPortalCustomerId();
 
@@ -210,6 +217,13 @@ class Documents extends Component
             \Log::warning('Portal Documents::submitDocumentUpload blocked: no customer profile linked');
             session()->flash('error', 'Your account is not linked to a customer record yet.');
             $this->dispatch('portal-document-upload-popup', message: 'Upload failed: account is not linked to customer profile.');
+
+            return;
+        }
+
+        if (! $profile->canCustomerEditPortal()) {
+            session()->flash('error', 'Document uploads are read-only until NGN authorises your account.');
+            $this->dispatch('portal-document-upload-popup', message: 'Upload blocked: account is read-only until NGN authorises editing.');
 
             return;
         }

@@ -39,7 +39,7 @@
                 <x-flux-admin::field-group label="Update date" required :error="$errors->first('form.update_date')">
                     <flux:input type="datetime-local" wire:model="form.update_date" />
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Additional fee (£)" required :error="$errors->first('form.additional_fee')">
+                <x-flux-admin::field-group label="Additional fee (£)" :error="$errors->first('form.additional_fee')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.additional_fee" />
                 </x-flux-admin::field-group>
             </div>

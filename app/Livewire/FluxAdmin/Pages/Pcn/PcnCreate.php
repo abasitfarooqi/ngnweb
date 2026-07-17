@@ -193,7 +193,7 @@ class PcnCreate extends Component
             'form.customer_id' => ['nullable', 'integer', 'exists:customers,id'],
             'caseUpdates.*.update_date' => ['required', 'date'],
             'caseUpdates.*.note' => ['required', 'string', 'max:2000'],
-            'caseUpdates.*.additional_fee' => ['required', 'numeric', 'min:0'],
+            'caseUpdates.*.additional_fee' => ['nullable', 'numeric', 'min:0'],
         ]);
 
         $pcnCase = PcnCase::create([

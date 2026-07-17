@@ -146,13 +146,14 @@ class Customer extends Model
         return $this->belongsTo(Branch::class, 'preferred_branch_id');
     }
 
+    public function canCustomerEditPortal(): bool
+    {
+        return (bool) ($this->profile_editing_unlocked ?? false);
+    }
+
     public function canCustomerEditIdentityFields(): bool
     {
-        if ($this->profile_editing_unlocked ?? false) {
-            return true;
-        }
-
-        return empty($this->profile_initialised_at);
+        return $this->canCustomerEditPortal();
     }
 
     public function isFieldLocked(string $field): bool
@@ -197,6 +198,10 @@ class Customer extends Model
 
     public function canCustomerReplaceDocument(string $resolvedStatus): bool
     {
+        if (! $this->canCustomerEditPortal()) {
+            return false;
+        }
+
         return match ($resolvedStatus) {
             'missing', 'rejected', 'expired' => true,
             'approved' => (bool) ($this->document_reupload_unlocked ?? false),
