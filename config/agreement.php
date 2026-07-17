@@ -6,7 +6,7 @@ return [
     /** Minutes after signing before PDF is removed from public storage and uploaded to private DO Spaces. */
     'archive_delay_minutes' => (int) env('AGREEMENT_ARCHIVE_DELAY_MINUTES', 20),
 
-    /** Prefix on DO Spaces (private objects — not linked in app). */
+    /** Prefix on DO Spaces (private objects — not linked in app). Covers rentals + finance contracts. */
     'spaces_archive_prefix' => env('AGREEMENT_SPACES_ARCHIVE_PREFIX', 'agreement-archives/'),
 
     'brand' => [

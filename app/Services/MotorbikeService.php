@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\MotorbikeRepositoryInterface;
+use App\Support\MotorbikeMediaStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
@@ -26,7 +27,7 @@ class MotorbikeService
 
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
-                $path = $image->store('public/motorbikes');
+                $path = MotorbikeMediaStorage::putUploadedFile($image);
                 $motorbike->images()->create(['image_path' => $path]);
             }
         }

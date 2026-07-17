@@ -162,6 +162,8 @@ use App\Livewire\FluxAdmin\Pages\Surveys\SurveyIndex;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyOptionIndex;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyQuestionIndex;
 use App\Livewire\FluxAdmin\Pages\Surveys\SurveyResponseIndex;
+use App\Http\Controllers\FluxAdmin\SpacesVaultController;
+use App\Livewire\FluxAdmin\Pages\Dev\SpacesVaultExplorer;
 use App\Livewire\FluxAdmin\Pages\Dev\DevClubOtpIndex;
 use App\Livewire\FluxAdmin\Pages\Dev\QueueMonitorIndex;
 use App\Livewire\FluxAdmin\Pages\Access\ServiceVideoForm;
@@ -654,6 +656,10 @@ Route::get('/survey-answers', SurveyAnswerIndex::class)->name('flux-admin.survey
 // Phase 3 — Dev tools
 Route::get('/dev-club-otp', DevClubOtpIndex::class)->name('flux-admin.dev-club-otp.index');
 Route::get('/queue-monitor', QueueMonitorIndex::class)->name('flux-admin.queue-monitor.index');
+
+$spacesVaultPath = trim((string) config('spaces-vault.path', '_vault/do-spaces'), '/');
+Route::get('/'.$spacesVaultPath, SpacesVaultExplorer::class)->name('flux-admin.spaces-vault.index');
+Route::get('/'.$spacesVaultPath.'/file', [SpacesVaultController::class, 'stream'])->name('flux-admin.spaces-vault.stream');
 
 // Form pages — Inventory
 Route::get('/inventory-brands/create', InventoryBrandForm::class)->name('flux-admin.inventory-brands.create');

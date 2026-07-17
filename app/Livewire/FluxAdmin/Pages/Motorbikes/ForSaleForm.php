@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Motorcycle;
+use App\Support\MotorbikeMediaStorage;
 use App\Support\NgnMotorcycleImage;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -71,8 +72,7 @@ class ForSaleForm extends Component
         $payload['availability'] = $payload['availability'] ?? 'for sale';
 
         if ($this->imageUpload) {
-            $stored = $this->imageUpload->store('', 'used_motorbikes');
-            $payload['file_path'] = $stored;
+            $payload['file_path'] = MotorbikeMediaStorage::putUploadedFile($this->imageUpload);
             $payload['file_name'] = $this->imageUpload->getClientOriginalName();
         } else {
             $payload['file_path'] = $this->form['file_path'] ?? null;

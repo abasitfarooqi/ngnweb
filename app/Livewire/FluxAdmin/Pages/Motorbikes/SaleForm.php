@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Motorbike;
 use App\Models\MotorbikesSale;
+use App\Support\MotorbikeMediaStorage;
 use App\Support\NgnMotorcycleImage;
 use Mews\Purifier\Facades\Purifier;
 use Carbon\Carbon;
@@ -262,7 +263,7 @@ class SaleForm extends Component
             'image_four' => $this->imageFourUpload,
         ] as $field => $upload) {
             if ($upload) {
-                $data[$field] = $upload->store('', 'used_motorbikes');
+                $data[$field] = MotorbikeMediaStorage::putUploadedFile($upload);
             }
         }
 

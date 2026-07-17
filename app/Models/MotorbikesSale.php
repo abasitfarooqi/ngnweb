@@ -2,12 +2,11 @@
 
 namespace App\Models;
 
-use App\Services\FtpSyncService;
+use App\Support\MotorbikeMediaStorage;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Spatie\Permission\Traits\HasRoles;
 
 class MotorbikesSale extends Model
@@ -117,32 +116,21 @@ class MotorbikesSale extends Model
 
     protected static function booted()
     {
-        static::saved(function ($model) {
-            $fields = ['image_one', 'image_two', 'image_three', 'image_four'];
-
-            foreach ($fields as $field) {
-                $newFilePath = $model->{$field};
-                $originalFilePath = $model->getOriginal($field);
-
-                // Only sync if the field has changed AND is not null
-                if ($newFilePath && $newFilePath !== $originalFilePath) {
-                    if (Storage::disk('used_motorbikes')->exists($newFilePath)) {
-                        $fullLocalPath = Storage::disk('used_motorbikes')->path($newFilePath);
-
-                        Log::info("[📦 Backpack Sync] Field changed '$field'. Local full path: $fullLocalPath");
-
-                        $success = app(FtpSyncService::class)->uploadFile($fullLocalPath);
-
-                        Log::info("[📦 Backpack Sync] Upload result for '$field': ".($success ? '✅ success' : '❌ failure'));
-                    } else {
-                        Log::warning("[📦 Backpack Sync] File for '$field' does not exist: $newFilePath");
-                    }
+        static::saving(function (self $model): void {
+            foreach (['image_one', 'image_two', 'image_three', 'image_four', 'video_path'] as $field) {
+                if (! $model->isDirty($field) || ! $model->{$field}) {
+                    continue;
                 }
-            }
 
-            // 🔹 Track is_sold and buyer info (only when is_sold changed or when sold and buyer info changed)
-            $buyerChanged = $model->wasChanged('buyer_name') || $model->wasChanged('buyer_phone') || $model->wasChanged('buyer_email') || $model->wasChanged('buyer_address');
-            if ($model->wasChanged('is_sold') || ($model->is_sold && $buyerChanged)) {
+                $model->{$field} = MotorbikeMediaStorage::promoteLocalToSpaces((string) $model->{$field});
+            }
+        });
+
+        static::saved(function ($model) {
+            if ($model->wasChanged('is_sold') || ($model->is_sold && (
+                $model->wasChanged('buyer_name') || $model->wasChanged('buyer_phone')
+                || $model->wasChanged('buyer_email') || $model->wasChanged('buyer_address')
+            ))) {
                 $user = function_exists('backpack_user') ? backpack_user() : null;
                 $user ??= auth()->user();
 

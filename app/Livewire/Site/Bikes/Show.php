@@ -5,6 +5,7 @@ namespace App\Livewire\Site\Bikes;
 use App\Http\Controllers\MailController;
 use App\Models\Motorbike;
 use App\Models\Motorcycle;
+use App\Support\NgnMotorcycleImage;
 use App\Models\ServiceBooking;
 use App\Support\MotorbikeSoldStatus;
 use App\Support\RegistrationMask;
@@ -238,35 +239,7 @@ class Show extends Component
 
     public function resolveImageUrl(?string $rawPath): string
     {
-        $path = trim((string) $rawPath);
-        $remoteBase = 'https://neguinhomotors.co.uk';
-
-        if ($path === '') {
-            return $remoteBase.'/assets/img/no-image.png';
-        }
-
-        // Already an absolute URL.
-        if (Str::startsWith($path, ['http://', 'https://'])) {
-            return $path;
-        }
-
-        // Keep parity with /bikes cards: always resolve known web paths on the NGN host.
-        if (Str::startsWith($path, ['/storage/uploads/', '/storage/motorbikes/', '/assets/'])) {
-            return $remoteBase.$path;
-        }
-
-        // If we get a relative storage path, normalize onto the remote host.
-        if (Str::startsWith($path, ['storage/uploads/', 'storage/motorbikes/'])) {
-            return $remoteBase.'/'.ltrim($path, '/');
-        }
-
-        // Normalize legacy values like "motorbikes/xxx.jpg" or plain filenames.
-        $normalized = ltrim($path, '/');
-        $normalized = Str::startsWith($normalized, 'motorbikes/')
-            ? $normalized
-            : 'motorbikes/'.$normalized;
-
-        return $remoteBase.'/storage/'.$normalized;
+        return NgnMotorcycleImage::urlForUsedSale($rawPath);
     }
 
     public function render()

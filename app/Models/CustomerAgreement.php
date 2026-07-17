@@ -25,7 +25,11 @@ class CustomerAgreement extends Model
 
     protected static function booted(): void
     {
-        static::created(function (self $record) {
+        static::saved(function (self $record): void {
+            if (! $record->wasRecentlyCreated && ! $record->wasChanged('file_path')) {
+                return;
+            }
+
             AgreementContractStorage::scheduleArchive($record);
         });
     }

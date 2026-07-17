@@ -2,11 +2,10 @@
 
 namespace App\Models;
 
-use App\Services\FtpSyncService;
+use App\Support\MotorbikeMediaStorage;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 use Laravel\Scout\Searchable;
 
 class Motorcycle extends Model
@@ -76,42 +75,12 @@ class Motorcycle extends Model
 
     protected static function booted()
     {
-        static::saving(function ($motorcycle) {
-            if (! $motorcycle->isDirty('file_path')) {
-                \Log::info('[Motorcycle Sync] Skipped: file_path not changed.');
-
+        static::saving(function (self $motorcycle): void {
+            if (! $motorcycle->isDirty('file_path') || ! $motorcycle->file_path) {
                 return;
             }
 
-            if (! $motorcycle->file_path) {
-                \Log::info('[Motorcycle Sync] Skipped: No file_path set.');
-
-                return;
-            }
-
-            $disk = 'used_motorbikes'; // Must match Backpack disk
-            $localPath = Storage::disk($disk)->path($motorcycle->file_path);
-
-            if (! Storage::disk($disk)->exists($motorcycle->file_path)) {
-                \Log::warning("[Motorcycle Sync] File not found on disk: {$localPath}");
-
-                return;
-            }
-
-            \Log::info("[Motorcycle Sync] Starting upload for: {$localPath}");
-
-            try {
-                $syncService = app(FtpSyncService::class);
-                $result = $syncService->uploadFile($localPath);
-
-                if ($result) {
-                    \Log::info("[Motorcycle Sync] ✅ Uploaded successfully: {$localPath}");
-                } else {
-                    \Log::error("[Motorcycle Sync] ❌ Upload failed: {$localPath}");
-                }
-            } catch (\Exception $e) {
-                \Log::error('[Motorcycle Sync] ❌ Exception: '.$e->getMessage());
-            }
+            $motorcycle->file_path = MotorbikeMediaStorage::promoteLocalToSpaces((string) $motorcycle->file_path);
         });
     }
 }

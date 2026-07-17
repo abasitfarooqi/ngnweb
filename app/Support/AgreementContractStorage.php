@@ -38,6 +38,12 @@ final class AgreementContractStorage
 
     public static function isAgreementPdfPath(string $path): bool
     {
+        return self::isContractPdfPath($path);
+    }
+
+    /** Rental + finance signed PDFs under customers/{id}/ (excludes portal document uploads). */
+    public static function isContractPdfPath(string $path): bool
+    {
         $path = self::normalizePath($path);
 
         if ($path === '') {
@@ -66,6 +72,32 @@ final class AgreementContractStorage
         return self::spacesPrefix().$normalizedPublicPath;
     }
 
+    /** Whether the PDF still exists locally and can be uploaded. */
+    public static function hasLocalSource(string $path): bool
+    {
+        $path = self::normalizePath($path);
+
+        if ($path === '') {
+            return false;
+        }
+
+        try {
+            if (Storage::disk('public')->exists($path)) {
+                return true;
+            }
+        } catch (\Throwable) {
+        }
+
+        try {
+            if (Storage::disk('private')->exists($path)) {
+                return true;
+            }
+        } catch (\Throwable) {
+        }
+
+        return false;
+    }
+
     /** No URL once archived or marked private — DO console only. */
     public static function appUrl(?string $path, bool $sentPrivate = false): ?string
     {
@@ -75,7 +107,7 @@ final class AgreementContractStorage
 
         $normalised = self::normalizePath($path);
 
-        if ($normalised === '' || ! self::isAgreementPdfPath($normalised)) {
+        if ($normalised === '' || ! self::isContractPdfPath($normalised)) {
             return null;
         }
 
@@ -97,7 +129,7 @@ final class AgreementContractStorage
     {
         $path = self::normalizePath($record->file_path ?? '');
 
-        if ($path === '' || ! self::isAgreementPdfPath($path)) {
+        if ($path === '' || ! self::isContractPdfPath($path)) {
             return;
         }
 
@@ -205,6 +237,100 @@ final class AgreementContractStorage
 
             return false;
         }
+    }
+
+    /** Upload a contract PDF file directly (no DB row — e.g. less-terms / leaflet copies). */
+    public static function archiveFileToSpaces(string $path): bool
+    {
+        $path = self::normalizePath($path);
+
+        if ($path === '' || ! self::isContractPdfPath($path)) {
+            return false;
+        }
+
+        if (! self::spacesConfigured()) {
+            return false;
+        }
+
+        $spacesKey = self::spacesKey($path);
+        $public = Storage::disk('public');
+        $private = Storage::disk('private');
+        $spaces = Storage::disk('spaces');
+
+        try {
+            if ($spaces->exists($spacesKey)) {
+                self::deleteLocalCopies($public, $private, $path);
+
+                return true;
+            }
+
+            if ($public->exists($path)) {
+                $contents = $public->get($path);
+            } elseif ($private->exists($path)) {
+                $contents = $private->get($path);
+            } else {
+                return false;
+            }
+
+            $spaces->put($spacesKey, $contents, ['visibility' => 'private']);
+
+            if (! $spaces->exists($spacesKey)) {
+                return false;
+            }
+
+            self::deleteLocalCopies($public, $private, $path);
+
+            Log::info('Contract PDF archived to private DO Spaces (file only).', [
+                'spaces_key' => $spacesKey,
+            ]);
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Contract PDF file archive to Spaces failed.', [
+                'path' => $path,
+                'message' => $e->getMessage(),
+            ]);
+
+            return false;
+        }
+    }
+
+    /** Orphan contract PDFs on public disk (finance/rental extras not linked to a DB row). */
+    public static function archiveOrphanContractPdfs(int $limit = 20, bool $force = false): int
+    {
+        if (! self::spacesConfigured()) {
+            return 0;
+        }
+
+        $public = Storage::disk('public');
+        $cutoff = now()->subMinutes(self::archiveDelayMinutes())->getTimestamp();
+        $archived = 0;
+
+        foreach ($public->allFiles('customers') as $path) {
+            if ($archived >= $limit) {
+                break;
+            }
+
+            if (! self::isContractPdfPath($path)) {
+                continue;
+            }
+
+            if (! $force) {
+                try {
+                    if ($public->lastModified($path) > $cutoff) {
+                        continue;
+                    }
+                } catch (\Throwable) {
+                    continue;
+                }
+            }
+
+            if (self::archiveFileToSpaces($path)) {
+                $archived++;
+            }
+        }
+
+        return $archived;
     }
 
     private static function moveToLocalPrivate(Model $record, string $expectedPath): bool

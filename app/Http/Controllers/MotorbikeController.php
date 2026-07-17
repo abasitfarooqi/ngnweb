@@ -7,6 +7,7 @@ use App\Models\MotorbikeAnnualCompliance;
 use App\Models\MotorbikeRegistration;
 use App\Models\MotorbikesSale;
 use App\Models\MotorbikesSold;
+use App\Support\MotorbikeMediaStorage;
 use App\Services\MotorbikeService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -287,23 +288,8 @@ class MotorbikeController extends Controller
             foreach (['image_one', 'image_two', 'image_three'] as $imageField) {
                 $hiddenField = 'hidden_'.$imageField;
                 if ($request->hasFile($imageField)) {
-                    $path = $request->file($imageField)->store('motorbikes', 'public');
-                    $images[$imageField] = $path;
-                    \Log::info('Image path: '.$path);
-
-                    // LOGGING & SFTP SYNC LOGIC (Add these lines)
-                    $absoluteLocalPath = storage_path('app/'.$path);
-                    \Log::info('📁 Local file saved at: '.$absoluteLocalPath);
-                    // --- SFTP Sync Logic ---
-                    $absolutePath = storage_path('app/'.$path);
-                    $syncService = app(\App\Services\FtpSyncService::class);
-                    $success = $syncService->uploadFile($absolutePath);
-                    \Log::info('📤 Actual remote mirror path: '.$success);
-
-                    if (! $success) {
-                        \Log::warning("uploaded file locally but failed to sync to remote domain: $absolutePath");
-                    }
-
+                    $images[$imageField] = MotorbikeMediaStorage::putUploadedFile($request->file($imageField));
+                    \Log::info('Image path: '.$images[$imageField]);
                 } elseif (! empty($request->$hiddenField)) {
                     $images[$imageField] = $request->$hiddenField;
                 }
@@ -392,9 +378,8 @@ class MotorbikeController extends Controller
                 $images = [];
                 foreach (['image_one', 'image_two', 'image_three', 'image_four'] as $imageField) {
                     if ($request->hasFile($imageField)) {
-                        $path = $request->file($imageField)->store('motorbikes', 'public');
-                        $images[$imageField] = $path;
-                        \Log::info('Image path: '.$path);
+                        $images[$imageField] = MotorbikeMediaStorage::putUploadedFile($request->file($imageField));
+                        \Log::info('Image path: '.$images[$imageField]);
                     } else {
                         $images[$imageField] = null; // Default or placeholder image logic could go here
                     }
@@ -670,7 +655,7 @@ class MotorbikeController extends Controller
             'image' => 'required|image',
         ]);
 
-        $path = $request->file('image')->store('public/motorbikes');
+        $path = MotorbikeMediaStorage::putUploadedFile($request->file('image'));
         $motorbike->images()->create(['image_path' => $path]);
 
         return back()->with('success', 'Image uploaded successfully.');
