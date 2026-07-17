@@ -197,9 +197,9 @@ class Kernel extends ConsoleKernel
 
         $schedule->command('email:due-invoices')->dailyAt('09:00');
 
-        $schedule->command('agreement:archive-pending-pdfs')
-            ->everyFiveMinutes()
-            ->description('Upload signed rental + finance contract PDFs to private DO Spaces.');
+        // $schedule->command('agreement:archive-pending-pdfs')
+        //     ->everyFiveMinutes()
+        //     ->description('Upload signed rental + finance contract PDFs to private DO Spaces.');
 
         // One-off: send NGN Club festive hours email on 26 Nov 2025 at 19:30
         $schedule->command('ngn:club-festive-hours')
