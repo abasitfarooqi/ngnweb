@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Partials\Finance;
 
 use App\Models\CustomerContract;
+use App\Support\AgreementContractStorage;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -20,7 +21,15 @@ class DocumentsTab extends Component
     {
         $documents = CustomerContract::where('application_id', $this->applicationId)
             ->orderByDesc('id')
-            ->get();
+            ->get()
+            ->map(function (CustomerContract $doc) {
+                $doc->app_file_url = AgreementContractStorage::appUrl(
+                    $doc->file_path,
+                    (bool) $doc->sent_private
+                );
+
+                return $doc;
+            });
 
         return view('flux-admin.partials.finance.documents', [
             'documents' => $documents,

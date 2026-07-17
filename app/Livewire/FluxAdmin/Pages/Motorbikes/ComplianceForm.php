@@ -20,7 +20,7 @@ class ComplianceForm extends Component
     public function mount(?MotorbikeAnnualCompliance $compliance = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-services-and-repairs-and-report');
+        $this->authorizeModule('see-menu-vehicles');
         $this->compliance = $compliance;
 
         if ($compliance && $compliance->exists) {

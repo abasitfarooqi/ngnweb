@@ -444,9 +444,7 @@
 
                 {{ $customer->last_name }}
             </h3>
-            <h4>Signature Date:
-                {{ \Carbon\Carbon::parse($booking->created_at)->format('d-F-Y') }}
-            </h4>
+            <h4>Signature Date: {{ $signatureDate }}</h4>
             <h3>Signature</h3>
             <p>By signing below, the customer agrees to the terms and conditions of this Vehicle Hire Contract.
             </p>

@@ -28,6 +28,7 @@ use App\Livewire\FluxAdmin\Pages\Finance\FinanceIndex;
 use App\Livewire\FluxAdmin\Pages\Finance\FinanceShow;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\CatBIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\ComplianceIndex;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\CompliancePreviewIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\DeliveryEnquiryIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\EbikeIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\ForSaleIndex as MotorbikeForSaleIndex;
@@ -416,6 +417,7 @@ Route::get('/motorbike-for-sale/{motorcycle}/edit', ForSaleForm::class)->name('f
 Route::get('/motorbike-repairs', MotorbikeRepairIndex::class)->name('flux-admin.motorbike-repairs.index');
 Route::get('/motorbike-repairs/create', MotorbikeRepairForm::class)->name('flux-admin.motorbike-repairs.create');
 Route::get('/motorbike-repairs/{motorbikeRepair}/edit', MotorbikeRepairForm::class)->name('flux-admin.motorbike-repairs.edit');
+Route::get('/motorbike-compliance/preview', CompliancePreviewIndex::class)->name('flux-admin.motorbike-compliance.preview');
 Route::get('/motorbike-compliance', ComplianceIndex::class)->name('flux-admin.motorbike-compliance.index');
 Route::get('/motorbike-compliance/create', ComplianceForm::class)->name('flux-admin.motorbike-compliance.create');
 Route::get('/motorbike-compliance/{compliance}/edit', ComplianceForm::class)->name('flux-admin.motorbike-compliance.edit');

@@ -3,7 +3,7 @@
         <div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Total NGN Vehicles</h1>
             <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                Internal NGN vehicles (profile 1) — {{ number_format($motorbikes->total()) }} shown
+                NGN fleet by role — {{ number_format($motorbikes->total()) }} shown
             </p>
         </div>
         <div class="flex items-center gap-2">

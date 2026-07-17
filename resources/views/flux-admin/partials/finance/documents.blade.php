@@ -24,10 +24,14 @@
                                 @endif
                             </flux:table.cell>
                             <flux:table.cell>
-                                @if($doc->file_path)
-                                    <a href="{{ asset('storage/' . $doc->file_path) }}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono truncate max-w-xs inline-block">
-                                        {{ $doc->file_path }}
+                                @if($doc->app_file_url)
+                                    <a href="{{ $doc->app_file_url }}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 hover:underline font-mono truncate max-w-xs inline-block">
+                                        {{ $doc->file_name ?? $doc->file_path }}
                                     </a>
+                                @elseif($doc->sent_private)
+                                    <span class="text-xs text-zinc-500">Archived — secure storage only</span>
+                                @elseif($doc->file_path)
+                                    <span class="text-xs text-zinc-400 font-mono truncate max-w-xs inline-block">{{ $doc->file_path }}</span>
                                 @else
                                     <span class="text-zinc-400">—</span>
                                 @endif

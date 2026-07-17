@@ -49,7 +49,7 @@
               <h5 class="ngn-store-title-sm">Trackers Managed Directly by Neguinho Motors</h5>
               <ul class="ngn-store-list">
                 <li>
-                  <strong>Preference Cookies (Neguinho Motors):</strong> Preference Cookies store user preferences detected on our website in the local domain, such as timezone and region.
+                  <strong>Preference Cookies (Neguinho Motors):</strong> Preference Cookies store user preferences detected on our website in the local domain, such as display and consent choices.
                   <br/>
                   <strong>Personal Data Processed:</strong> Trackers.
                 </li>

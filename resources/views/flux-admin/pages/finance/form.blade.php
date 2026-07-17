@@ -102,8 +102,8 @@
             </div>
 
             <div class="flux-admin-form-grid grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <x-flux-admin::field-group label="Contract Date" :error="$errors->first('form.contract_date')">
-                    <flux:input type="date" wire:model="form.contract_date" />
+                <x-flux-admin::field-group label="Contract date &amp; time" :error="$errors->first('form.contract_date')">
+                    <flux:input type="datetime-local" wire:model="form.contract_date" />
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="First Instalment Date" :error="$errors->first('form.first_instalment_date')">

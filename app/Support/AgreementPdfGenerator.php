@@ -12,7 +12,7 @@ final class AgreementPdfGenerator
         $resolvedView = str_starts_with($view, 'pdf.')
             ? $templatesPrefix.substr($view, 4)
             : $view;
-        $resolvedData = array_merge(AgreementPdfViewAssets::composerVariables(), $data);
+        $resolvedData = array_merge(AgreementPdfViewAssets::composerVariables(), AgreementDateTime::preparePdfData($data, true));
 
         if (! view()->exists($resolvedView)) {
             $resolvedView = 'livewire.agreements.pdf.legacy-pdf-host';

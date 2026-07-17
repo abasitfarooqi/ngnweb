@@ -25,6 +25,12 @@ class DvlaCheck extends Command
             return Command::FAILURE;
         }
 
+        $startedAt = now();
+        Log::info('DVLA check job started.', [
+            'started_at' => $startedAt->toDateTimeString(),
+            'timezone' => config('app.timezone'),
+        ]);
+
         $motorbikes = Motorbike::all();
         $total = $motorbikes->count();
         $successCount = 0;
@@ -75,10 +81,17 @@ class DvlaCheck extends Command
                     'insurance_status' => $request['insuranceStatus'] ?? 'No details held by DVLA',
                 ];
 
-                MotorbikeAnnualCompliance::updateOrCreate(
-                    ['motorbike_id' => $id],
-                    $complianceData
-                );
+                $existing = MotorbikeAnnualCompliance::query()
+                    ->where('motorbike_id', $id)
+                    ->orderByDesc('updated_at')
+                    ->orderByDesc('id')
+                    ->first();
+
+                if ($existing) {
+                    $existing->update($complianceData);
+                } else {
+                    MotorbikeAnnualCompliance::create($complianceData);
+                }
 
                 MotorbikeRegistration::updateOrCreate(
                     ['motorbike_id' => $id],
@@ -112,6 +125,15 @@ class DvlaCheck extends Command
         //    Mail::to($data['email'])->send(new JobCompletionNotification($data));
 
         $this->info("DVLA check job completed: $successCount out of $total motorbikes updated.");
+        Log::info('DVLA check job completed.', [
+            'completed_at' => now()->toDateTimeString(),
+            'timezone' => config('app.timezone'),
+            'total' => $total,
+            'total_processed' => $totalProcessed,
+            'success_count' => $successCount,
+            'failure_count' => $failureCount,
+            'duration_seconds' => $startedAt->diffInSeconds(now()),
+        ]);
 
         return $successCount === 0 && $total > 0 ? Command::FAILURE : Command::SUCCESS;
     }

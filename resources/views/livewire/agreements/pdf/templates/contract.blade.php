@@ -428,7 +428,7 @@
             </li>
         </ul>
         <h3>Name: {{ $customer->first_name }} {{ $customer->last_name }}</h3>
-        <h4>Signature Date: {{ \Carbon\Carbon::createFromFormat('d/m/Y', $today)->format('d-F-Y') }} </h4>
+        <h4>Signature Date: {{ $signatureDate }}</h4>
         <h3>Signature</h3>
         <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 200px; height: 67px">
 
@@ -480,7 +480,7 @@
             <!-- Signature Section -->
             <div class="agreement-section">
                 <h3>Name: {{ $customer->first_name }} {{ $customer->last_name }}</h3>
-                <h4>Signature Date:{{ \Carbon\Carbon::createFromFormat('d/m/Y', $today)->format('d-F-Y') }}</h4>
+                <h4>Signature Date: {{ $signatureDate }}</h4>
                 <h3>Signature</h3>
                 <p>By signing below, the keeper agrees to the terms and conditions of this Motorcycle Sale/Hire
                     Contract.

@@ -173,9 +173,13 @@ class Motorbike extends Model
         return $this->hasOne(RentingPricing::class)->where('iscurrent', true)->latest('update_date');
     }
 
+    /** Most recently updated DVLA compliance row (not highest id — bikes can have multiple year rows). */
     public function latestCompliance()
     {
-        return $this->hasOne(MotorbikeAnnualCompliance::class)->latestOfMany();
+        return $this->hasOne(MotorbikeAnnualCompliance::class)->ofMany([
+            'updated_at' => 'max',
+            'id' => 'max',
+        ]);
     }
 
 }

@@ -45,9 +45,9 @@
                                         variant="ghost"
                                         icon="archive-box-x-mark"
                                         wire:click="destroyContract({{ $contract->id }})"
-                                        wire:confirm="Move this contract to private storage?"
+                                        wire:confirm="Archive this contract to secure storage now?"
                                         class="!rounded-none text-red-600 dark:text-red-400"
-                                    >Move private</flux:button>
+                                    >Archive now</flux:button>
                                 </div>
                             @empty
                                 <span class="text-xs text-zinc-400">—</span>
@@ -96,9 +96,9 @@
                                     variant="ghost"
                                     icon="archive-box-x-mark"
                                     wire:click="deleteAgreement({{ $agr->id }})"
-                                    wire:confirm="Move this agreement to private storage?"
+                                    wire:confirm="Archive this agreement to secure storage now?"
                                     class="!rounded-none text-red-600 dark:text-red-400"
-                                >Move private</flux:button>
+                                >Archive now</flux:button>
                             @endunless
                         </flux:table.cell>
                     </flux:table.row>

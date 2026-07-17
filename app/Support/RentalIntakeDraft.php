@@ -7,6 +7,7 @@ use App\Models\PaymentMethod;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingPricing;
+use App\Support\AdminDateTimeInput;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
@@ -40,7 +41,7 @@ class RentalIntakeDraft
             'customerId'       => $booking->customer_id,
             'weeklyRent'       => $item ? (float) $item->weekly_rent : null,
             'deposit'          => (float) $booking->deposit,
-            'startDate'        => $booking->start_date?->toDateString() ?? now()->toDateString(),
+            'startDate'        => AdminDateTimeInput::toLocal($booking->start_date),
             'notes'            => (string) ($booking->notes ?? ''),
             'termsAccepted'    => (bool) ($meta['terms_accepted'] ?? false),
             'paymentMethod'    => (string) ($meta['payment_method'] ?? 'cash'),
@@ -87,7 +88,7 @@ class RentalIntakeDraft
         }
 
         return DB::transaction(function () use ($bookingId, $userId, $step, $data) {
-            $start = Carbon::parse($data['start_date'] ?? now()->toDateString())->startOfDay();
+            $start = AdminDateTimeInput::parseStart($data['start_date'] ?? null);
             $due = (clone $start)->addDays(7);
             $weeklyRent = $this->resolveWeeklyRent(
                 (int) $data['motorbike_id'],
@@ -105,8 +106,8 @@ class RentalIntakeDraft
                 $booking = $this->findOwnedDraft($bookingId, $userId);
                 $booking->update([
                     'customer_id'  => $data['customer_id'],
-                    'start_date'   => $start->toDateString(),
-                    'due_date'     => $due->toDateString(),
+                    'start_date'   => $start->format('Y-m-d H:i:s'),
+                    'due_date'     => $due->format('Y-m-d H:i:s'),
                     'deposit'      => $deposit,
                     'notes'        => ($data['notes'] ?? '') !== '' ? $data['notes'] : null,
                     'intake_step'  => $step,
@@ -122,8 +123,8 @@ class RentalIntakeDraft
                     $item->update([
                         'motorbike_id' => $data['motorbike_id'],
                         'weekly_rent'  => $weeklyRent,
-                        'start_date'   => $start->toDateString(),
-                        'due_date'     => $due->toDateString(),
+                        'start_date'   => $start->format('Y-m-d H:i:s'),
+                        'due_date'     => $due->format('Y-m-d H:i:s'),
                     ]);
                 } else {
                     RentingBookingItem::create([
@@ -131,8 +132,8 @@ class RentalIntakeDraft
                         'motorbike_id' => $data['motorbike_id'],
                         'user_id'      => $userId,
                         'weekly_rent'  => $weeklyRent,
-                        'start_date'   => $start->toDateString(),
-                        'due_date'     => $due->toDateString(),
+                        'start_date'   => $start->format('Y-m-d H:i:s'),
+                        'due_date'     => $due->format('Y-m-d H:i:s'),
                         'is_posted'    => false,
                     ]);
                 }
@@ -171,8 +172,8 @@ class RentalIntakeDraft
             $booking = RentingBooking::create([
                 'customer_id' => $data['customer_id'],
                 'user_id'     => $userId,
-                'start_date'  => $start->toDateString(),
-                'due_date'    => $due->toDateString(),
+                'start_date'  => $start->format('Y-m-d H:i:s'),
+                'due_date'    => $due->format('Y-m-d H:i:s'),
                 'state'       => 'DRAFT',
                 'is_posted'   => false,
                 'deposit'     => $deposit,
@@ -186,8 +187,8 @@ class RentalIntakeDraft
                 'motorbike_id' => $data['motorbike_id'],
                 'user_id'      => $userId,
                 'weekly_rent'  => $weeklyRent,
-                'start_date'   => $start->toDateString(),
-                'due_date'     => $due->toDateString(),
+                'start_date'   => $start->format('Y-m-d H:i:s'),
+                'due_date'     => $due->format('Y-m-d H:i:s'),
                 'is_posted'    => false,
             ]);
 

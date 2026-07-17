@@ -149,8 +149,7 @@
                                 <ul class="space-y-2 text-sm">
                                     @foreach($bookingAgreements as $ag)
                                         @php
-                                            $apath = $ag->file_path ? ltrim(str_replace(['public/', 'storage/'], '', $ag->file_path), '/') : '';
-                                            $aurl = $apath && !($ag->sent_private ?? false) ? (\Illuminate\Support\Facades\Storage::disk('public')->exists($apath) ? \Illuminate\Support\Facades\Storage::disk('public')->url($apath) : url('/storage/'.$apath)) : null;
+                                            $aurl = \App\Support\AgreementContractStorage::appUrl($ag->file_path, (bool) ($ag->sent_private ?? false));
                                         @endphp
                                         <li class="flex flex-wrap items-center justify-between gap-2 border border-gray-200 dark:border-gray-700 p-2">
                                             <span class="text-gray-900 dark:text-white">Rental agreement @if($ag->is_verified)<span class="text-green-600 dark:text-green-400">(verified)</span>@endif</span>

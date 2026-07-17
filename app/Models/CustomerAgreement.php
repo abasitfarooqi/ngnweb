@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\AgreementContractStorage;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -21,4 +22,11 @@ class CustomerAgreement extends Model
         'booking_id',
         'sent_private',
     ];
+
+    protected static function booted(): void
+    {
+        static::created(function (self $record) {
+            AgreementContractStorage::scheduleArchive($record);
+        });
+    }
 }

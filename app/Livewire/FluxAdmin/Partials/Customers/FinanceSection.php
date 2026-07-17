@@ -6,8 +6,7 @@ use App\Models\Customer;
 use App\Models\CustomerAgreement;
 use App\Models\CustomerContract;
 use App\Models\FinanceApplication;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
+use App\Support\AgreementContractStorage;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -27,7 +26,7 @@ class FinanceSection extends Component
 
         $this->dispatch('flux-admin:toast',
             type: $result ? 'success' : 'error',
-            message: $result ? 'Contract moved to private.' : 'Contract could not be moved.'
+            message: $result ? 'Contract archived to secure storage.' : 'Contract could not be archived.'
         );
     }
 
@@ -41,38 +40,13 @@ class FinanceSection extends Component
             return;
         }
 
-        $sourcePath  = ltrim($agreement->file_path, '/');
-        $diskPublic  = Storage::disk('public');
-        $diskLocal   = Storage::disk('local');
-        $diskPrivate = Storage::disk('private');
+        $sourcePath = AgreementContractStorage::normalizePath($agreement->file_path);
+        $result = AgreementContractStorage::archiveRecord(CustomerAgreement::class, (int) $agreement->id, $sourcePath);
 
-        if ($diskPrivate->exists($sourcePath)) {
-            $agreement->sent_private = true;
-            $agreement->save();
-            $this->dispatch('flux-admin:toast', type: 'success', message: 'Agreement already in private storage.');
-
-            return;
-        }
-
-        $fromDisk = $diskPublic->exists($sourcePath) ? $diskPublic : ($diskLocal->exists($sourcePath) ? $diskLocal : null);
-
-        if (! $fromDisk) {
-            $this->dispatch('flux-admin:toast', type: 'error', message: 'Agreement file not found on disk.');
-
-            return;
-        }
-
-        try {
-            $diskPrivate->makeDirectory(dirname($sourcePath));
-            $diskPrivate->put($sourcePath, $fromDisk->get($sourcePath));
-            $fromDisk->delete($sourcePath);
-            $agreement->sent_private = true;
-            $agreement->save();
-            $this->dispatch('flux-admin:toast', type: 'success', message: 'Agreement moved to private.');
-        } catch (\Throwable $e) {
-            Log::error("Failed moving agreement {$sourcePath}: {$e->getMessage()}");
-            $this->dispatch('flux-admin:toast', type: 'error', message: 'Failed to move agreement file.');
-        }
+        $this->dispatch('flux-admin:toast',
+            type: $result ? 'success' : 'error',
+            message: $result ? 'Agreement archived to secure storage.' : 'Agreement could not be archived.'
+        );
     }
 
     public function placeholder()

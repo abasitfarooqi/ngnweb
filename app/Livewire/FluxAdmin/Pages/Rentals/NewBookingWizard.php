@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Rentals;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Customer;
 use App\Models\Motorbike;
+use App\Support\AdminDateTimeInput;
 use App\Support\DocumentUploadAccessGenerator;
 use App\Support\RentalIntakeDraft;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class NewBookingWizard extends Component
     public function mount(): void
     {
         $this->authorizeModule('see-menu-commons');
-        $this->startDate = now()->toDateString();
+        $this->startDate = AdminDateTimeInput::toLocal(now());
 
         if ($this->draftBookingId) {
             $this->loadDraftState($this->draftBookingId, announce: true);
@@ -362,7 +363,7 @@ class NewBookingWizard extends Component
             'resumableDraftId',
         ]);
         $this->step = 1;
-        $this->startDate = now()->toDateString();
+        $this->startDate = AdminDateTimeInput::toLocal(now());
         $this->paymentMethod = 'cash';
         $this->sendDocUploadLink = true;
     }

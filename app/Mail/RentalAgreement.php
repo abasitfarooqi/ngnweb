@@ -47,8 +47,36 @@ class RentalAgreement extends Mailable
     {
         $attachments = [];
 
-        // Check if this is a battery safety leaflet email
-        $isBatterySafetyLeaflet = isset($this->mailData['title']) && $this->mailData['title'] === 'E-Bike Battery Safety Leaflet';
+        $isBatterySafetyLeaflet = isset($this->mailData['title'])
+            && $this->mailData['title'] === 'E-Bike Battery Safety Leaflet';
+
+        if (! empty($this->mailData['pdf_files']) && is_array($this->mailData['pdf_files'])) {
+            foreach ($this->mailData['pdf_files'] as $index => $file) {
+                if (! is_array($file)) {
+                    continue;
+                }
+
+                $path = (string) ($file['path'] ?? '');
+                if ($path === '' || ! is_file($path) || (int) filesize($path) < 512) {
+                    continue;
+                }
+
+                $filename = (string) ($file['name'] ?? '');
+                if ($filename === '') {
+                    $filename = $isBatterySafetyLeaflet
+                        ? 'batterySafetyDataLeaflet.pdf'
+                        : 'Rental-Agreement-'.($index + 1).'.pdf';
+                }
+
+                $attachments[] = Attachment::fromPath($path)
+                    ->as($filename)
+                    ->withMime('application/pdf');
+            }
+
+            if ($attachments !== []) {
+                return $attachments;
+            }
+        }
 
         if (isset($this->mailData['pdf']) && is_array($this->mailData['pdf']) && ! isset($this->mailData['pdf']->output)) {
             // Handle array of PDFs

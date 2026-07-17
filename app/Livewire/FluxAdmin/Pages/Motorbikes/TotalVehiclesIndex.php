@@ -17,7 +17,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 
 /**
- * Internal fleet overview: all NGN vehicles (vehicle profile 1).
+ * Internal fleet overview: NGN vehicles by role.
  * /flux-admin/total-vehicles
  */
 #[Layout('flux-admin.layouts.app')]
@@ -93,7 +93,9 @@ class TotalVehiclesIndex extends Component
 
     protected function baseQuery(): Builder
     {
-        $query = TotalVehiclesQuery::base()
+        $query = (($this->filterCategory === '')
+            ? TotalVehiclesQuery::internalFleetBase()
+            : TotalVehiclesQuery::base())
             ->with(['vehicleProfile', 'branch', 'latestCompliance'])
             ->withCount('annualCompliances', 'repairs', 'rentingBookingItems');
 

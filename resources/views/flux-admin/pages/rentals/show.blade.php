@@ -46,7 +46,7 @@
             <div>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400">Start Date</p>
                 <p class="text-sm font-semibold text-zinc-900 dark:text-white">
-                    {{ $booking->start_date?->format('d M Y') ?? '—' }}
+                    {{ $booking->start_date?->format('d M Y H:i') ?? '—' }}
                     @if($booking->start_date)
                         <span class="font-normal text-zinc-500">({{ $booking->start_date->format('l') }})</span>
                     @endif

@@ -1065,6 +1065,10 @@ class MobilePortalExperienceController extends Controller
                 return CustomerDocumentStorage::urlForPath($path) ?? url('/storage/'.$normalised);
             }
 
+            if (\App\Support\AgreementContractStorage::isAgreementPdfPath($normalised)) {
+                return \App\Support\AgreementContractStorage::appUrl($path, $isPrivate);
+            }
+
             if (str_starts_with($normalised, 'customers/')) {
                 return Storage::disk('public')->url($normalised);
             }

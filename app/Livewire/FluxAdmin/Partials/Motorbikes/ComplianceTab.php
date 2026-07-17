@@ -19,7 +19,8 @@ class ComplianceTab extends Component
     public function render()
     {
         $records = MotorbikeAnnualCompliance::where('motorbike_id', $this->motorbikeId)
-            ->orderByDesc('year')
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
             ->get();
 
         return view('flux-admin.partials.motorbikes.compliance-tab', [

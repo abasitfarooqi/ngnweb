@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\CustomerAuth;
 use App\Support\AgreementPdfViewAssets;
+use App\Support\AgreementDateTime;
 use App\Models\JudopayCitPaymentSession;
 use App\Models\JudopayEnquiryRecord;
 use App\Models\JudopayMitPaymentSession;
@@ -76,6 +77,10 @@ class AppServiceProvider extends ServiceProvider
             }
 
             $view->with(AgreementPdfViewAssets::composerVariables());
+
+            if (str_starts_with($name, 'livewire.agreements.')) {
+                AgreementDateTime::prepareViewData($view);
+            }
         });
 
         // Ensure default view paths are included

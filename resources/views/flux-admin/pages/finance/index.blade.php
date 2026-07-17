@@ -96,7 +96,7 @@
                                 <span class="text-zinc-400">—</span>
                             @endif
                         </flux:table.cell>
-                        <flux:table.cell class="text-xs">{{ $app->contract_date ? \Carbon\Carbon::parse($app->contract_date)->format('d M Y') : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-xs">{{ $app->contract_date ? \Carbon\Carbon::parse($app->contract_date)->format('d M Y H:i') : '—' }}</flux:table.cell>
                         <flux:table.cell>
                             @if($app->is_cancelled)
                                 <flux:badge color="red" size="sm">Cancelled</flux:badge>

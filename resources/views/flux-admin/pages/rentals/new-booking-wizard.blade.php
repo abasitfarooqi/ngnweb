@@ -162,7 +162,7 @@
                 <h2 class="mb-4 text-lg font-semibold text-zinc-900 dark:text-white">Rental terms</h2>
 
                 <form wire:submit.prevent="confirmTerms" class="grid grid-cols-1 gap-4 sm:grid-cols-2" novalidate>
-                    <flux:input type="date" label="Start date" wire:model="startDate" class="sm:col-span-2" />
+                    <flux:input type="datetime-local" label="Start date &amp; time" wire:model="startDate" class="sm:col-span-2" />
                     <div class="sm:col-span-2">
                         <flux:textarea label="Notes (optional)" wire:model="notes" rows="3" placeholder="Collection site, accessories, agreed extras…" />
                     </div>

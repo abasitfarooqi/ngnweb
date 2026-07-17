@@ -79,7 +79,7 @@
         </div>
     @else
         <flux:callout variant="info" icon="light-bulb">
-            <flux:callout.text>Type a menu name (Rentals, Used Motorcycle Sale, PCN…) for a shortcut, or search records across motorbikes, customers, finance, and more.</flux:callout.text>
+            <flux:callout.text>Type a menu section (Rentals, Vehicles, Payment Plan…) or sub-page (New booking, Total NGN Vehicles, MOT checker…), or search records across motorbikes, customers, finance, and more.</flux:callout.text>
         </flux:callout>
     @endif
 </div>

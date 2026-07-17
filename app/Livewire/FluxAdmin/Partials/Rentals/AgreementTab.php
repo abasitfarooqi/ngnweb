@@ -10,7 +10,7 @@ use App\Support\RentalBookingLifecycle;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Storage;
+use App\Support\AgreementContractStorage;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
 
@@ -161,10 +161,10 @@ class AgreementTab extends Component
             ->orderByDesc('created_at')
             ->get()
             ->map(function (CustomerAgreement $row) {
-                $path = ltrim((string) $row->file_path, '/');
-                $row->public_url = $path !== ''
-                    ? (str_starts_with($path, 'storage/') ? url($path) : Storage::disk('public')->url($path))
-                    : null;
+                $row->public_url = AgreementContractStorage::appUrl(
+                    $row->file_path,
+                    (bool) $row->sent_private
+                );
 
                 return $row;
             });

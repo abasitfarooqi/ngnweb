@@ -1076,7 +1076,7 @@ This contract supersedes and replaces any prior agreements, understandings, or a
             <!-- Signature Section -->
             <div class="agreement-section">
                 <h3>Name: {{ $customer->first_name }} {{ $customer->last_name }}</h3>
-                <h4>Signature Date: {{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y H:i:s') }}</h4>
+                <h4>Signature Date: {{ $signatureDate }}</h4>
                 <h3>Signature</h3>
                 <p>By signing below, the keeper agrees to the terms and conditions of this Motorcycle Sale Contract.</p>
                 <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '') }}" style="width: 199.25px; height: 71.2px">

@@ -8,7 +8,7 @@
         <div class="flex justify-between"><dt class="text-zinc-500">Weekly rent</dt><dd>£{{ number_format((float) ($weeklyRent ?? 0), 2) }}</dd></div>
         <div class="flex justify-between"><dt class="text-zinc-500">Deposit</dt><dd>£{{ number_format((float) $deposit, 2) }}</dd></div>
         <div class="flex justify-between"><dt class="text-zinc-500">Initial payment</dt><dd>£{{ number_format((float) $initialPayment, 2) }}</dd></div>
-        <div class="flex justify-between"><dt class="text-zinc-500">Start</dt><dd>{{ $startDate }}</dd></div>
+        <div class="flex justify-between"><dt class="text-zinc-500">Start</dt><dd>{{ $startDate ? \Carbon\Carbon::parse($startDate)->format('d M Y H:i') : '—' }}</dd></div>
     </dl>
     <p class="mt-4 text-xs text-zinc-500">Draft rows are saved on <code>renting_bookings</code>, <code>renting_booking_items</code> (weekly rent), and <code>booking_invoices</code> as you progress. Discard the draft to remove them and start again.</p>
 </aside>

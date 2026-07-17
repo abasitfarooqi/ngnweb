@@ -24,9 +24,9 @@ class RentingBookingItem extends Model
 
     protected $casts = [
         'weekly_rent' => 'decimal:2',
-        'start_date' => 'date',
-        'due_date' => 'date',
-        'end_date' => 'date',
+        'start_date' => 'datetime',
+        'due_date' => 'datetime',
+        'end_date' => 'datetime',
         'is_posted' => 'boolean',
     ];
 

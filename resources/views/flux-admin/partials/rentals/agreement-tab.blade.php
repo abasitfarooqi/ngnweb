@@ -62,6 +62,8 @@
                             @endif
                             @if($signed->public_url)
                                 <a href="{{ $signed->public_url }}" target="_blank" class="text-xs text-blue-600 dark:text-blue-400 underline">Open file</a>
+                            @elseif($signed->sent_private)
+                                <span class="text-xs text-zinc-500">Archived — secure storage only</span>
                             @endif
                         </div>
                     </div>

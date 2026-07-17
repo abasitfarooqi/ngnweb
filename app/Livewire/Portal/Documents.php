@@ -8,6 +8,7 @@ use App\Models\CustomerContract;
 use App\Models\CustomerDocument;
 use App\Models\DocumentType;
 use App\Models\RentingBooking;
+use App\Support\AgreementContractStorage;
 use App\Support\CustomerDocumentReviewNotifier;
 use App\Support\CustomerDocumentStorage;
 use App\Support\RentalBookingLifecycle;
@@ -84,6 +85,10 @@ class Documents extends Component
         try {
             if (str_starts_with($normalised, 'customer-documents/')) {
                 return CustomerDocumentStorage::urlForPath($path) ?? url('/storage/'.$normalised);
+            }
+
+            if (AgreementContractStorage::isAgreementPdfPath($normalised)) {
+                return AgreementContractStorage::appUrl($path, $isPrivate);
             }
 
             if (str_starts_with($normalised, 'customers/')) {

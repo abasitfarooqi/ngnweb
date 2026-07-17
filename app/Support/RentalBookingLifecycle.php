@@ -279,8 +279,8 @@ class RentalBookingLifecycle
         }
 
         return DB::transaction(function () use ($booking) {
-            $today = now()->startOfDay();
-            $due = (clone $today)->addDays(7);
+            $start = $booking->start_date ? \Carbon\Carbon::parse($booking->start_date) : now();
+            $due = (clone $start)->addDays(7);
 
             $hasUnpaid = BookingInvoice::where('booking_id', $booking->id)
                 ->where('is_paid', false)
@@ -292,15 +292,15 @@ class RentalBookingLifecycle
             }
 
             $booking->update([
-                'start_date' => $today->toDateString(),
-                'due_date'   => $due->toDateString(),
+                'start_date' => $start->format('Y-m-d H:i:s'),
+                'due_date'   => $due->format('Y-m-d H:i:s'),
                 'state'      => $state,
                 'is_posted'  => true,
             ]);
 
             RentingBookingItem::where('booking_id', $booking->id)->update([
-                'start_date' => $today->toDateString(),
-                'due_date'   => $due->toDateString(),
+                'start_date' => $start->format('Y-m-d H:i:s'),
+                'due_date'   => $due->format('Y-m-d H:i:s'),
                 'is_posted'  => true,
             ]);
 

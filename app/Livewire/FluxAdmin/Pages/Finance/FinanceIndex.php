@@ -7,6 +7,7 @@ use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\Customer;
 use App\Models\FinanceApplication;
+use App\Support\AdminDateTimeInput;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -145,6 +146,11 @@ class FinanceIndex extends Component
             $attributes['subs_payment_date'] = null;
         }
 
+        if (! empty($attributes['contract_date'])) {
+            $attributes['contract_date'] = AdminDateTimeInput::fromLocal((string) $attributes['contract_date'])
+                ?? now()->format('Y-m-d H:i:s');
+        }
+
         return $attributes;
     }
 
@@ -157,7 +163,7 @@ class FinanceIndex extends Component
         $this->selectedCustomerId = null;
         $this->selectedCustomerName = '';
         $this->formData = [
-            'contract_date'         => now()->format('Y-m-d'),
+            'contract_date'         => AdminDateTimeInput::toLocal(now()),
             'first_instalment_date' => now()->addDays(7 - date('N') + 5)->format('Y-m-d'),
             'is_new'                => false,
             'is_used'               => false,
@@ -187,7 +193,9 @@ class FinanceIndex extends Component
         $this->customerSuggestions = [];
         foreach (['contract_date', 'first_instalment_date', 'logbook_transfer_date', 'cancelled_at'] as $field) {
             if (! empty($this->formData[$field])) {
-                $this->formData[$field] = \Carbon\Carbon::parse($this->formData[$field])->format('Y-m-d');
+                $this->formData[$field] = $field === 'contract_date'
+                    ? AdminDateTimeInput::toLocal($this->formData[$field])
+                    : \Carbon\Carbon::parse($this->formData[$field])->format('Y-m-d');
             }
         }
         $this->showForm = true;
@@ -290,7 +298,7 @@ class FinanceIndex extends Component
             },
             'Deposit'             => 'deposit',
             'Monthly instalment'  => 'weekly_instalment',
-            'Contract date'       => fn ($r) => $r->contract_date ? \Carbon\Carbon::parse($r->contract_date)->format('d M Y') : '',
+            'Contract date'       => fn ($r) => $r->contract_date ? \Carbon\Carbon::parse($r->contract_date)->format('d M Y H:i') : '',
             'First instalment'    => fn ($r) => $r->first_instalment_date ? \Carbon\Carbon::parse($r->first_instalment_date)->format('d M Y') : '',
             'Posted'              => fn ($r) => $r->is_posted ? 'Yes' : 'No',
             'Log book sent'       => fn ($r) => $r->log_book_sent ? 'Yes' : 'No',

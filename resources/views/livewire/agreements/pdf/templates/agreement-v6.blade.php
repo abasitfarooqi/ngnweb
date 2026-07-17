@@ -1067,7 +1067,7 @@
                 <!-- Signature Section -->
                 <div class="agreement-section">
                     <h3>Name: {{ $customer->first_name }} {{ $customer->last_name }}</h3>
-                    <h4>Signature Date: {{ \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y') }} </h4>
+                    <h4>Signature Date: {{ $signatureDate }}</h4>
                     <h3>Signature</h3>
                     <p>By signing below, the Renter agrees to the terms and conditions of this Motorcycle Rental Agreement.
                     </p>

@@ -8,6 +8,7 @@ use App\Models\ApplicationItem;
 use App\Models\Customer;
 use App\Models\FinanceApplication;
 use App\Models\Motorbike;
+use App\Support\AdminDateTimeInput;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -42,7 +43,9 @@ class FinanceForm extends Component
             foreach (['contract_date', 'first_instalment_date', 'logbook_transfer_date', 'cancelled_at'] as $field) {
                 if (! empty($attrs[$field])) {
                     try {
-                        $attrs[$field] = \Carbon\Carbon::parse($attrs[$field])->format('Y-m-d');
+                        $attrs[$field] = $field === 'contract_date'
+                            ? AdminDateTimeInput::toLocal($attrs[$field])
+                            : \Carbon\Carbon::parse($attrs[$field])->format('Y-m-d');
                     } catch (\Throwable) {
                         $attrs[$field] = null;
                     }
@@ -74,7 +77,7 @@ class FinanceForm extends Component
             }
 
             $this->form = [
-                'contract_date'           => now()->format('Y-m-d'),
+                'contract_date'           => AdminDateTimeInput::toLocal(now()),
                 'first_instalment_date'   => $nextFriday->format('Y-m-d'),
                 'is_new'                  => false,
                 'is_used'                 => false,
@@ -399,6 +402,9 @@ class FinanceForm extends Component
         if (empty($payload['log_book_sent'])) {
             $payload['logbook_transfer_date'] = null;
         }
+
+        $payload['contract_date'] = AdminDateTimeInput::fromLocal($payload['contract_date'] ?? null)
+            ?? now()->format('Y-m-d H:i:s');
 
         $generationContext = [
             'insurance_pcn' => (bool) ($payload['insurance_pcn'] ?? true),

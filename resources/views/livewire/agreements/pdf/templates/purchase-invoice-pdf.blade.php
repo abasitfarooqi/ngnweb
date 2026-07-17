@@ -278,7 +278,7 @@
             <!-- Signature Section -->
             <div class="agreement-section" style="padding-left:2px; margin-left:2px">
                 <h3>Name: {{ $sell->full_name }}</h3>
-                <h4>Signature Date:{{ \Carbon\Carbon::createFromFormat('d/m/Y', $today)->format('d-F-Y') }}</h4>
+                <h4>Signature Date: {{ $signatureDate }}</h4>
                 <h3>Signature</h3>
                 <p>By signing below, the seller confirms their agreement to the details of this invoice and the
                     associated

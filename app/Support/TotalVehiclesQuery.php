@@ -11,20 +11,25 @@ use App\Models\RentingBookingItem;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
- * All internal NGN vehicles (vehicle profile 1). Category subqueries are used for filters and role badges only.
+ * NGN fleet overview. "All" uses ngn_vehicle flag; category tabs query motorbikes
+ * by role (finance, rental, etc.) regardless of vehicle_profile_id or ngn_vehicle.
  */
 final class TotalVehiclesQuery
 {
     public static function base(): Builder
     {
-        return Motorbike::query()
-            ->from('motorbikes')
-            ->where('motorbikes.ngn_vehicle', true);
+        return Motorbike::query()->from('motorbikes');
+    }
+
+    /** Bikes flagged as internal NGN stock (All tab + dashboard total). */
+    public static function internalFleetBase(): Builder
+    {
+        return self::base()->where('motorbikes.ngn_vehicle', true);
     }
 
     public static function count(): int
     {
-        return (int) self::base()->toBase()->getCountForPagination();
+        return (int) self::internalFleetBase()->toBase()->getCountForPagination();
     }
 
     public static function activeRentalMotorbikeIdsSubquery(): Builder
@@ -120,20 +125,18 @@ final class TotalVehiclesQuery
     /** @return array{rental:int,finance_new:int,finance_used:int,company:int,sale_rental:int,total:int} */
     public static function categoryCounts(): array
     {
-        $internalCount = function ($sub) {
-            return Motorbike::query()
-                ->where('ngn_vehicle', true)
-                ->whereIn('id', $sub)
-                ->count();
-        };
+        $roleCount = fn ($sub) => (int) self::base()
+            ->whereIn('motorbikes.id', $sub)
+            ->toBase()
+            ->getCountForPagination();
 
         return [
-            'rental' => $internalCount(self::activeRentalMotorbikeIdsSubquery()),
-            'finance_new' => $internalCount(self::activeFinanceNewMotorbikeIdsSubquery()),
-            'finance_used' => $internalCount(self::activeFinanceUsedMotorbikeIdsSubquery()),
-            'company' => $internalCount(CompanyVehicle::query()->select('motorbike_id')),
-            'sale_rental' => $internalCount(self::saleRentalMotorbikeIdsSubquery()),
-            'for_sale' => $internalCount(self::saleRentalMotorbikeIdsSubquery()),
+            'rental' => $roleCount(self::activeRentalMotorbikeIdsSubquery()),
+            'finance_new' => $roleCount(self::activeFinanceNewMotorbikeIdsSubquery()),
+            'finance_used' => $roleCount(self::activeFinanceUsedMotorbikeIdsSubquery()),
+            'company' => $roleCount(CompanyVehicle::query()->select('motorbike_id')),
+            'sale_rental' => $roleCount(self::saleRentalMotorbikeIdsSubquery()),
+            'for_sale' => $roleCount(self::saleRentalMotorbikeIdsSubquery()),
             'total' => self::count(),
         ];
     }

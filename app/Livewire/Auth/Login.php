@@ -13,7 +13,6 @@ class Login extends Component
     public string $email = '';
     public string $password = '';
     public bool $remember = false;
-    public string $timezone = '';
 
     public function mount(): void
     {
@@ -43,10 +42,6 @@ class Login extends Component
         Auth::guard('customer')->login($user, $this->remember);
 
         request()->session()->regenerate();
-
-        if ($this->timezone !== '') {
-            session(['timezone' => $this->timezone]);
-        }
 
         $this->redirectIntended(route('account.dashboard'));
     }
