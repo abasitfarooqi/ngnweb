@@ -34,7 +34,7 @@ class RentalPaymentReversedNotice extends Mailable
             with: [
                 'mailData' => UniversalMailPayload::fromLegacyEmailView(
                     'livewire.agreements.migrated.emails.rental-payment-reversed-notice',
-                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+                    ['emailData' => is_array($this->mailData) ? $this->mailData : (array) $this->mailData],
                     ['title' => 'Payment Reversed']
                 ),
             ],

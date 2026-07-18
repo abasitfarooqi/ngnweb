@@ -5,6 +5,7 @@ namespace App\Livewire\Portal\Bookings;
 use App\Models\CustomerAppointments;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking;
+use App\Support\BookingSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
@@ -54,7 +55,7 @@ class Index extends Component
                 'Branch' => $booking->branch?->name ?? 'Catford',
                 'Registration' => $booking->vehicle_registration,
                 'Preferred Date' => Carbon::parse($booking->date_of_appointment)->format('Y-m-d'),
-                'Preferred Time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+                'Preferred Time' => BookingSchedule::formatTimeAmPm(Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i')),
                 'Status' => 'Cancelled',
                 'Notes' => $booking->notes ?: 'N/A',
             ],

@@ -8,6 +8,7 @@ use App\Models\Customer;
 use App\Models\Motorbike;
 use App\Models\NgnDigitalInvoice;
 use App\Models\NgnDigitalInvoiceItem;
+use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -167,7 +168,9 @@ class DigitalInvoiceForm extends Component
 
         $this->recalculateItems();
 
-        $payload = [
+        $lineTotal = collect($this->items)->sum(fn (array $item) => (float) ($item['total'] ?? 0));
+
+        $payload = FluxAdminFormPayload::onlyPersistable(NgnDigitalInvoice::class, [
             'invoice_number'      => $this->form['invoice_number'] ?? null,
             'invoice_type'        => $this->form['invoice_type'],
             'invoice_category'    => $this->form['invoice_category'] ?? null,
@@ -187,11 +190,15 @@ class DigitalInvoiceForm extends Component
             'due_date'            => $this->form['due_date'] ?: null,
             'amount'              => $this->form['amount'] ?? null,
             'total_paid'          => $this->form['total_paid'] ?? null,
+            'total'               => $lineTotal,
             'status'              => $this->form['status'],
             'notes'               => $this->form['notes'] ?? null,
             'internal_notes'      => $this->form['internal_notes'] ?? null,
-            'created_by'          => auth()->id(),
-        ];
+        ]);
+
+        if (! $this->digitalInvoice) {
+            $payload['created_by'] = FluxAdminFormPayload::adminUserId();
+        }
 
         DB::transaction(function () use ($payload): void {
             if ($this->digitalInvoice) {

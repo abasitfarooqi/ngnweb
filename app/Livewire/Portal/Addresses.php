@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Portal;
 
+use App\Models\Customer;
 use App\Models\CustomerAddress;
 use App\Models\SystemCountry;
 use Illuminate\Support\Facades\Auth;
@@ -29,11 +30,16 @@ class Addresses extends Component
 
     public string $phone_number = '';
 
-    public int $country_id = 3;
+    public int $country_id;
 
     public string $type = 'shipping';
 
     public string $successMessage = '';
+
+    public function mount(): void
+    {
+        $this->country_id = SystemCountry::defaultId();
+    }
 
     protected function rules(): array
     {
@@ -49,11 +55,29 @@ class Addresses extends Component
         ];
     }
 
-    protected function assertPortalEditable(): bool
+    protected function customerProfile(): ?Customer
     {
-        $customer = Auth::guard('customer')->user()?->customer;
-        if ($customer && ! $customer->canCustomerEditPortal()) {
-            session()->flash('error', 'Your account is read-only until NGN authorises editing.');
+        return Auth::guard('customer')->user()?->customer;
+    }
+
+    protected function customerId(): ?int
+    {
+        $auth = Auth::guard('customer')->user();
+
+        return $auth?->customer_id ? (int) $auth->customer_id : null;
+    }
+
+    protected function assertCanManageAddresses(): bool
+    {
+        $profile = $this->customerProfile();
+        if (! $profile || ! $this->customerId()) {
+            session()->flash('error', 'Please complete your profile before managing delivery addresses.');
+
+            return false;
+        }
+
+        if (! $profile->canCustomerManageAddresses()) {
+            session()->flash('error', 'Address management is unavailable on your account.');
 
             return false;
         }
@@ -61,26 +85,46 @@ class Addresses extends Component
         return true;
     }
 
+    protected function prefillFromProfile(): void
+    {
+        $profile = $this->customerProfile();
+        if (! $profile) {
+            return;
+        }
+
+        if ($this->first_name === '') {
+            $this->first_name = (string) ($profile->first_name ?? '');
+        }
+        if ($this->last_name === '') {
+            $this->last_name = (string) ($profile->last_name ?? '');
+        }
+        if ($this->phone_number === '') {
+            $this->phone_number = (string) ($profile->phone ?? '');
+        }
+    }
+
     public function openNew(): void
     {
-        if (! $this->assertPortalEditable()) {
+        if (! $this->assertCanManageAddresses()) {
             return;
         }
 
         $this->resetForm();
         $this->editId = null;
+        $this->prefillFromProfile();
         $this->showForm = true;
     }
 
     public function edit(int $id): void
     {
-        if (! $this->assertPortalEditable()) {
+        if (! $this->assertCanManageAddresses()) {
             return;
         }
 
-        $customer = Auth::guard('customer')->user();
-        $address = CustomerAddress::where('id', $id)
-            ->where('customer_id', $customer->customer_id)
+        $customerId = $this->customerId();
+        $address = CustomerAddress::query()
+            ->where('id', $id)
+            ->where('customer_id', $customerId)
             ->firstOrFail();
 
         $this->editId = $id;
@@ -92,23 +136,30 @@ class Addresses extends Component
         $this->postcode = $address->postcode;
         $this->city = $address->city;
         $this->phone_number = $address->phone_number;
-        $this->country_id = $address->country_id ?? 3;
+        $this->country_id = $address->country_id ?? SystemCountry::defaultId();
         $this->type = $address->type ?? 'shipping';
         $this->showForm = true;
     }
 
     public function save(): void
     {
-        if (! $this->assertPortalEditable()) {
+        if (! $this->assertCanManageAddresses()) {
             return;
         }
 
         $this->validate();
 
-        $customer = Auth::guard('customer')->user();
+        if (! SystemCountry::query()->whereKey($this->country_id)->exists()) {
+            $this->country_id = SystemCountry::defaultId();
+        }
+
+        $customerId = $this->customerId();
+        if (! $customerId) {
+            return;
+        }
 
         $data = [
-            'customer_id' => $customer->customer_id,
+            'customer_id' => $customerId,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
             'company_name' => $this->company_name ?: '-',
@@ -122,15 +173,16 @@ class Addresses extends Component
         ];
 
         if ($this->editId) {
-            $address = CustomerAddress::where('id', $this->editId)
-                ->where('customer_id', $customer->customer_id)
+            $address = CustomerAddress::query()
+                ->where('id', $this->editId)
+                ->where('customer_id', $customerId)
                 ->firstOrFail();
             $address->update($data);
             $this->successMessage = 'Address updated.';
         } else {
-            $hasDefault = CustomerAddress::where('customer_id', $customer->customer_id)->exists();
+            $hasDefault = CustomerAddress::query()->where('customer_id', $customerId)->exists();
             $data['is_default'] = ! $hasDefault;
-            CustomerAddress::create($data);
+            CustomerAddress::query()->create($data);
             $this->successMessage = 'Address added.';
         }
 
@@ -140,17 +192,22 @@ class Addresses extends Component
 
     public function setDefault(int $id): void
     {
-        if (! $this->assertPortalEditable()) {
+        if (! $this->assertCanManageAddresses()) {
             return;
         }
 
-        $customer = Auth::guard('customer')->user();
+        $customerId = $this->customerId();
+        if (! $customerId) {
+            return;
+        }
 
-        CustomerAddress::where('customer_id', $customer->customer_id)
+        CustomerAddress::query()
+            ->where('customer_id', $customerId)
             ->update(['is_default' => false]);
 
-        CustomerAddress::where('id', $id)
-            ->where('customer_id', $customer->customer_id)
+        CustomerAddress::query()
+            ->where('id', $id)
+            ->where('customer_id', $customerId)
             ->update(['is_default' => true]);
 
         $this->successMessage = 'Default address updated.';
@@ -158,13 +215,18 @@ class Addresses extends Component
 
     public function delete(int $id): void
     {
-        if (! $this->assertPortalEditable()) {
+        if (! $this->assertCanManageAddresses()) {
             return;
         }
 
-        $customer = Auth::guard('customer')->user();
-        $address = CustomerAddress::where('id', $id)
-            ->where('customer_id', $customer->customer_id)
+        $customerId = $this->customerId();
+        if (! $customerId) {
+            return;
+        }
+
+        $address = CustomerAddress::query()
+            ->where('id', $id)
+            ->where('customer_id', $customerId)
             ->first();
         if (! $address) {
             return;
@@ -174,7 +236,8 @@ class Addresses extends Component
         $address->delete();
 
         if ($wasDefault) {
-            $replacement = CustomerAddress::where('customer_id', $customer->customer_id)
+            $replacement = CustomerAddress::query()
+                ->where('customer_id', $customerId)
                 ->orderByDesc('id')
                 ->first();
             if ($replacement) {
@@ -202,21 +265,22 @@ class Addresses extends Component
         $this->postcode = '';
         $this->city = '';
         $this->phone_number = '';
-        $this->country_id = 3;
+        $this->country_id = SystemCountry::defaultId();
         $this->type = 'shipping';
         $this->resetValidation();
     }
 
     public function render()
     {
-        $customer = Auth::guard('customer')->user();
-        $addresses = CustomerAddress::where('customer_id', $customer->customer_id)
-            ->orderByDesc('is_default')
-            ->get();
-        $countries = SystemCountry::orderBy('name')->get();
-        $canEditPortal = (bool) $customer->customer?->canCustomerEditPortal();
+        $profile = $this->customerProfile();
+        $customerId = $this->customerId();
+        $addresses = $customerId
+            ? CustomerAddress::query()->where('customer_id', $customerId)->orderByDesc('is_default')->get()
+            : collect();
+        $countries = SystemCountry::query()->orderBy('name')->get();
+        $canManageAddresses = $profile && $profile->canCustomerManageAddresses();
 
-        return view('livewire.portal.addresses', compact('addresses', 'countries', 'canEditPortal'))
+        return view('livewire.portal.addresses', compact('addresses', 'countries', 'canManageAddresses', 'profile'))
             ->layout('components.layouts.portal', [
                 'title' => 'My Addresses | My Account',
             ]);

@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\ClaimMotorbike;
+use App\Support\FluxAdminFormPayload;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -34,11 +35,11 @@ class ClaimIndex extends Component
     {
         return [
             'formData.fullname'       => ['required', 'string', 'max:255'],
-            'formData.email'          => ['nullable', 'email', 'max:255'],
-            'formData.phone'          => ['nullable', 'string', 'max:50'],
+            'formData.email'          => ['required', 'email', 'max:255'],
+            'formData.phone'          => ['required', 'string', 'max:50'],
             'formData.case_date'      => ['required', 'date'],
-            'formData.motorbike_id'   => ['nullable', 'integer'],
-            'formData.branch_id'      => ['nullable', 'integer'],
+            'formData.motorbike_id'   => ['required', 'integer', 'exists:motorbikes,id'],
+            'formData.branch_id'      => ['required', 'integer', 'exists:branches,id'],
             'formData.notes'          => ['nullable', 'string'],
             'formData.is_received'    => ['boolean'],
             'formData.received_date'  => ['nullable', 'date'],
@@ -48,15 +49,30 @@ class ClaimIndex extends Component
         ];
     }
 
+    protected function beforeSave(array $attributes): array
+    {
+        if (empty($attributes['user_id'])) {
+            $attributes['user_id'] = FluxAdminFormPayload::adminUserId();
+        }
+
+        if (trim((string) ($attributes['notes'] ?? '')) === '') {
+            $attributes['notes'] = '—';
+        }
+
+        return $attributes;
+    }
+
     public function openCreate(): void
     {
         $this->resetValidation();
         $this->recordId = null;
         $this->formData = [
             'case_date'   => now()->toDateString(),
-            'user_id'     => backpack_user()->id,
+            'user_id'     => FluxAdminFormPayload::adminUserId(),
             'is_received' => false,
             'is_returned' => false,
+            'email'       => '',
+            'phone'       => '',
         ];
         $this->showForm = true;
     }

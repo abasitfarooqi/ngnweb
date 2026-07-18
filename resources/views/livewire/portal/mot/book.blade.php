@@ -1,7 +1,7 @@
 <div>
     <flux:heading size="xl" class="mb-6">Book MOT Appointment</flux:heading>
     <flux:callout variant="info" icon="information-circle" class="mb-6">
-        <flux:callout.text>Catford only. Sundays are closed and reserved time slots are removed automatically for each booking date.</flux:callout.text>
+        <flux:callout.text>Catford only. Sundays are closed. Same-day bookings need at least {{ \App\Support\BookingSchedule::leadMinutes() }} minutes notice. Reserved time slots are removed automatically for each booking date.</flux:callout.text>
     </flux:callout>
 
     @if (session()->has('success'))
@@ -25,7 +25,7 @@
             <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Date of Appointment *</flux:label>
-                    <x-site.booking-date-picker wire:model.live="date_of_appointment" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
+                    <x-site.booking-date-picker wire:model.live="date_of_appointment" min="{{ \App\Support\BookingSchedule::minBookableDate() }}" />
                     <flux:error name="date_of_appointment" />
                 </flux:field>
                 <flux:field>

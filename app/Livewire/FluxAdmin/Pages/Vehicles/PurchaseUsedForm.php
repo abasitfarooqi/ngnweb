@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\PurchaseUsedVehicle;
+use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -64,13 +65,13 @@ class PurchaseUsedForm extends Component
     public function save(): void
     {
         $data = $this->validate($this->formRules());
-        $payload = $data['form'];
+        $payload = FluxAdminFormPayload::onlyPersistable(PurchaseUsedVehicle::class, $data['form']);
 
         if ($this->purchaseUsed && $this->purchaseUsed->exists) {
             $this->purchaseUsed->update($payload);
             $this->dispatch('flux-admin:toast', type: 'success', message: 'Record updated.');
         } else {
-            $payload['user_id'] = backpack_user()->id;
+            $payload['user_id'] = FluxAdminFormPayload::adminUserId();
             PurchaseUsedVehicle::create($payload);
             $this->dispatch('flux-admin:toast', type: 'success', message: 'Record created.');
         }

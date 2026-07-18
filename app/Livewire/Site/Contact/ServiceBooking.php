@@ -7,7 +7,9 @@ use App\Models\Branch;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking as ServiceBookingModel;
 use App\Models\SupportConversation;
+use App\Rules\BookableTimeSlot;
 use App\Rules\NotSunday;
+use App\Support\BookingSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -430,24 +432,15 @@ class ServiceBooking extends Component
             return MOTBooking::availableTimeSlotsForDate((int) $this->selectedBranch, $this->preferredDate);
         }
 
-        return [
-            '10:00' => '10:00',
-            '10:30' => '10:30',
-            '11:00' => '11:00',
-            '11:30' => '11:30',
-            '12:00' => '12:00',
-            '12:30' => '12:30',
-            '13:00' => '13:00',
-            '13:30' => '13:30',
-            '14:00' => '14:00',
-            '14:30' => '14:30',
-            '15:00' => '15:00',
-            '15:30' => '15:30',
-            '16:00' => '16:00',
-            '16:30' => '16:30',
-            '17:00' => '17:00',
-            '17:30' => '17:30',
-        ];
+        if ($this->serviceType === 'Accident Management Services Enquiry') {
+            if ($this->preferredDate === '') {
+                return MOTBooking::accidentManagementTimeSlots();
+            }
+
+            return MOTBooking::availableAccidentManagementTimeSlotsForDate($this->preferredDate);
+        }
+
+        return MOTBooking::accidentManagementTimeSlots();
     }
 
     public function getActiveCustomerBookingProperty(): ?array
@@ -477,7 +470,7 @@ class ServiceBooking extends Component
             'id' => $booking->id,
             'registration' => $booking->vehicle_registration,
             'date' => Carbon::parse($booking->date_of_appointment)->format('d M Y'),
-            'time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+            'time' => BookingSchedule::formatTimeAmPm(Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i')),
             'status' => $booking->status,
             'branch' => $booking->branch?->name ?? 'Catford',
         ];
@@ -535,7 +528,12 @@ class ServiceBooking extends Component
                 'after_or_equal:today',
                 new NotSunday,
             ])),
-            'preferredTime' => [$this->requiresScheduleSelection ? 'required' : 'nullable', 'date_format:H:i'],
+            'preferredTime' => array_values(array_filter([
+                $this->requiresScheduleSelection ? 'required' : 'nullable',
+                'date_format:H:i',
+                Rule::in(array_keys($this->availableTimeSlots)),
+                $this->requiresScheduleSelection ? new BookableTimeSlot($this->preferredDate) : null,
+            ])),
             'cookiePolicy' => [($this->rentalCompactMode || $this->repairsEnquiryCompactMode) ? 'nullable' : 'accepted'],
         ];
     }

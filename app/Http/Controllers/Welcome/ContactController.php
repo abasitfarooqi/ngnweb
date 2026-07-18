@@ -229,7 +229,7 @@ class ContactController extends Controller
 
             if ($serviceType === 'MOT Booking Enquiry') {
                 $request->validate([
-                    'booking_date' => ['required', 'date', 'after:today', new \App\Rules\NotSunday],
+                    'booking_date' => ['required', 'date', 'after_or_equal:today', new \App\Rules\NotSunday],
                     'booking_time' => ['required', 'string', 'max:10'],
                 ]);
 
@@ -241,7 +241,17 @@ class ContactController extends Controller
                     ], 422);
                 }
 
-                $appointmentStart = MOTBooking::appointmentStart((string) $request->input('booking_date'), (string) $request->input('booking_time'));
+                $bookingDate = (string) $request->input('booking_date');
+                $bookingTime = (string) $request->input('booking_time');
+                $slotError = MOTBooking::motSlotValidationError($branchId, $bookingDate, $bookingTime);
+                if ($slotError !== null) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => $slotError,
+                    ], 422);
+                }
+
+                $appointmentStart = MOTBooking::appointmentStart($bookingDate, $bookingTime);
                 $slotTaken = MOTBooking::query()
                     ->where('branch_id', $branchId)
                     ->whereDate('date_of_appointment', $request->input('booking_date'))

@@ -18,7 +18,7 @@ class Browse extends Component
 
     public function mount()
     {
-        $profile = Auth::guard('customer')->user()->customer;
+        $profile = Auth::guard('customer')->user()?->customer;
         if ($profile && $profile->preferred_branch_id) {
             $this->selectedBranch = $profile->preferred_branch_id;
         }

@@ -91,7 +91,7 @@ class Request extends Component
             'dropoffAddress' => 'required|string|max:255',
             'pickUpDate' => ['required', 'date', 'after_or_equal:today', new NotSunday],
             'pickUpTime' => ['required', 'date_format:H:i'],
-            'pickUpDatetime' => ['required', 'date', 'after_or_equal:now', new NotSunday],
+            'pickUpDatetime' => ['required', 'date', 'after:'.BookingSchedule::earliestBookableDateTime()->format('Y-m-d H:i:s'), new NotSunday],
             'vrm' => 'required|string|max:20',
             'vehicleTypeId' => 'required|exists:delivery_vehicle_types,id',
             'fullName' => 'required|string|max:255',

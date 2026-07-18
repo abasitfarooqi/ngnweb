@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Concerns;
 
+use App\Support\FluxAdminFormPayload;
 use Illuminate\Database\Eloquent\Model;
 
 /**
@@ -19,7 +20,7 @@ trait WithCrudForm
     public function fillFromModel(Model $model): void
     {
         $this->recordId = $model->getKey();
-        $this->formData = array_merge($this->formData, $model->getAttributes());
+        $this->formData = array_merge($this->formData, FluxAdminFormPayload::formAttributesFromModel($model));
     }
 
     /**
@@ -84,12 +85,7 @@ trait WithCrudForm
      */
     protected function filterFormDataToModel(Model $model): array
     {
-        $fillable = $model->getFillable();
-        if ($fillable === []) {
-            return $this->formData;
-        }
-
-        return array_intersect_key($this->formData, array_flip($fillable));
+        return FluxAdminFormPayload::onlyPersistable($model, $this->formData);
     }
 
     /**

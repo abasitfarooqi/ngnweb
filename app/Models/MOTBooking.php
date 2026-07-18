@@ -314,11 +314,63 @@ class MOTBooking extends Model
     {
         $reserved = array_keys(self::reservedTimeSlotsForDate($branchId, $date, $ignoreId));
 
-        return array_filter(
+        $open = array_filter(
             self::motTimeSlots(),
             fn (string $label, string $value): bool => ! in_array($value, $reserved, true),
             ARRAY_FILTER_USE_BOTH
         );
+
+        return \App\Support\BookingSchedule::filterBookableSlots($open, $date);
+    }
+
+    /** Repairs workshop slots (no lunch break slot). Values remain H:i for storage. */
+    public static function repairTimeSlots(): array
+    {
+        $slots = self::motTimeSlots();
+        unset($slots['12:30']);
+
+        return $slots;
+    }
+
+    /** Accident management enquiry slots (10:00–17:30). */
+    public static function accidentManagementTimeSlots(): array
+    {
+        $allowed = [
+            '10:00', '10:30', '11:00', '11:30', '12:00', '12:30',
+            '13:00', '13:30', '14:00', '14:30', '15:00', '15:30',
+            '16:00', '16:30', '17:00', '17:30',
+        ];
+
+        $labels = [];
+        foreach ($allowed as $time) {
+            $labels[$time] = \App\Support\BookingSchedule::formatTimeAmPm($time);
+        }
+
+        return $labels;
+    }
+
+    public static function availableRepairTimeSlotsForDate(string $date): array
+    {
+        return \App\Support\BookingSchedule::filterBookableSlots(self::repairTimeSlots(), $date);
+    }
+
+    public static function availableAccidentManagementTimeSlotsForDate(string $date): array
+    {
+        return \App\Support\BookingSchedule::filterBookableSlots(self::accidentManagementTimeSlots(), $date);
+    }
+
+    /** @return string|null Error message when slot cannot be booked. */
+    public static function motSlotValidationError(int $branchId, string $date, string $time): ?string
+    {
+        if (! \App\Support\BookingSchedule::isSlotBookable($date, $time)) {
+            return 'Choose a time at least '.\App\Support\BookingSchedule::leadMinutes().' minutes from now.';
+        }
+
+        if (! array_key_exists($time, self::availableTimeSlotsForDate($branchId, $date))) {
+            return 'That time slot is not available.';
+        }
+
+        return null;
     }
 
     public function appendNotes(string $line): void

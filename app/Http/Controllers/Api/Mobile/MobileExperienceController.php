@@ -116,7 +116,7 @@ class MobileExperienceController extends Controller
                         ['name' => 'reg_no', 'required' => true, 'type' => 'string', 'max' => 20],
                         ['name' => 'make_model', 'required' => true, 'type' => 'string', 'max' => 100],
                         ['name' => 'service_type', 'required' => true, 'type' => 'enum', 'values' => ['basic', 'full', 'repairs', 'other']],
-                        ['name' => 'preferred_date', 'required' => true, 'type' => 'date', 'rule' => 'after:today'],
+                        ['name' => 'preferred_date', 'required' => true, 'type' => 'date', 'rule' => 'after_or_equal:today'],
                         ['name' => 'notes', 'required' => false, 'type' => 'string', 'max' => 500],
                     ],
                 ],

@@ -37,7 +37,7 @@
                                 <p class="text-gray-600 dark:text-gray-400">Customer: <strong class="text-gray-900 dark:text-white">{{ $booking->customer_name }}</strong></p>
                                 <p class="text-gray-600 dark:text-gray-400">
                                     Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->date_of_appointment)->format('d M Y') }}</strong>
-                                    at <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i') }}</strong>
+                                    at <strong class="text-gray-900 dark:text-white">{{ \App\Support\BookingSchedule::formatTimeAmPm(\Carbon\Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i')) }}</strong>
                                 </p>
                                 <p class="text-gray-600 dark:text-gray-400">Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->branch->name ?? 'N/A' }}</strong></p>
                             </div>

@@ -76,6 +76,14 @@ final class AgreementDateTime
             return self::resolve($value)->format($format);
         }
 
+        if (is_object($value)) {
+            return self::format($value, $format);
+        }
+
+        if (! is_scalar($value)) {
+            return self::format(now(), $format);
+        }
+
         $string = trim((string) $value);
 
         foreach (['d/m/Y H:i:s', 'd/m/Y H:i', 'd/m/Y', 'Y-m-d H:i:s', 'Y-m-d H:i', 'Y-m-d'] as $pattern) {

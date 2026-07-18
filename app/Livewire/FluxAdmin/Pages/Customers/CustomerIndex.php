@@ -44,7 +44,7 @@ class CustomerIndex extends Component
         return [
             'formData.first_name'               => ['required', 'string', 'max:100'],
             'formData.last_name'                => ['required', 'string', 'max:100'],
-            'formData.email'                    => ['nullable', 'email', 'max:200'],
+            'formData.email'                    => ['required', 'email', 'max:200'],
             'formData.phone'                    => ['nullable', 'string', 'max:50'],
             'formData.whatsapp'                 => ['nullable', 'string', 'max:50'],
             'formData.dob'                      => ['nullable', 'date'],

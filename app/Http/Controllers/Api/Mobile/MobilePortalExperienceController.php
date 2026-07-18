@@ -18,11 +18,14 @@ use App\Models\DsOrder;
 use App\Models\FinanceApplication;
 use App\Models\JudopayOnboarding;
 use App\Models\JudopaySubscription;
+use App\Models\MOTBooking;
 use App\Models\MotorbikeDeliveryOrderEnquiries;
 use App\Models\NgnMitQueue;
 use App\Models\RentingBooking;
 use App\Models\SystemCountry;
+use App\Rules\NotSunday;
 use App\Services\GeoapifyDistanceService;
+use App\Support\BookingSchedule;
 use App\Support\CustomerDocumentStorage;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -769,10 +772,7 @@ class MobilePortalExperienceController extends Controller
     {
         return response()->json([
             'branches' => Branch::query()->orderBy('name')->get(['id', 'name', 'address', 'city']),
-            'time_slots' => [
-                '09:00', '09:30', '10:00', '10:30', '11:00', '11:30', '12:00',
-                '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30',
-            ],
+            'time_slots' => MOTBooking::repairTimeSlots(),
             'service_type_examples' => ['Basic service', 'Full service', 'Diagnostics', 'Other'],
         ]);
     }
@@ -791,7 +791,7 @@ class MobilePortalExperienceController extends Controller
             'bike_model' => ['nullable', 'string', 'max:100'],
             'mileage' => ['nullable', 'string', 'max:50'],
             'issue_description' => ['nullable', 'string', 'max:3000'],
-            'date_requested' => ['required', 'date', 'after:today'],
+            'date_requested' => ['required', 'date', 'after_or_equal:today', new NotSunday],
             'time_slot' => ['required', 'string', 'max:10'],
             'branch_id' => ['required', 'exists:branches,id'],
             'repair_authorisation_limit' => ['nullable', 'string', 'max:30'],
@@ -804,6 +804,13 @@ class MobilePortalExperienceController extends Controller
         }
 
         $branch = Branch::query()->find((int) $payload['branch_id']);
+
+        if (! BookingSchedule::isSlotBookable($payload['date_requested'], $payload['time_slot'])) {
+            return response()->json([
+                'message' => 'Choose a time at least '.BookingSchedule::leadMinutes().' minutes from now.',
+            ], 422);
+        }
+
         $appointmentAt = $payload['date_requested'].' '.$payload['time_slot'].':00';
 
         $bookingReason = implode("\n", array_filter([

@@ -5,9 +5,12 @@ namespace App\Livewire\Portal\Repairs;
 use App\Mail\CustomerAppointmentNotification;
 use App\Models\Branch;
 use App\Models\CustomerAppointments;
+use App\Models\MOTBooking;
+use App\Rules\BookableTimeSlot;
 use App\Rules\NotSunday;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class Appointment extends Component
@@ -35,31 +38,48 @@ class Appointment extends Component
     public string $repair_authorisation_limit = '0';
 
     /** @var array<string, string> */
-    public array $timeSlots = [
-        '09:00' => '09:00', '09:30' => '09:30', '10:00' => '10:00',
-        '10:30' => '10:30', '11:00' => '11:00', '11:30' => '11:30',
-        '12:00' => '12:00', '13:00' => '13:00', '13:30' => '13:30',
-        '14:00' => '14:00', '14:30' => '14:30', '15:00' => '15:00',
-        '15:30' => '15:30', '16:00' => '16:00', '16:30' => '16:30',
-    ];
+    public array $timeSlots = [];
 
     protected function rules(): array
     {
         return [
             'service_type' => 'required|string',
             'bike_reg_no' => 'required|string|min:2|max:12',
-            'date_requested' => ['required', 'date', 'after:today', new NotSunday],
-            'time_slot' => 'required|string',
+            'date_requested' => ['required', 'date', 'after_or_equal:today', new NotSunday],
+            'time_slot' => [
+                'required',
+                'string',
+                Rule::in(array_keys($this->availableTimeSlots)),
+                new BookableTimeSlot($this->date_requested),
+            ],
             'branch_id' => 'required|exists:branches,id',
         ];
     }
 
     public function mount(): void
     {
+        $this->timeSlots = MOTBooking::repairTimeSlots();
+
         $profile = Auth::guard('customer')->user()?->customer;
         if ($profile && $profile->preferred_branch_id) {
             $this->branch_id = (string) $profile->preferred_branch_id;
         }
+    }
+
+    public function updatedDateRequested(): void
+    {
+        if ($this->time_slot !== '' && ! array_key_exists($this->time_slot, $this->availableTimeSlots)) {
+            $this->time_slot = '';
+        }
+    }
+
+    public function getAvailableTimeSlotsProperty(): array
+    {
+        if ($this->date_requested === '') {
+            return $this->timeSlots;
+        }
+
+        return MOTBooking::availableRepairTimeSlotsForDate($this->date_requested);
     }
 
     public function submit(): void

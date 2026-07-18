@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\VehicleIssuance;
+use App\Support\FluxAdminFormPayload;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -48,7 +49,7 @@ class VehicleIssuanceIndex extends Component
         $this->recordId = null;
         $this->formData = [
             'issue_date'  => now()->toDateString(),
-            'user_id'     => backpack_user()->id,
+            'user_id'     => FluxAdminFormPayload::adminUserId(),
             'is_returned' => false,
         ];
         $this->showForm = true;

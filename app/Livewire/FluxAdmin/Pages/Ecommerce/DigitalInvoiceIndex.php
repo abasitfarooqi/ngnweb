@@ -7,6 +7,7 @@ use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\NgnDigitalInvoice;
+use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
@@ -64,7 +65,7 @@ class DigitalInvoiceIndex extends Component
             'issue_date'   => now()->toDateString(),
             'status'       => 'draft',
             'invoice_type' => 'sale',
-            'created_by'   => backpack_user()->id,
+            'created_by'   => FluxAdminFormPayload::adminUserId(),
         ];
         $this->showForm = true;
     }

@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Rentals;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\BookingInvoice;
+use App\Support\FluxAdminFormPayload;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -63,7 +64,7 @@ class BookingInvoiceForm extends Component
             'form.notes'        => ['nullable', 'string'],
         ]);
 
-        $data = [
+        $data = FluxAdminFormPayload::onlyPersistable(BookingInvoice::class, [
             'booking_id'   => $this->form['booking_id'],
             'invoice_date' => $this->form['invoice_date'] ?: null,
             'amount'       => $this->form['amount'] ?: null,
@@ -72,7 +73,11 @@ class BookingInvoiceForm extends Component
             'is_paid'      => (bool) ($this->form['is_paid'] ?? false),
             'paid_date'    => $this->form['paid_date'] ?: null,
             'notes'        => $this->form['notes'] ?: null,
-        ];
+        ]);
+
+        if (empty($data['user_id'])) {
+            $data['user_id'] = FluxAdminFormPayload::adminUserId();
+        }
 
         if ($this->invoiceId) {
             BookingInvoice::findOrFail($this->invoiceId)->update($data);

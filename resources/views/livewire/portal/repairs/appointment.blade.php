@@ -72,13 +72,13 @@
                 <x-site.form-grid :cols="3">
                     <flux:field>
                         <flux:label>Date *</flux:label>
-                        <x-site.booking-date-picker wire:model="date_requested" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
+                        <x-site.booking-date-picker wire:model.live="date_requested" min="{{ \App\Support\BookingSchedule::minBookableDate() }}" />
                         <flux:error name="date_requested" />
                     </flux:field>
                     <flux:field>
                         <flux:label>Time *</flux:label>
-                        <flux:select wire:model="time_slot" variant="listbox" placeholder="Select time">
-                            @foreach($timeSlots as $value => $label)
+                        <flux:select wire:model.live="time_slot" variant="listbox" placeholder="Select time">
+                            @foreach($this->availableTimeSlots as $value => $label)
                                 <flux:select.option value="{{ $value }}">{{ $label }}</flux:select.option>
                             @endforeach
                         </flux:select>

@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\NgnMotNotifier;
+use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -36,7 +37,7 @@ class MotStatsForm extends Component
             }
             $this->form = $attrs;
         } else {
-            $this->form = ['mot_notify_email' => false, 'mot_notify_phone' => false];
+            $this->form = ['mot_notify_email' => false, 'mot_notify_phone' => false, 'customer_contact' => '', 'customer_email' => ''];
         }
     }
 
@@ -57,7 +58,9 @@ class MotStatsForm extends Component
     public function save(): void
     {
         $data = $this->validate($this->formRules());
-        $payload = $data['form'];
+        $payload = FluxAdminFormPayload::onlyPersistable(NgnMotNotifier::class, $data['form']);
+        $payload['customer_contact'] = trim((string) ($payload['customer_contact'] ?? ''));
+        $payload['customer_email'] = trim((string) ($payload['customer_email'] ?? ''));
 
         if ($this->notifier && $this->notifier->exists) {
             $this->notifier->update($payload);

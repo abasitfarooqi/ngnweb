@@ -63,7 +63,7 @@
                 <flux:card class="p-5 border-l-4 border-blue-500">
                     <p class="text-xs font-bold uppercase tracking-wide text-blue-600 mb-1">Upcoming MOT</p>
                     <p class="text-sm font-semibold text-gray-900 dark:text-white">{{ $upcomingMOT->vehicle_registration }}</p>
-                    <p class="text-xs text-gray-500">{{ $upcomingMOT->date_of_appointment->format('d M Y') }} at {{ $upcomingMOT->start->format('H:i') }}</p>
+                    <p class="text-xs text-gray-500">{{ $upcomingMOT->date_of_appointment->format('d M Y') }} at {{ \App\Support\BookingSchedule::formatTimeAmPm($upcomingMOT->start->format('H:i')) }}</p>
                     <p class="text-xs text-gray-500">{{ $upcomingMOT->branch->name ?? 'Branch TBC' }}</p>
                     <a href="{{ route('account.bookings') }}" class="mt-3 text-xs text-brand-red hover:underline block">View Booking →</a>
                 </flux:card>

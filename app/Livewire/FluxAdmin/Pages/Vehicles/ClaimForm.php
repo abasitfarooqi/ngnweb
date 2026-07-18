@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Branch;
 use App\Models\ClaimMotorbike;
 use App\Models\Motorbike;
+use App\Support\FluxAdminFormPayload;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -45,9 +46,12 @@ class ClaimForm extends Component
         } else {
             $this->form = [
                 'case_date'   => now()->toDateString(),
-                'user_id'     => backpack_user()->id,
+                'user_id'     => FluxAdminFormPayload::adminUserId(),
                 'is_received' => false,
                 'is_returned' => false,
+                'notes'       => '',
+                'email'       => '',
+                'phone'       => '',
             ];
         }
     }
@@ -108,11 +112,11 @@ class ClaimForm extends Component
 
         $this->validate([
             'form.fullname'      => ['required', 'string', 'max:255'],
-            'form.email'         => ['nullable', 'email', 'max:255'],
-            'form.phone'         => ['nullable', 'string', 'max:50'],
+            'form.email'         => ['required', 'email', 'max:255'],
+            'form.phone'         => ['required', 'string', 'max:50'],
             'form.case_date'     => ['required', 'date'],
-            'form.motorbike_id'  => ['nullable', 'integer'],
-            'form.branch_id'     => ['nullable', 'integer'],
+            'form.motorbike_id'  => ['required', 'integer', 'exists:motorbikes,id'],
+            'form.branch_id'     => ['required', 'integer', 'exists:branches,id'],
             'form.notes'         => ['nullable', 'string'],
             'form.is_received'   => ['boolean'],
             'form.received_date' => ['nullable', 'date'],
@@ -121,20 +125,20 @@ class ClaimForm extends Component
             'form.user_id'       => ['nullable', 'integer'],
         ]);
 
-        $data = [
-            'fullname'      => $this->form['fullname'] ?? null,
-            'email'         => $this->form['email'] ?? null,
-            'phone'         => $this->form['phone'] ?? null,
-            'case_date'     => $this->form['case_date'] ?? null,
-            'motorbike_id'  => $this->form['motorbike_id'] ?? null,
-            'branch_id'     => $this->form['branch_id'] ?? null,
-            'notes'         => $this->form['notes'] ?? null,
+        $data = FluxAdminFormPayload::onlyPersistable(ClaimMotorbike::class, [
+            'fullname'      => $this->form['fullname'],
+            'email'         => $this->form['email'],
+            'phone'         => $this->form['phone'],
+            'case_date'     => $this->form['case_date'],
+            'motorbike_id'  => $this->form['motorbike_id'],
+            'branch_id'     => $this->form['branch_id'],
+            'notes'         => trim((string) ($this->form['notes'] ?? '')) !== '' ? $this->form['notes'] : '—',
             'is_received'   => (bool) ($this->form['is_received'] ?? false),
             'received_date' => $this->form['received_date'] ?? null,
             'is_returned'   => (bool) ($this->form['is_returned'] ?? false),
             'returned_date' => $this->form['returned_date'] ?? null,
-            'user_id'       => $this->form['user_id'] ?? backpack_user()->id,
-        ];
+            'user_id'       => $this->form['user_id'] ?? FluxAdminFormPayload::adminUserId(),
+        ]);
 
         if ($this->claimMotorbike && $this->claimMotorbike->exists) {
             $this->claimMotorbike->update($data);

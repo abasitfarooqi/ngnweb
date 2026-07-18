@@ -268,7 +268,7 @@ class MobilePortalController extends Controller
 
         $payload = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
-            'date_of_appointment' => ['required', 'date', 'after:today', new NotSunday],
+            'date_of_appointment' => ['required', 'date', 'after_or_equal:today', new NotSunday],
             'time_slot' => ['required', 'string', 'max:10'],
             'motorbike_reg_no' => ['required', 'string', 'min:2', 'max:10'],
             'motorbike_make' => ['required', 'string', 'min:2', 'max:50'],
@@ -282,6 +282,12 @@ class MobilePortalController extends Controller
         $customerPhone = trim((string) ($customerProfile?->phone ?? $customerAuth?->phone ?? ''));
         $customerEmail = trim((string) ($customerAuth?->email ?? ''));
         $appointmentStart = trim($payload['date_of_appointment'].' '.$payload['time_slot']);
+
+        $slotError = MOTBooking::motSlotValidationError((int) $payload['branch_id'], $payload['date_of_appointment'], $payload['time_slot']);
+        if ($slotError !== null) {
+            return response()->json(['message' => $slotError], 422);
+        }
+
         $regNo = strtoupper(trim((string) $payload['motorbike_reg_no']));
 
         $motBooking = MOTBooking::withoutEvents(function () use ($payload, $appointmentStart, $customerName, $customerPhone, $customerEmail, $regNo) {

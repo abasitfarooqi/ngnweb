@@ -8,6 +8,7 @@ use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\Customer;
 use App\Models\FinanceApplication;
 use App\Support\AdminDateTimeInput;
+use App\Support\FluxAdminFormPayload;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -129,7 +130,7 @@ class FinanceIndex extends Component
     protected function beforeSave(array $attributes): array
     {
         if (empty($attributes['user_id'])) {
-            $attributes['user_id'] = backpack_user()?->id;
+            $attributes['user_id'] = FluxAdminFormPayload::adminUserId();
         }
 
         $attributes['is_new'] = false;

@@ -5,7 +5,9 @@ namespace App\Livewire\Site\Mot;
 use App\Http\Controllers\MailController;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking;
+use App\Rules\BookableTimeSlot;
 use App\Rules\NotSunday;
+use App\Support\BookingSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -79,11 +81,12 @@ class Book extends Component
             'name' => ['required', 'string', 'min:2'],
             'email' => ['required', 'email'],
             'phone' => ['required', 'string', 'min:10'],
-            'preferredDate' => ['required', 'date', 'after:today', new NotSunday],
+            'preferredDate' => ['required', 'date', 'after_or_equal:today', new NotSunday],
             'preferredTime' => array_values(array_filter([
                 'required',
                 'string',
                 Rule::in(array_keys($this->availableTimeSlots)),
+                new BookableTimeSlot($this->preferredDate),
             ])),
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
@@ -257,7 +260,7 @@ class Book extends Component
             'id' => $booking->id,
             'registration' => $booking->vehicle_registration,
             'date' => Carbon::parse($booking->date_of_appointment)->format('d M Y'),
-            'time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+            'time' => BookingSchedule::formatTimeAmPm(Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i')),
             'status' => $booking->status,
             'branch' => $booking->branch?->name ?? 'Catford',
         ];

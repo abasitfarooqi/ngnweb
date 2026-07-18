@@ -18,6 +18,8 @@ class CustomerAuth extends Authenticatable implements CanResetPassword, MustVeri
 
     protected $guard = 'customer';
 
+    protected $table = 'customer_auths';
+
     protected $fillable = [
         'customer_id',
         'email',

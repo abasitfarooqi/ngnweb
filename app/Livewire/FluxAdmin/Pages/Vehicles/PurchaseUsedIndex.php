@@ -7,6 +7,7 @@ use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\PurchaseUsedVehicle;
+use App\Support\FluxAdminFormPayload;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -59,7 +60,7 @@ class PurchaseUsedIndex extends Component
     protected function beforeSave(array $attributes): array
     {
         if (! $this->recordId) {
-            $attributes['user_id'] = backpack_user()->id;
+            $attributes['user_id'] = FluxAdminFormPayload::adminUserId();
         }
 
         return $attributes;

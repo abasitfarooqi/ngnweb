@@ -22,7 +22,8 @@ class RentalPaymentController extends Controller
     {
         try {
             $booking = RentingBooking::with(['customer', 'rentingBookingItems.motorbike'])->findOrFail($bookingId);
-            $customer = Auth::guard('customer')->user()->customer;
+            $customerAuth = Auth::guard('customer')->user();
+            $customer = $customerAuth?->customer;
 
             if (! $customer) {
                 return redirect()->route('account.rentals')->with('error', 'Customer profile is missing. Please contact support.');

@@ -151,6 +151,12 @@ class Customer extends Model
         return (bool) ($this->profile_editing_unlocked ?? false);
     }
 
+    /** Delivery / shop addresses — not locked when profile editing is sealed. */
+    public function canCustomerManageAddresses(): bool
+    {
+        return true;
+    }
+
     public function canCustomerEditIdentityFields(): bool
     {
         return $this->canCustomerEditPortal();

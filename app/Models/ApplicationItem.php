@@ -17,11 +17,8 @@ class ApplicationItem extends Model
         'application_id',
         'motorbike_id',
         'user_id',
-        'start_date',
-        'due_date',
-        'end_date',
         'is_posted',
-        'weekly_instalment',
+        'app_id',
     ];
 
     public function application()

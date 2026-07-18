@@ -16,7 +16,7 @@
     @endif
 
     <flux:callout variant="info" icon="information-circle" class="mb-6">
-        <flux:callout.text>Catford only. Sundays are closed and booked time slots cannot be selected again.</flux:callout.text>
+        <flux:callout.text>Catford only. Sundays are closed. Same-day bookings need at least {{ \App\Support\BookingSchedule::leadMinutes() }} minutes notice. Booked slots cannot be selected again.</flux:callout.text>
     </flux:callout>
 
     @if($this->activeCustomerBooking)
@@ -78,7 +78,7 @@
             <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>Preferred Date *</flux:label>
-                    <x-site.booking-date-picker wire:model.live="preferredDate" min="{{ \App\Support\BookingSchedule::minBookableDate(true) }}" />
+                    <x-site.booking-date-picker wire:model.live="preferredDate" min="{{ \App\Support\BookingSchedule::minBookableDate() }}" />
                     <flux:error name="preferredDate" />
                 </flux:field>
                 <flux:field>

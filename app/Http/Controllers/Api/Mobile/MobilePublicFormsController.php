@@ -489,7 +489,7 @@ class MobilePublicFormsController extends Controller
     {
         $payload = $request->validate([
             'branch_id' => ['required', 'integer', 'exists:branches,id'],
-            'date_of_appointment' => ['required', 'date', 'after:today'],
+            'date_of_appointment' => ['required', 'date', 'after_or_equal:today', new \App\Rules\NotSunday],
             'time_slot' => ['required', 'string', 'max:10'],
             'motorbike_reg_no' => ['required', 'string', 'min:2', 'max:10'],
             'motorbike_make' => ['required', 'string', 'min:2', 'max:50'],
@@ -502,6 +502,11 @@ class MobilePublicFormsController extends Controller
 
         $regNo = strtoupper(trim((string) $payload['motorbike_reg_no']));
         $appointmentStart = trim($payload['date_of_appointment'].' '.$payload['time_slot']);
+
+        $slotError = \App\Models\MOTBooking::motSlotValidationError((int) $payload['branch_id'], $payload['date_of_appointment'], $payload['time_slot']);
+        if ($slotError !== null) {
+            return response()->json(['message' => $slotError], 422);
+        }
 
         $motBooking = \App\Models\MOTBooking::withoutEvents(fn () => \App\Models\MOTBooking::query()->create([
             'branch_id' => (int) $payload['branch_id'],

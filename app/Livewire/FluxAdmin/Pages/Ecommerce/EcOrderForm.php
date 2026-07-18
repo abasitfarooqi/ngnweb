@@ -9,6 +9,7 @@ use App\Models\CustomerAuth;
 use App\Models\Ecommerce\EcOrder;
 use App\Models\Ecommerce\EcPaymentMethod;
 use App\Models\Ecommerce\EcShippingMethod;
+use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -103,7 +104,7 @@ class EcOrderForm extends Component
     public function save(): void
     {
         $data = $this->validate($this->formRules());
-        $payload = $data['form'];
+        $payload = FluxAdminFormPayload::onlyPersistable(EcOrder::class, $data['form']);
 
         if ($this->ecOrder && $this->ecOrder->exists) {
             $this->ecOrder->update($payload);

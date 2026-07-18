@@ -52,8 +52,8 @@
                 @forelse($bookings as $b)
                     <flux:table.row wire:key="mot-{{ $b->id }}">
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->id }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->start ? \Carbon\Carbon::parse($b->start)->format('d M Y H:i') : '—' }}</flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->end ? \Carbon\Carbon::parse($b->end)->format('d M Y H:i') : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->start ? \Carbon\Carbon::parse($b->start)->format('d M Y').' '.\App\Support\BookingSchedule::formatTimeAmPm(\Carbon\Carbon::parse($b->start)->format('H:i')) : '—' }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $b->end ? \Carbon\Carbon::parse($b->end)->format('d M Y').' '.\App\Support\BookingSchedule::formatTimeAmPm(\Carbon\Carbon::parse($b->end)->format('H:i')) : '—' }}</flux:table.cell>
                         <flux:table.cell class="text-xs text-zinc-700 dark:text-zinc-300 max-w-[14rem] truncate" title="{{ $b->title }}">{{ $b->title ?: '—' }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">{{ $b->vehicle_registration }}</flux:table.cell>
                         <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">

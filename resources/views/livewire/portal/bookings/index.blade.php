@@ -62,7 +62,7 @@
                             <div class="text-sm space-y-1 text-gray-600 dark:text-gray-400">
                                 @if($booking->type === 'MOT')
                                     <p>Vehicle: <strong class="text-gray-900 dark:text-white">{{ $booking->source->vehicle_registration ?? 'N/A' }}</strong></p>
-                                    <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->start ?? $booking->source->date_of_appointment)->format('H:i') }}</strong></p>
+                                    <p>Date: <strong class="text-gray-900 dark:text-white">{{ \Carbon\Carbon::parse($booking->source->date_of_appointment)->format('d M Y') }}</strong> at <strong class="text-gray-900 dark:text-white">{{ \App\Support\BookingSchedule::formatTimeAmPm(\Carbon\Carbon::parse($booking->source->start ?? $booking->source->date_of_appointment)->format('H:i')) }}</strong></p>
                                     <p>Branch: <strong class="text-gray-900 dark:text-white">{{ $booking->source->branch->name ?? 'N/A' }}</strong></p>
                                     @if(! in_array(strtolower((string) $booking->status), ['cancelled', 'completed'], true))
                                         <div class="mt-3">

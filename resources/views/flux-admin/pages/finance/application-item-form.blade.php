@@ -22,23 +22,28 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Item details</h2>
             <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <x-flux-admin::field-group label="Application ID" required :error="$errors->first('form.application_id')">
-                    <flux:input type="number" wire:model="form.application_id" />
+                <x-flux-admin::field-group label="Finance application" required :error="$errors->first('form.application_id')">
+                    <flux:select wire:model="form.application_id" placeholder="— Select —">
+                        <flux:select.option value="">— Select —</flux:select.option>
+                        @foreach($applications as $application)
+                            <flux:select.option value="{{ $application->id }}">
+                                #{{ $application->id }} · Customer #{{ $application->customer_id }} · {{ $application->status ?? '—' }}
+                            </flux:select.option>
+                        @endforeach
+                    </flux:select>
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Motorbike ID" required :error="$errors->first('form.motorbike_id')">
-                    <flux:input type="number" wire:model="form.motorbike_id" />
+                <x-flux-admin::field-group label="Motorbike" required :error="$errors->first('form.motorbike_id')">
+                    <flux:select wire:model="form.motorbike_id" placeholder="— Select —">
+                        <flux:select.option value="">— Select —</flux:select.option>
+                        @foreach($motorbikes as $motorbike)
+                            <flux:select.option value="{{ $motorbike->id }}">
+                                {{ $motorbike->reg_no }} · {{ trim($motorbike->make.' '.$motorbike->model) }}
+                            </flux:select.option>
+                        @endforeach
+                    </flux:select>
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Weekly instalment (£)" :error="$errors->first('form.weekly_instalment')">
-                    <flux:input type="number" step="0.01" wire:model="form.weekly_instalment" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Start date" :error="$errors->first('form.start_date')">
-                    <flux:input type="date" wire:model="form.start_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Due date" :error="$errors->first('form.due_date')">
-                    <flux:input type="date" wire:model="form.due_date" />
-                </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="End date" :error="$errors->first('form.end_date')">
-                    <flux:input type="date" wire:model="form.end_date" />
+                <x-flux-admin::field-group label="Legacy app ID" :error="$errors->first('form.app_id')">
+                    <flux:input type="number" wire:model="form.app_id" />
                 </x-flux-admin::field-group>
             </div>
             <div class="mt-4">

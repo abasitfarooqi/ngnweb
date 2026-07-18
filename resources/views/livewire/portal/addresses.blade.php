@@ -1,17 +1,26 @@
 <div class="space-y-6 max-w-3xl">
-    {{-- Header --}}
     <div class="flex items-center justify-between flex-wrap gap-3">
         <flux:heading size="xl">My Addresses</flux:heading>
-        @if($canEditPortal ?? false)
+        @if($canManageAddresses ?? false)
             <flux:button wire:click="openNew" icon="plus" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
                 Add Address
             </flux:button>
         @endif
     </div>
 
-    @if(! ($canEditPortal ?? false))
-        <flux:callout variant="warning" icon="lock-closed">
-            <flux:callout.text>Your account is read-only until NGN authorises editing.</flux:callout.text>
+    <p class="text-sm text-gray-500 dark:text-gray-400">
+        Save delivery and billing addresses for shop orders and collections. You can add multiple addresses and choose a default.
+    </p>
+
+    @if(! ($canManageAddresses ?? false))
+        <flux:callout variant="warning" icon="exclamation-triangle">
+            <flux:callout.text>
+                @if(! ($profile ?? null))
+                    Please <a href="{{ route('account.profile') }}" class="text-brand-red hover:underline font-medium">complete your profile</a> before adding delivery addresses.
+                @else
+                    Address management is unavailable on your account. Contact customer service if you need help.
+                @endif
+            </flux:callout.text>
         </flux:callout>
     @endif
 
@@ -21,7 +30,6 @@
         </flux:callout>
     @endif
 
-    {{-- Success message --}}
     @if($successMessage)
         <div x-data="{ show: true }" x-init="setTimeout(() => show = false, 4000)" x-show="show" x-transition
              class="px-4 py-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-700 text-green-700 dark:text-green-300 text-sm">
@@ -29,7 +37,6 @@
         </div>
     @endif
 
-    {{-- Add / Edit form --}}
     @if($showForm)
         <flux:card class="p-6">
             <h2 class="font-semibold text-gray-900 dark:text-white mb-5">
@@ -85,7 +92,7 @@
                 <div>
                     <flux:label>Type</flux:label>
                     <flux:select wire:model="type">
-                        <flux:select.option value="shipping">Shipping</flux:select.option>
+                        <flux:select.option value="shipping">Shipping / delivery</flux:select.option>
                         <flux:select.option value="billing">Billing</flux:select.option>
                     </flux:select>
                 </div>
@@ -99,15 +106,14 @@
         </flux:card>
     @endif
 
-    {{-- Address list --}}
     @if($addresses->isEmpty())
         <flux:card class="p-12 text-center">
             <flux:icon name="map-pin" class="h-12 w-12 text-gray-300 mx-auto mb-3" />
             <p class="text-gray-600 dark:text-gray-400 mb-4">No addresses saved yet.</p>
-            @if($canEditPortal ?? false)
-            <flux:button wire:click="openNew" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
-                Add Your First Address
-            </flux:button>
+            @if($canManageAddresses ?? false)
+                <flux:button wire:click="openNew" variant="filled" class="bg-brand-red text-white hover:bg-red-700">
+                    Add Your First Address
+                </flux:button>
             @endif
         </flux:card>
     @else
@@ -124,7 +130,7 @@
                             @endif
                         </div>
                         <flux:badge color="{{ $address->type === 'billing' ? 'blue' : 'zinc' }}" size="sm">
-                            {{ ucfirst($address->type) }}
+                            {{ $address->type === 'billing' ? 'Billing' : 'Delivery' }}
                         </flux:badge>
                     </div>
                     <address class="not-italic text-sm text-gray-500 dark:text-gray-400 space-y-0.5 mb-4">
@@ -135,22 +141,22 @@
                         <p>{{ $address->city }}, {{ $address->postcode }}</p>
                         @if($address->phone_number) <p>{{ $address->phone_number }}</p> @endif
                     </address>
-                    <div class="flex gap-2 flex-wrap">
-                        @if($canEditPortal ?? false)
-                        <flux:button wire:click="edit({{ $address->id }})" size="sm" variant="outline">Edit</flux:button>
-                        @if(!$address->is_default)
-                            <flux:button wire:click="setDefault({{ $address->id }})" size="sm" variant="ghost">
-                                Set Default
-                            </flux:button>
-                            <flux:button wire:click="delete({{ $address->id }})"
-                                         wire:confirm="Remove this address?"
-                                         size="sm" variant="ghost"
-                                         class="text-red-500 hover:text-red-700">
-                                Remove
-                            </flux:button>
-                        @endif
-                        @endif
-                    </div>
+                    @if($canManageAddresses ?? false)
+                        <div class="flex gap-2 flex-wrap">
+                            <flux:button wire:click="edit({{ $address->id }})" size="sm" variant="outline">Edit</flux:button>
+                            @if(!$address->is_default)
+                                <flux:button wire:click="setDefault({{ $address->id }})" size="sm" variant="ghost">
+                                    Set Default
+                                </flux:button>
+                                <flux:button wire:click="delete({{ $address->id }})"
+                                             wire:confirm="Remove this address?"
+                                             size="sm" variant="ghost"
+                                             class="text-red-500 hover:text-red-700">
+                                    Remove
+                                </flux:button>
+                            @endif
+                        </div>
+                    @endif
                 </flux:card>
             @endforeach
         </x-site.form-grid>

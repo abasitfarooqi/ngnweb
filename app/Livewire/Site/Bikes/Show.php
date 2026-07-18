@@ -9,7 +9,7 @@ use App\Support\NgnMotorcycleImage;
 use App\Models\ServiceBooking;
 use App\Support\MotorbikeSoldStatus;
 use App\Support\RegistrationMask;
-use Mews\Purifier\Facades\Purifier;
+use App\Support\MotorbikeAccessoriesHtml;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
@@ -205,14 +205,7 @@ class Show extends Component
 
     public function accessoriesHtml(): ?string
     {
-        $raw = trim((string) ($this->saleInfo?->accessories ?? ''));
-        if ($raw === '') {
-            return null;
-        }
-
-        $clean = trim(Purifier::clean($raw, 'motorbike_accessories'));
-
-        return $clean !== '' ? $clean : null;
+        return MotorbikeAccessoriesHtml::sanitize($this->saleInfo?->accessories);
     }
 
     /**

@@ -55,4 +55,20 @@ class SystemCountry extends Model
     {
         return $this->hasMany(UserAddress::class, 'country_id');
     }
+
+    /** Prefer UK (GB), then first seeded country, then legacy id 3. */
+    public static function defaultId(): int
+    {
+        static $cached;
+
+        if ($cached !== null) {
+            return $cached;
+        }
+
+        $id = static::query()->where('cca2', 'GB')->value('id')
+            ?? static::query()->orderBy('id')->value('id')
+            ?? 3;
+
+        return $cached = (int) $id;
+    }
 }

@@ -5,9 +5,9 @@ namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Motorbike;
 use App\Models\MotorbikesSale;
+use App\Support\MotorbikeAccessoriesHtml;
 use App\Support\MotorbikeMediaStorage;
 use App\Support\NgnMotorcycleImage;
-use Mews\Purifier\Facades\Purifier;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -288,14 +288,7 @@ class SaleForm extends Component
 
     private static function cleanAccessories(?string $raw): ?string
     {
-        $raw = trim((string) $raw);
-        if ($raw === '') {
-            return null;
-        }
-
-        $clean = trim(Purifier::clean($raw, 'motorbike_accessories'));
-
-        return $clean !== '' ? $clean : null;
+        return MotorbikeAccessoriesHtml::sanitize($raw);
     }
 
     public function currentImageUrl(?string $path): ?string

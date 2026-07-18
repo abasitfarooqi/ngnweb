@@ -6,7 +6,9 @@ use App\Http\Controllers\MailController;
 use App\Models\Branch;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking;
+use App\Rules\BookableTimeSlot;
 use App\Rules\NotSunday;
+use App\Support\BookingSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -59,11 +61,12 @@ class Book extends Component
             'motorbike_reg_no' => ['required', 'string', 'min:2', 'max:10'],
             'motorbike_make' => ['nullable', 'string', 'min:2', 'max:50'],
             'motorbike_model' => ['nullable', 'string', 'min:2', 'max:50'],
-            'date_of_appointment' => ['required', 'date', 'after:today', new NotSunday],
+            'date_of_appointment' => ['required', 'date', 'after_or_equal:today', new NotSunday],
             'time_slot' => array_values(array_filter([
                 'required',
                 'string',
                 Rule::in(array_keys($this->availableTimeSlots)),
+                new BookableTimeSlot($this->date_of_appointment),
             ])),
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
@@ -91,6 +94,12 @@ class Book extends Component
         $customerName = trim((string) ($customerProfile?->first_name.' '.$customerProfile?->last_name));
         $customerName = $customerName !== '' ? $customerName : (string) ($customerAuth?->name ?? 'Portal customer');
         $customerPhone = trim((string) ($customerProfile?->phone ?? $customerAuth?->phone ?? ''));
+        if ($customerPhone === '') {
+            $this->addError('phone', 'Please add a phone number to your profile before booking an MOT.');
+
+            return;
+        }
+
         $customerEmail = trim((string) ($customerAuth?->email ?? ''));
         $appointmentStart = MOTBooking::appointmentStart($this->date_of_appointment, $this->time_slot);
         $bookingNotes = implode("\n", array_filter([
@@ -231,7 +240,7 @@ class Book extends Component
             'id' => $booking->id,
             'registration' => $booking->vehicle_registration,
             'date' => $booking->date_of_appointment?->format('d M Y') ?? Carbon::parse($booking->date_of_appointment)->format('d M Y'),
-            'time' => Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i'),
+            'time' => BookingSchedule::formatTimeAmPm(Carbon::parse($booking->start ?? $booking->date_of_appointment)->format('H:i')),
             'status' => $booking->status,
             'branch' => $booking->branch?->name ?? 'Catford',
         ];

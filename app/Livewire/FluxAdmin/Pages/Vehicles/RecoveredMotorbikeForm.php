@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\RecoveredMotorbike;
+use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -38,7 +39,7 @@ class RecoveredMotorbikeForm extends Component
         } else {
             $this->form = [
                 'case_date' => now()->toDateString(),
-                'user_id'   => backpack_user()->id,
+                'user_id'   => FluxAdminFormPayload::adminUserId(),
             ];
         }
     }
@@ -58,7 +59,10 @@ class RecoveredMotorbikeForm extends Component
     public function save(): void
     {
         $data = $this->validate($this->formRules());
-        $payload = $data['form'];
+        $payload = FluxAdminFormPayload::onlyPersistable(RecoveredMotorbike::class, $data['form']);
+        if (empty($payload['user_id'])) {
+            $payload['user_id'] = FluxAdminFormPayload::adminUserId();
+        }
 
         if ($this->recoveredMotorbike && $this->recoveredMotorbike->exists) {
             $this->recoveredMotorbike->update($payload);

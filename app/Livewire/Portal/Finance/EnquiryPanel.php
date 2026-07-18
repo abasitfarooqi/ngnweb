@@ -200,7 +200,13 @@ class EnquiryPanel extends Component
         }
 
         $profile = $customerAuth->customer;
-        $resolvedName = trim((string) (($profile?->first_name ?? '').' '.($profile?->last_name ?? '')));
+        if (! $customerAuth->customer_id || ! $profile) {
+            session()->flash('error', 'Please complete your profile before submitting a finance enquiry.');
+
+            return;
+        }
+
+        $resolvedName = trim((string) (($profile->first_name ?? '').' '.($profile->last_name ?? '')));
         $resolvedName = $resolvedName !== '' ? $resolvedName : 'Portal customer';
         $resolvedEmail = trim((string) ($customerAuth->email ?? ''));
         $resolvedPhone = trim((string) ($profile?->phone ?? ''));

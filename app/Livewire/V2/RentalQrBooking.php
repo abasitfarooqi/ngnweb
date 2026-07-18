@@ -29,7 +29,7 @@ class RentalQrBooking extends Component
     public string $address = '';
 
     // Booking details
-    #[Rule('required|date|after:today')]
+    #[Rule('required|date|after_or_equal:today')]
     public string $start_date = '';
 
     #[Rule('required|in:1,3,7,14,30')]
