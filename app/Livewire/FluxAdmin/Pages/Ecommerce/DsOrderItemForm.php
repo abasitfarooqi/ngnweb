@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Ecommerce;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Models\DsOrder;
 use App\Models\DsOrderItem;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -32,7 +33,7 @@ class DsOrderItemForm extends Component
     protected function formRules(): array
     {
         return [
-            'form.ds_order_id'       => ['required', 'integer'],
+            'form.ds_order_id'       => ['required', 'integer', 'exists:ds_orders,id'],
             'form.vrm'               => ['nullable', 'string', 'max:20'],
             'form.pickup_address'    => ['required', 'string', 'max:500'],
             'form.pickup_postcode'   => ['required', 'string', 'max:20'],
@@ -68,6 +69,11 @@ class DsOrderItemForm extends Component
 
     public function render()
     {
-        return view('flux-admin.pages.ecommerce.ds-order-item-form');
+        $dsOrders = DsOrder::query()
+            ->latest('pick_up_datetime')
+            ->limit(300)
+            ->get(['id', 'full_name', 'phone', 'postcode', 'pick_up_datetime']);
+
+        return view('flux-admin.pages.ecommerce.ds-order-item-form', compact('dsOrders'));
     }
 }

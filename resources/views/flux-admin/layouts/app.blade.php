@@ -978,8 +978,10 @@
 
             {{-- 13. Ecommerce --}}
             @can('see-menu-ecommerce')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.ec-orders.*','flux-admin.store-front.*')" heading="Ecommerce">
-                    <flux:navlist.item href="{{ route('flux-admin.ec-orders.index') }}" :current="request()->routeIs('flux-admin.ec-orders.*')">Online store</flux:navlist.item>
+                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.ec-orders.*','flux-admin.shop-orders.*','flux-admin.spare-part-orders.*','flux-admin.store-front.*')" heading="Ecommerce">
+                    <flux:navlist.item href="{{ route('flux-admin.shop-orders.index') }}" :current="request()->routeIs('flux-admin.shop-orders.*')">Shop orders</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.spare-part-orders.index') }}" :current="request()->routeIs('flux-admin.spare-part-orders.*')">Spare parts orders</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.ec-orders.index') }}" :current="request()->routeIs('flux-admin.ec-orders.*')">All orders</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.store-front.index') }}" :current="request()->routeIs('flux-admin.store-front.*')">Store front</flux:navlist.item>
                 </flux:navlist.group>
             @endcan

@@ -89,7 +89,9 @@ return [
 
         ['group' => 'Claims', 'label' => 'Add / Edit', 'route' => 'flux-admin.motorbike-claims.index', 'permission' => 'see-menu-claims', 'keywords' => 'insurance claim'],
 
-        ['group' => 'Ecommerce', 'label' => 'Online store', 'route' => 'flux-admin.ec-orders.index', 'permission' => 'see-menu-ecommerce', 'keywords' => 'shop orders'],
+        ['group' => 'Ecommerce', 'label' => 'Shop orders', 'route' => 'flux-admin.shop-orders.index', 'permission' => 'see-menu-ecommerce', 'keywords' => 'shop checkout catalogue'],
+        ['group' => 'Ecommerce', 'label' => 'Spare parts orders', 'route' => 'flux-admin.spare-part-orders.index', 'permission' => 'see-menu-ecommerce', 'keywords' => 'spare parts checkout'],
+        ['group' => 'Ecommerce', 'label' => 'All orders', 'route' => 'flux-admin.ec-orders.index', 'permission' => 'see-menu-ecommerce', 'keywords' => 'ecommerce orders'],
         ['group' => 'Ecommerce', 'label' => 'Store front', 'route' => 'flux-admin.store-front.index', 'permission' => 'see-menu-ecommerce'],
 
         ['group' => 'Spare parts', 'label' => 'Parts', 'route' => 'flux-admin.sp-parts.index', 'permission' => 'see-menu-inventory'],

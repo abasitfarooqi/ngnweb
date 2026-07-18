@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Ecommerce;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Models\NgnDigitalInvoice;
 use App\Models\NgnDigitalInvoiceItem;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -32,7 +33,7 @@ class DigitalInvoiceItemForm extends Component
     protected function formRules(): array
     {
         return [
-            'form.invoice_id' => ['required', 'integer'],
+            'form.invoice_id' => ['required', 'integer', 'exists:ngn_digital_invoices,id'],
             'form.item_name'  => ['required', 'string', 'max:255'],
             'form.sku'        => ['nullable', 'string', 'max:100'],
             'form.quantity'   => ['required', 'numeric', 'min:0'],
@@ -68,6 +69,11 @@ class DigitalInvoiceItemForm extends Component
 
     public function render()
     {
-        return view('flux-admin.pages.ecommerce.digital-invoice-item-form');
+        $invoices = NgnDigitalInvoice::query()
+            ->latest('issue_date')
+            ->limit(300)
+            ->get(['id', 'invoice_number', 'customer_name', 'registration_number', 'issue_date']);
+
+        return view('flux-admin.pages.ecommerce.digital-invoice-item-form', compact('invoices'));
     }
 }

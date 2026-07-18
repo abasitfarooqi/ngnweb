@@ -22,8 +22,15 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Item details</h2>
             <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <x-flux-admin::field-group label="DS order ID" required :error="$errors->first('form.ds_order_id')">
-                    <flux:input type="number" wire:model="form.ds_order_id" />
+                <x-flux-admin::field-group label="DS order" required :error="$errors->first('form.ds_order_id')">
+                    <flux:select wire:model="form.ds_order_id" placeholder="— Select —">
+                        <flux:select.option value="">— Select —</flux:select.option>
+                        @foreach($dsOrders as $dsOrder)
+                            <flux:select.option value="{{ $dsOrder->id }}">
+                                {{ \App\Support\FluxAdminEntityLabel::dsOrder($dsOrder) }}
+                            </flux:select.option>
+                        @endforeach
+                    </flux:select>
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="VRM" :error="$errors->first('form.vrm')">
                     <flux:input wire:model="form.vrm" placeholder="e.g. AB12 CDE" />

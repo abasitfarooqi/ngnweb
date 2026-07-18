@@ -85,6 +85,8 @@ use App\Livewire\FluxAdmin\Pages\Misc\RentingPricingForm;
 use App\Livewire\FluxAdmin\Pages\Misc\RentingPricingIndex;
 use App\Livewire\FluxAdmin\Pages\Support\SupportConversationIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\EcOrderIndex;
+use App\Livewire\FluxAdmin\Pages\Ecommerce\ShopOrderIndex;
+use App\Livewire\FluxAdmin\Pages\Ecommerce\SparePartOrderIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\DsOrderIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\DigitalInvoiceIndex;
 use App\Livewire\FluxAdmin\Pages\Club\PurchaseIndex as ClubPurchaseIndex;
@@ -502,6 +504,8 @@ Route::get('/support-conversations/{supportConversation}/edit', SupportConversat
 
 // Phase 15 — E-commerce
 Route::get('/ec-orders', EcOrderIndex::class)->name('flux-admin.ec-orders.index');
+Route::get('/shop-orders', ShopOrderIndex::class)->name('flux-admin.shop-orders.index');
+Route::get('/spare-part-orders', SparePartOrderIndex::class)->name('flux-admin.spare-part-orders.index');
 Route::get('/ec-orders/create', EcOrderForm::class)->name('flux-admin.ec-orders.create');
 Route::get('/ec-orders/{ecOrder}/edit', EcOrderForm::class)->name('flux-admin.ec-orders.edit');
 Route::get('/ds-orders', DsOrderIndex::class)->name('flux-admin.ds-orders.index');

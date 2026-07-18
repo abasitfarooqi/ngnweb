@@ -7,6 +7,8 @@ use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\Ecommerce\EcOrder;
+use App\Support\EcOrderLineTypeQuery;
+use App\Support\FluxAdminEntityLabel;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
@@ -23,6 +25,14 @@ class EcOrderIndex extends Component
     public bool $showForm = false;
 
     public string $filterOrderId = '';
+
+    public string $listTitle = 'E-commerce orders';
+
+    public string $listDescription = 'All online orders placed through the webshop.';
+
+    public string $listIndexRoute = 'flux-admin.ec-orders.index';
+
+    protected string $lineTypeFilter = '';
 
     public function mount(): void
     {
@@ -104,7 +114,13 @@ class EcOrderIndex extends Component
     public function render()
     {
         $rows = $this->baseQuery()
-            ->with(['customer:id,email', 'branch:id,name', 'shippingMethod:id,name', 'orderItems:order_id,item_type,product_name'])
+            ->with([
+                'customer:id,email,customer_id',
+                'customer.customer:id,first_name,last_name,phone,email',
+                'branch:id,name',
+                'shippingMethod:id,name',
+                'orderItems:order_id,item_type,product_name',
+            ])
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
@@ -113,23 +129,44 @@ class EcOrderIndex extends Component
 
     protected function baseQuery(): Builder
     {
-        return EcOrder::query()
-            ->when($this->search, fn ($q, $v) => $q->whereHas('customer', fn ($q) => $q->where('first_name', 'like', "%{$v}%")->orWhere('last_name', 'like', "%{$v}%")->orWhere('email', 'like', "%{$v}%")))
+        $query = EcOrder::query();
+
+        EcOrderLineTypeQuery::apply($query, $this->lineTypeFilter !== '' ? $this->lineTypeFilter : null);
+
+        return $query
+            ->when($this->search, function (Builder $q): void {
+                $v = $this->search;
+                $q->where(function (Builder $q) use ($v): void {
+                    if (is_numeric($v)) {
+                        $q->orWhere('id', (int) $v);
+                    }
+                    $q->orWhereHas('customer', fn (Builder $q) => $q->where('email', 'like', "%{$v}%"))
+                        ->orWhereHas('customer.customer', fn (Builder $q) => $q
+                            ->where('first_name', 'like', "%{$v}%")
+                            ->orWhere('last_name', 'like', "%{$v}%")
+                            ->orWhere('phone', 'like', "%{$v}%")
+                            ->orWhere('email', 'like', "%{$v}%"));
+                });
+            })
             ->when($this->filterOrderId !== '', fn ($q) => $q->where('id', (int) $this->filterOrderId))
             ->when($this->filter('order_status'), fn ($q, $v) => $q->where('order_status', $v))
             ->when($this->filter('payment_status'), fn ($q, $v) => $q->where('payment_status', $v))
             ->when($this->filter('shipping_status'), fn ($q, $v) => $q->where('shipping_status', $v));
     }
 
-    protected function exportQuery(): Builder { return $this->baseQuery()->with(['customer', 'branch', 'shippingMethod']); }
+    protected function exportQuery(): Builder
+    {
+        return $this->baseQuery()->with(['customer.customer', 'branch', 'shippingMethod']);
+    }
 
     protected function exportColumns(): array
     {
         return [
             'ID' => 'id',
             'Date' => fn ($r) => $r->order_date ? Carbon::parse($r->order_date)->format('Y-m-d') : '',
-            'Customer' => fn ($r) => $r->customer ? $r->customer->first_name.' '.$r->customer->last_name : '',
-            'Email' => fn ($r) => $r->customer?->email,
+            'Customer' => fn ($r) => FluxAdminEntityLabel::customerAuth($r->customer),
+            'Email' => fn ($r) => $r->customer?->customer?->email ?? $r->customer?->email,
+            'Phone' => fn ($r) => $r->customer?->customer?->phone,
             'Branch' => fn ($r) => $r->branch?->name,
             'Grand total' => 'grand_total', 'Currency' => 'currency',
             'Order status' => 'order_status', 'Payment' => 'payment_status', 'Shipping' => 'shipping_status',

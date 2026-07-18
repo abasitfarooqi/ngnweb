@@ -22,8 +22,15 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Item details</h2>
             <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                <x-flux-admin::field-group label="Invoice ID" required :error="$errors->first('form.invoice_id')">
-                    <flux:input type="number" wire:model="form.invoice_id" />
+                <x-flux-admin::field-group label="Invoice" required :error="$errors->first('form.invoice_id')">
+                    <flux:select wire:model="form.invoice_id" placeholder="— Select —">
+                        <flux:select.option value="">— Select —</flux:select.option>
+                        @foreach($invoices as $invoice)
+                            <flux:select.option value="{{ $invoice->id }}">
+                                {{ \App\Support\FluxAdminEntityLabel::digitalInvoice($invoice) }}
+                            </flux:select.option>
+                        @endforeach
+                    </flux:select>
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Item name" required :error="$errors->first('form.item_name')">
                     <flux:input wire:model="form.item_name" />

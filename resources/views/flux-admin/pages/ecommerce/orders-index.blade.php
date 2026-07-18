@@ -1,5 +1,5 @@
 <div>
-    <x-flux-admin::data-table title="E-commerce orders" description="Online orders placed through the webshop.">
+    <x-flux-admin::data-table :title="$listTitle" :description="$listDescription">
         <x-slot:actions>
             <x-flux-admin::export-button />
             <a href="{{ route('flux-admin.ec-orders.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New order</flux:button></a>
@@ -56,8 +56,11 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 whitespace-nowrap">{{ $r->order_date ? \Carbon\Carbon::parse($r->order_date)->format('d M Y') : '—' }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-xs text-zinc-900 dark:text-white">#{{ $r->id }}</flux:table.cell>
                         <flux:table.cell>
-                            <div class="text-zinc-900 dark:text-white">{{ $r->customer ? $r->customer->first_name.' '.$r->customer->last_name : '—' }}</div>
-                            <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $r->customer?->email }}</div>
+                            @php($customerLabel = \App\Support\FluxAdminEntityLabel::customerAuth($r->customer))
+                            <div class="text-zinc-900 dark:text-white">{{ $customerLabel }}</div>
+                            @if($r->customer?->customer?->phone && ! str_contains($customerLabel, (string) $r->customer->customer->phone))
+                                <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $r->customer->customer->phone }}</div>
+                            @endif
                         </flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $r->branch?->name ?? '—' }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-900 dark:text-white">{{ strtoupper($r->currency ?? 'GBP') }} {{ number_format((float) $r->grand_total, 2) }}</flux:table.cell>
