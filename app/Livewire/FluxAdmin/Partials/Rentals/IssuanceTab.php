@@ -176,7 +176,7 @@ class IssuanceTab extends Component
         $timestamp = now()->format('Ymd_His');
         $extension = $this->videoFile->getClientOriginalExtension();
         $fileName = $this->bookingId.'_'.$timestamp.'.'.$extension;
-        $storePath = $this->videoFile->storeAs('public/rental_service_videos', $fileName);
+        $storePath = $this->videoFile->storeAs('rental_service_videos', $fileName, 'public');
 
         RentingServiceVideo::create([
             'booking_id' => $this->bookingId,

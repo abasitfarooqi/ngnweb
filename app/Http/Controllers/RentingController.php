@@ -2360,7 +2360,7 @@ class RentingController extends Controller
             $timestamp = now()->format('Ymd_His');
             $extension = $videoFile->getClientOriginalExtension();
             $fileName = $bookingId.'_'.$timestamp.'.'.$extension;
-            $storePath = $videoFile->storeAs('public/rental_service_videos', $fileName);
+            $storePath = $videoFile->storeAs('rental_service_videos', $fileName, 'public');
 
             $videoRecord = new RentingServiceVideo([
                 'booking_id' => $bookingId,
