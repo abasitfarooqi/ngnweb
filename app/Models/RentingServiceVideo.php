@@ -53,7 +53,7 @@ class RentingServiceVideo extends Model
     {
         $attribute_name = 'video_path';
         $disk = 'public';
-        $destination_path = 'renting_service_videos';
+        $destination_path = 'rental_service_videos';
 
         if ($value == null) {
             $this->attributes[$attribute_name] = null;
