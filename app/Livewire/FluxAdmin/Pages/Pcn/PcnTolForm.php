@@ -109,7 +109,7 @@ class PcnTolForm extends Component
             'form.request_date' => ['required', 'date'],
             'form.status' => ['required', 'string', 'in:pending,sent,approved,rejected'],
             'form.letter_sent_at' => ['nullable', 'date'],
-            'form.note' => ['nullable', 'string', 'max:2000'],
+            'form.note' => ['nullable', 'string'],
         ]);
 
         $data = [

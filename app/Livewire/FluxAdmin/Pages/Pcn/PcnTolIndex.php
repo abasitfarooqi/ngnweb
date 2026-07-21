@@ -39,7 +39,7 @@ class PcnTolIndex extends Component
             'formData.request_date'  => ['required', 'date'],
             'formData.status'        => ['required', 'string', 'in:pending,sent,approved,rejected'],
             'formData.letter_sent_at' => ['nullable', 'date'],
-            'formData.note'          => ['nullable', 'string', 'max:2000'],
+            'formData.note'          => ['nullable', 'string'],
         ];
     }
 

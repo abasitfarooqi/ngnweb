@@ -187,12 +187,12 @@ class PcnCreate extends Component
             'form.is_police' => ['boolean'],
             'form.isClosed' => ['boolean'],
             'form.council_link' => ['nullable', 'string', 'max:500'],
-            'form.note' => ['nullable', 'string', 'max:2000'],
+            'form.note' => ['nullable', 'string'],
             'form.date_of_letter_issued' => ['nullable', 'date'],
             'form.motorbike_id' => ['required', 'integer', 'exists:motorbikes,id'],
             'form.customer_id' => ['nullable', 'integer', 'exists:customers,id'],
             'caseUpdates.*.update_date' => ['required', 'date'],
-            'caseUpdates.*.note' => ['required', 'string', 'max:2000'],
+            'caseUpdates.*.note' => ['required', 'string'],
             'caseUpdates.*.additional_fee' => ['nullable', 'numeric', 'min:0'],
         ]);
 

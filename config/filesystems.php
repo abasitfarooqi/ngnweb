@@ -68,7 +68,7 @@ return [
             'host' => env('DATASYNC_FTP_HOST'),
             'username' => env('DATASYNC_FTP_USERNAME'),
             'password' => env('DATASYNC_FTP_PASSWORD'),
-            'port' => env('DATASYNC_FTP_PORT', 22),
+            'port' => (int) env('DATASYNC_FTP_PORT', 22),
             'timeout' => 30,
         ],
 

@@ -103,7 +103,7 @@ class PcnUpdateForm extends Component
             'form.is_transferred' => ['boolean'],
             'form.is_cancled' => ['boolean'],
             'form.additional_fee' => ['nullable', 'numeric', 'min:0'],
-            'form.note' => ['required', 'string', 'max:2000'],
+            'form.note' => ['required', 'string'],
         ]);
 
         $data = [

@@ -74,7 +74,7 @@ class PcnIndex extends Component
             'formData.is_police'             => ['boolean'],
             'formData.isClosed'              => ['boolean'],
             'formData.council_link'          => ['nullable', 'string', 'max:500'],
-            'formData.note'                  => ['nullable', 'string', 'max:2000'],
+            'formData.note'                  => ['nullable', 'string'],
             'formData.date_of_letter_issued' => ['nullable', 'date'],
             'formData.motorbike_id'          => ['required', 'integer', 'exists:motorbikes,id'],
             'formData.customer_id'           => ['nullable', 'integer', 'exists:customers,id'],
