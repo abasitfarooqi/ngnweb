@@ -82,7 +82,7 @@
                             <flux:table.row
                                 wire:key="charge-{{ $charge->id }}"
                                 class="{{ $isPaid ? '' : 'bg-amber-50 dark:bg-amber-900/10 cursor-pointer' }}"
-                                @unless($isPaid) wire:click="toggleCharge({{ $charge->id }})" @endunless
+                                wire:click="toggleCharge({{ $charge->id }})"
                             >
                                 <flux:table.cell class="font-medium">#{{ $charge->id }}</flux:table.cell>
                                 <flux:table.cell>{{ $charge->description ?? '—' }}</flux:table.cell>
