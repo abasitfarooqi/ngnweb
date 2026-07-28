@@ -280,7 +280,10 @@ class FinanceIndex extends Component
 
     protected function buildQuery(): Builder
     {
-        $query = FinanceApplication::with('customer');
+        $query = FinanceApplication::with([
+            'customer',
+            'items.motorbike:id,reg_no,make,model',
+        ]);
 
         if ($this->search !== '') {
             $term = trim($this->search);

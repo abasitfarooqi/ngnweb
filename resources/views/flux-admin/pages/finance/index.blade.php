@@ -82,6 +82,7 @@
                 <flux:table.column sortable :sorted="$sortField === 'contract_date'" :direction="$sortDirection" wire:click="sortBy('contract_date')">Contract Start Date</flux:table.column>
                 <flux:table.column>Status</flux:table.column>
                 <flux:table.column>Contract Type</flux:table.column>
+                <flux:table.column>Reg</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'deposit'" :direction="$sortDirection" wire:click="sortBy('deposit')">Deposit</flux:table.column>
                 <flux:table.column sortable :sorted="$sortField === 'weekly_instalment'" :direction="$sortDirection" wire:click="sortBy('weekly_instalment')">Monthly Instalment</flux:table.column>
                 <flux:table.column>Posted</flux:table.column>
@@ -129,6 +130,20 @@
                             @endphp
                             <flux:badge color="zinc" size="sm">{{ $type }}</flux:badge>
                         </flux:table.cell>
+                        <flux:table.cell class="font-mono text-xs">
+                            @php
+                                $regs = $app->items
+                                    ->map(fn ($item) => $item->motorbike?->reg_no)
+                                    ->filter()
+                                    ->unique()
+                                    ->values();
+                            @endphp
+                            @if($regs->isNotEmpty())
+                                {{ $regs->implode(', ') }}
+                            @else
+                                <span class="text-zinc-400 font-sans">—</span>
+                            @endif
+                        </flux:table.cell>
                         <flux:table.cell>£{{ number_format($app->deposit ?? 0, 2) }}</flux:table.cell>
                         <flux:table.cell>£{{ number_format($app->weekly_instalment ?? 0, 2) }}</flux:table.cell>
                         <flux:table.cell>
@@ -157,7 +172,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="10" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                        <flux:table.cell colspan="11" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
                             No finance applications found.
                         </flux:table.cell>
                     </flux:table.row>
