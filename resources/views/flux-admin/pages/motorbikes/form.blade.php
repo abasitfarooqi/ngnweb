@@ -46,12 +46,13 @@
                     <flux:input wire:model="form.color" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Fuel type" :error="$errors->first('form.fuel_type')">
-                    <flux:select wire:model="form.fuel_type">
-                        <flux:select.option value="Petrol">Petrol</flux:select.option>
-                        <flux:select.option value="Diesel">Diesel</flux:select.option>
-                        <flux:select.option value="Electric">Electric</flux:select.option>
-                        <flux:select.option value="Hybrid">Hybrid</flux:select.option>
-                    </flux:select>
+                    <flux:input wire:model="form.fuel_type" list="motorbike-fuel-type-options" placeholder="e.g. Petrol" />
+                    <datalist id="motorbike-fuel-type-options">
+                        <option value="Petrol"></option>
+                        <option value="Diesel"></option>
+                        <option value="Electric"></option>
+                        <option value="Hybrid"></option>
+                    </datalist>
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Branch" :error="$errors->first('form.branch_id')">
                     <flux:select wire:model="form.branch_id">

@@ -73,7 +73,7 @@ class MotorbikeIndex extends Component
             'formData.vin_number' => ['nullable', 'string', 'max:50'],
             'formData.engine'     => ['nullable', 'string', 'max:50'],
             'formData.color'      => ['nullable', 'string', 'max:50'],
-            'formData.fuel_type'  => ['nullable', 'string', 'in:Petrol,Diesel,Electric,Hybrid'],
+            'formData.fuel_type'  => ['nullable', 'string', 'max:100'],
             'formData.is_ebike'   => ['boolean'],
             'formData.branch_id'  => ['nullable', 'integer', 'exists:branches,id'],
         ];
