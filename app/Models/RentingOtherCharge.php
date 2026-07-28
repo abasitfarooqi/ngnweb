@@ -9,7 +9,22 @@ class RentingOtherCharge extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['booking_id', 'description', 'amount', 'is_paid'];
+    protected $fillable = [
+        'booking_id',
+        'description',
+        'amount',
+        'is_paid',
+        'is_whatsapp_sent',
+        'whatsapp_last_reminder_sent_at',
+        'email_last_reminder_sent_at',
+    ];
+
+    protected $casts = [
+        'is_paid' => 'boolean',
+        'is_whatsapp_sent' => 'boolean',
+        'whatsapp_last_reminder_sent_at' => 'datetime',
+        'email_last_reminder_sent_at' => 'datetime',
+    ];
 
     public function booking()
     {

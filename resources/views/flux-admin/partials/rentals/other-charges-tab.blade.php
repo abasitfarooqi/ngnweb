@@ -58,8 +58,12 @@
             </div>
         </div>
 
+        <div class="px-4 pt-2 pb-2 border-b border-zinc-200 dark:border-zinc-700">
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Click an unpaid charge to expand details and send WhatsApp or email reminders.</p>
+        </div>
+
         <div class="touch-pan-x overflow-x-auto">
-            <div class="min-w-[36rem] md:min-w-0">
+            <div class="min-w-[48rem] md:min-w-0">
                 <flux:table>
                     <flux:table.columns>
                         <flux:table.column>ID</flux:table.column>
@@ -71,21 +75,28 @@
 
                     <flux:table.rows>
                         @foreach($charges as $charge)
-                            <flux:table.row wire:key="charge-{{ $charge->id }}" class="{{ $charge->getRawOriginal('is_paid') ? '' : 'bg-amber-50 dark:bg-amber-900/10' }}">
+                            @php
+                                $isPaid = (bool) $charge->getRawOriginal('is_paid');
+                                $amount = (float) str_replace(',', '', $charge->getRawOriginal('amount'));
+                            @endphp
+                            <flux:table.row
+                                wire:key="charge-{{ $charge->id }}"
+                                class="{{ $isPaid ? '' : 'bg-amber-50 dark:bg-amber-900/10 cursor-pointer' }}"
+                                @unless($isPaid) wire:click="toggleCharge({{ $charge->id }})" @endunless
+                            >
                                 <flux:table.cell class="font-medium">#{{ $charge->id }}</flux:table.cell>
                                 <flux:table.cell>{{ $charge->description ?? '—' }}</flux:table.cell>
-                                <flux:table.cell class="font-semibold">
-                                    £{{ $charge->getRawOriginal('amount') ? number_format((float) $charge->getRawOriginal('amount'), 2) : '0.00' }}
-                                </flux:table.cell>
+                                <flux:table.cell class="font-semibold">£{{ number_format($amount, 2) }}</flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:badge :color="$charge->getRawOriginal('is_paid') ? 'emerald' : 'amber'" size="sm">
-                                        {{ $charge->getRawOriginal('is_paid') ? 'Paid' : 'Unpaid' }}
+                                    <flux:badge :color="$isPaid ? 'emerald' : 'amber'" size="sm">
+                                        {{ $isPaid ? 'Paid' : 'Unpaid' }}
                                     </flux:badge>
                                 </flux:table.cell>
                                 <flux:table.cell>
-                                    @if(!$charge->getRawOriginal('is_paid'))
+                                    @if(!$isPaid)
                                         <button
-                                            wire:click="openPayModal({{ $charge->id }})"
+                                            type="button"
+                                            wire:click.stop="openPayModal({{ $charge->id }})"
                                             class="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold bg-brand-red hover:opacity-90 text-white transition"
                                         >Pay</button>
                                     @else
@@ -93,6 +104,89 @@
                                     @endif
                                 </flux:table.cell>
                             </flux:table.row>
+
+                            @if(!$isPaid && $expandedChargeId === $charge->id)
+                                <flux:table.row wire:key="charge-detail-{{ $charge->id }}" class="bg-zinc-50 dark:bg-zinc-800/50">
+                                    <flux:table.cell colspan="5" class="!p-4">
+                                        <div class="space-y-4" wire:click.stop>
+                                            @if(empty($expandedDetail))
+                                                <p class="text-sm text-red-600">Could not load charge details.</p>
+                                            @else
+                                                <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Charge details &amp; reminder management</h4>
+
+                                                <div class="grid gap-4 md:grid-cols-2">
+                                                    <div>
+                                                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Customer information</p>
+                                                        <dl class="space-y-1 text-sm">
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Name</dt><dd>{{ $expandedDetail['customer_name'] ?: 'N/A' }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Phone</dt><dd>{{ $expandedDetail['customer_phone'] ?: 'N/A' }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Email</dt><dd>{{ $expandedDetail['customer_email'] ?: 'N/A' }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">WhatsApp</dt><dd>{{ $expandedDetail['customer_whatsapp'] ?: ($expandedDetail['customer_phone'] ?: 'N/A') }}</dd></div>
+                                                        </dl>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Motorbike information</p>
+                                                        <dl class="space-y-1 text-sm">
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Registration</dt><dd>{{ $expandedDetail['motorbike_reg_no'] ?: 'N/A' }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Booking</dt><dd>#{{ $expandedDetail['booking_id'] }}</dd></div>
+                                                        </dl>
+                                                    </div>
+                                                </div>
+
+                                                <div class="grid gap-4 md:grid-cols-2">
+                                                    <div>
+                                                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Charge details</p>
+                                                        <dl class="space-y-1 text-sm">
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Description</dt><dd>{{ $expandedDetail['description'] ?: '—' }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Amount</dt><dd>£{{ number_format((float) $expandedDetail['amount'], 2) }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd><flux:badge color="amber" size="sm">Unpaid</flux:badge></dd></div>
+                                                        </dl>
+                                                    </div>
+                                                    <div>
+                                                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Reminders</p>
+                                                        <dl class="space-y-1 text-sm mb-3">
+                                                            <div class="flex gap-2">
+                                                                <dt class="text-zinc-500 min-w-[7rem]">WhatsApp sent</dt>
+                                                                <dd>
+                                                                    @if($expandedDetail['is_whatsapp_sent'])
+                                                                        <flux:badge color="emerald" size="sm">Yes</flux:badge>
+                                                                    @else
+                                                                        <flux:badge color="amber" size="sm">No</flux:badge>
+                                                                    @endif
+                                                                </dd>
+                                                            </div>
+                                                            <div class="flex gap-2">
+                                                                <dt class="text-zinc-500 min-w-[7rem]">Last WhatsApp</dt>
+                                                                <dd>{{ ! empty($expandedDetail['whatsapp_last_reminder_sent_at']) ? \Carbon\Carbon::parse($expandedDetail['whatsapp_last_reminder_sent_at'])->format('d M Y H:i') : 'N/A' }}</dd>
+                                                            </div>
+                                                            <div class="flex gap-2">
+                                                                <dt class="text-zinc-500 min-w-[7rem]">Last email</dt>
+                                                                <dd>{{ ! empty($expandedDetail['email_last_reminder_sent_at']) ? \Carbon\Carbon::parse($expandedDetail['email_last_reminder_sent_at'])->format('d M Y H:i') : 'N/A' }}</dd>
+                                                            </div>
+                                                        </dl>
+                                                        <div class="flex flex-wrap gap-2">
+                                                            <button
+                                                                type="button"
+                                                                wire:click="sendWhatsAppReminder({{ $charge->id }})"
+                                                                class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                                                            >
+                                                                Send WhatsApp reminder
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                wire:click="sendEmailReminder({{ $charge->id }})"
+                                                                class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold bg-zinc-800 hover:bg-zinc-900 text-white transition"
+                                                            >
+                                                                Send email reminder
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </div>
+                                    </flux:table.cell>
+                                </flux:table.row>
+                            @endif
                         @endforeach
                     </flux:table.rows>
                 </flux:table>
