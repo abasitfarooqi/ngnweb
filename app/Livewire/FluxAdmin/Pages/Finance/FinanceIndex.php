@@ -35,8 +35,8 @@ class FinanceIndex extends Component
     #[Url(except: '')]
     public string $filterLogbook = '';
 
-    #[Url(except: '')]
-    public string $filterPosted = '';
+    #[Url(except: '1')]
+    public string $filterPosted = '1';
 
     #[Url(except: '')]
     public string $contractDateFrom = '';
@@ -57,6 +57,10 @@ class FinanceIndex extends Component
     {
         $this->exportFilename = 'finance-applications';
         $this->exportable = true;
+
+        if (! in_array($this->filterPosted, ['0', '1'], true)) {
+            $this->filterPosted = '1';
+        }
     }
 
     public function resetFinanceFilters(): void
@@ -64,7 +68,7 @@ class FinanceIndex extends Component
         $this->contractType = '';
         $this->status = '';
         $this->filterLogbook = '';
-        $this->filterPosted = '';
+        $this->filterPosted = '1';
         $this->contractDateFrom = '';
         $this->contractDateTo = '';
         $this->search = '';
@@ -80,7 +84,7 @@ class FinanceIndex extends Component
             || $this->contractType !== ''
             || $this->status !== ''
             || $this->filterLogbook !== ''
-            || $this->filterPosted !== ''
+            || $this->filterPosted !== '1'
             || $this->contractDateFrom !== ''
             || $this->contractDateTo !== '';
     }
@@ -310,7 +314,7 @@ class FinanceIndex extends Component
 
         $query
             ->when($this->filterLogbook !== '', fn ($q) => $q->where('log_book_sent', $this->filterLogbook === '1'))
-            ->when($this->filterPosted !== '', fn ($q) => $q->where('is_posted', $this->filterPosted === '1'))
+            ->where('is_posted', $this->filterPosted === '1')
             ->when($this->contractDateFrom !== '', fn ($q) => $q->whereDate('contract_date', '>=', $this->contractDateFrom))
             ->when($this->contractDateTo !== '', fn ($q) => $q->whereDate('contract_date', '<=', $this->contractDateTo));
 
@@ -354,12 +358,22 @@ class FinanceIndex extends Component
         ];
     }
 
+    public function listCountLabel(): string
+    {
+        return $this->filterPosted === '0'
+            ? 'not posted applications'
+            : 'posted applications';
+    }
+
     public function render()
     {
         $applications = $this->buildQuery()
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        return view('flux-admin.pages.finance.index', compact('applications'));
+        return view('flux-admin.pages.finance.index', [
+            'applications' => $applications,
+            'listCountLabel' => $this->listCountLabel(),
+        ]);
     }
 }

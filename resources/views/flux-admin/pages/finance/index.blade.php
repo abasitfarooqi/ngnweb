@@ -2,7 +2,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">Payment Plan Applications</h1>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Manage all finance applications and contracts.</p>
+            <x-flux-admin::list-count :total="$applications->total()" :label="$listCountLabel" />
         </div>
         <div class="flex items-center gap-2">
             @if($exportable)
@@ -43,8 +43,7 @@
                 </flux:select>
             </div>
             <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
-                <flux:select wire:model.live="filterPosted" placeholder="Posted">
-                    <flux:select.option value="">All posted</flux:select.option>
+                <flux:select wire:model.live="filterPosted">
                     <flux:select.option value="1">Posted</flux:select.option>
                     <flux:select.option value="0">Not posted</flux:select.option>
                 </flux:select>

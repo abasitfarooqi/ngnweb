@@ -2,7 +2,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">{{ $pageTitle }}</h1>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{{ $pageDescription }}</p>
+            <x-flux-admin::list-count :total="$rows->total()" :label="$listCountLabel" />
         </div>
         <div class="flex gap-2">
             <flux:button href="{{ route('flux-admin.new-booking.index') }}" wire:navigate variant="primary" icon="plus" class="!rounded-none">New booking</flux:button>

@@ -118,6 +118,16 @@ class AllBookingsIndex extends Component
         return $q->orderBy($sortColumn, $this->sortDirection);
     }
 
+    public function listCountLabel(): string
+    {
+        return match ($this->filter('status', '')) {
+            'ONGOING' => 'ongoing bookings',
+            'ENDED' => 'ended bookings',
+            'NA' => 'bookings marked N/A',
+            default => 'bookings in total',
+        };
+    }
+
     public function render()
     {
         $rows = $this->rowsQuery()->paginate($this->perPage);
@@ -139,6 +149,12 @@ class AllBookingsIndex extends Component
 
         $states = DB::table('renting_bookings')->whereNotNull('state')->distinct()->pluck('state')->filter()->values();
 
-        return view('flux-admin.pages.rentals.all-bookings-index', compact('rows', 'customers', 'motorbikes', 'states'));
+        return view('flux-admin.pages.rentals.all-bookings-index', [
+            'rows' => $rows,
+            'customers' => $customers,
+            'motorbikes' => $motorbikes,
+            'states' => $states,
+            'listCountLabel' => $this->listCountLabel(),
+        ]);
     }
 }

@@ -214,6 +214,23 @@ class RentalIndex extends Component
         ];
     }
 
+    public function listCountLabel(): string
+    {
+        if ($this->scope === 'inactive') {
+            return 'ended bookings';
+        }
+
+        if ($this->scope === 'all') {
+            return 'bookings in total';
+        }
+
+        return match ($this->status) {
+            'payment_due' => 'bookings with payment due',
+            'active' => 'bookings with no amount due',
+            default => 'active bookings',
+        };
+    }
+
     public function render()
     {
         $states = DB::table('renting_bookings')
@@ -225,10 +242,13 @@ class RentalIndex extends Component
             ->filter()
             ->values();
 
+        $rows = $this->rowsQuery()->paginate($this->perPage);
+
         return view('flux-admin.pages.rentals.index', [
-            'rows' => $this->rowsQuery()->paginate($this->perPage),
+            'rows' => $rows,
             'stats' => $this->scope === 'active' ? $this->stats() : null,
             'states' => $states,
+            'listCountLabel' => $this->listCountLabel(),
         ]);
     }
 }

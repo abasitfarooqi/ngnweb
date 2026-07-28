@@ -2,7 +2,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">All bookings</h1>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mt-1">Full booking history — filter by customer, vehicle, state or date range.</p>
+            <x-flux-admin::list-count :total="$rows->total()" :label="$listCountLabel" />
         </div>
         <flux:button variant="ghost" wire:click="resetFilters">Reset filters</flux:button>
     </div>
