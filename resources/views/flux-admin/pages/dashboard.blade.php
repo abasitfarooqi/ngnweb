@@ -30,14 +30,14 @@
             :value="number_format($stats['finance_applications'])"
             icon="banknotes"
             colour="purple"
-            :href="route('flux-admin.finance.index')"
+            :href="route('flux-admin.finance.index', ['status' => 'active'])"
         />
         <x-flux-admin::stat-card
             label="Open PCN Cases"
             :value="number_format($stats['open_pcn_cases'])"
             icon="exclamation-triangle"
             colour="amber"
-            :href="route('flux-admin.pcn.index')"
+            :href="route('flux-admin.pcn.index', ['status' => 'open'])"
         />
         <x-flux-admin::stat-card
             label="Total Club Member"

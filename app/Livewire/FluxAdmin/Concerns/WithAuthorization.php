@@ -38,4 +38,11 @@ trait WithAuthorization
 
         throw new AuthorizationException('You do not have permission to access this section.');
     }
+
+    protected function authorizeFullClubAdmin(): void
+    {
+        if (! FluxAdminAccess::canFullClubAdmin()) {
+            throw new AuthorizationException('You do not have permission to access this section.');
+        }
+    }
 }

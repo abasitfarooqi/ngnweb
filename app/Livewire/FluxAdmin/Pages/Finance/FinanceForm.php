@@ -9,6 +9,7 @@ use App\Models\Customer;
 use App\Models\FinanceApplication;
 use App\Models\Motorbike;
 use App\Support\AdminDateTimeInput;
+use App\Support\FluxAdminFinanceListQuery;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -458,7 +459,7 @@ class FinanceForm extends Component
         request()->merge($generationContext);
         app(FinanceApplicationCrudController::class)->generateAgreementAccess($this->application);
 
-        $this->redirect(route('flux-admin.finance.index'), navigate: true);
+        $this->redirect(FluxAdminFinanceListQuery::indexUrl(), navigate: true);
     }
 
     protected function syncApplicationItems(array $items): void

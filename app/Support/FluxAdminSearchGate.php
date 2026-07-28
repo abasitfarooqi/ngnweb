@@ -18,7 +18,7 @@ final class FluxAdminSearchGate
         return self::allows(config('flux-admin-search.resources.'.$modelClass));
     }
 
-    /** @param  array{permission?: string, hidden?: bool}|null  $rules */
+    /** @param  array{permission?: string, hidden?: bool, full_club_admin?: bool}|null  $rules */
     protected static function allows(?array $rules): bool
     {
         if ($rules === null) {
@@ -29,12 +29,17 @@ final class FluxAdminSearchGate
             return false;
         }
 
+        $user = function_exists('backpack_user') ? backpack_user() : auth()->user();
+
+        if (! empty($rules['full_club_admin'])) {
+            return FluxAdminAccess::canFullClubAdmin($user);
+        }
+
         $permission = $rules['permission'] ?? null;
         if ($permission === null || $permission === '') {
             return true;
         }
 
-        $user = function_exists('backpack_user') ? backpack_user() : auth()->user();
         if (! $user) {
             return false;
         }

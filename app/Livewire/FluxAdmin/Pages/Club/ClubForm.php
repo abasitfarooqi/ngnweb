@@ -23,7 +23,7 @@ class ClubForm extends Component
     public function mount(?ClubMember $clubMember = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
 
         if ($clubMember !== null) {
             $this->clubMemberId = $clubMember->id;

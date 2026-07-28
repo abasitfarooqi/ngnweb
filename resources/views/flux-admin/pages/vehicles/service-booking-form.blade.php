@@ -11,6 +11,13 @@
             </h1>
         </div>
         <div class="flex items-center gap-2">
+            @if($serviceBooking && $serviceBooking->exists && ! ($form['is_dealt'] ?? false))
+                <flux:button wire:click="markAsDealt" variant="filled" size="sm" icon="check" class="!rounded-none">
+                    Mark as dealt
+                </flux:button>
+            @elseif($serviceBooking && $serviceBooking->exists && ($form['is_dealt'] ?? false))
+                <flux:badge color="green" size="sm">Dealt</flux:badge>
+            @endif
             <a href="{{ route('flux-admin.service-bookings.index') }}">
                 <flux:button variant="ghost" size="sm" class="!rounded-none">Cancel</flux:button>
             </a>
@@ -86,6 +93,15 @@
                 <x-flux-admin::field-group label="Notes" :error="$errors->first('form.notes')">
                     <flux:textarea wire:model="form.notes" placeholder="Internal notes…" rows="2" />
                 </x-flux-admin::field-group>
+            </div>
+
+            <div class="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                <flux:checkbox wire:model="form.is_dealt" label="Mark as dealt" />
+                @if($serviceBooking && $serviceBooking->exists && $serviceBooking->user)
+                    <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                        Dealt by {{ trim($serviceBooking->user->first_name.' '.$serviceBooking->user->last_name) }}
+                    </p>
+                @endif
             </div>
         </div>
 

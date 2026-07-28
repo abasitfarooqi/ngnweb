@@ -914,8 +914,8 @@
                 <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club member access</flux:navlist.item>
             </flux:navlist.group>
             @endrole
-            {{-- 7. Club (same Admin gate as Backpack Misc Club Members) --}}
-            @role('Admin')
+            {{-- 7. Club (Admin role or allowlisted staff — same gate as page access) --}}
+            @if(\App\Support\FluxAdminAccess::canFullClubAdmin())
                 <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')" heading="Club">
                     <flux:navlist.item href="{{ route('flux-admin.club.index') }}" :current="request()->routeIs('flux-admin.club.index') || request()->routeIs('flux-admin.club.show')">Club members</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club member access</flux:navlist.item>
@@ -925,7 +925,7 @@
                     <flux:navlist.item href="{{ route('flux-admin.club-spending-payments.index') }}" :current="request()->routeIs('flux-admin.club-spending-payments.*')">Spending payments</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.dev-club-otp.index') }}" :current="request()->routeIs('flux-admin.dev-club-otp.*')">Dev Club OTP</flux:navlist.item>
                 </flux:navlist.group>
-            @endrole
+            @endif
 
             @unless(\App\Support\FluxAdminAccess::canFullClubAdmin())
                 <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club-members.*')" heading="Club">

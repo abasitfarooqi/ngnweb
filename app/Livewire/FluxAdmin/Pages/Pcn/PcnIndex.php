@@ -53,7 +53,9 @@ class PcnIndex extends Component
         $this->sortDirection = 'desc';
 
         // Honour Backpack-style query links from the overview dashboard.
-        if (request()->filled('isClosed')) {
+        if (request()->filled('status') && in_array(request('status'), ['open', 'closed'], true)) {
+            $this->status = request('status');
+        } elseif (request()->filled('isClosed')) {
             $this->status = request('isClosed') === '0' || request('isClosed') === 'false' ? 'open' : 'closed';
         }
         if (request()->filled('has_been_appealed')) {
@@ -320,9 +322,9 @@ class PcnIndex extends Component
         }
 
         if ($this->status === 'open') {
-            $query->where('isClosed', false);
+            $query->open();
         } elseif ($this->status === 'closed') {
-            $query->where('isClosed', true);
+            $query->closed();
         }
 
         if ($this->isPolice === 'yes') {

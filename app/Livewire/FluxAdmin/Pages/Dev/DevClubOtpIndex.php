@@ -16,7 +16,7 @@ class DevClubOtpIndex extends Component
 {
     use WithAuthorization, WithDataTable, WithPagination;
 
-    public function mount(): void { $this->authorizeModule('see-menu-admin'); }
+    public function mount(): void { $this->authorizeFullClubAdmin(); }
 
     public function render()
     {

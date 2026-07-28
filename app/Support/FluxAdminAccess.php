@@ -29,6 +29,14 @@ final class FluxAdminAccess
             && ($user->hasRole('Admin') || self::isSuperAdmin($user));
     }
 
+    /** @return list<int> */
+    public static function fullClubAdminUserIds(): array
+    {
+        $ids = config('flux-admin-menu.full_club_admin_user_ids', [65, 66, 93]);
+
+        return array_values(array_map('intval', is_array($ids) ? $ids : []));
+    }
+
     public static function canFullClubAdmin(?Authenticatable $user = null): bool
     {
         $user ??= self::user();
@@ -40,6 +48,8 @@ final class FluxAdminAccess
             return true;
         }
 
-        return method_exists($user, 'can') && $user->can('see-menu-club');
+        $userId = (int) ($user->getAuthIdentifier() ?? 0);
+
+        return $userId > 0 && in_array($userId, self::fullClubAdminUserIds(), true);
     }
 }

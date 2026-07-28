@@ -35,6 +35,12 @@ class ServiceBooking extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'is_dealt' => 'boolean',
+        'requires_schedule' => 'boolean',
+        'booking_date' => 'date',
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class, 'dealt_by_user_id');

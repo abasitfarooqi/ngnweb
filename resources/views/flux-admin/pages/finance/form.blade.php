@@ -2,7 +2,7 @@
     <div class="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <div class="mb-1 flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400">
-                <a href="{{ route('flux-admin.finance.index') }}" class="transition hover:text-zinc-700 dark:hover:text-zinc-200">Payment Plan Applications</a>
+                <a href="{{ \App\Support\FluxAdminFinanceListQuery::indexUrl() }}" class="transition hover:text-zinc-700 dark:hover:text-zinc-200">Payment Plan Applications</a>
                 <span>/</span>
                 <span>{{ $application && $application->exists ? 'Edit #' . $application->id : 'New Application' }}</span>
             </div>
@@ -11,7 +11,7 @@
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('flux-admin.finance.index') }}">
+            <a href="{{ \App\Support\FluxAdminFinanceListQuery::indexUrl() }}" wire:navigate>
                 <flux:button variant="ghost" size="sm" class="!rounded-none">Cancel</flux:button>
             </a>
             <flux:button wire:click="save" variant="primary" size="sm" class="!rounded-none">
@@ -245,7 +245,7 @@
         @endif
 
         <div class="flex justify-end gap-3 pt-2">
-            <a href="{{ route('flux-admin.finance.index') }}">
+            <a href="{{ \App\Support\FluxAdminFinanceListQuery::indexUrl() }}" wire:navigate>
                 <flux:button type="button" variant="ghost" class="!rounded-none">Cancel</flux:button>
             </a>
             <flux:button type="submit" variant="primary" class="!rounded-none">

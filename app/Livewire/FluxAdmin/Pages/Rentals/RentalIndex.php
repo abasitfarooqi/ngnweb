@@ -40,9 +40,6 @@ class RentalIndex extends Component
     public string $filterMotorbikeId = '';
 
     #[Url]
-    public string $filterReg = '';
-
-    #[Url]
     public string $bookingStateFilter = '';
 
     #[Url]
@@ -70,11 +67,6 @@ class RentalIndex extends Component
     }
 
     public function updatingFilterMotorbikeId(): void
-    {
-        $this->resetPage();
-    }
-
-    public function updatingFilterReg(): void
     {
         $this->resetPage();
     }
@@ -175,18 +167,6 @@ class RentalIndex extends Component
 
         if ($this->filterMotorbikeId !== '') {
             $query->where('rbi.motorbike_id', (int) $this->filterMotorbikeId);
-        }
-
-        if ($this->filterReg !== '') {
-            $reg = '%'.trim($this->filterReg).'%';
-            $needle = preg_replace('/\s+/', '', $this->filterReg) ?? '';
-            $query->where(function ($q) use ($reg, $needle) {
-                $q->where('mb.reg_no', 'like', $reg)
-                    ->orWhere('mr.registration_number', 'like', $reg);
-                if ($needle !== '') {
-                    $q->orWhereRaw("REPLACE(COALESCE(mr.registration_number, mb.reg_no), ' ', '') LIKE ?", ['%'.$needle.'%']);
-                }
-            });
         }
 
         if ($this->bookingStateFilter !== '') {

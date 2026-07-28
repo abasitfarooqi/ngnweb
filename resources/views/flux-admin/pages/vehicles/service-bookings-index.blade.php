@@ -45,7 +45,21 @@
                         <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">{{ $b->phone }}<br>{{ $b->email }}</flux:table.cell>
                         <flux:table.cell class="font-mono text-xs text-zinc-700 dark:text-zinc-300">{{ $b->reg_no }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $b->enquiry_type }}</flux:table.cell>
-                        <flux:table.cell><flux:switch :checked="(bool) $b->is_dealt" wire:click="toggleDealt({{ $b->id }})" /></flux:table.cell>
+                        <flux:table.cell>
+                            @if($b->is_dealt)
+                                <flux:badge color="green" size="sm">Dealt</flux:badge>
+                            @else
+                                <flux:button
+                                    size="xs"
+                                    variant="ghost"
+                                    icon="check"
+                                    wire:click="markAsDealt({{ $b->id }})"
+                                    class="!rounded-none"
+                                >
+                                    Mark dealt
+                                </flux:button>
+                            @endif
+                        </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
                                 <a href="{{ route('flux-admin.service-bookings.edit', $b) }}" wire:navigate>

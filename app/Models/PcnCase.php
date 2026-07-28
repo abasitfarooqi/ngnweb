@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\FluxAdminDashboardStats;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -43,6 +44,37 @@ class PcnCase extends Model
         'full_amount' => 'decimal:2',
         'reduced_amount' => 'decimal:2',
     ];
+
+    /** Same definition as Flux Admin PCN index “Open” filter. */
+    public function scopeOpen($query)
+    {
+        return $query->where(function ($q) {
+            $q->where('isClosed', false)->orWhereNull('isClosed');
+        });
+    }
+
+    public function scopeClosed($query)
+    {
+        return $query->where('isClosed', true);
+    }
+
+    public static function openCount(): int
+    {
+        return (int) static::query()->open()->toBase()->getCountForPagination();
+    }
+
+    public function isOpen(): bool
+    {
+        return ! (bool) $this->isClosed;
+    }
+
+    protected static function booted(): void
+    {
+        $clearDashboardCache = fn () => FluxAdminDashboardStats::clearCache();
+
+        static::saved($clearDashboardCache);
+        static::deleted($clearDashboardCache);
+    }
 
     public function showUpdates($id)
     {

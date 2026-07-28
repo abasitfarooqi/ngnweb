@@ -24,7 +24,7 @@ class PurchaseIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
         $this->exportable = true;
         $this->exportFilename = 'club-purchases';
         $this->sortField = 'date';

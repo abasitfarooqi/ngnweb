@@ -7,6 +7,7 @@ use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\ServiceBooking;
+use App\Support\FluxAdminFormPayload;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -85,13 +86,20 @@ class ServiceBookingIndex extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Deleted.');
     }
 
-    public function toggleDealt(int $id): void
+    public function markAsDealt(int $id): void
     {
-        $b = ServiceBooking::findOrFail($id);
-        $b->is_dealt = ! $b->is_dealt;
-        $b->dealt_by_user_id = backpack_user()->id;
-        $b->save();
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Updated.');
+        $booking = ServiceBooking::findOrFail($id);
+
+        if ($booking->is_dealt) {
+            return;
+        }
+
+        $booking->update([
+            'is_dealt' => true,
+            'dealt_by_user_id' => FluxAdminFormPayload::adminUserId(),
+        ]);
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Marked as dealt.');
     }
 
     public function render()

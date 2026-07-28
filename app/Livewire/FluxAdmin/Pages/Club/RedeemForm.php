@@ -31,7 +31,7 @@ class RedeemForm extends Component
     public function mount(?ClubMemberRedeem $redeem = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-commons');
+        $this->authorizeFullClubAdmin();
         $this->redeem = $redeem?->id ? $redeem : null;
 
         if ($this->redeem) {

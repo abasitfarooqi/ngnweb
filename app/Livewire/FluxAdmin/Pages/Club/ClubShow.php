@@ -2,6 +2,7 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Club;
 
+use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\ClubMember;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -9,12 +10,15 @@ use Livewire\Component;
 #[Layout('flux-admin.layouts.app')]
 class ClubShow extends Component
 {
+    use WithAuthorization;
+
     public ClubMember $clubMember;
 
     public string $activeTab = 'overview';
 
     public function mount(ClubMember $clubMember): void
     {
+        $this->authorizeFullClubAdmin();
         $this->clubMember = $clubMember->load('customer', 'partner', 'user', 'purchases', 'redemptions', 'spendings');
     }
 

@@ -87,6 +87,12 @@ class IssuanceTab extends Component
         }
 
         $issuedBy = $this->resolveStaffUserId();
+        if (! $issuedBy) {
+            $this->flashMessage = 'You must be signed in to issue a motorbike.';
+            $this->flashType = 'error';
+
+            return;
+        }
 
         try {
             DB::transaction(function () use ($booking, $bookingItem, $issuedBy) {
@@ -150,9 +156,17 @@ class IssuanceTab extends Component
             return;
         }
 
+        $issuedBy = $this->resolveStaffUserId();
+        if (! $issuedBy) {
+            $this->flashMessage = 'You must be signed in to save an inspection log.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
         BookingIssuanceItem::create([
             'booking_item_id' => $bookingItem->id,
-            'issued_by_user_id' => $this->resolveStaffUserId(),
+            'issued_by_user_id' => $issuedBy,
             'notes' => $this->issuanceNotes,
             'is_insured' => $this->isInsured,
             'current_mileage' => (int) $this->currentMileage,
@@ -211,8 +225,18 @@ class IssuanceTab extends Component
             'logNote' => 'nullable|string',
         ]);
 
+        $staffUserId = $this->resolveStaffUserId();
+        if (! $staffUserId) {
+            $this->flashMessage = 'You must be signed in to save a maintenance log.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
         MotorbikeMaintenanceLog::create([
             'motorbike_id' => $activeItem->motorbike_id,
+            'booking_id' => $this->bookingId,
+            'user_id' => $staffUserId,
             'cost' => $this->logCost,
             'serviced_at' => $this->logServicedAt,
             'description' => $this->logDescription,

@@ -30,7 +30,7 @@ class PurchaseForm extends Component
     public function mount(?ClubMemberPurchase $purchase = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
         $this->purchase = $purchase?->id ? $purchase : null;
 
         if ($this->purchase) {

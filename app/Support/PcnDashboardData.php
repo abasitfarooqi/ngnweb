@@ -16,14 +16,14 @@ final class PcnDashboardData
         }
 
         $totalCases = PcnCase::count();
-        $openCases = PcnCase::where('isClosed', false)->count();
-        $closedCases = PcnCase::whereHas('updates', fn ($q) => $q->where('is_cancled', false))->where('isClosed', true)->count();
+        $openCases = PcnCase::openCount();
+        $closedCases = PcnCase::closed()->whereHas('updates', fn ($q) => $q->where('is_cancled', false))->count();
         $cancelledCases = PcnCase::whereHas('updates', fn ($q) => $q->where('is_cancled', true))->count();
-        $appealedCases = PcnCase::where('isClosed', false)->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count();
+        $appealedCases = PcnCase::open()->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count();
 
         $appealedStats = [
-            'police' => PcnCase::where('is_police', true)->where('isClosed', false)->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count(),
-            'regular' => PcnCase::where('is_police', false)->where('isClosed', false)->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count(),
+            'police' => PcnCase::where('is_police', true)->open()->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count(),
+            'regular' => PcnCase::where('is_police', false)->open()->whereHas('updates', fn ($q) => $q->where('is_appealed', true))->count(),
         ];
 
         $cancelledStats = [
@@ -31,8 +31,8 @@ final class PcnDashboardData
             'regular' => PcnCase::where('is_police', false)->whereHas('updates', fn ($q) => $q->where('is_cancled', true))->count(),
         ];
 
-        $totalFullAmount = PcnCase::where('isClosed', false)->sum('full_amount');
-        $totalReducedAmount = PcnCase::where('isClosed', false)->sum('reduced_amount');
+        $totalFullAmount = PcnCase::open()->sum('full_amount');
+        $totalReducedAmount = PcnCase::open()->sum('reduced_amount');
 
         $policeStats = [
             'police' => PcnCase::where('is_police', true)->count(),
@@ -40,8 +40,8 @@ final class PcnDashboardData
         ];
 
         $outstandingAmounts = [
-            'police' => PcnCase::where('is_police', true)->where('isClosed', false)->sum('full_amount'),
-            'regular' => PcnCase::where('is_police', false)->where('isClosed', false)->sum('full_amount'),
+            'police' => PcnCase::where('is_police', true)->open()->sum('full_amount'),
+            'regular' => PcnCase::where('is_police', false)->open()->sum('full_amount'),
         ];
 
         $monthlyStats = PcnCase::select(
@@ -54,7 +54,7 @@ final class PcnDashboardData
 
         $topVehicles = PcnCase::select('motorbike_id', 'customer_id')
             ->selectRaw('COUNT(*) as pcn_count')
-            ->where('isClosed', false)
+            ->open()
             ->whereNotNull('motorbike_id')
             ->groupBy('motorbike_id', 'customer_id')
             ->orderByDesc('pcn_count')
@@ -63,7 +63,7 @@ final class PcnDashboardData
             ->get();
 
         $pcnList = PcnCase::with(['customer:id,first_name,last_name,phone,whatsapp', 'motorbike:id,reg_no'])
-            ->where('isClosed', false)
+            ->open()
             ->orderBy('created_at', $listSort)
             ->get()
             ->map(function ($pcn) {

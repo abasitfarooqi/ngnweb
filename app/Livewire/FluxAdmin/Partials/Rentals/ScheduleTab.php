@@ -30,7 +30,7 @@ class ScheduleTab extends Component
 
     /** @var list<string> */
     public array $weekdays = [
-        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
+        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday',
     ];
 
     public function placeholder()
@@ -50,9 +50,9 @@ class ScheduleTab extends Component
             ? Carbon::parse($booking->start_date)->format('l')
             : 'Thursday';
 
-        // Payments are Mon–Fri only — nudge weekend starts onto Friday in the same week.
-        if (in_array($weekday, ['Saturday', 'Sunday'], true)) {
-            $weekday = 'Friday';
+        // Sunday is blocked — nudge onto Saturday in the same week.
+        if ($weekday === 'Sunday') {
+            $weekday = 'Saturday';
         }
 
         $this->targetWeekday = $weekday;
@@ -65,8 +65,8 @@ class ScheduleTab extends Component
         ]);
 
         $start = Carbon::parse($this->newStartDate);
-        if ($start->isWeekend()) {
-            $this->addError('newStartDate', 'Saturday and Sunday are blocked — pick a weekday (Mon–Fri).');
+        if ($start->isSunday()) {
+            $this->addError('newStartDate', 'Sunday is blocked — pick Monday to Saturday.');
 
             return;
         }
@@ -102,7 +102,7 @@ class ScheduleTab extends Component
     public function adjustWeekday(RentingInvoiceSyncService $sync): void
     {
         $this->validate([
-            'targetWeekday' => ['required', 'in:Monday,Tuesday,Wednesday,Thursday,Friday'],
+            'targetWeekday' => ['required', 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'],
         ]);
 
         try {

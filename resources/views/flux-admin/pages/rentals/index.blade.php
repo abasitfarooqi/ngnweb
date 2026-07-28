@@ -66,12 +66,6 @@
                         @endforeach
                     </flux:select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-40 lg:flex-none">
-                    <flux:input
-                        wire:model.live.debounce.300ms="filterReg"
-                        placeholder="Reg / VRM"
-                    />
-                </div>
                 <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
                     <flux:input type="date" wire:model.live="startDateFrom" />
                 </div>

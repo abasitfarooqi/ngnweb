@@ -6,6 +6,9 @@
  */
 return [
 
+    /** Staff user IDs allowed full club admin (matches Backpack ClubMemberCrudController). */
+    'full_club_admin_user_ids' => [65, 66, 93],
+
     'entries' => [
         // Quick links (sidebar top)
         ['group' => 'Quick links', 'label' => 'Delivery enquiries', 'route' => 'flux-admin.delivery-enquiries.index', 'permission' => 'see-menu-vehicles'],

@@ -15,7 +15,7 @@
             </x-flux-admin::field-group>
             <x-flux-admin::field-group label="Move to weekday" :error="$errors->first('targetWeekday')" required>
                 <flux:select wire:model="targetWeekday">
-                    @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'] as $d)
+                    @foreach(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'] as $d)
                         <flux:select.option value="{{ $d }}">{{ $d }}</flux:select.option>
                     @endforeach
                 </flux:select>

@@ -28,7 +28,7 @@ class SpendingForm extends Component
     public function mount(?ClubMemberSpending $spending = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
         $this->spending = $spending?->id ? $spending : null;
 
         if ($this->spending) {

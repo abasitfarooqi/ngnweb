@@ -7,7 +7,7 @@
             $application->is_cancelled ? ['label' => 'Cancelled', 'color' => 'red'] : null,
             $application->is_monthly ? ['label' => 'Monthly', 'color' => 'blue'] : null,
         ])"
-        :backUrl="route('flux-admin.finance.index')"
+        :backUrl="\App\Support\FluxAdminFinanceListQuery::indexUrl()"
         backLabel="All Applications"
     >
         <x-slot:stats>

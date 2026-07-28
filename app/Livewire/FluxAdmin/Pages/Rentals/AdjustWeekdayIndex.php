@@ -25,7 +25,7 @@ class AdjustWeekdayIndex extends Component
     {
         $this->validate([
             'selectedBookingId' => ['required', 'integer', 'exists:renting_bookings,id'],
-            'targetWeekday' => ['required', 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday'],
+            'targetWeekday' => ['required', 'in:Monday,Tuesday,Wednesday,Thursday,Friday,Saturday'],
         ]);
 
         $booking = RentingBooking::findOrFail($this->selectedBookingId);

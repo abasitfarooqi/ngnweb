@@ -9,6 +9,7 @@ use App\Models\Motorbike;
 use App\Models\MotorbikesSale;
 use App\Models\RentingBookingItem;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\DB;
 
 /**
  * NGN fleet overview. "All" uses ngn_vehicle flag; category tabs query motorbikes
@@ -58,6 +59,40 @@ final class TotalVehiclesQuery
     public static function availableForSaleMotorbikeIdsSubquery(): Builder
     {
         return self::saleRentalMotorbikeIdsSubquery();
+    }
+
+    /**
+     * Active payment plans: one row per motorbike (latest application item),
+     * contract not cancelled, logbook not transferred, log book not sent.
+     */
+    public static function activePaymentPlanMotorbikeCount(): int
+    {
+        $row = DB::selectOne('
+            SELECT COUNT(*) AS aggregate FROM (
+                SELECT latest.motorbike_id
+                FROM (
+                    SELECT
+                        m.id AS motorbike_id,
+                        fa.is_cancelled,
+                        fa.logbook_transfer_date,
+                        fa.log_book_sent,
+                        ROW_NUMBER() OVER (
+                            PARTITION BY m.id
+                            ORDER BY ai.created_at DESC, ai.id DESC
+                        ) AS rn
+                    FROM application_items ai
+                    INNER JOIN motorbikes m ON m.id = ai.motorbike_id
+                    INNER JOIN finance_applications fa ON fa.id = COALESCE(ai.application_id, ai.app_id)
+                    WHERE m.deleted_at IS NULL
+                ) latest
+                WHERE latest.rn = 1
+                  AND COALESCE(latest.is_cancelled, 0) = 0
+                  AND latest.logbook_transfer_date IS NULL
+                  AND COALESCE(latest.log_book_sent, 0) = 0
+            ) counted
+        ');
+
+        return (int) ($row->aggregate ?? 0);
     }
 
     /**

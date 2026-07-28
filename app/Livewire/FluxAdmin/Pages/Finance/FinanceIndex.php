@@ -8,10 +8,13 @@ use App\Livewire\FluxAdmin\Concerns\WithExport;
 use App\Models\Customer;
 use App\Models\FinanceApplication;
 use App\Support\AdminDateTimeInput;
+use App\Support\FinanceApplicationDeletion;
+use App\Support\FluxAdminFinanceListQuery;
 use App\Support\FluxAdminFormPayload;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -21,18 +24,24 @@ class FinanceIndex extends Component
 {
     use WithCrudForm, WithDataTable, WithExport, WithPagination;
 
+    #[Url(except: '')]
     public string $contractType = '';
 
+    #[Url(except: '')]
     public string $status = '';
 
     public bool $showForm = false;
 
+    #[Url(except: '')]
     public string $filterLogbook = '';
 
+    #[Url(except: '')]
     public string $filterPosted = '';
 
+    #[Url(except: '')]
     public string $contractDateFrom = '';
 
+    #[Url(except: '')]
     public string $contractDateTo = '';
 
     // Customer search autocomplete
@@ -48,6 +57,32 @@ class FinanceIndex extends Component
     {
         $this->exportFilename = 'finance-applications';
         $this->exportable = true;
+    }
+
+    public function resetFinanceFilters(): void
+    {
+        $this->contractType = '';
+        $this->status = '';
+        $this->filterLogbook = '';
+        $this->filterPosted = '';
+        $this->contractDateFrom = '';
+        $this->contractDateTo = '';
+        $this->search = '';
+        $this->sortField = 'id';
+        $this->sortDirection = 'desc';
+        $this->perPage = 20;
+        $this->resetPage();
+    }
+
+    public function hasActiveFinanceFilters(): bool
+    {
+        return $this->search !== ''
+            || $this->contractType !== ''
+            || $this->status !== ''
+            || $this->filterLogbook !== ''
+            || $this->filterPosted !== ''
+            || $this->contractDateFrom !== ''
+            || $this->contractDateTo !== '';
     }
 
     public function updatingContractType(): void { $this->resetPage(); }
@@ -211,7 +246,16 @@ class FinanceIndex extends Component
 
     public function delete(int $id): void
     {
-        FinanceApplication::findOrFail($id)->delete();
+        $application = FinanceApplication::findOrFail($id);
+
+        try {
+            FinanceApplicationDeletion::delete($application);
+        } catch (\RuntimeException $e) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: $e->getMessage());
+
+            return;
+        }
+
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Application deleted.');
     }
 
@@ -259,9 +303,7 @@ class FinanceIndex extends Component
         }
 
         if ($this->status === 'active') {
-            $query->where(function ($q) {
-                $q->where('is_cancelled', false)->orWhereNull('is_cancelled');
-            });
+            $query->activePaymentPlan();
         } elseif ($this->status === 'cancelled') {
             $query->where('is_cancelled', true);
         }
@@ -303,7 +345,11 @@ class FinanceIndex extends Component
             'First instalment'    => fn ($r) => $r->first_instalment_date ? \Carbon\Carbon::parse($r->first_instalment_date)->format('d M Y') : '',
             'Posted'              => fn ($r) => $r->is_posted ? 'Yes' : 'No',
             'Log book sent'       => fn ($r) => $r->log_book_sent ? 'Yes' : 'No',
-            'Status'              => fn ($r) => $r->is_cancelled ? 'Cancelled' : 'Active',
+            'Status'              => fn ($r) => match (true) {
+                (bool) $r->is_cancelled => 'Cancelled',
+                (bool) $r->log_book_sent || $r->logbook_transfer_date !== null => 'Completed',
+                default => 'Active',
+            },
             'Notes'               => 'notes',
         ];
     }

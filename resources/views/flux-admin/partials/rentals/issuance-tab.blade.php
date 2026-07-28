@@ -130,6 +130,9 @@
                                 <input wire:model="logServicedAt" type="date" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
                                 <input wire:model="logNote" type="text" placeholder="Note (optional)" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
                             </div>
+                            @error('logDescription') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            @error('logCost') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            @error('logServicedAt') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             <flux:button size="sm" wire:click="addMaintenanceLog" class="!rounded-none">Save maintenance log</flux:button>
                             @if($maintenanceLogs->isNotEmpty())
                                 <ul class="mt-3 text-xs text-zinc-500 space-y-1">

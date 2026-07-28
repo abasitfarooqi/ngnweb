@@ -32,7 +32,7 @@ class ClubIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
         $this->sortField = 'full_name';
         $this->sortDirection = 'asc';
         $this->exportFilename = 'club-members';

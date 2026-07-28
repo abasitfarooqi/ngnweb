@@ -39,6 +39,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Mail;
 use PDF;
+use App\Support\EbikeBatterySafetyLeaflet;
 use App\Support\QrCodeGenerator;
 use App\Support\AgreementPdfGenerator;
 use App\Support\BrowsershotPdfAdapter;
@@ -565,34 +566,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
 
-        // Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-            // Send Battery Safety Leaflet PDF to customer only
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email_company'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new HireContract($batterySafetyData));
-                Mail::to($batterySafetyData['email_company'])->send(new HireContract($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems);
 
         $access->expires_at = new DateTime;
         $access->save();
@@ -738,36 +712,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
 
-        // Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-
-            // Send Battery Safety Leaflet PDF to customer only
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email_company'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new HireContract($batterySafetyData));
-                Mail::to($batterySafetyData['email_company'])->send(new HireContract($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems);
 
         $access->expires_at = now();
         $access->save();
@@ -937,36 +882,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
 
-        // Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-
-            // Send Battery Safety Leaflet PDF to customer only
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email_company'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new HireContract($batterySafetyData));
-                Mail::to($batterySafetyData['email_company'])->send(new HireContract($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems);
 
         $access->expires_at = now();
         $access->save();
@@ -1106,36 +1022,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
 
-            // Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-
-            // Send Battery Safety Leaflet PDF to customer only
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email_company'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new HireContract($batterySafetyData));
-                Mail::to($batterySafetyData['email_company'])->send(new HireContract($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems);
 
         $access->expires_at = now();
         $access->save();
@@ -1504,34 +1391,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
 
-        // 4. Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email_company'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new HireContract($batterySafetyData));
-                Mail::to($batterySafetyData['email_company'])->send(new HireContract($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems);
 
         $access->expires_at = now();
         $access->save();
@@ -1718,34 +1578,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
 
-        // 5. Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email_company'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new HireContract($batterySafetyData));
-                Mail::to($batterySafetyData['email_company'])->send(new HireContract($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems);
 
         $access->expires_at = now();
         $access->save();
@@ -2162,6 +1995,19 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.'Email sending failed: '.$e->getMessage());
         }
 
+        $this->sendEbikeBatterySafetyLeafletIfNeeded(
+            $Motorbike,
+            $Customer,
+            $pdfPath,
+            $tm,
+            $rand_no,
+            $toDay,
+            $Booking,
+            $BookingItems,
+            rentalMail: true,
+            rentalBookingId: (int) $request->booking_id,
+        );
+
         $access = AgreementAccess::where('booking_id', $request->booking_id)
             ->first();
 
@@ -2407,35 +2253,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.'Email sending failed: '.$e->getMessage());
         }
 
-        // Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-
-            // Send Battery Safety Leaflet PDF to customer only
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new RentalAgreement($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems, rentalMail: true, rentalBookingId: (int) $request->booking_id);
 
         $access = AgreementAccess::where('booking_id', $request->booking_id)
             ->first();
@@ -2654,35 +2472,7 @@ class AgreementController extends Controller
             Log::error(__FILE__.' at line '.__LINE__.'Email sending failed: '.$e->getMessage());
         }
 
-        // Generate Battery Safety Leaflet PDF (only for e-bikes)
-        if ($Motorbike && $Motorbike->is_ebike) {
-            $batterySafetyPdfForCustomer = $this->pdfLoadView('livewire.agreements.pdf.templates.battery-safety-leaflet', [
-                'today' => $toDay,
-                'booking' => $Booking,
-                'customer' => $Customer,
-                'motorbike' => $Motorbike,
-                'bookingItem' => $BookingItems,
-                'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            ])->setPaper('a4', 'portrait')
-                ->setOption('isPhpEnabled', true)
-                ->save($pdfPath.'/battery-safety-leaflet-'.$tm.$rand_no.'.pdf');
-
-
-
-            // Send Battery Safety Leaflet PDF to customer only
-            $batterySafetyData = [];
-            $batterySafetyData['email'] = [$Customer->email];
-            $batterySafetyData['email'] = ['customerservice@neguinhomotors.co.uk'];
-            $batterySafetyData['title'] = 'E-Bike Battery Safety Leaflet';
-            $batterySafetyData['body'] = 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document - please read it carefully.';
-            $batterySafetyData['pdf'] = $batterySafetyPdfForCustomer;
-
-            try {
-                Mail::to($batterySafetyData['email'])->send(new RentalAgreement($batterySafetyData));
-            } catch (Exception $e) {
-                Log::error(__FILE__.' at line '.__LINE__.' Failed to send battery safety leaflet email: '.$e->getMessage());
-            }
-        }
+        $this->sendEbikeBatterySafetyLeafletIfNeeded($Motorbike, $Customer, $pdfPath, $tm, $rand_no, $toDay, $Booking, $BookingItems, rentalMail: true, rentalBookingId: (int) $request->booking_id);
 
         $access = AgreementAccess::where('booking_id', $request->booking_id)
             ->first();
@@ -2914,6 +2704,38 @@ class AgreementController extends Controller
             'body' => 'Thank you for choosing Neguinho Motors Ltd. Ride safe and enjoy the journey! <br> Find Attached your rental agreement. ',
             'pdf' => $lessTermsPdfs,
         ]));
+    }
+
+    private function sendEbikeBatterySafetyLeafletIfNeeded(
+        ?Motorbike $motorbike,
+        Customer $customer,
+        string $pdfPath,
+        int $tm,
+        int $randNo,
+        string $today,
+        mixed $booking,
+        mixed $bookingItem,
+        bool $rentalMail = false,
+        ?int $rentalBookingId = null,
+    ): void {
+        $userName = null;
+        if (is_object($booking) && isset($booking->user) && $booking->user) {
+            $userName = trim($booking->user->first_name.' '.$booking->user->last_name);
+        }
+
+        EbikeBatterySafetyLeaflet::sendIfEbike(
+            $motorbike,
+            $customer,
+            $pdfPath,
+            $tm,
+            $randNo,
+            $today,
+            $booking,
+            $bookingItem,
+            $userName,
+            $rentalMail,
+            $rentalBookingId,
+        );
     }
 
 }

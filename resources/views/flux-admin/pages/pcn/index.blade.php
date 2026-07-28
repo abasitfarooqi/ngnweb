@@ -2,7 +2,15 @@
     <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">PCN Cases</h1>
-            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{{ $cases->total() }} cases in total</p>
+            <p class="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+                @if($status === 'open')
+                    {{ number_format($cases->total()) }} open cases
+                @elseif($status === 'closed')
+                    {{ number_format($cases->total()) }} closed cases
+                @else
+                    {{ number_format($cases->total()) }} cases in total
+                @endif
+            </p>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
             <flux:button wire:click="exportSummary" icon="table-cells" variant="ghost" size="sm" class="!rounded-none">Export summary</flux:button>
@@ -105,8 +113,8 @@
                                 <flux:table.cell>{{ $row->customer?->first_name }} {{ $row->customer?->last_name }}</flux:table.cell>
                                 <flux:table.cell class="text-xs text-zinc-600 dark:text-zinc-400">{{ $row->customer?->email ?? '—' }}</flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:badge :color="$row->isClosed ? 'zinc' : 'green'" size="sm">
-                                        {{ $row->isClosed ? 'Closed' : 'Open' }}
+                                    <flux:badge :color="$row->isOpen() ? 'green' : 'zinc'" size="sm">
+                                        {{ $row->isOpen() ? 'Open' : 'Closed' }}
                                     </flux:badge>
                                 </flux:table.cell>
                                 <flux:table.cell>

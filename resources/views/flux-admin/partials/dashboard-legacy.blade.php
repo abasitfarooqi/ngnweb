@@ -52,8 +52,6 @@
         <x-flux-admin::stat-card label="Bikes delivered" :value="number_format($legacy['repairs']['delivered'] ?? 0)" icon="truck" colour="indigo" :href="route('flux-admin.motorbike-repairs.index')" />
     </div>
 
-    <x-flux-admin::stat-card class="mb-6" label="Our motorbikes" :value="number_format($legacy['owned_bikes_count'] ?? 0)" icon="truck" colour="purple" :href="route('flux-admin.motorbikes.index')" />
-
     <h3 class="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">PCN cases</h3>
     <div class="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <x-flux-admin::stat-card label="Total PCN cases" :value="number_format($legacy['pcn']['total'] ?? 0)" icon="ticket" colour="blue" :href="route('flux-admin.pcn.index')" />

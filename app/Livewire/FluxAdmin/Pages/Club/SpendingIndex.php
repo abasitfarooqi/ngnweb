@@ -24,7 +24,7 @@ class SpendingIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
         $this->exportable = true;
         $this->exportFilename = 'club-spending';
         $this->sortField = 'date';

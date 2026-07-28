@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\ServiceBooking;
+use App\Support\FluxAdminFormPayload;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -25,6 +26,7 @@ class ServiceBookingForm extends Component
         $this->serviceBooking = $serviceBooking;
 
         if ($serviceBooking && $serviceBooking->exists) {
+            $serviceBooking->load('user');
             $attrs = $serviceBooking->getAttributes();
             foreach (['booking_date'] as $f) {
                 if (! empty($attrs[$f])) {
@@ -41,6 +43,7 @@ class ServiceBookingForm extends Component
                 'status'       => 'pending',
                 'enquiry_type' => 'service_booking',
                 'booking_date' => now()->format('Y-m-d'),
+                'is_dealt'     => false,
             ];
         }
     }
@@ -58,9 +61,12 @@ class ServiceBookingForm extends Component
             'form.description'  => ['nullable', 'string', 'max:5000'],
             'form.booking_date' => ['nullable', 'date'],
             'form.booking_time' => ['nullable', 'string', 'max:20'],
-            'form.status'       => ['nullable', 'string', 'in:pending,confirmed,completed,cancelled'],
+            'form.status'       => ['nullable', 'string', 'in:pending,confirmed,completed,cancelled,Pending,Confirmed,Completed,Cancelled'],
             'form.notes'        => ['nullable', 'string', 'max:5000'],
+            'form.is_dealt'     => ['boolean'],
         ]);
+
+        $isDealt = (bool) ($this->form['is_dealt'] ?? false);
 
         $data = [
             'fullname'     => $this->form['fullname'] ?? null,
@@ -75,6 +81,8 @@ class ServiceBookingForm extends Component
             'booking_time' => $this->form['booking_time'] ?? null,
             'status'       => $this->form['status'] ?? 'pending',
             'notes'        => $this->form['notes'] ?? null,
+            'is_dealt'     => $isDealt,
+            'dealt_by_user_id' => $isDealt ? FluxAdminFormPayload::adminUserId() : null,
         ];
 
         if ($this->serviceBooking && $this->serviceBooking->exists) {
@@ -86,6 +94,23 @@ class ServiceBookingForm extends Component
         }
 
         $this->redirect(route('flux-admin.service-bookings.index'), navigate: true);
+    }
+
+    public function markAsDealt(): void
+    {
+        if (! $this->serviceBooking?->exists) {
+            return;
+        }
+
+        $this->serviceBooking->update([
+            'is_dealt' => true,
+            'dealt_by_user_id' => FluxAdminFormPayload::adminUserId(),
+        ]);
+
+        $this->form['is_dealt'] = true;
+        $this->serviceBooking->load('user')->refresh();
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Marked as dealt.');
     }
 
     public function render()

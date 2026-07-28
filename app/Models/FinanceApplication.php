@@ -102,9 +102,24 @@ class FinanceApplication extends Model
             });
     }
 
-    public function isActiveContract(): bool
+    /** Listed as active: not cancelled, log book not sent, logbook not transferred. */
+    public function scopeActivePaymentPlan($query)
     {
-        return ! (bool) $this->is_cancelled && ! (bool) $this->is_posted;
+        return $query
+            ->where(function ($q) {
+                $q->where('is_cancelled', false)->orWhereNull('is_cancelled');
+            })
+            ->where(function ($q) {
+                $q->where('log_book_sent', false)->orWhereNull('log_book_sent');
+            })
+            ->whereNull('logbook_transfer_date');
+    }
+
+    public function isActivePaymentPlan(): bool
+    {
+        return ! (bool) $this->is_cancelled
+            && ! (bool) $this->log_book_sent
+            && $this->logbook_transfer_date === null;
     }
 
     public function application_items()

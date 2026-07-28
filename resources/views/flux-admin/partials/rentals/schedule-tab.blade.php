@@ -62,7 +62,7 @@
 
         <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 p-4 space-y-3">
             <h4 class="text-sm font-semibold text-zinc-900 dark:text-white">Adjust invoice weekday</h4>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Moves start date to the chosen day in the same week (Mon–Fri only — weekends blocked), then realigns future invoices.</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Moves start date to the chosen day in the same week (Mon–Sat — Sunday blocked), then realigns future invoices.</p>
             <div>
                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Weekday</label>
                 <select wire:model="targetWeekday"

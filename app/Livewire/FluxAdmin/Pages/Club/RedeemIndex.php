@@ -24,7 +24,7 @@ class RedeemIndex extends Component
 
     public function mount(): void
     {
-        $this->authorizeModule('see-menu-commons');
+        $this->authorizeFullClubAdmin();
         $this->exportable = true;
         $this->exportFilename = 'club-redemptions';
         $this->sortField = 'date';

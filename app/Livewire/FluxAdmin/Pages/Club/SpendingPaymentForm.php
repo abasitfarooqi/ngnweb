@@ -31,7 +31,7 @@ class SpendingPaymentForm extends Component
     public function mount(?ClubMemberSpendingPayment $spendingPayment = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-club');
+        $this->authorizeFullClubAdmin();
         $this->spendingPayment = $spendingPayment?->id ? $spendingPayment : null;
 
         if ($this->spendingPayment) {

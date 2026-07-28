@@ -55,6 +55,13 @@
             <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
                 <flux:input type="date" wire:model.live="contractDateTo" placeholder="Contract to" />
             </div>
+            @if($this->hasActiveFinanceFilters())
+                <div class="min-w-0 w-full sm:basis-full lg:basis-auto lg:w-auto flex items-stretch">
+                    <flux:button wire:click="resetFinanceFilters" variant="ghost" size="sm" icon="x-mark" class="!rounded-none w-full sm:w-auto">
+                        Reset filters
+                    </flux:button>
+                </div>
+            @endif
             <div class="min-w-0 w-full sm:basis-full sm:max-w-[10rem] lg:basis-auto lg:w-28">
                 <flux:select wire:model.live="perPage">
                     <flux:select.option value="20">20 per page</flux:select.option>
@@ -87,7 +94,7 @@
                 @forelse($applications as $app)
                     <flux:table.row wire:key="fa-{{ $app->id }}">
                         <flux:table.cell class="font-mono text-xs">
-                            <a href="{{ route('flux-admin.finance.show', $app) }}" class="text-blue-600 hover:underline dark:text-blue-400">{{ $app->id }}</a>
+                            <a href="{{ \App\Support\FluxAdminFinanceListQuery::showUrl($app) }}" class="text-blue-600 hover:underline dark:text-blue-400">{{ $app->id }}</a>
                         </flux:table.cell>
                         <flux:table.cell>
                             @if($app->customer)
@@ -100,6 +107,8 @@
                         <flux:table.cell>
                             @if($app->is_cancelled)
                                 <flux:badge color="red" size="sm">Cancelled</flux:badge>
+                            @elseif($app->log_book_sent || $app->logbook_transfer_date)
+                                <flux:badge color="blue" size="sm">Completed</flux:badge>
                             @else
                                 <flux:badge color="green" size="sm">Active</flux:badge>
                             @endif
@@ -139,10 +148,10 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
-                                <a href="{{ route('flux-admin.finance.edit', $app) }}" wire:navigate>
+                                <a href="{{ \App\Support\FluxAdminFinanceListQuery::editUrl($app) }}" wire:navigate>
                                     <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                                 </a>
-                                <a href="{{ route('flux-admin.finance.show', $app) }}" class="inline-flex items-center gap-1 px-2 py-1 text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">View</a>
+                                <a href="{{ \App\Support\FluxAdminFinanceListQuery::showUrl($app) }}" wire:navigate class="inline-flex items-center gap-1 px-2 py-1 text-xs text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">View</a>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $app->id }})" wire:confirm="Delete this application? This cannot be undone." icon="trash" class="!rounded-none text-red-600" />
                             </div>
                         </flux:table.cell>

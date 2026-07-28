@@ -23,7 +23,7 @@ class FluxAdminDashboardStats
 {
     public static function fluxOverview(): array
     {
-        return Cache::remember('flux-admin.dashboard.stats', now()->addMinutes(5), function () {
+        $stats = Cache::remember('flux-admin.dashboard.stats', now()->addMinutes(5), function () {
             $activeRentals = RentingBookingItem::whereNull('end_date')
                 ->whereHas('booking', fn ($q) => $q->where('is_posted', true))
                 ->where('is_posted', true)
@@ -33,12 +33,16 @@ class FluxAdminDashboardStats
                 'total_vehicles' => TotalVehiclesQuery::count(),
                 'total_motorbikes' => Motorbike::count(),
                 'active_rentals' => $activeRentals,
-                // Active contract: not posted (posted = fully sold) and not cancelled.
-                'finance_applications' => FinanceApplication::activeContract()->count(),
-                'open_pcn_cases' => PcnCase::where('isClosed', false)->count(),
+                // Latest application item per bike; logbook still with NGN.
+                'finance_applications' => TotalVehiclesQuery::activePaymentPlanMotorbikeCount(),
                 'club_members' => ClubMember::count(),
             ];
         });
+
+        // Always live — must match PCN index “Open” filter total.
+        $stats['open_pcn_cases'] = PcnCase::openCount();
+
+        return $stats;
     }
 
     public static function legacy(): array
@@ -104,10 +108,7 @@ class FluxAdminDashboardStats
                     'last_month' => $postedFinance()->whereBetween('contract_date', [$lastMonthStart, $lastMonthEnd])->count(),
                 ],
                 'finance' => [
-                    'active' => FinanceApplication::where('is_cancelled', false)->where('is_posted', true)
-                        ->where(function ($q) {
-                            $q->where('log_book_sent', false)->orWhereNull('log_book_sent');
-                        })->count(),
+                    'active' => TotalVehiclesQuery::activePaymentPlanMotorbikeCount(),
                     'terminated' => FinanceApplication::where('is_cancelled', true)->where('is_posted', true)->count(),
                     'closed' => FinanceApplication::where('is_posted', true)->where('log_book_sent', true)->count(),
                 ],
@@ -116,8 +117,6 @@ class FluxAdminDashboardStats
                     'completed' => MotorbikeRepair::where('is_repaired', true)->count(),
                     'delivered' => MotorbikeRepair::where('is_returned', true)->count(),
                 ],
-                'owned_bikes_count' => Motorbike::where('vehicle_profile_id', 1)->count(),
-                'owned_bikes' => Motorbike::where('vehicle_profile_id', 1)->orderByDesc('id')->limit(50)->get(),
                 'bikes_for_sale' => MotorbikesSale::join('motorbikes', 'motorbikes_sale.motorbike_id', '=', 'motorbikes.id')
                     ->leftJoin('branches', 'motorbikes.branch_id', '=', 'branches.id')
                     ->where('motorbikes_sale.is_sold', false)
@@ -137,8 +136,8 @@ class FluxAdminDashboardStats
                     ->get(),
                 'pcn' => [
                     'total' => PcnCase::count(),
-                    'open' => PcnCase::where('isClosed', false)->count(),
-                    'closed' => PcnCase::where('isClosed', true)->count(),
+                    'open' => PcnCase::openCount(),
+                    'closed' => PcnCase::closed()->count(),
                     'police' => PcnCase::where('is_police', true)->count(),
                 ],
                 'pcn_chart' => self::pcnChartData(),
