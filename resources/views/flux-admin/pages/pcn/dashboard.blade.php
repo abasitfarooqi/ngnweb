@@ -58,7 +58,7 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 xl:grid-cols-2 gap-4"
+    <div class="space-y-4"
          x-data="pcnCharts(@js([
              'months' => $monthlyStats->pluck('month'),
              'total' => $monthlyStats->pluck('total'),
@@ -69,21 +69,33 @@
              'amounts' => [(float) $outstandingAmounts['police'], (float) $outstandingAmounts['regular']],
          ]))"
          x-init="init()">
-        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Monthly trend (12 months)</div>
-            <canvas x-ref="monthly" height="140"></canvas>
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
+            <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 lg:col-span-2">
+                <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Monthly trend (12 months)</div>
+                <div class="relative h-56 w-full max-h-56">
+                    <canvas x-ref="monthly"></canvas>
+                </div>
+            </div>
+            <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+                <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Status mix</div>
+                <div class="relative h-56 w-full max-h-56">
+                    <canvas x-ref="status"></canvas>
+                </div>
+            </div>
         </div>
-        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Status mix</div>
-            <canvas x-ref="status" height="140"></canvas>
-        </div>
-        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Police vs regular</div>
-            <canvas x-ref="police" height="140"></canvas>
-        </div>
-        <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
-            <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Outstanding by type</div>
-            <canvas x-ref="amounts" height="140"></canvas>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+                <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Police vs regular</div>
+                <div class="relative h-52 w-full max-h-52">
+                    <canvas x-ref="police"></canvas>
+                </div>
+            </div>
+            <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
+                <div class="text-sm font-semibold text-zinc-900 dark:text-white mb-3">Outstanding by type</div>
+                <div class="relative h-52 w-full max-h-52">
+                    <canvas x-ref="amounts"></canvas>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -176,6 +188,13 @@
 Alpine.data('pcnCharts', (payload) => ({
     payload,
     charts: [],
+    chartOptions(extra = {}) {
+        return Object.assign({
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+        }, extra);
+    },
     init() {
         if (typeof Chart === 'undefined') return;
         this.charts.push(new Chart(this.$refs.monthly, {
@@ -188,7 +207,7 @@ Alpine.data('pcnCharts', (payload) => ({
                     { label: 'Closed', data: this.payload.closed, borderColor: '#059669', tension: 0.25 },
                 ],
             },
-            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } },
+            options: this.chartOptions(),
         }));
         this.charts.push(new Chart(this.$refs.status, {
             type: 'doughnut',
@@ -196,7 +215,7 @@ Alpine.data('pcnCharts', (payload) => ({
                 labels: ['Open', 'Closed', 'Cancelled', 'Appealed'],
                 datasets: [{ data: this.payload.status, backgroundColor: ['#d97706', '#059669', '#2563eb', '#9333ea'] }],
             },
-            options: { plugins: { legend: { position: 'bottom' } } },
+            options: this.chartOptions(),
         }));
         this.charts.push(new Chart(this.$refs.police, {
             type: 'pie',
@@ -204,7 +223,7 @@ Alpine.data('pcnCharts', (payload) => ({
                 labels: ['Police', 'Regular'],
                 datasets: [{ data: this.payload.police, backgroundColor: ['#dc2626', '#52525b'] }],
             },
-            options: { plugins: { legend: { position: 'bottom' } } },
+            options: this.chartOptions(),
         }));
         this.charts.push(new Chart(this.$refs.amounts, {
             type: 'bar',
@@ -212,7 +231,7 @@ Alpine.data('pcnCharts', (payload) => ({
                 labels: ['Police', 'Regular'],
                 datasets: [{ label: 'Outstanding £', data: this.payload.amounts, backgroundColor: ['#dc2626', '#52525b'] }],
             },
-            options: { plugins: { legend: { display: false } } },
+            options: this.chartOptions({ plugins: { legend: { display: false } } }),
         }));
     },
 }));

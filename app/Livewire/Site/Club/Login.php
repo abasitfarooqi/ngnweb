@@ -4,6 +4,7 @@ namespace App\Livewire\Site\Club;
 
 use App\Models\ClubMember;
 use App\Services\Club\ClubMemberSession;
+use App\Support\UkMobilePhone;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 
@@ -23,23 +24,36 @@ class Login extends Component
 
         $q = request()->query('phone');
         if (is_string($q) && $q !== '') {
-            $this->phone = $q;
+            $this->phone = UkMobilePhone::sanitizeLiveInput($q);
         }
     }
 
-    protected $rules = [
-        'phone' => 'required|string|min:10|max:15',
-        'passkey' => 'required|string|min:4|max:10',
-    ];
+    public function updatedPhone(string $value): void
+    {
+        $this->phone = UkMobilePhone::sanitizeLiveInput($value);
+    }
+
+    protected function rules(): array
+    {
+        return [
+            'phone' => ['required', 'string', 'size:11', 'regex:/^07\d{9}$/'],
+            'passkey' => 'required|string|min:4|max:10',
+        ];
+    }
+
+    protected function messages(): array
+    {
+        return array_merge(UkMobilePhone::validationMessages(), [
+            'passkey.required' => 'Please enter your passkey.',
+        ]);
+    }
 
     public function login(): void
     {
+        $this->phone = UkMobilePhone::normalize($this->phone);
         $this->validate();
 
-        $normalised = preg_replace('/\s+/', '', $this->phone);
-        $normalised = preg_replace('/^\+44/', '0', $normalised);
-
-        $member = ClubMember::where('phone', $normalised)
+        $member = ClubMember::where('phone', $this->phone)
             ->where('passkey', $this->passkey)
             ->first();
 

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Api\Mobile;
 
 use App\Http\Controllers\Controller;
-use App\Models\Branch;
 use App\Models\Customer;
 use App\Models\CustomerAuth;
 use App\Models\DocumentType;
@@ -23,66 +22,22 @@ class MobilePortalAccountController extends Controller
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
+        $actor = $this->customerActor($request);
+
         return response()->json([
-            'data' => $this->mapProfile($profile),
-            'branches' => Branch::query()->orderBy('name')->get(['id', 'name']),
+            'data' => $this->mapProfile($profile, $actor),
         ]);
     }
 
     public function updateProfile(Request $request): JsonResponse
     {
-        $profile = $this->resolveProfile($request);
-        if (! $profile) {
+        if ($this->resolveProfile($request) === null) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $payload = $request->validate([
-            'first_name' => ['nullable', 'string', 'max:255'],
-            'last_name' => ['nullable', 'string', 'max:255'],
-            'phone' => ['required', 'string', 'min:10', 'max:30'],
-            'whatsapp' => ['nullable', 'string', 'max:30'],
-            'postcode' => ['nullable', 'string', 'max:20'],
-            'city' => ['nullable', 'string', 'max:100'],
-            'country' => ['nullable', 'string', 'max:100'],
-            'preferred_branch_id' => ['nullable', 'integer', 'exists:branches,id'],
-            'dob' => ['nullable', 'date'],
-            'nationality' => ['nullable', 'string', 'max:100'],
-            'address' => ['nullable', 'string', 'max:500'],
-            'license_number' => ['nullable', 'string', 'max:50'],
-            'license_issuance_authority' => ['nullable', 'string', 'max:100'],
-            'license_issuance_date' => ['nullable', 'date'],
-            'license_expiry_date' => ['nullable', 'date'],
-            'emergency_contact_name' => ['nullable', 'string', 'max:255'],
-        ]);
-
-        if (! empty($payload['license_expiry_date']) && ! empty($payload['license_issuance_date'])
-            && (string) $payload['license_expiry_date'] <= (string) $payload['license_issuance_date']) {
-            return response()->json(['message' => 'Licence expiry date must be after licence issuance date.'], 422);
-        }
-
-        $profile->update([
-            'first_name' => $payload['first_name'] ?? $profile->first_name,
-            'last_name' => $payload['last_name'] ?? $profile->last_name,
-            'phone' => $payload['phone'],
-            'whatsapp' => $payload['whatsapp'] ?? '',
-            'postcode' => $payload['postcode'] ?? '',
-            'city' => $payload['city'] ?? '',
-            'country' => $payload['country'] ?? 'United Kingdom',
-            'preferred_branch_id' => $payload['preferred_branch_id'] ?? null,
-            'dob' => $payload['dob'] ?? $profile->dob,
-            'nationality' => $payload['nationality'] ?? '',
-            'address' => $payload['address'] ?? '',
-            'license_number' => $payload['license_number'] ?? '',
-            'license_issuance_authority' => $payload['license_issuance_authority'] ?? '',
-            'license_issuance_date' => $payload['license_issuance_date'] ?? null,
-            'license_expiry_date' => $payload['license_expiry_date'] ?? null,
-            'emergency_contact' => $payload['emergency_contact_name'] ?? '',
-        ]);
-
         return response()->json([
-            'message' => 'Profile updated.',
-            'data' => $this->mapProfile($profile->fresh()),
-        ]);
+            'message' => 'Your profile is read-only. Contact NGN if you need any details updated.',
+        ], 422);
     }
 
     public function changePassword(Request $request): JsonResponse
@@ -284,29 +239,13 @@ class MobilePortalAccountController extends Controller
         return $created;
     }
 
-    private function mapProfile(Customer $profile): array
+    private function mapProfile(Customer $profile, ?CustomerAuth $actor = null): array
     {
-        $ec = $profile->emergency_contact;
-        $emergencyContact = is_array($ec) ? ($ec['name'] ?? '') : (string) $ec;
-
         return [
-            'id' => $profile->id,
-            'first_name' => (string) ($profile->first_name ?? ''),
-            'last_name' => (string) ($profile->last_name ?? ''),
+            'full_name' => trim(($profile->first_name ?? '').' '.($profile->last_name ?? '')),
+            'email' => (string) ($actor?->email ?? $profile->email ?? ''),
             'phone' => (string) ($profile->phone ?? ''),
             'whatsapp' => (string) ($profile->whatsapp ?? ''),
-            'postcode' => (string) ($profile->postcode ?? ''),
-            'city' => (string) ($profile->city ?? ''),
-            'country' => (string) ($profile->country ?? 'United Kingdom'),
-            'preferred_branch_id' => $profile->preferred_branch_id,
-            'dob' => $profile->dob ? $profile->dob->format('Y-m-d') : null,
-            'nationality' => (string) ($profile->nationality ?? ''),
-            'address' => (string) ($profile->address ?? ''),
-            'license_number' => (string) ($profile->license_number ?? ''),
-            'license_issuance_authority' => (string) ($profile->license_issuance_authority ?? ''),
-            'license_issuance_date' => $profile->license_issuance_date ? $profile->license_issuance_date->format('Y-m-d') : null,
-            'license_expiry_date' => $profile->license_expiry_date ? $profile->license_expiry_date->format('Y-m-d') : null,
-            'emergency_contact_name' => $emergencyContact,
         ];
     }
 

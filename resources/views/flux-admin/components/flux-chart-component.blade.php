@@ -17,7 +17,9 @@
     x-init="render()"
     class="border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
 >
-    <canvas id="{{ $canvasId }}" style="height: {{ $height }}; width: 100%;"></canvas>
+    <div class="relative w-full" style="height: {{ $height }};">
+        <canvas id="{{ $canvasId }}"></canvas>
+    </div>
 </div>
 
 @once

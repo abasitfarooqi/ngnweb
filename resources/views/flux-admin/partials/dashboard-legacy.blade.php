@@ -104,16 +104,32 @@
         </div>
     @endif
 
-    @if(!empty($legacy['fleet_chart']['labels']))
-        <div class="mb-6">
-            <h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">In-house motorbikes</h3>
-            <x-flux-admin::flux-chart-component
-                canvas-id="flux-fleet-pie-chart"
-                type="pie"
-                :labels="$legacy['fleet_chart']['labels']"
-                :datasets="$legacy['fleet_chart']['datasets']"
-                height="280px"
-            />
+    @if(!empty($legacy['fleet_chart']['labels']) || !empty($legacy['fleet_chart_values']))
+        <div class="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2">
+            @if(!empty($legacy['fleet_chart']['labels']))
+                <div>
+                    <h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">In-house motorbikes</h3>
+                    <x-flux-admin::flux-chart-component
+                        canvas-id="flux-fleet-pie-chart"
+                        type="pie"
+                        :labels="$legacy['fleet_chart']['labels']"
+                        :datasets="$legacy['fleet_chart']['datasets']"
+                        height="240px"
+                    />
+                </div>
+            @endif
+            @if(!empty($legacy['fleet_chart_values']))
+                <div>
+                    <h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Fleet availability</h3>
+                    <x-flux-admin::flux-chart-component
+                        canvas-id="flux-fleet-bar-chart"
+                        type="bar"
+                        :labels="['For rent', 'Rented', 'For sale', 'Sold', 'Repairs', 'Cat B', 'Claim', 'Impounded', 'Accident', 'Missing', 'Stolen']"
+                        :datasets="[[ 'label' => 'NGN motorcycle fleet', 'data' => $legacy['fleet_chart_values'], 'borderWidth' => 1 ]]"
+                        height="240px"
+                    />
+                </div>
+            @endif
         </div>
     @endif
 
@@ -142,19 +158,6 @@
             </table>
         </div>
     </div>
-
-    @if(!empty($legacy['fleet_chart_values']))
-        <div class="mb-6">
-            <h3 class="mb-3 text-sm font-semibold text-zinc-900 dark:text-white">Fleet availability</h3>
-            <x-flux-admin::flux-chart-component
-                canvas-id="flux-fleet-bar-chart"
-                type="bar"
-                :labels="['For rent', 'Rented', 'For sale', 'Sold', 'Repairs', 'Cat B', 'Claim', 'Impounded', 'Accident', 'Missing', 'Stolen']"
-                :datasets="[[ 'label' => 'NGN motorcycle fleet', 'data' => $legacy['fleet_chart_values'], 'borderWidth' => 1 ]]"
-                height="260px"
-            />
-        </div>
-    @endif
 
     @php($fleet = $legacy['fleet_counts'] ?? [])
     <div class="mb-6 flux-admin-table-panel border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">

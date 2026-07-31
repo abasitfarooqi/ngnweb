@@ -1,7 +1,7 @@
 <div class="space-y-6 max-w-3xl">
     <flux:heading size="xl">Payment Methods</flux:heading>
     <p class="text-sm text-gray-500 dark:text-gray-400">
-        We currently accept the following payment methods. All payments are processed securely.
+        We accept the following payment methods in store and online where shown at checkout. This page is for information only.
     </p>
 
     @if($methods->isEmpty())
@@ -12,10 +12,16 @@
     @else
         <x-site.form-grid :cols="2">
             @foreach($methods as $method)
+                @php
+                    $logo = trim((string) ($method->logo ?? ''));
+                    $hasLogo = $logo !== '' && $logo !== '-';
+                    $instructions = trim((string) ($method->instructions ?? ''));
+                    $hasInstructions = $instructions !== '' && $instructions !== '-';
+                @endphp
                 <flux:card class="p-5">
                     <div class="flex items-start gap-4">
-                        @if($method->logo)
-                            <img src="{{ $method->logo }}" alt="{{ $method->title }}" class="h-10 w-auto object-contain flex-shrink-0">
+                        @if($hasLogo)
+                            <img src="{{ $logo }}" alt="{{ $method->title }}" class="h-10 w-auto object-contain flex-shrink-0">
                         @else
                             <div class="w-10 h-10 bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
                                 <flux:icon name="credit-card" class="h-5 w-5 text-gray-400" />
@@ -23,14 +29,8 @@
                         @endif
                         <div>
                             <p class="font-semibold text-gray-900 dark:text-white">{{ $method->title }}</p>
-                            @if($method->instructions)
-                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $method->instructions }}</p>
-                            @endif
-                            @if($method->link_url)
-                                <a href="{{ $method->link_url }}" target="_blank"
-                                   class="text-xs text-brand-red hover:underline mt-1 inline-block">
-                                    Learn more →
-                                </a>
+                            @if($hasInstructions)
+                                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">{{ $instructions }}</p>
                             @endif
                         </div>
                     </div>

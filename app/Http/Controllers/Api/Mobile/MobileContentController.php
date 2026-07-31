@@ -108,7 +108,6 @@ class MobileContentController extends Controller
                 ['key' => 'conversations', 'label' => 'Conversations', 'route' => '/account/support'],
                 ['key' => 'addresses', 'label' => 'Addresses', 'route' => '/account/addresses'],
                 ['key' => 'payment_methods', 'label' => 'Payment methods', 'route' => '/account/payment-methods'],
-                ['key' => 'recurring_payments', 'label' => 'Recurring payments', 'route' => '/account/payments/recurring'],
                 ['key' => 'ngn_club', 'label' => 'NGN club', 'route' => '/account/club'],
                 ['key' => 'security', 'label' => 'Security', 'route' => '/account/security'],
             ],

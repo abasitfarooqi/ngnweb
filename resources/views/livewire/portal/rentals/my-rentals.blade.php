@@ -5,9 +5,6 @@
             <a href="{{ route('account.documents', ['tab' => 'rental']) }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-brand-red hover:text-brand-red">
                 View Documents
             </a>
-            <a href="{{ route('account.payments.recurring') }}" class="inline-flex items-center px-3 py-2 text-xs font-semibold uppercase tracking-wider border border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:border-brand-red hover:text-brand-red">
-                View Recurring Payments
-            </a>
         </div>
     </div>
 

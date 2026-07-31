@@ -8,6 +8,7 @@ use App\Models\ClubMemberPurchase;
 use App\Services\Club\ClubMemberDashboardData;
 use App\Services\Club\ClubMemberRegistrationService;
 use App\Services\Club\ClubReferralSubmissionService;
+use App\Support\UkMobilePhone;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -41,14 +42,16 @@ class MobileClubController extends Controller
     {
         $payload = $request->validate([
             'full_name' => ['required', 'string', 'min:2', 'max:100'],
-            'email' => ['required', 'email', 'max:191'],
-            'phone' => ['required', 'string', 'min:10', 'max:15'],
-            'vrm' => ['nullable', 'string', 'max:10'],
-            'make' => ['nullable', 'string', 'max:50'],
-            'model' => ['nullable', 'string', 'max:50'],
-            'year' => ['nullable', 'digits:4'],
+            'email' => ['required', 'email', 'max:191', 'unique:club_members,email'],
+            'phone' => UkMobilePhone::clubRegistrationRules(),
+            'vrm' => ['nullable', 'string', 'max:12'],
+            'make' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\s-]*$/'],
+            'model' => ['nullable', 'string', 'max:50', 'regex:/^[A-Za-z0-9\/\s-]*$/'],
+            'year' => ['nullable', 'digits:4', 'integer', 'min:1960', 'max:'.date('Y')],
             'tc_agreed' => ['accepted'],
-        ]);
+        ], UkMobilePhone::validationMessages());
+
+        $payload['phone'] = UkMobilePhone::normalize($payload['phone']);
 
         $result = $registration->register([
             'full_name' => $payload['full_name'],

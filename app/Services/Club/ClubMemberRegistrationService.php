@@ -6,6 +6,7 @@ use App\Http\Controllers\SMSController;
 use App\Mail\NewSubscriberNotification;
 use App\Models\ClubMember;
 use App\Models\Customer;
+use App\Support\UkMobilePhone;
 use Illuminate\Support\Facades\Mail;
 
 /**
@@ -36,7 +37,16 @@ class ClubMemberRegistrationService
     public function register(array $input): array
     {
         $email = $this->normaliseEmail((string) ($input['email'] ?? ''));
-        $phone = $this->normalisePhone((string) ($input['phone'] ?? ''));
+        $phone = UkMobilePhone::normalize((string) ($input['phone'] ?? ''));
+
+        if ($phone === '' || ! UkMobilePhone::isValidMobile($phone)) {
+            return [
+                'ok' => false,
+                'errors' => [
+                    'phone' => 'Please enter a valid UK mobile number starting with 07 (not 02). Symbols and +44 are not allowed.',
+                ],
+            ];
+        }
 
         $byEmail = ClubMember::query()
             ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
@@ -45,24 +55,18 @@ class ClubMemberRegistrationService
             ->where('phone', $phone)
             ->first();
 
-        $existing = null;
         $errors = [];
 
         if ($byEmail && $byPhone && (int) $byEmail->id !== (int) $byPhone->id) {
-            $errors['email'] = 'Email already existed.';
-            $errors['phone'] = 'This number already registered.';
+            $errors['email'] = 'This email is already in use.';
+            $errors['phone'] = 'You already have an account with this number. Please log in.';
         } elseif ($byEmail) {
-            if ($this->normalisePhone((string) $byEmail->phone) === $phone) {
-                $existing = $byEmail;
-            } else {
-                $errors['email'] = 'Email already existed.';
-            }
+            $errors[$this->normalisePhone((string) $byEmail->phone) === $phone ? 'phone' : 'email']
+                = $this->normalisePhone((string) $byEmail->phone) === $phone
+                ? 'You already have an account with this number. Please log in.'
+                : 'This email is already in use.';
         } elseif ($byPhone) {
-            if ($this->normaliseEmail((string) $byPhone->email) === $email) {
-                $existing = $byPhone;
-            } else {
-                $errors['phone'] = 'This number already registered.';
-            }
+            $errors['phone'] = 'You already have an account with this number. Please log in.';
         }
 
         if ($errors !== []) {
@@ -73,7 +77,7 @@ class ClubMemberRegistrationService
             ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
             ->first();
         $customerByPhone = Customer::query()
-            ->whereRaw("REPLACE(REPLACE(phone, ' ', ''), '+44', '0') = ?", [$phone])
+            ->where('phone', $phone)
             ->first();
 
         if ($customerByEmail && $customerByPhone && (int) $customerByEmail->id !== (int) $customerByPhone->id) {
@@ -87,36 +91,23 @@ class ClubMemberRegistrationService
 
         $customer = $customerByEmail ?: $customerByPhone;
 
-        if ($existing && $customer && $existing->customer_id
-            && (int) $existing->customer_id !== (int) $customer->id) {
-            return [
-                'ok' => false,
-                'errors' => [
-                    'email' => 'This club account is already linked to a different customer record.',
-                ],
-            ];
-        }
-
         $passkey = (string) random_int(100000, 999999);
 
-        $clubMember = ClubMember::query()->updateOrCreate(
-            ['id' => $existing?->id],
-            [
-                'full_name' => trim((string) ($input['full_name'] ?? '')),
-                'email' => $email,
-                'phone' => $phone,
-                'make' => $this->nullableString($input['make'] ?? null),
-                'model' => $this->nullableString($input['model'] ?? null),
-                'year' => $this->nullableString($input['year'] ?? null),
-                'vrm' => isset($input['vrm']) && trim((string) $input['vrm']) !== ''
-                    ? strtoupper(trim((string) $input['vrm']))
-                    : null,
-                'tc_agreed' => true,
-                'is_active' => true,
-                'passkey' => $passkey,
-                'customer_id' => $customer?->id ?? $existing?->customer_id,
-            ]
-        );
+        $clubMember = ClubMember::query()->create([
+            'full_name' => trim((string) ($input['full_name'] ?? '')),
+            'email' => $email,
+            'phone' => $phone,
+            'make' => $this->nullableString($input['make'] ?? null),
+            'model' => $this->nullableString($input['model'] ?? null),
+            'year' => $this->nullableString($input['year'] ?? null),
+            'vrm' => isset($input['vrm']) && trim((string) $input['vrm']) !== ''
+                ? strtoupper(trim((string) $input['vrm']))
+                : null,
+            'tc_agreed' => true,
+            'is_active' => true,
+            'passkey' => $passkey,
+            'customer_id' => $customer?->id,
+        ]);
 
         $linkedCustomer = false;
         if ($customer) {
@@ -131,7 +122,7 @@ class ClubMemberRegistrationService
         return [
             'ok' => true,
             'member' => $clubMember->fresh(),
-            'was_existing' => (bool) $existing,
+            'was_existing' => false,
             'linked_customer' => $linkedCustomer,
         ];
     }
@@ -143,9 +134,7 @@ class ClubMemberRegistrationService
 
     public function normalisePhone(string $phone): string
     {
-        $normalised = preg_replace('/\s+/', '', trim($phone)) ?? '';
-
-        return (string) preg_replace('/^\+44/', '0', $normalised);
+        return UkMobilePhone::normalize($phone);
     }
 
     /**

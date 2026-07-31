@@ -43,6 +43,24 @@
                     <flux:input type="datetime-local" wire:model="form.expire_at" />
                 </x-flux-admin::field-group>
             </div>
+
+            @if($recordId && ! empty($form['customer_id']) && ! empty($form['booking_id']) && ! empty($form['passcode']))
+                @php
+                    $customerLink = route('rental.termination.show', [
+                        'customer_id' => $form['customer_id'],
+                        'booking_id' => $form['booking_id'],
+                        'passcode' => $form['passcode'],
+                    ]);
+                @endphp
+                <div class="mt-4">
+                    <x-flux-admin::field-group label="Customer booking link">
+                        <flux:input readonly value="{{ $customerLink }}" />
+                        <p class="mt-2 text-xs">
+                            <a href="{{ $customerLink }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">Open link ↗</a>
+                        </p>
+                    </x-flux-admin::field-group>
+                </div>
+            @endif
         </div>
 
         <div class="flex justify-end gap-3 pt-2">

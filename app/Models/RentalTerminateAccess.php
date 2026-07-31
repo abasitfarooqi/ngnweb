@@ -32,4 +32,13 @@ class RentalTerminateAccess extends Model
     {
         return $this->belongsTo(RentingBooking::class, 'booking_id', 'id');
     }
+
+    public function customerBookingUrl(): string
+    {
+        return route('rental.termination.show', [
+            'customer_id' => $this->customer_id,
+            'booking_id' => $this->booking_id,
+            'passcode' => $this->passcode,
+        ]);
+    }
 }

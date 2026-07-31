@@ -44,9 +44,9 @@
                     </flux:field>
                     <flux:field>
                         <flux:label>Phone Number *</flux:label>
-                        <flux:input wire:model="phone" type="tel" placeholder="07700 900 123" autocomplete="tel" />
+                        <flux:input wire:model.live="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="07123456789" autocomplete="tel" />
                         <flux:error name="phone" />
-                        <flux:description>We'll send your passkey here via SMS</flux:description>
+                        <flux:description>UK mobile only — 11 digits starting with 07. Typing 44… converts to 07… automatically. No + or symbols.</flux:description>
                     </flux:field>
                 </x-site.form-grid>
 
@@ -57,22 +57,24 @@
 
                     <flux:field class="site-form-field-plate mb-4">
                         <flux:label>Registration Number</flux:label>
-                        <flux:input wire:model="vrm" placeholder="AB12 CDE" class="uppercase tracking-widest text-base" />
+                        <flux:input wire:model.live="vrm" placeholder="AB12CDE" maxlength="12" class="uppercase tracking-widest text-base" />
                         <flux:error name="vrm" />
                     </flux:field>
 
                     <x-site.form-grid :cols="3" :compact="true">
                         <flux:field>
                             <flux:label>Make</flux:label>
-                            <flux:input wire:model="make" placeholder="Honda" />
+                            <flux:input wire:model.live="make" placeholder="Honda" maxlength="50" />
+                            <flux:error name="make" />
                         </flux:field>
                         <flux:field>
                             <flux:label>Model</flux:label>
-                            <flux:input wire:model="model" placeholder="PCX 125" />
+                            <flux:input wire:model.live="model" placeholder="PCX 125" maxlength="50" />
+                            <flux:error name="model" />
                         </flux:field>
                         <flux:field>
                             <flux:label>Year</flux:label>
-                            <flux:input wire:model="year" placeholder="2022" maxlength="4" />
+                            <flux:input wire:model.live="year" placeholder="2022" maxlength="4" inputmode="numeric" />
                             <flux:error name="year" />
                         </flux:field>
                     </x-site.form-grid>

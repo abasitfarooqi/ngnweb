@@ -46,8 +46,9 @@
             </flux:field>
             <flux:field>
                 <flux:label>Phone *</flux:label>
-                <flux:input wire:model="phone" type="tel" />
+                <flux:input wire:model.live="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="07123456789" />
                 <flux:error name="phone" />
+                <flux:description>UK mobile — 11 digits starting with 07. Typing 44… converts to 07… automatically.</flux:description>
             </flux:field>
             <flux:field>
                 <flux:label>Cover Letter / Message *</flux:label>

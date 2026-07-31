@@ -26,7 +26,7 @@
             <form wire:submit="login" class="site-form site-form-stack">
                 <flux:field>
                     <flux:label>Phone Number</flux:label>
-                    <flux:input wire:model="phone" type="tel" placeholder="07700 900 123" autocomplete="tel" />
+                    <flux:input wire:model.live="phone" type="tel" inputmode="numeric" maxlength="11" placeholder="07123456789" autocomplete="tel" />
                     <flux:error name="phone" />
                 </flux:field>
 
