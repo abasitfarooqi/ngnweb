@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\FluxAdmin\RentalServiceVideoUploadController;
 use App\Livewire\FluxAdmin\Pages\Branches\BranchIndex;
 use App\Livewire\FluxAdmin\Pages\Branches\BranchShow;
 use App\Livewire\FluxAdmin\Pages\Club\ClubForm;
@@ -363,6 +364,7 @@ Route::get('/customers/{customer}', CustomerShow::class)->name('flux-admin.custo
 
 Route::get('/rentals', RentalIndex::class)->name('flux-admin.rentals.index');
 Route::get('/rentals/{booking}', RentalShow::class)->name('flux-admin.rentals.show');
+Route::post('/rentals/{booking}/service-videos', [RentalServiceVideoUploadController::class, 'store'])->name('flux-admin.rentals.service-videos.store');
 
 Route::get('/finance/create', FinanceForm::class)->name('flux-admin.finance.create');
 Route::get('/finance/{application}/edit', FinanceForm::class)->name('flux-admin.finance.edit');

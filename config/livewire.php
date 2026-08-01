@@ -65,7 +65,7 @@ return [
 
     'temporary_file_upload' => [
         'disk' => env('LIVEWIRE_TEMP_DISK', 'local'),
-        'rules' => ['file', 'max:51200'], // 50MB — sale listing photos + short video
+        'rules' => ['file', 'max:512000'], // 500MB — matches service video validation.
         'directory' => env('LIVEWIRE_TEMP_DIRECTORY', 'livewire-tmp'),
         'middleware' => 'web',
         'preview_mimes' => [   // Supported file types for temporary pre-signed file URLs...

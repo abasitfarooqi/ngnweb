@@ -13,13 +13,10 @@ use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 #[Lazy]
 class IssuanceTab extends Component
 {
-    use WithFileUploads;
-
     public int $bookingId;
 
     public string $issuanceNotes = '';
@@ -28,8 +25,6 @@ class IssuanceTab extends Component
     public bool $accessoriesChecked = false;
     public bool $isInsured = false;
     public string $issuanceBranch = '';
-
-    public $videoFile = null;
 
     public string $logDescription = '';
     public string $logCost = '';
@@ -181,34 +176,6 @@ class IssuanceTab extends Component
         $this->flashType = 'success';
         $this->resetForm();
         $this->dispatch('rental-updated');
-    }
-
-    public function uploadVideo(): void
-    {
-        $this->validate([
-            'videoFile' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:512000',
-        ]);
-
-        try {
-            $timestamp = now()->format('Ymd_His');
-            $extension = $this->videoFile->getClientOriginalExtension();
-            $fileName = $this->bookingId.'_'.$timestamp.'.'.$extension;
-            $storePath = $this->videoFile->storeAs('rental_service_videos', $fileName, 'public');
-
-            RentingServiceVideo::create([
-                'booking_id' => $this->bookingId,
-                'video_path' => $storePath,
-                'recorded_at' => now(),
-            ]);
-
-            $this->videoFile = null;
-            $this->isVideoRecorded = true;
-            $this->flashMessage = 'Service video uploaded.';
-            $this->flashType = 'success';
-        } catch (\Throwable $e) {
-            $this->flashMessage = 'Video upload failed: '.$e->getMessage();
-            $this->flashType = 'error';
-        }
     }
 
     public function addMaintenanceLog(): void

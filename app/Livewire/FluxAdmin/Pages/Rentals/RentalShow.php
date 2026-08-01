@@ -41,6 +41,11 @@ class RentalShow extends Component
             $this->flashType = 'success';
         }
 
+        if (session()->has('error')) {
+            $this->flashMessage = (string) session('error');
+            $this->flashType = 'error';
+        }
+
         if ($this->activeTab === 'restart' && $this->lifecycleStatus() === RentalBookingLifecycle::STATUS_ACTIVE) {
             $this->activeTab = 'items';
         }

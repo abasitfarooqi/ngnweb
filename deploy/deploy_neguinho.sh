@@ -12,6 +12,9 @@ CANONICAL_HOST="${CANONICAL_HOST:-ngnmotors.co.uk}"
 PHP_FPM_SERVICE="${PHP_FPM_SERVICE:-php8.3-fpm}"
 NGINX_SERVICE="${NGINX_SERVICE:-nginx}"
 SUPERVISOR_SERVICE="${SUPERVISOR_SERVICE:-supervisor}"
+UPLOAD_MAX_FILESIZE="${UPLOAD_MAX_FILESIZE:-512M}"
+POST_MAX_SIZE="${POST_MAX_SIZE:-550M}"
+NGINX_CLIENT_MAX_BODY_SIZE="${NGINX_CLIENT_MAX_BODY_SIZE:-550m}"
 
 KNOWN_BAD_NGINX_LINK="/etc/nginx/sites-enabled/ngnmotors.co.uk"
 
@@ -51,6 +54,33 @@ fix_known_nginx_issue() {
   else
     echo "Known bad Nginx symlink not present."
   fi
+}
+
+fix_upload_limits() {
+  log "FIX VIDEO UPLOAD LIMITS"
+
+  if [ -f /etc/nginx/nginx.conf ]; then
+    if grep -qE "^[[:space:]]*client_max_body_size[[:space:]]+" /etc/nginx/nginx.conf; then
+      sed -i "s#^[[:space:]]*client_max_body_size[[:space:]].*#    client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};#" /etc/nginx/nginx.conf
+    else
+      sed -i "/^[[:space:]]*http[[:space:]]*{/a \    client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};" /etc/nginx/nginx.conf
+    fi
+
+    echo "Nginx client_max_body_size set to ${NGINX_CLIENT_MAX_BODY_SIZE}."
+  fi
+
+  local php_conf_dir
+  for php_conf_dir in /etc/php/8.3/fpm/conf.d /etc/php/8.3/cli/conf.d; do
+    if [ -d "$php_conf_dir" ]; then
+      cat > "$php_conf_dir/99-ngn-upload.ini" <<EOF
+upload_max_filesize=${UPLOAD_MAX_FILESIZE}
+post_max_size=${POST_MAX_SIZE}
+max_input_time=600
+max_execution_time=600
+EOF
+      echo "PHP upload limits written to $php_conf_dir/99-ngn-upload.ini."
+    fi
+  done
 }
 
 safe_reload_nginx() {
@@ -272,6 +302,7 @@ echo "======================================"
 
 log "PRE-FLIGHT"
 fix_known_nginx_issue
+fix_upload_limits
 safe_reload_nginx
 
 log "BASE STRUCTURE"
