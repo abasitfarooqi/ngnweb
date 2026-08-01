@@ -75,7 +75,22 @@ class ServiceVideoIndex extends Component
     public function render()
     {
         $rows = RentingServiceVideo::query()
-            ->when($this->search, fn ($q, $v) => $q->where('booking_id', $v))
+            ->with(['rentingBooking.customer', 'rentingBooking.rentingBookingItems.motorbike'])
+            ->when($this->search, function ($q) {
+                $term = trim($this->search);
+                $q->where(function ($inner) use ($term) {
+                    if (ctype_digit($term)) {
+                        $inner->where('booking_id', (int) $term);
+                    }
+                    $inner->orWhereHas('rentingBooking.customer', function ($customerQuery) use ($term) {
+                        $customerQuery->where('first_name', 'like', "%{$term}%")
+                            ->orWhere('last_name', 'like', "%{$term}%")
+                            ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
+                    })->orWhereHas('rentingBooking.rentingBookingItems.motorbike', function ($bikeQuery) use ($term) {
+                        $bikeQuery->where('reg_no', 'like', "%{$term}%");
+                    });
+                });
+            })
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 

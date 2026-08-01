@@ -8,6 +8,8 @@ use App\Models\MotorbikeMaintenanceLog;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingServiceVideo;
+use Carbon\Carbon;
+use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -187,21 +189,26 @@ class IssuanceTab extends Component
             'videoFile' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:512000',
         ]);
 
-        $timestamp = now()->format('Ymd_His');
-        $extension = $this->videoFile->getClientOriginalExtension();
-        $fileName = $this->bookingId.'_'.$timestamp.'.'.$extension;
-        $storePath = $this->videoFile->storeAs('rental_service_videos', $fileName, 'public');
+        try {
+            $timestamp = now()->format('Ymd_His');
+            $extension = $this->videoFile->getClientOriginalExtension();
+            $fileName = $this->bookingId.'_'.$timestamp.'.'.$extension;
+            $storePath = $this->videoFile->storeAs('rental_service_videos', $fileName, 'public');
 
-        RentingServiceVideo::create([
-            'booking_id' => $this->bookingId,
-            'video_path' => $storePath,
-            'recorded_at' => now(),
-        ]);
+            RentingServiceVideo::create([
+                'booking_id' => $this->bookingId,
+                'video_path' => $storePath,
+                'recorded_at' => now(),
+            ]);
 
-        $this->videoFile = null;
-        $this->isVideoRecorded = true;
-        $this->flashMessage = 'Service video uploaded.';
-        $this->flashType = 'success';
+            $this->videoFile = null;
+            $this->isVideoRecorded = true;
+            $this->flashMessage = 'Service video uploaded.';
+            $this->flashType = 'success';
+        } catch (\Throwable $e) {
+            $this->flashMessage = 'Video upload failed: '.$e->getMessage();
+            $this->flashType = 'error';
+        }
     }
 
     public function addMaintenanceLog(): void
@@ -233,22 +240,27 @@ class IssuanceTab extends Component
             return;
         }
 
-        MotorbikeMaintenanceLog::create([
-            'motorbike_id' => $activeItem->motorbike_id,
-            'booking_id' => $this->bookingId,
-            'user_id' => $staffUserId,
-            'cost' => $this->logCost,
-            'serviced_at' => $this->logServicedAt,
-            'description' => $this->logDescription,
-            'note' => $this->logNote ?: null,
-        ]);
+        try {
+            MotorbikeMaintenanceLog::create([
+                'motorbike_id' => $activeItem->motorbike_id,
+                'booking_id' => $this->bookingId,
+                'user_id' => $staffUserId,
+                'cost' => $this->logCost,
+                'serviced_at' => $this->logServicedAt,
+                'description' => $this->logDescription,
+                'note' => $this->logNote ?: null,
+            ]);
 
-        $this->logDescription = '';
-        $this->logCost = '';
-        $this->logServicedAt = '';
-        $this->logNote = '';
-        $this->flashMessage = 'Maintenance log saved.';
-        $this->flashType = 'success';
+            $this->logDescription = '';
+            $this->logCost = '';
+            $this->logServicedAt = '';
+            $this->logNote = '';
+            $this->flashMessage = 'Maintenance log saved.';
+            $this->flashType = 'success';
+        } catch (\Throwable $e) {
+            $this->flashMessage = 'Maintenance log failed: '.$e->getMessage();
+            $this->flashType = 'error';
+        }
     }
 
     private function resetForm(): void
@@ -278,6 +290,23 @@ class IssuanceTab extends Component
         }
 
         return auth()->id();
+    }
+
+    public function formatMaintenanceDate(mixed $value): string
+    {
+        if ($value instanceof CarbonInterface) {
+            return $value->format('d M Y');
+        }
+
+        if ($value === null || $value === '') {
+            return '—';
+        }
+
+        try {
+            return Carbon::parse((string) $value)->format('d M Y');
+        } catch (\Throwable) {
+            return (string) $value;
+        }
     }
 
     public function render()

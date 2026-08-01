@@ -112,10 +112,16 @@
                         <input type="file" wire:model="videoFile" accept="video/*" class="text-sm" />
                         @error('videoFile') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                         <flux:button size="sm" class="mt-2 !rounded-none" wire:click="uploadVideo" wire:loading.attr="disabled">Upload video</flux:button>
+                        <p class="mt-2">
+                            <a href="{{ route('flux-admin.service-videos.create', ['booking_id' => $booking->id]) }}" class="text-xs text-blue-600 hover:underline dark:text-blue-400">Upload via service videos page ↗</a>
+                        </p>
                         @if($videos->isNotEmpty())
                             <ul class="mt-3 text-xs text-zinc-500 space-y-1">
                                 @foreach($videos as $video)
-                                    <li wire:key="vid-{{ $video->id }}">{{ basename($video->video_path) }} — {{ $video->recorded_at?->format('d M Y H:i') }}</li>
+                                    <li wire:key="vid-{{ $video->id }}">
+                                        <a href="{{ $video->video_url }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">{{ basename($video->video_path) }}</a>
+                                        — {{ $video->recorded_at ? \Carbon\Carbon::parse($video->recorded_at)->format('d M Y H:i') : '—' }}
+                                    </li>
                                 @endforeach
                             </ul>
                         @endif
@@ -137,7 +143,7 @@
                             @if($maintenanceLogs->isNotEmpty())
                                 <ul class="mt-3 text-xs text-zinc-500 space-y-1">
                                     @foreach($maintenanceLogs as $log)
-                                        <li wire:key="ml-{{ $log->id }}">{{ $log->serviced_at?->format('d M Y') }} — {{ $log->description }} (£{{ number_format((float) $log->cost, 2) }})</li>
+                                        <li wire:key="ml-{{ $log->id }}">{{ $this->formatMaintenanceDate($log->serviced_at) }} — {{ $log->description }} (£{{ number_format((float) $log->cost, 2) }})</li>
                                     @endforeach
                                 </ul>
                             @endif

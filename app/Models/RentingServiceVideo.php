@@ -19,6 +19,10 @@ class RentingServiceVideo extends Model
         'recorded_at',
     ];
 
+    protected $casts = [
+        'recorded_at' => 'datetime',
+    ];
+
     public function rentingBooking()
     {
         return $this->belongsTo(RentingBooking::class, 'booking_id');

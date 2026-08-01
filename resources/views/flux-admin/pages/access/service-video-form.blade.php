@@ -21,17 +21,58 @@
     <form wire:submit.prevent="save" class="space-y-6">
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Video details</h2>
-            <div class="flux-admin-form-grid grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <x-flux-admin::field-group label="Booking ID" required :error="$errors->first('form.booking_id')">
-                    <flux:input type="number" wire:model="form.booking_id" />
+
+            <div class="space-y-4">
+                <x-flux-admin::field-group label="Booking" required :error="$errors->first('form.booking_id')">
+                    <div class="space-y-2">
+                        <div class="flex gap-2">
+                            <flux:input
+                                wire:model.live.debounce.300ms="bookingSearch"
+                                placeholder="Search booking ID, customer name, or reg no…"
+                                class="flex-1"
+                            />
+                            @if($selectedBookingLabel)
+                                <flux:button type="button" size="sm" variant="ghost" wire:click="clearBooking" class="!rounded-none">Clear</flux:button>
+                            @endif
+                        </div>
+
+                        @if($bookingResults->isNotEmpty())
+                            <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 max-h-56 overflow-y-auto">
+                                @foreach($bookingResults as $booking)
+                                    <button
+                                        type="button"
+                                        wire:key="booking-option-{{ $booking->id }}"
+                                        wire:click="selectBooking({{ $booking->id }})"
+                                        class="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 last:border-b-0"
+                                    >
+                                        #{{ $booking->id }}
+                                        · {{ trim(($booking->customer->first_name ?? '').' '.($booking->customer->last_name ?? '')) ?: 'Unknown' }}
+                                        · {{ $booking->rentingBookingItems->first()?->motorbike?->reg_no ?? '—' }}
+                                        · {{ $booking->start_date?->format('d M Y H:i') ?? '—' }}
+                                    </button>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        @if($selectedBookingLabel)
+                            <p class="text-xs text-emerald-700 dark:text-emerald-300">Selected: {{ $selectedBookingLabel }}</p>
+                        @endif
+                    </div>
                 </x-flux-admin::field-group>
-                <x-flux-admin::field-group label="Recorded at" :error="$errors->first('form.recorded_at')">
-                    <flux:input type="date" wire:model="form.recorded_at" />
+
+                <x-flux-admin::field-group label="Recorded at" required :error="$errors->first('form.recorded_at')">
+                    <flux:input type="datetime-local" wire:model="form.recorded_at" />
                 </x-flux-admin::field-group>
-            </div>
-            <div class="mt-4">
-                <x-flux-admin::field-group label="Video path / URL" :error="$errors->first('form.video_path')">
-                    <flux:input wire:model="form.video_path" placeholder="e.g. /storage/videos/file.mp4" />
+
+                <x-flux-admin::field-group label="Video file" :required="! ($serviceVideo && $serviceVideo->exists)" :error="$errors->first('videoFile')">
+                    <input type="file" wire:model="videoFile" accept="video/*" class="text-sm" />
+                    @if($serviceVideo && $serviceVideo->exists && $serviceVideo->video_path)
+                        <p class="mt-2 text-xs text-zinc-500">
+                            Current:
+                            <a href="{{ $serviceVideo->video_url }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">Open video ↗</a>
+                        </p>
+                    @endif
+                    <p class="mt-1 text-xs text-zinc-500">MP4, MOV, AVI, WMV, or MKV. Max 500 MB.</p>
                 </x-flux-admin::field-group>
             </div>
         </div>
