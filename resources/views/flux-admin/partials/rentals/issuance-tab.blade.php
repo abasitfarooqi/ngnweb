@@ -109,9 +109,48 @@
                 <div class="mb-5 border border-zinc-200 dark:border-zinc-700 p-4 space-y-5">
                     <div>
                         <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-2">Service video</h4>
-                        <input type="file" wire:model="videoFile" accept="video/*" class="text-sm" />
+                        <div class="max-w-full space-y-2">
+                            <label
+                                for="issuance-video-file-{{ $booking->id }}"
+                                class="inline-flex max-w-full cursor-pointer items-center border border-emerald-500 bg-white px-3 py-2 text-sm font-medium text-zinc-900 hover:bg-emerald-50 dark:bg-zinc-900 dark:text-white dark:hover:bg-emerald-900/20"
+                            >
+                                <span class="truncate">Choose video file</span>
+                            </label>
+                            <input
+                                id="issuance-video-file-{{ $booking->id }}"
+                                type="file"
+                                wire:model="videoFile"
+                                accept="video/*"
+                                class="sr-only"
+                            />
+
+                            <div class="min-h-5 max-w-full text-xs text-zinc-500 dark:text-zinc-400">
+                                <p wire:loading wire:target="videoFile" class="text-amber-600 dark:text-amber-400">
+                                    Preparing upload...
+                                </p>
+                                @if($videoFile)
+                                    <p wire:loading.remove wire:target="videoFile" class="max-w-full truncate">
+                                        {{ $videoFile->getClientOriginalName() }}
+                                    </p>
+                                @else
+                                    <p wire:loading.remove wire:target="videoFile">
+                                        No video selected.
+                                    </p>
+                                @endif
+                            </div>
+                        </div>
                         @error('videoFile') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                        <flux:button size="sm" class="mt-2 !rounded-none" wire:click="uploadVideo" wire:loading.attr="disabled">Upload video</flux:button>
+                        <flux:button
+                            size="sm"
+                            class="mt-2 !rounded-none"
+                            wire:click="uploadVideo"
+                            wire:loading.attr="disabled"
+                            wire:target="videoFile,uploadVideo"
+                            :disabled="! $videoFile"
+                        >
+                            <span wire:loading.remove wire:target="uploadVideo">Upload video</span>
+                            <span wire:loading wire:target="uploadVideo">Uploading...</span>
+                        </flux:button>
                         <p class="mt-2">
                             <a href="{{ route('flux-admin.service-videos.create', ['booking_id' => $booking->id]) }}" class="text-xs text-blue-600 hover:underline dark:text-blue-400">Upload via service videos page ↗</a>
                         </p>
