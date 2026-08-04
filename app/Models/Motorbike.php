@@ -72,6 +72,7 @@ class Motorbike extends Model
     protected $casts = [
         'marked_for_export' => 'integer',
         'ngn_vehicle' => 'boolean',
+        'is_ebike' => 'boolean',
     ];
 
     protected $hidden = ['deleted_at'];
