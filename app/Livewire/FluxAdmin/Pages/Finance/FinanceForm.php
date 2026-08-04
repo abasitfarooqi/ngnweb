@@ -55,7 +55,7 @@ class FinanceForm extends Component
             $attrs['contract_type'] = $this->resolveContractType($application);
             $attrs['insurance_pcn'] = true;
             $attrs['no_email'] = true;
-            $this->form = $attrs;
+            $this->form = $this->normalizeFormBooleans($attrs);
             $this->customerSearch = $application->customer
                 ? $application->customer->first_name . ' ' . $application->customer->last_name
                 : '';
@@ -326,6 +326,32 @@ class FinanceForm extends Component
             (bool) $application->is_used_latest => 'is_used_latest',
             default => '',
         };
+    }
+
+    /** @param  array<string, mixed>  $attrs */
+    protected function normalizeFormBooleans(array $attrs): array
+    {
+        foreach ([
+            'is_new',
+            'is_used',
+            'is_used_extended',
+            'is_used_extended_custom',
+            'is_new_latest',
+            'is_used_latest',
+            'is_subscription',
+            'is_monthly',
+            'is_posted',
+            'is_cancelled',
+            'log_book_sent',
+            'insurance_pcn',
+            'no_email',
+        ] as $field) {
+            if (array_key_exists($field, $attrs)) {
+                $attrs[$field] = (bool) $attrs[$field];
+            }
+        }
+
+        return $attrs;
     }
 
     protected function formRules(): array
