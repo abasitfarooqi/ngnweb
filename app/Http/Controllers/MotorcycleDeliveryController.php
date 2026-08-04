@@ -144,8 +144,15 @@ class MotorcycleDeliveryController extends Controller
         // Update last request time
         cache()->put($rateLimitKey, microtime(true), 60);
 
-        $apiKey = env('GEOAPIFY_API_KEY');
-        $url = env('GEOAPIFY_API_URL').'geocode/search?text='.urlencode($postcode).'&apiKey='.$apiKey;
+        $apiKey = config('services.geoapify.key');
+        $baseUrl = rtrim((string) config('services.geoapify.url'), '/');
+        if (! $apiKey || $baseUrl === '') {
+            Log::error('Geoapify configuration missing for delivery geocode lookup.');
+
+            return null;
+        }
+
+        $url = $baseUrl.'/geocode/search?text='.urlencode($postcode).'&apiKey='.$apiKey;
 
         $response = file_get_contents($url);
         $data = json_decode($response, true);
@@ -182,7 +189,14 @@ class MotorcycleDeliveryController extends Controller
             return null; // or return a structured error array, e.g. ['error' => 'invalid_coordinates']
         }
     
-        $apiKey = env('GEOAPIFY_API_KEY');
+        $apiKey = config('services.geoapify.key');
+        $baseUrl = rtrim((string) config('services.geoapify.url'), '/');
+        if (! $apiKey || $baseUrl === '') {
+            \Log::error('Geoapify configuration missing for delivery route lookup.');
+
+            return null;
+        }
+
         $cacheKey = 'distance_' . md5($from_coords['lat'] . $from_coords['lon'] . $to_coords['lat'] . $to_coords['lon']);
         $cachedDistance = cache()->get($cacheKey);
     
@@ -206,7 +220,7 @@ class MotorcycleDeliveryController extends Controller
 
         cache()->put($rateLimitKey, microtime(true), 60);
 
-        $url = env('GEOAPIFY_API_URL').'routing?waypoints='.$from_coords['lat'].','.$from_coords['lon'].'|'.$to_coords['lat'].','.$to_coords['lon'].'&mode=drive&apiKey='.$apiKey;
+        $url = $baseUrl.'/routing?waypoints='.$from_coords['lat'].','.$from_coords['lon'].'|'.$to_coords['lat'].','.$to_coords['lon'].'&mode=drive&apiKey='.$apiKey;
 
         $response = file_get_contents($url);
 

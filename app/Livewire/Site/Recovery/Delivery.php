@@ -280,8 +280,9 @@ class Delivery extends Component
             return $cached;
         }
 
-        $apiKey = env('GEOAPIFY_API_KEY');
-        if (! $apiKey) {
+        $apiKey = config('services.geoapify.key');
+        $baseUrl = rtrim((string) config('services.geoapify.url'), '/');
+        if (! $apiKey || $baseUrl === '') {
             return null;
         }
 
@@ -296,7 +297,7 @@ class Delivery extends Component
         }
         cache()->put($rateLimitKey, microtime(true), 60);
 
-        $url = rtrim((string) env('GEOAPIFY_API_URL'), '/').'/geocode/search?text='.urlencode($postcode).'&apiKey='.$apiKey;
+        $url = $baseUrl.'/geocode/search?text='.urlencode($postcode).'&apiKey='.$apiKey;
         $response = @file_get_contents($url);
         if (! is_string($response)) {
             return null;
@@ -331,8 +332,9 @@ class Delivery extends Component
             return null;
         }
 
-        $apiKey = env('GEOAPIFY_API_KEY');
-        if (! $apiKey) {
+        $apiKey = config('services.geoapify.key');
+        $baseUrl = rtrim((string) config('services.geoapify.url'), '/');
+        if (! $apiKey || $baseUrl === '') {
             return null;
         }
 
@@ -353,7 +355,7 @@ class Delivery extends Component
         }
         cache()->put($rateLimitKey, microtime(true), 60);
 
-        $url = rtrim((string) env('GEOAPIFY_API_URL'), '/').'/routing?waypoints='.$fromCoords['lat'].','.$fromCoords['lon'].'|'.$toCoords['lat'].','.$toCoords['lon'].'&mode=drive&apiKey='.$apiKey;
+        $url = $baseUrl.'/routing?waypoints='.$fromCoords['lat'].','.$fromCoords['lon'].'|'.$toCoords['lat'].','.$toCoords['lon'].'&mode=drive&apiKey='.$apiKey;
         $response = @file_get_contents($url);
         if (! is_string($response)) {
             return null;
