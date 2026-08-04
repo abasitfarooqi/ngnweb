@@ -55,8 +55,8 @@
                 <flux:label>Contract Type <span class="text-red-500">*</span></flux:label>
                 <div class="mt-1 grid grid-cols-1 gap-2 sm:grid-cols-2">
                     @foreach([
-                        'is_new_latest'  => 'New Latest (sale contract)',
-                        'is_used_latest' => 'Used Latest (sale + subscription)',
+                        'is_new_latest'  => 'New Latest (New sale contract)',
+                        'is_used_latest' => 'Used Latest (Used sale contract)',
                     ] as $key => $label)
                         <label @class([
                             'flux-admin-choice flex cursor-pointer items-center gap-2 border px-3 py-2 text-sm',
