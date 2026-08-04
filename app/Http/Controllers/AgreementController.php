@@ -537,6 +537,7 @@ class AgreementController extends Controller
             'customer' => $Customer,
             'motorbike' => $Motorbike,
             'bookingItem' => $BookingItems,
+            'subs_payment_date' => $Booking->subs_payment_date,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
@@ -679,6 +680,7 @@ class AgreementController extends Controller
             'customer' => $Customer,
             'motorbike' => $Motorbike,
             'bookingItem' => $BookingItems,
+            'subs_payment_date' => $Booking->subs_payment_date,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
@@ -821,6 +823,7 @@ class AgreementController extends Controller
             'customer' => $Customer,
             'motorbike' => $Motorbike,
             'bookingItem' => $BookingItems,
+            'subs_payment_date' => $Booking->subs_payment_date,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
@@ -991,6 +994,7 @@ class AgreementController extends Controller
             'customer' => $Customer,
             'motorbike' => $Motorbike,
             'bookingItem' => $BookingItems,
+            'subs_payment_date' => $Booking->subs_payment_date,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
@@ -1290,6 +1294,7 @@ class AgreementController extends Controller
             'customer' => $Customer,
             'motorbike' => $Motorbike,
             'bookingItem' => $BookingItems,
+            'subs_payment_date' => $Booking->subs_payment_date,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $saleAgreement->document_number,
         ])->setPaper('a4', 'portrait')
@@ -1477,6 +1482,7 @@ class AgreementController extends Controller
             'customer' => $Customer,
             'motorbike' => $Motorbike,
             'bookingItem' => $BookingItems,
+            'subs_payment_date' => $Booking->subs_payment_date,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $saleAgreement->document_number,
         ])->setPaper('a4', 'portrait')

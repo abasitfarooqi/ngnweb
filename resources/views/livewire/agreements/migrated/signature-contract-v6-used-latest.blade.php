@@ -341,6 +341,7 @@ label a{
                     <li class="list-group-item">PAID: £{{ $booking->deposit }}</li>
                     <!-- <li class="list-group-item">{{ $booking->is_monthly ? 'MONTHLY' : 'WEEKLY' }}: £{{ $booking->weekly_instalment }}</li> -->
                     <li class="list-group-item">MONTHLY: £{{ $booking->weekly_instalment }}</li>
+                    <li class="list-group-item">PAYMENT DATE: @include('livewire.agreements.partials.payment-day', ['booking' => $booking])</li>
                     <li class="list-group-item">STAFF: {{ $user_name }}</li>
                 </ul>
             </div>
@@ -350,7 +351,7 @@ label a{
         <div class="table-responsive d-none d-md-block">
             <table class="table-con">
                 <tr>
-                    <th colspan="7" style="text-align:center;">CONTRACT INFORMATION</th>
+                    <th colspan="8" style="text-align:center;">CONTRACT INFORMATION</th>
                 </tr>
                 <tr>
                     <td class="td-cont">CONTRACT ID</td>
@@ -360,6 +361,7 @@ label a{
                     <td class="td-cont">PAID</td>
                     <!-- <td class="td-cont">{{ $booking->is_monthly ? 'MONTHLY' : 'WEEKLY' }}</td> -->
                     <td class="td-cont">MONTHLY</td>
+                    <td class="td-cont">PAYMENT DATE</td>
                     <td class="td-cont">STAFF</td>
                 </tr>
                 <tr>
@@ -369,6 +371,7 @@ label a{
                     <td class="td-cont">£{{ $booking->motorbike_price }}</td>
                     <td class="td-cont">£{{ $booking->deposit }}</td>
                     <td class="td-cont">£{{ $booking->weekly_instalment }}</td>
+                    <td class="td-cont">@include('livewire.agreements.partials.payment-day', ['booking' => $booking])</td>
                     <td class="td-cont">{{ $user_name }}</td>
                 </tr>
             </table>
@@ -479,6 +482,7 @@ label a{
         Deposit: £{{ $booking->deposit }} (non-refundable except where required by law)<br>
         <!-- Balance payable by {{ $booking->is_monthly ? 'monthly' : 'weekly' }} instalments of £{{ $booking->weekly_instalment }}<br> -->
         <!-- Balance payable by monthly instalments of £{{ $booking->weekly_instalment }}<br> -->
+        Payment date: @include('livewire.agreements.partials.payment-day', ['booking' => $booking])<br>
         All payments must be made to the account shown above. Any delays in payment will be handled in accordance with the terms specified in the schedule.<br>
         
                         
