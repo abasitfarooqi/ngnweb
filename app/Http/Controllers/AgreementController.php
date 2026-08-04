@@ -592,7 +592,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.signature-contract-v6-ins-latest', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -603,7 +603,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-ins-latest']));
     }
 
     // 2025 12-SEP-2025 - Latest Contract
@@ -740,7 +740,7 @@ class AgreementController extends Controller
         $today = now()->format('d/m/Y');
         $SIGFILE = '#';
 
-        return view('livewire.agreements.legacy-host', compact(
+        return view('livewire.agreements.legacy-host', array_merge(compact(
             'booking',
             'customer',
             'bookingItem',
@@ -751,7 +751,7 @@ class AgreementController extends Controller
             'customer_id',
             'passcode',
             'access'
-        ));
+        ), ['legacyView' => 'livewire.agreements.migrated.signature-contract-v6-ins-used-latest']));
     }
 
     // 2025 12-SEP-2025 - Create Latest Insurance Contract (Used Vehicle)
@@ -2639,6 +2639,76 @@ class AgreementController extends Controller
     private function pdfLoadView(string $view, array $data = []): mixed
     {
         return AgreementPdfGenerator::loadView($view, $data);
+    }
+
+    public function showContractTest(Request $request)
+    {
+        $template = (string) $request->query('template', 'latest');
+        $templates = [
+            'latest' => 'pdf.contract-v6-latest',
+            'used-latest' => 'pdf.contract-v6-used-latest',
+            'ins-latest' => 'pdf.contract-v6-ins-latest',
+            'ins-used-latest' => 'pdf.contract-v6-ins-used-latest',
+            'subscription' => 'livewire.agreements.pdf.templates.contract-v6-subscription',
+            'ins-latest-less-terms' => 'pdf.contract-v6-ins-latest-less-terms',
+            'ins-used-latest-less-terms' => 'pdf.contract-v6-ins-used-latest-less-terms',
+            'battery-safety-leaflet' => 'livewire.agreements.pdf.templates.battery-safety-leaflet',
+        ];
+
+        if (! isset($templates[$template])) {
+            abort(404, 'Unknown finance contract test template.');
+        }
+
+        $query = FinanceApplication::query()
+            ->with(['customer', 'user', 'application_items.motorbike'])
+            ->whereHas('application_items.motorbike');
+
+        if ($request->integer('application_id') > 0) {
+            $query->whereKey($request->integer('application_id'));
+        } elseif (str_contains($template, 'used')) {
+            $query->where('is_used_latest', true);
+        } elseif ($template === 'subscription') {
+            $query->where('is_subscription', true);
+        } elseif ($template === 'battery-safety-leaflet') {
+            $query->whereHas('application_items.motorbike', fn ($bike) => $bike->where('is_ebike', true));
+        } else {
+            $query->where('is_new_latest', true);
+        }
+
+        $booking = $query->latest('id')->firstOrFail();
+        $customer = $booking->customer;
+        $bookingItem = $booking->application_items->first();
+        $motorbike = $bookingItem?->motorbike;
+
+        if (! $customer || ! $bookingItem || ! $motorbike || ! $booking->user) {
+            abort(404, 'Finance contract test data is incomplete.');
+        }
+
+        $contractStartDate = Carbon::parse($booking->contract_date ?? now());
+        $contractEndDate = $contractStartDate->copy()->addMonths(5);
+        $userName = trim($booking->user->first_name.' '.$booking->user->last_name);
+
+        $pdf = $this->pdfLoadView($templates[$template], [
+            'today' => now()->format('d/m/Y'),
+            'SIGFILE' => '#',
+            'booking' => $booking,
+            'customer' => $customer,
+            'motorbike' => $motorbike,
+            'bookingItem' => $bookingItem,
+            'subs_payment_date' => $booking->subs_payment_date,
+            'user_name' => $userName,
+            'document_number' => 'TEST-'.$booking->id,
+            'subscriptionOption' => $this->getSubscriptionOptionDetails($booking->subscription_option),
+            'contractStartDate' => $contractStartDate,
+            'contractEndDate' => $contractEndDate,
+            'contractStartTime' => $contractStartDate->format('H:i'),
+        ])->setPaper('a4', 'portrait')
+            ->setOption('isPhpEnabled', true);
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="finance-contract-test-'.$template.'.pdf"',
+        ]);
     }
 
     /**
