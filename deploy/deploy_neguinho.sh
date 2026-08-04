@@ -15,6 +15,7 @@ SUPERVISOR_SERVICE="${SUPERVISOR_SERVICE:-supervisor}"
 UPLOAD_MAX_FILESIZE="${UPLOAD_MAX_FILESIZE:-512M}"
 POST_MAX_SIZE="${POST_MAX_SIZE:-550M}"
 NGINX_CLIENT_MAX_BODY_SIZE="${NGINX_CLIENT_MAX_BODY_SIZE:-550m}"
+RELEASES_TO_KEEP="${RELEASES_TO_KEEP:-3}"
 
 KNOWN_BAD_NGINX_LINK="/etc/nginx/sites-enabled/ngnmotors.co.uk"
 
@@ -80,6 +81,39 @@ max_execution_time=600
 EOF
       echo "PHP upload limits written to $php_conf_dir/99-ngn-upload.ini."
     fi
+  done
+}
+
+prune_old_releases() {
+  log "PRUNE OLD RELEASES"
+
+  if [ ! -d "$BASE/releases" ]; then
+    echo "No releases directory yet."
+    return
+  fi
+
+  local current_release
+  current_release="$(readlink -f "$BASE/current" 2>/dev/null || true)"
+
+  local releases
+  mapfile -t releases < <(find "$BASE/releases" -mindepth 1 -maxdepth 1 -type d -name '20*' | sort -r)
+
+  local kept=0
+  local release
+  for release in "${releases[@]}"; do
+    if [ -n "$current_release" ] && [ "$(readlink -f "$release")" = "$current_release" ]; then
+      echo "Keeping current release: $release"
+      continue
+    fi
+
+    if [ "$kept" -lt "$RELEASES_TO_KEEP" ]; then
+      kept=$((kept + 1))
+      echo "Keeping recent release: $release"
+      continue
+    fi
+
+    echo "Removing old release: $release"
+    rm -rf "$release"
   done
 }
 
@@ -315,6 +349,7 @@ find "$BASE" -type d -exec chmod 2775 {} \;
 
 fix_shared_environment
 fix_shared_permissions
+prune_old_releases
 
 OLD_CURRENT=""
 if [ -L "$BASE/current" ]; then
@@ -364,6 +399,8 @@ safe_reload_php_fpm
 safe_reload_nginx
 
 verify_http_after_switch
+
+prune_old_releases
 
 trap - ERR
 
