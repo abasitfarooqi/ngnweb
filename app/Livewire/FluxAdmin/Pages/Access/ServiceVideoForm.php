@@ -43,14 +43,14 @@ class ServiceVideoForm extends Component
                 }
             }
             $this->form = $attrs;
-            $this->hydrateSelectedBookingLabel((int) $serviceVideo->booking_id);
+            $this->loadSelectedBookingLabel((int) $serviceVideo->booking_id);
         } else {
             $this->form = ['recorded_at' => now()->format('Y-m-d\TH:i')];
 
             $prefillBookingId = (int) request()->query('booking_id', 0);
             if ($prefillBookingId > 0) {
                 $this->form['booking_id'] = $prefillBookingId;
-                $this->hydrateSelectedBookingLabel($prefillBookingId);
+                $this->loadSelectedBookingLabel($prefillBookingId);
             }
         }
     }
@@ -122,7 +122,7 @@ class ServiceVideoForm extends Component
         $this->redirect(route('flux-admin.service-videos.index'), navigate: true);
     }
 
-    private function hydrateSelectedBookingLabel(int $bookingId): void
+    private function loadSelectedBookingLabel(int $bookingId): void
     {
         $booking = RentingBooking::query()
             ->with(['customer', 'rentingBookingItems.motorbike'])
@@ -138,11 +138,13 @@ class ServiceVideoForm extends Component
 
     private function formatBookingLabel(RentingBooking $booking): string
     {
-        $customer = trim((string) (($booking->customer->first_name ?? '').' '.($booking->customer->last_name ?? '')));
+        $customerModel = $booking->customer;
+        $customer = trim((string) (($customerModel->first_name ?? '').' '.($customerModel->last_name ?? '')));
+        $phone = trim((string) ($customerModel->phone ?? ''));
         $reg = $booking->rentingBookingItems->first()?->motorbike?->reg_no ?? '—';
         $start = $booking->start_date?->format('d M Y H:i') ?? '—';
 
-        return '#'.$booking->id.' · '.($customer !== '' ? $customer : 'Unknown').' · '.$reg.' · '.$start;
+        return '#'.$booking->id.' · '.($customer !== '' ? $customer : 'Unknown').' · '.$reg.' · '.$start.($phone !== '' ? ' · '.$phone : '');
     }
 
     /** @return Collection<int, RentingBooking> */
@@ -162,9 +164,15 @@ class ServiceVideoForm extends Component
                     $inner->whereHas('customer', function ($customerQuery) use ($term) {
                         $customerQuery->where('first_name', 'like', "%{$term}%")
                             ->orWhere('last_name', 'like', "%{$term}%")
+                            ->orWhere('email', 'like', "%{$term}%")
+                            ->orWhere('phone', 'like', "%{$term}%")
+                            ->orWhere('whatsapp', 'like', "%{$term}%")
+                            ->orWhere('postcode', 'like', "%{$term}%")
                             ->orWhereRaw("CONCAT(first_name, ' ', last_name) LIKE ?", ["%{$term}%"]);
                     })->orWhereHas('rentingBookingItems.motorbike', function ($bikeQuery) use ($term) {
-                        $bikeQuery->where('reg_no', 'like', "%{$term}%");
+                        $bikeQuery->where('reg_no', 'like', "%{$term}%")
+                            ->orWhere('make', 'like', "%{$term}%")
+                            ->orWhere('model', 'like', "%{$term}%");
                     });
                 });
             })

@@ -39,16 +39,31 @@
                         @if($bookingResults->isNotEmpty())
                             <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 max-h-56 overflow-y-auto">
                                 @foreach($bookingResults as $booking)
+                                    @php
+                                        $customer = $booking->customer;
+                                        $name = trim(($customer->first_name ?? '').' '.($customer->last_name ?? '')) ?: 'Unknown';
+                                        $bike = $booking->rentingBookingItems->first()?->motorbike;
+                                    @endphp
                                     <button
                                         type="button"
                                         wire:key="booking-option-{{ $booking->id }}"
                                         wire:click="selectBooking({{ $booking->id }})"
                                         class="w-full text-left px-3 py-2 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-800 border-b border-zinc-100 dark:border-zinc-800 last:border-b-0"
                                     >
-                                        #{{ $booking->id }}
-                                        · {{ trim(($booking->customer->first_name ?? '').' '.($booking->customer->last_name ?? '')) ?: 'Unknown' }}
-                                        · {{ $booking->rentingBookingItems->first()?->motorbike?->reg_no ?? '—' }}
-                                        · {{ $booking->start_date?->format('d M Y H:i') ?? '—' }}
+                                        <span class="font-semibold text-zinc-900 dark:text-white">#{{ $booking->id }} · {{ $name }}</span>
+                                        <span class="block text-xs text-zinc-500 dark:text-zinc-400">
+                                            {{ $bike?->reg_no ?? '—' }}
+                                            @if($bike?->make || $bike?->model)
+                                                · {{ trim(($bike?->make ?? '').' '.($bike?->model ?? '')) }}
+                                            @endif
+                                            · {{ $booking->start_date?->format('d M Y H:i') ?? '—' }}
+                                            @if($customer?->phone)
+                                                · {{ $customer->phone }}
+                                            @endif
+                                            @if($customer?->email)
+                                                · {{ $customer->email }}
+                                            @endif
+                                        </span>
                                     </button>
                                 @endforeach
                             </div>
