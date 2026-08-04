@@ -12,6 +12,7 @@ class DocumentType extends Model
     protected $fillable = [
         'name',
         'slug',
+        'code',
         'description',
         'is_mandatory',
         'required_for',
