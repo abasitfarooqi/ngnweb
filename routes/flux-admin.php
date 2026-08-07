@@ -68,6 +68,7 @@ use App\Livewire\FluxAdmin\Pages\Users\UserShow;
 use App\Livewire\FluxAdmin\Pages\Vehicles\ClaimForm;
 use App\Livewire\FluxAdmin\Pages\Vehicles\ClaimIndex as VehicleClaimIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\CompanyVehicleIndex;
+use App\Livewire\FluxAdmin\Pages\Vehicles\MotBookingCalendar;
 use App\Livewire\FluxAdmin\Pages\Vehicles\MotBookingForm;
 use App\Livewire\FluxAdmin\Pages\Vehicles\MotBookingIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\PurchaseUsedIndex;
@@ -273,6 +274,7 @@ $backpackCrudAlias('motorbike-annual-compliance', ComplianceIndex::class, Compli
 $backpackCrudAlias('motorbike-annual-compliance-m', ComplianceIndex::class, ComplianceForm::class, 'compliance');
 $backpackCrudAlias('branch', BranchIndex::class, BranchForm::class, 'branch', BranchShow::class);
 $backpackCrudAlias('mot-booking', MotBookingIndex::class, MotBookingForm::class, 'motBooking');
+Route::get('/mot-booking/calendar', MotBookingCalendar::class)->name('flux-admin.backpack.mot-booking.calendar');
 $backpackCrudAlias('calander', CalendarIndex::class, CalendarForm::class, 'calendarEvent');
 $backpackCrudAlias('company-vehicle', CompanyVehicleIndex::class, CompanyVehicleForm::class, 'companyVehicle');
 $backpackCrudAlias('vehicle-database', ComplianceIndex::class, ComplianceForm::class, 'compliance');
@@ -473,6 +475,7 @@ Route::get('/company-vehicles', CompanyVehicleIndex::class)->name('flux-admin.co
 Route::get('/company-vehicles/create', CompanyVehicleForm::class)->name('flux-admin.company-vehicles.create');
 Route::get('/company-vehicles/{companyVehicle}/edit', CompanyVehicleForm::class)->name('flux-admin.company-vehicles.edit');
 Route::get('/mot-bookings', MotBookingIndex::class)->name('flux-admin.mot-bookings.index');
+Route::get('/mot-bookings/calendar', MotBookingCalendar::class)->name('flux-admin.mot-bookings.calendar');
 Route::get('/mot-bookings/create', MotBookingForm::class)->name('flux-admin.mot-bookings.create');
 Route::get('/mot-bookings/{motBooking}/edit', MotBookingForm::class)->name('flux-admin.mot-bookings.edit');
 Route::get('/service-bookings', ServiceBookingIndex::class)->name('flux-admin.service-bookings.index');

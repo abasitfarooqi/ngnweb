@@ -39,15 +39,22 @@ class MotBookingForm extends Component
             }
             $this->form = $attrs;
         } else {
+            $start = $this->parseCalendarQueryDate(request()->query('start')) ?? now();
+            $end = $this->parseCalendarQueryDate(request()->query('end')) ?? $start->copy()->addHour();
+
+            if ($end->lessThanOrEqualTo($start)) {
+                $end = $start->copy()->addHour();
+            }
+
             $this->form = [
                 'status' => MOTBooking::STATUS_BOOKED,
                 'is_paid' => false,
                 'all_day' => false,
                 'is_validate' => true,
                 'user_id' => auth()->id(),
-                'date_of_appointment' => now()->format('Y-m-d\\TH:i'),
-                'start' => now()->format('Y-m-d\\TH:i'),
-                'end' => now()->addHour()->format('Y-m-d\\TH:i'),
+                'date_of_appointment' => $start->format('Y-m-d\\TH:i'),
+                'start' => $start->format('Y-m-d\\TH:i'),
+                'end' => $end->format('Y-m-d\\TH:i'),
             ];
         }
     }
@@ -114,6 +121,19 @@ class MotBookingForm extends Component
         }
 
         $this->redirect(route('flux-admin.mot-bookings.index'), navigate: true);
+    }
+
+    private function parseCalendarQueryDate(mixed $value): ?Carbon
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable) {
+            return null;
+        }
     }
 
     /** @return array{0: string, 1: string} */

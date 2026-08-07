@@ -87,6 +87,7 @@ return [
         ['group' => 'Purchase', 'label' => 'Add / Edit', 'route' => 'flux-admin.used-purchases.index', 'permission' => 'see-menu-commons', 'keywords' => 'buy used purchase'],
 
         ['group' => 'MOT', 'label' => 'Add / Edit', 'route' => 'flux-admin.mot-bookings.index', 'permission' => 'see-menu-mot-bookings', 'keywords' => 'mot bookings'],
+        ['group' => 'MOT', 'label' => 'Calendar', 'route' => 'flux-admin.mot-bookings.calendar', 'permission' => 'see-menu-mot-bookings', 'keywords' => 'mot calendar booking schedule'],
         ['group' => 'MOT', 'label' => 'MOT checker', 'route' => 'flux-admin.mot-checker.index', 'permission' => 'see-menu-mot-bookings'],
         ['group' => 'MOT', 'label' => 'MOT stats', 'route' => 'flux-admin.mot-stats.index', 'permission' => 'see-menu-mot-bookings'],
 

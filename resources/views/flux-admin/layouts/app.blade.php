@@ -963,7 +963,8 @@
             {{-- 11. MOT --}}
             @can('see-menu-mot-bookings')
                 <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.mot-*')" heading="MOT">
-                    <flux:navlist.item href="{{ route('flux-admin.mot-bookings.index') }}" :current="request()->routeIs('flux-admin.mot-bookings.*')">Add / Edit</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.mot-bookings.index') }}" :current="request()->routeIs('flux-admin.mot-bookings.index','flux-admin.mot-bookings.create','flux-admin.mot-bookings.edit')">Add / Edit</flux:navlist.item>
+                    <flux:navlist.item href="{{ route('flux-admin.mot-bookings.calendar') }}" :current="request()->routeIs('flux-admin.mot-bookings.calendar','flux-admin.backpack.mot-booking.calendar')">Calendar</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.mot-checker.index') }}" :current="request()->routeIs('flux-admin.mot-checker.*')">MOT checker</flux:navlist.item>
                     <flux:navlist.item href="{{ route('flux-admin.mot-stats.index') }}" :current="request()->routeIs('flux-admin.mot-stats.*')">MOT stats</flux:navlist.item>
                 </flux:navlist.group>

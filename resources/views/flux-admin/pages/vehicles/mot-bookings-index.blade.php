@@ -2,6 +2,9 @@
     <x-flux-admin::data-table title="MOT bookings" description="MOT appointment slots — booked, available, completed or cancelled.">
         <x-slot:actions>
             <x-flux-admin::export-button />
+            <a href="{{ route('flux-admin.mot-bookings.calendar') }}" wire:navigate>
+                <flux:button size="sm" variant="ghost" icon="calendar-days" class="!rounded-none">Calendar</flux:button>
+            </a>
             <a href="{{ route('flux-admin.mot-bookings.create') }}" wire:navigate>
                 <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New booking</flux:button>
             </a>
@@ -21,8 +24,8 @@
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:select wire:model.live="filters.branch_id" placeholder="Branch">
                         <flux:select.option value="">All branches</flux:select.option>
-                        @foreach($branches as $b)
-                            <flux:select.option value="{{ $b->id }}">{{ $b->name }}</flux:select.option>
+                        @foreach($branches as $branch)
+                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
                         @endforeach
                     </flux:select>
                 </div>
@@ -72,7 +75,7 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
-                                <a href="{{ route('flux-admin.mot-bookings.edit', $b) }}" wire:navigate>
+                                <a href="{{ route('flux-admin.mot-bookings.edit', $b->id) }}" wire:navigate>
                                     <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
                                 </a>
                                 <flux:button size="xs" variant="ghost" icon="trash" wire:click="delete({{ $b->id }})" wire:confirm="Delete this record?" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
