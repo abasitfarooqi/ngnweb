@@ -20,6 +20,7 @@ class OtherChargesTab extends Component
     public string $amount = '';
     public ?int $payingChargeId = null;
     public ?int $paymentMethodId = null;
+    public bool $showPayModal = false;
 
     public ?int $expandedChargeId = null;
 
@@ -79,9 +80,33 @@ class OtherChargesTab extends Component
 
     public function openPayModal(int $chargeId): void
     {
+        $charge = RentingOtherCharge::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($chargeId)
+            ->first();
+
+        if (! $charge) {
+            $this->flashMessage = 'Charge not found for this booking.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        if ((bool) $charge->getRawOriginal('is_paid')) {
+            $this->flashMessage = 'Charge is already paid.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $this->resetValidation();
         $this->payingChargeId = $chargeId;
-        $this->paymentMethodId = PaymentMethod::where('title', 'Cash')->value('id');
-        $this->dispatch('open-modal', name: 'pay-charge-modal');
+        $this->paymentMethodId = PaymentMethod::query()
+            ->where('is_enabled', true)
+            ->orderByRaw("CASE WHEN title = 'Cash' THEN 0 ELSE 1 END")
+            ->orderBy('title')
+            ->value('id');
+        $this->showPayModal = true;
     }
 
     public function payCharge(): void
@@ -92,21 +117,35 @@ class OtherChargesTab extends Component
         ]);
 
         try {
+            $charge = RentingOtherCharge::query()
+                ->where('booking_id', $this->bookingId)
+                ->whereKey($this->payingChargeId)
+                ->firstOrFail();
+
             app(RentalBookingLifecycle::class)->payOtherCharge(
-                $this->payingChargeId,
-                $this->paymentMethodId
+                (int) $charge->id,
+                (int) $this->paymentMethodId
             );
 
             $this->payingChargeId = null;
+            $this->paymentMethodId = null;
             $this->expandedChargeId = null;
             $this->expandedDetail = null;
-            $this->dispatch('close-modal', name: 'pay-charge-modal');
+            $this->showPayModal = false;
             $this->flashMessage = 'Charge paid and transaction recorded.';
             $this->flashType    = 'success';
         } catch (\Throwable $e) {
             $this->flashMessage = $e->getMessage();
             $this->flashType    = 'error';
         }
+    }
+
+    public function closePayModal(): void
+    {
+        $this->showPayModal = false;
+        $this->payingChargeId = null;
+        $this->paymentMethodId = null;
+        $this->resetValidation();
     }
 
     public function sendWhatsAppReminder(int $chargeId): void

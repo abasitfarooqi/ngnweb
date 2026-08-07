@@ -28,6 +28,8 @@ class NewBookingWizard extends Component
 
     public string $bikeSearch = '';
 
+    public int $bikeLimit = 25;
+
     public ?int $motorbikeId = null;
 
     public ?float $weeklyRent = null;
@@ -204,6 +206,16 @@ class NewBookingWizard extends Component
         }
     }
 
+    public function updatedBikeSearch(): void
+    {
+        $this->bikeLimit = 25;
+    }
+
+    public function loadMoreMotorbikes(): void
+    {
+        $this->bikeLimit = min($this->bikeLimit + 25, 150);
+    }
+
     public function selectCustomer(int $id): void
     {
         $this->customerId = $id;
@@ -347,6 +359,7 @@ class NewBookingWizard extends Component
         $this->reset([
             'step',
             'bikeSearch',
+            'bikeLimit',
             'motorbikeId',
             'weeklyRent',
             'customerSearch',
@@ -371,45 +384,68 @@ class NewBookingWizard extends Component
     public function render()
     {
         $motorbikes = collect();
+        $bikeSearch = trim($this->bikeSearch);
+        $bikeSearchReady = mb_strlen($bikeSearch) >= 2;
+        $hasMoreMotorbikes = false;
+
         if ($this->step === 1) {
-            $query = Motorbike::query()
-                ->leftJoin('motorbike_registrations as mr', function ($j) {
-                    $j->on('mr.motorbike_id', '=', 'motorbikes.id')->where('mr.active', true);
-                })
-                ->leftJoin('renting_pricings as rp', function ($j) {
-                    $j->on('rp.motorbike_id', '=', 'motorbikes.id')->where('rp.iscurrent', true);
-                })
-                ->whereNotExists(function ($q) {
-                    $q->select(DB::raw(1))
-                        ->from('renting_booking_items as rbi')
-                        ->join('renting_bookings as rb', 'rb.id', '=', 'rbi.booking_id')
-                        ->whereRaw('rbi.motorbike_id = motorbikes.id')
-                        ->where('rbi.is_posted', true)
-                        ->where('rb.is_posted', true)
-                        ->whereNull('rbi.end_date');
-                })
-                ->select([
-                    'motorbikes.id',
-                    'motorbikes.make',
-                    'motorbikes.model',
-                    'motorbikes.year',
-                    'motorbikes.color',
-                    'motorbikes.is_ebike',
-                    'mr.registration_number as reg_no',
-                    'rp.weekly_price as weekly_rent',
-                    'rp.minimum_deposit as minimum_deposit',
-                ]);
+            if ($bikeSearchReady) {
+                $compactSearch = strtoupper(preg_replace('/\s+/', '', $bikeSearch) ?? '');
+                $like = '%'.$bikeSearch.'%';
+                $compactLike = '%'.$compactSearch.'%';
 
-            if ($this->bikeSearch !== '') {
-                $s = '%'.$this->bikeSearch.'%';
-                $query->where(function ($q) use ($s) {
-                    $q->where('motorbikes.make', 'like', $s)
-                        ->orWhere('motorbikes.model', 'like', $s)
-                        ->orWhere('mr.registration_number', 'like', $s);
+                $query = Motorbike::query()
+                    ->leftJoin('motorbike_registrations as mr', function ($j) {
+                        $j->on('mr.motorbike_id', '=', 'motorbikes.id')->where('mr.active', true);
+                    })
+                    ->leftJoin('renting_pricings as rp', function ($j) {
+                        $j->on('rp.motorbike_id', '=', 'motorbikes.id')->where('rp.iscurrent', true);
+                    })
+                    ->whereNotExists(function ($q) {
+                        $q->select(DB::raw(1))
+                            ->from('renting_booking_items as rbi')
+                            ->join('renting_bookings as rb', 'rb.id', '=', 'rbi.booking_id')
+                            ->whereRaw('rbi.motorbike_id = motorbikes.id')
+                            ->where('rbi.is_posted', true)
+                            ->where('rb.is_posted', true)
+                            ->whereNull('rbi.end_date');
+                    })
+                    ->select([
+                        'motorbikes.id',
+                        'motorbikes.make',
+                        'motorbikes.model',
+                        'motorbikes.year',
+                        'motorbikes.color',
+                        'motorbikes.is_ebike',
+                        DB::raw('COALESCE(mr.registration_number, motorbikes.reg_no) as reg_no'),
+                        'rp.weekly_price as weekly_rent',
+                        'rp.minimum_deposit as minimum_deposit',
+                    ]);
+
+                $query->where(function ($q) use ($like, $compactLike) {
+                    $q->where('motorbikes.make', 'like', $like)
+                        ->orWhere('motorbikes.model', 'like', $like)
+                        ->orWhere('motorbikes.reg_no', 'like', $like)
+                        ->orWhere('mr.registration_number', 'like', $like)
+                        ->orWhereRaw("REPLACE(UPPER(COALESCE(mr.registration_number, motorbikes.reg_no, '')), ' ', '') LIKE ?", [$compactLike]);
                 });
-            }
 
-            $motorbikes = $query->orderBy('motorbikes.make')->limit(50)->get();
+                $results = $query
+                    ->orderByRaw(
+                        "CASE
+                            WHEN REPLACE(UPPER(COALESCE(mr.registration_number, motorbikes.reg_no, '')), ' ', '') = ? THEN 0
+                            WHEN REPLACE(UPPER(COALESCE(mr.registration_number, motorbikes.reg_no, '')), ' ', '') LIKE ? THEN 1
+                            ELSE 2
+                        END",
+                        [$compactSearch, $compactLike]
+                    )
+                    ->orderByRaw('COALESCE(mr.registration_number, motorbikes.reg_no)')
+                    ->limit($this->bikeLimit + 1)
+                    ->get();
+
+                $hasMoreMotorbikes = $results->count() > $this->bikeLimit;
+                $motorbikes = $results->take($this->bikeLimit)->values();
+            }
         }
 
         $customers = collect();
@@ -440,6 +476,13 @@ class NewBookingWizard extends Component
 
         $selectedCustomer = $this->customerId ? Customer::find($this->customerId) : null;
 
-        return view('flux-admin.pages.rentals.new-booking-wizard', compact('motorbikes', 'customers', 'selectedMotorbike', 'selectedCustomer'));
+        return view('flux-admin.pages.rentals.new-booking-wizard', compact(
+            'motorbikes',
+            'customers',
+            'selectedMotorbike',
+            'selectedCustomer',
+            'bikeSearchReady',
+            'hasMoreMotorbikes',
+        ));
     }
 }

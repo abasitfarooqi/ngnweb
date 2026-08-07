@@ -53,11 +53,16 @@
         <div class="border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
             <div class="mb-4 flex items-center gap-3">
                 <flux:input class="flex-1" wire:model.live.debounce.300ms="bikeSearch" placeholder="Search by registration, make or model…" variant="filled" icon="magnifying-glass" />
-                <span class="text-xs text-zinc-500">{{ $motorbikes->count() }} available</span>
+                <span class="text-xs text-zinc-500">{{ $bikeSearchReady ? $motorbikes->count().' found' : 'type 2+ chars' }}</span>
             </div>
 
             @error('motorbikeId') <p class="mb-2 text-sm text-red-600">{{ $message }}</p> @enderror
 
+            @unless($bikeSearchReady)
+                <div class="border border-dashed border-zinc-300 bg-zinc-50 px-4 py-8 text-center text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
+                    Search a registration number, make, or model to find an available motorbike.
+                </div>
+            @else
             <div class="overflow-x-auto">
                 <div class="min-w-[40rem] md:min-w-0">
                 <flux:table>
@@ -102,6 +107,14 @@
                 </flux:table>
                 </div>
             </div>
+            @if($hasMoreMotorbikes)
+                <div class="mt-4 flex justify-center">
+                    <flux:button type="button" variant="ghost" wire:click="loadMoreMotorbikes" wire:loading.attr="disabled" wire:target="loadMoreMotorbikes">
+                        Load more
+                    </flux:button>
+                </div>
+            @endif
+            @endunless
         </div>
     @endif
 

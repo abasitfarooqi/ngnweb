@@ -9,11 +9,11 @@
     Dear valued customer,
 </p>
 <p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
-    We kindly request your attention to finalise your invoice with Neguinho Motors. To proceed, please follow this link to review and provide your account details:
+    We kindly request your attention to finalise your invoice with NGN Motors. To proceed, please follow this link to review and provide your account details:
     <a href="{{ $mailData['url'] }}" target="_blank" style="color:#c31924;word-break:break-all;">{{ $mailData['url'] }}</a>
 </p>
 <p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
-    Thank you for choosing Neguinho Motors for your vehicle purchase.
+    Thank you for choosing NGN Motors for your vehicle purchase.
 </p>
 <p style="margin:0 0 14px;font-size:14px;color:#111827;line-height:1.65;">
     If you have any questions or concerns, please contact our customer support team on <a href="tel:02083141498" style="color:#c31924;text-decoration:none;">0208 314 1498</a>.

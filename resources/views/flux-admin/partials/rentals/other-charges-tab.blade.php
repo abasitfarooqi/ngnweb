@@ -200,22 +200,24 @@
         </div>
     @endif
 
-    <flux:modal name="pay-charge-modal" class="w-full max-w-md">
+    <flux:modal wire:model.self="showPayModal" class="w-full max-w-md">
         <div class="p-5">
             <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-4">Pay additional charge</h3>
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Payment method</label>
                     <select wire:model="paymentMethodId" class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm">
+                        <option value="">Select payment method</option>
                         @foreach($paymentMethods as $method)
                             <option value="{{ $method->id }}">{{ $method->title }}</option>
                         @endforeach
                     </select>
+                    @error('paymentMethodId') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
             </div>
             <div class="flex gap-3 mt-5 justify-end">
-                <flux:button variant="ghost" x-on:click="$flux.close('pay-charge-modal')">Cancel</flux:button>
-                <flux:button variant="primary" wire:click="payCharge">Confirm payment</flux:button>
+                <flux:button type="button" variant="ghost" wire:click="closePayModal">Cancel</flux:button>
+                <flux:button type="button" variant="primary" wire:click="payCharge" wire:loading.attr="disabled" wire:target="payCharge">Confirm payment</flux:button>
             </div>
         </div>
     </flux:modal>

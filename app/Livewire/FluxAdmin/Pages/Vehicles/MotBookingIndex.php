@@ -38,6 +38,8 @@ class MotBookingIndex extends Component
 
     public function render()
     {
+        $this->perPage = max(10, min((int) $this->perPage, 50));
+
         $bookings = $this->baseQuery()
             ->with('branch:id,name')
             ->orderBy($this->sortField, $this->sortDirection)
@@ -50,14 +52,18 @@ class MotBookingIndex extends Component
 
     protected function baseQuery(): Builder
     {
+        $search = trim($this->search);
+        $compactSearch = strtoupper(preg_replace('/\s+/', '', $search) ?? '');
+
         return MOTBooking::query()
-            ->when($this->search, fn ($q, $v) => $q->where(fn ($q) => $q
-                ->where('vehicle_registration', 'like', "%{$v}%")
-                ->orWhere('customer_name', 'like', "%{$v}%")
-                ->orWhere('customer_email', 'like', "%{$v}%")
-                ->orWhere('customer_contact', 'like', "%{$v}%")
-                ->orWhere('title', 'like', "%{$v}%")
-                ->orWhere('payment_link', 'like', "%{$v}%")))
+            ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
+                ->where('vehicle_registration', 'like', "%{$search}%")
+                ->orWhereRaw("REPLACE(UPPER(COALESCE(vehicle_registration, '')), ' ', '') LIKE ?", ["%{$compactSearch}%"])
+                ->orWhere('customer_name', 'like', "%{$search}%")
+                ->orWhere('customer_email', 'like', "%{$search}%")
+                ->orWhere('customer_contact', 'like', "%{$search}%")
+                ->orWhere('title', 'like', "%{$search}%")
+                ->orWhere('payment_link', 'like', "%{$search}%")))
             ->when($this->filter('status'), fn ($q, $v) => $q->where('status', $v))
             ->when($this->filter('branch_id'), fn ($q, $v) => $q->where('branch_id', $v))
             ->when($this->filter('is_paid') !== '', fn ($q) => $q->where('is_paid', $this->filter('is_paid') === '1'));
