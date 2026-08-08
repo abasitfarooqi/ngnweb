@@ -41,9 +41,51 @@ class RentingPricing extends Model
 
     public static function motorbikeNotPriced()
     {
-        return Motorbike::whereNotIn('id', function ($query) {
-            $query->select('motorbike_id')->from(with(new self)->getTable());
-        })->get(['id', 'make', 'model', 'year', 'engine', 'color', 'fuel_type', 'reg_no']);
+        return static::unpricedMotorbikesQuery()->get();
+    }
+
+    public static function unpricedMotorbikesQuery(?string $search = null)
+    {
+        $query = Motorbike::query()
+            ->whereNotIn('id', function ($sub) {
+                $sub->select('motorbike_id')->from(with(new self)->getTable());
+            })
+            ->select(['id', 'make', 'model', 'year', 'engine', 'color', 'fuel_type', 'reg_no'])
+            ->orderBy('reg_no')
+            ->orderBy('id');
+
+        $search = trim((string) $search);
+        if ($search !== '') {
+            $like = '%'.$search.'%';
+            $compactLike = '%'.strtoupper(preg_replace('/\s+/', '', $search) ?? '').'%';
+
+            $query->where(function ($q) use ($like, $compactLike) {
+                $q->where('reg_no', 'like', $like)
+                    ->orWhereRaw("REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') LIKE ?", [$compactLike])
+                    ->orWhere('make', 'like', $like)
+                    ->orWhere('model', 'like', $like);
+            });
+        }
+
+        return $query;
+    }
+
+    public static function applyMotorbikeSearch($query, ?string $search): void
+    {
+        $search = trim((string) $search);
+        if ($search === '') {
+            return;
+        }
+
+        $like = '%'.$search.'%';
+        $compactLike = '%'.strtoupper(preg_replace('/\s+/', '', $search) ?? '').'%';
+
+        $query->where(function ($q) use ($like, $compactLike) {
+            $q->where('reg_no', 'like', $like)
+                ->orWhereRaw("REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') LIKE ?", [$compactLike])
+                ->orWhere('make', 'like', $like)
+                ->orWhere('model', 'like', $like);
+        });
     }
 
     public function user()

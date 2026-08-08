@@ -9,6 +9,18 @@
         </a>
     </div>
 
+    <div class="mb-6 border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <flux:input
+            wire:model.live.debounce.300ms="regSearch"
+            placeholder="Search by registration, make or model…"
+            icon="magnifying-glass"
+            class="max-w-md"
+        />
+        @if(trim($regSearch) !== '')
+            <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Filtering both lists. Clear the search to see all bikes.</p>
+        @endif
+    </div>
+
     @if($selectedMotorbikeId)
         <div class="mb-6 border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
             <h2 class="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-300">
@@ -35,11 +47,18 @@
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
             <div class="border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Not priced ({{ $unpriced->count() }})</h2>
+                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">
+                    Not priced ({{ number_format($unpricedTotal) }})
+                </h2>
+                @if($unpriced->isNotEmpty())
+                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        Showing {{ number_format($unpriced->count()) }} of {{ number_format($unpricedTotal) }}
+                    </p>
+                @endif
             </div>
             <div class="max-h-[32rem] overflow-y-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="sticky top-0 bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
+                    <thead class="sticky top-0 z-10 bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
                         <tr>
                             <th class="px-3 py-2">Reg</th>
                             <th class="px-3 py-2">Make / model</th>
@@ -56,20 +75,39 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="3" class="px-3 py-6 text-center text-zinc-500">All motorbikes have pricing.</td></tr>
+                            <tr><td colspan="3" class="px-3 py-6 text-center text-zinc-500">No motorbikes match this search.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
+                @if($hasMoreUnpriced)
+                    <div
+                        x-data
+                        x-intersect:enter.margin.120px="$wire.loadMoreUnpriced()"
+                        class="border-t border-zinc-100 py-3 text-center text-xs text-zinc-400 dark:border-zinc-800"
+                        wire:loading.class="opacity-60"
+                        wire:target="loadMoreUnpriced,regSearch"
+                    >
+                        <span wire:loading wire:target="loadMoreUnpriced">Loading more…</span>
+                        <span wire:loading.remove wire:target="loadMoreUnpriced">Scroll for more</span>
+                    </div>
+                @endif
             </div>
         </div>
 
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
             <div class="border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
-                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Current pricing ({{ $current->count() }})</h2>
+                <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">
+                    Current pricing ({{ number_format($currentTotal) }})
+                </h2>
+                @if($current->isNotEmpty())
+                    <p class="mt-0.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        Showing {{ number_format($current->count()) }} of {{ number_format($currentTotal) }}
+                    </p>
+                @endif
             </div>
             <div class="max-h-[32rem] overflow-y-auto">
                 <table class="w-full text-left text-sm">
-                    <thead class="sticky top-0 bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
+                    <thead class="sticky top-0 z-10 bg-zinc-50 text-xs uppercase text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
                         <tr>
                             <th class="px-3 py-2">Reg</th>
                             <th class="px-3 py-2">Weekly</th>
@@ -88,10 +126,22 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4" class="px-3 py-6 text-center text-zinc-500">No current pricing rows.</td></tr>
+                            <tr><td colspan="4" class="px-3 py-6 text-center text-zinc-500">No pricing rows match this search.</td></tr>
                         @endforelse
                     </tbody>
                 </table>
+                @if($hasMoreCurrent)
+                    <div
+                        x-data
+                        x-intersect:enter.margin.120px="$wire.loadMoreCurrent()"
+                        class="border-t border-zinc-100 py-3 text-center text-xs text-zinc-400 dark:border-zinc-800"
+                        wire:loading.class="opacity-60"
+                        wire:target="loadMoreCurrent,regSearch"
+                    >
+                        <span wire:loading wire:target="loadMoreCurrent">Loading more…</span>
+                        <span wire:loading.remove wire:target="loadMoreCurrent">Scroll for more</span>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

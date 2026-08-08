@@ -16,6 +16,8 @@ class MotorbikePricingHub extends Component
 {
     use WithAuthorization;
 
+    private const PAGE_SIZE = 40;
+
     public ?int $selectedMotorbikeId = null;
 
     public string $selectedReg = '';
@@ -26,9 +28,31 @@ class MotorbikePricingHub extends Component
 
     public ?int $editingPricingId = null;
 
+    public string $regSearch = '';
+
+    public int $unpricedLimit = self::PAGE_SIZE;
+
+    public int $currentLimit = self::PAGE_SIZE;
+
     public function mount(): void
     {
         $this->authorizeModule('see-menu-rentals');
+    }
+
+    public function updatedRegSearch(): void
+    {
+        $this->unpricedLimit = self::PAGE_SIZE;
+        $this->currentLimit = self::PAGE_SIZE;
+    }
+
+    public function loadMoreUnpriced(): void
+    {
+        $this->unpricedLimit += self::PAGE_SIZE;
+    }
+
+    public function loadMoreCurrent(): void
+    {
+        $this->currentLimit += self::PAGE_SIZE;
     }
 
     public function selectUnpriced(int $motorbikeId): void
@@ -118,9 +142,32 @@ class MotorbikePricingHub extends Component
 
     public function render()
     {
+        $search = trim($this->regSearch);
+
+        $unpricedQuery = RentingPricing::unpricedMotorbikesQuery($search !== '' ? $search : null);
+        $unpricedTotal = (clone $unpricedQuery)->count();
+        $unpricedBatch = (clone $unpricedQuery)->limit($this->unpricedLimit + 1)->get();
+        $hasMoreUnpriced = $unpricedBatch->count() > $this->unpricedLimit;
+        $unpriced = $unpricedBatch->take($this->unpricedLimit);
+
+        $currentQuery = RentingPricing::current()
+            ->with('motorbike:id,reg_no,make,model')
+            ->when($search !== '', fn ($q) => $q->whereHas(
+                'motorbike',
+                fn ($m) => RentingPricing::applyMotorbikeSearch($m, $search)
+            ));
+        $currentTotal = (clone $currentQuery)->count();
+        $currentBatch = (clone $currentQuery)->limit($this->currentLimit + 1)->get();
+        $hasMoreCurrent = $currentBatch->count() > $this->currentLimit;
+        $current = $currentBatch->take($this->currentLimit);
+
         return view('flux-admin.pages.rentals.motorbike-pricing-hub', [
-            'unpriced' => RentingPricing::motorbikeNotPriced(),
-            'current' => RentingPricing::current()->with('motorbike:id,reg_no,make,model')->get(),
+            'unpriced' => $unpriced,
+            'unpricedTotal' => $unpricedTotal,
+            'hasMoreUnpriced' => $hasMoreUnpriced,
+            'current' => $current,
+            'currentTotal' => $currentTotal,
+            'hasMoreCurrent' => $hasMoreCurrent,
         ]);
     }
 }
