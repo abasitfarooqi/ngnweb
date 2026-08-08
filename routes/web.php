@@ -13,7 +13,6 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AgreementController;
 use App\Http\Controllers\ChatAgentController;
 use App\Http\Controllers\ClubMemberTrackingController;
-use App\Http\Controllers\CustomContractController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FileController;
@@ -146,9 +145,6 @@ Route::post('/chat/agent/message', [ChatAgentController::class, 'send'])
     ->middleware('throttle:15,1');
 
 // Custom contract generator
-Route::get('/custom-contract-generator', [CustomContractController::class, 'showCustomContractForm'])->name('custom.contract.form');
-Route::post('/generate-custom-contract', [CustomContractController::class, 'generateCustomContract'])->name('custom.contract.generate');
-Route::post('/api/generate-custom-contract', [CustomContractController::class, 'generateCustomContract']);
 
 // Trustpilot
 Route::get('/trustpilot-reviews', [TrustpilotReviewsController::class, 'getReviews']);
@@ -613,8 +609,6 @@ Route::prefix('admin')->middleware(['auth', 'admin', 'check.admin.access'])->gro
         Route::delete('/bookings/maintenance-logs/{logId}', [RentingController::class, 'deleteMaintenanceLog'])->name('admin.renting.bookings.maintenance-logs.destroy');
         Route::get('/bookings/{bookingId}/summary', [RentingController::class, 'getBookingSummary']);
         Route::get('/bookings/{bookingId}/summary_view', [RentingController::class, 'getBookingSummaryView']);
-        Route::post('/bookings/create-new-agreement', [AgreementController::class, 'createNewAgreement'])->name('admin.renting.bookings.createNewAgreement');
-        Route::post('/bookings/create-new-agreement-ins', [AgreementController::class, 'createNewAgreementIns'])->name('admin.renting.bookings.createNewAgreement.ins');
         Route::get('/bookings/{bookingId}/customer', [RentingController::class, 'getCustomer'])->name('admin.renting.bookings.customer');
         Route::get('/bookings/{bookingId}/invoices', [RentingController::class, 'getInvoices'])->name('admin.renting.bookings.invoices');
         Route::get('/bookings/invoices/{invoiceId}/details', [RentingController::class, 'getInvoiceDetails'])->name('admin.renting.bookings.invoices.details');
@@ -718,20 +712,9 @@ require __DIR__.'/auth.php';
 // ============================================================
 // AGREEMENTS / CONTRACTS / PDFS
 // ============================================================
-Route::get('/agreement/{customer_id}/{passcode}', [AgreementController::class, 'show'])->name('agreement.show');
-Route::get('/agreement-ins/{customer_id}/{passcode}', [AgreementController::class, 'showIns'])->name('agreement.show.ins');
 Route::get('/rental-agreement/{customer_id}/{passcode}', [AgreementController::class, 'showV6'])->name('agreement.show.v6');
 Route::get('/rental-agreement-ins/{customer_id}/{passcode}', [AgreementController::class, 'showInsV6'])->name('agreement.show.ins.v6');
-Route::get('/agreement-ins-6m/{customer_id}/{passcode}', [AgreementController::class, 'showIns6m'])->name('agreement.show.ins.6m');
-Route::get('/agreement-ins-5m-extended/{customer_id}/{passcode}', [AgreementController::class, 'showIns5mExtended'])->name('agreement.show.ins.5m.extended');
 Route::get('/loyalty-scheme/{customer_id}/{passcode}', [AgreementController::class, 'showLoyaltyScheme'])->name('loyalty.scheme.show');
-Route::get('/finance/{customer_id}/{passcode}', [AgreementController::class, 'showContract'])->name('finance.show');
-Route::get('/finance-ins/{customer_id}/{passcode}', [AgreementController::class, 'showContractIns'])->name('finance.ins.show');
-Route::get('/finance-18m-extended/{customer_id}/{passcode}', [AgreementController::class, 'showContract18mExtended'])->name('finance.show.18m.extended');
-Route::get('/finance-ins-18m-extended/{customer_id}/{passcode}', [AgreementController::class, 'showContractIns18mExtended'])->name('finance.ins.show.18m.extended');
-Route::get('/finance-ins-18m-extended-custom/{customer_id}/{passcode}', [AgreementController::class, 'showContractIns18mExtendedCustom'])->name('finance.ins.show.18m.extended.custom');
-Route::get('/finance-ins-5m/{customer_id}/{passcode}', [AgreementController::class, 'showContractIns5mExtended'])->name('finance.ins.show.5m.extended');
-Route::get('/finance-ins-m/{customer_id}/{passcode}', [AgreementController::class, 'showContractInsM'])->name('finance.ins.m.show');
 Route::get('/sale-latest/{customer_id}/{passcode}', [AgreementController::class, 'showContractLatest'])->name('finance.show.latest');
 Route::get('/sale-used-latest/{customer_id}/{passcode}', [AgreementController::class, 'showContractUsedLatest'])->name('finance.show.used.latest');
 Route::get('/sale-ins-latest/{customer_id}/{passcode}', [AgreementController::class, 'showContractInsLatest'])->name('finance.ins.show.latest');
@@ -747,21 +730,9 @@ Route::get('/purchase/{purchase_id}/{passcode}', [AgreementController::class, 's
 Route::get('/finance-contract-test-pdf/', [AgreementController::class, 'showContractTest'])->name('finance.contract.show.test');
 
 // POST contract generation
-Route::post('/signed/bookings/create-new-agreement', [AgreementController::class, 'createNewAgreement'])->name('admin.renting.bookings.createNewAgreement.signed');
 Route::post('/signed/bookings/create-new-agreement-v6', [AgreementController::class, 'createNewAgreementV6'])->name('admin.renting.bookings.createNewAgreement.signed.v6');
-Route::post('/signed/bookings/create-new-agreement-ins', [AgreementController::class, 'createNewAgreementIns'])->name('admin.renting.bookings.createNewAgreement.signed.ins');
 Route::post('/signed/bookings/create-new-agreement-ins-v6', [AgreementController::class, 'createNewAgreementInsV6'])->name('admin.renting.bookings.createNewAgreement.signed.ins.v6');
-Route::post('/signed/bookings/create-new-agreement-ins-6m', [AgreementController::class, 'createNewAgreementIns6m'])->name('admin.renting.bookings.createNewAgreement.signed.ins.6m');
-Route::post('/signed/bookings/create-new-agreement-ins-5m-extended', [AgreementController::class, 'createNewAgreementIns5mExtended'])->name('admin.renting.bookings.createNewAgreement.signed.ins.5m.extended');
 Route::post('/signed/bookings/create-loyalty-scheme', [AgreementController::class, 'createLoyaltyScheme'])->name('loyalty.scheme.create');
-Route::post('/delivery-contract', [AgreementController::class, 'createNewDeliveryContract'])->name('delivery.contract.create');
-Route::post('/signed/bookings/create-new-contract', [AgreementController::class, 'createNewContract'])->name('admin.finance.createNewAgreement');
-Route::post('/signed/bookings/create-new-contract-ins', [AgreementController::class, 'createNewContractIns'])->name('admin.finance.createNewAgreement.ins');
-Route::post('/signed/bookings/create-new-contract-18m-extended', [AgreementController::class, 'createNewContract18mExtended'])->name('admin.finance.createNewAgreement.18m.extended');
-Route::post('/signed/bookings/create-new-contract-ins-18m-extended', [AgreementController::class, 'createNewContractIns18mExtended'])->name('admin.finance.createNewAgreement.ins.18m.extended');
-Route::post('/signed/bookings/create-new-contract-ins-18m-extended-custom', [AgreementController::class, 'createNewContractIns18mExtendedCustom'])->name('admin.finance.createNewAgreement.ins.18m.extended.custom');
-Route::post('/signed/bookings/create-new-contract-ins-5m-extended', [AgreementController::class, 'createNewContractIns5mExtended'])->name('admin.finance.createNewAgreement.ins.5m.extended');
-Route::post('/signed/bookings/create-new-contract-ins-m', [AgreementController::class, 'createNewContractInsM'])->name('admin.finance.createNewAgreement.m.ins');
 Route::post('/signed/bookings/create-new-contract-latest', [AgreementController::class, 'createNewContractLatest'])->name('admin.finance.createNewAgreement.latest');
 Route::post('/signed/bookings/create-new-contract-ins-latest', [AgreementController::class, 'createNewContractInsLatest'])->name('admin.finance.createNewAgreement.ins.latest');
 Route::post('/signed/bookings/create-new-contract-ins-used-latest', [AgreementController::class, 'createNewContractInsUsedLatest'])->name('admin.finance.createNewAgreement.ins.used.latest');

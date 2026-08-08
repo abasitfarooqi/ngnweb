@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\Mobile;
 use App\Http\Controllers\Controller;
 use App\Models\AgreementAccess;
 use App\Models\ContractAccess;
+use App\Services\FinanceContractLinkResolver;
 use App\Models\CustomerAuth;
 use App\Models\UploadDocumentAccess;
 use Illuminate\Http\JsonResponse;
@@ -58,10 +59,17 @@ class MobileAgreementsController extends Controller
             ->latest('id')
             ->get()
             ->each(function (ContractAccess $access) use (&$items) {
+                $links = FinanceContractLinkResolver::linksForContractAccess($access);
+                $url = $links[0]['url'] ?? null;
+
+                if ($url === null) {
+                    return;
+                }
+
                 $items[] = [
                     'type' => 'finance_agreement',
                     'title' => 'Finance agreement to sign',
-                    'url' => route('finance.show', ['customer_id' => $access->customer_id, 'passcode' => $access->passcode]),
+                    'url' => $url,
                     'application_id' => $access->application_id,
                     'expires_at' => optional($access->expires_at)->toIso8601String(),
                 ];

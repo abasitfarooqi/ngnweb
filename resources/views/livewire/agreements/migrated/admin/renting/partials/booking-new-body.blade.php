@@ -14,7 +14,7 @@
         <div class="modal-dialog modal-sm">
             <div class="modal-content modal-filled bg-success">
                 <div class="modal-body">
-                    <form action="/admin/renting/bookings/create-new-agreement" method="POST">
+                    <form action="{{ route('admin.renting.bookings.createNewAgreement.signed.v6') }}" method="POST">
                         @csrf
                         <div class="text-center">
                             <i class="dripicons-checkmark h1 text-white"></i>
