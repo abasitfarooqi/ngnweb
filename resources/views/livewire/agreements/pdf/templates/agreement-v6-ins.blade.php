@@ -339,7 +339,7 @@
             <tr>
                 <td class="td-cont">{{ $booking->id }}</td>
                 <td class="td-cont">{{ isset($agreementStartDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementStartDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y H:i:s') }}</td>
-                <td class="td-cont">{{ isset($agreementEndDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementEndDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->addMonths(5)->format('d-F-Y H:i:s') }}</td>
+                <td class="td-cont">{{ isset($agreementEndDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementEndDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->addMonths(12)->format('d-F-Y H:i:s') }}</td>
                 <td class="td-cont">{{ $bookingItem->weekly_rent }}</td>
             </tr>
         </table>

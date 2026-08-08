@@ -26,6 +26,7 @@ use App\Models\RentalTerminateAccess;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\UploadDocumentAccess;
+use App\Support\AgreementDateTime;
 use App\Support\DocumentUploadAccessGenerator;
 use Carbon\Carbon;
 use DateTime;
@@ -561,7 +562,7 @@ class AgreementController extends Controller
         );
 
         try {
-            Mail::to($data['email'])->send(new HireContract($data));
+            $this->mailFinanceContractToCustomer($Customer, $data);
             $this->mailInternalPcnInsCopies($lessTermsPdfs);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
@@ -708,7 +709,7 @@ class AgreementController extends Controller
         );
 
         try {
-            Mail::to($data['email'])->send(new HireContract($data));
+            $this->mailFinanceContractToCustomer($Customer, $data);
             $this->mailInternalPcnInsCopies($lessTermsPdfs);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
@@ -878,10 +879,8 @@ class AgreementController extends Controller
         $email_data['pdf'] = $less_terms_pdf_data;
 
         try {
-            Mail::to($data['email'])->send(new HireContract($data));
-
-            // sending ins pdfs to only customerservice@neguinhomotors.co.uk
-            Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new HireContract($email_data));
+            $this->mailFinanceContractToCustomer($Customer, $data);
+            $this->mailInternalPcnInsCopies($less_terms_pdf_data);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
@@ -1021,7 +1020,7 @@ class AgreementController extends Controller
         );
 
         try {
-            Mail::to($data['email'])->send(new HireContract($data));
+            $this->mailFinanceContractToCustomer($Customer, $data);
             $this->mailInternalPcnInsCopies($lessTermsPdfs);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
@@ -1392,8 +1391,12 @@ class AgreementController extends Controller
         $email_data['pdf'] = $less_terms_pdf_data;
 
         try {
-            Mail::to($data['email'])->send(new HireContract($data));
-            Mail::to($email_data['email'])->send(new HireContract($email_data));
+            $this->mailFinanceContractToCustomer($Customer, [
+                'title' => 'Sale Contract & 12-Month Subscription Contract',
+                'body' => 'Thank you for choosing Neguinho Motors Ltd. Please find attached your Sale Contract and 12-Month Subscription Contract. Ride safe and enjoy the journey!',
+                'pdf' => [$salePdf, $subscriptionPdf],
+            ]);
+            $this->mailInternalPcnInsCopies($less_terms_pdf_data);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
@@ -1581,8 +1584,12 @@ class AgreementController extends Controller
         $email_data['pdf'] = $less_terms_pdf_data;
 
         try {
-            Mail::to($data['email'])->send(new HireContract($data));
-            Mail::to($email_data['email'])->send(new HireContract($email_data));
+            $this->mailFinanceContractToCustomer($Customer, [
+                'title' => 'Sale Contract & 12-Month Subscription Contract',
+                'body' => 'Thank you for choosing Neguinho Motors Ltd. Please find attached your Sale Contract and 12-Month Subscription Contract. Ride safe and enjoy the journey!',
+                'pdf' => [$salePdf, $subscriptionPdf],
+            ]);
+            $this->mailInternalPcnInsCopies($less_terms_pdf_data);
         } catch (Exception $e) {
             Log::error(__FILE__.' at line '.__LINE__.' Failed to send email: '.$e->getMessage());
         }
@@ -2064,13 +2071,7 @@ class AgreementController extends Controller
         $toDay = Carbon::parse($toDay)->format('d/m/Y');
 
 
-        $agreementStartDate = $Booking->start_date;
-        $agreementEndDate1 = $agreementStartDate->copy()->addMonths(5);
-        $agreementEndDate2 = $agreementEndDate1->copy()->addMonths(5);
-        $agreementEndDate3 = $agreementEndDate2->copy()->addMonths(5);
-
-        // V6 for 5 month copies INS
-        $pdf_name = 'pdf.agreement-v6-ins';
+        $twelveMonthDates = AgreementDateTime::rentalTwelveMonthDateStrings($Booking);
 
         // Check if directory exists and create if not
         $pdfPath = storage_path('app/public/customers/'.$Booking->customer_id);
@@ -2078,29 +2079,15 @@ class AgreementController extends Controller
             File::makeDirectory($pdfPath, 0777, true, true);
         }
 
-        //  // Send email with PDF to client
-        // TEMP
-
-        $data['email'] = [$Customer->email, 'customerservice@neguinhomotors.co.uk'];
-        // $data["email"] = [$Customer->email];
         $data['title'] = 'Rental Agreement';
         $data['body'] = 'Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!';
 
         $rand_no = rand(1, 99999);
         $tm = time();
 
-        // $customerAgreement = new CustomerAgreement();
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        
         $path = "customers/{$Booking->customer_id}/rental-agreement-v6-".$tm.$rand_no.'.pdf';
-
-        // 5m
-        $path1 = "customers/{$Booking->customer_id}/1st-{$pdf_name}-".$tm.$rand_no.'.pdf';
-        $path2 = "customers/{$Booking->customer_id}/2nd-{$pdf_name}-".$tm.$rand_no.'.pdf';
-        $path3 = "customers/{$Booking->customer_id}/3rd-{$pdf_name}-".$tm.$rand_no.'.pdf';
-
-
 
         $customerAgreement = CustomerAgreement::create([
             'customer_id' => $Booking->customer_id,
@@ -2118,61 +2105,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        //5m
-
-        $customerAgreement1 = CustomerAgreement::create([
-            'customer_id' => $Booking->customer_id,
-            'document_type_id' => $documentType->id,
-            'file_name' => "1st-{$pdf_name}-{$tm}{$rand_no}.pdf",
-            'file_path' => $path1,
-            'file_format' => 'pdf',
-            'document_number' => '',
-            'valid_until' => null,
-            'is_verified' => false,
-            'booking_id' => $request->booking_id,
-        ]);
-        $customerAgreement1->update([
-            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement1->id, 3, '0', STR_PAD_LEFT),
-        ]);
-
-        // Create and save second agreement
-        $customerAgreement2 = CustomerAgreement::create([
-            'customer_id' => $Booking->customer_id,
-            'document_type_id' => $documentType->id,
-            'file_name' => "2nd-{$pdf_name}-{$tm}{$rand_no}.pdf",
-            'file_path' => $path2,
-            'file_format' => 'pdf',
-            'document_number' => '',
-            'valid_until' => null,
-            'is_verified' => false,
-            'booking_id' => $request->booking_id,
-        ]);
-        $customerAgreement2->update([
-            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement2->id, 3, '0', STR_PAD_LEFT),
-        ]);
-
-        // Create and save third agreement
-        $customerAgreement3 = CustomerAgreement::create([
-            'customer_id' => $Booking->customer_id,
-            'document_type_id' => $documentType->id,
-            'file_name' => "3rd-{$pdf_name}-{$tm}{$rand_no}.pdf",
-            'file_path' => $path3,
-            'file_format' => 'pdf',
-            'document_number' => '',
-            'valid_until' => null,
-            'is_verified' => false,
-            'booking_id' => $request->booking_id,
-        ]);
-        $customerAgreement3->update([
-            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement3->id, 3, '0', STR_PAD_LEFT),
-        ]);
-
-
-        // V1
-        // $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement', [
-
-        // V6 // for five year v6 simple
-        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6', array_merge([
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2181,81 +2114,30 @@ class AgreementController extends Controller
             'bookingItem' => $BookingItems,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $customerAgreement->document_number,
-        ])->setPaper('a4', 'portrait')
+        ], $twelveMonthDates))->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/rental-agreement-v6-'.$tm.$rand_no.'.pdf');
 
-
-
-
-        // 5mnth copies
-        // Generate PDFs with document_number passed to views
-        $pdf1 = $this->pdfLoadView($pdf_name, [
-            'agreementStartDate' => $agreementStartDate->format('d/m/Y H:i'),
-            'agreementEndDate' => $agreementEndDate1->format('d/m/Y H:i'),
-            'today' => $agreementStartDate->format('d/m/Y'),
-            'SIGFILE' => $fileName,
-            'booking' => $Booking,
-            'customer' => $Customer,
-            'motorbike' => $Motorbike,
-            'bookingItem' => $BookingItems,
-            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            'document_number' => $customerAgreement1->document_number,
-        ])->setPaper('a4', 'portrait')
-            ->setOption('isPhpEnabled', true)
-            ->save($pdfPath."/1st-{$pdf_name}-{$tm}{$rand_no}.pdf");
-
-
-
-        $pdf2 = $this->pdfLoadView($pdf_name, [
-            'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
-            'agreementEndDate' => $agreementEndDate2->format('d/m/Y H:i'),
-            'today' => $agreementEndDate1->format('d/m/Y'),
-            'SIGFILE' => $fileName,
-            'booking' => $Booking,
-            'customer' => $Customer,
-            'motorbike' => $Motorbike,
-            'bookingItem' => $BookingItems,
-            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            'document_number' => $customerAgreement2->document_number,
-        ])->setPaper('a4', 'portrait')
-            ->setOption('isPhpEnabled', true)
-            ->save($pdfPath."/2nd-{$pdf_name}-{$tm}{$rand_no}.pdf");
-
-
-
-        $pdf3 = $this->pdfLoadView($pdf_name, [
-            'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
-            'agreementEndDate' => $agreementEndDate3->format('d/m/Y H:i'),
-            'today' => $agreementEndDate2->format('d/m/Y'),
-            'SIGFILE' => $fileName,
-            'booking' => $Booking,
-            'customer' => $Customer,
-            'motorbike' => $Motorbike,
-            'bookingItem' => $BookingItems,
-            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            'document_number' => $customerAgreement3->document_number,
-        ])->setPaper('a4', 'portrait')
-            ->setOption('isPhpEnabled', true)
-            ->save($pdfPath."/3rd-{$pdf_name}-{$tm}{$rand_no}.pdf");
-
-
-
-        $data['pdf'] = $pdf;
-        $data['pdf1'] = $pdf1;
-        $data['pdf2'] = $pdf2;
-        $data['pdf3'] = $pdf3;
+        $pcnPdfs = $this->buildRentalPcnInsCopies(
+            $Booking,
+            $Customer,
+            $Motorbike,
+            $BookingItems,
+            $fileName,
+            $pdfPath,
+            (int) $tm,
+            (int) $rand_no,
+            (int) $request->booking_id,
+            $documentType,
+        );
 
         try {
-            //  $data['email'] = [$Customer->email, 'customerservice@neguinhomotors.co.uk']; going to customer service and customers
-            // customer and us will receive the rental agreement v6 of 5 years simple
-            Mail::to($data['email'])->send(new RentalAgreement($data));
-            
-            // We are receiving also 5 months copies to customer service
-            // only send to customer service and not customers 5ms send to customer service sending on pdf 1 2 and 3 by array
-            Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new RentalAgreementNgn($data));
-
-
+            $this->mailRentalAgreementToCustomer($Customer, [
+                'title' => $data['title'],
+                'body' => $data['body'],
+                'pdf' => $pdf,
+            ]);
+            $this->mailRentalPcnCopiesToCustomerService($pcnPdfs);
         } catch (RfcComplianceException $e) {
             Log::error(__FILE__.' at line '.__LINE__.'RFC Compliance Error: '.$e->getMessage());
         } catch (Exception $e) {
@@ -2309,24 +2191,20 @@ class AgreementController extends Controller
         $toDay = new DateTime;
         $toDay = Carbon::parse($toDay)->format('d/m/Y');
 
+        $twelveMonthDates = AgreementDateTime::rentalTwelveMonthDateStrings($Booking);
+
         // Check if directory exists and create if not
         $pdfPath = storage_path('app/public/customers/'.$Booking->customer_id);
         if (! File::isDirectory($pdfPath)) {
             File::makeDirectory($pdfPath, 0777, true, true);
         }
 
-        //  // Send email with PDF to client
-        // TEMP
-
-        $data['email'] = ['customerservice@neguinhomotors.co.uk'];
-        // $data["email"] = [$Customer->email];
         $data['title'] = 'Rental Agreement';
         $data['body'] = 'Thank you for choosing Neguinho Motors. Ride safe and enjoy the journey!';
 
         $rand_no = rand(1, 99999);
         $tm = time();
 
-        // $customerAgreement = new CustomerAgreement();
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
         $path = "customers/{$Booking->customer_id}/rental-agreement-ins-v6-".$tm.$rand_no.'.pdf';
@@ -2347,8 +2225,7 @@ class AgreementController extends Controller
             'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement->id, 3, '0', STR_PAD_LEFT),
         ]);
 
-        // V6 full INS agreement (customer + customerservice)
-        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6-ins', [
+        $pdf = $this->pdfLoadView('livewire.agreements.pdf.templates.agreement-v6-ins', array_merge([
             'today' => $toDay,
             'SIGFILE' => $fileName,
             'booking' => $Booking,
@@ -2357,124 +2234,30 @@ class AgreementController extends Controller
             'bookingItem' => $BookingItems,
             'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
             'document_number' => $customerAgreement->document_number,
-        ])->setPaper('a4', 'portrait')
+        ], $twelveMonthDates))->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
             ->save($pdfPath.'/rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf');
 
-        // Always: 3× rental PCN/INS period copies for customerservice only (council PCN).
-        // Uses rental agreement template (agreement-v6-ins), not sale-contract less-terms.
-        $agreementStartDate = $Booking->start_date;
-        $agreementEndDate1 = $agreementStartDate->copy()->addMonths(5);
-        $agreementEndDate2 = $agreementEndDate1->copy()->addMonths(5);
-        $agreementEndDate3 = $agreementEndDate2->copy()->addMonths(5);
-
-        $pcnPdfName = 'pdf.agreement-v6-ins';
-        $path1 = "customers/{$Booking->customer_id}/1st-{$pcnPdfName}-".$tm.$rand_no.'.pdf';
-        $path2 = "customers/{$Booking->customer_id}/2nd-{$pcnPdfName}-".$tm.$rand_no.'.pdf';
-        $path3 = "customers/{$Booking->customer_id}/3rd-{$pcnPdfName}-".$tm.$rand_no.'.pdf';
-
-        $customerAgreement1 = CustomerAgreement::create([
-            'customer_id' => $Booking->customer_id,
-            'document_type_id' => $documentType->id,
-            'file_name' => "1st-{$pcnPdfName}-{$tm}{$rand_no}.pdf",
-            'file_path' => $path1,
-            'file_format' => 'pdf',
-            'document_number' => '',
-            'valid_until' => null,
-            'is_verified' => false,
-            'booking_id' => $request->booking_id,
-        ]);
-        $customerAgreement1->update([
-            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement1->id, 3, '0', STR_PAD_LEFT),
-        ]);
-
-        $customerAgreement2 = CustomerAgreement::create([
-            'customer_id' => $Booking->customer_id,
-            'document_type_id' => $documentType->id,
-            'file_name' => "2nd-{$pcnPdfName}-{$tm}{$rand_no}.pdf",
-            'file_path' => $path2,
-            'file_format' => 'pdf',
-            'document_number' => '',
-            'valid_until' => null,
-            'is_verified' => false,
-            'booking_id' => $request->booking_id,
-        ]);
-        $customerAgreement2->update([
-            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement2->id, 3, '0', STR_PAD_LEFT),
-        ]);
-
-        $customerAgreement3 = CustomerAgreement::create([
-            'customer_id' => $Booking->customer_id,
-            'document_type_id' => $documentType->id,
-            'file_name' => "3rd-{$pcnPdfName}-{$tm}{$rand_no}.pdf",
-            'file_path' => $path3,
-            'file_format' => 'pdf',
-            'document_number' => '',
-            'valid_until' => null,
-            'is_verified' => false,
-            'booking_id' => $request->booking_id,
-        ]);
-        $customerAgreement3->update([
-            'document_number' => "{$Booking->id}-{$Booking->customer_id}-".str_pad($customerAgreement3->id, 3, '0', STR_PAD_LEFT),
-        ]);
-
-        $pdf1 = $this->pdfLoadView($pcnPdfName, [
-            'agreementStartDate' => $agreementStartDate->format('d/m/Y H:i'),
-            'agreementEndDate' => $agreementEndDate1->format('d/m/Y H:i'),
-            'today' => $agreementStartDate->format('d/m/Y'),
-            'SIGFILE' => $fileName,
-            'booking' => $Booking,
-            'customer' => $Customer,
-            'motorbike' => $Motorbike,
-            'bookingItem' => $BookingItems,
-            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            'document_number' => $customerAgreement1->document_number,
-        ])->setPaper('a4', 'portrait')
-            ->setOption('isPhpEnabled', true)
-            ->save($pdfPath."/1st-{$pcnPdfName}-{$tm}{$rand_no}.pdf");
-
-        $pdf2 = $this->pdfLoadView($pcnPdfName, [
-            'agreementStartDate' => $agreementEndDate1->format('d/m/Y H:i'),
-            'agreementEndDate' => $agreementEndDate2->format('d/m/Y H:i'),
-            'today' => $agreementEndDate1->format('d/m/Y'),
-            'SIGFILE' => $fileName,
-            'booking' => $Booking,
-            'customer' => $Customer,
-            'motorbike' => $Motorbike,
-            'bookingItem' => $BookingItems,
-            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            'document_number' => $customerAgreement2->document_number,
-        ])->setPaper('a4', 'portrait')
-            ->setOption('isPhpEnabled', true)
-            ->save($pdfPath."/2nd-{$pcnPdfName}-{$tm}{$rand_no}.pdf");
-
-        $pdf3 = $this->pdfLoadView($pcnPdfName, [
-            'agreementStartDate' => $agreementEndDate2->format('d/m/Y H:i'),
-            'agreementEndDate' => $agreementEndDate3->format('d/m/Y H:i'),
-            'today' => $agreementEndDate2->format('d/m/Y'),
-            'SIGFILE' => $fileName,
-            'booking' => $Booking,
-            'customer' => $Customer,
-            'motorbike' => $Motorbike,
-            'bookingItem' => $BookingItems,
-            'user_name' => $Booking->user->first_name.' '.$Booking->user->last_name,
-            'document_number' => $customerAgreement3->document_number,
-        ])->setPaper('a4', 'portrait')
-            ->setOption('isPhpEnabled', true)
-            ->save($pdfPath."/3rd-{$pcnPdfName}-{$tm}{$rand_no}.pdf");
-
-        $data['pdf'] = $pdf;
-        $data['pdf1'] = $pdf1;
-        $data['pdf2'] = $pdf2;
-        $data['pdf3'] = $pdf3;
+        $pcnPdfs = $this->buildRentalPcnInsCopies(
+            $Booking,
+            $Customer,
+            $Motorbike,
+            $BookingItems,
+            $fileName,
+            $pdfPath,
+            (int) $tm,
+            (int) $rand_no,
+            (int) $request->booking_id,
+            $documentType,
+        );
 
         try {
-            // Full rental INS agreement → customerservice + customer
-            Mail::to($data['email'])->send(new RentalAgreement($data));
-            Mail::to($Customer->email)->send(new RentalAgreement($data));
-
-            // 3× rental PCN period copies → customerservice only
-            Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new RentalAgreementNgn($data));
+            $this->mailRentalAgreementToCustomer($Customer, [
+                'title' => $data['title'],
+                'body' => $data['body'],
+                'pdf' => $pdf,
+            ]);
+            $this->mailRentalPcnCopiesToCustomerService($pcnPdfs);
         } catch (RfcComplianceException $e) {
             Log::error(__FILE__.' at line '.__LINE__.'RFC Compliance Error: '.$e->getMessage());
         } catch (Exception $e) {
@@ -2779,11 +2562,106 @@ class AgreementController extends Controller
             return;
         }
 
-        Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new HireContract([
+        Mail::to([self::CUSTOMER_SERVICE_EMAIL])->send(new HireContract([
             'title' => 'Sale Contract - PCN/INS - Internal',
             'body' => 'Thank you for choosing Neguinho Motors Ltd. Ride safe and enjoy the journey! <br> Find Attached your rental agreement. ',
             'pdf' => $lessTermsPdfs,
         ]));
+    }
+
+    private const CUSTOMER_SERVICE_EMAIL = 'customerservice@neguinhomotors.co.uk';
+
+    private function mailFinanceContractToCustomer(Customer $customer, array $mailData): void
+    {
+        if (! filled($customer->email)) {
+            return;
+        }
+
+        Mail::to($customer->email)->send(new HireContract(array_merge($mailData, [
+            'cc' => [self::CUSTOMER_SERVICE_EMAIL],
+        ])));
+    }
+
+    private function mailRentalAgreementToCustomer(Customer $customer, array $mailData): void
+    {
+        if (! filled($customer->email)) {
+            return;
+        }
+
+        Mail::to($customer->email)->send(new RentalAgreement(array_merge($mailData, [
+            'cc' => [self::CUSTOMER_SERVICE_EMAIL],
+        ])));
+    }
+
+    private function mailRentalPcnCopiesToCustomerService(array $pcnPdfs): void
+    {
+        Mail::to([self::CUSTOMER_SERVICE_EMAIL])->send(new RentalAgreementNgn($pcnPdfs));
+    }
+
+    /**
+     * Build 3× rental PCN/INS period copies for customerservice only (council PCN).
+     *
+     * @return array{pdf1: mixed, pdf2: mixed, pdf3: mixed}
+     */
+    private function buildRentalPcnInsCopies(
+        RentingBooking $booking,
+        Customer $customer,
+        Motorbike $motorbike,
+        RentingBookingItem $bookingItems,
+        string $fileName,
+        string $pdfPath,
+        int $tm,
+        int $randNo,
+        int $bookingId,
+        DocumentType $documentType,
+    ): array {
+        $pcnPdfName = 'pdf.agreement-v6-ins';
+        $segments = AgreementDateTime::rentalPcnSegments(AgreementDateTime::rentalStart($booking));
+        $ordinals = ['1st', '2nd', '3rd'];
+        $pdfs = [];
+        $userName = $booking->user->first_name.' '.$booking->user->last_name;
+
+        foreach ($segments as $index => $segment) {
+            $ordinal = $ordinals[$index];
+            $relativePath = "customers/{$booking->customer_id}/{$ordinal}-{$pcnPdfName}-{$tm}{$randNo}.pdf";
+
+            $agreement = CustomerAgreement::create([
+                'customer_id' => $booking->customer_id,
+                'document_type_id' => $documentType->id,
+                'file_name' => "{$ordinal}-{$pcnPdfName}-{$tm}{$randNo}.pdf",
+                'file_path' => $relativePath,
+                'file_format' => 'pdf',
+                'document_number' => '',
+                'valid_until' => null,
+                'is_verified' => false,
+                'booking_id' => $bookingId,
+            ]);
+
+            $agreement->update([
+                'document_number' => "{$booking->id}-{$booking->customer_id}-".str_pad((string) $agreement->id, 3, '0', STR_PAD_LEFT),
+            ]);
+
+            $pdfs[] = $this->pdfLoadView($pcnPdfName, [
+                'agreementStartDate' => $segment['start']->format('d/m/Y H:i'),
+                'agreementEndDate' => $segment['end']->format('d/m/Y H:i'),
+                'today' => $segment['start']->format('d/m/Y'),
+                'SIGFILE' => $fileName,
+                'booking' => $booking,
+                'customer' => $customer,
+                'motorbike' => $motorbike,
+                'bookingItem' => $bookingItems,
+                'user_name' => $userName,
+                'document_number' => $agreement->document_number,
+            ])->setPaper('a4', 'portrait')
+                ->setOption('isPhpEnabled', true)
+                ->save($pdfPath."/{$ordinal}-{$pcnPdfName}-{$tm}{$randNo}.pdf");
+        }
+
+        return [
+            'pdf1' => $pdfs[0],
+            'pdf2' => $pdfs[1],
+            'pdf3' => $pdfs[2],
+        ];
     }
 
     private function sendEbikeBatterySafetyLeafletIfNeeded(

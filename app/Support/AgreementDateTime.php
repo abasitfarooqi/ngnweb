@@ -185,4 +185,40 @@ final class AgreementDateTime
 
         return $data;
     }
+
+    public static function rentalStart(RentingBooking $booking): Carbon
+    {
+        return Carbon::parse(self::prepareRentalBooking($booking, false)->start_date);
+    }
+
+    public static function rentalEnd12Month(Carbon $start): Carbon
+    {
+        return $start->copy()->addMonths(12);
+    }
+
+    /** @return array{agreementStartDate: string, agreementEndDate: string} */
+    public static function rentalTwelveMonthDateStrings(RentingBooking $booking): array
+    {
+        $start = self::rentalStart($booking);
+        $end = self::rentalEnd12Month($start);
+
+        return [
+            'agreementStartDate' => $start->format('d/m/Y H:i'),
+            'agreementEndDate' => $end->format('d/m/Y H:i'),
+        ];
+    }
+
+    /** @return list<array{start: Carbon, end: Carbon}> */
+    public static function rentalPcnSegments(Carbon $start): array
+    {
+        $end1 = $start->copy()->addMonths(5);
+        $end2 = $end1->copy()->addMonths(5);
+        $end3 = $end2->copy()->addMonths(5);
+
+        return [
+            ['start' => $start->copy(), 'end' => $end1],
+            ['start' => $end1->copy(), 'end' => $end2],
+            ['start' => $end2->copy(), 'end' => $end3],
+        ];
+    }
 }

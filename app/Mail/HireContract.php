@@ -27,6 +27,7 @@ class HireContract extends Mailable
     {
         return new Envelope(
             subject: 'Hire Contract',
+            cc: array_values(array_filter((array) ($this->mailData['cc'] ?? []))),
         );
     }
 

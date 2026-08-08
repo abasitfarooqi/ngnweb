@@ -24,6 +24,7 @@ class RentalAgreement extends Mailable
     {
         return new Envelope(
             subject: 'Rental Agreement',
+            cc: array_values(array_filter((array) ($this->mailData['cc'] ?? []))),
         );
     }
 

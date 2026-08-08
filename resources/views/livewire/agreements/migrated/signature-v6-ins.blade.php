@@ -341,7 +341,7 @@ label a{
                     <li class="list-group-item">CONTRACT DATE:
                         {{ \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y H:i:s') }}</li>
                     <li class="list-group-item">EXPIRY DATE:
-                        {{ \Carbon\Carbon::parse($booking->start_date)->addMonths(5)->format('d-F-Y H:i:s') }}</li>
+                        {{ \Carbon\Carbon::parse($booking->start_date)->addMonths(12)->format('d-F-Y H:i:s') }}</li>
                     <li class="list-group-item">DEPOSIT: {{ $booking->deposit }}</li>
                     <li class="list-group-item">WEEKLY: {{ $bookingItem->weekly_rent }}</li>
                     <li class="list-group-item">STAFF: {{ $user_name }}</li>
@@ -393,7 +393,7 @@ label a{
                     <td class="td-cont">{{ $booking->id }}</td>
                     <td class="td-cont">{{ \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y H:i:s') }}</td>
                     <td class="td-cont">
-                        {{ \Carbon\Carbon::parse($booking->start_date)->addMonths(5)->format('d-F-Y H:i:s') }}</td>
+                        {{ \Carbon\Carbon::parse($booking->start_date)->addMonths(12)->format('d-F-Y H:i:s') }}</td>
                     <td class="td-cont">{{ $booking->deposit }}</td>
                     <td class="td-cont">{{ $bookingItem->weekly_rent }}</td>
 

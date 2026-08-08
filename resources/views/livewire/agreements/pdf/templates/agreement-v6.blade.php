@@ -340,8 +340,8 @@
         </tr>
         <tr>
             <td class="td-cont">{{ $booking->id }}</td>
-            <td class="td-cont">{{ \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y H:i:s') }}</td>
-            <td class="td-cont">{{ \Carbon\Carbon::parse($booking->start_date)->addYears(1)->format('d-F-Y H:i:s') }}</td>
+            <td class="td-cont">{{ isset($agreementStartDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementStartDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y H:i:s') }}</td>
+            <td class="td-cont">{{ isset($agreementEndDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementEndDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->addMonths(12)->format('d-F-Y H:i:s') }}</td>
             <td class="td-cont">{{ $booking->deposit }}</td>
             <td class="td-cont">{{ $bookingItem->weekly_rent }}</td>
 
@@ -400,8 +400,7 @@
             @php
                 use Carbon\Carbon;
 
-                // Parse the creation date of the booking and add five years to set the fixed expiry of the hire agreement
-                $contractExpiry = Carbon::parse($booking->created_at)->addYears(1);
+                $contractExpiry = Carbon::parse($booking->start_date)->addMonths(12);
 
                 // Parse the expiry date of the customer's driving license
                 $licenseExpiryDate = Carbon::parse($customer->license_expiry_date);

@@ -67,10 +67,10 @@ final class EbikeBatterySafetyLeaflet
             $mailClass = $rentalMail ? RentalAgreement::class : HireContract::class;
 
             if (filled($customer->email)) {
-                Mail::to([$customer->email])->send(new $mailClass($mailData));
+                Mail::to($customer->email)->send(new $mailClass(array_merge($mailData, [
+                    'cc' => ['customerservice@neguinhomotors.co.uk'],
+                ])));
             }
-
-            Mail::to(['customerservice@neguinhomotors.co.uk'])->send(new $mailClass($mailData));
         } catch (Throwable $e) {
             Log::error(__FILE__.' battery safety leaflet failed: '.$e->getMessage());
         }

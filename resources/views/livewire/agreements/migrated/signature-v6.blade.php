@@ -457,7 +457,7 @@ label a{
                 use Carbon\Carbon;
 
                 // Parse the creation date of the booking and add five years to set the fixed expiry of the hire agreement
-                $contractExpiry = Carbon::parse($booking->created_at)->addYears(1);
+                $contractExpiry = Carbon::parse($booking->start_date)->addMonths(12);
 
                 // Parse the expiry date of the customer's driving license
                 $licenseExpiryDate = Carbon::parse($customer->license_expiry_date);
