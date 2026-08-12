@@ -501,7 +501,7 @@ class MobilePublicFormsController extends Controller
         ]);
 
         $regNo = strtoupper(trim((string) $payload['motorbike_reg_no']));
-        $appointmentStart = trim($payload['date_of_appointment'].' '.$payload['time_slot']);
+        $appointmentStart = \App\Models\MOTBooking::appointmentStart($payload['date_of_appointment'], $payload['time_slot']);
 
         $slotError = \App\Models\MOTBooking::motSlotValidationError((int) $payload['branch_id'], $payload['date_of_appointment'], $payload['time_slot']);
         if ($slotError !== null) {
@@ -511,9 +511,9 @@ class MobilePublicFormsController extends Controller
         $motBooking = \App\Models\MOTBooking::withoutEvents(fn () => \App\Models\MOTBooking::query()->create([
             'branch_id' => (int) $payload['branch_id'],
             'vehicle_registration' => $regNo,
-            'date_of_appointment' => $payload['date_of_appointment'],
-            'start' => $appointmentStart,
-            'end' => $appointmentStart,
+            'date_of_appointment' => $appointmentStart->toDateTimeString(),
+            'start' => $appointmentStart->toDateTimeString(),
+            'end' => \App\Models\MOTBooking::appointmentEnd($appointmentStart)->toDateTimeString(),
             'customer_name' => trim((string) $payload['customer_name']),
             'customer_contact' => trim((string) $payload['customer_phone']),
             'customer_email' => trim((string) $payload['customer_email']),

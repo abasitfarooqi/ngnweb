@@ -114,12 +114,7 @@ class Book extends Component
         ]));
 
         $branchId = (int) $this->branch_id;
-        $slotTaken = MOTBooking::query()
-            ->where('branch_id', $branchId)
-            ->whereDate('date_of_appointment', $this->date_of_appointment)
-            ->where('start', $appointmentStart->toDateTimeString())
-            ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
-            ->exists();
+        $slotTaken = MOTBooking::hasOverlappingSlot($branchId, $appointmentStart);
 
         if ($slotTaken) {
             $this->addError('time_slot', 'That time slot has already been reserved.');
@@ -137,7 +132,7 @@ class Book extends Component
                 'vehicle_color' => null,
                 'date_of_appointment' => $appointmentStart->toDateTimeString(),
                 'start' => $appointmentStart->toDateTimeString(),
-                'end' => $appointmentStart->toDateTimeString(),
+                'end' => MOTBooking::appointmentEnd($appointmentStart)->toDateTimeString(),
                 'customer_name' => $customerName,
                 'customer_contact' => $customerPhone,
                 'customer_email' => $customerEmail,

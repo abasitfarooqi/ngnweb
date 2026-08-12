@@ -59,15 +59,25 @@
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Slot start" required :error="$errors->first('form.start')">
-                    <flux:input type="datetime-local" wire:model="form.start" />
+                    <flux:input type="datetime-local" wire:model.live="form.start" />
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Slot end" required :error="$errors->first('form.end')">
-                    <flux:input type="datetime-local" wire:model="form.end" />
+                <x-flux-admin::field-group label="Slot end (auto)" :error="$errors->first('form.end')">
+                    <flux:input type="datetime-local" wire:model="form.end" readonly />
                 </x-flux-admin::field-group>
 
-                <x-flux-admin::field-group label="Payment method" required :error="$errors->first('form.payment_method')">
-                    <flux:input wire:model="form.payment_method" placeholder="e.g. Card, Cash" />
+                <x-flux-admin::field-group label="Payment method" required :error="$errors->first('form.payment_method_choice') ?: $errors->first('form.payment_method_custom')">
+                    <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+                        <flux:select wire:model.live="form.payment_method_choice">
+                            <flux:select.option value="">— Select —</flux:select.option>
+                            <flux:select.option value="Cash">Cash</flux:select.option>
+                            <flux:select.option value="Card">Card</flux:select.option>
+                            <flux:select.option value="Other">Other</flux:select.option>
+                        </flux:select>
+                        @if(($form['payment_method_choice'] ?? '') === 'Other')
+                            <flux:input wire:model="form.payment_method_custom" placeholder="Custom method" />
+                        @endif
+                    </div>
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Payment link" span="2" :error="$errors->first('form.payment_link')">
@@ -91,6 +101,13 @@
                 <input type="checkbox" wire:model="form.is_paid" id="is_paid" class="accent-zinc-900 dark:accent-zinc-200">
                 <label for="is_paid" class="text-sm text-zinc-700 dark:text-zinc-300 cursor-pointer">Payment received</label>
             </div>
+
+            @if($motBooking && $motBooking->exists)
+                <div class="mt-4 flex items-center gap-3 border-t border-zinc-200 pt-4 dark:border-zinc-800">
+                    <input type="checkbox" wire:model="form.is_dealt" id="is_dealt" class="accent-zinc-900 dark:accent-zinc-200">
+                    <label for="is_dealt" class="text-sm text-zinc-700 dark:text-zinc-300 cursor-pointer">Mark as dealt</label>
+                </div>
+            @endif
         </div>
 
         <div class="flex justify-end gap-3 pt-2">

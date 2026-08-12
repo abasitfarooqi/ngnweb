@@ -278,12 +278,7 @@ class ServiceBooking extends Component
         if ($isMotBooking) {
             $branchId = (int) (MOTBooking::catfordBranchId() ?? $validated['selectedBranch']);
             $appointmentStart = MOTBooking::appointmentStart($validated['preferredDate'], $validated['preferredTime']);
-            $slotTaken = MOTBooking::query()
-                ->where('branch_id', $branchId)
-                ->whereDate('date_of_appointment', $validated['preferredDate'])
-                ->where('start', $appointmentStart->toDateTimeString())
-                ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
-                ->exists();
+            $slotTaken = MOTBooking::hasOverlappingSlot($branchId, $appointmentStart);
 
             if ($slotTaken) {
                 $this->addError('preferredTime', 'That time slot has already been reserved.');
@@ -333,7 +328,7 @@ class ServiceBooking extends Component
                     'vehicle_color' => null,
                     'date_of_appointment' => $appointmentStart->toDateTimeString(),
                     'start' => $appointmentStart->toDateTimeString(),
-                    'end' => $appointmentStart->toDateTimeString(),
+                    'end' => MOTBooking::appointmentEnd($appointmentStart)->toDateTimeString(),
                     'customer_name' => $resolvedName,
                     'customer_contact' => $resolvedPhone,
                     'customer_email' => $resolvedEmail !== '' ? $resolvedEmail : null,

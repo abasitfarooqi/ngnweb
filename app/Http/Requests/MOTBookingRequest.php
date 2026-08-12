@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use App\Models\MOTBooking;
+use Carbon\Carbon;
 use Illuminate\Foundation\Http\FormRequest;
 
 class MOTBookingRequest extends FormRequest
@@ -38,15 +40,16 @@ class MOTBookingRequest extends FormRequest
                 'nullable',
                 'date',
                 function ($attribute, $value, $fail) {
-                    $end = request('end');
+                    $branchId = (int) request('branch_id');
                     $bookingId = request()->route('id');
-                    if ($value && $end) {
-                        $exists = \App\Models\MOTBooking::where('start', $value)
-                            ->where('end', $end)
-                            ->where('id', '!=', $bookingId)
-                            ->exists();
-                        if ($exists) {
-                            $fail('This time slot is already booked.');
+
+                    if ($value && $branchId > 0) {
+                        $start = Carbon::parse($value);
+                        $end = MOTBooking::appointmentEnd($start);
+                        $ignoreId = is_numeric($bookingId) ? (int) $bookingId : null;
+
+                        if (MOTBooking::hasOverlappingSlot($branchId, $start, $end, $ignoreId)) {
+                            $fail('This MOT time overlaps an existing booking.');
                         }
                     }
                 },

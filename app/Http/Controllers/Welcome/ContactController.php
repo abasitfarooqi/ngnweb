@@ -252,12 +252,7 @@ class ContactController extends Controller
                 }
 
                 $appointmentStart = MOTBooking::appointmentStart($bookingDate, $bookingTime);
-                $slotTaken = MOTBooking::query()
-                    ->where('branch_id', $branchId)
-                    ->whereDate('date_of_appointment', $request->input('booking_date'))
-                    ->where('start', $appointmentStart->toDateTimeString())
-                    ->where('status', '!=', MOTBooking::STATUS_CANCELLED)
-                    ->exists();
+                $slotTaken = MOTBooking::hasOverlappingSlot($branchId, $appointmentStart);
 
                 if ($slotTaken) {
                     return response()->json([
@@ -273,7 +268,7 @@ class ContactController extends Controller
                     'vehicle_color' => null,
                     'date_of_appointment' => $appointmentStart->toDateTimeString(),
                     'start' => $appointmentStart->toDateTimeString(),
-                    'end' => $appointmentStart->toDateTimeString(),
+                    'end' => MOTBooking::appointmentEnd($appointmentStart)->toDateTimeString(),
                     'customer_name' => $customerName,
                     'customer_contact' => $customerPhone,
                     'customer_email' => $customerEmail,

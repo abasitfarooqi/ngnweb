@@ -8,15 +8,20 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 use Spatie\Permission\Traits\HasRoles;
 
 class MOTBooking extends Model
 {
+    public const SLOT_MINUTES = 30;
+
     public const STATUS_PENDING = 'pending';
+
     public const STATUS_AVAILABLE = 'available';
+
     public const STATUS_COMPLETED = 'completed';
+
     public const STATUS_CANCELLED = 'cancelled';
+
     public const STATUS_BOOKED = 'booked';
 
     use CrudTrait;
@@ -37,6 +42,7 @@ class MOTBooking extends Model
         'customer_email',
         'payment_link',
         'is_paid',
+        'is_dealt',
         'status',
         'notes',
         'background_color',
@@ -56,6 +62,7 @@ class MOTBooking extends Model
         'end' => 'datetime',
         'all_day' => 'boolean',
         'is_paid' => 'boolean',
+        'is_dealt' => 'boolean',
         'is_validate' => 'boolean',
     ];
 
@@ -141,6 +148,14 @@ class MOTBooking extends Model
     protected static function booted()
     {
         static::saving(function ($booking) {
+            if ($booking->start) {
+                $start = Carbon::parse($booking->start);
+                $end = $booking->end ? Carbon::parse($booking->end) : null;
+
+                if (! $end || $end->lessThanOrEqualTo($start)) {
+                    $booking->end = self::appointmentEnd($start)->toDateTimeString();
+                }
+            }
 
             $booking->vehicle_registration = strtoupper($booking->vehicle_registration);
 
@@ -287,6 +302,41 @@ class MOTBooking extends Model
         return Carbon::parse(trim($date.' '.$time));
     }
 
+    public static function appointmentEnd(Carbon $start): Carbon
+    {
+        return $start->copy()->addMinutes(self::SLOT_MINUTES);
+    }
+
+    public static function hasOverlappingSlot(int $branchId, Carbon $start, ?Carbon $end = null, ?int $ignoreId = null): bool
+    {
+        $end ??= self::appointmentEnd($start);
+
+        return static::query()
+            ->where('branch_id', $branchId)
+            ->where(function ($query) use ($start) {
+                $query
+                    ->whereDate('date_of_appointment', $start->toDateString())
+                    ->orWhereDate('start', $start->toDateString());
+            })
+            ->where('status', '!=', self::STATUS_CANCELLED)
+            ->when($ignoreId !== null, fn ($query) => $query->whereKeyNot($ignoreId))
+            ->get(['id', 'start', 'end'])
+            ->contains(function (self $booking) use ($start, $end): bool {
+                if (! $booking->start) {
+                    return false;
+                }
+
+                $existingStart = Carbon::parse($booking->start);
+                $existingEnd = $booking->end ? Carbon::parse($booking->end) : null;
+
+                if (! $existingEnd || $existingEnd->lessThanOrEqualTo($existingStart)) {
+                    $existingEnd = self::appointmentEnd($existingStart);
+                }
+
+                return $existingStart->lt($end) && $existingEnd->gt($start);
+            });
+    }
+
     public static function reservedTimeSlotsForDate(int $branchId, string $date, ?int $ignoreId = null): array
     {
         $query = static::query()
@@ -312,11 +362,14 @@ class MOTBooking extends Model
 
     public static function availableTimeSlotsForDate(int $branchId, string $date, ?int $ignoreId = null): array
     {
-        $reserved = array_keys(self::reservedTimeSlotsForDate($branchId, $date, $ignoreId));
-
         $open = array_filter(
             self::motTimeSlots(),
-            fn (string $label, string $value): bool => ! in_array($value, $reserved, true),
+            fn (string $label, string $value): bool => ! self::hasOverlappingSlot(
+                $branchId,
+                self::appointmentStart($date, $value),
+                null,
+                $ignoreId
+            ),
             ARRAY_FILTER_USE_BOTH
         );
 

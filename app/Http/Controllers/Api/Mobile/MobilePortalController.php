@@ -281,7 +281,7 @@ class MobilePortalController extends Controller
         $customerName = $customerName !== '' ? $customerName : (string) ($customerAuth?->name ?? 'Portal customer');
         $customerPhone = trim((string) ($customerProfile?->phone ?? $customerAuth?->phone ?? ''));
         $customerEmail = trim((string) ($customerAuth?->email ?? ''));
-        $appointmentStart = trim($payload['date_of_appointment'].' '.$payload['time_slot']);
+        $appointmentStart = MOTBooking::appointmentStart($payload['date_of_appointment'], $payload['time_slot']);
 
         $slotError = MOTBooking::motSlotValidationError((int) $payload['branch_id'], $payload['date_of_appointment'], $payload['time_slot']);
         if ($slotError !== null) {
@@ -296,9 +296,9 @@ class MobilePortalController extends Controller
                 'vehicle_registration' => $regNo,
                 'vehicle_chassis' => null,
                 'vehicle_color' => null,
-                'date_of_appointment' => $payload['date_of_appointment'],
-                'start' => $appointmentStart,
-                'end' => $appointmentStart,
+                'date_of_appointment' => $appointmentStart->toDateTimeString(),
+                'start' => $appointmentStart->toDateTimeString(),
+                'end' => MOTBooking::appointmentEnd($appointmentStart)->toDateTimeString(),
                 'customer_name' => $customerName,
                 'customer_contact' => $customerPhone,
                 'customer_email' => $customerEmail !== '' ? $customerEmail : null,

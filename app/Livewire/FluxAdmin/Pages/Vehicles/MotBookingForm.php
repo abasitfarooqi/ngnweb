@@ -28,22 +28,37 @@ class MotBookingForm extends Component
 
         if ($motBooking && $motBooking->exists) {
             $attrs = $motBooking->getAttributes();
+            $start = null;
             foreach (['start', 'end', 'date_of_appointment'] as $field) {
                 if (! empty($attrs[$field])) {
                     try {
-                        $attrs[$field] = Carbon::parse($attrs[$field])->format('Y-m-d\\TH:i');
+                        $parsed = Carbon::parse($attrs[$field]);
+                        $attrs[$field] = $parsed->format('Y-m-d\\TH:i');
+
+                        if ($field === 'start') {
+                            $start = $parsed;
+                        }
                     } catch (\Throwable) {
                         // keep raw
                     }
                 }
             }
+
+            if ($start) {
+                $end = $this->parseFormDateTime($attrs['end'] ?? null);
+                if (! $end || $end->lessThanOrEqualTo($start)) {
+                    $attrs['end'] = MOTBooking::appointmentEnd($start)->format('Y-m-d\\TH:i');
+                }
+            }
+
+            $this->preparePaymentMethodFields($attrs);
             $this->form = $attrs;
         } else {
             $start = $this->parseCalendarQueryDate(request()->query('start')) ?? now();
-            $end = $this->parseCalendarQueryDate(request()->query('end')) ?? $start->copy()->addHour();
+            $end = $this->parseCalendarQueryDate(request()->query('end')) ?? MOTBooking::appointmentEnd($start);
 
             if ($end->lessThanOrEqualTo($start)) {
-                $end = $start->copy()->addHour();
+                $end = MOTBooking::appointmentEnd($start);
             }
 
             $this->form = [
@@ -55,6 +70,8 @@ class MotBookingForm extends Component
                 'date_of_appointment' => $start->format('Y-m-d\\TH:i'),
                 'start' => $start->format('Y-m-d\\TH:i'),
                 'end' => $end->format('Y-m-d\\TH:i'),
+                'payment_method_choice' => '',
+                'payment_method_custom' => '',
             ];
         }
     }
@@ -62,6 +79,9 @@ class MotBookingForm extends Component
     public function save(): void
     {
         $this->form['is_paid'] = (bool) ($this->form['is_paid'] ?? false);
+        $this->form['is_dealt'] = (bool) ($this->form['is_dealt'] ?? false);
+        $this->normaliseDateTimeFields();
+        $paymentMethod = $this->normalisedPaymentMethod();
 
         $this->validate([
             'form.branch_id' => ['required', 'integer', 'exists:branches,id'],
@@ -70,14 +90,32 @@ class MotBookingForm extends Component
             'form.customer_email' => ['required', 'email', 'max:255'],
             'form.vehicle_registration' => ['required', 'string', 'max:20'],
             'form.start' => ['required', 'date'],
-            'form.end' => ['required', 'date', 'after:form.start'],
+            'form.end' => ['nullable', 'date'],
             'form.status' => ['required', 'string', 'in:pending,available,completed,cancelled,booked'],
             'form.is_paid' => ['boolean'],
+            'form.is_dealt' => ['boolean'],
             'form.payment_link' => ['nullable', 'string', 'max:500'],
-            'form.payment_method' => ['required', 'string', 'max:120'],
+            'form.payment_method_choice' => ['required', 'string', 'in:Cash,Card,Other'],
+            'form.payment_method_custom' => ['nullable', 'required_if:form.payment_method_choice,Other', 'string', 'max:120'],
             'form.payment_notes' => ['required', 'string', 'max:2000'],
             'form.notes' => ['required', 'string', 'max:5000'],
         ]);
+
+        $start = $this->parseFormDateTime($this->form['start'] ?? null);
+        if (! $start) {
+            $this->addError('form.start', 'Slot date and time must be valid.');
+
+            return;
+        }
+
+        $end = MOTBooking::appointmentEnd($start);
+        $this->form['end'] = $end->format('Y-m-d\\TH:i');
+
+        if ($this->slotAlreadyBooked($start, $end)) {
+            $this->addError('form.start', 'That time overlaps an existing MOT booking. Choose a free 30 minute slot, for example 09:30 after a 09:00-09:30 booking.');
+
+            return;
+        }
 
         $status = (string) ($this->form['status'] ?? MOTBooking::STATUS_BOOKED);
         [$background, $text] = $this->coloursForStatus($status);
@@ -97,13 +135,13 @@ class MotBookingForm extends Component
             'customer_contact' => $contact,
             'customer_email' => $email,
             'vehicle_registration' => $vrm,
-            'start' => $this->form['start'] ?? null,
-            'end' => $this->form['end'] ?? null,
-            'date_of_appointment' => $this->form['start'] ?? ($this->form['date_of_appointment'] ?? now()),
+            'start' => $start->format('Y-m-d H:i:s'),
+            'end' => $end->format('Y-m-d H:i:s'),
+            'date_of_appointment' => $start->format('Y-m-d H:i:s'),
             'status' => $status,
             'is_paid' => (bool) ($this->form['is_paid'] ?? false),
             'payment_link' => $this->form['payment_link'] ?? null,
-            'payment_method' => $this->form['payment_method'] ?? null,
+            'payment_method' => $paymentMethod,
             'payment_notes' => $this->form['payment_notes'] ?? null,
             'notes' => $this->form['notes'] ?? null,
             'background_color' => $background,
@@ -113,6 +151,7 @@ class MotBookingForm extends Component
         ];
 
         if ($this->motBooking && $this->motBooking->exists) {
+            $data['is_dealt'] = (bool) ($this->form['is_dealt'] ?? false);
             $this->motBooking->update($data);
             $this->dispatch('flux-admin:toast', type: 'success', message: 'MOT booking updated.');
         } else {
@@ -134,6 +173,100 @@ class MotBookingForm extends Component
         } catch (\Throwable) {
             return null;
         }
+    }
+
+    private function normaliseDateTimeFields(): void
+    {
+        foreach (['start', 'end', 'date_of_appointment'] as $field) {
+            $parsed = $this->parseFormDateTime($this->form[$field] ?? null);
+            if ($parsed) {
+                $this->form[$field] = $parsed->format('Y-m-d\\TH:i');
+            }
+        }
+    }
+
+    public function updatedFormStart(): void
+    {
+        $start = $this->parseFormDateTime($this->form['start'] ?? null);
+        if (! $start) {
+            return;
+        }
+
+        $this->form['date_of_appointment'] = $start->format('Y-m-d\\TH:i');
+        $this->form['end'] = MOTBooking::appointmentEnd($start)->format('Y-m-d\\TH:i');
+    }
+
+    private function parseFormDateTime(mixed $value): ?Carbon
+    {
+        if (! is_string($value) || trim($value) === '') {
+            return null;
+        }
+
+        $value = trim($value);
+        $formats = [
+            'Y-m-d\\TH:i',
+            'Y-m-d H:i:s',
+            'Y-m-d H:i',
+            'd/m/Y, H:i',
+            'd/m/Y H:i',
+            'd-m-Y H:i',
+        ];
+
+        foreach ($formats as $format) {
+            try {
+                $parsed = Carbon::createFromFormat($format, $value);
+                if ($parsed !== false) {
+                    return $parsed;
+                }
+            } catch (\Throwable) {
+                // try next format
+            }
+        }
+
+        try {
+            return Carbon::parse($value);
+        } catch (\Throwable) {
+            return null;
+        }
+    }
+
+    /**
+     * @param  array<string, mixed>  $attrs
+     */
+    private function preparePaymentMethodFields(array &$attrs): void
+    {
+        $method = trim((string) ($attrs['payment_method'] ?? ''));
+
+        if (in_array($method, ['Cash', 'Card'], true)) {
+            $attrs['payment_method_choice'] = $method;
+            $attrs['payment_method_custom'] = '';
+
+            return;
+        }
+
+        $attrs['payment_method_choice'] = $method === '' ? '' : 'Other';
+        $attrs['payment_method_custom'] = $method;
+    }
+
+    private function normalisedPaymentMethod(): string
+    {
+        $choice = (string) ($this->form['payment_method_choice'] ?? '');
+
+        if ($choice === 'Other') {
+            return trim((string) ($this->form['payment_method_custom'] ?? ''));
+        }
+
+        return $choice;
+    }
+
+    private function slotAlreadyBooked(Carbon $start, Carbon $end): bool
+    {
+        return MOTBooking::hasOverlappingSlot(
+            (int) ($this->form['branch_id'] ?? 0),
+            $start,
+            $end,
+            $this->motBooking?->exists ? $this->motBooking->id : null
+        );
     }
 
     /** @return array{0: string, 1: string} */
