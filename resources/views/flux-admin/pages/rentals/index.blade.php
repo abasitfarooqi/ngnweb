@@ -134,7 +134,7 @@
                                 @if($scope !== 'active')
                                     <flux:table.cell>{{ $row->item_end_date ? \Carbon\Carbon::parse($row->item_end_date)->format('d M Y') : '—' }}</flux:table.cell>
                                 @else
-                                    <flux:table.cell>{{ $row->item_due_date ? \Carbon\Carbon::parse($row->item_due_date)->format('d M Y') : '—' }}</flux:table.cell>
+                                    <flux:table.cell>{{ $row->next_unpaid_invoice_date ? \Carbon\Carbon::parse($row->next_unpaid_invoice_date)->format('d M Y') : '—' }}</flux:table.cell>
                                     <flux:table.cell>
                                         @if($row->outstanding_amount > 0)
                                             <span class="text-red-600 dark:text-red-400 font-semibold">£{{ number_format($row->outstanding_amount, 2) }}</span>

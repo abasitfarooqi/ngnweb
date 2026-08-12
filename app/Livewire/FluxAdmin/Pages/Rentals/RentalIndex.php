@@ -187,7 +187,7 @@ class RentalIndex extends Component
             'weekly_rent' => 'rbi.weekly_rent',
             'start_date' => 'rbi.start_date',
             'end_date' => 'rbi.end_date',
-            'due_date' => 'rbi.due_date',
+            'due_date' => $this->scope === 'active' ? 'next_unpaid_invoice_date' : 'rbi.due_date',
             'outstanding' => 'outstanding_amount',
             default => 'rb.id',
         };
