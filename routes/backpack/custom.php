@@ -41,7 +41,7 @@ use Illuminate\Support\Facades\Route;
 // ], function () {
 Route::group([
     'prefix' => config('backpack.base.route_prefix', 'admin'),
-    'middleware' => ['web', 'auth', 'admin', 'check.admin.access'],
+    'middleware' => ['web', 'backpack', 'admin', 'check.admin.access'],
     'namespace' => 'App\Http\Controllers\Admin',
 ], function () {
 

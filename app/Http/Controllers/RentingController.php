@@ -391,14 +391,25 @@ class RentingController extends Controller
             'invoice_date' => 'required|date',
         ]);
 
-        $invoice = BookingInvoice::findOrFail($invoiceId);
-        $invoice->invoice_date = $request->invoice_date;
-        $invoice->save();
+        try {
+            $result = app(RentingInvoiceSyncService::class)->resequenceUnpaidInvoiceDatesFrom(
+                (int) $invoiceId,
+                (string) $request->invoice_date
+            );
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Invoice date updated successfully.',
-            'invoice_date' => $invoice->invoice_date,
+            'message' => ((int) $result['updated'] > 1)
+                ? 'Invoice date updated and upcoming unpaid invoices realigned weekly.'
+                : 'Invoice date updated successfully.',
+            'invoice_date' => $result['first_date'],
+            'updated' => $result['updated'],
         ]);
     }
 
@@ -2243,16 +2254,25 @@ class RentingController extends Controller
             'new_date' => 'required|date',
         ]);
 
-        $invoice = BookingInvoice::findOrFail($request->invoice_id);
-        // $previousDate = $invoice->invoice_date;
-        $invoice->invoice_date = $request->new_date;
-        // $invoice->notes = "Previous date: $previousDate, changed to: {$request->new_date} by user ID: " . auth()->id();
-        $invoice->save();
+        try {
+            $result = app(RentingInvoiceSyncService::class)->resequenceUnpaidInvoiceDatesFrom(
+                (int) $request->invoice_id,
+                (string) $request->new_date
+            );
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 422);
+        }
 
         return response()->json([
             'success' => true,
-            'message' => 'Invoice date updated successfully',
-            'invoice' => $invoice,
+            'message' => ((int) $result['updated'] > 1)
+                ? 'Invoice date updated and upcoming unpaid invoices realigned weekly.'
+                : 'Invoice date updated successfully',
+            'invoice' => BookingInvoice::find($request->invoice_id),
+            'updated' => $result['updated'],
         ]);
     }
 

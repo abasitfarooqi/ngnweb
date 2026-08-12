@@ -25,9 +25,15 @@ class Handler extends ExceptionHandler
 
     protected function unauthenticated($request, AuthenticationException $exception)
     {
-        return $request->expectsJson()
-            ? response()->json(['message' => $exception->getMessage()], 401)
-            : redirect()->guest(route('login', ['account' => $request->route('account')]));
+        if ($request->expectsJson()) {
+            return response()->json(['message' => $exception->getMessage()], 401);
+        }
+
+        if ($request->is('flux-admin') || $request->is('flux-admin/*')) {
+            return redirect()->guest(route('flux-admin.login'));
+        }
+
+        return redirect()->guest(route('login', ['account' => $request->route('account')]));
     }
 
     public function render($request, Throwable $exception)
@@ -76,6 +82,10 @@ class Handler extends ExceptionHandler
         }
         
         if ($exception instanceof NotFoundHttpException) {
+            if (($request->is('flux-admin') || $request->is('flux-admin/*')) && ! auth()->check()) {
+                return redirect()->guest(route('flux-admin.login'));
+            }
+
             return response()->view('errors.404', [], 404);
         }
 

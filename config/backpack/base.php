@@ -121,8 +121,8 @@ return [
         // \Backpack\CRUD\app\Http\Middleware\UseBackpackAuthGuardInsteadOfDefaultAuthGuard::class,
     ],
 
-    // Alias for that middleware
-    'middleware_key' => 'auth',
+    // Alias for that middleware (must not collide with Laravel's "auth" alias)
+    'middleware_key' => 'backpack',
     // Note: It's recommended to use the backpack_middleware() helper everywhere, which pulls this key for you.
 
     // Username column for authentication

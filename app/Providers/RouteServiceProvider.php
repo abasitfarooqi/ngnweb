@@ -27,6 +27,14 @@ class RouteServiceProvider extends ServiceProvider
                 ->group(base_path('routes/web.php'));
 
             if (file_exists(base_path('routes/flux-admin.php'))) {
+                Route::middleware(['web'])
+                    ->prefix('flux-admin')
+                    ->group(function () {
+                        Route::get('/login', \App\Livewire\FluxAdmin\Pages\Auth\Login::class)
+                            ->middleware('guest')
+                            ->name('flux-admin.login');
+                    });
+
                 Route::middleware(['web', 'auth', 'admin', 'check.admin.access'])
                     ->prefix('flux-admin')
                     ->group(base_path('routes/flux-admin.php'));

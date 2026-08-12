@@ -25,6 +25,10 @@ class RedirectIfAuthenticated
                     return redirect()->route('account.dashboard');
                 }
 
+                if ($request->is('flux-admin/login')) {
+                    return redirect()->route('flux-admin.dashboard');
+                }
+
                 return redirect(RouteServiceProvider::HOME);
             }
         }

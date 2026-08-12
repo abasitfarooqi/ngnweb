@@ -77,14 +77,15 @@ class ScheduleTab extends Component
                 $booking->start_date = $this->newStartDate;
                 $booking->save();
 
-                $syncResult = $sync->syncFutureInvoicesForBooking($booking->id);
+                $syncResult = $sync->resequenceUnpaidInvoiceDatesForBookingSchedule(
+                    $booking->id,
+                    $booking->start_date
+                );
                 $this->targetWeekday = Carbon::parse($this->newStartDate)->format('l');
 
                 $message = 'Start date updated. Upcoming invoices use '.$this->targetWeekday.'.';
-                if (! $syncResult['skipped'] && ($syncResult['deleted'] > 0 || $syncResult['created'] > 0)) {
-                    $message .= " {$syncResult['deleted']} future invoice(s) removed, {$syncResult['created']} created.";
-                } elseif ($syncResult['skipped']) {
-                    $message .= ' (No open rental item with weekly rent — unpaid future invoices were not auto-rebuilt; adjust individual invoice dates on the Invoices tab if needed.)';
+                if ($syncResult['updated'] > 0) {
+                    $message .= ' '.$syncResult['updated'].' unpaid invoice(s) realigned weekly.';
                 }
 
                 return $message;
@@ -118,11 +119,14 @@ class ScheduleTab extends Component
                 $booking->save();
                 $this->newStartDate = $adjusted->toDateString();
 
-                $syncResult = $sync->syncFutureInvoicesForBooking($booking->id);
+                $syncResult = $sync->resequenceUnpaidInvoiceDatesForBookingSchedule(
+                    $booking->id,
+                    $booking->start_date
+                );
 
                 $message = 'Invoice weekday set to '.$this->targetWeekday.' (start date '.$adjusted->format('d M Y').').';
-                if (! $syncResult['skipped'] && ($syncResult['deleted'] > 0 || $syncResult['created'] > 0)) {
-                    $message .= " {$syncResult['deleted']} future invoice(s) removed, {$syncResult['created']} created.";
+                if ($syncResult['updated'] > 0) {
+                    $message .= ' '.$syncResult['updated'].' unpaid invoice(s) realigned weekly.';
                 }
 
                 return $message;

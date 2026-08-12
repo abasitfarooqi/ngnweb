@@ -4,9 +4,11 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\BookingInvoice;
 use App\Models\PaymentMethod;
+use App\Services\RentingInvoiceSyncService;
 use App\Support\RentalBookingLifecycle;
 use App\Support\RentalInvoiceTabData;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 #[Lazy]
@@ -41,6 +43,14 @@ class InvoicesTab extends Component
     public function placeholder()
     {
         return view('flux-admin.partials.loading-placeholder');
+    }
+
+    #[On('rental-updated')]
+    public function refreshInvoices(): void
+    {
+        $this->expandedDetail = $this->expandedInvoiceId
+            ? RentalInvoiceTabData::detail($this->expandedInvoiceId)
+            : null;
     }
 
     public function toggleInvoice(int $invoiceId): void
@@ -88,7 +98,7 @@ class InvoicesTab extends Component
     {
         $this->validate([
             'paymentMethodId' => 'required|integer|exists:payment_methods,id',
-            'paymentAmount'   => 'required|numeric|min:0.01',
+            'paymentAmount' => 'required|numeric|min:0.01',
             'payingInvoiceId' => 'required|integer',
         ]);
 
@@ -147,7 +157,7 @@ class InvoicesTab extends Component
             ->whereKey($invoiceId)
             ->firstOrFail()
             ->update([
-                'is_whatsapp_sent'               => true,
+                'is_whatsapp_sent' => true,
                 'whatsapp_last_reminder_sent_at' => now(),
             ]);
 
@@ -168,17 +178,29 @@ class InvoicesTab extends Component
     {
         validator(['date' => $date], ['date' => ['required', 'date']])->validate();
 
-        BookingInvoice::query()
+        $invoice = BookingInvoice::query()
             ->where('booking_id', $this->bookingId)
             ->whereKey($invoiceId)
-            ->update(['invoice_date' => $date]);
+            ->firstOrFail();
+
+        try {
+            $result = app(RentingInvoiceSyncService::class)->resequenceUnpaidInvoiceDatesFrom($invoice->id, $date);
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+
+            return;
+        }
 
         if ($this->expandedInvoiceId === $invoiceId) {
             $this->expandedDetail = RentalInvoiceTabData::detail($invoiceId);
         }
 
-        $this->flashMessage = 'Invoice date updated.';
+        $this->flashMessage = ((int) $result['updated'] > 1)
+            ? 'Invoice date updated. '.$result['updated'].' unpaid invoices were realigned to weekly dates.'
+            : 'Invoice date updated.';
         $this->flashType = 'success';
+        $this->dispatch('rental-updated');
     }
 
     public function render()
@@ -188,8 +210,8 @@ class InvoicesTab extends Component
         $paymentMethods = PaymentMethod::query()->where('is_enabled', true)->orderBy('title')->get();
 
         return view('flux-admin.partials.rentals.invoices-tab', [
-            'invoices'       => $invoices,
-            'totalUnpaid'    => $totalUnpaid,
+            'invoices' => $invoices,
+            'totalUnpaid' => $totalUnpaid,
             'paymentMethods' => $paymentMethods,
         ]);
     }

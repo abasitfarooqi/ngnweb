@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
+use App\Services\RentingInvoiceSyncService;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\DB;
@@ -98,11 +99,21 @@ class RentalDuePaymentsController extends Controller
             'invoice_date' => 'required|date',
         ]);
 
-        $invoice = BookingInvoice::findOrFail($invoiceId);
-        $invoice->invoice_date = $request->invoice_date;
-        $invoice->save();
+        try {
+            $result = app(RentingInvoiceSyncService::class)->resequenceUnpaidInvoiceDatesFrom(
+                (int) $invoiceId,
+                (string) $request->invoice_date
+            );
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', $e->getMessage());
+        }
 
-        return redirect()->back()->with('success', 'Invoice date updated successfully.');
+        return redirect()->back()->with(
+            'success',
+            ((int) $result['updated'] > 1)
+                ? 'Invoice date updated and upcoming unpaid invoices realigned weekly.'
+                : 'Invoice date updated successfully.'
+        );
     }
 
     private function buildWhatsappStaffSignature(): string

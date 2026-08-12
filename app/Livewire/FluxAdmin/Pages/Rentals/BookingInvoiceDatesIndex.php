@@ -4,7 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Rentals;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
-use App\Models\BookingInvoice;
+use App\Services\RentingInvoiceSyncService;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -20,6 +20,7 @@ class BookingInvoiceDatesIndex extends Component
     use WithPagination;
 
     public ?int $editingId = null;
+
     public string $editingDate = '';
 
     public function mount(): void
@@ -47,8 +48,23 @@ class BookingInvoiceDatesIndex extends Component
             'editingDate' => ['required', 'date'],
         ]);
 
-        BookingInvoice::where('id', $this->editingId)->update(['invoice_date' => $this->editingDate]);
-        session()->flash('status', 'Invoice #' . $this->editingId . ' updated.');
+        try {
+            $result = app(RentingInvoiceSyncService::class)->resequenceUnpaidInvoiceDatesFrom(
+                $this->editingId,
+                $this->editingDate
+            );
+        } catch (\Throwable $e) {
+            session()->flash('error', $e->getMessage());
+
+            return;
+        }
+
+        session()->flash(
+            'status',
+            ((int) $result['updated'] > 1)
+                ? 'Invoice #'.$this->editingId.' updated. Upcoming unpaid invoices were realigned weekly.'
+                : 'Invoice #'.$this->editingId.' updated.'
+        );
         $this->editingId = null;
         $this->editingDate = '';
     }
