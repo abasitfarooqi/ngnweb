@@ -3,6 +3,10 @@
         <livewire:flux-admin.partials.rentals.schedule-tab :booking-id="$bookingId" :key="'schedule-invoices-' . $bookingId" />
     </div>
 
+    <div class="border-b border-zinc-200 p-4 dark:border-zinc-700">
+        <livewire:flux-admin.partials.rentals.rental-price-editor :bookingId="$bookingId" :key="'price-invoices-' . $bookingId" />
+    </div>
+
     @if($flashMessage)
         <div class="mx-4 mt-4 p-3 text-sm font-medium border
             {{ $flashType === 'success' ? 'border-emerald-400 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700' : 'border-red-400 bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700' }}">

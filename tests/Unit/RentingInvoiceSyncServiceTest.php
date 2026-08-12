@@ -137,6 +137,26 @@ class RentingInvoiceSyncServiceTest extends TestCase
         );
     }
 
+    public function test_invoice_amount_for_weekly_rent_preserves_deposit_component(): void
+    {
+        $invoice = new BookingInvoice([
+            'amount' => 300,
+            'deposit' => 200,
+        ]);
+
+        $this->assertSame(320.0, $this->service->invoiceAmountForWeeklyRent($invoice, 120));
+    }
+
+    public function test_invoice_amount_for_weekly_rent_handles_weekly_only_invoice(): void
+    {
+        $invoice = new BookingInvoice([
+            'amount' => 80,
+            'deposit' => 0,
+        ]);
+
+        $this->assertSame(95.5, $this->service->invoiceAmountForWeeklyRent($invoice, 95.50));
+    }
+
     public function test_past_unpaid_invoice_is_not_future_deletable(): void
     {
         Carbon::setTestNow(Carbon::parse('2026-05-22'));

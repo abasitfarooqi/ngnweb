@@ -727,13 +727,14 @@ class RentalBookingLifecycle
             $paymentMethod = $paymentMethodId
                 ? PaymentMethod::findOrFail($paymentMethodId)
                 : PaymentMethod::where('title', 'Cash')->firstOrFail();
+            $amount = round((float) str_replace(',', '', (string) $otherCharge->getRawOriginal('amount')), 2);
 
             $transaction = RentingOtherChargesTransaction::create([
                 'transaction_date'    => now(),
                 'charges_id'          => $otherCharge->id,
                 'transaction_type_id' => $transactionType->id,
                 'payment_method_id'   => $paymentMethod->id,
-                'amount'              => $otherCharge->amount,
+                'amount'              => $amount,
                 'user_id'             => auth()->id(),
                 'notes'               => 'Other charge paid',
             ]);

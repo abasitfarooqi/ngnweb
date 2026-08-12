@@ -26,6 +26,8 @@
         if ($showRestartTab) {
             $bookingTabs['restart'] = 'Restart';
         }
+        $currentRentalItem = $booking->rentingBookingItems->firstWhere('end_date', null)
+            ?: $booking->rentingBookingItems->sortByDesc('id')->first();
     @endphp
 
     <x-flux-admin::summary-header
@@ -84,6 +86,10 @@
                 <p class="text-sm font-semibold text-zinc-900 dark:text-white">£{{ number_format($booking->deposit, 2) }}</p>
             </div>
             <div>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Weekly Rent</p>
+                <p class="text-sm font-semibold text-zinc-900 dark:text-white">£{{ number_format((float) ($currentRentalItem?->weekly_rent ?? 0), 2) }}</p>
+            </div>
+            <div>
                 <p class="text-xs text-zinc-500 dark:text-zinc-400">Items</p>
                 <p class="text-sm font-semibold text-zinc-900 dark:text-white">{{ $booking->rentingBookingItems->count() }}</p>
             </div>
@@ -100,6 +106,10 @@
             </div>
         </x-slot:stats>
     </x-flux-admin::summary-header>
+
+    <div class="mb-6">
+        <livewire:flux-admin.partials.rentals.rental-price-editor :bookingId="$booking->id" :key="'price-summary-' . $booking->id" />
+    </div>
 
     {{-- Tabs --}}
     <div class="border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 mb-6">

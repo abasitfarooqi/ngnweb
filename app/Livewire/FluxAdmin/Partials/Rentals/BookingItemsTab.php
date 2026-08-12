@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\RentingBookingItem;
 use Livewire\Attributes\Lazy;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 #[Lazy]
@@ -14,6 +15,12 @@ class BookingItemsTab extends Component
     public function placeholder()
     {
         return view('flux-admin.partials.loading-placeholder');
+    }
+
+    #[On('rental-updated')]
+    public function refreshItems(): void
+    {
+        //
     }
 
     public function render()

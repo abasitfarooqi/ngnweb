@@ -2,11 +2,13 @@
 
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
-use App\Mail\HireContract;
+use App\Mail\OtherChargesReceipt;
+use App\Mail\RentalOtherChargeReminderMail;
 use App\Models\PaymentMethod;
 use App\Models\RentingOtherCharge;
 use App\Support\RentalBookingLifecycle;
 use App\Support\RentalOtherChargeTabData;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Attributes\Lazy;
 use Livewire\Component;
@@ -127,12 +129,16 @@ class OtherChargesTab extends Component
                 (int) $this->paymentMethodId
             );
 
+            $emailSent = $this->sendPaymentReceipt($charge->fresh());
+
             $this->payingChargeId = null;
             $this->paymentMethodId = null;
             $this->expandedChargeId = null;
             $this->expandedDetail = null;
             $this->showPayModal = false;
-            $this->flashMessage = 'Charge paid and transaction recorded.';
+            $this->flashMessage = $emailSent
+                ? 'Charge paid and receipt emailed to customer and NGN.'
+                : 'Charge paid and transaction recorded, but the receipt email could not be sent.';
             $this->flashType    = 'success';
         } catch (\Throwable $e) {
             $this->flashMessage = $e->getMessage();
@@ -199,10 +205,8 @@ class OtherChargesTab extends Component
         }
 
         try {
-            Mail::to([$email])->send(new HireContract([
-                'title' => 'Additional charge payment reminder — booking #'.$this->bookingId,
-                'body' => (string) ($detail['email_body'] ?? ''),
-            ]));
+            Mail::to([$email, 'customerservice@neguinhomotors.co.uk'])
+                ->send(new RentalOtherChargeReminderMail($detail));
 
             RentingOtherCharge::query()
                 ->where('booking_id', $this->bookingId)
@@ -213,11 +217,48 @@ class OtherChargesTab extends Component
                 $this->expandedDetail = RentalOtherChargeTabData::detail($chargeId, $this->bookingId);
             }
 
-            $this->flashMessage = 'Email reminder sent to '.$email.'.';
+            $this->flashMessage = 'Email reminder sent to '.$email.' and NGN.';
             $this->flashType = 'success';
         } catch (\Throwable $e) {
             $this->flashMessage = 'Email failed: '.$e->getMessage();
             $this->flashType = 'error';
+        }
+    }
+
+    private function sendPaymentReceipt(RentingOtherCharge $charge): bool
+    {
+        try {
+            $charge->loadMissing('booking.customer');
+
+            $booking = $charge->booking;
+            $customer = $booking?->customer;
+            $email = trim((string) ($customer?->email ?? ''));
+
+            if (! $booking || ! $customer || $email === '') {
+                return false;
+            }
+
+            Mail::to([$email, 'customerservice@neguinhomotors.co.uk'])->send(new OtherChargesReceipt([
+                'email' => [$email, 'customerservice@neguinhomotors.co.uk'],
+                'title' => 'Rental Other Charge Payment Receipt',
+                'body' => 'Find your other charge payment details below.',
+                'customer_name' => trim($customer->first_name.' '.$customer->last_name),
+                'booking_id' => $booking->id,
+                'charges_id' => $charge->id,
+                'charges_description' => $charge->description,
+                'charges_date' => $charge->created_at,
+                'transaction_date' => now(),
+                'amount' => (float) str_replace(',', '', (string) $charge->amount),
+            ]));
+
+            return true;
+        } catch (\Throwable $e) {
+            Log::error('Failed to send other charge receipt from Flux Admin: '.$e->getMessage(), [
+                'charge_id' => $charge->id,
+                'booking_id' => $this->bookingId,
+            ]);
+
+            return false;
         }
     }
 

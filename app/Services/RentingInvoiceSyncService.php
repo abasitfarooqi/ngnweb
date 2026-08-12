@@ -15,6 +15,125 @@ use RuntimeException;
 class RentingInvoiceSyncService
 {
     /**
+     * Update the booking-level weekly rental price and realign unpaid invoice
+     * amounts to that price while preserving each invoice's deposit component.
+     *
+     * @return array{booking_id: int, weekly_rent: float, items_updated: int, invoices_updated: int, invoices_completed: int}
+     */
+    public function updateBookingWeeklyRent(int $bookingId, float $weeklyRent): array
+    {
+        if ($weeklyRent < 0) {
+            throw new InvalidArgumentException('Weekly rental price cannot be negative.');
+        }
+
+        return DB::transaction(function () use ($bookingId, $weeklyRent): array {
+            $booking = RentingBooking::query()
+                ->whereKey($bookingId)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $items = RentingBookingItem::query()
+                ->where('booking_id', $booking->id)
+                ->whereNull('end_date')
+                ->lockForUpdate()
+                ->get();
+
+            if ($items->isEmpty()) {
+                $latestItem = RentingBookingItem::query()
+                    ->where('booking_id', $booking->id)
+                    ->latest('id')
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($latestItem) {
+                    $items = collect([$latestItem]);
+                }
+            }
+
+            if ($items->isEmpty()) {
+                throw new RuntimeException('No rental item found for this booking.');
+            }
+
+            $itemIds = $items->pluck('id')->all();
+            $itemsUpdated = RentingBookingItem::query()
+                ->whereIn('id', $itemIds)
+                ->update(['weekly_rent' => $weeklyRent]);
+
+            $unpaidInvoices = BookingInvoice::query()
+                ->where('booking_id', $booking->id)
+                ->where('is_paid', false)
+                ->where('amount', '>', 0)
+                ->orderBy('invoice_date')
+                ->orderBy('id')
+                ->lockForUpdate()
+                ->get();
+
+            if ($unpaidInvoices->isEmpty()) {
+                return [
+                    'booking_id' => (int) $booking->id,
+                    'weekly_rent' => round($weeklyRent, 2),
+                    'items_updated' => $itemsUpdated,
+                    'invoices_updated' => 0,
+                    'invoices_completed' => 0,
+                ];
+            }
+
+            $invoiceIds = $unpaidInvoices->pluck('id')->all();
+            $paidTotals = RentingTransaction::query()
+                ->selectRaw('invoice_id, SUM(amount) as paid_total, MAX(transaction_date) as latest_transaction_date')
+                ->whereIn('invoice_id', $invoiceIds)
+                ->whereNotNull('invoice_id')
+                ->groupBy('invoice_id')
+                ->get()
+                ->keyBy('invoice_id');
+
+            $invoicesUpdated = 0;
+            $invoicesCompleted = 0;
+
+            foreach ($unpaidInvoices as $invoice) {
+                $targetAmount = $this->invoiceAmountForWeeklyRent($invoice, $weeklyRent);
+                $paid = $paidTotals->get($invoice->id);
+                $paidTotal = round((float) ($paid?->paid_total ?? 0), 2);
+
+                $payload = [
+                    'amount' => $targetAmount,
+                    'state' => 'Awaiting Payment',
+                ];
+
+                if ($targetAmount <= 0 || $paidTotal >= $targetAmount) {
+                    $payload['is_paid'] = true;
+                    $payload['paid_date'] = $targetAmount <= 0
+                        ? null
+                        : ($paid?->latest_transaction_date
+                            ? Carbon::parse($paid->latest_transaction_date)->toDateString()
+                            : now()->toDateString());
+                    $payload['state'] = 'Completed';
+                    $payload['notes'] = trim(((string) ($invoice->notes ?? ''))."\nWeekly rent changed; invoice covered by updated price/payment state.");
+                    $invoicesCompleted++;
+                }
+
+                $invoice->update($payload);
+                $invoicesUpdated++;
+            }
+
+            return [
+                'booking_id' => (int) $booking->id,
+                'weekly_rent' => round($weeklyRent, 2),
+                'items_updated' => $itemsUpdated,
+                'invoices_updated' => $invoicesUpdated,
+                'invoices_completed' => $invoicesCompleted,
+            ];
+        });
+    }
+
+    public function invoiceAmountForWeeklyRent(object|array $invoice, float $weeklyRent): float
+    {
+        $deposit = max((float) data_get($invoice, 'deposit', 0), 0.0);
+
+        return round($weeklyRent + $deposit, 2);
+    }
+
+    /**
      * @return array{updated: int, booking_id: int, first_date: string, last_date: string|null}
      */
     public function resequenceUnpaidInvoiceDatesFrom(int $invoiceId, string $firstDate): array

@@ -22,8 +22,10 @@ class OtherChargesReceipt extends Mailable
 
     public function envelope(): Envelope
     {
+        $mailData = is_array($this->mailData) ? $this->mailData : (array) $this->mailData;
+
         return new Envelope(
-            subject: 'Other Charges Receipt',
+            subject: (string) ($mailData['title'] ?? 'Rental Other Charge Payment Receipt'),
         );
     }
 
