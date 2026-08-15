@@ -472,6 +472,13 @@
             flex-direction: column;
             overflow: hidden;
         }
+        body.flux-admin-app .flux-admin-sidebar .flux-admin-nav-mode {
+            flex: 1 1 0% !important;
+            min-height: 0 !important;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
+        }
         body.flux-admin-app [data-flux-sidebar] [data-flux-navlist] {
             overflow-y: auto;
             -webkit-overflow-scrolling: touch;
@@ -642,13 +649,64 @@
             color: rgb(244 244 245);
         }
         .flux-admin-menu {
-            padding: .2rem .5rem .5rem;
+            padding: .1rem .35rem .25rem;
+        }
+        body.flux-admin-app #flux-admin-grouped-navlist {
+            padding-left: 0;
+            padding-right: 0;
+        }
+        body.flux-admin-app #flux-admin-grouped-navlist [data-flux-navlist-group] > div {
+            margin-left: 0;
+            padding-left: 0;
+            border-left: 0;
+        }
+        body.flux-admin-app #flux-admin-grouped-navlist [data-flux-navlist-group] > button {
+            padding-left: 0 !important;
+        }
+        body.flux-admin-app .flux-admin-sidebar ui-switch {
+            position: relative;
+            display: inline-flex;
+            height: 1.5rem;
+            width: 2.75rem;
+            flex: 0 0 auto;
+            cursor: pointer;
+            align-items: center;
+            border-radius: 999px;
+            background: rgb(212 212 216);
+            transition: background-color .15s ease, box-shadow .15s ease;
+        }
+        body.flux-admin-app .flux-admin-sidebar ui-switch > * {
+            display: none !important;
+        }
+        body.flux-admin-app .flux-admin-sidebar ui-switch::after {
+            content: "";
+            position: absolute;
+            left: .1875rem;
+            height: 1.125rem;
+            width: 1.125rem;
+            border-radius: 999px;
+            background: white;
+            box-shadow: 0 1px 3px rgb(0 0 0 / .22);
+            transition: transform .15s ease;
+        }
+        body.flux-admin-app .flux-admin-sidebar ui-switch[data-checked] {
+            background: rgb(20 184 166);
+            box-shadow: 0 0 0 2px rgb(20 184 166 / .16);
+        }
+        body.flux-admin-app .flux-admin-sidebar ui-switch[data-checked]::after {
+            transform: translateX(1.25rem);
+        }
+        html.dark body.flux-admin-app .flux-admin-sidebar ui-switch {
+            background: rgb(63 63 70);
+        }
+        html.dark body.flux-admin-app .flux-admin-sidebar ui-switch[data-checked] {
+            background: rgb(20 184 166);
         }
         body.flux-admin-app .flux-admin-menu [data-flux-navlist-item],
         body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button {
-            min-height: 1.85rem;
+            min-height: 1.7rem;
             border-radius: 0;
-            padding: .32rem .55rem;
+            padding: .22rem .45rem;
             color: rgb(82 82 91);
             font-size: .8125rem;
             font-weight: 560;
@@ -683,7 +741,7 @@
             box-shadow: 0 8px 18px rgb(20 184 166 / .18);
         }
         body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] {
-            margin: .15rem 0;
+            margin: 0;
         }
         body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > button {
             border: 1px solid transparent;
@@ -706,9 +764,9 @@
             box-shadow: none;
         }
         body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > div {
-            margin: .1rem 0 .2rem .35rem;
+            margin: 0 0 .1rem .25rem;
             border-left: 1px solid rgb(228 228 231);
-            padding-left: .35rem;
+            padding-left: .25rem;
         }
         html.dark body.flux-admin-app .flux-admin-menu [data-flux-navlist-group] > div {
             border-left-color: rgb(63 63 70);
@@ -790,7 +848,7 @@
     <a href="#flux-admin-main" class="flux-admin-skip">Skip to content</a>
 
     {{-- Sidebar: same dark surface as main canvas (no half-light / half-dark split). --}}
-    <flux:sidebar sticky stashable class="flux-admin-sidebar z-20 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:z-auto lg:min-h-screen lg:shrink-0">
+    <flux:sidebar sticky stashable x-data="fluxAdminNavigationPreference()" class="flux-admin-sidebar flex flex-col z-20 border-r border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950 lg:z-auto lg:min-h-screen lg:shrink-0">
         <div class="flux-admin-sidebar-top lg:contents">
             <flux:sidebar.toggle class="shrink-0 lg:hidden" icon="x-mark" aria-label="Close menu" />
 
@@ -823,6 +881,7 @@
 
         <flux:separator />
 
+        <div x-show="navMode === 'home'" x-cloak class="flux-admin-nav-mode flex min-h-0 flex-1 flex-col overflow-y-auto">
         <flux:navlist id="flux-admin-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
             <flux:navlist.item href="{{ route('flux-admin.dashboard') }}" icon="home" :current="request()->routeIs('flux-admin.dashboard*')">Dashboard</flux:navlist.item>
          
@@ -843,83 +902,39 @@
 
             {{-- 4. Vehicles (+ vehicle commons items that belong here) --}}
             @can('see-menu-vehicles')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbikes*','flux-admin.motorbike-compliance.*','flux-admin.motorbike-new.*','flux-admin.ebikes.*','flux-admin.vehicle-notifications.*','flux-admin.recovered-motorbikes.*','flux-admin.motorbike-cat-b.*','flux-admin.vehicle-history.*','flux-admin.company-vehicles.*','flux-admin.club-member-vehicles.*','flux-admin.backpack.motorbike-available.*')" heading="Vehicles">
-                    <flux:navlist.item href="{{ route('flux-admin.motorbikes-dvla.create') }}" :current="request()->routeIs('flux-admin.motorbikes-dvla.*')">DVLA add / edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.backpack.motorbike-available.index') }}" :current="request()->routeIs('flux-admin.backpack.motorbike-available.*')">Repair rental availability</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbikes.index') }}" :current="request()->routeIs('flux-admin.motorbikes.index','flux-admin.motorbikes.create','flux-admin.motorbikes.edit','flux-admin.motorbikes.show')">Manual add / edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-compliance.preview') }}" :current="request()->routeIs('flux-admin.motorbike-compliance.preview')">MOT / TAX compliance</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-compliance.index') }}" :current="request()->routeIs('flux-admin.motorbike-compliance.index')">Vehicle database</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-new.index') }}" :current="request()->routeIs('flux-admin.motorbike-new.*')">New arrivals</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ebikes.index') }}" :current="request()->routeIs('flux-admin.ebikes.*')">E-bike manager</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.vehicle-notifications.index') }}" :current="request()->routeIs('flux-admin.vehicle-notifications.*')">Vehicle notifications</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.recovered-motorbikes.index') }}" :current="request()->routeIs('flux-admin.recovered-motorbikes.*')">Recovered</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'vehicles') }}" icon="truck" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'vehicles' || request()->routeIs('flux-admin.motorbikes*','flux-admin.motorbike-compliance.*','flux-admin.motorbike-new.*','flux-admin.ebikes.*','flux-admin.vehicle-notifications.*','flux-admin.recovered-motorbikes.*','flux-admin.backpack.motorbike-available.*')">Vehicles</flux:navlist.item>
             @endcan
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbike-cat-b.*','flux-admin.vehicle-history.*','flux-admin.company-vehicles.*','flux-admin.club-member-vehicles.*')" heading="Vehicle records">
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-cat-b.index') }}" :current="request()->routeIs('flux-admin.motorbike-cat-b.*')">Category B</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.club-member-vehicles.index') }}" :current="request()->routeIs('flux-admin.club-member-vehicles.*')">Club member vehicles details</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.vehicle-history.index') }}" :current="request()->routeIs('flux-admin.vehicle-history.*')">Vehicle history</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.company-vehicles.index') }}" :current="request()->routeIs('flux-admin.company-vehicles.*')">Company vehicles</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'vehicle-records') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'vehicle-records' || request()->routeIs('flux-admin.motorbike-cat-b.*','flux-admin.vehicle-history.*','flux-admin.company-vehicles.*','flux-admin.club-member-vehicles.*')">Vehicle records</flux:navlist.item>
             @endcan
 
             {{-- 5. Customers (was Chat position) --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.customers.*','flux-admin.customer-documents.*','flux-admin.modules.show')" heading="Customers">
-                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'customers') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'customers'">Module home</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.customers.index') }}" :current="request()->routeIs('flux-admin.customers.*')">Customer list</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.customer-documents.index') }}" :current="request()->routeIs('flux-admin.customer-documents.*')">Verify documents</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'customers') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'customers' || request()->routeIs('flux-admin.customers.*','flux-admin.customer-documents.*')">Customers</flux:navlist.item>
             @endcan
 
             {{-- 6. Service enquiries + services bookings --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.service-bookings.*')" heading="Service enquiries">
-                    <flux:navlist.item href="{{ route('flux-admin.service-bookings.index') }}" :current="request()->routeIs('flux-admin.service-bookings.*')">Service enquiries</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.service-bookings.index') }}" icon="inbox" :current="request()->routeIs('flux-admin.service-bookings.*')">Service enquiries</flux:navlist.item>
             @endcan
             @can('see-menu-services-and-repairs-and-report')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.customer-appointments.*','flux-admin.motorbike-repairs.*','flux-admin.motorbike-repair-updates.*')" heading="Book services / repairs / report">
-                    <flux:navlist.item href="{{ route('flux-admin.customer-appointments.index') }}" :current="request()->routeIs('flux-admin.customer-appointments.*')">Services / repairs booking</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-repairs.index') }}" :current="request()->routeIs('flux-admin.motorbike-repairs.*')">Repairs report</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-repair-updates.index') }}" :current="request()->routeIs('flux-admin.motorbike-repair-updates.*')">Repair updates</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'services') }}" icon="wrench-screwdriver" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'services' || request()->routeIs('flux-admin.customer-appointments.*','flux-admin.motorbike-repairs.*','flux-admin.motorbike-repair-updates.*')">Services and repairs</flux:navlist.item>
             @endcan
             @role('see-menu-commons')
-            <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')" heading="Club">
-                <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club member access</flux:navlist.item>
-            </flux:navlist.group>
+            <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
             @endrole
             {{-- 7. Club (Admin role or allowlisted staff — same gate as page access) --}}
             @if(\App\Support\FluxAdminAccess::canFullClubAdmin())
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')" heading="Club">
-                    <flux:navlist.item href="{{ route('flux-admin.club.index') }}" :current="request()->routeIs('flux-admin.club.index') || request()->routeIs('flux-admin.club.show')">Club members</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club member access</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.club-purchases.index') }}" :current="request()->routeIs('flux-admin.club-purchases.*')">Club member purchases</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.club-redemptions.index') }}" :current="request()->routeIs('flux-admin.club-redemptions.*')">Club member redeems</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.club-spending.index') }}" :current="request()->routeIs('flux-admin.club-spending.*')">0% spendings</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.club-spending-payments.index') }}" :current="request()->routeIs('flux-admin.club-spending-payments.*')">Spending payments</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.dev-club-otp.index') }}" :current="request()->routeIs('flux-admin.dev-club-otp.*')">Dev Club OTP</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
             @endif
 
             @unless(\App\Support\FluxAdminAccess::canFullClubAdmin())
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.club-members.*')" heading="Club">
-                    <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" :current="request()->routeIs('flux-admin.club-members.*')">Club members</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club-members.*')">Club</flux:navlist.item>
             @endunless
 
             {{-- 8. Delivery order --}}
             @canany(['see-menu-vehicles', 'see-menu-commons'])
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.delivery-enquiries.*','flux-admin.vehicle-delivery-orders.*')" heading="Delivery">
-                    @can('see-menu-vehicles')
-                        <flux:navlist.item href="{{ route('flux-admin.delivery-enquiries.index') }}" :current="request()->routeIs('flux-admin.delivery-enquiries.*')">Delivery enquiries</flux:navlist.item>
-                    @endcan
-                    @can('see-menu-commons')
-                        <flux:navlist.item href="{{ route('flux-admin.vehicle-delivery-orders.index') }}" :current="request()->routeIs('flux-admin.vehicle-delivery-orders.*')">Motorbike delivery orders</flux:navlist.item>
-                    @endcan
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'delivery') }}" icon="truck" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'delivery' || request()->routeIs('flux-admin.delivery-enquiries.*','flux-admin.vehicle-delivery-orders.*')">Delivery</flux:navlist.item>
             @endcanany
 
             {{-- 9. Sale (used / brand new) --}}
@@ -939,136 +954,113 @@
 
             {{-- 12. Claims --}}
             @can('see-menu-claims')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbike-claims.*')" heading="Claims">
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-claims.index') }}" :current="request()->routeIs('flux-admin.motorbike-claims.*')">Add / Edit</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'claims') }}" icon="exclamation-triangle" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'claims' || request()->routeIs('flux-admin.motorbike-claims.*')">Claims</flux:navlist.item>
             @endcan
 
             {{-- 13. Ecommerce --}}
             @can('see-menu-ecommerce')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.ec-orders.*','flux-admin.shop-orders.*','flux-admin.spare-part-orders.*','flux-admin.store-front.*')" heading="Ecommerce">
-                    <flux:navlist.item href="{{ route('flux-admin.shop-orders.index') }}" :current="request()->routeIs('flux-admin.shop-orders.*')">Shop orders</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.spare-part-orders.index') }}" :current="request()->routeIs('flux-admin.spare-part-orders.*')">Spare parts orders</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ec-orders.index') }}" :current="request()->routeIs('flux-admin.ec-orders.*')">All orders</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.store-front.index') }}" :current="request()->routeIs('flux-admin.store-front.*')">Store front</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'ecommerce') }}" icon="shopping-bag" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'ecommerce' || request()->routeIs('flux-admin.ec-orders.*','flux-admin.shop-orders.*','flux-admin.spare-part-orders.*','flux-admin.store-front.*')">Ecommerce</flux:navlist.item>
             @endcan
 
             {{-- 14. Spare parts (+ inventory products under inventory permission) --}}
             @can('see-menu-inventory')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.sp-*')" heading="Spare parts">
-                    <flux:navlist.item href="{{ route('flux-admin.sp-parts.index') }}" :current="request()->routeIs('flux-admin.sp-parts.*')">Parts</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-makes.index') }}" :current="request()->routeIs('flux-admin.sp-makes.*')">Makes</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-models.index') }}" :current="request()->routeIs('flux-admin.sp-models.*')">Models</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-fitments.index') }}" :current="request()->routeIs('flux-admin.sp-fitments.*')">Fitments</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-assemblies.index') }}" :current="request()->routeIs('flux-admin.sp-assemblies.*')">Assemblies</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-assembly-parts.index') }}" :current="request()->routeIs('flux-admin.sp-assembly-parts.*')">Assembly parts</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-stock-movements.index') }}" :current="request()->routeIs('flux-admin.sp-stock-movements.*')">Stock movements</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.sp-parts.index') }}" :current="request()->routeIs('flux-admin.sp-parts.*')">Stock handler</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'spare-parts') }}" icon="wrench-screwdriver" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'spare-parts' || request()->routeIs('flux-admin.sp-*')">Spare parts</flux:navlist.item>
 
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.inventory-*','flux-admin.oxford-products.*','flux-admin.purchase-request*','flux-admin.store-front.*')" heading="Inventory">
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-products.index') }}" :current="request()->routeIs('flux-admin.inventory-products.*')">Products (add / edit)</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-stock-movements.index') }}" :current="request()->routeIs('flux-admin.inventory-stock-movements.*')">Stock management</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-brands.index') }}" :current="request()->routeIs('flux-admin.inventory-brands.*')">Brands</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-categories.index') }}" :current="request()->routeIs('flux-admin.inventory-categories.*')">Categories</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-models.index') }}" :current="request()->routeIs('flux-admin.inventory-models.*')">Product models</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.oxford-products.index') }}" :current="request()->routeIs('flux-admin.oxford-products.*')">Oxford products</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.purchase-requests.index') }}" :current="request()->routeIs('flux-admin.purchase-requests.*')">Purchase requests</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.purchase-request-items.index') }}" :current="request()->routeIs('flux-admin.purchase-request-items.*')">Purchase request items</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.store-front.index') }}" :current="request()->routeIs('flux-admin.store-front.*')">Store front</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'inventory') }}" icon="cube" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'inventory' || request()->routeIs('flux-admin.inventory-*','flux-admin.oxford-products.*','flux-admin.purchase-request*','flux-admin.store-front.*')">Inventory</flux:navlist.item>
             @endcan
 
             {{-- 15. Orders --}}
             @role('Admin')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.ds-orders.*','flux-admin.ds-order-items.*','flux-admin.digital-invoices.*','flux-admin.digital-invoice-items.*')" heading="Orders">
-                    <flux:navlist.item href="{{ route('flux-admin.ds-orders.index') }}" :current="request()->routeIs('flux-admin.ds-orders.*')">DS orders</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ds-order-items.index') }}" :current="request()->routeIs('flux-admin.ds-order-items.*')">DS order legs</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.digital-invoices.index') }}" :current="request()->routeIs('flux-admin.digital-invoices.*')">Digital invoices</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.digital-invoice-items.index') }}" :current="request()->routeIs('flux-admin.digital-invoice-items.*')">Invoice items</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'orders') }}" icon="truck" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'orders' || request()->routeIs('flux-admin.ds-orders.*','flux-admin.ds-order-items.*','flux-admin.digital-invoices.*','flux-admin.digital-invoice-items.*')">Orders</flux:navlist.item>
             @endrole
 
             {{-- 16. Blog --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.blog-*')" heading="Blog management">
-                    <flux:navlist.item href="{{ route('flux-admin.blog-posts.index') }}" :current="request()->routeIs('flux-admin.blog-posts.*')">Blog posts</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.blog-categories.index') }}" :current="request()->routeIs('flux-admin.blog-categories.*')">Blog categories</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.blog-tags.index') }}" :current="request()->routeIs('flux-admin.blog-tags.*')">Blog tags</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'blog') }}" icon="document-text" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'blog' || request()->routeIs('flux-admin.blog-*')">Blog management</flux:navlist.item>
             @endcan
 
             {{-- Chat after Customers, before Careers --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.support-*','flux-admin.contact-queries.*')" heading="Chat">
-                    <flux:navlist.item href="{{ route('flux-admin.support-inbox.index') }}" :current="request()->routeIs('flux-admin.support-inbox.*')">Conversations inbox</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.support-conversations.index') }}" :current="request()->routeIs('flux-admin.support-conversations.*')">Support conversations</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.support-messages.index') }}" :current="request()->routeIs('flux-admin.support-messages.*')">Support messages</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.contact-queries.index') }}" :current="request()->routeIs('flux-admin.contact-queries.*')">Contact queries</flux:navlist.item>
-                </flux:navlist.group>
-                <flux:navlist.item href="{{ route('flux-admin.careers.index') }}" :current="request()->routeIs('flux-admin.careers.*')">Careers</flux:navlist.item>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'chat') }}" icon="chat-bubble-left-right" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'chat' || request()->routeIs('flux-admin.support-*','flux-admin.contact-queries.*')">Chat</flux:navlist.item>
+                <flux:navlist.item href="{{ route('flux-admin.careers.index') }}" icon="briefcase" :current="request()->routeIs('flux-admin.careers.*')">Careers</flux:navlist.item>
             @endcan
 
             @can('see-menu-b2b')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.inventory-partners.*')" heading="B2B">
-                    <flux:navlist.item href="{{ route('flux-admin.inventory-partners.index') }}" :current="request()->routeIs('flux-admin.inventory-partners.*')">Partners</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'b2b') }}" icon="building-office" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'b2b' || request()->routeIs('flux-admin.inventory-partners.*')">B2B</flux:navlist.item>
             @endcan
 
             @can('see-menu-surveys')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.survey*')" heading="Surveys">
-                    <flux:navlist.item href="{{ route('flux-admin.surveys.index') }}" :current="request()->routeIs('flux-admin.surveys.*')">Surveys</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.survey-questions.index') }}" :current="request()->routeIs('flux-admin.survey-questions.*')">Questions</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.survey-options.index') }}" :current="request()->routeIs('flux-admin.survey-options.*')">Options</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.survey-responses.index') }}" :current="request()->routeIs('flux-admin.survey-responses.*')">Responses</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.survey-answers.index') }}" :current="request()->routeIs('flux-admin.survey-answers.*')">Answers</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'surveys') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'surveys' || request()->routeIs('flux-admin.survey*')">Surveys</flux:navlist.item>
             @endcan
 
             @role('Admin')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.calendar.*','flux-admin.employee-schedules.*','flux-admin.agent-settings.*','flux-admin.branches.*','flux-admin.vehicle-issuances.*','flux-admin.queue-monitor.*')" heading="Misc / Experiments">
-                    <flux:navlist.item href="{{ route('flux-admin.calendar.index') }}" :current="request()->routeIs('flux-admin.calendar.*')">Calendar</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.employee-schedules.index') }}" :current="request()->routeIs('flux-admin.employee-schedules.*')">Staff schedules</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.agent-settings.index') }}" :current="request()->routeIs('flux-admin.agent-settings.*')">AI agent settings</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.branches.index') }}" :current="request()->routeIs('flux-admin.branches*')">Branches</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.vehicle-issuances.index') }}" :current="request()->routeIs('flux-admin.vehicle-issuances.*')">Vehicle issuances</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/admin') }}" badge="Old">Old admin panel</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.queue-monitor.index') }}" :current="request()->routeIs('flux-admin.queue-monitor.*')">Queue monitor</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'misc') }}" icon="cog-6-tooth" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'misc' || request()->routeIs('flux-admin.calendar.*','flux-admin.employee-schedules.*','flux-admin.agent-settings.*','flux-admin.branches.*','flux-admin.vehicle-issuances.*','flux-admin.queue-monitor.*')">Misc / Experiments</flux:navlist.item>
             @endrole
 
             {{-- 17. Security --}}
             @can('see-menu-security')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.ip-restrictions.*','flux-admin.access-logs.*')" heading="Security">
-                    <flux:navlist.item href="{{ route('flux-admin.ip-restrictions.index') }}" :current="request()->routeIs('flux-admin.ip-restrictions.*')">IP restrictions</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.access-logs.index') }}" :current="request()->routeIs('flux-admin.access-logs.*')">Access logs</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'security') }}" icon="lock-closed" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'security' || request()->routeIs('flux-admin.ip-restrictions.*','flux-admin.access-logs.*')">Security</flux:navlist.item>
             @endcan
 
             @can('see-menu-permissions')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.users.*','flux-admin.user','flux-admin.user.*','flux-admin.backpack.user.*','flux-admin.roles.*','flux-admin.role','flux-admin.role.*','flux-admin.backpack.role.*','flux-admin.permissions.*','flux-admin.permission','flux-admin.permission.*','flux-admin.backpack.permission.*')" heading="Permissions">
-                    <flux:navlist.item href="{{ route('flux-admin.users.index') }}" :current="request()->routeIs('flux-admin.users.*','flux-admin.user','flux-admin.user.*','flux-admin.backpack.user.*')">Users</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.roles.index') }}" :current="request()->routeIs('flux-admin.roles.*','flux-admin.role','flux-admin.role.*','flux-admin.backpack.role.*')">Roles</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.permissions.index') }}" :current="request()->routeIs('flux-admin.permissions.*','flux-admin.permission','flux-admin.permission.*','flux-admin.backpack.permission.*')">Permissions</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'permissions') }}" icon="key" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'permissions' || request()->routeIs('flux-admin.users.*','flux-admin.user','flux-admin.user.*','flux-admin.backpack.user.*','flux-admin.roles.*','flux-admin.role','flux-admin.role.*','flux-admin.backpack.role.*','flux-admin.permissions.*','flux-admin.permission','flux-admin.permission.*','flux-admin.backpack.permission.*')">Permissions</flux:navlist.item>
             @endcan
 
             {{-- 18. Judopay --}}
             @canany(['see-judopay-home', 'see-judopay'])
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.judopay.*','flux-admin.judopay-*','flux-admin.ngn-mit-queue.*')" heading="Judo Pay">
-                    <flux:navlist.item href="{{ route('flux-admin.judopay.index') }}" :current="request()->routeIs('flux-admin.judopay.index','flux-admin.judopay.subscribe')">Judo Pay</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.judopay.mit-dashboard') }}" :current="request()->routeIs('flux-admin.judopay.mit-dashboard')">MIT dashboard</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.judopay.weekly-mit-queue') }}" :current="request()->routeIs('flux-admin.judopay.weekly-mit-queue')">Weekly schedule</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.judopay-subscriptions.index') }}" :current="request()->routeIs('flux-admin.judopay-subscriptions.*')">Subscriptions</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ngn-mit-queue.index') }}" :current="request()->routeIs('flux-admin.ngn-mit-queue.*')">NGN MIT queue</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.judopay-mit-queue.index') }}" :current="request()->routeIs('flux-admin.judopay-mit-queue.*')">Judopay MIT queue</flux:navlist.item>
-                    <flux:navlist.item href="{{ url('/ngn-admin/judopay') }}" icon="arrow-path">Open in Backpack UI</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'judopay') }}" icon="banknotes" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'judopay' || request()->routeIs('flux-admin.judopay.*','flux-admin.judopay-*','flux-admin.ngn-mit-queue.*')">Judo Pay</flux:navlist.item>
             @endcan
         </flux:navlist>
+        </div>
 
-        <flux:spacer />
+        <div x-show="navMode === 'menu'" x-cloak class="flux-admin-nav-mode flex min-h-0 flex-1 flex-col overflow-y-auto">
+            @php
+                $menuIcon = static function (string $label): string {
+                    $label = strtolower($label);
+                    return match (true) {
+                        str_contains($label, 'dashboard') => 'home',
+                        str_contains($label, 'vehicle') || str_contains($label, 'motorbike') => 'truck',
+                        str_contains($label, 'rental') || str_contains($label, 'booking') => 'key',
+                        str_contains($label, 'customer') || str_contains($label, 'club') => 'users',
+                        str_contains($label, 'invoice') || str_contains($label, 'payment') => 'banknotes',
+                        str_contains($label, 'calendar') || str_contains($label, 'schedule') => 'calendar-days',
+                        str_contains($label, 'repair') || str_contains($label, 'service') => 'wrench-screwdriver',
+                        str_contains($label, 'document') || str_contains($label, 'blog') => 'document-text',
+                        str_contains($label, 'security') || str_contains($label, 'permission') || str_contains($label, 'role') => 'shield-check',
+                        str_contains($label, 'sale') || str_contains($label, 'purchase') || str_contains($label, 'order') => 'shopping-cart',
+                        str_contains($label, 'mot') => 'clipboard-document-check',
+                        default => 'squares-2x2',
+                    };
+                };
+                $groupedMenu = collect(\App\Support\FluxAdminMenuRegistry::items())
+                    ->reject(fn ($item) => $item['group'] === 'Quick links')
+                    ->groupBy('group');
+            @endphp
+            <flux:navlist id="flux-admin-grouped-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
+                @foreach($groupedMenu as $group => $items)
+                    <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.dashboard*') || $items->contains(fn ($item) => str_contains((string) $item['url'], request()->path()))" heading="{{ $group }}">
+                        @foreach($items as $item)
+                            <flux:navlist.item href="{{ $item['url'] }}" icon="{{ $menuIcon($item['label']) }}">{{ $item['label'] }}</flux:navlist.item>
+                        @endforeach
+                    </flux:navlist.group>
+                @endforeach
+            </flux:navlist>
+        </div>
+
+        <div class="mt-auto shrink-0 px-3 py-2">
+            <div class="flex items-center justify-between gap-2 px-1" role="group" aria-label="Sidebar view">
+                <div class="flex min-w-0 items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
+                    <flux:icon name="squares-2x2" class="size-4 shrink-0" />
+                    <span>Sidebar view:</span>
+                    <strong class="font-semibold text-zinc-900 dark:text-white" x-text="navMode === 'menu' ? 'Menu' : 'Home'">Home</strong>
+                </div>
+                <flux:switch
+                    x-effect="$el.checked = navMode === 'menu'"
+                    @click="setNavMode(navMode === 'menu' ? 'home' : 'menu')"
+                    aria-label="Switch between module home and full menu sidebar views"
+                />
+            </div>
+        </div>
 
         <flux:separator />
 
@@ -1187,6 +1179,39 @@
     <flux:toast />
     @livewireScripts
     @fluxScripts
+    <script>
+        function registerFluxAdminNavigationPreference() {
+            if (!window.Alpine || window.Alpine.__fluxAdminNavigationPreferenceRegistered) {
+                return;
+            }
+
+            window.Alpine.__fluxAdminNavigationPreferenceRegistered = true;
+            Alpine.data('fluxAdminNavigationPreference', function () {
+                var storageKey = 'flux-admin:navigation-mode-v2:{{ auth()->id() }}';
+                var savedMode = 'home';
+
+                try {
+                    savedMode = localStorage.getItem(storageKey) === 'menu' ? 'menu' : 'home';
+                } catch (error) {}
+
+                return {
+                    navMode: savedMode,
+                    setNavMode: function (mode) {
+                        this.navMode = mode === 'menu' ? 'menu' : 'home';
+                        try {
+                            localStorage.setItem(storageKey, this.navMode);
+                        } catch (error) {}
+                    },
+                };
+            });
+        }
+
+        if (window.Alpine) {
+            registerFluxAdminNavigationPreference();
+        } else {
+            document.addEventListener('alpine:init', registerFluxAdminNavigationPreference, { once: true });
+        }
+    </script>
     <script>
         (function () {
             function ensureFluxDialogModal(dialog) {
