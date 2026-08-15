@@ -63,6 +63,11 @@ class RedeemForm extends Component
         $this->refreshMemberBalance();
     }
 
+    public function updatedFormIncludeToday(): void
+    {
+        $this->refreshMemberBalance();
+    }
+
     public function save(): void
     {
         $this->validate([
@@ -71,11 +76,12 @@ class RedeemForm extends Component
             'form.redeem_total' => [
                 'required',
                 'numeric',
-                'min:0',
+                'min:0.01',
                 function ($attribute, $value, $fail): void {
-                    $member = ClubMember::find($this->form['club_member_id'] ?? null);
-                    if ($member && (float) $value > (float) $member->available_redeemable_balance) {
-                        $fail("The redeem amount (£{$value}) exceeds available balance (£{$member->available_redeemable_balance}).");
+                    $memberId = (int) ($this->form['club_member_id'] ?? 0);
+                    $available = $this->availableBalance($memberId, (bool) ($this->form['include_today'] ?? false));
+                    if ($memberId && (float) $value > $available) {
+                        $fail("The redeem amount (£{$value}) exceeds available balance (£".number_format($available, 2).').');
                     }
                 },
             ],
@@ -120,41 +126,85 @@ class RedeemForm extends Component
         $memberId = (int) ($this->form['club_member_id'] ?? 0);
         $member = $memberId > 0 ? ClubMember::find($memberId) : null;
 
-        $this->remainingBalance = $member ? (float) $member->available_redeemable_balance : null;
+        $includeRecent = (bool) ($this->form['include_today'] ?? false);
+        $this->remainingBalance = $member
+            ? $this->availableBalance((int) $member->id, $includeRecent)
+            : null;
         $this->hasTodayPurchases = $member
-            ? $member->purchases()->whereDate('date', now()->toDateString())->exists()
+            ? $member->purchases()->where('date', '>', now()->subHours(16))->exists()
             : false;
     }
 
     protected function applyRedemptionToPurchases(ClubMemberRedeem $entry): void
     {
-        $query = ClubMemberPurchase::query()
-            ->where('club_member_id', $entry->club_member_id)
-            ->where('is_redeemed', false);
+        $remaining = round((float) $entry->redeem_total, 2);
+        $requested = $remaining;
+        $purchaseIds = [];
+        $includeRecent = (bool) ($this->form['include_today'] ?? false);
 
-        if (empty($this->form['include_today'])) {
-            $query->whereDate('date', '<>', now()->toDateString());
-        }
+        $this->eligiblePurchases((int) $entry->club_member_id, $includeRecent)
+            ->lockForUpdate()
+            ->get()
+            ->each(function (ClubMemberPurchase $purchase) use (&$remaining, &$purchaseIds): void {
+                if ($remaining <= 0.0) {
+                    return;
+                }
 
-        $purchases = $query->get();
+                $discount = round((float) ($purchase->discount ?? 0), 2);
+                $alreadyRedeemed = round((float) ($purchase->redeem_amount ?? 0), 2);
+                $available = round(max($discount - $alreadyRedeemed, 0), 2);
+                $applied = round(min($remaining, $available), 2);
 
-        if ($purchases->isEmpty()) {
-            return;
-        }
+                if ($applied <= 0.0) {
+                    return;
+                }
 
-        $totalRedeemed = 0.0;
-        foreach ($purchases as $purchase) {
-            $redeemValue = (float) ($purchase->discount ?? 0);
-            $purchase->forceFill([
-                'redeem_amount' => $redeemValue,
-                'is_redeemed' => true,
-            ])->save();
-            $totalRedeemed += $redeemValue;
+                $newRedeemAmount = round($alreadyRedeemed + $applied, 2);
+                $purchase->forceFill([
+                    'redeem_amount' => $newRedeemAmount,
+                    'is_redeemed' => round($discount - $newRedeemAmount, 2) <= 0.01,
+                ])->save();
+
+                $remaining = round($remaining - $applied, 2);
+                $purchaseIds[] = $purchase->id.' (£'.number_format($applied, 2).')';
+            });
+
+        $appliedTotal = round($requested - $remaining, 2);
+        $note = trim(($entry->note ?? '')."\nApplied £".number_format($appliedTotal, 2, '.', '').' from purchase IDs: '.implode(', ', $purchaseIds));
+        if ($remaining > 0.0) {
+            $note .= "\nUnapplied £".number_format($remaining, 2, '.', '').' because no eligible balance remained.';
         }
 
         $entry->forceFill([
-            'redeem_total' => round($totalRedeemed, 2),
-            'note' => trim(($entry->note ?? '')."\nRedeemed £".number_format($totalRedeemed, 2, '.', '').' from purchase IDs: '.$purchases->pluck('id')->implode(', ')),
+            'redeem_total' => $appliedTotal,
+            'note' => trim($note),
         ])->save();
+    }
+
+    protected function availableBalance(int $memberId, bool $includeRecent = false): float
+    {
+        if ($memberId <= 0) {
+            return 0.0;
+        }
+
+        return round($this->eligiblePurchases($memberId, $includeRecent)->get()->sum(function (ClubMemberPurchase $purchase): float {
+            return max(round((float) ($purchase->discount ?? 0) - (float) ($purchase->redeem_amount ?? 0), 2), 0);
+        }), 2);
+    }
+
+    protected function eligiblePurchases(int $memberId, bool $includeRecent = false)
+    {
+        $query = ClubMemberPurchase::query()
+            ->where('club_member_id', $memberId)
+            ->where('date', '>=', now()->subMonths(6))
+            ->whereRaw('ROUND(discount - COALESCE(redeem_amount, 0), 2) > 0.01')
+            ->orderBy('date')
+            ->orderBy('id');
+
+        if (! $includeRecent) {
+            $query->where('date', '<=', now()->subHours(16));
+        }
+
+        return $query;
     }
 }

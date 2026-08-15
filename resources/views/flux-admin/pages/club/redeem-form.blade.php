@@ -41,7 +41,7 @@
                     <flux:input type="date" wire:model="form.date" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="Redeem total (£)" required :error="$errors->first('form.redeem_total')">
-                    <flux:input type="number" step="0.01" min="0" wire:model="form.redeem_total" />
+                    <flux:input type="number" step="0.01" min="0.01" wire:model="form.redeem_total" />
                 </x-flux-admin::field-group>
                 <x-flux-admin::field-group label="POS invoice" :error="$errors->first('form.pos_invoice')">
                     <flux:input wire:model="form.pos_invoice" />
@@ -57,10 +57,10 @@
             </div>
             @if($hasTodayPurchases)
                 <div class="mt-4 border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
-                    <p class="mb-2">This member has purchases from today.</p>
+                    <p class="mb-2">This member has purchases from the last 16 hours.</p>
                     <label class="flex items-center gap-2">
                         <input type="checkbox" wire:model="form.include_today" class="accent-zinc-900 dark:accent-zinc-200">
-                        Include today's purchases in this redemption
+                        Include recent purchases in this redemption
                     </label>
                 </div>
             @endif
@@ -69,7 +69,7 @@
                     <flux:textarea wire:model="form.note" rows="2" />
                 </x-flux-admin::field-group>
             </div>
-            <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Saving marks unredeemed purchase discounts as redeemed and overwrites redeem total with the sum applied.</p>
+            <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Only the entered amount is applied to eligible purchases. A purchase is marked redeemed only when its full discount has been used.</p>
         </div>
         <div class="flex justify-end gap-3 pt-2">
             <a href="{{ route('flux-admin.club-redemptions.index') }}">
