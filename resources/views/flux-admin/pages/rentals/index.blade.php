@@ -98,7 +98,7 @@
                         <flux:table.column sortable :sorted="$sortField === 'customer'" :direction="$sortDirection" wire:click="sortBy('customer')">Customer</flux:table.column>
                         <flux:table.column>Contact</flux:table.column>
                         <flux:table.column sortable :sorted="$sortField === 'weekly_rent'" :direction="$sortDirection" wire:click="sortBy('weekly_rent')">Weekly rent</flux:table.column>
-                        <flux:table.column sortable :sorted="$sortField === 'start_date'" :direction="$sortDirection" wire:click="sortBy('start_date')">Start</flux:table.column>
+                        
                         @if($scope !== 'active')
                             <flux:table.column sortable :sorted="$sortField === 'end_date'" :direction="$sortDirection" wire:click="sortBy('end_date')">End</flux:table.column>
                         @else
@@ -133,7 +133,7 @@
                                     <div class="text-zinc-500">{{ $row->phone }}</div>
                                 </flux:table.cell>
                                 <flux:table.cell>£{{ number_format((float) $row->weekly_rent, 2) }}</flux:table.cell>
-                                <flux:table.cell>{{ $row->item_start_date ? \Carbon\Carbon::parse($row->item_start_date)->format('d M Y') : '—' }}</flux:table.cell>
+                                
                                 @if($scope !== 'active')
                                     <flux:table.cell>{{ $row->item_end_date ? \Carbon\Carbon::parse($row->item_end_date)->format('d M Y') : '—' }}</flux:table.cell>
                                 @else

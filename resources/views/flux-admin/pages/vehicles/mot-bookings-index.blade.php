@@ -30,7 +30,7 @@
                 </div>
             </x-flux-admin::filter-bar>
             @if($branch)
-                <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Showing Catford MOT bookings only.</p>
+                <!-- <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Showing Catford MOT bookings only.</p> -->
             @endif
         </x-slot:toolbar>
         <flux:table>

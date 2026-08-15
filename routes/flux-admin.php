@@ -44,6 +44,7 @@ use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairForm as MotorbikeRepairForm;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\RepairIndex as MotorbikeRepairIndex;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\SaleForm as MotorbikeSaleForm;
 use App\Livewire\FluxAdmin\Pages\Motorbikes\SaleIndex as MotorbikeSaleIndex;
+use App\Livewire\FluxAdmin\Pages\Motorbikes\SaleOperationsHub;
 use App\Livewire\FluxAdmin\Pages\Pcn\PcnCreate;
 use App\Livewire\FluxAdmin\Pages\Pcn\PcnDashboard;
 use App\Livewire\FluxAdmin\Pages\Pcn\PcnEdit;
@@ -71,6 +72,7 @@ use App\Livewire\FluxAdmin\Pages\Vehicles\CompanyVehicleIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\MotBookingCalendar;
 use App\Livewire\FluxAdmin\Pages\Vehicles\MotBookingForm;
 use App\Livewire\FluxAdmin\Pages\Vehicles\MotBookingIndex;
+use App\Livewire\FluxAdmin\Pages\Vehicles\MotOperationsHub;
 use App\Livewire\FluxAdmin\Pages\Vehicles\PurchaseUsedIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\RecoveredIndex as RecoveredMotorbikeIndex;
 use App\Livewire\FluxAdmin\Pages\Vehicles\ServiceBookingForm;
@@ -412,6 +414,7 @@ Route::get('/customer-documents', CustomerDocumentIndex::class)->name('flux-admi
 Route::get('/customer-documents/{document}/review', CustomerDocumentReview::class)->name('flux-admin.customer-documents.review');
 
 // Phase 2 — Motorbike sub-CRUDs
+Route::get('/sale', SaleOperationsHub::class)->name('flux-admin.sale.index');
 Route::get('/motorbike-sales', MotorbikeSaleIndex::class)->name('flux-admin.motorbike-sales.index');
 Route::get('/motorbike-sales/create', MotorbikeSaleForm::class)->name('flux-admin.motorbike-sales.create');
 Route::get('/motorbike-sales/{motorbikesSale}/edit', MotorbikeSaleForm::class)->name('flux-admin.motorbike-sales.edit');
@@ -473,6 +476,7 @@ Route::get('/club-spending-payments', ClubSpendingPaymentIndex::class)->name('fl
 Route::get('/company-vehicles', CompanyVehicleIndex::class)->name('flux-admin.company-vehicles.index');
 Route::get('/company-vehicles/create', CompanyVehicleForm::class)->name('flux-admin.company-vehicles.create');
 Route::get('/company-vehicles/{companyVehicle}/edit', CompanyVehicleForm::class)->name('flux-admin.company-vehicles.edit');
+Route::get('/mot', MotOperationsHub::class)->name('flux-admin.mot.index');
 Route::get('/mot-bookings', MotBookingIndex::class)->name('flux-admin.mot-bookings.index');
 Route::get('/mot-bookings/calendar', MotBookingCalendar::class)->name('flux-admin.mot-bookings.calendar');
 Route::get('/mot-bookings/create', MotBookingForm::class)->name('flux-admin.mot-bookings.create');

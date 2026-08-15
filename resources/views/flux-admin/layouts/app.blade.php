@@ -924,27 +924,17 @@
 
             {{-- 9. Sale (used / brand new) --}}
             @can('see-menu-vehicles')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.motorbike-sales.*','flux-admin.motorbike-for-sale.*')" heading="Sale">
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-sales.index') }}" :current="request()->routeIs('flux-admin.motorbike-sales.*')">Used Motorcycle Sale</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-for-sale.index') }}" :current="request()->routeIs('flux-admin.motorbike-for-sale.*')">Brand New vehicles</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.sale.index') }}" icon="tag" :current="request()->routeIs('flux-admin.sale.*','flux-admin.motorbike-sales.*','flux-admin.motorbike-for-sale.*')">Sale</flux:navlist.item>
             @endcan
 
             {{-- 10. Purchase --}}
             @can('see-menu-commons')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.used-purchases.*')" heading="Purchase">
-                    <flux:navlist.item href="{{ route('flux-admin.used-purchases.index') }}" :current="request()->routeIs('flux-admin.used-purchases.*')">Add / Edit</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.used-purchases.index') }}" icon="shopping-cart" :current="request()->routeIs('flux-admin.used-purchases.*')">Purchase</flux:navlist.item>
             @endcan
 
             {{-- 11. MOT --}}
             @can('see-menu-mot-bookings')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.mot-*')" heading="MOT">
-                    <flux:navlist.item href="{{ route('flux-admin.mot-bookings.index') }}" :current="request()->routeIs('flux-admin.mot-bookings.index','flux-admin.mot-bookings.create','flux-admin.mot-bookings.edit')">Add / Edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.mot-bookings.calendar') }}" :current="request()->routeIs('flux-admin.mot-bookings.calendar','flux-admin.backpack.mot-booking.calendar')">Calendar</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.mot-checker.index') }}" :current="request()->routeIs('flux-admin.mot-checker.*')">MOT checker</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.mot-stats.index') }}" :current="request()->routeIs('flux-admin.mot-stats.*')">MOT stats</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.mot.index') }}" icon="clipboard-document-check" :current="request()->routeIs('flux-admin.mot.*','flux-admin.mot-bookings.*','flux-admin.backpack.mot-booking.*','flux-admin.mot-checker.*','flux-admin.mot-stats.*')">MOT</flux:navlist.item>
             @endcan
 
             {{-- 12. Claims --}}

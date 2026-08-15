@@ -84,44 +84,13 @@ class MotBookingCalendar extends Component
     /** @return array{0: string, 1: string} */
     private function coloursForBooking(MOTBooking $booking, string $status): array
     {
-        $background = $this->normaliseColour($booking->background_color, '');
-        $text = $this->normaliseColour($booking->text_color, '');
-
-        if ($status === MOTBooking::STATUS_COMPLETED) {
-            return ['#166534', '#ffffff'];
-        }
-
-        if ($background !== '' && $text !== '') {
-            return [$background, $text];
-        }
-
         return match ($status) {
-            MOTBooking::STATUS_BOOKED => ['#db2777', '#ffffff'],
+            MOTBooking::STATUS_AVAILABLE => ['#16a34a', '#ffffff'],
+            MOTBooking::STATUS_BOOKED => ['#2563eb', '#ffffff'],
             MOTBooking::STATUS_COMPLETED => ['#166534', '#ffffff'],
-            MOTBooking::STATUS_CANCELLED => ['#71717a', '#ffffff'],
-            MOTBooking::STATUS_AVAILABLE => ['#ca8a04', '#18181b'],
-            default => ['#2563eb', '#ffffff'],
-        };
-    }
-
-    private function normaliseColour(?string $colour, string $fallback): string
-    {
-        $colour = trim((string) $colour);
-        if ($colour === '') {
-            return $fallback;
-        }
-
-        if (str_starts_with($colour, '#')) {
-            return $colour;
-        }
-
-        return match (strtolower($colour)) {
-            'pink' => '#ec4899',
-            'gray', 'grey' => '#6b7280',
-            'yellow' => '#eab308',
-            'black' => '#18181b',
-            'white' => '#ffffff',
-            default => $colour,
+            MOTBooking::STATUS_CANCELLED => ['#dc2626', '#ffffff'],
+            MOTBooking::STATUS_PENDING => ['#d97706', '#ffffff'],
+            default => ['#71717a', '#ffffff'],
         };
     }
 
