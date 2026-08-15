@@ -69,8 +69,8 @@ class FluxAdminModuleRegistry
             'title'       => 'Finance module',
             'description' => 'Finance applications, contracts and related customer records.',
             'stats'       => [
-                ['label' => 'Applications', 'value' => FinanceApplication::count()],
-                ['label' => 'Active', 'value' => FinanceApplication::where('is_cancelled', false)->count()],
+                ['label' => 'Payment Plans', 'value' => FinanceApplication::count()],
+                ['label' => 'Active Payment Plans', 'value' => TotalVehiclesQuery::activePaymentPlanMotorbikeCount()],
             ],
             'links' => [
                 ['label' => 'Finance applications', 'route' => 'flux-admin.finance.index', 'icon' => 'banknotes'],
@@ -86,7 +86,7 @@ class FluxAdminModuleRegistry
             'description' => 'Penalty charge notices, updates, TOL requests and operational overview.',
             'stats'       => [],
             'links' => [
-                ['label' => 'PCN cases', 'route' => 'flux-admin.pcn.index', 'icon' => 'shield-exclamation'],
+                ['label' => 'PCN cases Add New / Edit', 'route' => 'flux-admin.pcn.index', 'icon' => 'shield-exclamation'],
                 ['label' => 'PCN updates', 'route' => 'flux-admin.pcn-updates.index', 'icon' => 'chat-bubble-left-right'],
                 ['label' => 'TOL requests', 'route' => 'flux-admin.pcn-tol-requests.index', 'icon' => 'document'],
             ],

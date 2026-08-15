@@ -14,6 +14,7 @@ use App\Models\CustomerDocument;
 use App\Models\DocumentType;
 use App\Models\PaymentMethod;
 use App\Models\PcnCase;
+use App\Models\RentalTerminateAccess;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Models\RentingOtherCharge;
@@ -685,12 +686,60 @@ class RentalBookingLifecycle
                 $updateData
             );
 
+            $this->ensureTerminationLink($booking);
             $bookingItem->update(['end_date' => $collectDate]);
             $this->purgeFutureInvoices($booking->id, $collectDate);
             $booking->touch();
 
             return $closing->fresh();
         });
+    }
+
+    public function ensureTerminationLink(RentingBooking $booking, ?Carbon $expiresAt = null): ?RentalTerminateAccess
+    {
+        if (! $booking->customer_id) {
+            return null;
+        }
+
+        $existing = RentalTerminateAccess::query()
+            ->where('booking_id', $booking->id)
+            ->orderByRaw('signed_at IS NULL DESC')
+            ->orderByDesc('expire_at')
+            ->orderByDesc('id')
+            ->first();
+
+        if ($existing) {
+            return $existing;
+        }
+
+        return RentalTerminateAccess::create([
+            'customer_id' => $booking->customer_id,
+            'booking_id' => $booking->id,
+            'passcode' => Str::upper(Str::random(8)),
+            'expire_at' => $expiresAt ?? now()->addYear(),
+        ]);
+    }
+
+    public function ensureTerminationLinksForCompletedRentals(): int
+    {
+        $created = 0;
+        $linkedBookingIds = RentalTerminateAccess::query()->select('booking_id');
+
+        RentingBooking::query()
+            ->where('is_posted', true)
+            ->whereNotNull('customer_id')
+            ->whereHas('rentingBookingItems', fn ($items) => $items->whereNull('end_date'))
+            ->whereNotIn('id', $linkedBookingIds)
+            ->orderBy('id')
+            ->chunkById(100, function ($bookings) use (&$created) {
+                foreach ($bookings as $booking) {
+                    if ($this->ensureTerminationLink($booking)) {
+                        $created++;
+                    }
+                }
+            });
+
+        return $created;
     }
 
     public function abortUnposted(RentingBooking $booking): void

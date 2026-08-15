@@ -72,15 +72,19 @@
                 </div>
 
                 <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
-                    <flux:select wire:model.live="filterMotStatus" placeholder="MOT status">
-                        <flux:select.option value="">Any MOT status</flux:select.option>
-                        <flux:select.option value="1">Has compliance record</flux:select.option>
-                        <flux:select.option value="0">No compliance record</flux:select.option>
+                    <flux:select wire:model.live="filterMotValidity" placeholder="MOT">
+                        <flux:select.option value="">Any MOT</flux:select.option>
+                        <flux:select.option value="valid">MOT valid</flux:select.option>
+                        <flux:select.option value="expired">MOT expired</flux:select.option>
                     </flux:select>
                 </div>
 
-                <div class="min-w-0 w-full sm:min-w-[8rem] sm:flex-1 lg:w-32 lg:flex-none">
-                    <flux:input wire:model.live.debounce.300ms="filterColour" placeholder="Colour…" variant="filled" />
+                <div class="min-w-0 w-full sm:min-w-[9rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:select wire:model.live="filterTaxValidity" placeholder="Road tax">
+                        <flux:select.option value="">Any tax</flux:select.option>
+                        <flux:select.option value="valid">Tax valid</flux:select.option>
+                        <flux:select.option value="expired">Tax expired</flux:select.option>
+                    </flux:select>
                 </div>
 
                 <div class="min-w-0 w-full sm:min-w-[7rem] sm:flex-1 lg:w-28 lg:flex-none">
@@ -94,6 +98,9 @@
                         <flux:select.option value="100">100 per page</flux:select.option>
                     </flux:select>
                 </div>
+                <flux:button wire:click="resetVehicleFilters" variant="ghost" size="sm" icon="x-mark" class="!rounded-none w-full sm:w-auto">
+                    Reset filters
+                </flux:button>
             </div>
         </div>
     </div>
@@ -121,10 +128,13 @@
                         $compliance = $row->latestCompliance;
                         $motDue = $compliance?->mot_due_date ? \Carbon\Carbon::parse($compliance->mot_due_date) : null;
                         $taxDue = $compliance?->tax_due_date ? \Carbon\Carbon::parse($compliance->tax_due_date) : null;
-                        $motSoon = $motDue && $motDue->diffInDays(now(), false) >= -30 && $motDue->isFuture();
-                        $taxSoon = $taxDue && $taxDue->diffInDays(now(), false) >= -30 && $taxDue->isFuture();
-                        $motExpired = $motDue && $motDue->isPast();
-                        $taxExpired = $taxDue && $taxDue->isPast();
+                        $today = now()->startOfDay();
+                        $motExpired = $motDue && $motDue->lt($today);
+                        $taxExpired = $taxDue && $taxDue->lt($today);
+                        $motSoon = $motDue && ! $motExpired && $today->diffInDays($motDue, false) <= 30;
+                        $taxSoon = $taxDue && ! $taxExpired && $today->diffInDays($taxDue, false) <= 30;
+                        $motLabel = $motDue ? ($motExpired ? 'Expired' : 'Valid') : 'Unknown';
+                        $taxLabel = $taxDue ? ($taxExpired ? 'Expired' : 'Valid') : 'Unknown';
                         $roles = $rolesMap[$row->id] ?? [];
                     @endphp
                     <flux:table.row wire:key="tv-bike-{{ $row->id }}">
@@ -159,24 +169,30 @@
                         </flux:table.cell>
                         <flux:table.cell>
                             @if($motDue)
-                                <span @class([
-                                    'text-red-600 dark:text-red-400 font-medium' => $motExpired,
-                                    'text-amber-600 dark:text-amber-400 font-medium' => $motSoon && !$motExpired,
-                                    'text-zinc-700 dark:text-zinc-300' => !$motSoon && !$motExpired,
-                                ])>{{ $motDue->format('d M Y') }}</span>
+                                <div class="space-y-1">
+                                    <span @class([
+                                        'block text-red-600 dark:text-red-400 font-medium' => $motExpired,
+                                        'block text-amber-600 dark:text-amber-400 font-medium' => $motSoon && !$motExpired,
+                                        'block text-zinc-700 dark:text-zinc-300' => !$motSoon && !$motExpired,
+                                    ])>{{ $motDue->format('d M Y') }}</span>
+                                    <flux:badge size="sm" color="{{ $motExpired ? 'red' : 'emerald' }}">{{ $motLabel }}</flux:badge>
+                                </div>
                             @else
-                                <span class="text-zinc-400 dark:text-zinc-600">—</span>
+                                <flux:badge size="sm" color="zinc">{{ $motLabel }}</flux:badge>
                             @endif
                         </flux:table.cell>
                         <flux:table.cell>
                             @if($taxDue)
-                                <span @class([
-                                    'text-red-600 dark:text-red-400 font-medium' => $taxExpired,
-                                    'text-amber-600 dark:text-amber-400 font-medium' => $taxSoon && !$taxExpired,
-                                    'text-zinc-700 dark:text-zinc-300' => !$taxSoon && !$taxExpired,
-                                ])>{{ $taxDue->format('d M Y') }}</span>
+                                <div class="space-y-1">
+                                    <span @class([
+                                        'block text-red-600 dark:text-red-400 font-medium' => $taxExpired,
+                                        'block text-amber-600 dark:text-amber-400 font-medium' => $taxSoon && !$taxExpired,
+                                        'block text-zinc-700 dark:text-zinc-300' => !$taxSoon && !$taxExpired,
+                                    ])>{{ $taxDue->format('d M Y') }}</span>
+                                    <flux:badge size="sm" color="{{ $taxExpired ? 'red' : 'emerald' }}">{{ $taxLabel }}</flux:badge>
+                                </div>
                             @else
-                                <span class="text-zinc-400 dark:text-zinc-600">—</span>
+                                <flux:badge size="sm" color="zinc">{{ $taxLabel }}</flux:badge>
                             @endif
                         </flux:table.cell>
                         <flux:table.cell>{{ $row->branch?->name ?? '—' }}</flux:table.cell>

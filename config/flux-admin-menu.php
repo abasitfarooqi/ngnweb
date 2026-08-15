@@ -37,7 +37,7 @@ return [
         ['group' => 'Rentals', 'label' => 'Signature expire date', 'route' => 'flux-admin.agreement-access.index', 'permission' => 'see-menu-rentals', 'keywords' => 'agreement signing passcode'],
         ['group' => 'Rentals', 'label' => 'Terminate / generate link', 'route' => 'flux-admin.rental-terminate-links.index', 'permission' => 'see-menu-rentals', 'keywords' => 'termination end rental'],
         ['group' => 'Rentals', 'label' => 'Overview', 'route' => 'flux-admin.active-rentals.index', 'permission' => 'see-menu-rentals', 'keywords' => 'active rentals overview'],
-        ['group' => 'Rentals', 'label' => 'Due payments', 'route' => 'flux-admin.rental-due-payments.index', 'permission' => 'see-menu-rentals', 'keywords' => 'unpaid invoices'],
+        ['group' => 'Rentals', 'label' => 'Rental Due payments Whatsapp Reminders', 'route' => 'flux-admin.rental-due-payments.index', 'permission' => 'see-menu-rentals', 'keywords' => 'unpaid invoices'],
         ['group' => 'Rentals', 'label' => 'Renting service videos', 'route' => 'flux-admin.service-videos.index', 'permission' => 'see-menu-rentals'],
 
         ['group' => 'PCNs', 'label' => 'Module home', 'route' => 'flux-admin.modules.show', 'params' => ['module' => 'pcn'], 'permission' => 'see-menu-pcns'],

@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Livewire\FluxAdmin\Concerns\WithExport;
+use App\Models\Branch;
 use App\Models\MOTBooking;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -45,9 +46,9 @@ class MotBookingIndex extends Component
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
-        $branches = \App\Models\Branch::query()->orderBy('name')->get(['id', 'name']);
+        $branch = $this->catfordBranch();
 
-        return view('flux-admin.pages.vehicles.mot-bookings-index', compact('bookings', 'branches'));
+        return view('flux-admin.pages.vehicles.mot-bookings-index', compact('bookings', 'branch'));
     }
 
     protected function baseQuery(): Builder
@@ -56,6 +57,7 @@ class MotBookingIndex extends Component
         $compactSearch = strtoupper(preg_replace('/\s+/', '', $search) ?? '');
 
         return MOTBooking::query()
+            ->when($this->catfordBranch(), fn ($q, Branch $branch) => $q->where('branch_id', $branch->id))
             ->when($search !== '', fn ($q) => $q->where(fn ($q) => $q
                 ->where('vehicle_registration', 'like', "%{$search}%")
                 ->orWhereRaw("REPLACE(UPPER(COALESCE(vehicle_registration, '')), ' ', '') LIKE ?", ["%{$compactSearch}%"])
@@ -65,7 +67,6 @@ class MotBookingIndex extends Component
                 ->orWhere('title', 'like', "%{$search}%")
                 ->orWhere('payment_link', 'like', "%{$search}%")))
             ->when($this->filter('status'), fn ($q, $v) => $q->where('status', $v))
-            ->when($this->filter('branch_id'), fn ($q, $v) => $q->where('branch_id', $v))
             ->when($this->filter('is_paid') !== '', fn ($q) => $q->where('is_paid', $this->filter('is_paid') === '1'));
     }
 
@@ -90,5 +91,13 @@ class MotBookingIndex extends Component
             'Payment link' => 'payment_link',
             'Paid' => fn ($b) => $b->is_paid ? 'Yes' : 'No',
         ];
+    }
+
+    private function catfordBranch(): ?Branch
+    {
+        return Branch::query()
+            ->where('name', 'like', '%Catford%')
+            ->orderBy('id')
+            ->first(['id', 'name']);
     }
 }

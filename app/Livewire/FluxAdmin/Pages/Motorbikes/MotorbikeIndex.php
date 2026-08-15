@@ -28,15 +28,31 @@ class MotorbikeIndex extends Component
 
     public bool $showForm = false;
 
+    #[Url(history: true, except: '')]
     public string $branch = '';
 
+    #[Url(history: true, except: '')]
     public string $filterColour = '';
 
+    #[Url(history: true, except: '')]
     public string $filterYear = '';
 
+    #[Url(history: true, except: '')]
     public string $filterMotStatus = '';
 
+    #[Url(history: true, except: '')]
     public string $filterType = '';
+
+    public function resetMotorbikeFilters(): void
+    {
+        $this->search = '';
+        $this->branch = '';
+        $this->filterColour = '';
+        $this->filterYear = '';
+        $this->filterMotStatus = '';
+        $this->filterType = '';
+        $this->resetPage();
+    }
 
     public bool $showMakeAvailableForm = false;
 

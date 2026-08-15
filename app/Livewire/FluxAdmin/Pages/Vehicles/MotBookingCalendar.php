@@ -21,6 +21,7 @@ class MotBookingCalendar extends Component
     public function mount(): void
     {
         $this->authorizeModule('see-menu-mot-bookings');
+        $this->branchId = (string) ($this->catfordBranch()?->id ?? '');
     }
 
     public function updatedBranchId(): void
@@ -35,7 +36,7 @@ class MotBookingCalendar extends Component
         $rangeEnd = Carbon::parse($end);
 
         return MOTBooking::query()
-            ->when($this->branchId !== '', fn ($q) => $q->where('branch_id', $this->branchId))
+            ->when($this->catfordBranch(), fn ($q, Branch $branch) => $q->where('branch_id', $branch->id))
             ->whereNotNull('start')
             ->where('start', '<', $rangeEnd)
             ->where(function ($q) use ($rangeStart) {
@@ -86,6 +87,10 @@ class MotBookingCalendar extends Component
         $background = $this->normaliseColour($booking->background_color, '');
         $text = $this->normaliseColour($booking->text_color, '');
 
+        if ($status === MOTBooking::STATUS_COMPLETED) {
+            return ['#166534', '#ffffff'];
+        }
+
         if ($background !== '' && $text !== '') {
             return [$background, $text];
         }
@@ -122,8 +127,16 @@ class MotBookingCalendar extends Component
 
     public function render()
     {
-        $branches = Branch::query()->orderBy('name')->get(['id', 'name']);
+        $branch = $this->catfordBranch();
 
-        return view('flux-admin.pages.vehicles.mot-bookings-calendar', compact('branches'));
+        return view('flux-admin.pages.vehicles.mot-bookings-calendar', compact('branch'));
+    }
+
+    private function catfordBranch(): ?Branch
+    {
+        return Branch::query()
+            ->where('name', 'like', '%Catford%')
+            ->orderBy('id')
+            ->first(['id', 'name']);
     }
 }

@@ -19,9 +19,15 @@ class RentalTerminateAccess extends Model
         'booking_id',
         'passcode',
         'expire_at',
+        'signed_at',
     ];
 
     protected $table = 'rental_terminate_accesses';
+
+    protected $casts = [
+        'expire_at' => 'datetime',
+        'signed_at' => 'datetime',
+    ];
 
     public function customers(): BelongsTo
     {

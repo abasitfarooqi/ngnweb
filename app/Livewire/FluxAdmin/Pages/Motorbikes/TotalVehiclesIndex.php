@@ -29,17 +29,32 @@ class TotalVehiclesIndex extends Component
     use WithExport;
     use WithPagination;
 
+    #[Url(history: true, except: '')]
     public string $branch = '';
 
-    public string $filterColour = '';
-
+    #[Url(history: true, except: '')]
     public string $filterYear = '';
 
-    public string $filterMotStatus = '';
+    #[Url(history: true, except: '')]
+    public string $filterMotValidity = '';
+
+    #[Url(history: true, except: '')]
+    public string $filterTaxValidity = '';
 
     /** @var ''|'rental'|'finance_new'|'finance_used'|'company'|'sale_rental'|'for_sale' */
-    #[Url]
+    #[Url(history: true, except: '')]
     public string $filterCategory = '';
+
+    public function resetVehicleFilters(): void
+    {
+        $this->search = '';
+        $this->branch = '';
+        $this->filterYear = '';
+        $this->filterMotValidity = '';
+        $this->filterTaxValidity = '';
+        $this->filterCategory = '';
+        $this->resetPage();
+    }
 
     public function mount(): void
     {
@@ -55,17 +70,17 @@ class TotalVehiclesIndex extends Component
         $this->resetPage();
     }
 
-    public function updatingFilterColour(): void
-    {
-        $this->resetPage();
-    }
-
     public function updatingFilterYear(): void
     {
         $this->resetPage();
     }
 
-    public function updatingFilterMotStatus(): void
+    public function updatingFilterMotValidity(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingFilterTaxValidity(): void
     {
         $this->resetPage();
     }
@@ -122,10 +137,23 @@ class TotalVehiclesIndex extends Component
                 });
             })
             ->when($this->branch !== '', fn ($q) => $q->where('motorbikes.branch_id', $this->branch))
-            ->when($this->filterColour !== '', fn ($q) => $q->where('motorbikes.color', 'like', '%'.$this->filterColour.'%'))
             ->when($this->filterYear !== '', fn ($q) => $q->where('motorbikes.year', $this->filterYear))
-            ->when($this->filterMotStatus === '1', fn ($q) => $q->whereHas('annualCompliances'))
-            ->when($this->filterMotStatus === '0', fn ($q) => $q->whereDoesntHave('annualCompliances'));
+            ->when($this->filterMotValidity === 'valid', fn ($q) => $q->whereHas(
+                'latestCompliance',
+                fn ($c) => $c->whereNotNull('mot_due_date')->whereDate('mot_due_date', '>=', now()->toDateString())
+            ))
+            ->when($this->filterMotValidity === 'expired', fn ($q) => $q->whereHas(
+                'latestCompliance',
+                fn ($c) => $c->whereNotNull('mot_due_date')->whereDate('mot_due_date', '<', now()->toDateString())
+            ))
+            ->when($this->filterTaxValidity === 'valid', fn ($q) => $q->whereHas(
+                'latestCompliance',
+                fn ($c) => $c->whereNotNull('tax_due_date')->whereDate('tax_due_date', '>=', now()->toDateString())
+            ))
+            ->when($this->filterTaxValidity === 'expired', fn ($q) => $q->whereHas(
+                'latestCompliance',
+                fn ($c) => $c->whereNotNull('tax_due_date')->whereDate('tax_due_date', '<', now()->toDateString())
+            ));
     }
 
     protected function exportQuery(): Builder

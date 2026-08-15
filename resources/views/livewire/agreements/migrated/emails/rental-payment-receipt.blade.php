@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rental Payment Receipt</title>
+    <title>{{ $title ?? 'Rental Payment Receipt' }}</title>
     <style>
         body {
             margin: 0;
@@ -111,13 +111,20 @@
         $remainingBalance = number_format((float) ($remaining_balance ?? 0), 2);
         $statusLabel = $invoice_status_label ?? 'Payment received';
         $receiptMessage = $receipt_message ?? 'We have received your payment and attached the payment details below.';
+        $mailTitle = $title ?? 'Rental Payment Receipt';
+        $mailSubtitle = $subtitle ?? 'Confirmation of payment received for your rental invoice.';
+        $showRemainingBalance = $show_remaining_balance ?? true;
+        $invoiceAmountLabel = $invoice_amount_label ?? 'Invoice Amount';
+        $amountLabel = $amount_label ?? 'Amount Received';
+        $notesLabel = $notes_label ?? 'Notes';
+        $notesText = trim((string) ($notes ?? ''));
     @endphp
 
     <div class="container">
         <div class="header">
             <img class="logo" src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motors">
-            <h1 class="title">Rental Payment Receipt</h1>
-            <p class="subtitle">Confirmation of payment received for your rental invoice.</p>
+            <h1 class="title">{{ $mailTitle }}</h1>
+            <p class="subtitle">{{ $mailSubtitle }}</p>
         </div>
 
         <div class="content">
@@ -147,17 +154,19 @@
                     <td><strong>{{ $registration_number ?: 'N/A' }}</strong></td>
                 </tr>
                 <tr>
-                    <td class="label">Invoice Amount</td>
+                    <td class="label">{{ $invoiceAmountLabel }}</td>
                     <td><strong>&pound;{{ $invoiceAmount }}</strong></td>
                 </tr>
                 <tr>
-                    <td class="label">Amount Received</td>
+                    <td class="label">{{ $amountLabel }}</td>
                     <td><strong>&pound;{{ $amountReceived }}</strong></td>
                 </tr>
-                <tr>
-                    <td class="label">Remaining Balance</td>
-                    <td><strong>&pound;{{ $remainingBalance }}</strong></td>
-                </tr>
+                @if($showRemainingBalance)
+                    <tr>
+                        <td class="label">Remaining Balance</td>
+                        <td><strong>&pound;{{ $remainingBalance }}</strong></td>
+                    </tr>
+                @endif
                 <tr>
                     <td class="label">Payment Method</td>
                     <td><strong>{{ $payment_method ?? 'N/A' }}</strong></td>
@@ -170,6 +179,12 @@
                     <td class="label">Transaction Date</td>
                     <td><strong>{{ $transactionDate }}</strong></td>
                 </tr>
+                @if($notesText !== '')
+                    <tr>
+                        <td class="label">{{ $notesLabel }}</td>
+                        <td>{{ $notesText }}</td>
+                    </tr>
+                @endif
             </table>
         </div>
 

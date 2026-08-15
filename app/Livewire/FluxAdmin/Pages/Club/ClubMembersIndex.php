@@ -8,6 +8,7 @@ use App\Support\ClubMemberStaffAccess;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -19,10 +20,13 @@ class ClubMembersIndex extends Component
     use WithDataTable;
     use WithPagination;
 
+    #[Url(history: true, except: true)]
     public bool $activeOnly = true;
 
+    #[Url(history: true, except: '')]
     public string $filterYear = '';
 
+    #[Url(history: true, except: '')]
     public string $filterPartner = '';
 
     public function mount(): void

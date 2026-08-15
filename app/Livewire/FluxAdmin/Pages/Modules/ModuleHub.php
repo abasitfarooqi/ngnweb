@@ -17,7 +17,7 @@ class ModuleHub extends Component
 
     public string $module;
 
-    #[Url]
+    #[Url(history: true)]
     public string $listSort = 'desc';
 
     public function mount(string $module): void

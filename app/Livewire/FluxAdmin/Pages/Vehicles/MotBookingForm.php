@@ -25,6 +25,7 @@ class MotBookingForm extends Component
         $this->resetErrorBag();
         $this->authorizeModule('see-menu-mot-bookings');
         $this->motBooking = $motBooking;
+        $catfordBranch = $this->catfordBranch();
 
         if ($motBooking && $motBooking->exists) {
             $attrs = $motBooking->getAttributes();
@@ -52,6 +53,9 @@ class MotBookingForm extends Component
             }
 
             $this->preparePaymentMethodFields($attrs);
+            if ($catfordBranch) {
+                $attrs['branch_id'] = $catfordBranch->id;
+            }
             $this->form = $attrs;
         } else {
             $start = $this->parseCalendarQueryDate(request()->query('start')) ?? now();
@@ -63,6 +67,7 @@ class MotBookingForm extends Component
 
             $this->form = [
                 'status' => MOTBooking::STATUS_BOOKED,
+                'branch_id' => $catfordBranch?->id,
                 'is_paid' => false,
                 'all_day' => false,
                 'is_validate' => true,
@@ -78,6 +83,10 @@ class MotBookingForm extends Component
 
     public function save(): void
     {
+        if ($catfordBranch = $this->catfordBranch()) {
+            $this->form['branch_id'] = $catfordBranch->id;
+        }
+
         $this->form['is_paid'] = (bool) ($this->form['is_paid'] ?? false);
         $this->form['is_dealt'] = (bool) ($this->form['is_dealt'] ?? false);
         $this->normaliseDateTimeFields();
@@ -280,10 +289,18 @@ class MotBookingForm extends Component
         };
     }
 
+    private function catfordBranch(): ?Branch
+    {
+        return Branch::query()
+            ->where('name', 'like', '%Catford%')
+            ->orderBy('id')
+            ->first(['id', 'name']);
+    }
+
     public function render()
     {
-        $branches = Branch::query()->orderBy('name')->get(['id', 'name']);
+        $branch = $this->catfordBranch();
 
-        return view('flux-admin.pages.vehicles.mot-booking-form', compact('branches'));
+        return view('flux-admin.pages.vehicles.mot-booking-form', compact('branch'));
     }
 }

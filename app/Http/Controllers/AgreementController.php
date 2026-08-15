@@ -282,6 +282,7 @@ class AgreementController extends Controller
         $access = RentalTerminateAccess::where('customer_id', $customer_id)
             ->where('booking_id', $booking_id)
             ->where('passcode', $passcode)
+            ->whereNull('signed_at')
             ->where('expire_at', '>', now())
             ->first();
 
@@ -329,7 +330,7 @@ class AgreementController extends Controller
             'customer_id' => 'required|integer|exists:customers,id',
             'booking_id' => 'required|integer|exists:renting_bookings,id',
             'passcode' => 'required|string',
-            'expire_at' => 'require|datetime',
+            'expire_at' => 'nullable|date',
             'sign' => 'required|string|starts_with:data:image/png;base64,', // Ensure the signature is a base64 image
         ]);
 
@@ -340,6 +341,9 @@ class AgreementController extends Controller
         $passcode = $request->passcode;
 
         $access = RentalTerminateAccess::where('booking_id', $request->booking_id)
+            ->where('customer_id', $request->customer_id)
+            ->where('passcode', $request->passcode)
+            ->whereNull('signed_at')
             ->where('expire_at', '>', now())
             ->first();
 
@@ -430,7 +434,8 @@ class AgreementController extends Controller
 
         \Log::info('Access Obj: ', [$access]);
 
-        $access->expire_at = new DateTime;
+        $access->expire_at = now();
+        $access->signed_at = now();
 
         $access->save();
 

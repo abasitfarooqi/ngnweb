@@ -84,7 +84,6 @@ use App\Livewire\FluxAdmin\Pages\Misc\ContactQueryIndex;
 use App\Livewire\FluxAdmin\Pages\Misc\CareerIndex;
 use App\Livewire\FluxAdmin\Pages\Misc\EmployeeScheduleIndex;
 use App\Livewire\FluxAdmin\Pages\Misc\RentingPricingForm;
-use App\Livewire\FluxAdmin\Pages\Misc\RentingPricingIndex;
 use App\Livewire\FluxAdmin\Pages\Support\SupportConversationIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\EcOrderIndex;
 use App\Livewire\FluxAdmin\Pages\Ecommerce\ShopOrderIndex;
@@ -522,7 +521,7 @@ Route::get('/contact-queries/create', ContactQueryForm::class)->name('flux-admin
 Route::get('/contact-queries/{contactQuery}/edit', ContactQueryForm::class)->name('flux-admin.contact-queries.edit');
 Route::get('/careers', CareerIndex::class)->name('flux-admin.careers.index');
 Route::get('/employee-schedules', EmployeeScheduleIndex::class)->name('flux-admin.employee-schedules.index');
-Route::get('/renting-pricing', RentingPricingIndex::class)->name('flux-admin.renting-pricing.index');
+Route::get('/renting-pricing', MotorbikePricingHub::class)->name('flux-admin.renting-pricing.index');
 Route::get('/renting-pricing/create', RentingPricingForm::class)->name('flux-admin.renting-pricing.create');
 Route::get('/renting-pricing/{id}/edit', RentingPricingForm::class)->name('flux-admin.renting-pricing.edit');
 

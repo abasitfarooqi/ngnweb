@@ -206,7 +206,9 @@ class InvoicesTab extends Component
     public function render()
     {
         $invoices = RentalInvoiceTabData::rows($this->bookingId);
-        $totalUnpaid = $invoices->where('is_paid', false)->sum('outstanding_balance');
+        $totalUnpaid = $invoices
+            ->filter(fn ($invoice) => ! (bool) $invoice->is_paid && (bool) $invoice->is_due)
+            ->sum('outstanding_balance');
         $paymentMethods = PaymentMethod::query()->where('is_enabled', true)->orderBy('title')->get();
 
         return view('flux-admin.partials.rentals.invoices-tab', [

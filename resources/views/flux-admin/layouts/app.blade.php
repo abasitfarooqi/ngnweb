@@ -828,40 +828,17 @@
          
             {{-- 1. Payment Plan --}}
             @can('see-menu-finance')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.finance.*','flux-admin.contract-access.*','flux-admin.modules.show')" heading="Payment Plan">
-                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'finance') }}" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'finance'">Module home</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.finance.index') }}" :current="request()->routeIs('flux-admin.finance.*')">Create / Edit</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.contract-access.index') }}" :current="request()->routeIs('flux-admin.contract-access.*')">Contract signature expire</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'finance') }}" icon="banknotes" :current="(request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'finance') || request()->routeIs('flux-admin.finance.*','flux-admin.contract-access.*')">Payment Plan</flux:navlist.item>
             @endcan
 
             {{-- 2. Rentals --}}
             @can('see-menu-rentals')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.rentals.*','flux-admin.rental-*','flux-admin.new-booking.*','flux-admin.bookings-management.*','flux-admin.inactive-bookings.*','flux-admin.ended-with-pendings.*','flux-admin.motorbike-pricing.*','flux-admin.all-bookings.*','flux-admin.renting-pricing.*','flux-admin.upload-document-links.*','flux-admin.agreement-access.*','flux-admin.active-rentals.*','flux-admin.rental-due-payments.*','flux-admin.service-videos.*','flux-admin.ebikes.*','flux-admin.modules.show')" heading="Rentals">
-                    <flux:navlist.item href="{{ route('flux-admin.rental-operations.index') }}" :current="request()->routeIs('flux-admin.rental-operations.*') || (request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'rentals')">Rentals home</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.new-booking.index') }}" :current="request()->routeIs('flux-admin.new-booking.*')">New booking</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.rentals.index') }}" :current="request()->routeIs('flux-admin.rentals.index') || request()->routeIs('flux-admin.rentals.show') || request()->routeIs('flux-admin.bookings-management.*')">Active bookings rental</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.inactive-bookings.index') }}" :current="request()->routeIs('flux-admin.inactive-bookings.*')">Inactive bookings</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ended-with-pendings.index') }}" :current="request()->routeIs('flux-admin.ended-with-pendings.*')">Inactive pendings payments</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.all-bookings.index') }}" :current="request()->routeIs('flux-admin.all-bookings.*')">All bookings</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.ebikes.index') }}" :current="request()->routeIs('flux-admin.ebikes.*')">E-bike manager</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.motorbike-pricing.index') }}" :current="request()->routeIs('flux-admin.motorbike-pricing.*')">Motorbike pricing</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.renting-pricing.index') }}" :current="request()->routeIs('flux-admin.renting-pricing.*')">Add new vehicle (pricing)</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.upload-document-links.index') }}" :current="request()->routeIs('flux-admin.upload-document-links.*')">Document expire date</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.agreement-access.index') }}" :current="request()->routeIs('flux-admin.agreement-access.*')">Signature expire date</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.rental-terminate-links.index') }}" :current="request()->routeIs('flux-admin.rental-terminate-links.*')">Terminate / generate link</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.active-rentals.index') }}" :current="request()->routeIs('flux-admin.active-rentals.*')">Overview</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.rental-due-payments.index') }}" :current="request()->routeIs('flux-admin.rental-due-payments.*')">Due payments</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.service-videos.index') }}" :current="request()->routeIs('flux-admin.service-videos.*')">Renting service videos</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.rental-operations.index') }}" icon="key" :current="request()->routeIs('flux-admin.rental-operations.*','flux-admin.rentals.*','flux-admin.rental-*','flux-admin.new-booking.*','flux-admin.bookings-management.*','flux-admin.inactive-bookings.*','flux-admin.ended-with-pendings.*','flux-admin.motorbike-pricing.*','flux-admin.all-bookings.*','flux-admin.renting-pricing.*','flux-admin.upload-document-links.*','flux-admin.agreement-access.*','flux-admin.active-rentals.*','flux-admin.rental-due-payments.*','flux-admin.service-videos.*','flux-admin.ebikes.*') || (request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'rentals')">Rentals</flux:navlist.item>
             @endcan
 
             {{-- 3. PCNs --}}
             @can('see-menu-pcns')
-                <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.pcn.*','flux-admin.pcn-*','flux-admin.modules.show')" heading="PCNs">
-                    <flux:navlist.item href="{{ route('flux-admin.modules.show', 'pcn') }}" :current="(request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'pcn') || request()->routeIs('flux-admin.pcn-dashboard.*')">Module home</flux:navlist.item>
-                    <flux:navlist.item href="{{ route('flux-admin.pcn.index') }}" :current="request()->routeIs('flux-admin.pcn.index') || request()->routeIs('flux-admin.pcn.show')">Add / Edit</flux:navlist.item>
-                </flux:navlist.group>
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'pcn') }}" icon="shield-exclamation" :current="(request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'pcn') || request()->routeIs('flux-admin.pcn.*','flux-admin.pcn-*','flux-admin.pcn-dashboard.*')">PCN cases</flux:navlist.item>
             @endcan
 
             {{-- 4. Vehicles (+ vehicle commons items that belong here) --}}

@@ -3,6 +3,8 @@
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Mail\RentalEndedWithPendingsMail;
+use App\Mail\RentalPaymentReceipt;
+use App\Models\BookingInvoice;
 use App\Models\BookingClosing;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
@@ -45,6 +47,8 @@ class ClosingTab extends Component
 
     public bool $depositChecked = false;
 
+    public string $depositReturnNotes = '';
+
     public ?string $flashMessage = null;
 
     public ?string $flashType = null;
@@ -70,6 +74,7 @@ class ClosingTab extends Component
             $this->pcnChecked = (bool) $closing->pcn_checked;
             $this->pendingChecked = (bool) $closing->pending_checked;
             $this->depositChecked = (bool) $closing->deposit_checked;
+            $this->depositReturnNotes = (string) ($closing->deposit_return_notes ?? '');
         }
 
         if ($this->prefillCollect) {
@@ -256,17 +261,89 @@ class ClosingTab extends Component
 
     public function saveDepositReturn(): void
     {
-        $this->validate(['depositChecked' => 'accepted'], [
+        $this->validate([
+            'depositChecked' => ['accepted'],
+            'depositReturnNotes' => ['required', 'string', 'max:2000'],
+        ], [
             'depositChecked.accepted' => 'Please tick the checkbox to confirm deposit is returned.',
+            'depositReturnNotes.required' => 'Add deposit return notes or reason of deduction.',
         ]);
 
         BookingClosing::updateOrCreate(
             ['booking_id' => $this->bookingId],
-            ['deposit_checked' => $this->depositChecked]
+            [
+                'deposit_checked' => $this->depositChecked,
+                'deposit_return_notes' => trim($this->depositReturnNotes),
+                'deposit_refunded_at' => now(),
+                'deposit_refund_method' => 'Manual return',
+                'deposit_refund_user_id' => auth()->id(),
+                'deposit_refund_send_email' => true,
+            ]
         );
 
-        $this->flashMessage = 'Deposit return step confirmed. Booking closing complete.';
-        $this->flashType = 'success';
+        try {
+            $this->sendDepositReturnEmail(trim($this->depositReturnNotes));
+            $this->flashMessage = 'Deposit return step confirmed. Email sent to customer with Customer Service in CC.';
+            $this->flashType = 'success';
+        } catch (\Throwable $e) {
+            Log::error('Deposit return email failed: '.$e->getMessage(), [
+                'booking_id' => $this->bookingId,
+            ]);
+
+            $this->flashMessage = 'Deposit return step confirmed, but email failed: '.$e->getMessage();
+            $this->flashType = 'error';
+        }
+    }
+
+    private function sendDepositReturnEmail(string $notes): void
+    {
+        $booking = RentingBooking::with(['customer', 'rentingBookingItems.motorbike'])->findOrFail($this->bookingId);
+        $customer = $booking->customer;
+
+        if (! $customer?->email) {
+            throw new \RuntimeException('Customer email is missing.');
+        }
+
+        $firstInvoice = BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->orderBy('invoice_date')
+            ->orderBy('id')
+            ->first();
+
+        $depositAmount = (float) ($firstInvoice?->deposit ?? 0);
+        if ($depositAmount <= 0) {
+            $depositAmount = (float) ($booking->deposit ?? 0);
+        }
+
+        $motorbike = $booking->rentingBookingItems->first()?->motorbike;
+        $customerName = trim((string) (($customer->first_name ?? '').' '.($customer->last_name ?? '')));
+
+        Mail::to($customer->email)
+            ->cc('customerservice@neguinhomotors.co.uk')
+            ->send(new RentalPaymentReceipt([
+                'email' => [$customer->email],
+                'title' => 'Rental Deposit Return',
+                'subtitle' => 'Confirmation of rental deposit return.',
+                'body' => 'Please find your deposit return details below.',
+                'booking_id' => $booking->id,
+                'invoice_id' => $firstInvoice?->id ?? 'N/A',
+                'invoice_date' => $firstInvoice?->invoice_date,
+                'transaction_id' => 'N/A',
+                'transaction_date' => now(),
+                'payment_method' => 'Deposit return',
+                'amount' => $depositAmount,
+                'customer_name' => $customerName !== '' ? $customerName : 'Customer',
+                'registration_number' => $motorbike?->reg_no,
+                'invoice_amount' => $depositAmount,
+                'invoice_amount_label' => 'Deposit Amount',
+                'amount_label' => 'Amount Returned',
+                'remaining_balance' => 0,
+                'show_remaining_balance' => false,
+                'invoice_status_label' => 'Deposit returned',
+                'receipt_message' => 'Your rental deposit return has been recorded by NGN Motors.',
+                'notes_label' => 'Reason of deduction / notes',
+                'notes' => $notes,
+            ]));
     }
 
     public function render()

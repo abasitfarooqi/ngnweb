@@ -25,11 +25,20 @@ class BookingClosing extends Model
         'pcn_checked',
         'pending_checked',
         'deposit_checked',
+        'deposit_return_notes',
+        'deposit_refunded_at',
+        'deposit_refund_method',
+        'deposit_refund_proof_path',
+        'deposit_refund_proof_reference',
+        'deposit_refund_user_id',
+        'deposit_refund_send_email',
         'collect_proceeded_anyway_user_id',
         'collect_proceeded_anyway_at',
     ];
 
     protected $casts = [
+        'deposit_refunded_at' => 'datetime',
+        'deposit_refund_send_email' => 'boolean',
         'collect_proceeded_anyway_at' => 'datetime',
     ];
 

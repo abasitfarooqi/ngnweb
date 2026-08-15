@@ -23,11 +23,13 @@ class ClubIndex extends Component
 
     public bool $showForm = false;
 
-    #[Url(as: 'active', except: true)]
+    #[Url(as: 'active', history: true, except: true)]
     public bool $activeOnly = true;
 
+    #[Url(history: true, except: '')]
     public string $filterYear = '';
 
+    #[Url(history: true, except: '')]
     public string $filterPartner = '';
 
     public function mount(): void
@@ -147,4 +149,3 @@ class ClubIndex extends Component
         ];
     }
 }
-

@@ -13,6 +13,7 @@ use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -24,6 +25,7 @@ class EcOrderIndex extends Component
 
     public bool $showForm = false;
 
+    #[Url(history: true, except: '')]
     public string $filterOrderId = '';
 
     public string $listTitle = 'E-commerce orders';

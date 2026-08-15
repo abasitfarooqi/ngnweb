@@ -49,6 +49,7 @@ class RentalPriceEditor extends Component
         $unpaid = BookingInvoice::query()
             ->where('booking_id', $this->bookingId)
             ->where('is_paid', false)
+            ->whereDate('invoice_date', '<=', now()->toDateString())
             ->where('amount', '>', 0);
 
         $this->unpaidInvoiceCount = (clone $unpaid)->count();

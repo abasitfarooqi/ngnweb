@@ -6,20 +6,20 @@ use Livewire\Attributes\Url;
 
 trait WithDataTable
 {
-    #[Url(as: 'q', except: '')]
+    #[Url(as: 'q', history: true, except: '')]
     public string $search = '';
 
-    #[Url(as: 'sort', except: 'id')]
+    #[Url(as: 'sort', history: true, except: 'id')]
     public string $sortField = 'id';
 
-    #[Url(as: 'dir', except: 'desc')]
+    #[Url(as: 'dir', history: true, except: 'desc')]
     public string $sortDirection = 'desc';
 
-    #[Url(as: 'pp', except: 20)]
+    #[Url(as: 'pp', history: true, except: 20)]
     public int $perPage = 20;
 
     /** @var array<string, mixed> Persistent filter bag keyed by filter name. */
-    #[Url(as: 'f', except: [])]
+    #[Url(as: 'f', history: true, except: [])]
     public array $filters = [];
 
     public bool $exportable = false;
@@ -41,8 +41,19 @@ trait WithDataTable
 
     public function resetFilters(): void
     {
-        $this->filters = [];
-        $this->search = '';
+        $defaults = (new \ReflectionClass($this))->getDefaultProperties();
+
+        foreach (array_keys(get_object_vars($this)) as $property) {
+            if ($property === 'filters' || $property === 'search'
+                || str_starts_with($property, 'filter')
+                || in_array($property, [
+                    'status', 'isPolice', 'contractType', 'branch', 'activeOnly',
+                    'startDateFrom', 'startDateTo', 'contractDateFrom', 'contractDateTo',
+                ], true)) {
+                $this->{$property} = $defaults[$property] ?? (is_bool($this->{$property}) ? false : '');
+            }
+        }
+
         $this->resetPage();
     }
 

@@ -11,7 +11,7 @@ use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('flux-admin.layouts.app')]
-#[Title('Motorbike pricing — Flux Admin')]
+#[Title('Price Adjustment — Flux Admin')]
 class MotorbikePricingHub extends Component
 {
     use WithAuthorization;
@@ -131,6 +131,13 @@ class MotorbikePricingHub extends Component
         $this->resetForm();
     }
 
+    public function deleteHistoryPricing(int $pricingId): void
+    {
+        RentingPricing::findOrFail($pricingId)->delete();
+        $this->resetForm();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Pricing entry deleted.');
+    }
+
     private function resetForm(): void
     {
         $this->editingPricingId = null;
@@ -161,7 +168,18 @@ class MotorbikePricingHub extends Component
         $hasMoreCurrent = $currentBatch->count() > $this->currentLimit;
         $current = $currentBatch->take($this->currentLimit);
 
+        $pricingHistory = RentingPricing::query()
+            ->with(['motorbike:id,reg_no,make,model', 'user:id,first_name,last_name'])
+            ->when($search !== '', fn ($q) => $q->whereHas(
+                'motorbike',
+                fn ($m) => RentingPricing::applyMotorbikeSearch($m, $search)
+            ))
+            ->orderByDesc('id')
+            ->limit(50)
+            ->get();
+
         return view('flux-admin.pages.rentals.motorbike-pricing-hub', [
+            'pricingHistory' => $pricingHistory,
             'unpriced' => $unpriced,
             'unpricedTotal' => $unpricedTotal,
             'hasMoreUnpriced' => $hasMoreUnpriced,

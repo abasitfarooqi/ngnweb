@@ -47,8 +47,9 @@
                     @forelse($invoices as $invoice)
                         @php
                             $isPaid = (bool) $invoice->is_paid;
+                            $isDue = (bool) $invoice->is_due;
                             $outstanding = max((float) $invoice->outstanding_balance, 0);
-                            $rowClass = $isPaid ? '' : 'bg-red-50 dark:bg-red-900/10 cursor-pointer';
+                            $rowClass = $isPaid ? '' : ($isDue ? 'bg-red-50 dark:bg-red-900/10 cursor-pointer' : 'bg-amber-50/60 dark:bg-amber-900/10 cursor-pointer');
                         @endphp
                         <flux:table.row
                             wire:key="invoice-row-{{ $invoice->id }}"
@@ -86,8 +87,8 @@
                                     <button
                                         type="button"
                                         wire:click.stop="openPayModal({{ $invoice->id }}, {{ $outstanding }})"
-                                        class="inline-flex items-center px-2 py-1 text-xs font-bold bg-red-600 hover:bg-red-700 text-white transition"
-                                    >UnPaid</button>
+                                        class="inline-flex items-center px-2 py-1 text-xs font-bold {{ $isDue ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-600 hover:bg-amber-700' }} text-white transition"
+                                    >{{ $isDue ? 'UnPaid' : 'Future' }}</button>
                                 @endif
                             </flux:table.cell>
                         </flux:table.row>

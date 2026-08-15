@@ -21,14 +21,6 @@
                         <flux:select.option value="pending">Pending</flux:select.option>
                     </flux:select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
-                    <flux:select wire:model.live="filters.branch_id" placeholder="Branch">
-                        <flux:select.option value="">All branches</flux:select.option>
-                        @foreach($branches as $branch)
-                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                </div>
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-32 lg:flex-none">
                     <flux:select wire:model.live="filters.is_paid" placeholder="Paid">
                         <flux:select.option value="">Any</flux:select.option>
@@ -37,6 +29,9 @@
                     </flux:select>
                 </div>
             </x-flux-admin::filter-bar>
+            @if($branch)
+                <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Showing Catford MOT bookings only.</p>
+            @endif
         </x-slot:toolbar>
         <flux:table>
             <flux:table.columns>

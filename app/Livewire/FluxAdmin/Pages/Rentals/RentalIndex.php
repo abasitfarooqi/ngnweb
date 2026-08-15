@@ -33,19 +33,19 @@ class RentalIndex extends Component
     /** @var 'active'|'inactive'|'all' */
     public string $scope = 'active';
 
-    #[Url]
+    #[Url(history: true)]
     public string $status = 'all';
 
-    #[Url]
+    #[Url(history: true)]
     public string $filterMotorbikeId = '';
 
-    #[Url]
+    #[Url(history: true)]
     public string $bookingStateFilter = '';
 
-    #[Url]
+    #[Url(history: true)]
     public string $startDateFrom = '';
 
-    #[Url]
+    #[Url(history: true)]
     public string $startDateTo = '';
 
     public function mount(): void
@@ -83,6 +83,17 @@ class RentalIndex extends Component
 
     public function updatingStartDateTo(): void
     {
+        $this->resetPage();
+    }
+
+    public function resetRentalFilters(): void
+    {
+        $this->search = '';
+        $this->status = 'all';
+        $this->filterMotorbikeId = '';
+        $this->bookingStateFilter = '';
+        $this->startDateFrom = '';
+        $this->startDateTo = '';
         $this->resetPage();
     }
 

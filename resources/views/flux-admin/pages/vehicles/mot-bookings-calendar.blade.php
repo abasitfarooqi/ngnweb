@@ -10,14 +10,7 @@
             <p class="mt-1 text-sm text-zinc-600 dark:text-zinc-400">Click a booking to edit. Drag on empty time to create a slot.</p>
         </div>
         <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div class="min-w-[12rem]">
-                <flux:select wire:model.live="branchId" placeholder="All branches">
-                    <flux:select.option value="">All branches</flux:select.option>
-                    @foreach($branches as $branch)
-                        <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-            </div>
+            <span class="text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{{ $branch?->name ?? 'Catford' }}</span>
             <a href="{{ route('flux-admin.mot-bookings.index') }}" wire:navigate>
                 <flux:button size="sm" variant="ghost" icon="table-cells" class="!rounded-none">List view</flux:button>
             </a>

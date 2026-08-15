@@ -40,12 +40,10 @@
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Branch" required :error="$errors->first('form.branch_id')">
-                    <flux:select wire:model="form.branch_id">
-                        <flux:select.option value="">— Select branch —</flux:select.option>
-                        @foreach($branches as $branch)
-                            <flux:select.option value="{{ $branch->id }}">{{ $branch->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
+                    <input type="hidden" wire:model="form.branch_id">
+                    <div class="border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+                        {{ $branch?->name ?? 'Catford' }}
+                    </div>
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Status" required :error="$errors->first('form.status')">

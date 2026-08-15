@@ -13,6 +13,7 @@ use App\Models\PcnCase;
 use App\Models\PcnCaseUpdate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use Maatwebsite\Excel\Facades\Excel;
@@ -25,16 +26,22 @@ class PcnIndex extends Component
 
     public bool $showForm = false;
 
+    #[Url(history: true, except: '')]
     public string $status = '';
 
+    #[Url(history: true, except: '')]
     public string $isPolice = '';
 
+    #[Url(history: true, except: '')]
     public string $filterDateFrom = '';
 
+    #[Url(history: true, except: '')]
     public string $filterDateTo = '';
 
+    #[Url(history: true, except: '')]
     public string $filterEverAppealed = '';
 
+    #[Url(history: true, except: '')]
     public string $filterUpdateStatus = '';
 
     /** @var array<int, array<string, mixed>> Inline repeatable case updates */
@@ -61,6 +68,18 @@ class PcnIndex extends Component
         if (request()->filled('has_been_appealed')) {
             $this->filterEverAppealed = request('has_been_appealed') ? '1' : '0';
         }
+    }
+
+    public function resetPcnFilters(): void
+    {
+        $this->search = '';
+        $this->status = '';
+        $this->isPolice = '';
+        $this->filterDateFrom = '';
+        $this->filterDateTo = '';
+        $this->filterEverAppealed = '';
+        $this->filterUpdateStatus = '';
+        $this->resetPage();
     }
 
     protected function formModel(): string { return PcnCase::class; }

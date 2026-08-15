@@ -148,6 +148,10 @@ class MOTBooking extends Model
     protected static function booted()
     {
         static::saving(function ($booking) {
+            $isMarkingAsDealt = $booking->exists
+                && $booking->isDirty('is_dealt')
+                && (bool) $booking->is_dealt;
+
             if ($booking->start) {
                 $start = Carbon::parse($booking->start);
                 $end = $booking->end ? Carbon::parse($booking->end) : null;
@@ -255,7 +259,7 @@ class MOTBooking extends Model
 
             $booking->title = $booking->status.' MOT '.$booking->vehicle_registration.' '.$booking->customer_name.' '.$booking->customer_contact.' '.$booking->customer_email.' - By Staff Name: '.$userName;
 
-            if ($booking->status !== self::STATUS_CANCELLED) {
+            if (! $isMarkingAsDealt && $booking->status !== self::STATUS_CANCELLED) {
                 \App::make(\App\Http\Controllers\Admin\MOTBookingCrudController::class)
                     ->generateAgreementAccess($booking);
             }

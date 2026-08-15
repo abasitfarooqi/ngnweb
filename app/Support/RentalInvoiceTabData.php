@@ -41,6 +41,7 @@ class RentalInvoiceTabData
                 DB::raw('COALESCE(IPS.total_paid_amount, 0) as total_paid_amount'),
                 DB::raw('(BI.amount - COALESCE(IPS.total_paid_amount, 0)) as outstanding_balance'),
             )
+            ->selectRaw('CASE WHEN DATE(BI.invoice_date) <= ? THEN 1 ELSE 0 END as is_due', [now()->toDateString()])
             ->where('BI.booking_id', $bookingId)
             ->where('BI.is_posted', 1)
             ->where('BI.amount', '>', 0)

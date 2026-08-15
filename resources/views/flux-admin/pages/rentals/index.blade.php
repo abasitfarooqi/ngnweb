@@ -80,6 +80,9 @@
                         <flux:select.option value="100">100 per page</flux:select.option>
                     </flux:select>
                 </div>
+                <flux:button wire:click="resetRentalFilters" variant="ghost" size="sm" icon="x-mark" class="!rounded-none w-full sm:w-auto">
+                    Reset filters
+                </flux:button>
             </div>
         </div>
     </div>

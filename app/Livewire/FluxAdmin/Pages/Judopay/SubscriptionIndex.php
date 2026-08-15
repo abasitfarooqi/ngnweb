@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -54,8 +55,10 @@ class SubscriptionIndex extends Component
 
     public string $generatedAuthLink = '';
 
+    #[Url(history: true, except: '')]
     public string $filterSubscribableType = '';
 
+    #[Url(history: true, except: '')]
     public string $filterCustomerName = '';
 
     public function updatingFilterSubscribableType(): void

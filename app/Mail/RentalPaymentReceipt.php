@@ -22,13 +22,17 @@ class RentalPaymentReceipt extends Mailable
 
     public function envelope()
     {
+        $mailData = is_array($this->mailData) ? $this->mailData : (array) $this->mailData;
+
         return new Envelope(
-            subject: 'Rental Payment Receipt',
+            subject: (string) ($mailData['title'] ?? 'Rental Payment Receipt'),
         );
     }
 
     public function content()
     {
+        $mailData = is_array($this->mailData) ? $this->mailData : (array) $this->mailData;
+
         return new Content(
 
             view: 'emails.templates.agreement-controller-universal',
@@ -39,9 +43,9 @@ class RentalPaymentReceipt extends Mailable
 
                     'livewire.agreements.migrated.emails.rental-payment-receipt',
 
-                    is_array($this->mailData) ? $this->mailData : (array) $this->mailData,
+                    $mailData,
 
-                    ['title' => 'Hire Payment Receipt'],
+                    ['title' => $mailData['title'] ?? 'Hire Payment Receipt'],
 
                 ),
 

@@ -7,15 +7,18 @@
     @php
         $cards = [
             ['New booking', 'Same-day intake wizard.', route('flux-admin.new-booking.index'), 'plus-circle'],
-            ['Repair rental availability', 'Fix bikes missing from New booking select (pricing, registration, MOT/tax, stuck rentals).', route('flux-admin.backpack.motorbike-available.index'), 'wrench-screwdriver'],
             ['Active bookings rental', 'Filters, outstanding balances, open booking detail.', route('flux-admin.rentals.index'), 'list-bullet'],
             ['Inactive bookings', 'Ended rentals (end date set on item).', route('flux-admin.inactive-bookings.index'), 'archive-box'],
             ['Inactive pendings payments', 'Ended with balances still outstanding (proceed-anyway).', route('flux-admin.ended-with-pendings.index'), 'exclamation-triangle'],
             ['All bookings', 'Historical bookings list.', route('flux-admin.all-bookings.index'), 'clock'],
             ['E-bike manager', 'Add and edit fleet e-bikes.', route('flux-admin.ebikes.index'), 'bolt'],
+            ['Price Adjustment', 'Rental price history and weekly rates by vehicle.', route('flux-admin.motorbike-pricing.index'), 'currency-pound'],
+            ['Document expire date', 'Generate and manage customer document upload links.', route('flux-admin.upload-document-links.index'), 'document-text'],
+            ['Signature expire date', 'Generate and manage rental agreement signing links.', route('flux-admin.agreement-access.index'), 'pencil-square'],
+            ['Terminate / generate link', 'Create and search rental termination signing links.', route('flux-admin.rental-terminate-links.index'), 'link'],
             ['Active rentals overview', 'Live dashboard of open items and outstanding invoices.', route('flux-admin.active-rentals.index'), 'truck'],
-            ['Due payments', 'Overdue invoices with WhatsApp reminders.', route('flux-admin.rental-due-payments.index'), 'banknotes'],
-            ['Rental pricing', 'Weekly rates by vehicle — search by reg when adding.', route('flux-admin.renting-pricing.index'), 'currency-pound'],
+            ['Rental Due Whatsapp Reminders', 'Overdue invoices with WhatsApp reminders.', route('flux-admin.rental-due-payments.index'), 'chat-bubble-left-right'],
+            ['Renting service videos', 'Upload and manage rental service videos.', route('flux-admin.service-videos.index'), 'video-camera'],
         ];
     @endphp
 

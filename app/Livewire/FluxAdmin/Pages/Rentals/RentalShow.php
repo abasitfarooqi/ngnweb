@@ -17,7 +17,7 @@ class RentalShow extends Component
 {
     public RentingBooking $booking;
 
-    #[Url]
+    #[Url(history: true)]
     public string $activeTab = 'items';
 
     public ?string $flashMessage = null;

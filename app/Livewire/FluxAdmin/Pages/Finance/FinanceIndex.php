@@ -24,24 +24,24 @@ class FinanceIndex extends Component
 {
     use WithCrudForm, WithDataTable, WithExport, WithPagination;
 
-    #[Url(except: '')]
+    #[Url(history: true, except: '')]
     public string $contractType = '';
 
-    #[Url(except: '')]
+    #[Url(history: true, except: '')]
     public string $status = '';
 
     public bool $showForm = false;
 
-    #[Url(except: '')]
+    #[Url(history: true, except: '')]
     public string $filterLogbook = '';
 
-    #[Url(except: '1')]
+    #[Url(history: true, except: '1')]
     public string $filterPosted = '1';
 
-    #[Url(except: '')]
+    #[Url(history: true, except: '')]
     public string $contractDateFrom = '';
 
-    #[Url(except: '')]
+    #[Url(history: true, except: '')]
     public string $contractDateTo = '';
 
     // Customer search autocomplete

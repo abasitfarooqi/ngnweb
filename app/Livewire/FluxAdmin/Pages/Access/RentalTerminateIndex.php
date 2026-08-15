@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithCrudForm;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\RentalTerminateAccess;
+use App\Support\RentalBookingLifecycle;
 use Illuminate\Support\Str;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -20,7 +21,11 @@ class RentalTerminateIndex extends Component
 
     public bool $showForm = false;
 
-    public function mount(): void { $this->authorizeModule('see-menu-renting-page'); }
+    public function mount(): void
+    {
+        $this->authorizeModule('see-menu-renting-page');
+        app(RentalBookingLifecycle::class)->ensureTerminationLinksForCompletedRentals();
+    }
 
     protected function formModel(): string { return RentalTerminateAccess::class; }
 
@@ -76,8 +81,32 @@ class RentalTerminateIndex extends Component
     public function render()
     {
         $rows = RentalTerminateAccess::query()
-            ->with('customers:id,first_name,last_name')
-            ->when($this->search, fn ($q, $v) => $q->where('passcode', 'like', "%{$v}%")->orWhere('booking_id', $v))
+            ->with([
+                'customers:id,first_name,last_name,email,phone,whatsapp',
+                'bookings:id,customer_id,state,is_posted',
+                'bookings.rentingBookingItems.motorbike:id,reg_no,make,model',
+            ])
+            ->when($this->search, function ($q, $value) {
+                $search = trim((string) $value);
+                $compactSearch = strtoupper(preg_replace('/\s+/', '', $search) ?? '');
+
+                $q->where(function ($inner) use ($search, $compactSearch) {
+                    $inner->where('passcode', 'like', "%{$search}%")
+                        ->orWhere('booking_id', is_numeric($search) ? (int) $search : 0)
+                        ->orWhere('id', is_numeric($search) ? (int) $search : 0)
+                        ->orWhereHas('customers', fn ($customer) => $customer
+                            ->where('first_name', 'like', "%{$search}%")
+                            ->orWhere('last_name', 'like', "%{$search}%")
+                            ->orWhere('email', 'like', "%{$search}%")
+                            ->orWhere('phone', 'like', "%{$search}%")
+                            ->orWhere('whatsapp', 'like', "%{$search}%"))
+                        ->orWhereHas('bookings.rentingBookingItems.motorbike', fn ($motorbike) => $motorbike
+                            ->where('reg_no', 'like', "%{$search}%")
+                            ->orWhereRaw("REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') LIKE ?", ["%{$compactSearch}%"])
+                            ->orWhere('make', 'like', "%{$search}%")
+                            ->orWhere('model', 'like', "%{$search}%"));
+                });
+            })
             ->orderByDesc('id')
             ->paginate($this->perPage);
 

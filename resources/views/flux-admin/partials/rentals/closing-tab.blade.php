@@ -243,6 +243,16 @@
                         <input wire:model="depositChecked" type="checkbox" class="w-5 h-5 accent-emerald-600" />
                         <span class="text-sm text-zinc-700 dark:text-zinc-300">Deposit returned to customer</span>
                     </label>
+                    <div class="mb-3 max-w-2xl">
+                        <label class="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Deposit return notes / reason of deduction</label>
+                        <textarea
+                            wire:model="depositReturnNotes"
+                            rows="3"
+                            class="w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                            placeholder="Explain the deposit return or any deduction reason shown in the customer email."
+                        ></textarea>
+                        @error('depositReturnNotes') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                    </div>
                     <button
                         type="button"
                         wire:click="saveDepositReturn"
