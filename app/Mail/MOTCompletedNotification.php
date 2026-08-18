@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -11,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class MOTCompletedNotification extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     protected $mailData;
 

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class OrderShipped extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     /**
      * Create a new message instance.

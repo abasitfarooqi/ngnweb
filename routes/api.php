@@ -1,13 +1,15 @@
 <?php
 
+use App\Http\Controllers\Api\CustomerCommunicationController;
 use App\Http\Controllers\Api\CustomerDocumentController;
+use App\Http\Controllers\Api\Mobile\MobileAgreementsController;
 use App\Http\Controllers\Api\Mobile\MobileBootstrapController;
 use App\Http\Controllers\Api\Mobile\MobileCatalogueController;
 use App\Http\Controllers\Api\Mobile\MobileCheckoutController;
 use App\Http\Controllers\Api\Mobile\MobileClubController;
+use App\Http\Controllers\Api\Mobile\MobileClubLegacyController;
 use App\Http\Controllers\Api\Mobile\MobileClubParityController;
 use App\Http\Controllers\Api\Mobile\MobileContentController;
-use App\Http\Controllers\Api\Mobile\MobileAgreementsController;
 use App\Http\Controllers\Api\Mobile\MobileEnquiryController;
 use App\Http\Controllers\Api\Mobile\MobileExperienceController;
 use App\Http\Controllers\Api\Mobile\MobileMiscController;
@@ -17,7 +19,6 @@ use App\Http\Controllers\Api\Mobile\MobilePortalAccountController;
 use App\Http\Controllers\Api\Mobile\MobilePortalController;
 use App\Http\Controllers\Api\Mobile\MobilePortalExperienceController;
 use App\Http\Controllers\Api\Mobile\MobilePublicFormsController;
-use App\Http\Controllers\Api\Mobile\MobileClubLegacyController;
 use App\Http\Controllers\Api\Mobile\MobileSparePartsController;
 use App\Http\Controllers\Api\StaffAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
@@ -290,6 +291,16 @@ Route::prefix('v1/customer')->group(function () {
     Route::post('confirm-reset-password', [CustomerAuthController::class, 'confirmResetPassword']);
     Route::get('documents/requirements', [CustomerDocumentController::class, 'requirements'])->middleware('auth:customer,sanctum');
     Route::post('documents', [CustomerDocumentController::class, 'store'])->middleware('auth:customer,sanctum');
+    Route::prefix('communications')->middleware('auth:customer,sanctum')->group(function () {
+        Route::get('/', [CustomerCommunicationController::class, 'index']);
+        Route::get('unread-count', [CustomerCommunicationController::class, 'unreadCount']);
+        Route::get('{communication}', [CustomerCommunicationController::class, 'show']);
+        Route::post('{communication}/read', [CustomerCommunicationController::class, 'markRead']);
+        Route::post('{communication}/unread', [CustomerCommunicationController::class, 'markUnread']);
+        Route::post('{communication}/archive', [CustomerCommunicationController::class, 'archive']);
+        Route::post('{communication}/enquiry', [CustomerCommunicationController::class, 'startEnquiry']);
+        Route::get('{communication}/attachments/{attachment}', [CustomerCommunicationController::class, 'showAttachment'])->name('api.v1.customer.communications.attachments.show');
+    });
 
     Route::prefix('support')->middleware('auth:customer,sanctum')->group(function () {
         Route::get('conversations', [\App\Http\Controllers\Api\SupportConversationController::class, 'index']);
@@ -499,6 +510,16 @@ Route::prefix('v1/mobile')->group(function () {
         Route::post('portal/rentals/{bookingId}/payment-session', [MobilePaymentsController::class, 'judopayRentalSession'])->whereNumber('bookingId');
         Route::post('portal/rentals/payment-status', [MobilePaymentsController::class, 'judopayRentalStatus']);
         Route::get('portal/agreements/pending', [MobileAgreementsController::class, 'pending']);
+        Route::prefix('communications')->group(function () {
+            Route::get('/', [CustomerCommunicationController::class, 'index']);
+            Route::get('unread-count', [CustomerCommunicationController::class, 'unreadCount']);
+            Route::get('{communication}', [CustomerCommunicationController::class, 'show']);
+            Route::post('{communication}/read', [CustomerCommunicationController::class, 'markRead']);
+            Route::post('{communication}/unread', [CustomerCommunicationController::class, 'markUnread']);
+            Route::post('{communication}/archive', [CustomerCommunicationController::class, 'archive']);
+            Route::post('{communication}/enquiry', [CustomerCommunicationController::class, 'startEnquiry']);
+            Route::get('{communication}/attachments/{attachment}', [CustomerCommunicationController::class, 'showAttachment']);
+        });
         Route::post('notifications/register-device', [MobileNotificationsController::class, 'registerDevice']);
         Route::delete('notifications/unregister-device', [MobileNotificationsController::class, 'unregisterDevice']);
         Route::get('portal/rentals/browse/options', [MobilePortalExperienceController::class, 'rentalBrowseOptions']);
@@ -548,7 +569,6 @@ Route::prefix('v1/mobile')->group(function () {
         });
     });
 });
-
 
 // Email Verification Routes for Customers
 Route::middleware(['auth:customer'])->group(function () {

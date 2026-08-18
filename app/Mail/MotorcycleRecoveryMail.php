@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class MotorcycleRecoveryMail extends Mailable implements ShouldQueue
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     public $distance;
 

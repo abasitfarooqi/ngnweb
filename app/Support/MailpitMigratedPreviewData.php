@@ -3,9 +3,11 @@
 namespace App\Support;
 
 use App\Models\Ecommerce\EcOrder;
+use App\Models\RentingBooking;
 use Carbon\Carbon;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use Throwable;
 
 /**
  * Stub view data for php artisan mail:test-mailpit --mailable=migrated --view=...
@@ -53,8 +55,40 @@ final class MailpitMigratedPreviewData
     public static function viewDataFor(string $relativeDot): array
     {
         $relativeDot = str_replace('/', '.', $relativeDot);
+        $data = array_merge(self::coreStubs(), self::shapeForRelativeView($relativeDot));
 
-        return array_merge(self::coreStubs(), self::shapeForRelativeView($relativeDot));
+        if (self::usesRentalBookingSample($relativeDot)) {
+            $data = self::withLatestRentalBooking($data);
+        }
+
+        return $data;
+    }
+
+    /**
+     * Overlay a real Flux Admin rental booking when one exists, otherwise keep dummy values.
+     *
+     * @param  array<string, mixed>  $viewData
+     * @return array<string, mixed>
+     */
+    public static function withLatestRentalBooking(array $viewData): array
+    {
+        $sample = self::latestRentalBookingSample();
+
+        $viewData = array_merge($viewData, $sample);
+        $viewData['emailData'] = array_merge(
+            is_array($viewData['emailData'] ?? null) ? $viewData['emailData'] : [],
+            is_array($sample['emailData'] ?? null) ? $sample['emailData'] : $sample,
+        );
+        $viewData['customer'] = (object) array_merge(
+            (array) ($viewData['customer'] ?? []),
+            (array) ($sample['customer'] ?? []),
+        );
+        $viewData['charge'] = array_merge(
+            is_array($viewData['charge'] ?? null) ? $viewData['charge'] : [],
+            is_array($sample['charge'] ?? null) ? $sample['charge'] : [],
+        );
+
+        return $viewData;
     }
 
     /**
@@ -290,6 +324,18 @@ final class MailpitMigratedPreviewData
                 'vin_number' => 'VIN123456',
                 'registration_number' => 'AB12 CDE',
                 'invoice_date' => Carbon::now()->format('Y-m-d'),
+                'invoice_amount' => 120.00,
+                'booking_id' => 1001,
+                'invoice_id' => 6265,
+                'reversed_amount' => 120.00,
+            ],
+            'charge' => [
+                'customer_name' => 'Preview Customer',
+                'booking_id' => 1001,
+                'id' => 88,
+                'description' => 'Preview additional charge',
+                'amount' => 35.00,
+                'motorbike_reg_no' => 'AB12 CDE',
             ],
             'active_bookings' => collect([]),
             'allBranchIds' => [1, 2, 3],
@@ -460,6 +506,16 @@ final class MailpitMigratedPreviewData
             ],
             in_array($relativeDot, ['vehicle_delivery_order_confirmation'], true) => [
                 'order' => self::mockVehicleDeliveryOrder(),
+            ],
+            in_array($relativeDot, ['rental-other-charge-reminder'], true) => [
+                'charge' => [
+                    'customer_name' => 'Preview Customer',
+                    'booking_id' => 1001,
+                    'id' => 88,
+                    'description' => 'Preview additional charge',
+                    'amount' => 35.00,
+                    'motorbike_reg_no' => 'AB12 CDE',
+                ],
             ],
             in_array($relativeDot, ['rental-agreement', 'rental-agreement-sign', 'purchase-invoice-sign', 'upload-documents'], true) => [
                 'mailData' => self::previewActionMailData(match ($relativeDot) {
@@ -686,5 +742,153 @@ final class MailpitMigratedPreviewData
             'branch' => $branch,
             'status' => 'confirmed',
         ];
+    }
+
+    private static function usesRentalBookingSample(string $relativeDot): bool
+    {
+        return str_contains($relativeDot, 'rental')
+            || in_array($relativeDot, [
+                'due_invoice_customer',
+                'instalment_notification',
+                'rent_notification',
+                'othercharges-receipt',
+                'RentalDueView',
+            ], true);
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function latestRentalBookingSample(): array
+    {
+        try {
+            $booking = RentingBooking::query()
+                ->with(['customer', 'rentingBookingItems.motorbike'])
+                ->orderByDesc('id')
+                ->first();
+
+            if ($booking !== null) {
+                return self::sampleFromRentingBooking($booking);
+            }
+        } catch (Throwable) {
+            // fall through to dummy sample
+        }
+
+        return self::dummyRentalBookingSample();
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function sampleFromRentingBooking(RentingBooking $booking): array
+    {
+        $customer = $booking->customer;
+        $customerName = trim((string) (($customer->first_name ?? '').' '.($customer->last_name ?? '')));
+        if ($customerName === '') {
+            $customerName = 'Preview Customer';
+        }
+
+        $motorbike = $booking->rentingBookingItems->first()?->motorbike;
+        $invoice = $booking->bookingInvoices()->orderByDesc('id')->first();
+        $amount = (float) ($invoice?->amount ?? $booking->deposit ?? 120);
+        $deposit = (float) ($invoice?->deposit ?? $booking->deposit ?? $amount);
+        $invoiceDate = optional($invoice?->invoice_date)->format('Y-m-d') ?: Carbon::now()->format('Y-m-d');
+        $reg = (string) ($motorbike?->reg_no ?: 'AB12 CDE');
+        $vin = (string) ($motorbike?->vin_number ?: 'VIN123456');
+        $email = (string) ($customer?->email ?: 'preview@example.com');
+
+        return self::rentalSampleFields(
+            customerName: $customerName,
+            email: $email,
+            bookingId: (int) $booking->id,
+            invoiceId: $invoice?->id ?? 6265,
+            invoiceDate: $invoiceDate,
+            amount: $amount,
+            deposit: $deposit,
+            registration: $reg,
+            vin: $vin,
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function dummyRentalBookingSample(): array
+    {
+        return self::rentalSampleFields(
+            customerName: 'Preview Customer',
+            email: 'preview@example.com',
+            bookingId: 1001,
+            invoiceId: 6265,
+            invoiceDate: Carbon::now()->format('Y-m-d'),
+            amount: 120.00,
+            deposit: 200.00,
+            registration: 'AB12 CDE',
+            vin: 'VIN123456',
+        );
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function rentalSampleFields(
+        string $customerName,
+        string $email,
+        int $bookingId,
+        int|string $invoiceId,
+        string $invoiceDate,
+        float $amount,
+        float $deposit,
+        string $registration,
+        string $vin,
+    ): array {
+        $fields = [
+            'customer_name' => $customerName,
+            'greetingName' => $customerName,
+            'fullname' => $customerName,
+            'name' => $customerName,
+            'email' => $email,
+            'customer_email' => $email,
+            'booking_id' => $bookingId,
+            'invoice_id' => $invoiceId,
+            'invoice_date' => $invoiceDate,
+            'invoice_amount' => $amount,
+            'weekly_rent' => number_format($amount, 2, '.', ''),
+            'amount' => $amount,
+            'reversed_amount' => $amount,
+            'remaining_balance' => 0,
+            'registration_number' => $registration,
+            'regno' => $registration,
+            'vrm' => $registration,
+            'vehicle_registration' => $registration,
+            'vin_number' => $vin,
+            'transaction_id' => 'TXN-PREVIEW',
+            'transaction_date' => Carbon::now()->format('Y-m-d H:i:s'),
+            'payment_method' => 'Card',
+            'charges_id' => 'CHG-1',
+            'charges_description' => 'Preview additional charge',
+            'charges_date' => $invoiceDate,
+        ];
+
+        $fields['customer'] = (object) [
+            'first_name' => $customerName,
+            'last_name' => '',
+            'fullname' => $customerName,
+            'email' => $email,
+            'reg_no' => $registration,
+        ];
+
+        $fields['emailData'] = $fields;
+        $fields['charge'] = [
+            'customer_name' => $customerName,
+            'booking_id' => $bookingId,
+            'id' => 88,
+            'description' => 'Preview additional charge',
+            'amount' => 35.00,
+            'motorbike_reg_no' => $registration,
+        ];
+        $fields['deposit_amount'] = $deposit;
+
+        return $fields;
     }
 }

@@ -86,6 +86,19 @@
             <nav class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 overflow-hidden">
 
                 @php
+                    $notificationsUnread = 0;
+                    try {
+                        if (auth('customer')->check() && app(\App\Services\Communications\CommunicationSchema::class)->ready()) {
+                            $notificationsUnread = \App\Models\CommunicationRecipient::query()
+                                ->where('customer_auth_id', auth('customer')->id())
+                                ->whereNull('read_at')
+                                ->whereNull('archived_at')
+                                ->count();
+                        }
+                    } catch (\Throwable) {
+                        $notificationsUnread = 0;
+                    }
+
                     $navItem = function(string $route, string $label, string $icon) {
                         $active = request()->routeIs($route);
                         return [
@@ -103,6 +116,7 @@
                     $icon_clock     = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>';
                     $icon_finance   = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>';
                     $icon_bolt      = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>';
+                    $icon_bell      = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>';
                     $icon_bag       = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>';
                     $icon_star      = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/>';
                     $icon_lock      = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>';
@@ -194,6 +208,7 @@
 
                 @foreach ([
                     ['route'=>'account.orders',         'label'=>'My Orders',          'icon'=>$icon_bag],
+                    ['route'=>'account.notifications',  'label'=>'Notifications',      'icon'=>$icon_bell],
                     ['route'=>'account.enquiries',      'label'=>'My Enquiries',       'icon'=>$icon_chat],
                     ['route'=>'account.support',        'label'=>'Conversations',      'icon'=>$icon_chat],
                     ['route'=>'account.addresses',      'label'=>'Addresses',           'icon'=>$icon_map],
@@ -202,9 +217,12 @@
                     ['route'=>'account.security',       'label'=>'Security',            'icon'=>$icon_lock],
                 ] as $item)
                     <a href="{{ route($item['route']) }}"
-                        class="portal-nav-link border-t border-gray-100 dark:border-gray-700 {{ request()->routeIs($item['route']) ? 'active' : '' }}">
+                        class="portal-nav-link border-t border-gray-100 dark:border-gray-700 {{ request()->routeIs($item['route'], $item['route'].'.*') ? 'active' : '' }}">
                         <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $item['icon'] !!}</svg>
                         <span>{{ $item['label'] }}</span>
+                        @if($item['route'] === 'account.notifications' && ($notificationsUnread ?? 0) > 0)
+                            <span class="ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white">{{ $notificationsUnread }}</span>
+                        @endif
                     </a>
                 @endforeach
 

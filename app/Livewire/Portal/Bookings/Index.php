@@ -5,6 +5,7 @@ namespace App\Livewire\Portal\Bookings;
 use App\Models\CustomerAppointments;
 use App\Models\MOTBooking;
 use App\Models\ServiceBooking;
+use App\Services\Communications\TransactionalEmailPolicy;
 use App\Support\BookingSchedule;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -67,7 +68,7 @@ class Index extends Component
         $inbox = config('mail.contact_inbox', 'customerservice@neguinhomotors.co.uk');
 
         try {
-            if ($booking->customer_email) {
+            if ($booking->customer_email && app(TransactionalEmailPolicy::class)->shouldSendKey('mot.booking.cancelled', $booking->customer_email)) {
                 Mail::send('emails.templates.universal', $mailPayload, function ($message) use ($booking): void {
                     $message->to($booking->customer_email, $booking->customer_name)->subject('MOT booking cancelled - NGN Motors');
                 });

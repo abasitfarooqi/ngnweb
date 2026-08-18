@@ -139,11 +139,11 @@
             <table>
                 <tr>
                     <td class="label">Booking No</td>
-                    <td><strong>{{ $booking_id }}</strong></td>
+                    <td><strong>{{ $booking_id ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice No</td>
-                    <td><strong>{{ $invoice_id }}</strong></td>
+                    <td><strong>{{ $invoice_id ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice Date</td>
@@ -151,7 +151,7 @@
                 </tr>
                 <tr>
                     <td class="label">Registration No</td>
-                    <td><strong>{{ $registration_number ?: 'N/A' }}</strong></td>
+                    <td><strong>{{ $registration_number ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">{{ $invoiceAmountLabel }}</td>

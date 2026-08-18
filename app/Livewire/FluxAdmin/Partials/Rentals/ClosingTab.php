@@ -2,8 +2,8 @@
 
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
+use App\Mail\RentalDepositReturnMail;
 use App\Mail\RentalEndedWithPendingsMail;
-use App\Mail\RentalPaymentReceipt;
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
@@ -335,7 +335,7 @@ class ClosingTab extends Component
 
         Mail::to($customer->email)
             ->cc('customerservice@neguinhomotors.co.uk')
-            ->send(new RentalPaymentReceipt([
+            ->send(new RentalDepositReturnMail([
                 'email' => [$customer->email],
                 'title' => 'Rental Deposit Return',
                 'subtitle' => 'Confirmation of rental deposit return.',

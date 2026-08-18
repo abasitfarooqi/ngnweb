@@ -350,6 +350,8 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/recovery/my-requests/{requestId}', \App\Livewire\Portal\Recovery\Show::class)->name('recovery.my-requests.show');
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
     Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
+    Route::get('/notifications', \App\Livewire\Portal\Communications\Index::class)->name('notifications');
+    Route::get('/notifications/{uuid}', \App\Livewire\Portal\Communications\Show::class)->name('notifications.show');
     Route::get('/enquiries', \App\Livewire\Portal\Enquiries\Index::class)->name('enquiries');
     Route::get('/support', \App\Livewire\Portal\Support\Inbox::class)->name('support');
     Route::get('/support/start-general', [\App\Http\Controllers\Portal\SupportPortalController::class, 'startGeneral'])->name('support.start-general');

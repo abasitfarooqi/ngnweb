@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use App\Models\ServiceBooking;
 use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class BookingConfirmation extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     public $booking;
 

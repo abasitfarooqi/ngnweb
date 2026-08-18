@@ -110,7 +110,7 @@
         </div>
 
         <div class="content">
-            <p>Dear {{ $emailData['customer_name'] }},</p>
+            <p>Dear {{ $emailData['customer_name'] ?? 'Customer' }},</p>
 
             <div class="warning-box">
                 <p class="warning">Please ignore the previous email which said your payment was received.</p>
@@ -121,11 +121,11 @@
             <table>
                 <tr>
                     <td class="label">Booking No</td>
-                    <td><strong>{{ $emailData['booking_id'] }}</strong></td>
+                    <td><strong>{{ $emailData['booking_id'] ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice No</td>
-                    <td><strong>{{ $emailData['invoice_id'] }}</strong></td>
+                    <td><strong>{{ $emailData['invoice_id'] ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice Date</td>
@@ -133,7 +133,7 @@
                 </tr>
                 <tr>
                     <td class="label">Registration No</td>
-                    <td><strong>{{ $emailData['registration_number'] ?: 'N/A' }}</strong></td>
+                    <td><strong>{{ $emailData['registration_number'] ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice Amount</td>

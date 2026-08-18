@@ -993,6 +993,10 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'surveys') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'surveys' || request()->routeIs('flux-admin.survey*')">Surveys</flux:navlist.item>
             @endcan
 
+            @if(\App\Support\FluxAdminAccess::canAccessCommunications())
+                <flux:navlist.item href="{{ route('flux-admin.communications.index') }}" icon="bell-alert" :current="request()->routeIs('flux-admin.communications.*')">Communications</flux:navlist.item>
+            @endif
+
             @role('Admin')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'misc') }}" icon="cog-6-tooth" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'misc' || request()->routeIs('flux-admin.calendar.*','flux-admin.employee-schedules.*','flux-admin.agent-settings.*','flux-admin.branches.*','flux-admin.vehicle-issuances.*','flux-admin.queue-monitor.*')">Misc / Experiments</flux:navlist.item>
             @endrole

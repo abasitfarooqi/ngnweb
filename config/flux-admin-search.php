@@ -29,6 +29,8 @@ return [
         'flux-admin.club-redemptions.index' => ['full_club_admin' => true],
         'flux-admin.dev-club-otp.index' => ['full_club_admin' => true],
         'flux-admin.application-items.index' => ['hidden' => true],
+        'flux-admin.communications.index' => ['hidden' => true],
+        'flux-admin.communications.show' => ['hidden' => true],
 
         // Folded into rental show — keep URLs for bookmark/admin use but hide from search/menu.
         'flux-admin.booking-invoices.index' => ['hidden' => true],
