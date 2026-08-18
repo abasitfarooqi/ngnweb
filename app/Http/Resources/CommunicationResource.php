@@ -39,6 +39,13 @@ class CommunicationResource extends JsonResource
             'reply_allowed' => (bool) data_get($this->policy_snapshot, 'reply_allowed', false),
             'enquiry_allowed' => (bool) data_get($this->policy_snapshot, 'enquiry_allowed', false),
             'attachments' => CommunicationAttachmentResource::collection($this->whenLoaded('attachments')),
+            'replies' => $this->whenLoaded('replies', fn () => $this->replies->map(fn ($reply) => [
+                'id' => $reply->id,
+                'author_type' => $reply->author_type,
+                'author_label' => $reply->authorLabel(),
+                'body' => $reply->body,
+                'created_at' => optional($reply->created_at)->toIso8601String(),
+            ])->values()->all()),
         ];
     }
 }

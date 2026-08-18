@@ -14,18 +14,14 @@ use Throwable;
 
 class CommunicationSnapshotWriter
 {
-    public function recordFromMailable(
-        Mailable $mailable,
-        CommunicationSendDecision $decision,
-        bool $emailSent,
-        ?string $failureReason = null,
-    ): ?Communication {
-        if (! $decision->recordSnapshot || $decision->definition === null) {
+    public function begin(Mailable $mailable, CommunicationOutboundPlan $plan): ?Communication
+    {
+        if (! $plan->decision->recordSnapshot || $plan->decision->definition === null) {
             return null;
         }
 
         try {
-            return $this->write($mailable, $decision, $emailSent, $failureReason);
+            return $this->write($mailable, $plan);
         } catch (Throwable $exception) {
             Log::warning('Transactional communication snapshot was not stored; email path was left unchanged.', [
                 'mailable' => $mailable::class,
@@ -37,95 +33,51 @@ class CommunicationSnapshotWriter
         }
     }
 
-    private function write(
-        Mailable $mailable,
-        CommunicationSendDecision $decision,
+    public function finishEmail(
+        Communication $communication,
         bool $emailSent,
-        ?string $failureReason,
-    ): Communication {
-        $definition = $decision->definition;
-        $policy = $definition?->policy;
-        $customerEmail = $this->customerEmail($mailable);
-        $customerAuth = $customerEmail !== null ? $this->customerAuthForEmail($customerEmail) : null;
-        $html = $this->renderedHtml($mailable);
-        $text = trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-        $preview = Str::limit(preg_replace('/\s+/', ' ', $text) ?? '', 180);
-        $subject = $this->subject($mailable, $definition?->name ?? 'Customer notification');
+        ?string $failureReason = null,
+        bool $legacyEmailFallback = false,
+        ?string $providerMessageId = null,
+    ): void {
+        $delivery = $communication->deliveries()
+            ->where('channel', 'email')
+            ->latest('id')
+            ->first();
+
+        if ($delivery === null) {
+            return;
+        }
+
         $now = now();
+        $status = $delivery->status;
 
-        $communication = Communication::query()->create([
-            'uuid' => (string) Str::uuid(),
-            'communication_definition_id' => $definition?->id,
-            'communication_key' => $definition?->key ?? $mailable::class,
-            'customer_id' => $customerAuth?->customer_id,
-            'customer_auth_id' => $customerAuth?->id,
-            'recipient_email' => $customerEmail,
-            'subject' => $subject,
-            'title' => $definition?->name ?? $subject,
-            'preview' => $preview !== '' ? $preview : $subject,
-            'content_html' => $html,
-            'content_text' => $text,
-            'structured_content' => [
-                'mailable' => $mailable::class,
-                'recipient_email' => $customerEmail,
-            ],
-            'payload_snapshot' => [
-                'mailable' => $mailable::class,
-                'recipient_email' => $customerEmail,
-            ],
-            'policy_snapshot' => [
-                'email_enabled' => (bool) ($policy?->email_enabled ?? true),
-                'internal_inbox_enabled' => (bool) ($policy?->internal_inbox_enabled ?? false),
-                'web_push_enabled' => (bool) ($policy?->web_push_enabled ?? false),
-                'mobile_push_enabled' => (bool) ($policy?->mobile_push_enabled ?? false),
-                'reply_allowed' => (bool) ($policy?->reply_allowed ?? false),
-                'enquiry_allowed' => (bool) ($policy?->enquiry_allowed ?? false),
-                'priority' => $policy?->priority ?? $definition?->priority,
-            ],
-            'source_type' => $mailable::class,
-            'correlation_id' => (string) Str::uuid(),
-            'priority' => $policy?->priority ?? $definition?->priority ?? 'normal',
-            'category' => $definition?->category ?? 'general',
-        ]);
-
-        if ($decision->createInbox && $customerAuth !== null) {
-            CommunicationRecipient::query()->create([
-                'communication_id' => $communication->id,
-                'customer_auth_id' => $customerAuth->id,
-            ]);
+        if ($emailSent) {
+            if (! in_array($status, ['delivered', 'opened'], true)) {
+                $status = 'sent';
+            }
+        } elseif ($failureReason) {
+            $status = 'failed';
+        } else {
+            $status = 'skipped';
         }
 
-        CommunicationDelivery::query()->create([
-            'communication_id' => $communication->id,
-            'channel' => 'email',
-            'status' => $emailSent ? 'sent' : ($failureReason ? 'failed' : 'skipped'),
-            'provider' => config('mail.default'),
-            'queued_at' => $now,
-            'sent_at' => $emailSent ? $now : null,
-            'failed_at' => $failureReason ? $now : null,
+        $metadata = is_array($delivery->metadata) ? $delivery->metadata : [];
+        $metadata['email_sent'] = $emailSent;
+        $metadata['legacy_email_fallback'] = $legacyEmailFallback;
+
+        $delivery->forceFill([
+            'status' => $status,
+            'provider' => $delivery->provider ?: config('mail.default'),
+            'provider_message_id' => $providerMessageId ?: $delivery->provider_message_id,
+            'sent_at' => $emailSent ? ($delivery->sent_at ?: $now) : $delivery->sent_at,
+            'failed_at' => $failureReason ? $now : $delivery->failed_at,
             'failure_reason' => $failureReason,
-            'metadata' => [
-                'email_sent' => $emailSent,
-            ],
-        ]);
-
-        if ($decision->createInbox) {
-            CommunicationDelivery::query()->create([
-                'communication_id' => $communication->id,
-                'channel' => 'internal_inbox',
-                'status' => $customerAuth !== null ? 'delivered' : 'failed',
-                'queued_at' => $now,
-                'sent_at' => $now,
-                'delivered_at' => $customerAuth !== null ? $now : null,
-                'failed_at' => $customerAuth === null ? $now : null,
-                'failure_reason' => $customerAuth === null ? 'No customer portal account matched this email address.' : null,
-            ]);
-        }
-
-        return $communication;
+            'metadata' => $metadata,
+        ])->save();
     }
 
-    private function customerEmail(Mailable $mailable): ?string
+    public function customerEmail(Mailable $mailable): ?string
     {
         $policy = app(TransactionalEmailPolicy::class);
 
@@ -148,7 +100,7 @@ class CommunicationSnapshotWriter
         return null;
     }
 
-    private function customerAuthForEmail(string $email): ?CustomerAuth
+    public function customerAuthForEmail(string $email): ?CustomerAuth
     {
         $email = strtolower(trim($email));
 
@@ -171,6 +123,93 @@ class CommunicationSnapshotWriter
         return CustomerAuth::query()
             ->where('customer_id', $customer->id)
             ->first();
+    }
+
+    private function write(Mailable $mailable, CommunicationOutboundPlan $plan): Communication
+    {
+        $decision = $plan->decision;
+        $definition = $decision->definition;
+        $policy = $definition?->policy;
+        $customerAuth = $plan->customerAuth;
+        $customerEmail = $plan->customerEmail;
+        $html = $this->renderedHtml($mailable);
+        $text = trim(html_entity_decode(strip_tags($html), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+        $preview = Str::limit(preg_replace('/\s+/', ' ', $text) ?? '', 180);
+        $subject = $this->subject($mailable, $definition?->name ?? 'Customer notification');
+        $now = now();
+        $webPush = (bool) ($policy?->web_push_enabled ?? false);
+        $mobilePush = (bool) ($policy?->mobile_push_enabled ?? false);
+        $createRecipient = $customerAuth !== null && ($decision->createInbox || $webPush || $mobilePush);
+
+        $communication = Communication::query()->create([
+            'uuid' => (string) Str::uuid(),
+            'communication_definition_id' => $definition?->id,
+            'communication_key' => $definition?->key ?? $mailable::class,
+            'customer_id' => $customerAuth?->customer_id,
+            'customer_auth_id' => $customerAuth?->id,
+            'recipient_email' => $customerEmail,
+            'subject' => $subject,
+            'title' => $definition?->name ?? $subject,
+            'preview' => $preview !== '' ? $preview : $subject,
+            'content_html' => $html,
+            'content_text' => $text,
+            'structured_content' => [
+                'mailable' => $mailable::class,
+                'recipient_email' => $customerEmail,
+            ],
+            'payload_snapshot' => [
+                'mailable' => $mailable::class,
+                'recipient_email' => $customerEmail,
+                'legacy_email_fallback' => $plan->legacyEmailFallback,
+            ],
+            'policy_snapshot' => [
+                'email_enabled' => (bool) ($policy?->email_enabled ?? true),
+                'internal_inbox_enabled' => (bool) ($policy?->internal_inbox_enabled ?? false),
+                'web_push_enabled' => $webPush,
+                'mobile_push_enabled' => $mobilePush,
+                'reply_allowed' => (bool) ($policy?->reply_allowed ?? false),
+                'enquiry_allowed' => (bool) ($policy?->enquiry_allowed ?? false),
+                'priority' => $policy?->priority ?? $definition?->priority,
+            ],
+            'source_type' => $mailable::class,
+            'correlation_id' => (string) Str::uuid(),
+            'priority' => $policy?->priority ?? $definition?->priority ?? 'normal',
+            'category' => $definition?->category ?? 'general',
+        ]);
+
+        if ($createRecipient) {
+            CommunicationRecipient::query()->create([
+                'communication_id' => $communication->id,
+                'customer_auth_id' => $customerAuth->id,
+            ]);
+        }
+
+        CommunicationDelivery::query()->create([
+            'communication_id' => $communication->id,
+            'channel' => 'email',
+            'status' => $plan->sendEmail ? 'pending' : 'skipped',
+            'provider' => config('mail.default'),
+            'queued_at' => $now,
+            'metadata' => [
+                'legacy_email_fallback' => $plan->legacyEmailFallback,
+            ],
+        ]);
+
+        if ($decision->createInbox) {
+            CommunicationDelivery::query()->create([
+                'communication_id' => $communication->id,
+                'channel' => 'internal_inbox',
+                'status' => $customerAuth !== null ? 'delivered' : 'deferred',
+                'queued_at' => $now,
+                'sent_at' => $now,
+                'delivered_at' => $customerAuth !== null ? $now : null,
+                'failure_reason' => $customerAuth === null
+                    ? 'Waiting for a customer portal account for this email address.'
+                    : null,
+            ]);
+        }
+
+        return $communication;
     }
 
     private function renderedHtml(Mailable $mailable): string

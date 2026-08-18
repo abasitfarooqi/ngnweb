@@ -301,7 +301,8 @@ class AgreementController extends Controller
 
             // Collect Booking Issuance Details.
 
-            return LegacyMigratedDocument::toResponse('livewire.agreements.migrated.rental-termination-v1', [
+            return view('livewire.agreements.legacy-host', [
+                'legacyView' => 'livewire.agreements.migrated.rental-termination-v1',
                 'customer_id' => $customer_id,
                 'booking_id' => $booking_id,
                 'booking' => $Booking,

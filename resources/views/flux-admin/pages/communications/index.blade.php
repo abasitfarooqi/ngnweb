@@ -69,21 +69,64 @@
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name, key, category or class...">
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-44 lg:flex-none">
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:select wire:model.live="filters.classification" placeholder="Type">
                         <flux:select.option value="">Any type</flux:select.option>
-                        <flux:select.option value="transactional">Transactional</flux:select.option>
-                        <flux:select.option value="internal">Internal</flux:select.option>
-                        <flux:select.option value="auth">Auth</flux:select.option>
+                        @foreach($filterClassifications as $classification)
+                            <flux:select.option value="{{ $classification }}">{{ ucfirst((string) $classification) }}</flux:select.option>
+                        @endforeach
                     </flux:select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-44 lg:flex-none">
-                    <flux:select wire:model.live="filters.channel" placeholder="Channel">
-                        <flux:select.option value="">Any channel</flux:select.option>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
+                    <flux:select wire:model.live="filters.category" placeholder="Category">
+                        <flux:select.option value="">Any category</flux:select.option>
+                        @foreach($filterCategories as $category)
+                            <flux:select.option value="{{ $category }}">{{ ucfirst((string) $category) }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
+                    <flux:select wire:model.live="filters.priority" placeholder="Priority">
+                        <flux:select.option value="">Any priority</flux:select.option>
+                        <flux:select.option value="critical">Critical</flux:select.option>
+                        <flux:select.option value="important">Important</flux:select.option>
+                        <flux:select.option value="normal">Normal</flux:select.option>
+                        <flux:select.option value="informational">Informational</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:select wire:model.live="filters.mode" placeholder="Mode">
+                        <flux:select.option value="">Any mode</flux:select.option>
                         <flux:select.option value="managed">Managed</flux:select.option>
                         <flux:select.option value="legacy">Legacy</flux:select.option>
-                        <flux:select.option value="email_on">Email ON</flux:select.option>
-                        <flux:select.option value="inbox_on">Internal Inbox ON</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:select wire:model.live="filters.email" placeholder="Email">
+                        <flux:select.option value="">Any email</flux:select.option>
+                        <flux:select.option value="on">Email ON</flux:select.option>
+                        <flux:select.option value="off">Email OFF</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:select wire:model.live="filters.inbox" placeholder="Inbox">
+                        <flux:select.option value="">Any inbox</flux:select.option>
+                        <flux:select.option value="on">Inbox ON</flux:select.option>
+                        <flux:select.option value="off">Inbox OFF</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
+                    <flux:select wire:model.live="filters.web_push" placeholder="Web push">
+                        <flux:select.option value="">Any web push</flux:select.option>
+                        <flux:select.option value="on">Web push ON</flux:select.option>
+                        <flux:select.option value="off">Web push OFF</flux:select.option>
+                    </flux:select>
+                </div>
+                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
+                    <flux:select wire:model.live="filters.mobile_push" placeholder="Mobile push">
+                        <flux:select.option value="">Any mobile push</flux:select.option>
+                        <flux:select.option value="on">Mobile push ON</flux:select.option>
+                        <flux:select.option value="off">Mobile push OFF</flux:select.option>
                     </flux:select>
                 </div>
             </x-flux-admin::filter-bar>

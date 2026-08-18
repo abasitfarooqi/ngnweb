@@ -2,11 +2,17 @@
 
 namespace Tests\Unit;
 
+use App\Events\CustomerCommunicationCreated;
 use App\Models\Communication;
 use App\Models\CommunicationDefinition;
 use App\Models\CommunicationPolicy;
 use App\Models\SystemSetting;
+use App\Services\Communications\CommunicationInboxClaimer;
+use App\Services\Communications\CommunicationMailWebhookProcessor;
+use Illuminate\Support\Facades\Event;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use Tests\Support\FakePolicyTestMail;
 use Tests\TestCase;
 
@@ -25,6 +31,9 @@ class CommunicationSnapshotWriterTest extends TestCase
         config(['communications.emergency_bypass' => false]);
         config(['communications.default_enabled' => false]);
         config(['communications.admin_enabled_setting_key' => 'communication_system_enabled']);
+
+        Event::fake([CustomerCommunicationCreated::class]);
+        Http::fake();
 
         CommunicationDefinition::query()
             ->where('email_class', FakePolicyTestMail::class)
@@ -48,6 +57,13 @@ class CommunicationSnapshotWriterTest extends TestCase
             Communication::query()
                 ->where('communication_definition_id', $this->definition->id)
                 ->each(function (Communication $communication): void {
+                    $communication->attachments()->each(function ($attachment): void {
+                        try {
+                            Storage::disk($attachment->disk)->delete($attachment->path);
+                        } catch (\Throwable) {
+                        }
+                        $attachment->delete();
+                    });
                     $communication->deliveries()->delete();
                     $communication->recipients()->delete();
                     $communication->delete();
@@ -92,9 +108,10 @@ class CommunicationSnapshotWriterTest extends TestCase
         $this->assertSame('customer@example.com', $row->recipient_email);
         $this->assertSame('sent', $row->deliveries()->where('channel', 'email')->value('status'));
         $this->assertSame(0, $row->recipients()->count());
+        $this->assertNotEmpty($row->uuid);
     }
 
-    public function test_inbox_only_skips_email_and_records_inbox_delivery(): void
+    public function test_inbox_only_without_portal_sends_legacy_email_and_defers_inbox(): void
     {
         $this->setSystemEnabled(true);
         $this->setPolicy(email: false, inbox: true);
@@ -108,9 +125,100 @@ class CommunicationSnapshotWriterTest extends TestCase
             ->first();
 
         $this->assertNotNull($row);
-        $this->assertSame('skipped', $row->deliveries()->where('channel', 'email')->value('status'));
-        $this->assertSame('failed', $row->deliveries()->where('channel', 'internal_inbox')->value('status'));
+        $this->assertSame('sent', $row->deliveries()->where('channel', 'email')->value('status'));
+        $this->assertTrue((bool) data_get($row->payload_snapshot, 'legacy_email_fallback'));
+        $this->assertSame('deferred', $row->deliveries()->where('channel', 'internal_inbox')->value('status'));
         $this->assertSame(0, $row->recipients()->count());
+    }
+
+    public function test_mailable_attachments_are_copied_onto_the_snapshot(): void
+    {
+        $this->setSystemEnabled(true);
+        $this->setPolicy(email: true, inbox: false);
+        config(['mail.default' => 'array']);
+
+        $mail = new FakePolicyTestMail;
+        $mail->includeTestAttachment = true;
+        $mail->to('customer@example.com')->send(app('mailer'));
+
+        $row = Communication::query()
+            ->where('communication_definition_id', $this->definition->id)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($row);
+        $this->assertSame(1, $row->attachments()->count());
+        $attachment = $row->attachments()->first();
+        $this->assertSame('Policy-Test.pdf', $attachment->filename);
+        $this->assertTrue(Storage::disk($attachment->disk)->exists($attachment->path));
+    }
+
+    public function test_inbox_claimer_attaches_deferred_messages_to_a_new_portal_account(): void
+    {
+        if (! Schema::hasTable('customer_auths')) {
+            $this->markTestSkipped('customer_auths table is not available.');
+        }
+
+        $this->setSystemEnabled(true);
+        $this->setPolicy(email: false, inbox: true);
+        config(['mail.default' => 'array']);
+
+        $email = 'claim.'.uniqid().'@example.com';
+        (new FakePolicyTestMail)->to($email)->send(app('mailer'));
+
+        $row = Communication::query()
+            ->where('communication_definition_id', $this->definition->id)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($row);
+        $this->assertSame('deferred', $row->deliveries()->where('channel', 'internal_inbox')->value('status'));
+
+        $claimed = app(CommunicationInboxClaimer::class)->claimFor($this->fakeCustomerAuth($email));
+
+        $row->refresh();
+        $this->assertSame(1, $claimed);
+        $this->assertSame(1, $row->recipients()->count());
+        $this->assertSame('delivered', $row->deliveries()->where('channel', 'internal_inbox')->value('status'));
+    }
+
+    public function test_mail_webhook_marks_email_delivered_by_uuid(): void
+    {
+        $this->setSystemEnabled(true);
+        $this->setPolicy(email: true, inbox: false);
+        config(['mail.default' => 'array']);
+
+        (new FakePolicyTestMail)->to('customer@example.com')->send(app('mailer'));
+
+        $row = Communication::query()
+            ->where('communication_definition_id', $this->definition->id)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($row);
+
+        $delivery = app(CommunicationMailWebhookProcessor::class)->process([
+            'event' => 'delivered',
+            'uuid' => $row->uuid,
+            'message_id' => 'test-message-id@ngn.test',
+        ]);
+
+        $this->assertNotNull($delivery);
+        $this->assertSame('delivered', $delivery->status);
+        $this->assertNotNull($delivery->delivered_at);
+    }
+
+    private function fakeCustomerAuth(string $email): \App\Models\CustomerAuth
+    {
+        $auth = \App\Models\CustomerAuth::query()->make([
+            'email' => $email,
+            'password' => 'hash',
+        ]);
+        $auth->id = 880000 + random_int(1, 9999);
+        $auth->customer_id = 1;
+        $auth->exists = true;
+
+        return $auth;
     }
 
     private function setSystemEnabled(bool $enabled): void

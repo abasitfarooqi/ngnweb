@@ -24,7 +24,9 @@
         .email-legacy-html p.notice-red{color:#111827!important;-webkit-text-fill-color:#111827!important}
         .email-legacy-html a{color:#c31924!important}
         .email-legacy-html table{border-collapse:collapse!important}
-        .email-legacy-html th,.email-legacy-html td{border:1px solid #e5e7eb!important;padding:8px 10px!important;font-size:13px!important;vertical-align:top!important}
+        .email-legacy-html .header,.email-legacy-html .title,.email-legacy-html .subtitle,.email-legacy-html h1,.email-legacy-html h2,.email-legacy-html h3{text-align:center!important}
+        .email-legacy-html img,.email-legacy-html .logo{display:block!important;margin-left:auto!important;margin-right:auto!important}
+        .email-legacy-html th,.email-legacy-html td{border:1px solid #e5e7eb!important;padding:8px 10px!important;font-size:13px!important;vertical-align:top!important;text-align:left!important}
         .email-legacy-html th{background-color:#f9fafb!important;color:#111827!important;font-weight:700!important}
         @media only screen and (max-width:600px){
             .email-wrapper{width:100%!important;max-width:100%!important}

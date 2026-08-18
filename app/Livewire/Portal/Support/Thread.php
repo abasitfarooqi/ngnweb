@@ -39,7 +39,21 @@ class Thread extends Component
             ->orderBy('id')
             ->get();
 
-        return view('livewire.portal.support.thread', compact('messages'))
+        $notificationUuid = null;
+        foreach ($messages as $message) {
+            $uuid = data_get($message->meta, 'communication_uuid');
+            if (is_string($uuid) && $uuid !== '') {
+                $notificationUuid = $uuid;
+                break;
+            }
+        }
+
+        return view('livewire.portal.support.thread', [
+            'messages' => $messages,
+            'notificationUuid' => $notificationUuid,
+            'notificationOpen' => str_starts_with((string) $this->conversation->topic, 'Notification:')
+                && ! in_array((string) $this->conversation->status, ['resolved', 'closed'], true),
+        ])
             ->layout('components.layouts.portal', [
                 'title' => 'Support Chat | My Account',
             ]);

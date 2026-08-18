@@ -15,5 +15,6 @@ class VerifyCsrfToken extends Middleware
         'webhook/paypal/hook-52dA1x9qX3',
         'judopay/*', // All JudoPay external endpoints
         'twilio/sms/status-callback',
+        'webhooks/communications/*',
     ];
 }

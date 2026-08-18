@@ -10,10 +10,11 @@ use App\Models\CommunicationAttachment;
 use App\Models\CommunicationRecipient;
 use App\Models\CustomerAuth;
 use App\Services\Communications\CommunicationEnquiryStarter;
+use App\Services\Communications\CommunicationInboxClaimer;
+use App\Services\Communications\CommunicationReplyRecorder;
 use App\Services\Communications\CommunicationSchema;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Storage;
 
 class CustomerCommunicationController extends Controller
 {
@@ -26,6 +27,8 @@ class CustomerCommunicationController extends Controller
         if (! app(CommunicationSchema::class)->ready()) {
             return CommunicationListResource::collection(new LengthAwarePaginator([], 0, $perPage));
         }
+
+        app(CommunicationInboxClaimer::class)->claimFor($customer);
 
         $query = Communication::query()
             ->with(['recipients' => fn ($q) => $q->where('customer_auth_id', $customer->id)])
@@ -55,6 +58,8 @@ class CustomerCommunicationController extends Controller
             return ['communications_unread' => 0];
         }
 
+        app(CommunicationInboxClaimer::class)->claimFor($customer);
+
         return [
             'communications_unread' => CommunicationRecipient::query()
                 ->where('customer_auth_id', $customer->id)
@@ -68,8 +73,15 @@ class CustomerCommunicationController extends Controller
     {
         $this->abortUnlessSchemaReady();
 
-        $record = $this->communicationForCustomer($request, $communication)
-            ->load(['attachments', 'recipients' => fn ($q) => $q->where('customer_auth_id', $this->customer($request)->id)]);
+        $relations = [
+            'attachments',
+            'recipients' => fn ($q) => $q->where('customer_auth_id', $this->customer($request)->id),
+        ];
+        if (app(CommunicationSchema::class)->repliesReady()) {
+            $relations[] = 'replies';
+        }
+
+        $record = $this->communicationForCustomer($request, $communication)->load($relations);
 
         return new CommunicationResource($record);
     }
@@ -126,6 +138,25 @@ class CustomerCommunicationController extends Controller
         ];
     }
 
+    public function reply(Request $request, string $communication)
+    {
+        $this->abortUnlessSchemaReady();
+
+        $validated = $request->validate([
+            'body' => ['required', 'string', 'max:5000'],
+        ]);
+
+        $record = $this->communicationForCustomer($request, $communication);
+        $reply = app(CommunicationReplyRecorder::class)->record($record, $this->customer($request), $validated['body']);
+
+        return [
+            'id' => $reply->id,
+            'author_type' => $reply->author_type,
+            'body' => $reply->body,
+            'created_at' => optional($reply->created_at)->toIso8601String(),
+        ];
+    }
+
     public function showAttachment(Request $request, string $communication, string $attachment)
     {
         $this->abortUnlessSchemaReady();
@@ -136,13 +167,7 @@ class CustomerCommunicationController extends Controller
             ->where('uuid', $attachment)
             ->firstOrFail();
 
-        abort_unless(Storage::disk($file->disk)->exists($file->path), 404);
-
-        return Storage::disk($file->disk)->download(
-            $file->path,
-            $file->display_name ?: $file->filename,
-            array_filter(['Content-Type' => $file->mime_type])
-        );
+        return $file->downloadResponse();
     }
 
     private function customer(Request $request): CustomerAuth

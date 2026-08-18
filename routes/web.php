@@ -351,6 +351,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
     Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
     Route::get('/notifications', \App\Livewire\Portal\Communications\Index::class)->name('notifications');
+    Route::get('/notifications/{uuid}/attachments/{attachment}', [\App\Http\Controllers\Portal\CommunicationAttachmentController::class, '__invoke'])->name('notifications.attachments.show');
     Route::get('/notifications/{uuid}', \App\Livewire\Portal\Communications\Show::class)->name('notifications.show');
     Route::get('/enquiries', \App\Livewire\Portal\Enquiries\Index::class)->name('enquiries');
     Route::get('/support', \App\Livewire\Portal\Support\Inbox::class)->name('support');
@@ -365,7 +366,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/payments/recurring', \App\Livewire\Portal\Payments\Recurring::class)->name('payments.recurring');
 });
 
-Route::middleware(['web', 'auth:customer,backpack'])
+Route::middleware(['web', 'auth:web,customer,backpack'])
     ->get('/support/attachments/{attachment}', [\App\Http\Controllers\SupportAttachmentController::class, 'show'])
     ->name('support.attachments.show');
 
@@ -463,6 +464,9 @@ Route::get('paypal/checkout', [PayPalController::class, 'checkout'])->name('payp
 Route::get('paypal/success', [PayPalController::class, 'success'])->name('paypal.success');
 Route::get('paypal/cancel', [PayPalController::class, 'cancel'])->name('paypal.cancel');
 Route::post('/webhook/paypal/hook-52dA1x9qX3', [PayPalWebhookController::class, 'handle'])->middleware('throttle:60,1');
+Route::post('/webhooks/communications/mail', \App\Http\Controllers\Webhooks\CommunicationMailWebhookController::class)
+    ->middleware('throttle:60,1')
+    ->name('webhooks.communications.mail');
 Route::get('/paypal/direct-payment', [PayPalController::class, 'directPayment'])->name('paypal.directPayment');
 
 // ============================================================

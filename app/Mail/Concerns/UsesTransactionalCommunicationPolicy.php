@@ -2,32 +2,31 @@
 
 namespace App\Mail\Concerns;
 
-use App\Services\Communications\CommunicationSnapshotWriter;
-use App\Services\Communications\TransactionalEmailPolicy;
+use App\Services\Communications\CommunicationOutboundCoordinator;
 use Throwable;
 
 trait UsesTransactionalCommunicationPolicy
 {
     public function send($mailer)
     {
-        $decision = app(TransactionalEmailPolicy::class)->decisionForMailable($this);
-        $writer = app(CommunicationSnapshotWriter::class);
+        $coordinator = app(CommunicationOutboundCoordinator::class);
+        $plan = $coordinator->begin($this);
 
-        if (! $decision->sendEmail) {
-            $writer->recordFromMailable($this, $decision, emailSent: false);
+        if (! $plan->sendEmail) {
+            $coordinator->finish($this, $plan, emailSent: false);
 
             return null;
         }
 
         try {
             $result = parent::send($mailer);
-            $writer->recordFromMailable($this, $decision, emailSent: true);
+            $coordinator->finish($this, $plan, emailSent: true, sentMessage: $result);
 
             return $result;
         } catch (Throwable $exception) {
-            $writer->recordFromMailable(
+            $coordinator->finish(
                 $this,
-                $decision,
+                $plan,
                 emailSent: false,
                 failureReason: $exception->getMessage(),
             );

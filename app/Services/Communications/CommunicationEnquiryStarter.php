@@ -5,13 +5,12 @@ namespace App\Services\Communications;
 use App\Models\Communication;
 use App\Models\CustomerAuth;
 use App\Models\SupportConversation;
+use App\Models\SupportMessage;
 
 class CommunicationEnquiryStarter
 {
     public function start(Communication $communication, CustomerAuth $customer): SupportConversation
     {
-        abort_unless((bool) data_get($communication->policy_snapshot, 'enquiry_allowed', false), 403);
-
         $existingUuid = data_get($communication->payload_snapshot, 'enquiry_conversation_uuid');
         if (is_string($existingUuid) && $existingUuid !== '') {
             $existing = SupportConversation::query()
@@ -27,12 +26,24 @@ class CommunicationEnquiryStarter
         $conversation = SupportConversation::query()->create([
             'customer_auth_id' => $customer->id,
             'title' => 'Re: '.$communication->title,
-            'topic' => 'Communication enquiry',
+            'topic' => 'Notification: '.$communication->title,
             'status' => 'open',
+        ]);
+
+        SupportMessage::query()->create([
+            'conversation_id' => $conversation->id,
+            'sender_type' => 'customer',
+            'sender_customer_auth_id' => $customer->id,
+            'body' => "This chat is about the notification \"{$communication->title}\" sent on "
+                .optional($communication->created_at)->format('d M Y H:i').'.',
+            'meta' => [
+                'communication_uuid' => $communication->uuid,
+            ],
         ]);
 
         $payload = is_array($communication->payload_snapshot) ? $communication->payload_snapshot : [];
         $payload['enquiry_conversation_uuid'] = $conversation->uuid;
+        $payload['enquiry_conversation_id'] = $conversation->id;
         $communication->forceFill(['payload_snapshot' => $payload])->save();
 
         return $conversation;

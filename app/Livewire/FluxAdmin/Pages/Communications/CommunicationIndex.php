@@ -28,9 +28,36 @@ class CommunicationIndex extends Component
 
     public string $switchReason = '';
 
+    private const LIST_STATE_SESSION_KEY = 'flux_admin.communications.list';
+
     public function mount(): void
     {
         $this->assertCanViewCommunications();
+        $this->restoreListState();
+    }
+
+    public function updatedSearch(): void
+    {
+        $this->rememberListState();
+    }
+
+    public function updatedPerPage(): void
+    {
+        $this->rememberListState();
+    }
+
+    public function updatedFilters(): void
+    {
+        $this->rememberListState();
+    }
+
+    public function resetFilters(): void
+    {
+        $this->search = '';
+        $this->filters = [];
+        $this->perPage = 20;
+        session()->forget(self::LIST_STATE_SESSION_KEY);
+        $this->resetPage();
     }
 
     public function enableSystem(CommunicationAuditRecorder $audit): void
@@ -193,11 +220,31 @@ class CommunicationIndex extends Component
                             ->orWhere('email_class', 'like', '%'.$term.'%');
                     });
                 })
+                ->when($this->filter('classification') !== '', fn ($q) => $q->where('classification', $this->filter('classification')))
+                ->when($this->filter('category') !== '', fn ($q) => $q->where('category', $this->filter('category')))
+                ->when($this->filter('priority') !== '', function ($q): void {
+                    $priority = (string) $this->filter('priority');
+                    $q->where(function ($inner) use ($priority): void {
+                        $inner->whereHas('policy', fn ($p) => $p->where('priority', $priority))
+                            ->orWhere(function ($withoutPolicy) use ($priority): void {
+                                $withoutPolicy->whereDoesntHave('policy')->where('priority', $priority);
+                            });
+                    });
+                })
+                ->when($this->filter('mode') === 'managed', fn ($q) => $q->where('active', true))
+                ->when($this->filter('mode') === 'legacy', fn ($q) => $q->where('active', false))
+                ->when($this->filter('email') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('email_enabled', true)))
+                ->when($this->filter('email') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('email_enabled', false)))
+                ->when($this->filter('inbox') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('internal_inbox_enabled', true)))
+                ->when($this->filter('inbox') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('internal_inbox_enabled', false)))
+                ->when($this->filter('web_push') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('web_push_enabled', true)))
+                ->when($this->filter('web_push') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('web_push_enabled', false)))
+                ->when($this->filter('mobile_push') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('mobile_push_enabled', true)))
+                ->when($this->filter('mobile_push') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('mobile_push_enabled', false)))
                 ->when($this->filter('channel') === 'email_on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('email_enabled', true)))
                 ->when($this->filter('channel') === 'inbox_on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('internal_inbox_enabled', true)))
                 ->when($this->filter('channel') === 'managed', fn ($q) => $q->where('active', true))
                 ->when($this->filter('channel') === 'legacy', fn ($q) => $q->where('active', false))
-                ->when($this->filter('classification') !== '', fn ($q) => $q->where('classification', $this->filter('classification')))
                 ->orderBy('category')
                 ->orderBy('name')
                 ->paginate($this->perPage);
@@ -213,7 +260,41 @@ class CommunicationIndex extends Component
             'schemaReady' => $schemaReady,
             'missingCommunicationTables' => $schemaReady ? [] : $schema->missingTables(),
             'excludedInventory' => (array) config('communications.excluded_inventory', []),
+            'filterCategories' => $schemaReady
+                ? CommunicationDefinition::query()->whereNotNull('category')->where('category', '!=', '')->distinct()->orderBy('category')->pluck('category')
+                : collect(),
+            'filterClassifications' => $schemaReady
+                ? CommunicationDefinition::query()->whereNotNull('classification')->where('classification', '!=', '')->distinct()->orderBy('classification')->pluck('classification')
+                : collect(),
         ]);
+    }
+
+    private function rememberListState(): void
+    {
+        session([
+            self::LIST_STATE_SESSION_KEY => [
+                'search' => $this->search,
+                'filters' => $this->filters,
+                'perPage' => $this->perPage,
+            ],
+        ]);
+    }
+
+    private function restoreListState(): void
+    {
+        $saved = session(self::LIST_STATE_SESSION_KEY);
+        if (! is_array($saved)) {
+            return;
+        }
+
+        if ($this->search === '' && $this->filters === []) {
+            $this->search = (string) ($saved['search'] ?? '');
+            $this->filters = is_array($saved['filters'] ?? null) ? $saved['filters'] : [];
+            $savedPerPage = (int) ($saved['perPage'] ?? 20);
+            $this->perPage = in_array($savedPerPage, [20, 50, 100], true) ? $savedPerPage : 20;
+        }
+
+        $this->rememberListState();
     }
 
     private function setGlobalSwitch(bool $enabled, CommunicationAuditRecorder $audit): void

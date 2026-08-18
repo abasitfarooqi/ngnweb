@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Support;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Models\SupportAttachment;
 use App\Models\SupportConversation;
 use App\Models\SupportMessage;
 use App\Models\User;
@@ -11,12 +12,14 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('flux-admin.layouts.app')]
 #[Title('Support inbox — Flux Admin')]
 class SupportInbox extends Component
 {
     use WithAuthorization;
+    use WithFileUploads;
 
     #[Url(as: 'c', except: null)]
     public ?int $selectedConversationId = null;
@@ -28,6 +31,9 @@ class SupportInbox extends Component
     public string $search = '';
 
     public string $newMessage = '';
+
+    /** @var array<int, mixed> */
+    public array $messageFiles = [];
 
     public int $latestCustomerMessageId = 0;
 
@@ -82,20 +88,44 @@ class SupportInbox extends Component
     public function sendMessage(): void
     {
         $this->validate([
-            'newMessage' => ['required', 'string', 'max:5000'],
+            'newMessage' => ['nullable', 'string', 'max:5000'],
             'selectedConversationId' => ['required', 'integer', 'exists:support_conversations,id'],
+            'messageFiles' => ['nullable', 'array', 'max:5'],
+            'messageFiles.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
         ]);
 
-        SupportMessage::create([
-            'conversation_id' => $this->selectedConversationId,
+        if (trim($this->newMessage) === '' && $this->messageFiles === []) {
+            $this->addError('newMessage', 'Please type a reply or attach a file.');
+
+            return;
+        }
+
+        $conversation = SupportConversation::query()->findOrFail($this->selectedConversationId);
+
+        $message = SupportMessage::create([
+            'conversation_id' => $conversation->id,
             'sender_type' => 'staff',
             'sender_user_id' => auth()->id(),
-            'body' => $this->newMessage,
+            'body' => trim($this->newMessage) !== '' ? trim($this->newMessage) : null,
             'read_at_staff' => now(),
         ]);
 
-        SupportConversation::where('id', $this->selectedConversationId)->update(['last_message_at' => now()]);
+        foreach ($this->messageFiles as $upload) {
+            $path = $upload->store('support-chat/'.$conversation->uuid, 'public');
+
+            SupportAttachment::query()->create([
+                'message_id' => $message->id,
+                'disk' => 'public',
+                'path' => $path,
+                'original_name' => $upload->getClientOriginalName(),
+                'mime' => $upload->getMimeType(),
+                'size' => (int) $upload->getSize(),
+                'uploaded_by_user_id' => auth()->id(),
+            ]);
+        }
+
         $this->newMessage = '';
+        $this->messageFiles = [];
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Sent.');
     }
 
@@ -118,7 +148,7 @@ class SupportInbox extends Component
             ->get();
 
         $selected = $this->selectedConversationId
-            ? SupportConversation::with(['customerAuth', 'assignedBackpackUser', 'messages.senderUser'])->find($this->selectedConversationId)
+            ? SupportConversation::with(['customerAuth', 'assignedBackpackUser', 'messages.senderUser', 'messages.attachments'])->find($this->selectedConversationId)
             : null;
 
         $staffUsers = User::query()->orderBy('name')->get(['id', 'name']);

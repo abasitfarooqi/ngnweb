@@ -13,7 +13,8 @@ class SupportAttachmentController extends Controller
     {
         $attachment->loadMissing('message.conversation');
 
-        $staff = function_exists('backpack_auth') ? backpack_auth()->user() : null;
+        $staff = Auth::user()
+            ?: (function_exists('backpack_auth') ? backpack_auth()->user() : null);
         $customerAuth = Auth::guard('customer')->user();
 
         $conversation = $attachment->message?->conversation;

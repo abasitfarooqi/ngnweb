@@ -9,6 +9,7 @@ use App\Services\Communications\CommunicationSchema;
 use App\Support\FluxAdminAccess;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -26,6 +27,12 @@ class CommunicationSentIndex extends Component
         if (! FluxAdminAccess::canAccessCommunications()) {
             abort(403, 'This area is restricted to Super Admin.');
         }
+    }
+
+    #[On('staffCommunicationCreated')]
+    #[On('staffCommunicationReply')]
+    public function refreshFromRealtime(): void
+    {
     }
 
     public function render()

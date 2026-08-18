@@ -22,8 +22,23 @@ class CommunicationEmailPreviewRendererTest extends TestCase
         $preview = $this->previewFor('rental.deposit.return', 'Rental Deposit Return');
 
         $this->assertTrue($preview['available'], (string) ($preview['error'] ?? ''));
+        $this->assertGreaterThan(2000, strlen($preview['html']));
         $this->assertStringContainsString('Rental Deposit Return', $preview['html']);
         $this->assertStringContainsString('Amount Returned', $preview['html']);
+        $this->assertStringContainsString('Dear', $preview['html']);
+    }
+
+    public function test_core_rental_previews_render_full_html(): void
+    {
+        foreach ([
+            'rental.payment.receipt' => 'Rental Payment Receipt',
+            'rental.payment.reversed' => 'Rental Payment Reversed',
+            'rental.deposit.return' => 'Rental Deposit Return',
+        ] as $key => $name) {
+            $preview = $this->previewFor($key, $name);
+            $this->assertTrue($preview['available'], $key.': '.((string) ($preview['error'] ?? '')));
+            $this->assertGreaterThan(1500, strlen((string) $preview['html']), $key.' preview HTML is too short.');
+        }
     }
 
     /**

@@ -14,7 +14,7 @@
     @livewireStyles
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white">
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}">
 
 {{-- Top Nav --}}
 <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">
@@ -37,6 +37,8 @@
                 <a href="{{ route('account.dashboard') }}" class="hidden sm:block text-sm text-gray-600 dark:text-gray-400 hover:text-brand-red dark:hover:text-brand-red transition">
                     Dashboard
                 </a>
+
+                <x-customer-notification-bell />
 
                 {{-- Dark/Light toggle (Alpine) --}}
                 <button type="button"
@@ -220,8 +222,8 @@
                         class="portal-nav-link border-t border-gray-100 dark:border-gray-700 {{ request()->routeIs($item['route'], $item['route'].'.*') ? 'active' : '' }}">
                         <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $item['icon'] !!}</svg>
                         <span>{{ $item['label'] }}</span>
-                        @if($item['route'] === 'account.notifications' && ($notificationsUnread ?? 0) > 0)
-                            <span class="ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white">{{ $notificationsUnread }}</span>
+                        @if($item['route'] === 'account.notifications')
+                            <span id="portal-notifications-unread" class="js-notifications-unread ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($notificationsUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($notificationsUnread ?? 0) }}">{{ (int) ($notificationsUnread ?? 0) }}</span>
                         @endif
                     </a>
                 @endforeach

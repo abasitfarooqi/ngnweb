@@ -60,11 +60,13 @@ class TransactionalEmailPolicy
 
             $emailEnabled = (bool) ($definition->policy?->email_enabled ?? true);
             $inboxEnabled = (bool) ($definition->policy?->internal_inbox_enabled ?? false);
+            $webPushEnabled = (bool) ($definition->policy?->web_push_enabled ?? false);
+            $mobilePushEnabled = (bool) ($definition->policy?->mobile_push_enabled ?? false);
 
             return new CommunicationSendDecision(
                 legacy: false,
                 sendEmail: $emailEnabled,
-                recordSnapshot: $emailEnabled || $inboxEnabled,
+                recordSnapshot: $emailEnabled || $inboxEnabled || $webPushEnabled || $mobilePushEnabled,
                 createInbox: $inboxEnabled,
                 definition: $definition,
             );

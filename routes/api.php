@@ -299,6 +299,7 @@ Route::prefix('v1/customer')->group(function () {
         Route::post('{communication}/unread', [CustomerCommunicationController::class, 'markUnread']);
         Route::post('{communication}/archive', [CustomerCommunicationController::class, 'archive']);
         Route::post('{communication}/enquiry', [CustomerCommunicationController::class, 'startEnquiry']);
+        Route::post('{communication}/reply', [CustomerCommunicationController::class, 'reply']);
         Route::get('{communication}/attachments/{attachment}', [CustomerCommunicationController::class, 'showAttachment'])->name('api.v1.customer.communications.attachments.show');
     });
 
@@ -518,6 +519,7 @@ Route::prefix('v1/mobile')->group(function () {
             Route::post('{communication}/unread', [CustomerCommunicationController::class, 'markUnread']);
             Route::post('{communication}/archive', [CustomerCommunicationController::class, 'archive']);
             Route::post('{communication}/enquiry', [CustomerCommunicationController::class, 'startEnquiry']);
+            Route::post('{communication}/reply', [CustomerCommunicationController::class, 'reply']);
             Route::get('{communication}/attachments/{attachment}', [CustomerCommunicationController::class, 'showAttachment']);
         });
         Route::post('notifications/register-device', [MobileNotificationsController::class, 'registerDevice']);

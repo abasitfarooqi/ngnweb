@@ -47,14 +47,7 @@
                     <div><span class="text-zinc-500">Subject:</span> {{ $emailPreview['subject'] }}</div>
                     <div class="font-mono text-xs">{{ $emailPreview['source'] }}</div>
                 </div>
-                <div class="mt-4 border border-zinc-200 bg-zinc-100 dark:border-zinc-700 dark:bg-zinc-950">
-                    <iframe
-                        title="Email preview for {{ $communicationDefinition->name }}"
-                        src="{{ route('flux-admin.communications.email-preview', $communicationDefinition) }}"
-                        class="block h-[36rem] w-full border-0 bg-white"
-                        loading="lazy"
-                    ></iframe>
-                </div>
+                <x-communication-email-snapshot class="mt-4" :html="$emailPreview['html'] ?? ''" />
             @else
                 <div class="mt-4 border border-zinc-200 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
                     {{ $emailPreview['error'] ?? 'Preview is not available for this communication yet.' }}

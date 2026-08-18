@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\RecurringController as JudopayRecurringController;
+use App\Http\Controllers\FluxAdmin\CommunicationAttachmentController;
 use App\Http\Controllers\FluxAdmin\CommunicationEmailPreviewController;
 use App\Http\Controllers\FluxAdmin\SpacesVaultController;
 use App\Livewire\FluxAdmin\Pages\Access\RentalTerminateForm;
@@ -394,6 +395,7 @@ Route::get('/branches/{branch}', BranchShow::class)->name('flux-admin.branches.s
 
 Route::get('/communications', CommunicationIndex::class)->name('flux-admin.communications.index');
 Route::get('/communications/sent', CommunicationSentIndex::class)->name('flux-admin.communications.sent.index');
+Route::get('/communications/sent/{communication:uuid}/attachments/{attachment}', CommunicationAttachmentController::class)->name('flux-admin.communications.sent.attachments.show');
 Route::get('/communications/sent/{communication:uuid}', CommunicationSentShow::class)->name('flux-admin.communications.sent.show');
 Route::get('/communications/{communicationDefinition}/email-preview', CommunicationEmailPreviewController::class)->name('flux-admin.communications.email-preview');
 Route::get('/communications/{communicationDefinition}', CommunicationShow::class)->name('flux-admin.communications.show');

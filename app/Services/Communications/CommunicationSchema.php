@@ -43,4 +43,9 @@ class CommunicationSchema
             fn (string $table): bool => ! Schema::hasTable($table)
         ));
     }
+
+    public function repliesReady(): bool
+    {
+        return $this->ready() && Schema::hasTable('communication_replies');
+    }
 }

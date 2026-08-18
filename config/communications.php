@@ -23,6 +23,8 @@ return [
 
     'default_enabled' => false,
 
+    'webhook_token' => env('COMMUNICATION_WEBHOOK_TOKEN'),
+
     'internal_email_domains' => [
         'neguinhomotors.co.uk',
         'ngnmotors.co.uk',
