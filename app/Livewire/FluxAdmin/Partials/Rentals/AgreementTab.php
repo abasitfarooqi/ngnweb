@@ -94,12 +94,12 @@ class AgreementTab extends Component
         try {
             Mail::to([$customer->email, 'customerservice@neguinhomotors.co.uk'])->send(new RentalAgreement([
                 'title' => 'Rental Agreement',
-                'body' => 'Dear valued customer, please review and sign your rental agreement: '.$url,
+                'body' => 'Agreement link sent successfully. Please check the email you provided for your agreement link. If you can\'t see the email in your inbox, please check your Spam or Junk folder.',
                 'url' => $url,
             ]));
 
             $this->agreementUrl = $url;
-            $this->flashMessage = 'Signing link emailed to '.$customer->email.'.';
+            $this->flashMessage = 'Agreement link sent successfully. Please check the email you provided for your agreement link. If you can\'t see the email in your inbox, please check your Spam or Junk folder.';
             $this->flashType = 'success';
         } catch (\Throwable $e) {
             Log::error('Agreement link email failed: '.$e->getMessage());
