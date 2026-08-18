@@ -18,6 +18,10 @@
             <flux:heading size="xl">{{ $conversation->title ?: 'Support conversation' }}</flux:heading>
             <p class="mt-1 text-xs text-gray-500">
                 Status: {{ ucfirst(str_replace('_', ' ', (string) $conversation->status)) }}
+                @if(str_starts_with((string) $conversation->topic, 'Notification:'))
+                    · From notification
+                    @if(! empty($notificationOpen)) · open until dealt @endif
+                @endif
                 @if($conversation->assignedBackpackUser)
                     · Handled by {{ $conversation->assignedBackpackUser->full_name ?: $conversation->assignedBackpackUser->name }}
                 @endif
@@ -28,9 +32,12 @@
         </flux:button>
     </div>
 
-    <flux:callout variant="info" icon="information-circle">
-        <flux:callout.text>We aim to reply within 24 hours. For urgent issues, please call branch support.</flux:callout.text>
-    </flux:callout>
+    @if(! empty($notificationUuid))
+        <p class="text-sm text-gray-600 dark:text-gray-400">
+            This chat is about a notification.
+            <a href="{{ route('account.notifications.show', $notificationUuid) }}" class="text-brand-red hover:underline">Open the original message</a>
+        </p>
+    @endif
 
     <flux:card class="p-4">
         <div id="support-thread-messages-root" wire:ignore class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">

@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
@@ -11,7 +12,7 @@ use Illuminate\Queue\SerializesModels;
 
 class LoyaltySchemePolicy extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     protected $mailData;
 

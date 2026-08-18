@@ -32,6 +32,18 @@ Broadcast::channel('support.customer.{customerAuthId}', function ($actor, int $c
     return $actor instanceof CustomerAuth && (int) $actor->id === $customerAuthId;
 });
 
+Broadcast::channel('communications.staff', function ($actor) {
+    return $actor instanceof User;
+});
+
+Broadcast::channel('communications.customer.{customerAuthId}', function ($actor, int $customerAuthId) {
+    if ($actor instanceof User) {
+        return true;
+    }
+
+    return $actor instanceof CustomerAuth && (int) $actor->id === $customerAuthId;
+});
+
 Broadcast::channel('support.conversation.{uuid}', function ($actor, string $uuid) {
     $conversation = SupportConversation::query()->where('uuid', $uuid)->first();
     if (! $conversation) {

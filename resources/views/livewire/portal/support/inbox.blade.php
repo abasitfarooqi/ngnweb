@@ -52,7 +52,7 @@
                                 <div>
                                     <p class="font-semibold text-sm text-gray-900 dark:text-white">{{ $conversation->title ?: 'Conversation #'.$conversation->id }}</p>
                                     <p class="text-xs text-gray-500 mt-1">
-                                        {{ $conversation->service_booking_id ? 'Enquiry conversation' : 'General conversation' }}
+                                        {{ str_starts_with((string) $conversation->topic, 'Notification:') ? 'From notification'.(! in_array((string) $conversation->status, ['resolved', 'closed'], true) ? ' · open until dealt' : '') : ($conversation->service_booking_id ? 'Enquiry conversation' : 'General conversation') }}
                                         @if($conversation->topic)
                                             · {{ $conversation->topic }}
                                         @endif

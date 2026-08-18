@@ -844,7 +844,7 @@
         }
     </style>
 </head>
-<body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row">
+<body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row" data-staff-communications="1">
     <a href="#flux-admin-main" class="flux-admin-skip">Skip to content</a>
 
     {{-- Sidebar: same dark surface as main canvas (no half-light / half-dark split). --}}
@@ -993,6 +993,10 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'surveys') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'surveys' || request()->routeIs('flux-admin.survey*')">Surveys</flux:navlist.item>
             @endcan
 
+            @if(\App\Support\FluxAdminAccess::canAccessCommunications())
+                <flux:navlist.item href="{{ route('flux-admin.communications.index') }}" icon="bell-alert" :current="request()->routeIs('flux-admin.communications.*')">Communications</flux:navlist.item>
+            @endif
+
             @role('Admin')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'misc') }}" icon="cog-6-tooth" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'misc' || request()->routeIs('flux-admin.calendar.*','flux-admin.employee-schedules.*','flux-admin.agent-settings.*','flux-admin.branches.*','flux-admin.vehicle-issuances.*','flux-admin.queue-monitor.*')">Misc / Experiments</flux:navlist.item>
             @endrole
@@ -1072,6 +1076,11 @@
                 icon-trailing="chevron-up-down"
             />
             <flux:menu class="min-w-[200px]">
+                <button type="button" id="enable-communication-alerts" class="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                    Enable browser alerts
+                </button>
+                <p id="portal-browser-alerts-status" class="px-3 pb-2 text-xs text-zinc-500"></p>
+                <flux:separator />
                 <flux:menu.item icon="arrow-left" href="/ngn-admin/dashboard">
                     Back to Backpack
                 </flux:menu.item>

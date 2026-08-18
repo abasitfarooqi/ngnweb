@@ -28,6 +28,9 @@
                         <div class="min-w-0 flex-1">
                             <div class="font-medium text-zinc-900 dark:text-white truncate">{{ $c->title ?: 'Conversation #'.$c->id }}</div>
                             <div class="text-xs text-zinc-500 truncate">{{ $c->customerAuth?->email ?: 'Unknown customer' }}</div>
+                            @if(str_starts_with((string) $c->topic, 'Notification:'))
+                                <div class="text-xs text-brand-red mt-0.5 truncate">From notification · open until dealt</div>
+                            @endif
                         </div>
                         @if($c->unread_customer_count > 0)
                             <span class="shrink-0 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1 bg-red-500 text-white text-xs font-bold">{{ $c->unread_customer_count }}</span>
@@ -59,6 +62,11 @@
                         <div class="text-xs text-zinc-500">
                             {{ $selected->customerAuth?->email }} ·
                             <span class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800">{{ str_replace('_', ' ', $selected->status ?? '—') }}</span>
+                            @if(str_starts_with((string) $selected->topic, 'Notification:'))
+                                · From notification{{ ! in_array((string) $selected->status, ['resolved', 'closed'], true) ? ' · open until dealt' : '' }}
+                            @elseif($selected->topic)
+                                · {{ $selected->topic }}
+                            @endif
                             @if($selected->assignedBackpackUser) · assigned to {{ $selected->assignedBackpackUser->name }} @endif
                         </div>
                     </div>
@@ -75,6 +83,13 @@
                         <div class="flex {{ $m->sender_type === 'staff' ? 'justify-end' : 'justify-start' }}" wire:key="msg-{{ $m->id }}">
                             <div class="max-w-[70%] px-3 py-2 text-sm {{ $m->sender_type === 'staff' ? 'bg-blue-600 text-white' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-white' }}">
                                 <div class="whitespace-pre-wrap">{{ $m->body }}</div>
+                                @if($m->attachments->isNotEmpty())
+                                    <div class="mt-2 space-y-1">
+                                        @foreach($m->attachments as $attachment)
+                                            <a href="{{ route('support.attachments.show', $attachment) }}" class="block text-xs underline underline-offset-2" target="_blank" rel="noopener">{{ $attachment->original_name }}</a>
+                                        @endforeach
+                                    </div>
+                                @endif
                                 <div class="mt-1 text-[10px] opacity-70">
                                     {{ $m->sender_type === 'staff' ? ($m->senderUser?->name ?: 'Staff') : 'Customer' }}
                                     · {{ $m->created_at?->format('d M H:i') }}
@@ -84,9 +99,19 @@
                     @endforeach
                 </div>
 
-                <form wire:submit.prevent="sendMessage" class="p-3 border-t border-zinc-200 dark:border-zinc-800 flex gap-2 items-end" novalidate>
-                    <flux:textarea wire:model="newMessage" rows="2" placeholder="Type a reply…" class="flex-1" />
-                    <flux:button type="submit" variant="primary" icon="paper-airplane" class="!rounded-none">Send</flux:button>
+                <form wire:submit.prevent="sendMessage" class="p-3 border-t border-zinc-200 dark:border-zinc-800 space-y-2" novalidate>
+                    <flux:textarea wire:model="newMessage" rows="2" placeholder="Type a reply…" />
+                    @error('newMessage') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
+                    <div>
+                        <p class="text-xs text-zinc-500">Attachments (optional)</p>
+                        <input type="file" wire:model="messageFiles" multiple class="mt-1 block w-full text-sm">
+                        <p class="mt-1 text-xs text-zinc-500">Up to 5 files, 10MB each. Types allowed: JPG, PNG, WebP, PDF, Word, plain text.</p>
+                        @error('messageFiles') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
+                        @error('messageFiles.*') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
+                    </div>
+                    <div class="flex justify-end">
+                        <flux:button type="submit" variant="primary" icon="paper-airplane" class="!rounded-none">Send</flux:button>
+                    </div>
                 </form>
             @else
                 <div class="flex-1 flex items-center justify-center text-zinc-500">

@@ -3,6 +3,7 @@
 namespace App\Providers;
 
 use App\Models\CustomerAuth;
+use App\Observers\CustomerAuthCommunicationObserver;
 use App\Support\AgreementPdfViewAssets;
 use App\Support\AgreementDateTime;
 use App\Models\JudopayCitPaymentSession;
@@ -101,6 +102,7 @@ class AppServiceProvider extends ServiceProvider
         JudopayCitPaymentSession::observe(JudopayCitPaymentSessionObserver::class);
         JudopayMitPaymentSession::observe(JudopayMitPaymentSessionObserver::class);
         JudopayEnquiryRecord::observe(JudopayEnquiryRecordObserver::class);
+        CustomerAuth::observe(CustomerAuthCommunicationObserver::class);
 
         // Flux Admin anonymous Blade components: <x-flux-admin::stat-card> etc.
         Blade::anonymousComponentPath(resource_path('views/flux-admin/components'), 'flux-admin');

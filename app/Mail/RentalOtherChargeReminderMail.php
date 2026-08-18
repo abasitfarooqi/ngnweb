@@ -2,6 +2,7 @@
 
 namespace App\Mail;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -11,12 +12,10 @@ use Illuminate\Queue\SerializesModels;
 
 class RentalOtherChargeReminderMail extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     /** @param  array<string, mixed>  $mailData */
-    public function __construct(public array $mailData)
-    {
-    }
+    public function __construct(public array $mailData) {}
 
     public function envelope(): Envelope
     {

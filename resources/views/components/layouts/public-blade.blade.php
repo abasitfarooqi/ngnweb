@@ -13,7 +13,7 @@
     @livewireStyles
     @stack('styles')
 </head>
-<body class="font-sans antialiased bg-white dark:bg-gray-900">
+<body class="font-sans antialiased bg-white dark:bg-gray-900" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}">
     @livewire('site.header')
 
     <main class="pb-14 lg:pb-0">

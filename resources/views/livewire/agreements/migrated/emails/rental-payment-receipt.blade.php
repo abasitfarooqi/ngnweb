@@ -23,13 +23,14 @@
         .header {
             padding: 18px 24px 14px;
             border-bottom: 2px solid #d7d7d7;
+            text-align: center;
         }
 
         .logo {
             display: block;
             width: 180px;
             max-width: 100%;
-            margin-bottom: 14px;
+            margin: 0 auto 14px;
         }
 
         .title {
@@ -37,12 +38,14 @@
             font-size: 28px;
             line-height: 1.2;
             color: #0f766e;
+            text-align: center;
         }
 
         .subtitle {
             margin: 8px 0 0;
             font-size: 14px;
             color: #4b5563;
+            text-align: center;
         }
 
         .content {
@@ -139,11 +142,11 @@
             <table>
                 <tr>
                     <td class="label">Booking No</td>
-                    <td><strong>{{ $booking_id }}</strong></td>
+                    <td><strong>{{ $booking_id ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice No</td>
-                    <td><strong>{{ $invoice_id }}</strong></td>
+                    <td><strong>{{ $invoice_id ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">Invoice Date</td>
@@ -151,7 +154,7 @@
                 </tr>
                 <tr>
                     <td class="label">Registration No</td>
-                    <td><strong>{{ $registration_number ?: 'N/A' }}</strong></td>
+                    <td><strong>{{ $registration_number ?? 'N/A' }}</strong></td>
                 </tr>
                 <tr>
                     <td class="label">{{ $invoiceAmountLabel }}</td>

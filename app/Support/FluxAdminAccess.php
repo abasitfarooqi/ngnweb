@@ -6,6 +6,8 @@ use Illuminate\Contracts\Auth\Authenticatable;
 
 final class FluxAdminAccess
 {
+    public const COMMUNICATIONS_PERMISSION = 'manage-communications';
+
     public static function user(): ?Authenticatable
     {
         return function_exists('backpack_user') ? backpack_user() : auth()->user();
@@ -51,5 +53,25 @@ final class FluxAdminAccess
         $userId = (int) ($user->getAuthIdentifier() ?? 0);
 
         return $userId > 0 && in_array($userId, self::fullClubAdminUserIds(), true);
+    }
+
+    /**
+     * Communications panel is Super Admin only, unless Super Admin assigns
+     * manage-communications directly on a staff user (not via the Admin role).
+     */
+    public static function canAccessCommunications(?Authenticatable $user = null): bool
+    {
+        $user ??= self::user();
+
+        if ($user === null) {
+            return false;
+        }
+
+        if (self::isSuperAdmin($user)) {
+            return true;
+        }
+
+        return method_exists($user, 'hasDirectPermission')
+            && $user->hasDirectPermission(self::COMMUNICATIONS_PERMISSION);
     }
 }

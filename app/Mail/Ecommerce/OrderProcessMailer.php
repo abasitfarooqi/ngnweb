@@ -2,6 +2,7 @@
 
 namespace App\Mail\Ecommerce;
 
+use App\Mail\Concerns\UsesTransactionalCommunicationPolicy;
 use App\Models\Ecommerce\EcOrder;
 use App\Support\UniversalMailPayload;
 use Illuminate\Bus\Queueable;
@@ -10,7 +11,7 @@ use Illuminate\Queue\SerializesModels;
 
 class OrderProcessMailer extends Mailable
 {
-    use Queueable, SerializesModels;
+    use Queueable, SerializesModels, UsesTransactionalCommunicationPolicy;
 
     public $order;
 

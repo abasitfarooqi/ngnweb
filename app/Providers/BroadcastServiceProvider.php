@@ -13,7 +13,7 @@ class BroadcastServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Broadcast::routes([
-            'middleware' => ['web', 'auth:customer,backpack'],
+            'middleware' => ['web', 'auth:web,customer,backpack'],
         ]);
         Broadcast::routes([
             'prefix' => 'api',
