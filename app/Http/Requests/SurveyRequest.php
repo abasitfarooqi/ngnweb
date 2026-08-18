@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class SurveyRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,7 +29,7 @@ class SurveyRequest extends FormRequest
     {
         return [
             'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255',
+            'slug' => ['nullable', 'string', 'max:255', Rule::unique('ngn_surveys', 'slug')->ignore($this->uniqueIgnoreId())],
             'description' => 'nullable|string',
             'is_active' => 'boolean',
             'questions.*.question_text' => 'required|string|max:255',

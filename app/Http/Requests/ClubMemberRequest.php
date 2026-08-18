@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ClubMemberRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,7 +29,7 @@ class ClubMemberRequest extends FormRequest
     {
         return [
             'full_name' => 'required|string|max:255',
-            'email' => 'required|email|unique:club_members,email,'.$this->id,
+            'email' => ['required', 'email', Rule::unique('club_members', 'email')->ignore($this->uniqueIgnoreId())],
             'phone' => 'required|string|max:15',
             'is_active' => 'boolean',
             'tc_agreed' => 'boolean',
@@ -53,7 +56,7 @@ class ClubMemberRequest extends FormRequest
     public function messages()
     {
         return [
-            //
+            'email.unique' => 'This email is already in use. Please use a different email.',
         ];
     }
 }

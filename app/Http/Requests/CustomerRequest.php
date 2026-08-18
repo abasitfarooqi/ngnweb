@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class CustomerRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -40,7 +43,7 @@ class CustomerRequest extends FormRequest
             'city' => 'required|string|min:2|max:255',
             'country' => 'required|string|min:2|max:255',
             'nationality' => 'required|string|min:2|max:255',
-            'email' => 'required|email|min:2|max:255|unique:customers,email,'.$this->id,
+            'email' => ['required', 'email', 'min:2', 'max:255', Rule::unique('customers', 'email')->ignore($this->uniqueIgnoreId())],
             'reputation_note' => 'nullable|string|max:1000',
             'rating' => 'nullable|integer|min:1|max:5',
         ];

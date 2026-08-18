@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class NgnCategoryRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -24,7 +27,7 @@ class NgnCategoryRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|max:255',
+            'name' => ['required', 'string', 'max:255', Rule::unique('ngn_categories', 'name')->ignore($this->uniqueIgnoreId())],
             'image_url' => 'nullable|url',
         ];
     }
@@ -53,6 +56,7 @@ class NgnCategoryRequest extends FormRequest
             'name.required' => 'The category name is required.',
             'name.string' => 'The category name must be a string.',
             'name.max' => 'The category name cannot exceed 255 characters.',
+            'name.unique' => 'This name is already in use.',
             'image_url.url' => 'The image URL must be a valid URL.',
         ];
     }

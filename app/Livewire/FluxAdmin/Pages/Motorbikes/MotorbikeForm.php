@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Branch;
 use App\Models\Motorbike;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -80,7 +81,7 @@ class MotorbikeForm extends Component
             'form.make' => ['required', 'string', 'max:100'],
             'form.model' => ['required', 'string', 'max:100'],
             'form.year' => ['nullable', 'string', 'max:4'],
-            'form.vin_number' => ['nullable', 'string', 'max:50'],
+            'form.vin_number' => ['nullable', 'string', 'max:50', Rule::unique('motorbikes', 'vin_number')->ignore($this->motorbikeId)],
             'form.engine' => ['nullable', 'string', 'max:50'],
             'form.color' => ['nullable', 'string', 'max:50'],
             'form.fuel_type' => ['nullable', 'string', 'max:100'],

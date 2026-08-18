@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Surveys;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\NgnSurvey;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,7 +36,7 @@ class SurveyForm extends Component
     {
         $this->validate([
             'form.title'       => ['required', 'string', 'max:255'],
-            'form.slug'        => ['nullable', 'string', 'max:255'],
+            'form.slug'        => ['nullable', 'string', 'max:255', Rule::unique('ngn_surveys', 'slug')->ignore($this->survey?->id)],
             'form.description' => ['nullable', 'string'],
             'form.is_active'   => ['boolean'],
         ]);

@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Inventory;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\NgnBrand;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,7 +36,7 @@ class BrandForm extends Component
     public function save(): void
     {
         $this->validate([
-            'form.name'             => ['required', 'string', 'max:255'],
+            'form.name'             => ['required', 'string', 'max:255', Rule::unique('ngn_brands', 'name')->ignore($this->brand?->id)],
             'form.slug'             => ['nullable', 'string', 'max:255'],
             'form.description'      => ['nullable', 'string'],
             'form.image_url'        => ['nullable', 'string', 'max:1024'],

@@ -8,6 +8,7 @@ use App\Models\NgnCategory;
 use App\Models\NgnModel;
 use App\Models\NgnProduct;
 use App\Services\NgnProductCatalogService;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -92,7 +93,7 @@ class ProductForm extends Component
     {
         $this->validate([
             'form.name'                 => ['required', 'string', 'max:255'],
-            'form.sku'                  => ['nullable', 'string', 'max:100'],
+            'form.sku'                  => ['nullable', 'string', 'max:100', Rule::unique('ngn_products', 'sku')->ignore($this->product?->id)],
             'form.ean'                  => ['nullable', 'string', 'max:50'],
             'form.variation'            => ['nullable', 'string', 'max:255'],
             'form.description'          => ['nullable', 'string'],

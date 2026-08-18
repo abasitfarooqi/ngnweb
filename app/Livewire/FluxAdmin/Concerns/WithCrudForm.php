@@ -3,7 +3,9 @@
 namespace App\Livewire\FluxAdmin\Concerns;
 
 use App\Support\FluxAdminFormPayload;
+use App\Support\FluxAdminUniqueViolation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\UniqueConstraintViolationException;
 
 /**
  * Manages a generic form-data array so create/update pages don't need bespoke
@@ -12,6 +14,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 trait WithCrudForm
 {
+    use CatchesUniqueConstraintViolations;
+
     /** @var array<string, mixed> */
     public array $formData = [];
 
@@ -70,7 +74,12 @@ trait WithCrudForm
             : new $modelClass;
 
         $attributes = $this->beforeSave($this->filterFormDataToModel($model));
-        $model->fill($attributes)->save();
+
+        try {
+            $model->fill($attributes)->save();
+        } catch (UniqueConstraintViolationException $e) {
+            FluxAdminUniqueViolation::failValidation($this, $e);
+        }
 
         $this->recordId = $model->getKey();
         $this->afterSave($model);

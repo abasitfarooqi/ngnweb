@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Branch;
 use App\Models\MotorbikeCatB;
 use Carbon\Carbon;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -42,7 +43,7 @@ class CatBForm extends Component
     protected function formRules(): array
     {
         return [
-            'form.motorbike_id' => ['required', 'integer'],
+            'form.motorbike_id' => ['required', 'integer', Rule::unique('motorbikes_cat_b', 'motorbike_id')->ignore($this->motorbikeCatB?->id)],
             'form.dop'          => ['nullable', 'date'],
             'form.notes'        => ['nullable', 'string'],
             'form.branch_id'    => ['nullable', 'integer'],

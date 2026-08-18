@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class NgnProductRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     public function authorize()
     {
         return backpack_auth()->check();
@@ -13,14 +16,8 @@ class NgnProductRequest extends FormRequest
 
     public function rules()
     {
-        // Ensure unique SKU while ignoring the current product in the update operation
-        $skuUniqueRule = 'required|string|max:255|unique:ngn_products,sku';
-        if ($this->isMethod('put')) {
-            $skuUniqueRule .= ','.$this->route('id'); // Adjust for update operation
-        }
-
         return [
-            'sku' => $skuUniqueRule,
+            'sku' => ['required', 'string', 'max:255', Rule::unique('ngn_products', 'sku')->ignore($this->uniqueIgnoreId())],
             'ean' => 'nullable|string|max:50',
             'name' => 'required|string|max:255',
             'variation' => 'nullable|string|max:255',

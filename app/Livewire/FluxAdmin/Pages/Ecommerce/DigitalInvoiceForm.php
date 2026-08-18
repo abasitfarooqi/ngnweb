@@ -11,6 +11,7 @@ use App\Models\NgnDigitalInvoiceItem;
 use App\Support\FluxAdminFormPayload;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -134,7 +135,7 @@ class DigitalInvoiceForm extends Component
         }));
 
         $this->validate([
-            'form.invoice_number'      => ['nullable', 'string', 'max:100'],
+            'form.invoice_number'      => ['nullable', 'string', 'max:100', Rule::unique('ngn_digital_invoices', 'invoice_number')->ignore($this->digitalInvoice?->id)],
             'form.invoice_type'        => ['required', 'in:repair,rental,sale,service'],
             'form.invoice_category'    => ['nullable', 'in:new,used,parts,service'],
             'form.booking_invoice_id'  => ['nullable', 'integer', 'exists:booking_invoices,id'],
