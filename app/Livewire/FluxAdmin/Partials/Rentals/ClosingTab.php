@@ -4,8 +4,8 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Mail\RentalEndedWithPendingsMail;
 use App\Mail\RentalPaymentReceipt;
-use App\Models\BookingInvoice;
 use App\Models\BookingClosing;
+use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
 use App\Support\RentalBookingLifecycle;
@@ -47,6 +47,8 @@ class ClosingTab extends Component
 
     public bool $depositChecked = false;
 
+    public string $depositRefundAmount = '';
+
     public string $depositReturnNotes = '';
 
     public ?string $flashMessage = null;
@@ -74,7 +76,12 @@ class ClosingTab extends Component
             $this->pcnChecked = (bool) $closing->pcn_checked;
             $this->pendingChecked = (bool) $closing->pending_checked;
             $this->depositChecked = (bool) $closing->deposit_checked;
+            $this->depositRefundAmount = $closing->deposit_refund_amount !== null
+                ? number_format((float) $closing->deposit_refund_amount, 2, '.', '')
+                : $this->defaultDepositRefundAmount();
             $this->depositReturnNotes = (string) ($closing->deposit_return_notes ?? '');
+        } else {
+            $this->depositRefundAmount = $this->defaultDepositRefundAmount();
         }
 
         if ($this->prefillCollect) {
@@ -263,16 +270,22 @@ class ClosingTab extends Component
     {
         $this->validate([
             'depositChecked' => ['accepted'],
+            'depositRefundAmount' => ['required', 'numeric', 'min:0', 'max:999999.99'],
             'depositReturnNotes' => ['required', 'string', 'max:2000'],
         ], [
             'depositChecked.accepted' => 'Please tick the checkbox to confirm deposit is returned.',
+            'depositRefundAmount.required' => 'Enter the deposit refund amount.',
+            'depositRefundAmount.numeric' => 'Deposit refund amount must be a valid number.',
             'depositReturnNotes.required' => 'Add deposit return notes or reason of deduction.',
         ]);
+
+        $depositRefundAmount = round((float) $this->depositRefundAmount, 2);
 
         BookingClosing::updateOrCreate(
             ['booking_id' => $this->bookingId],
             [
                 'deposit_checked' => $this->depositChecked,
+                'deposit_refund_amount' => $depositRefundAmount,
                 'deposit_return_notes' => trim($this->depositReturnNotes),
                 'deposit_refunded_at' => now(),
                 'deposit_refund_method' => 'Manual return',
@@ -281,21 +294,23 @@ class ClosingTab extends Component
             ]
         );
 
+        $this->depositRefundAmount = number_format($depositRefundAmount, 2, '.', '');
+
         try {
-            $this->sendDepositReturnEmail(trim($this->depositReturnNotes));
-            $this->flashMessage = 'Deposit return step confirmed. Email sent to customer with Customer Service in CC.';
+            $this->sendDepositReturnEmail($depositRefundAmount, trim($this->depositReturnNotes));
+            $this->flashMessage = 'Deposit return details saved. Email sent to customer with Customer Service in CC.';
             $this->flashType = 'success';
         } catch (\Throwable $e) {
             Log::error('Deposit return email failed: '.$e->getMessage(), [
                 'booking_id' => $this->bookingId,
             ]);
 
-            $this->flashMessage = 'Deposit return step confirmed, but email failed: '.$e->getMessage();
+            $this->flashMessage = 'Deposit return details saved, but email failed: '.$e->getMessage();
             $this->flashType = 'error';
         }
     }
 
-    private function sendDepositReturnEmail(string $notes): void
+    private function sendDepositReturnEmail(float $depositRefundAmount, string $notes): void
     {
         $booking = RentingBooking::with(['customer', 'rentingBookingItems.motorbike'])->findOrFail($this->bookingId);
         $customer = $booking->customer;
@@ -331,7 +346,7 @@ class ClosingTab extends Component
                 'transaction_id' => 'N/A',
                 'transaction_date' => now(),
                 'payment_method' => 'Deposit return',
-                'amount' => $depositAmount,
+                'amount' => $depositRefundAmount,
                 'customer_name' => $customerName !== '' ? $customerName : 'Customer',
                 'registration_number' => $motorbike?->reg_no,
                 'invoice_amount' => $depositAmount,
@@ -344,6 +359,22 @@ class ClosingTab extends Component
                 'notes_label' => 'Reason of deduction / notes',
                 'notes' => $notes,
             ]));
+    }
+
+    private function defaultDepositRefundAmount(): string
+    {
+        $firstInvoice = BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->orderBy('invoice_date')
+            ->orderBy('id')
+            ->first();
+
+        $depositAmount = (float) ($firstInvoice?->deposit ?? 0);
+        if ($depositAmount <= 0) {
+            $depositAmount = (float) (RentingBooking::query()->find($this->bookingId)?->deposit ?? 0);
+        }
+
+        return number_format($depositAmount, 2, '.', '');
     }
 
     public function render()

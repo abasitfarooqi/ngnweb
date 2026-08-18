@@ -26,6 +26,7 @@ class BookingClosing extends Model
         'pending_checked',
         'deposit_checked',
         'deposit_return_notes',
+        'deposit_refund_amount',
         'deposit_refunded_at',
         'deposit_refund_method',
         'deposit_refund_proof_path',
@@ -37,6 +38,7 @@ class BookingClosing extends Model
     ];
 
     protected $casts = [
+        'deposit_refund_amount' => 'decimal:2',
         'deposit_refunded_at' => 'datetime',
         'deposit_refund_send_email' => 'boolean',
         'collect_proceeded_anyway_at' => 'datetime',

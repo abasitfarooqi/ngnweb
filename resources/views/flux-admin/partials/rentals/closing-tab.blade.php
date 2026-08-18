@@ -238,6 +238,22 @@
                             <span class="text-xs text-zinc-500">Booking Deposit</span>
                             <p class="font-bold text-zinc-900 dark:text-white">£{{ number_format($booking->deposit ?? 0, 2) }}</p>
                         </div>
+                        <div class="w-full sm:w-48">
+                            <label class="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Refund Amount</label>
+                            <div class="flex items-center border border-zinc-300 bg-white text-sm text-zinc-900 focus-within:ring-2 focus-within:ring-emerald-600 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white">
+                                <span class="px-3 text-zinc-500">£</span>
+                                <input
+                                    wire:model="depositRefundAmount"
+                                    type="number"
+                                    min="0"
+                                    max="999999.99"
+                                    step="0.01"
+                                    inputmode="decimal"
+                                    class="w-full border-0 bg-transparent py-2 pr-3 text-sm font-semibold text-zinc-900 focus:outline-none focus:ring-0 dark:text-white"
+                                />
+                            </div>
+                            @error('depositRefundAmount') <p class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</p> @enderror
+                        </div>
                     </div>
                     <label class="flex items-center gap-2 cursor-pointer mb-3">
                         <input wire:model="depositChecked" type="checkbox" class="w-5 h-5 accent-emerald-600" />
@@ -258,7 +274,7 @@
                         wire:click="saveDepositReturn"
                         wire:loading.attr="disabled"
                         class="px-4 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white transition disabled:opacity-50"
-                    >RETURN</button>
+                    >{{ $depositChecked ? 'UPDATE RETURN' : 'RETURN' }}</button>
                     <p class="text-xs text-zinc-400 italic mt-1.5">Deposit can only be returned at least <strong>15 days</strong> after the motorbike is handed over.</p>
                 </div>
             </div>

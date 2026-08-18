@@ -720,6 +720,7 @@ class RentingController extends Controller
             ['booking_id' => $booking->id],
             [
                 'deposit_checked' => true,
+                'deposit_refund_amount' => $validated['amount_refunded'],
                 'deposit_refunded_at' => \Carbon\Carbon::parse($validated['refund_date']),
                 'deposit_refund_method' => $validated['refund_method'],
                 'deposit_refund_proof_path' => $proofPath,
