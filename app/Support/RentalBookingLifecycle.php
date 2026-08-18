@@ -828,7 +828,7 @@ class RentalBookingLifecycle
             try {
                 Mail::to([$customer->email, 'customerservice@neguinhomotors.co.uk'])->send(new RentalAgreement([
                     'title' => 'Rental Agreement',
-                    'body'  => 'Dear valued customer, please review and sign your rental agreement: '.$url,
+                    'body'  => 'Agreement link sent successfully. Please check the email you provided for your agreement link. If you can\'t see the email in your inbox, please check your Spam or Junk folder.',
                     'url'   => $url,
                 ]));
             } catch (Exception $e) {
@@ -839,7 +839,7 @@ class RentalBookingLifecycle
         return [
             'url'     => $url,
             'qrImage' => $qrBase64,
-            'message' => 'Agreement link generated and email sent if possible.',
+            'message' => 'Agreement link sent successfully. Please check the email you provided for your agreement link. If you can\'t see the email in your inbox, please check your Spam or Junk folder.',
         ];
     }
 
