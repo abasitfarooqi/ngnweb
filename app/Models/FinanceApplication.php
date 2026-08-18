@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\FluxAdminDashboardStats;
 use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -81,6 +82,7 @@ class FinanceApplication extends Model
             ->where(function ($q) {
                 $q->where('log_book_sent', false)->orWhereNull('log_book_sent');
             })
+            ->whereNull('logbook_transfer_date')
             ->with(['application_items' => function ($items) {
                 $items->with('motorbike:id,reg_no,make,model');
             }]);
@@ -177,6 +179,8 @@ class FinanceApplication extends Model
         });
 
         static::saved(function (FinanceApplication $financeApplication) {
+            FluxAdminDashboardStats::clearCache();
+
             if (request()->attributes->get('skip_finance_agreement_generation')) {
                 return;
             }
@@ -187,6 +191,10 @@ class FinanceApplication extends Model
             // dd($financeApplication);
             app(\App\Http\Controllers\Admin\FinanceApplicationCrudController::class)
                 ->generateAgreementAccess($financeApplication);
+        });
+
+        static::deleted(function () {
+            FluxAdminDashboardStats::clearCache();
         });
 
         static::updating(function ($model) {

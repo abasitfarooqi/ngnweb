@@ -110,6 +110,7 @@ final class TotalVehiclesQuery
             ->where(function ($q) {
                 $q->where('log_book_sent', false)->orWhereNull('log_book_sent');
             })
+            ->whereNull('logbook_transfer_date')
             ->where(function ($q) {
                 $q->where('is_new_latest', true)
                     ->orWhere('is_used_latest', true)
