@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Vehicles;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\CompanyVehicle;
 use App\Models\Motorbike;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -94,7 +95,7 @@ class CompanyVehicleForm extends Component
     {
         return [
             'form.custodian'    => ['required', 'string', 'max:255'],
-            'form.motorbike_id' => ['required', 'integer'],
+            'form.motorbike_id' => ['required', 'integer', Rule::unique('company_vehicles', 'motorbike_id')->ignore($this->companyVehicle?->id)],
         ];
     }
 

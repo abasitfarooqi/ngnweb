@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class NgnProductManagementRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,7 +28,7 @@ class NgnProductManagementRequest extends FormRequest
     public function rules()
     {
         $rules = [
-            'sku' => 'required|string|max:255',
+            'sku' => ['required', 'string', 'max:255', Rule::unique('ngn_products', 'sku')->ignore($this->uniqueIgnoreId())],
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'normal_price' => 'required|numeric',
@@ -39,15 +42,6 @@ class NgnProductManagementRequest extends FormRequest
             'branch_id.*' => 'required|exists:branches,id', // Ensure it's required and exists in the branches table
             'sorting_code' => 'nullable|string',
         ];
-
-        // Add unique rule conditionally
-        if ($this->isMethod('post')) {
-            // Creation: SKU must be unique
-            $rules['sku'] .= '|unique:ngn_products,sku';
-        } else {
-            // Update: Exclude the current product's SKU from uniqueness check
-            $rules['sku'] .= '|unique:ngn_products,sku,'.$this->route('id'); // Assuming 'id' is the route parameter for the product ID
-        }
 
         return $rules;
     }
@@ -78,6 +72,7 @@ class NgnProductManagementRequest extends FormRequest
     {
         return [
             'sku.required' => 'The SKU field is required.',
+            'sku.unique' => 'This SKU is already in use.',
             'name.required' => 'The Product Name field is required.',
             // Add other custom messages if needed
         ];

@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Inventory;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\NgnModel;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -34,7 +35,7 @@ class InventoryModelForm extends Component
     public function save(): void
     {
         $this->validate([
-            'form.name'      => ['required', 'string', 'max:255'],
+            'form.name'      => ['required', 'string', 'max:255', Rule::unique('ngn_models', 'name')->ignore($this->inventoryModel?->id)],
             'form.image_url' => ['nullable', 'string', 'max:1024'],
         ]);
 

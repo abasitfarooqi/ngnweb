@@ -6,6 +6,7 @@ use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\BlogCategory;
 use App\Models\BlogPost;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -37,7 +38,7 @@ class BlogPostForm extends Component
     {
         $this->validate([
             'form.title'           => ['required', 'string', 'max:255'],
-            'form.slug'            => ['nullable', 'string', 'max:255'],
+            'form.slug'            => ['nullable', 'string', 'max:255', Rule::unique('blog_posts', 'slug')->ignore($this->blogPost?->id)],
             'form.content'         => ['nullable', 'string'],
             'form.category_id'     => ['nullable', 'integer', 'exists:blog_categories,id'],
             'form.seo_title'       => ['nullable', 'string', 'max:255'],

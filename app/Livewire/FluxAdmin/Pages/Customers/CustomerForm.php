@@ -7,6 +7,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Support\FluxAdminFormPayload;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -48,7 +49,7 @@ class CustomerForm extends Component
         return [
             'form.first_name'               => ['required', 'string', 'max:100'],
             'form.last_name'                => ['required', 'string', 'max:100'],
-            'form.email'                    => ['required', 'email', 'max:200'],
+            'form.email'                    => ['required', 'email', 'max:200', Rule::unique('customers', 'email')->ignore($this->customer?->id)],
             'form.phone'                    => ['nullable', 'string', 'max:50'],
             'form.whatsapp'                 => ['nullable', 'string', 'max:50'],
             'form.dob'                      => ['nullable', 'date'],
@@ -71,7 +72,9 @@ class CustomerForm extends Component
 
     public function save(): void
     {
-        $data = $this->validate($this->formRules());
+        $data = $this->validate($this->formRules(), [
+            'form.email.unique' => 'This email is already in use. Please use a different email.',
+        ]);
         $payload = FluxAdminFormPayload::onlyPersistable(Customer::class, $this->sanitisePayload($data['form']));
 
         if ($this->customer && $this->customer->exists) {

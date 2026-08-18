@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Blog;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\BlogCategory;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -36,7 +37,7 @@ class BlogCategoryForm extends Component
     {
         $this->validate([
             'form.name'          => ['required', 'string', 'max:255'],
-            'form.slug'          => ['nullable', 'string', 'max:255'],
+            'form.slug'          => ['nullable', 'string', 'max:255', Rule::unique('blog_categories', 'slug')->ignore($this->blogCategory?->id)],
             'form.blog_category' => ['nullable', 'string', 'max:255'],
         ]);
 

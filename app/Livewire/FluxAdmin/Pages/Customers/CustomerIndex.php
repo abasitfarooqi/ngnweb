@@ -9,6 +9,7 @@ use App\Models\Branch;
 use App\Models\Customer;
 use App\Support\CustomerPortalCredentialIssuer;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
@@ -46,7 +47,7 @@ class CustomerIndex extends Component
         return [
             'formData.first_name'               => ['required', 'string', 'max:100'],
             'formData.last_name'                => ['required', 'string', 'max:100'],
-            'formData.email'                    => ['required', 'email', 'max:200'],
+            'formData.email'                    => ['required', 'email', 'max:200', Rule::unique('customers', 'email')->ignore($this->recordId)],
             'formData.phone'                    => ['nullable', 'string', 'max:50'],
             'formData.whatsapp'                 => ['nullable', 'string', 'max:50'],
             'formData.dob'                      => ['nullable', 'date'],
@@ -63,6 +64,13 @@ class CustomerIndex extends Component
             'formData.reputation_note'          => ['nullable', 'string', 'max:2000'],
             'formData.rating'                   => ['nullable', 'integer', 'min:1', 'max:5'],
             'formData.preferred_branch_id'      => ['nullable', 'integer'],
+        ];
+    }
+
+    protected function formMessages(): array
+    {
+        return [
+            'formData.email.unique' => 'This email is already in use. Please use a different email.',
         ];
     }
 

@@ -12,6 +12,8 @@ use Illuminate\Auth\Access\AuthorizationException;
  */
 trait WithAuthorization
 {
+    use CatchesUniqueConstraintViolations;
+
     protected function authorizeModule(string $permission): void
     {
         $user = backpack_user();

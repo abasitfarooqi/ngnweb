@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Inventory;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\NgnPartner;
 use App\Services\NgnPartnerClubMemberSync;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -59,7 +60,7 @@ class PartnerForm extends Component
     public function save(NgnPartnerClubMemberSync $sync): void
     {
         $this->validate([
-            'form.companyname' => ['required', 'string', 'max:50'],
+            'form.companyname' => ['required', 'string', 'max:50', Rule::unique('ngn_partners', 'companyname')->ignore($this->partner?->id)],
             'form.company_logo' => ['nullable', 'string', 'max:255'],
             'form.company_address' => ['nullable', 'string', 'max:255'],
             'form.company_number' => ['nullable', 'string', 'max:255'],

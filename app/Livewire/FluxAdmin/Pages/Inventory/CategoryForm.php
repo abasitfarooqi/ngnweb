@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Inventory;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\NgnCategory;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -35,7 +36,7 @@ class CategoryForm extends Component
     public function save(): void
     {
         $this->validate([
-            'form.name'             => ['required', 'string', 'max:255'],
+            'form.name'             => ['required', 'string', 'max:255', Rule::unique('ngn_categories', 'name')->ignore($this->category?->id)],
             'form.slug'             => ['nullable', 'string', 'max:255'],
             'form.super_category_id'=> ['nullable', 'integer', 'exists:ngn_categories,id'],
             'form.description'      => ['nullable', 'string'],

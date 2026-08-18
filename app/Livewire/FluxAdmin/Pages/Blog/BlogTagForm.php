@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Blog;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\BlogTag;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -36,7 +37,7 @@ class BlogTagForm extends Component
     {
         $this->validate([
             'form.name' => ['required', 'string', 'max:255'],
-            'form.slug' => ['nullable', 'string', 'max:255'],
+            'form.slug' => ['nullable', 'string', 'max:255', Rule::unique('blog_tags', 'slug')->ignore($this->blogTag?->id)],
         ]);
 
         if (empty($this->form['slug']) && ! empty($this->form['name'])) {

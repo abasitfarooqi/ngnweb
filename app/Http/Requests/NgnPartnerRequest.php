@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class NgnPartnerRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -25,7 +28,7 @@ class NgnPartnerRequest extends FormRequest
     public function rules()
     {
         return [
-            'companyname' => 'required|string|max:50',
+            'companyname' => ['required', 'string', 'max:50', Rule::unique('ngn_partners', 'companyname')->ignore($this->uniqueIgnoreId())],
             'company_logo' => 'nullable|string|max:255',
             'company_address' => 'nullable|string|max:255',
             'company_number' => 'nullable|string|max:255',

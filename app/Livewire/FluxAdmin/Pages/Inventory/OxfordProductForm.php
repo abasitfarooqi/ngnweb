@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Inventory;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\OxfordProducts;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
@@ -38,7 +39,7 @@ class OxfordProductForm extends Component
     public function save(): void
     {
         $this->validate([
-            'form.sku' => ['required', 'string', 'max:100'],
+            'form.sku' => ['required', 'string', 'max:100', Rule::unique('oxford_products', 'sku')->ignore($this->oxfordProduct?->id)],
             'form.description' => ['nullable', 'string', 'max:500'],
             'form.ean' => ['nullable', 'string', 'max:50'],
             'form.brand' => ['nullable', 'string', 'max:120'],

@@ -2,10 +2,13 @@
 
 namespace App\Http\Requests;
 
+use App\Http\Requests\Concerns\IgnoresCurrentRecord;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class MotorbikesRequest extends FormRequest
 {
+    use IgnoresCurrentRecord;
     /**
      * Determine if the user is authorized to make this request.
      *
@@ -26,6 +29,7 @@ class MotorbikesRequest extends FormRequest
     {
         return [
             'year' => 'required|integer|min:1900|max:9999',
+            'vin_number' => ['nullable', 'string', 'max:50', Rule::unique('motorbikes', 'vin_number')->ignore($this->uniqueIgnoreId())],
         ];
     }
 
