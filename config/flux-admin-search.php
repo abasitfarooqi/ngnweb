@@ -22,7 +22,7 @@ return [
         'flux-admin.access-logs.index' => ['permission' => 'see-menu-security'],
         'flux-admin.ip-restrictions.index' => ['permission' => 'see-menu-security'],
         'flux-admin.club.index' => ['super_admin' => true],
-        'flux-admin.club-members.index' => ['super_admin' => true],
+        'flux-admin.club-members.index' => ['role' => 'Club Member Access'],
         'flux-admin.club-purchases.index' => ['super_admin' => true],
         'flux-admin.club-spending.index' => ['super_admin' => true],
         'flux-admin.club-spending-payments.index' => ['super_admin' => true],

@@ -69,6 +69,14 @@ final class FluxAdminAccess
         return self::isSuperAdmin($user);
     }
 
+    public static function canAccessClubMemberStaffPortal(?Authenticatable $user = null): bool
+    {
+        $user ??= self::user();
+
+        return $user !== null
+            && (self::isSuperAdmin($user) || self::userHasRole($user, 'Club Member Access'));
+    }
+
     /**
      * Policy panel: Super Admin, or anyone Super Admin granted
      * manage-communications on (user or role).

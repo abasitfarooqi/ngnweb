@@ -1012,9 +1012,11 @@
             @can('see-menu-services-and-repairs-and-report')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'services') }}" icon="wrench-screwdriver" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'services' || request()->routeIs('flux-admin.customer-appointments.*','flux-admin.motorbike-repairs.*','flux-admin.motorbike-repair-updates.*')">Services and repairs</flux:navlist.item>
             @endcan
-            {{-- 7. Club (Super Admin only) --}}
+            {{-- 7. Club: Super Admin hub, or Club Member Access staff lookup --}}
             @if(\App\Support\FluxAdminAccess::isSuperAdmin())
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-members.*','flux-admin.club-purchases.*','flux-admin.club-redemptions.*','flux-admin.club-spending.*','flux-admin.club-spending-payments.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
+            @elseif(\App\Support\ClubMemberStaffAccess::canAccessPortal())
+                <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" icon="users" :current="request()->routeIs('flux-admin.club-members.*') || (request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club')">Club</flux:navlist.item>
             @endif
 
             {{-- 8. Delivery order --}}

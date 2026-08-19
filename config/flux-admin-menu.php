@@ -69,7 +69,7 @@ return [
         ['group' => 'Book services / repairs / report', 'label' => 'Repair updates', 'route' => 'flux-admin.motorbike-repair-updates.index', 'permission' => 'see-menu-services-and-repairs-and-report'],
 
         ['group' => 'Club', 'label' => 'Club members', 'route' => 'flux-admin.club.index', 'super_admin' => true, 'keywords' => 'ngn club loyalty'],
-        ['group' => 'Club', 'label' => 'Club member access', 'route' => 'flux-admin.club-members.index', 'super_admin' => true],
+        ['group' => 'Club', 'label' => 'Club member access', 'route' => 'flux-admin.club-members.index', 'role' => 'Club Member Access'],
         ['group' => 'Club', 'label' => 'Club member purchases', 'route' => 'flux-admin.club-purchases.index', 'super_admin' => true],
         ['group' => 'Club', 'label' => 'Club member redeems', 'route' => 'flux-admin.club-redemptions.index', 'super_admin' => true],
         ['group' => 'Club', 'label' => '0% spendings', 'route' => 'flux-admin.club-spending.index', 'super_admin' => true],

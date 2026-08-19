@@ -33,6 +33,12 @@ class ModuleHub extends Component
         abort_if($config === null, 404);
         abort_unless(FluxAdminPageAccess::allows(backpack_user() ?? FluxAdminAccess::user(), 'flux-admin.modules.show', $module), 403);
 
+        if ($module === 'club' && ! FluxAdminAccess::isSuperAdmin()) {
+            $this->redirect(route('flux-admin.club-members.index'), navigate: true);
+
+            return;
+        }
+
         if ($module === 'pcn' && ! in_array($this->listSort, ['asc', 'desc'], true)) {
             $this->listSort = 'desc';
         }
