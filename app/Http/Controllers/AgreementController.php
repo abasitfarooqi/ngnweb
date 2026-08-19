@@ -422,6 +422,7 @@ class AgreementController extends Controller
         $customerAgreement->save();
 
         $data['pdf'] = $pdf;
+        $data = $this->withSavedPdfFiles($data);
 
         try {
             Mail::to($data['email'])->send(new RentalTerminateEmail($data));
@@ -1775,6 +1776,7 @@ class AgreementController extends Controller
 
 
         $data['pdf'] = $pdf;
+        $data = $this->withSavedPdfFiles($data);
 
         try {
             Mail::to($data['email'])->send(new PurchaseInvoice($data));
@@ -2155,6 +2157,7 @@ class AgreementController extends Controller
 
 
         $data['pdf'] = $pdf;
+        $data = $this->withSavedPdfFiles($data);
 
         try {
             Mail::to($data['email'])->send(new LoyaltySchemePolicy($data));
@@ -2329,7 +2332,7 @@ class AgreementController extends Controller
             return;
         }
 
-        Mail::to($customer->email)->send(new HireContract(array_merge($mailData, [
+        Mail::to($customer->email)->send(new HireContract(array_merge($this->withSavedPdfFiles($mailData), [
             'cc' => [self::CUSTOMER_SERVICE_EMAIL],
         ])));
     }
@@ -2340,9 +2343,59 @@ class AgreementController extends Controller
             return;
         }
 
-        Mail::to($customer->email)->send(new RentalAgreement(array_merge($mailData, [
+        Mail::to($customer->email)->send(new RentalAgreement(array_merge($this->withSavedPdfFiles($mailData), [
             'cc' => [self::CUSTOMER_SERVICE_EMAIL],
         ])));
+    }
+
+    /**
+     * Keep disk copies of generated PDFs so the communication snapshot can store attachments
+     * after the mailable has already rendered them.
+     *
+     * @param  array<string, mixed>  $mailData
+     * @return array<string, mixed>
+     */
+    private function withSavedPdfFiles(array $mailData): array
+    {
+        $files = is_array($mailData['pdf_files'] ?? null) ? array_values($mailData['pdf_files']) : [];
+        $items = $mailData['pdf'] ?? null;
+        $list = $items === null ? [] : (is_array($items) ? array_values($items) : [$items]);
+
+        foreach ($list as $item) {
+            if (! is_object($item) || ! method_exists($item, 'savedPath')) {
+                continue;
+            }
+
+            $path = (string) $item->savedPath();
+            if ($path === '' || ! is_file($path) || (int) filesize($path) < 512) {
+                continue;
+            }
+
+            $files[] = [
+                'path' => $path,
+                'name' => basename($path),
+            ];
+        }
+
+        $unique = [];
+        foreach ($files as $file) {
+            if (! is_array($file)) {
+                continue;
+            }
+
+            $path = (string) ($file['path'] ?? '');
+            if ($path === '' || isset($unique[$path])) {
+                continue;
+            }
+
+            $unique[$path] = $file;
+        }
+
+        if ($unique !== []) {
+            $mailData['pdf_files'] = array_values($unique);
+        }
+
+        return $mailData;
     }
 
     private function mailRentalPcnCopiesToCustomerService(array $pcnPdfs): void

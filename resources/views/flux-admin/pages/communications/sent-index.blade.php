@@ -1,15 +1,24 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.1500ms="$refresh">
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div>
             <flux:heading size="xl">Sent communications</flux:heading>
-            <flux:text class="mt-1">Actual messages recorded when Email or Internal Inbox is on. Policy changes stay on the definitions list.</flux:text>
+            <flux:text class="mt-1">Every staff member can see sent and received messages here. This log cannot be deleted.</flux:text>
+            @unless($canManageCommunications)
+                <p class="mt-2 text-xs text-zinc-500 dark:text-zinc-400">Read only. You can view messages, not change policies or reply from this page.</p>
+            @endunless
+            <button type="button" data-sound-toggle class="js-enable-communication-alerts mt-3 inline-flex items-center gap-2 border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
+                Turn sound off
+            </button>
+            <p class="js-communication-alerts-status mt-1 text-xs text-zinc-500 dark:text-zinc-400"></p>
         </div>
-        <a href="{{ route('flux-admin.communications.index') }}">
-            <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Definitions</flux:button>
-        </a>
+        @if($canManageCommunications)
+            <a href="{{ route('flux-admin.communications.index') }}">
+                <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Definitions</flux:button>
+            </a>
+        @endif
     </div>
 
-    @unless($schemaReady)
+    @if(! $schemaReady)
         <div class="border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Communication tables are not migrated yet.</div>
     @else
         <x-flux-admin::data-table title="Message log" description="Email sent, skipped or failed, plus portal inbox delivery.">
@@ -17,7 +26,7 @@
                 <x-flux-admin::filter-bar search-placeholder="Search title, email or key..." />
             </x-slot:toolbar>
 
-            <flux:table>
+            <flux:table wire:key="sent-log-{{ $realtimeTick }}">
                 <flux:table.columns>
                     <flux:table.column>Sent</flux:table.column>
                     <flux:table.column>Communication</flux:table.column>
@@ -66,5 +75,5 @@
                 {{ $rows->links() }}
             </x-slot:pagination>
         </x-flux-admin::data-table>
-    @endunless
+    @endif
 </div>

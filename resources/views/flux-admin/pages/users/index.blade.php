@@ -5,9 +5,11 @@
     >
         <x-slot:actions>
             <x-flux-admin::export-button />
-            <flux:button size="sm" variant="primary" icon="plus" :href="route('flux-admin.users.create')" class="!rounded-none">
-                New user
-            </flux:button>
+            @if(\App\Support\FluxAdminAccess::isSuperAdmin())
+                <flux:button size="sm" variant="primary" icon="plus" :href="route('flux-admin.users.create')" class="!rounded-none">
+                    New user
+                </flux:button>
+            @endif
         </x-slot:actions>
 
         <x-slot:toolbar>
@@ -77,8 +79,10 @@
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
                                 <flux:button size="xs" variant="ghost" :href="route('flux-admin.users.show', $user)" icon="eye" class="!rounded-none">Show</flux:button>
-                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.users.edit', $user)" icon="pencil-square" class="!rounded-none">Edit</flux:button>
-                                <flux:button size="xs" variant="danger" wire:click="deleteUser({{ $user->id }})" wire:confirm="Delete this user? This cannot be undone." icon="trash" class="!rounded-none">Delete</flux:button>
+                                @if(\App\Support\FluxAdminAccess::isSuperAdmin())
+                                    <flux:button size="xs" variant="ghost" :href="route('flux-admin.users.edit', $user)" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                    <flux:button size="xs" variant="danger" wire:click="deleteUser({{ $user->id }})" wire:confirm="Delete this user? This cannot be undone." icon="trash" class="!rounded-none">Delete</flux:button>
+                                @endif
                             </div>
                         </flux:table.cell>
                     </flux:table.row>

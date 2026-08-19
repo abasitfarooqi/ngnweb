@@ -156,6 +156,7 @@ class MobilePortalAccountController extends Controller
     {
         return response()->json([
             'data' => DocumentType::query()
+                ->forCustomerUpload()
                 ->orderBy('sort_order')
                 ->orderBy('name')
                 ->get(['id', 'name', 'slug', 'description', 'is_mandatory', 'required_for', 'validation_rules']),

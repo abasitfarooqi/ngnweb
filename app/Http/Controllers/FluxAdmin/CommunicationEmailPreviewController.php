@@ -14,7 +14,7 @@ class CommunicationEmailPreviewController extends Controller
         CommunicationEmailPreviewRenderer $previewRenderer,
     ) {
         if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+            abort(403, 'You do not have permission to access communications.');
         }
 
         try {

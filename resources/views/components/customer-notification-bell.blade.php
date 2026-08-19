@@ -36,7 +36,7 @@
                     @php($recipient = $communication->recipients->first())
                     <a
                         href="{{ route('account.notifications.show', $communication->uuid) }}"
-                        class="block border-b border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/60"
+                        class="block border-b border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
                         data-notification-uuid="{{ $communication->uuid }}"
                     >
                         <p class="flex items-start justify-between gap-2 text-sm font-medium text-gray-900 dark:text-white">
@@ -56,7 +56,7 @@
             </div>
             <a
                 href="{{ route('account.notifications') }}"
-                class="block border-t border-gray-200 bg-gray-50 px-3 py-2.5 text-center text-sm font-semibold text-brand-red hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-700"
+                class="js-notifications-dropdown-footer block border-t border-gray-200 bg-gray-50 px-3 py-2.5 text-center text-sm font-semibold text-brand-red hover:bg-gray-100 dark:border-gray-700 dark:bg-gray-900 dark:hover:bg-gray-700"
             >
                 View all notifications
             </a>

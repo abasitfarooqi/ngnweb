@@ -37,6 +37,9 @@ class CommunicationDefinitionRegistryTest extends TestCase
 
         $this->assertGreaterThan(40, $definitions);
         $this->assertTrue($keys->contains('rental.agreement.issued'));
+        $this->assertTrue($keys->contains('rental.agreement.review'));
+        $this->assertTrue($keys->contains('contract.hire.issued'));
+        $this->assertTrue($keys->contains('finance.contract.review'));
         $this->assertTrue($keys->contains('rental.deposit.return'));
         $this->assertTrue($keys->contains('ecommerce.order.confirmed'));
         $this->assertTrue($keys->contains('customer.document.request'));

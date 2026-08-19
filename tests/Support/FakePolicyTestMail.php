@@ -14,6 +14,9 @@ final class FakePolicyTestMail extends Mailable
 
     public bool $includeTestAttachment = false;
 
+    /** @var array<string, mixed> */
+    public array $mailData = [];
+
     public function envelope(): Envelope
     {
         return new Envelope(subject: 'Policy test');

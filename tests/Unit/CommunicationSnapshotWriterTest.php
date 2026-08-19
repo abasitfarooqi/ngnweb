@@ -153,6 +153,41 @@ class CommunicationSnapshotWriterTest extends TestCase
         $this->assertTrue(Storage::disk($attachment->disk)->exists($attachment->path));
     }
 
+    public function test_mailable_pdf_files_are_copied_onto_the_snapshot(): void
+    {
+        $this->setSystemEnabled(true);
+        $this->setPolicy(email: true, inbox: false);
+        config(['mail.default' => 'array']);
+
+        $tmp = tempnam(sys_get_temp_dir(), 'ngn-pdf-');
+        file_put_contents($tmp, '%PDF-1.4 saved-file');
+
+        try {
+            $mail = new FakePolicyTestMail;
+            $mail->mailData = [
+                'pdf_files' => [[
+                    'path' => $tmp,
+                    'name' => 'Hire-Contract.pdf',
+                ]],
+            ];
+            $mail->to('customer@example.com')->send(app('mailer'));
+
+            $row = Communication::query()
+                ->where('communication_definition_id', $this->definition->id)
+                ->latest('id')
+                ->first();
+
+            $this->assertNotNull($row);
+            $this->assertSame(1, $row->attachments()->count());
+            $attachment = $row->attachments()->first();
+            $this->assertSame('Hire-Contract.pdf', $attachment->filename);
+            $this->assertSame('mail_data_file', data_get($attachment->metadata, 'source'));
+            $this->assertTrue(Storage::disk($attachment->disk)->exists($attachment->path));
+        } finally {
+            @unlink($tmp);
+        }
+    }
+
     public function test_inbox_claimer_attaches_deferred_messages_to_a_new_portal_account(): void
     {
         if (! Schema::hasTable('customer_auths')) {

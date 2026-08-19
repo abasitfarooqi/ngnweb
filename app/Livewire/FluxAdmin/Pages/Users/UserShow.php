@@ -24,7 +24,7 @@ class UserShow extends Component
 
     public function deleteUser(): void
     {
-        $this->authorizeModule('see-menu-permissions');
+        $this->authorizeSuperAdmin();
 
         if (backpack_user()->id === $this->user->id) {
             session()->flash('flux-admin.error', 'You cannot delete your own account.');

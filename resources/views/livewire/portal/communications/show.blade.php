@@ -1,4 +1,4 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.1500ms="$refresh">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <a href="{{ route('account.notifications') }}" class="text-sm text-brand-red hover:underline">← Notifications</a>
         @if($recipient->archived_at)
@@ -61,7 +61,7 @@
     @if($communication->replies->isNotEmpty() || $replyAllowed)
         <div class="border border-gray-200 bg-white p-5 dark:border-gray-700 dark:bg-gray-800">
             <flux:heading size="sm">Replies</flux:heading>
-            <div class="mt-3 space-y-3">
+            <div class="mt-3 space-y-3" wire:key="portal-replies-{{ $realtimeTick }}-{{ $communication->replies->count() }}">
                 @forelse($communication->replies as $reply)
                     <div class="border border-gray-100 p-3 dark:border-gray-700">
                         <p class="text-xs text-gray-400">{{ $reply->authorLabel() }} · {{ $reply->created_at?->format('d M Y H:i') }}</p>

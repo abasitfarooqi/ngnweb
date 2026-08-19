@@ -7,7 +7,9 @@ use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\CommunicationDefinition;
 use App\Models\CommunicationPolicy;
 use App\Models\SystemSetting;
+use App\Models\User;
 use App\Services\Communications\CommunicationAuditRecorder;
+use App\Services\Communications\CommunicationDefinitionSynchronizer;
 use App\Services\Communications\CommunicationSchema;
 use App\Services\Communications\CommunicationSystemSwitch;
 use App\Support\FluxAdminAccess;
@@ -17,6 +19,7 @@ use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Spatie\Permission\PermissionRegistrar;
 
 #[Layout('flux-admin.layouts.app')]
 #[Title('Transactional communications - Flux Admin')]
@@ -27,6 +30,10 @@ class CommunicationIndex extends Component
     use WithPagination;
 
     public string $switchReason = '';
+
+    public ?int $grantAccessUserId = null;
+
+    public string $grantUserSearch = '';
 
     private const LIST_STATE_SESSION_KEY = 'flux_admin.communications.list';
 
@@ -58,6 +65,20 @@ class CommunicationIndex extends Component
         $this->perPage = 20;
         session()->forget(self::LIST_STATE_SESSION_KEY);
         $this->resetPage();
+    }
+
+    public function syncCatalogue(CommunicationDefinitionSynchronizer $synchronizer): void
+    {
+        $this->assertCanManageCommunications();
+        $this->assertCommunicationSchemaReady();
+
+        $result = $synchronizer->sync();
+        $this->resetPage();
+        $this->dispatch(
+            'flux-admin:toast',
+            type: 'success',
+            message: 'Communication list synchronized. Created '.$result['created'].', updated '.$result['updated'].'.',
+        );
     }
 
     public function enableSystem(CommunicationAuditRecorder $audit): void
@@ -201,6 +222,74 @@ class CommunicationIndex extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Priority updated.');
     }
 
+    public function grantTemporaryAccess(CommunicationAuditRecorder $audit): void
+    {
+        $this->assertCanToggleGlobalSwitch();
+
+        $this->validate([
+            'grantAccessUserId' => ['required', 'integer', 'min:1', 'exists:users,id'],
+        ], [
+            'grantAccessUserId.required' => 'Choose a user to grant access.',
+        ]);
+
+        $user = User::query()->findOrFail($this->grantAccessUserId);
+
+        if (FluxAdminAccess::isSuperAdmin($user)) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Super Admin already has access.');
+
+            return;
+        }
+
+        if ($user->hasDirectPermission(FluxAdminAccess::COMMUNICATIONS_PERMISSION)) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'This user already has temporary communications access.');
+
+            return;
+        }
+
+        $user->givePermissionTo(FluxAdminAccess::COMMUNICATIONS_PERMISSION);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $audit->record(
+            event: 'temporary_access_granted',
+            field: FluxAdminAccess::COMMUNICATIONS_PERMISSION,
+            oldValue: false,
+            newValue: true,
+            metadata: [
+                'source' => 'flux_admin_communications_index',
+                'granted_user_id' => $user->id,
+                'granted_user_email' => $user->email,
+            ],
+        );
+
+        $this->grantAccessUserId = null;
+        $this->grantUserSearch = '';
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Temporary communications access granted. They can sign in at Flux Admin. Remove it when the work is finished.');
+    }
+
+    public function revokeTemporaryAccess(int $userId, CommunicationAuditRecorder $audit): void
+    {
+        $this->assertCanToggleGlobalSwitch();
+
+        $user = User::query()->findOrFail($userId);
+        $user->revokePermissionTo(FluxAdminAccess::COMMUNICATIONS_PERMISSION);
+        app(PermissionRegistrar::class)->forgetCachedPermissions();
+
+        $audit->record(
+            event: 'temporary_access_revoked',
+            field: FluxAdminAccess::COMMUNICATIONS_PERMISSION,
+            oldValue: true,
+            newValue: false,
+            metadata: [
+                'source' => 'flux_admin_communications_index',
+                'revoked_user_id' => $user->id,
+                'revoked_user_email' => $user->email,
+            ],
+        );
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Temporary communications access removed.');
+    }
+
     public function render(CommunicationSystemSwitch $switch, CommunicationSchema $schema)
     {
         $enabled = $switch->enabled();
@@ -266,6 +355,8 @@ class CommunicationIndex extends Component
             'filterClassifications' => $schemaReady
                 ? CommunicationDefinition::query()->whereNotNull('classification')->where('classification', '!=', '')->distinct()->orderBy('classification')->pluck('classification')
                 : collect(),
+            'temporaryAccessUsers' => $canToggleGlobal ? $this->temporaryAccessUsers() : collect(),
+            'grantableUsers' => $canToggleGlobal ? $this->grantableUsers() : collect(),
         ]);
     }
 
@@ -347,14 +438,49 @@ class CommunicationIndex extends Component
     private function assertCanViewCommunications(): void
     {
         if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+            abort(403, 'You do not have permission to access communications.');
         }
     }
 
     private function assertCanManageCommunications(): void
     {
         if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+            abort(403, 'You do not have permission to access communications.');
         }
+    }
+
+    private function temporaryAccessUsers()
+    {
+        return User::query()
+            ->whereHas('permissions', fn ($q) => $q->where('name', FluxAdminAccess::COMMUNICATIONS_PERMISSION))
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->get(['id', 'first_name', 'last_name', 'email']);
+    }
+
+    private function grantableUsers()
+    {
+        $term = trim($this->grantUserSearch);
+        $like = '%'.str_replace(['%', '_'], ['\%', '\_'], $term).'%';
+
+        return User::query()
+            ->when($term !== '', function ($q) use ($like, $term): void {
+                $q->where(function ($nested) use ($like, $term): void {
+                    $nested->where('first_name', 'like', $like)
+                        ->orWhere('last_name', 'like', $like)
+                        ->orWhere('name', 'like', $like)
+                        ->orWhere('email', 'like', $like)
+                        ->orWhere('username', 'like', $like)
+                        ->orWhereRaw("CONCAT(COALESCE(first_name, ''), ' ', COALESCE(last_name, '')) LIKE ?", [$like]);
+
+                    if (ctype_digit($term)) {
+                        $nested->orWhere('id', (int) $term);
+                    }
+                });
+            })
+            ->orderBy('first_name')
+            ->orderBy('last_name')
+            ->limit($term === '' ? 24 : 50)
+            ->get(['id', 'first_name', 'last_name', 'name', 'email', 'username', 'is_admin']);
     }
 }

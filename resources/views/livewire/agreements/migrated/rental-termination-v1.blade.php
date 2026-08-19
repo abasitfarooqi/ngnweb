@@ -40,9 +40,6 @@
             padding: 0px;
             margin: 0px;
             font-size: 11px;
-            background-image: url("{{ $agreementPdfWatermarkSrc }}");
-            background-repeat: repeat;
-            background-size: auto;
         }
 
         .header {
@@ -156,32 +153,7 @@
     </div>
 
     <div class="container">
-
-
-
-        <div class="header" style="padding:1px;margin:1px">
-            <span style="font-size:7px">V5 Rev#0</span>
-            <table style="border:none !important;padding:1px;margin:1px">
-                <tr>
-                    <td style="width: 20%">
-                        <x-agreements.theme-logo class="w-full" />
-                    </td>
-                    <td style="width: 50%">
-                        <div class="address">
-                            9-13 Catford Hill<br>
-                            London, SE6 4NU<br>
-                            0203 409 5478 / 0208 314 1498<br>
-                            customerservice@neguinhomotors.co.uk<br>
-                            ngnmotors.co.uk
-                        </div>
-                    </td>
-                    <td style="width: 30%">
-                        <div class="title">HIRE CONTRACT TERMINATION</div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
+        @include('livewire.agreements.partials.signing-contract-header', ['title' => 'HIRE CONTRACT TERMINATION'])
     </div>
 
 
@@ -453,7 +425,7 @@
         </div>
     </div>
     <div class="text-center">
-        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#signatureModal">
+        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#signatureModal">
             Sign Here!
         </button>
     </div>
@@ -476,16 +448,7 @@
                             {{ $booking->id }}
                             ">
                         </div>
-                        <div style="text-align: center;" id="sigpad"
-                            style="width: 100%; height: calc(100vh - 56px);text-align:center;">
-                            <x-creagia-signature-pad class="kbw-signature"
-                                style="color: white;width:100%; height:100%" border-color="#eaeaea"
-                                pad-classes="rounded-none border-2"
-                                button-classes="ngn-bg px-4 py-2 mt-4" clear-name="Clear"
-                                submit-name="Submit" />
-                            <button type="button" class="btn btn-danger " data-bs-dismiss="modal"
-                                aria-label="Close">Close</button>
-                        </div>
+                        @include('livewire.agreements.partials.signing-signature-pad')
                     </div>
                 </form>
             </div>

@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Roles;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
+use App\Support\FluxAdminAccess;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -45,6 +46,10 @@ class RoleForm extends Component
     {
         $permissionModel = config('permission.models.permission');
         $permissions = $permissionModel::query()
+            ->when(
+                ! FluxAdminAccess::canAssignCommunicationsPermission(),
+                fn ($q) => $q->where('name', '!=', FluxAdminAccess::COMMUNICATIONS_PERMISSION),
+            )
             ->when($this->permissionSearch, fn ($q) => $q->where('name', 'like', "%{$this->permissionSearch}%"))
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -74,7 +79,30 @@ class RoleForm extends Component
         $role->guard_name = $this->guardName;
         $role->save();
 
-        $role->permissions()->sync($this->selectedPermissions);
+        $permissionModel = config('permission.models.permission');
+        $communicationsPermissionId = $permissionModel::query()
+            ->where('name', FluxAdminAccess::COMMUNICATIONS_PERMISSION)
+            ->value('id');
+
+        $rolePermissionIds = array_map('intval', $this->selectedPermissions);
+
+        if ($communicationsPermissionId) {
+            $communicationsPermissionId = (int) $communicationsPermissionId;
+            $rolePermissionIds = array_values(array_filter(
+                $rolePermissionIds,
+                fn (int $id) => $id !== $communicationsPermissionId,
+            ));
+
+            $keepCommunications = FluxAdminAccess::canAssignCommunicationsPermission()
+                ? in_array($communicationsPermissionId, array_map('intval', $this->selectedPermissions), true)
+                : $role->permissions()->where('permissions.id', $communicationsPermissionId)->exists();
+
+            if ($keepCommunications) {
+                $rolePermissionIds[] = $communicationsPermissionId;
+            }
+        }
+
+        $role->permissions()->sync($rolePermissionIds);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 

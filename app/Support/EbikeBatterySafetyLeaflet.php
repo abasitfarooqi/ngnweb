@@ -62,6 +62,10 @@ final class EbikeBatterySafetyLeaflet
                 'title' => 'E-Bike Battery Safety Leaflet',
                 'body' => 'Please find attached the E-Bike Battery Safety Leaflet. This is an important safety document — please read it carefully and keep it for your records.',
                 'pdf' => $pdf,
+                'pdf_files' => [[
+                    'path' => $absolutePath,
+                    'name' => 'batterySafetyDataLeaflet.pdf',
+                ]],
             ];
 
             $mailClass = $rentalMail ? RentalAgreement::class : HireContract::class;
@@ -101,12 +105,18 @@ final class EbikeBatterySafetyLeaflet
             [
                 'slug' => $slug,
                 'name' => 'E-Bike Battery Safety Leaflet',
-                'description' => 'Battery safety leaflet issued with e-bike rental or purchase',
+                'description' => 'Battery safety leaflet issued with e-bike rental or purchase. Sent by NGN — not a customer upload.',
                 'is_mandatory' => false,
-                'required_for' => ['rental', 'finance'],
+                'required_for' => [],
                 'sort_order' => 11,
             ]
         );
+
+        $documentType->forceFill([
+            'is_mandatory' => false,
+            'required_for' => [],
+            'description' => 'Battery safety leaflet issued with e-bike rental or purchase. Sent by NGN — not a customer upload.',
+        ])->save();
 
         $attributes = [
             'customer_id' => $customer->id,

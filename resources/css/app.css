@@ -417,6 +417,18 @@ body:not(.flux-admin-app) a.hover\:text-brand-green:hover {
     color: var(--color-brand-green-dark) !important;
 }
 
+/* Notification dropdown rows — unlayered so hover:bg-gray-50 cannot flash white in dark mode */
+body:not(.flux-admin-app) .js-notifications-dropdown-list a:hover,
+body:not(.flux-admin-app) .js-notifications-dropdown-list a:focus {
+    background-color: rgb(249 250 251);
+}
+html.dark body:not(.flux-admin-app) .js-notifications-dropdown-list a:hover,
+html.dark body:not(.flux-admin-app) .js-notifications-dropdown-list a:focus,
+html.dark body:not(.flux-admin-app) a.js-notifications-dropdown-footer:hover,
+html.dark body:not(.flux-admin-app) a.js-notifications-dropdown-footer:focus {
+    background-color: rgb(55 65 81) !important;
+}
+
 /* Flux form alignment — public site; unlayered so legacy style.css cannot skew widths/padding */
 body:not(.flux-admin-app) .site-form {
     width: 100%;

@@ -335,6 +335,12 @@ class CustomerController extends Controller
                     ->where('CD.is_verified', '=', true);
             })
             ->where('DT.is_motorbike', '=', false)
+            ->where(function ($q) {
+                $q->whereNull('DT.code')->orWhereNotIn('DT.code', \App\Models\DocumentType::STAFF_ISSUED_CODES);
+            })
+            ->where(function ($q) {
+                $q->whereNull('DT.name')->orWhereNotIn('DT.name', \App\Models\DocumentType::STAFF_ISSUED_NAMES);
+            })
             ->get();
 
         return response()->json($query);
@@ -383,12 +389,11 @@ class CustomerController extends Controller
         $lifecycle = app(RentalBookingLifecycle::class);
 
         $types = DocumentType::query()
+            ->forCustomerUpload()
             ->where(function ($q) {
                 $q->where('is_motorbike', false)
                     ->orWhere('id', 14);
             })
-            ->where('name', '!=', 'Rental Agreement')
-            ->where('code', '!=', 'loyalty_scheme_policy')
             ->orderBy('sort_order')
             ->orderBy('name')
             ->get();

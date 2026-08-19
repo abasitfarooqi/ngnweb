@@ -78,7 +78,9 @@ class HireContract extends Mailable
                     ->withMime('application/pdf');
             }
 
-            return $attachments;
+            if ($attachments !== []) {
+                return $attachments;
+            }
         }
 
         $pdf = $this->mailData['pdf'] ?? null;

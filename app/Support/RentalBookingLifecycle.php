@@ -94,13 +94,8 @@ class RentalBookingLifecycle
             $typesQuery->where('is_active', true);
         }
 
-        // Signed agreements are not customer upload slots (loyalty / rental agreement).
-        $typesQuery->where(function ($q) {
-            $q->whereNull('code')->orWhereNotIn('code', ['loyalty_scheme_policy', 'rental_agreement']);
-        })->where(function ($q) {
-            $q->where('name', '!=', 'Rental Agreement')
-                ->where('name', '!=', 'Loyalty Scheme Policy');
-        });
+        // Staff-issued PDFs (rental agreement, loyalty, e-bike leaflet) are not customer upload slots.
+        $typesQuery->forCustomerUpload();
 
         $types = $typesQuery->get();
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\Communications\CommunicationPreviewText;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -36,6 +37,13 @@ class Communication extends Model
         'payload_snapshot' => 'array',
         'policy_snapshot' => 'array',
     ];
+
+    public function getPreviewAttribute(?string $value): string
+    {
+        $fallback = trim((string) ($this->attributes['subject'] ?? $this->attributes['title'] ?? ''));
+
+        return CommunicationPreviewText::readable($value, $fallback);
+    }
 
     public function definition(): BelongsTo
     {

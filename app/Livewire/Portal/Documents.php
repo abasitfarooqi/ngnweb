@@ -272,10 +272,11 @@ class Documents extends Component
         $profile = $customerAuth?->customer;
         $customerId = $this->getPortalCustomerId();
 
-        $financeDocs = DocumentType::query()->forFinance()->orderBy('sort_order')->orderBy('name')->get();
+        $financeDocs = DocumentType::query()->forCustomerUpload()->forFinance()->orderBy('sort_order')->orderBy('name')->get();
         $financeDocIds = $financeDocs->pluck('id');
 
         $rentalAndGeneralDocs = DocumentType::query()
+            ->forCustomerUpload()
             ->when($financeDocIds->isNotEmpty(), fn ($q) => $q->whereNotIn('id', $financeDocIds->all()))
             ->orderBy('sort_order')
             ->orderBy('name')

@@ -24,12 +24,14 @@ final class AgreementPdfGenerator
         }
 
         if (config('agreement.pdf_engine', 'dompdf') === 'browsershot') {
-            return new BrowsershotPdfAdapter($resolvedView, $resolvedData);
+            return new RemembersPdfSavePath(new BrowsershotPdfAdapter($resolvedView, $resolvedData));
         }
 
-        return Pdf::loadView($resolvedView, $resolvedData)
-            ->setOption('isRemoteEnabled', false)
-            ->setOption('isPhpEnabled', true)
-            ->setOption('chroot', base_path());
+        return new RemembersPdfSavePath(
+            Pdf::loadView($resolvedView, $resolvedData)
+                ->setOption('isRemoteEnabled', false)
+                ->setOption('isPhpEnabled', true)
+                ->setOption('chroot', base_path())
+        );
     }
 }

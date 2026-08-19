@@ -1,9 +1,11 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.1500ms="$refresh">
     <div class="flex flex-wrap items-start justify-between gap-3">
         <div>
             <flux:heading size="xl">{{ $communication->title }}</flux:heading>
             <flux:text class="mt-1 font-mono text-xs">{{ $communication->uuid }}</flux:text>
-            <flux:text class="mt-1 text-sm">{{ $communication->recipient_email ?: 'No customer email captured' }}</flux:text>
+            @unless($canManageCommunications)
+                <p class="mt-2 text-xs text-zinc-500">Read only. Replies and enquiry chat are for staff with communications rights.</p>
+            @endunless
         </div>
         <a href="{{ route('flux-admin.communications.sent.index') }}">
             <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Back</flux:button>
@@ -40,7 +42,7 @@
 
             <div class="mt-6">
                 <flux:heading size="sm">Replies</flux:heading>
-                <div class="mt-3 space-y-3">
+                <div class="mt-3 space-y-3" wire:key="sent-replies-{{ $realtimeTick }}-{{ $communication->replies->count() }}">
                     @forelse($communication->replies as $reply)
                         <div class="border border-zinc-200 p-3 dark:border-zinc-700">
                             <p class="text-xs text-zinc-500">{{ $reply->authorLabel() }} · {{ $reply->created_at?->format('d M Y H:i') }}</p>
@@ -87,8 +89,10 @@
                 @elseif($canStartEnquiry)
                     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">No enquiry chat has been started from this message yet.</p>
                     <flux:button size="sm" variant="primary" wire:click="startEnquiry" class="mt-3 !rounded-none">Start enquiry chat</flux:button>
-                @else
+                @elseif($canManageCommunications)
                     <p class="mt-2 text-sm text-zinc-500">No portal account is linked, so a support chat cannot be started yet.</p>
+                @else
+                    <p class="mt-2 text-sm text-zinc-500">Read only. Enquiry chat cannot be started from this page.</p>
                 @endif
             </div>
 

@@ -208,7 +208,7 @@
                 </tr>
                 <tr>
                     <td colspan="2" style=" padding:4px; margin:4px; max-width: 220px;">
-                        <div class="box" style="border-radius: 12px; border:0.5px dotted black;max-width: 220px;padding:10px;">
+                        <div class="box" style="border-radius: 0; border:0.5px dotted black;max-width: 220px;padding:10px;">
                             <p class="BACS">
                                 BACS payment:<br>
                                 Barclays Bank Plc, Neguinho Motors Ltd,

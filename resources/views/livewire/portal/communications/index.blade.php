@@ -1,12 +1,12 @@
-<div class="space-y-6">
+<div class="space-y-6" wire:poll.1500ms="$refresh">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <flux:heading size="xl">Notifications</flux:heading>
             <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Messages from NGN Motors. Email copies still go to your inbox when Email is enabled.
             </p>
-            <button type="button" id="enable-communication-alerts" class="mt-2 text-sm text-brand-red hover:underline">
-                Enable browser alerts
+            <button type="button" id="enable-communication-alerts" data-sound-toggle class="js-enable-communication-alerts mt-2 text-sm text-brand-red hover:underline">
+                Turn sound off
             </button>
             <p id="portal-browser-alerts-status" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
         </div>
@@ -28,7 +28,7 @@
             </p>
         </div>
     @else
-        <div class="space-y-3">
+        <div class="space-y-3" wire:key="portal-notifications-{{ $realtimeTick }}">
             @foreach($communications as $communication)
                 @php($recipient = $communication->recipients->first())
                 <a href="{{ route('account.notifications.show', $communication->uuid) }}" class="block border border-gray-200 bg-white p-5 hover:border-brand-red dark:border-gray-700 dark:bg-gray-800">

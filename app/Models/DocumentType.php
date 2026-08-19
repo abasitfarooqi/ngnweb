@@ -26,6 +26,33 @@ class DocumentType extends Model
         'validation_rules' => 'array',
     ];
 
+    /** Issued by NGN (email/PDF). Never a customer upload slot. */
+    public const STAFF_ISSUED_CODES = [
+        'loyalty_scheme_policy',
+        'rental_agreement',
+        'ebike_battery_safety_leaflet',
+    ];
+
+    public const STAFF_ISSUED_NAMES = [
+        'Loyalty Scheme Policy',
+        'Rental Agreement',
+        'E-Bike Battery Safety Leaflet',
+    ];
+
+    public function scopeForCustomerUpload($query)
+    {
+        return $query
+            ->where(function ($q) {
+                $q->whereNull('code')->orWhereNotIn('code', self::STAFF_ISSUED_CODES);
+            })
+            ->where(function ($q) {
+                $q->whereNull('slug')->orWhereNotIn('slug', self::STAFF_ISSUED_CODES);
+            })
+            ->where(function ($q) {
+                $q->whereNull('name')->orWhereNotIn('name', self::STAFF_ISSUED_NAMES);
+            });
+    }
+
     /**
      * Scope: document types required for rental.
      */

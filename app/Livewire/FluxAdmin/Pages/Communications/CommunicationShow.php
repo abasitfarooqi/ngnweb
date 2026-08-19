@@ -221,14 +221,14 @@ class CommunicationShow extends Component
     private function assertCanViewCommunications(): void
     {
         if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+            abort(403, 'You do not have permission to access communications.');
         }
     }
 
     private function assertCanManageCommunications(): void
     {
         if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+            abort(403, 'You do not have permission to access communications.');
         }
     }
 }

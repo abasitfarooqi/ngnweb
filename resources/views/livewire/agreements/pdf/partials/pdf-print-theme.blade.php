@@ -76,4 +76,45 @@
         background-color: #e2e8f0 !important;
         color: #0f172a !important;
     }
+
+    .header {
+        margin: 0 0 8px 0 !important;
+        padding: 0 !important;
+    }
+
+    .header table {
+        width: 100% !important;
+        border: 2px solid #111827 !important;
+        border-collapse: collapse !important;
+    }
+
+    .header td {
+        border: none !important;
+        vertical-align: middle !important;
+        padding: 8px 10px !important;
+    }
+
+    .header .title {
+        font-size: 15px !important;
+        font-weight: 800 !important;
+        text-align: right !important;
+        color: #111827 !important;
+        line-height: 1.2 !important;
+    }
+
+    .header .address {
+        font-size: 10px !important;
+        font-weight: 600 !important;
+        color: #111827 !important;
+        line-height: 1.35 !important;
+    }
+
+    .box,
+    .box * {
+        border-radius: 0 !important;
+    }
+
+    .box {
+        border: 1px solid #111827 !important;
+    }
 </style>

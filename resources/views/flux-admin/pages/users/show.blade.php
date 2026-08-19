@@ -8,8 +8,10 @@
         </div>
         <div class="flex items-center gap-2">
             <flux:button size="sm" variant="ghost" :href="route('flux-admin.users.index')" class="!rounded-none">Back</flux:button>
-            <flux:button size="sm" variant="primary" :href="route('flux-admin.users.edit', $user)" icon="pencil-square" class="!rounded-none">Edit</flux:button>
-            <flux:button size="sm" variant="danger" wire:click="deleteUser" wire:confirm="Delete this user? This cannot be undone." icon="trash" class="!rounded-none">Delete</flux:button>
+            @if(\App\Support\FluxAdminAccess::isSuperAdmin())
+                <flux:button size="sm" variant="primary" :href="route('flux-admin.users.edit', $user)" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                <flux:button size="sm" variant="danger" wire:click="deleteUser" wire:confirm="Delete this user? This cannot be undone." icon="trash" class="!rounded-none">Delete</flux:button>
+            @endif
         </div>
     </div>
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\FluxAdminAccess;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,8 +17,9 @@ class AdminMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if the user is authenticated and is an admin
-        if (Auth::user()->is_admin == 0) {
+        $user = Auth::user();
+
+        if (! $user || ! FluxAdminAccess::canEnterFluxAdmin($user)) {
             return redirect('/')->with('error', 'You do not have access to this area.');
         }
 

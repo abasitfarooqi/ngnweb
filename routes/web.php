@@ -351,6 +351,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/orders', \App\Livewire\Portal\Orders\Index::class)->name('orders');
     Route::get('/orders/{orderId}', \App\Livewire\Portal\Orders\Show::class)->name('orders.show');
     Route::get('/notifications', \App\Livewire\Portal\Communications\Index::class)->name('notifications');
+    Route::get('/notifications/live', \App\Http\Controllers\Portal\NotificationLiveController::class)->name('notifications.live');
     Route::get('/notifications/{uuid}/attachments/{attachment}', [\App\Http\Controllers\Portal\CommunicationAttachmentController::class, '__invoke'])->name('notifications.attachments.show');
     Route::get('/notifications/{uuid}', \App\Livewire\Portal\Communications\Show::class)->name('notifications.show');
     Route::get('/enquiries', \App\Livewire\Portal\Enquiries\Index::class)->name('enquiries');

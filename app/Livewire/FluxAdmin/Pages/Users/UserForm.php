@@ -50,7 +50,7 @@ class UserForm extends Component
     public function mount(?int $user = null): void
     {
         $this->resetErrorBag();
-        $this->authorizeModule('see-menu-permissions');
+        $this->authorizeSuperAdmin();
 
         if ($user !== null) {
             $u = User::with(['roles:id', 'permissions:id'])->findOrFail($user);
@@ -63,15 +63,28 @@ class UserForm extends Component
             $this->is_admin = (bool) $u->is_admin;
             $this->is_client = (bool) $u->is_client;
             $this->role_id = $u->role_id ? (int) $u->role_id : null;
-            $this->selectedRoles = $u->roles->pluck('id')->map(fn ($id) => (int) $id)->toArray();
+            $this->selectedRoles = $u->assignedRoleIds();
             $this->selectedPermissions = $u->permissions->pluck('id')->map(fn ($id) => (int) $id)->toArray();
         }
     }
 
     public function updatedRoleId(?int $value): void
     {
-        if ($value && ! in_array($value, $this->selectedRoles, true)) {
-            $this->selectedRoles[] = $value;
+        $this->role_id = $value ? (int) $value : null;
+        $ids = $this->selectedRoleIds();
+
+        if ($this->role_id && ! in_array($this->role_id, $ids, true)) {
+            $this->selectedRoles = [...$ids, $this->role_id];
+        }
+    }
+
+    public function updatedSelectedRoles(): void
+    {
+        $ids = $this->selectedRoleIds();
+        $this->selectedRoles = $ids;
+
+        if ($this->role_id && ! in_array((int) $this->role_id, $ids, true)) {
+            $this->role_id = $ids[0] ?? null;
         }
     }
 
@@ -116,7 +129,8 @@ class UserForm extends Component
 
     public function save()
     {
-        $roleModel = config('permission.models.role');
+        $this->authorizeSuperAdmin();
+
         $permissionModel = config('permission.models.permission');
 
         $rules = [
@@ -135,8 +149,16 @@ class UserForm extends Component
 
         $this->validate($rules);
 
-        if ($this->role_id && ! in_array($this->role_id, $this->selectedRoles, true)) {
-            $this->selectedRoles[] = $this->role_id;
+        $this->selectedRoles = $this->selectedRoleIds();
+
+        if ($this->role_id && ! in_array((int) $this->role_id, $this->selectedRoles, true)) {
+            $this->role_id = $this->selectedRoles[0] ?? null;
+        }
+
+        if (! $this->role_id) {
+            $this->addError('role_id', 'Choose a primary role, or tick at least one role.');
+
+            return;
         }
 
         $user = $this->userId ? User::findOrFail($this->userId) : new User;
@@ -161,16 +183,12 @@ class UserForm extends Component
 
         $user->save();
 
-        $roleNames = $roleModel::query()
-            ->whereIn('id', $this->selectedRoles)
-            ->pluck('name')
-            ->all();
+        $user->syncAssignedRoles($this->selectedRoles);
         $permissionNames = $permissionModel::query()
-            ->whereIn('id', $this->selectedPermissions)
+            ->whereIn('id', array_map('intval', $this->selectedPermissions))
             ->pluck('name')
             ->all();
 
-        $user->syncRoles($roleNames);
         $user->syncPermissions($permissionNames);
 
         app(PermissionRegistrar::class)->forgetCachedPermissions();
@@ -178,5 +196,11 @@ class UserForm extends Component
         session()->flash('flux-admin.flash', $this->userId ? 'User updated.' : 'User created.');
 
         return redirect()->route('flux-admin.users.edit', ['user' => $user->id]);
+    }
+
+    /** @return list<int> */
+    private function selectedRoleIds(): array
+    {
+        return array_values(array_unique(array_map('intval', $this->selectedRoles)));
     }
 }

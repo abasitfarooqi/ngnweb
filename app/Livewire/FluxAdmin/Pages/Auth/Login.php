@@ -22,8 +22,8 @@ class Login extends Component
     {
         $user = Auth::user();
 
-        if ($user && (int) $user->is_admin === 1) {
-            $this->redirect(route('flux-admin.dashboard'), navigate: true);
+        if ($user && \App\Support\FluxAdminAccess::canEnterFluxAdmin($user)) {
+            $this->redirect($this->homeRouteFor($user), navigate: true);
         }
     }
 
@@ -45,7 +45,7 @@ class Login extends Component
 
         $user = Auth::user();
 
-        if (! $user || (int) $user->is_admin !== 1) {
+        if (! $user || ! \App\Support\FluxAdminAccess::canEnterFluxAdmin($user)) {
             Auth::logout();
 
             throw ValidationException::withMessages([
@@ -55,10 +55,22 @@ class Login extends Component
 
         session()->regenerate();
 
-        $this->redirect(
-            session()->pull('url.intended', route('flux-admin.dashboard')),
-            navigate: true
-        );
+        $this->redirect($this->homeRouteFor($user), navigate: true);
+    }
+
+    private function homeRouteFor($user): string
+    {
+        $intended = (string) session()->pull('url.intended', '');
+
+        if (\App\Support\FluxAdminAccess::isCommunicationsOnlyStaff($user)) {
+            if ($intended !== '' && str_contains($intended, '/flux-admin/communications')) {
+                return $intended;
+            }
+
+            return route('flux-admin.communications.index');
+        }
+
+        return $intended !== '' ? $intended : route('flux-admin.dashboard');
     }
 
     public function render()

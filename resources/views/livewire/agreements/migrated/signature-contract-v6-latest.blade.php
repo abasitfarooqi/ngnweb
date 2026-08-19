@@ -1088,14 +1088,7 @@ label a{
                             <div id="signature-pad-booking-id">
                                 <input type="hidden" name="booking_id" value="{{ $booking->id }}">
                             </div>
-                            <div style="text-align: center;" id="sigpad">
-                                <x-creagia-signature-pad class="kbw-signature" style="color: white;width:100%;"
-                                    border-color="#eaeaea" pad-classes="rounded-none border-2"
-                                    button-classes="ngn-bg px-4 py-2 mt-4" clear-name="Clear"
-                                    submit-name="Submit" />
-                                <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
-                                    aria-label="Close">Close</button>
-                            </div>
+                            @include('livewire.agreements.partials.signing-signature-pad')
                         </div>
                     </form>
                 </div>

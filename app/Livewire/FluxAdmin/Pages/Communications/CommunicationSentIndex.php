@@ -7,6 +7,7 @@ use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\Communication;
 use App\Services\Communications\CommunicationSchema;
 use App\Support\FluxAdminAccess;
+use App\Support\FluxAdminUnreadBadges;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -22,17 +23,24 @@ class CommunicationSentIndex extends Component
     use WithDataTable;
     use WithPagination;
 
+    public int $realtimeTick = 0;
+
     public function mount(): void
     {
-        if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+        if (! FluxAdminAccess::canViewCommunicationsLog()) {
+            abort(403, 'You do not have permission to view communications.');
         }
+
+        FluxAdminUnreadBadges::markNotificationsSeen();
     }
 
     #[On('staffCommunicationCreated')]
     #[On('staffCommunicationReply')]
     public function refreshFromRealtime(): void
     {
+        FluxAdminUnreadBadges::markNotificationsSeen();
+        $this->realtimeTick++;
+        $this->resetPage();
     }
 
     public function render()
@@ -58,6 +66,7 @@ class CommunicationSentIndex extends Component
         return view('flux-admin.pages.communications.sent-index', [
             'rows' => $rows,
             'schemaReady' => $schemaReady,
+            'canManageCommunications' => FluxAdminAccess::canManageCommunications(),
         ]);
     }
 }

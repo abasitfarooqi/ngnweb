@@ -5,11 +5,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="/assets/css/bootstrap.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/responsive.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/colors/color1.css">
-    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <!-- Favicon and touch icons  -->
     <link href="{{ url('/img/white-bg-ico.ico') }}" rel="shortcut icon">
     {{-- changed --}}
@@ -209,7 +204,7 @@
                 </tr>
                 <tr>
                     <td colspan="2" style=" padding:4px; margin:4px; max-width: 220px;">
-                        <div class="box" style="border-radius: 12px; border:0.5px dotted black;max-width: 220px;padding:10px;">
+                        <div class="box" style="border-radius: 0; border:0.5px dotted black;max-width: 220px;padding:10px;">
                             <p class="BACS">
                                 Bank for all payments:<br>
                                 Barclays Bank Plc, Neguinho Motors Ltd,

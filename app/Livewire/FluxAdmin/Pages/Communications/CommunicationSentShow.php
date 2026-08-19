@@ -10,6 +10,7 @@ use App\Services\Communications\CommunicationEnquiryStarter;
 use App\Services\Communications\CommunicationReplyRecorder;
 use App\Services\Communications\CommunicationSchema;
 use App\Support\FluxAdminAccess;
+use App\Support\FluxAdminUnreadBadges;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
@@ -31,19 +32,27 @@ class CommunicationSentShow extends Component
     /** @var array<int, mixed> */
     public array $replyFiles = [];
 
+    public int $realtimeTick = 0;
+
     public function mount(Communication $communication): void
     {
-        if (! FluxAdminAccess::canAccessCommunications()) {
-            abort(403, 'This area is restricted to Super Admin.');
+        if (! FluxAdminAccess::canViewCommunicationsLog()) {
+            abort(403, 'You do not have permission to view communications.');
         }
 
         $this->communication = $communication->load(['deliveries', 'recipients', 'definition', 'attachments']);
         $this->loadReplies();
+        FluxAdminUnreadBadges::markNotificationsSeen();
     }
 
     #[On('staffCommunicationReply')]
-    public function refreshFromRealtime(): void
+    public function refreshFromRealtime(?string $uuid = null): void
     {
+        if ($uuid && $uuid !== $this->communication->uuid) {
+            return;
+        }
+
+        $this->realtimeTick++;
         $this->communication->refresh();
         $this->communication->load(['deliveries', 'recipients', 'definition', 'attachments']);
         $this->loadReplies();
@@ -51,6 +60,8 @@ class CommunicationSentShow extends Component
 
     public function startEnquiry(): void
     {
+        abort_unless(FluxAdminAccess::canManageCommunications(), 403);
+
         $customerAuthId = (int) ($this->communication->customer_auth_id
             ?: $this->communication->recipients()->value('customer_auth_id'));
         abort_unless($customerAuthId > 0, 403, 'This message has no portal account yet.');
@@ -63,6 +74,8 @@ class CommunicationSentShow extends Component
 
     public function sendReply(): void
     {
+        abort_unless(FluxAdminAccess::canManageCommunications(), 403);
+
         $this->validate(array_merge([
             'replyBody' => ['nullable', 'string', 'max:5000'],
         ], [
@@ -93,13 +106,18 @@ class CommunicationSentShow extends Component
 
         $enquiry = $this->enquiryConversation();
 
+        $canManage = FluxAdminAccess::canManageCommunications();
+
         return view('flux-admin.pages.communications.sent-show', [
-            'replyAllowed' => (bool) data_get($this->communication->policy_snapshot, 'reply_allowed', false)
+            'canManageCommunications' => $canManage,
+            'replyAllowed' => $canManage
+                && (bool) data_get($this->communication->policy_snapshot, 'reply_allowed', false)
                 && app(CommunicationReplyRecorder::class)->ready(),
             'enquiry' => $enquiry,
             'enquiryOpen' => $enquiry !== null && ! in_array((string) $enquiry->status, ['resolved', 'closed'], true),
-            'canStartEnquiry' => (int) ($this->communication->customer_auth_id
-                ?: $this->communication->recipients()->value('customer_auth_id')) > 0,
+            'canStartEnquiry' => $canManage
+                && (int) ($this->communication->customer_auth_id
+                    ?: $this->communication->recipients()->value('customer_auth_id')) > 0,
         ]);
     }
 

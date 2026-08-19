@@ -35,7 +35,7 @@ class RouteServiceProvider extends ServiceProvider
                             ->name('flux-admin.login');
                     });
 
-                Route::middleware(['web', 'auth', 'admin', 'check.admin.access'])
+                Route::middleware(['web', 'auth', 'admin', 'check.admin.access', 'flux.communications-only'])
                     ->prefix('flux-admin')
                     ->group(base_path('routes/flux-admin.php'));
             }

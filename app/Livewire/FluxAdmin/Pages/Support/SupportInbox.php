@@ -60,6 +60,8 @@ class SupportInbox extends Component
                 ->whereNull('read_at_staff')
                 ->update(['read_at_staff' => now()]);
         }
+
+        $this->dispatch('staffUnreadBadgesChanged');
     }
 
     public function selectConversation(int $id): void
@@ -69,6 +71,8 @@ class SupportInbox extends Component
         if ($conv) {
             $conv->messages()->where('sender_type', 'customer')->whereNull('read_at_staff')->update(['read_at_staff' => now()]);
         }
+
+        $this->dispatch('staffUnreadBadgesChanged');
     }
 
     public function assignToMe(): void

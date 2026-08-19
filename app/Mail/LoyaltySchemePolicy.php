@@ -40,6 +40,32 @@ class LoyaltySchemePolicy extends Mailable
     {
         $attachments = [];
 
+        if (! empty($this->mailData['pdf_files']) && is_array($this->mailData['pdf_files'])) {
+            foreach ($this->mailData['pdf_files'] as $index => $file) {
+                if (! is_array($file)) {
+                    continue;
+                }
+
+                $path = (string) ($file['path'] ?? '');
+                if ($path === '' || ! is_file($path) || (int) filesize($path) < 512) {
+                    continue;
+                }
+
+                $filename = (string) ($file['name'] ?? '');
+                if ($filename === '') {
+                    $filename = 'Loyalty-Upgrade-Scheme-Policy'.($index > 0 ? '-'.($index + 1) : '').'.pdf';
+                }
+
+                $attachments[] = Attachment::fromPath($path)
+                    ->as($filename)
+                    ->withMime('application/pdf');
+            }
+
+            if ($attachments !== []) {
+                return $attachments;
+            }
+        }
+
         if (isset($this->mailData['pdf']) && method_exists($this->mailData['pdf'], 'output')) {
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf']->output(),

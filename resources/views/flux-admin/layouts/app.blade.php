@@ -241,6 +241,12 @@
         body.flux-admin-app form .grid {
             overflow: visible;
         }
+        body.flux-admin-app select.comms-grant-user-list {
+            height: 7.25rem;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            overscroll-behavior: contain;
+        }
         body.flux-admin-app .flux-admin-autocomplete [data-flux],
         body.flux-admin-app .flux-admin-autocomplete [data-flux-control],
         body.flux-admin-app .flux-admin-autocomplete > * {
@@ -648,6 +654,45 @@
             background: rgb(9 9 11);
             color: rgb(244 244 245);
         }
+        .flux-admin-unread-badge {
+            display: inline-flex;
+            min-width: 1.15rem;
+            height: 1.15rem;
+            align-items: center;
+            justify-content: center;
+            padding: 0 0.28rem;
+            margin-left: 0.4rem;
+            background: #dc2626;
+            color: #fff;
+            font-size: 10px;
+            font-weight: 700;
+            line-height: 1;
+            border-radius: 0;
+        }
+        .flux-admin-unread-badge.hidden,
+        .flux-admin-unread-badge[hidden] {
+            display: none !important;
+        }
+        .flux-admin-quick-icon {
+            position: relative;
+        }
+        .flux-admin-quick-icon .flux-admin-unread-badge {
+            position: absolute;
+            top: -0.35rem;
+            right: -0.35rem;
+            margin-left: 0;
+        }
+        .flux-admin-header-unread {
+            position: relative;
+            display: inline-flex;
+        }
+        .flux-admin-header-unread .flux-admin-unread-badge {
+            position: absolute;
+            top: -0.35rem;
+            right: -0.35rem;
+            margin-left: 0;
+            z-index: 1;
+        }
         .flux-admin-menu {
             padding: .1rem .35rem .25rem;
         }
@@ -844,7 +889,11 @@
         }
     </style>
 </head>
-<body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row" data-staff-communications="1">
+<body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row" data-staff-communications="1" data-staff-unread-url="{{ route('flux-admin.unread-badges') }}">
+    @php
+        $staffUnread = \App\Support\FluxAdminUnreadBadges::counts();
+        $commsOnlyStaff = \App\Support\FluxAdminAccess::isCommunicationsOnlyStaff();
+    @endphp
     <a href="#flux-admin-main" class="flux-admin-skip">Skip to content</a>
 
     {{-- Sidebar: same dark surface as main canvas (no half-light / half-dark split). --}}
@@ -860,6 +909,7 @@
             </a>
         </div>
 
+        @if(! $commsOnlyStaff)
         <div class="flux-admin-quick-grid">
             <a href="{{ route('flux-admin.delivery-enquiries.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="truck" class="h-4 w-4" /></span>
@@ -874,14 +924,24 @@
                 <span class="flux-admin-quick-label">Services</span>
             </a>
             <a href="{{ route('flux-admin.support-inbox.index') }}" class="flux-admin-quick-link">
-                <span class="flux-admin-quick-icon"><flux:icon name="inbox" class="h-4 w-4" /></span>
+                <span class="flux-admin-quick-icon">
+                    <flux:icon name="inbox" class="h-4 w-4" />
+                    <span class="js-staff-inbox-unread flux-admin-unread-badge{{ ($staffUnread['inbox'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['inbox'] ?? 0) }}">{{ ($staffUnread['inbox'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['inbox'] ?? 0) }}</span>
+                </span>
                 <span class="flux-admin-quick-label">Inbox</span>
             </a>
         </div>
+        @endif
 
         <flux:separator />
 
         <div x-show="navMode === 'home'" x-cloak class="flux-admin-nav-mode flex min-h-0 flex-1 flex-col overflow-y-auto">
+        @if($commsOnlyStaff)
+        <flux:navlist id="flux-admin-navlist-comms" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
+                <flux:navlist.item href="{{ route('flux-admin.communications.sent.index') }}" icon="bell" :current="request()->routeIs('flux-admin.communications.sent.*')">Notifications <span class="js-staff-notifications-unread flux-admin-unread-badge{{ ($staffUnread['notifications'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['notifications'] ?? 0) }}">{{ ($staffUnread['notifications'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['notifications'] ?? 0) }}</span></flux:navlist.item>
+                <flux:navlist.item href="{{ route('flux-admin.communications.index') }}" icon="bell-alert" :current="request()->routeIs('flux-admin.communications.index') || request()->routeIs('flux-admin.communications.show') || request()->routeIs('flux-admin.communications.email-preview')">Communications</flux:navlist.item>
+        </flux:navlist>
+        @else
         <flux:navlist id="flux-admin-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
             <flux:navlist.item href="{{ route('flux-admin.dashboard') }}" icon="home" :current="request()->routeIs('flux-admin.dashboard*')">Dashboard</flux:navlist.item>
          
@@ -993,8 +1053,11 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'surveys') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'surveys' || request()->routeIs('flux-admin.survey*')">Surveys</flux:navlist.item>
             @endcan
 
+            @if(\App\Support\FluxAdminAccess::canViewCommunicationsLog())
+                <flux:navlist.item href="{{ route('flux-admin.communications.sent.index') }}" icon="bell" :current="request()->routeIs('flux-admin.communications.sent.*')">Notifications <span class="js-staff-notifications-unread flux-admin-unread-badge{{ ($staffUnread['notifications'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['notifications'] ?? 0) }}">{{ ($staffUnread['notifications'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['notifications'] ?? 0) }}</span></flux:navlist.item>
+            @endif
             @if(\App\Support\FluxAdminAccess::canAccessCommunications())
-                <flux:navlist.item href="{{ route('flux-admin.communications.index') }}" icon="bell-alert" :current="request()->routeIs('flux-admin.communications.*')">Communications</flux:navlist.item>
+                <flux:navlist.item href="{{ route('flux-admin.communications.index') }}" icon="bell-alert" :current="request()->routeIs('flux-admin.communications.index') || request()->routeIs('flux-admin.communications.show') || request()->routeIs('flux-admin.communications.email-preview')">Communications</flux:navlist.item>
             @endif
 
             @role('Admin')
@@ -1013,10 +1076,12 @@
             {{-- 18. Judopay --}}
             @canany(['see-judopay-home', 'see-judopay'])
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'judopay') }}" icon="banknotes" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'judopay' || request()->routeIs('flux-admin.judopay.*','flux-admin.judopay-*','flux-admin.ngn-mit-queue.*')">Judo Pay</flux:navlist.item>
-            @endcan
+            @endcanany
         </flux:navlist>
+        @endif
         </div>
 
+        @if(! $commsOnlyStaff)
         <div x-show="navMode === 'menu'" x-cloak class="flux-admin-nav-mode flex min-h-0 flex-1 flex-col overflow-y-auto">
             @php
                 $menuIcon = static function (string $label): string {
@@ -1042,7 +1107,8 @@
             @endphp
             <flux:navlist id="flux-admin-grouped-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
                 @foreach($groupedMenu as $group => $items)
-                    <flux:navlist.group expandable :expanded="request()->routeIs('flux-admin.dashboard*') || $items->contains(fn ($item) => str_contains((string) $item['url'], request()->path()))" heading="{{ $group }}">
+                    @php($groupExpanded = request()->routeIs('flux-admin.dashboard*') || $items->contains(function ($item) { return str_contains((string) $item['url'], request()->path()); }))
+                    <flux:navlist.group expandable :expanded="$groupExpanded" heading="{{ $group }}">
                         @foreach($items as $item)
                             <flux:navlist.item href="{{ $item['url'] }}" icon="{{ $menuIcon($item['label']) }}">{{ $item['label'] }}</flux:navlist.item>
                         @endforeach
@@ -1050,7 +1116,9 @@
                 @endforeach
             </flux:navlist>
         </div>
+        @endif
 
+        @if(! $commsOnlyStaff)
         <div class="mt-auto shrink-0 px-3 py-2">
             <div class="flex items-center justify-between gap-2 px-1" role="group" aria-label="Sidebar view">
                 <div class="flex min-w-0 items-center gap-2 text-xs text-zinc-600 dark:text-zinc-300">
@@ -1065,6 +1133,7 @@
                 />
             </div>
         </div>
+        @endif
 
         <flux:separator />
 
@@ -1076,18 +1145,24 @@
                 icon-trailing="chevron-up-down"
             />
             <flux:menu class="min-w-[200px]">
-                <button type="button" id="enable-communication-alerts" class="w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
-                    Enable browser alerts
+                <button type="button" class="js-enable-communication-alerts w-full px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                    Sound alerts
                 </button>
-                <p id="portal-browser-alerts-status" class="px-3 pb-2 text-xs text-zinc-500"></p>
+                <p class="js-communication-alerts-status px-3 pb-2 text-xs text-zinc-500"></p>
+                @if(! $commsOnlyStaff)
                 <flux:separator />
                 <flux:menu.item icon="arrow-left" href="/ngn-admin/dashboard">
                     Back to Backpack
                 </flux:menu.item>
+                @endif
                 <flux:separator />
-                <flux:menu.item icon="arrow-right-start-on-rectangle" href="/ngn-admin/logout">
-                    Sign out
-                </flux:menu.item>
+                <form method="POST" action="{{ route('flux-admin.logout') }}">
+                    @csrf
+                    <button type="submit" class="flex w-full items-center gap-2 px-3 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-200 dark:hover:bg-zinc-800">
+                        <flux:icon name="arrow-right-start-on-rectangle" class="size-4" />
+                        Sign out
+                    </button>
+                </form>
             </flux:menu>
         </flux:dropdown>
     </flux:sidebar>
@@ -1101,6 +1176,7 @@
         >
             <flux:sidebar.toggle class="shrink-0 lg:hidden" icon="bars-2" aria-label="Open menu" x-show="!searchOpen" x-cloak />
 
+            @if(! $commsOnlyStaff)
             <div class="flux-admin-header-search-row flex min-w-0 flex-1 items-center gap-2 lg:hidden" x-show="searchOpen" x-cloak>
                 <button
                     type="button"
@@ -1127,6 +1203,7 @@
                     <flux:button type="submit" size="sm" variant="primary" class="!rounded-none shrink-0">Search</flux:button>
                 </form>
             </div>
+            @endif
 
             <div class="hidden min-w-0 sm:block lg:max-w-[12rem] lg:shrink-0" x-show="!searchOpen" x-cloak>
                 <div class="text-xs font-medium uppercase text-zinc-500 dark:text-zinc-500">NGN Motors</div>
@@ -1135,12 +1212,15 @@
 
             <flux:spacer class="!hidden lg:!block" />
 
+            @if(! $commsOnlyStaff)
             <form action="{{ route('flux-admin.search') }}" method="get" class="hidden min-w-0 lg:flex lg:max-w-md lg:flex-none">
                 <flux:input name="q" value="{{ request('q') }}" icon="magnifying-glass" placeholder="Search menu or records…" variant="outline" size="sm" class="w-full" />
             </form>
+            @endif
 
             <flux:spacer class="!hidden lg:!block" />
 
+            @if(! $commsOnlyStaff)
             <flux:button
                 type="button"
                 size="sm"
@@ -1154,11 +1234,26 @@
             >
                 Search
             </flux:button>
+            @endif
 
             <div class="flex shrink-0 items-center gap-2" x-show="!searchOpen" x-cloak>
+                <button
+                    type="button"
+                    class="js-enable-communication-alerts inline-flex h-8 items-center gap-1.5 border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200 dark:hover:bg-zinc-800"
+                    title="Turn on sound when a notification is sent or received"
+                >
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H3v6h3l5 4V5z"/></svg>
+                    Sound alerts
+                </button>
+                <a href="{{ route('flux-admin.communications.sent.index') }}" class="flux-admin-header-unread">
+                    <flux:button size="sm" variant="ghost" icon="bell" class="!rounded-none">Notifications</flux:button>
+                    <span class="js-staff-notifications-unread flux-admin-unread-badge{{ ($staffUnread['notifications'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['notifications'] ?? 0) }}">{{ ($staffUnread['notifications'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['notifications'] ?? 0) }}</span>
+                </a>
+                @if(! $commsOnlyStaff)
                 <a href="{{ route('flux-admin.dashboard') }}">
                     <flux:button size="sm" variant="ghost" icon="home" class="!rounded-none">Dashboard</flux:button>
                 </a>
+                @endif
                 <button
                     type="button"
                     x-data
@@ -1172,9 +1267,11 @@
                     <span class="dark:hidden">Dark</span>
                     <span class="hidden dark:inline">Light</span>
                 </button>
+                @if(! $commsOnlyStaff)
                 <a href="/ngn-admin/dashboard">
                     <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Backpack</flux:button>
                 </a>
+                @endif
             </div>
         </flux:header>
 

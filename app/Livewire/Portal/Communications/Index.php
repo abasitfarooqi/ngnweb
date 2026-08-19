@@ -18,10 +18,14 @@ class Index extends Component
 
     public bool $archived = false;
 
+    public int $realtimeTick = 0;
+
     #[On('customerCommunicationCreated')]
     #[On('customerCommunicationReply')]
     public function refreshFromRealtime(): void
     {
+        $this->realtimeTick++;
+        $this->resetPage();
     }
 
     public function showInbox(): void

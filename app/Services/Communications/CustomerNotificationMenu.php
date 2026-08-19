@@ -47,4 +47,27 @@ class CustomerNotificationMenu
             }
         });
     }
+
+    /**
+     * @return array{unread: int, items: list<array{uuid: string, title: string, preview: string, created_at: string, unread: bool}>}
+     */
+    public function livePayload(): array
+    {
+        $menu = $this->forCurrentCustomer();
+
+        return [
+            'unread' => (int) ($menu['unread'] ?? 0),
+            'items' => ($menu['items'] ?? collect())->map(function ($communication): array {
+                $recipient = $communication->recipients->first();
+
+                return [
+                    'uuid' => (string) $communication->uuid,
+                    'title' => (string) $communication->title,
+                    'preview' => (string) $communication->preview,
+                    'created_at' => (string) $communication->created_at?->format('d M Y H:i'),
+                    'unread' => $recipient?->read_at === null,
+                ];
+            })->values()->all(),
+        ];
+    }
 }

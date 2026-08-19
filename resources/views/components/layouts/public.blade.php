@@ -33,7 +33,7 @@
 
     @stack('head')
 </head>
-<body class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}">
+<body class="font-sans antialiased bg-white dark:bg-gray-900 text-gray-900 dark:text-white" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}" @if(auth('customer')->check()) data-notifications-live-url="{{ route('account.notifications.live') }}" @endif>
 
     @livewire('site.header')
 

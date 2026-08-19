@@ -52,6 +52,23 @@ class User extends Authenticatable
         return $this->belongsToMany(Role::class, 'role_users');
     }
 
+    /** @return list<int> */
+    public function assignedRoleIds(): array
+    {
+        return $this->roles()
+            ->pluck('roles.id')
+            ->map(fn ($id) => (int) $id)
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    /** @param  list<int>  $roleIds */
+    public function syncAssignedRoles(array $roleIds): void
+    {
+        $this->roles()->sync(array_values(array_unique(array_map('intval', $roleIds))));
+    }
+
     public function purchaseRequestItems()
     {
         return $this->hasMany(PurchaseRequestItem::class, 'created_by');

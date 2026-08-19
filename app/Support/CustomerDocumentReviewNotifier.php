@@ -69,6 +69,7 @@ class CustomerDocumentReviewNotifier
     public function notifyStaffIfAllMandatorySubmitted(Customer $customer, ?int $bookingId = null): void
     {
         $mandatoryTypes = DocumentType::query()
+            ->forCustomerUpload()
             ->when(Schema::hasColumn('document_types', 'is_mandatory'), fn ($q) => $q->where('is_mandatory', true))
             ->orderBy('sort_order')
             ->get();
@@ -86,8 +87,8 @@ class CustomerDocumentReviewNotifier
 
         $lifecycle = app(RentalBookingLifecycle::class);
         $allUploaded = $mandatoryTypes->every(function (DocumentType $type) use ($uploadedByType, $lifecycle): bool {
-            if (in_array((string) $type->code, ['loyalty_scheme_policy', 'rental_agreement'], true)
-                || in_array((string) $type->name, ['Loyalty Scheme Policy', 'Rental Agreement'], true)) {
+            if (in_array((string) $type->code, DocumentType::STAFF_ISSUED_CODES, true)
+                || in_array((string) $type->name, DocumentType::STAFF_ISSUED_NAMES, true)) {
                 return true;
             }
 

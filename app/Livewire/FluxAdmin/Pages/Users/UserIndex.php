@@ -108,7 +108,7 @@ class UserIndex extends Component
 
     public function deleteUser(int $id): void
     {
-        $this->authorizeModule('see-menu-permissions');
+        $this->authorizeSuperAdmin();
 
         if (backpack_user()->id === $id) {
             session()->flash('flux-admin.error', 'You cannot delete your own account.');

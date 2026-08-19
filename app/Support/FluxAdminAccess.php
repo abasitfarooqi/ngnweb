@@ -3,23 +3,42 @@
 namespace App\Support;
 
 use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 final class FluxAdminAccess
 {
     public const COMMUNICATIONS_PERMISSION = 'manage-communications';
 
+    /** @var array<string, bool> */
+    private static array $superAdminCache = [];
+
     public static function user(): ?Authenticatable
     {
-        return function_exists('backpack_user') ? backpack_user() : auth()->user();
+        if (function_exists('backpack_user')) {
+            $user = backpack_user();
+            if ($user) {
+                return $user;
+            }
+        }
+
+        return auth()->user();
     }
 
     public static function isSuperAdmin(?Authenticatable $user = null): bool
     {
         $user ??= self::user();
+        if ($user === null) {
+            return false;
+        }
 
-        return $user !== null
-            && method_exists($user, 'hasRole')
-            && $user->hasRole('Super Admin');
+        $id = (int) ($user->getAuthIdentifier() ?? 0);
+        $key = $id > 0 ? 'id:'.$id : 'obj:'.spl_object_id($user);
+        if (array_key_exists($key, self::$superAdminCache)) {
+            return self::$superAdminCache[$key];
+        }
+
+        return self::$superAdminCache[$key] = self::resolveIsSuperAdmin($user);
     }
 
     public static function isAdmin(?Authenticatable $user = null): bool
@@ -27,8 +46,7 @@ final class FluxAdminAccess
         $user ??= self::user();
 
         return $user !== null
-            && method_exists($user, 'hasRole')
-            && ($user->hasRole('Admin') || self::isSuperAdmin($user));
+            && (self::isSuperAdmin($user) || self::userHasRole($user, 'Admin'));
     }
 
     /** @return list<int> */
@@ -56,8 +74,8 @@ final class FluxAdminAccess
     }
 
     /**
-     * Communications panel is Super Admin only, unless Super Admin assigns
-     * manage-communications directly on a staff user (not via the Admin role).
+     * Policy panel: Super Admin, or anyone Super Admin granted
+     * manage-communications on (user or role).
      */
     public static function canAccessCommunications(?Authenticatable $user = null): bool
     {
@@ -71,7 +89,104 @@ final class FluxAdminAccess
             return true;
         }
 
-        return method_exists($user, 'hasDirectPermission')
-            && $user->hasDirectPermission(self::COMMUNICATIONS_PERMISSION);
+        return self::userHasPermission($user, self::COMMUNICATIONS_PERMISSION);
+    }
+
+    public static function canManageCommunications(?Authenticatable $user = null): bool
+    {
+        return self::canAccessCommunications($user);
+    }
+
+    /** Sent/received log: every signed-in Flux staff member, read-only unless they can manage. */
+    public static function canViewCommunicationsLog(?Authenticatable $user = null): bool
+    {
+        return ($user ?? self::user()) !== null;
+    }
+
+    public static function canAssignCommunicationsPermission(?Authenticatable $user = null): bool
+    {
+        return self::isSuperAdmin($user);
+    }
+
+    public static function canEnterFluxAdmin(?Authenticatable $user = null): bool
+    {
+        $user ??= self::user();
+        if ($user === null) {
+            return false;
+        }
+
+        return (int) ($user->is_admin ?? 0) === 1
+            || self::isSuperAdmin($user)
+            || self::canAccessCommunications($user);
+    }
+
+    /** Granted communications access, but not a Flux admin account. */
+    public static function isCommunicationsOnlyStaff(?Authenticatable $user = null): bool
+    {
+        $user ??= self::user();
+        if ($user === null) {
+            return false;
+        }
+
+        if ((int) ($user->is_admin ?? 0) === 1 || self::isSuperAdmin($user)) {
+            return false;
+        }
+
+        return self::canAccessCommunications($user);
+    }
+
+    private static function resolveIsSuperAdmin(Authenticatable $user): bool
+    {
+        return self::userHasRole($user, 'Super Admin');
+    }
+
+    private static function userHasRole(Authenticatable $user, string $roleName): bool
+    {
+        if (method_exists($user, 'hasRole')) {
+            try {
+                if ($user->hasRole($roleName) || $user->hasRole($roleName, 'web')) {
+                    return true;
+                }
+            } catch (\Throwable) {
+                // Fall through to table checks.
+            }
+        }
+
+        $userId = (int) ($user->getAuthIdentifier() ?? 0);
+        if ($userId <= 0) {
+            return false;
+        }
+
+        $roleId = DB::table('roles')->where('name', $roleName)->value('id');
+        if (! $roleId) {
+            return false;
+        }
+
+        if (isset($user->role_id) && (int) $user->role_id === (int) $roleId) {
+            return true;
+        }
+
+        return Schema::hasTable('role_users')
+            && DB::table('role_users')
+                ->where('role_id', $roleId)
+                ->where('user_id', $userId)
+                ->exists();
+    }
+
+    private static function userHasPermission(Authenticatable $user, string $permission): bool
+    {
+        try {
+            if (method_exists($user, 'can') && $user->can($permission)) {
+                return true;
+            }
+
+            if (method_exists($user, 'hasPermissionTo') && $user->hasPermissionTo($permission, 'web')) {
+                return true;
+            }
+        } catch (\Throwable) {
+            return false;
+        }
+
+        return false;
     }
 }

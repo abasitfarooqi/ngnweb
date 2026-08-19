@@ -21,6 +21,8 @@ class Show extends Component
 
     public string $replyBody = '';
 
+    public int $realtimeTick = 0;
+
     /** @var array<int, mixed> */
     public array $replyFiles = [];
 
@@ -43,8 +45,13 @@ class Show extends Component
     }
 
     #[On('customerCommunicationReply')]
-    public function refreshFromRealtime(): void
+    public function refreshFromRealtime(?string $uuid = null): void
     {
+        if ($uuid && $uuid !== $this->uuid) {
+            return;
+        }
+
+        $this->realtimeTick++;
     }
 
     public function archive(): void

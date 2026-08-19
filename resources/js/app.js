@@ -62,6 +62,10 @@ function unlockSupportNotificationAudio() {
 }
 
 window.playSupportNotificationSound = function playSupportNotificationSound() {
+    if (!soundAlertsEnabled()) {
+        return;
+    }
+
     const context = unlockSupportNotificationAudio();
     if (!context || context.state === 'suspended') {
         return;
@@ -110,19 +114,30 @@ window.setupSupportConversationEcho = function setupSupportConversationEcho(conv
 };
 
 window.setupSupportStaffEcho = function setupSupportStaffEcho(onIncoming) {
+    if (typeof onIncoming === 'function') {
+        window.__supportStaffEchoOnIncoming = onIncoming;
+    }
     if (!window.supportEchoEnabled || !window.Echo) {
         return () => {};
     }
+    if (window.__supportStaffEchoBound) {
+        return () => {};
+    }
+
     const channel = window.Echo.private('support.staff');
     channel.listen('.message.sent', (payload) => {
-        if (typeof onIncoming === 'function') {
-            onIncoming(payload);
+        if (typeof window.refreshStaffUnreadBadges === 'function') {
+            window.refreshStaffUnreadBadges();
+            window.setTimeout(window.refreshStaffUnreadBadges, 400);
+        }
+        if (typeof window.__supportStaffEchoOnIncoming === 'function') {
+            window.__supportStaffEchoOnIncoming(payload);
         }
     });
 
-    return () => {
-        window.Echo.leave('private-support.staff');
-    };
+    window.__supportStaffEchoBound = true;
+
+    return () => {};
 };
 
 window.setupSupportCustomerEcho = function setupSupportCustomerEcho(customerAuthId, onIncoming) {
@@ -141,13 +156,52 @@ window.setupSupportCustomerEcho = function setupSupportCustomerEcho(customerAuth
     };
 };
 
-function customerCommunicationAlertsEnabled() {
-    if (typeof Notification === 'undefined') {
-        return false;
-    }
+const NGN_SOUND_KEY = 'ngn-communication-alerts';
 
-    return Notification.permission === 'granted'
-        || window.localStorage.getItem('ngn-communication-alerts') === '1';
+function soundAlertsEnabled() {
+    try {
+        return window.localStorage.getItem(NGN_SOUND_KEY) !== '0';
+    } catch (error) {
+        return true;
+    }
+}
+
+function persistSoundAlertsEnabled(enabled) {
+    try {
+        window.localStorage.setItem(NGN_SOUND_KEY, enabled ? '1' : '0');
+    } catch (error) {}
+
+    try {
+        window.__ngnSoundChannel?.postMessage({ enabled: !!enabled });
+    } catch (error) {}
+}
+
+function ensureSoundAlertsDefaultOn() {
+    try {
+        if (window.localStorage.getItem(NGN_SOUND_KEY) === null) {
+            window.localStorage.setItem(NGN_SOUND_KEY, '1');
+        }
+    } catch (error) {}
+}
+
+function readableCommunicationPreview(text, fallback) {
+    const value = String(text || '');
+    if (value.includes('-webkit-text-size-adjust') || value.includes('mso-table-') || value.includes('{mso-')) {
+        const before = value.split('{')[0].replace(/\b(?:body|html|table|td|a)(?:,(?:body|html|table|td|a))*\s*$/i, '').trim();
+        return before || fallback || '';
+    }
+    return value || fallback || '';
+}
+
+function soundAudioReady() {
+    const context = window.__supportNotificationAudioContext;
+    return !!(context && context.state !== 'suspended');
+}
+
+function customerCommunicationAlertsEnabled() {
+    return soundAlertsEnabled()
+        && typeof Notification !== 'undefined'
+        && Notification.permission === 'granted';
 }
 
 function showCustomerCommunicationBrowserAlert(payload) {
@@ -156,7 +210,7 @@ function showCustomerCommunicationBrowserAlert(payload) {
     }
 
     const notification = new Notification(payload.title || 'NGN Motors', {
-        body: payload.preview || payload.subject || '',
+        body: readableCommunicationPreview(payload.preview || payload.subject || '', payload.title || ''),
         tag: payload.uuid || 'ngn-communication',
     });
 
@@ -168,12 +222,72 @@ function showCustomerCommunicationBrowserAlert(payload) {
     };
 }
 
-function bumpPortalNotificationsBadge() {
+function applyPortalNotificationsBadge(count) {
+    const n = Math.max(0, parseInt(count, 10) || 0);
     document.querySelectorAll('.js-notifications-unread').forEach((badge) => {
-        const next = parseInt(badge.getAttribute('data-count') || badge.textContent || '0', 10) + 1;
-        badge.setAttribute('data-count', String(next));
-        badge.textContent = String(next);
-        badge.classList.remove('hidden');
+        badge.setAttribute('data-count', String(n));
+        badge.textContent = String(n);
+        badge.classList.toggle('hidden', n <= 0);
+    });
+}
+
+function bumpPortalNotificationsBadge() {
+    const first = document.querySelector('.js-notifications-unread');
+    const next = parseInt((first && (first.getAttribute('data-count') || first.textContent)) || '0', 10) + 1;
+    applyPortalNotificationsBadge(next);
+}
+
+function notificationMenuRow(item) {
+    const link = document.createElement('a');
+    link.href = `/account/notifications/${item.uuid}`;
+    link.setAttribute('data-notification-uuid', item.uuid);
+    link.className = 'block border-b border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700';
+
+    const title = document.createElement('p');
+    title.className = 'flex items-start justify-between gap-2 text-sm font-medium text-gray-900 dark:text-white';
+    const titleText = document.createElement('span');
+    titleText.className = 'min-w-0 truncate';
+    titleText.textContent = item.title || 'Notification';
+    title.appendChild(titleText);
+    if (item.unread) {
+        const unreadDot = document.createElement('span');
+        unreadDot.className = 'mt-1 inline-block h-2 w-2 shrink-0 bg-brand-red';
+        title.appendChild(unreadDot);
+    }
+    link.appendChild(title);
+
+    if (item.preview) {
+        const preview = document.createElement('p');
+        preview.className = 'mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400';
+        preview.textContent = readableCommunicationPreview(item.preview, item.title || '');
+        link.appendChild(preview);
+    }
+
+    if (item.created_at) {
+        const when = document.createElement('p');
+        when.className = 'mt-1 text-[11px] text-gray-400';
+        when.textContent = item.created_at;
+        link.appendChild(when);
+    }
+
+    return link;
+}
+
+function renderCustomerNotificationMenu(items) {
+    document.querySelectorAll('.js-notifications-dropdown-list').forEach((list) => {
+        list.replaceChildren();
+        if (!items || items.length === 0) {
+            const empty = document.createElement('p');
+            empty.className = 'js-notifications-empty px-3 py-4 text-sm text-gray-500 dark:text-gray-400';
+            empty.textContent = 'No notifications yet.';
+            list.appendChild(empty);
+            return;
+        }
+        items.forEach((item) => {
+            if (item && item.uuid) {
+                list.appendChild(notificationMenuRow(item));
+            }
+        });
     });
 }
 
@@ -192,30 +306,13 @@ function prependCustomerNotificationMenuItem(payload) {
             return;
         }
 
-        const link = document.createElement('a');
-        link.href = `/account/notifications/${payload.uuid}`;
-        link.setAttribute('data-notification-uuid', payload.uuid);
-        link.className = 'block border-b border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700/60';
-
-        const title = document.createElement('p');
-        title.className = 'flex items-start justify-between gap-2 text-sm font-medium text-gray-900 dark:text-white';
-        const titleText = document.createElement('span');
-        titleText.className = 'min-w-0 truncate';
-        titleText.textContent = payload.title || 'Notification';
-        const unreadDot = document.createElement('span');
-        unreadDot.className = 'mt-1 inline-block h-2 w-2 shrink-0 bg-brand-red';
-        title.appendChild(titleText);
-        title.appendChild(unreadDot);
-        link.appendChild(title);
-
-        if (payload.preview) {
-            const preview = document.createElement('p');
-            preview.className = 'mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400';
-            preview.textContent = payload.preview;
-            link.appendChild(preview);
-        }
-
-        list.insertBefore(link, list.firstChild);
+        list.insertBefore(notificationMenuRow({
+            uuid: payload.uuid,
+            title: payload.title || 'Notification',
+            preview: payload.preview || '',
+            created_at: '',
+            unread: true,
+        }), list.firstChild);
 
         const rows = list.querySelectorAll('a[data-notification-uuid]');
         rows.forEach((row, index) => {
@@ -226,34 +323,38 @@ function prependCustomerNotificationMenuItem(payload) {
     });
 }
 
+function staffSoundAlertsEnabled() {
+    return soundAlertsEnabled();
+}
+
+function communicationAlertStatusNodes() {
+    return document.querySelectorAll('#portal-browser-alerts-status, .js-communication-alerts-status');
+}
+
 function refreshCommunicationAlertStatus() {
-    const status = document.getElementById('portal-browser-alerts-status');
-    if (!status) {
-        return;
+    const on = soundAlertsEnabled();
+    const nodes = communicationAlertStatusNodes();
+    let text = 'Sound is off. Click to turn it on. This applies to every tab.';
+
+    if (on) {
+        if (typeof Notification !== 'undefined' && Notification.permission === 'denied') {
+            text = 'Sound is on in every tab until you turn it off. Browser pop-ups are blocked — sound still plays.';
+        } else if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+            text = window.supportEchoEnabled
+                ? 'Sound is on in every tab until you turn it off. Browser alerts are also on.'
+                : 'Sound is on in every tab until you turn it off. Live beeps need Pusher.';
+        } else {
+            text = 'Sound is on in every tab until you turn it off.';
+        }
     }
 
-    if (typeof Notification === 'undefined') {
-        status.textContent = 'Browser alerts are not available in this browser.';
-        return;
-    }
+    nodes.forEach((status) => {
+        status.textContent = text;
+    });
 
-    if (!window.supportEchoEnabled) {
-        status.textContent = 'Realtime is off until Pusher is configured. You can still allow browser alerts.';
-    }
-
-    if (Notification.permission === 'granted') {
-        status.textContent = window.supportEchoEnabled
-            ? 'Browser alerts are on. New messages will sound in real time.'
-            : 'Browser alerts are allowed, but realtime sound needs Pusher.';
-        return;
-    }
-
-    if (Notification.permission === 'denied') {
-        status.textContent = 'Browser alerts are blocked. Allow notifications for this site in the browser settings.';
-        return;
-    }
-
-    status.textContent = 'Browser alerts are off.';
+    document.querySelectorAll('[data-sound-toggle]').forEach((button) => {
+        button.textContent = on ? 'Turn sound off' : 'Turn sound on';
+    });
 }
 
 window.resizeCommunicationEmailFrame = function resizeCommunicationEmailFrame(iframe) {
@@ -287,52 +388,78 @@ window.resizeCommunicationEmailFrame = function resizeCommunicationEmailFrame(if
 };
 
 window.enableCustomerCommunicationAlerts = function enableCustomerCommunicationAlerts() {
+    ensureSoundAlertsDefaultOn();
     unlockSupportNotificationAudio();
-    window.localStorage.setItem('ngn-communication-alerts', '1');
 
-    if (typeof Notification === 'undefined') {
+    if (soundAlertsEnabled() && soundAudioReady()) {
+        persistSoundAlertsEnabled(false);
         refreshCommunicationAlertStatus();
-        window.playSupportNotificationSound();
-        return Promise.resolve('unsupported');
+        return Promise.resolve('off');
     }
+
+    persistSoundAlertsEnabled(true);
 
     const apply = (permission) => {
         refreshCommunicationAlertStatus();
         window.playSupportNotificationSound();
-        if (permission === 'granted') {
+
+        if (permission === 'granted' && typeof Notification !== 'undefined') {
             new Notification('NGN Motors alerts enabled', {
-                body: 'You will hear a sound and see an alert when a new notification arrives.',
+                body: 'You will hear a sound when a notification is sent or received.',
             });
         }
 
         return permission;
     };
 
+    if (typeof Notification === 'undefined') {
+        return Promise.resolve(apply('unsupported'));
+    }
+
     if (Notification.permission === 'granted') {
         return Promise.resolve(apply('granted'));
     }
 
     if (Notification.permission === 'denied') {
-        refreshCommunicationAlertStatus();
-        window.playSupportNotificationSound();
-        return Promise.resolve('denied');
+        return Promise.resolve(apply('denied'));
     }
 
-    return Notification.requestPermission().then(apply);
+    return Notification.requestPermission().then(apply).catch(() => apply('denied'));
 };
 
-function bindCommunicationAlertControls() {
-    refreshCommunicationAlertStatus();
-}
-
 document.addEventListener('click', function (event) {
-    const button = event.target.closest('#enable-communication-alerts');
+    const button = event.target.closest('#enable-communication-alerts, .js-enable-communication-alerts');
     if (!button) {
         return;
     }
     event.preventDefault();
     window.enableCustomerCommunicationAlerts();
 });
+
+try {
+    window.__ngnSoundChannel = new BroadcastChannel('ngn-communication-alerts');
+    window.__ngnSoundChannel.onmessage = function () {
+        refreshCommunicationAlertStatus();
+        if (soundAlertsEnabled()) {
+            unlockSupportNotificationAudio();
+        }
+    };
+} catch (error) {}
+
+window.addEventListener('storage', function (event) {
+    if (event.key !== NGN_SOUND_KEY) {
+        return;
+    }
+    refreshCommunicationAlertStatus();
+    if (soundAlertsEnabled()) {
+        unlockSupportNotificationAudio();
+    }
+});
+
+function bindCommunicationAlertControls() {
+    ensureSoundAlertsDefaultOn();
+    refreshCommunicationAlertStatus();
+}
 
 window.setupCustomerCommunicationsEcho = function setupCustomerCommunicationsEcho(customerAuthId) {
     if (!window.supportEchoEnabled || !window.Echo || !customerAuthId) {
@@ -379,10 +506,12 @@ window.setupCommunicationsStaffEcho = function setupCommunicationsStaffEcho() {
 
     const channel = window.Echo.private('communications.staff');
     channel.listen('.communication.created', (payload) => {
-        window.playSupportNotificationSound();
-        if (customerCommunicationAlertsEnabled() && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        if (staffSoundAlertsEnabled()) {
+            window.playSupportNotificationSound();
+        }
+        if (staffSoundAlertsEnabled() && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
             const notification = new Notification((payload && payload.title) || 'NGN Motors', {
-                body: (payload && (payload.preview || payload.subject)) || 'New customer notification',
+                body: readableCommunicationPreview((payload && (payload.preview || payload.subject)) || '', 'New customer notification'),
                 tag: (payload && payload.uuid) || 'ngn-staff-communication',
             });
             notification.onclick = function () {
@@ -393,13 +522,23 @@ window.setupCommunicationsStaffEcho = function setupCommunicationsStaffEcho() {
             };
         }
         if (window.Livewire) {
-            window.Livewire.dispatch('staffCommunicationCreated', payload || {});
+            window.Livewire.dispatch('staffCommunicationCreated', (payload && payload.uuid) ? { uuid: payload.uuid } : {});
+        }
+        if (typeof window.refreshStaffUnreadBadges === 'function') {
+            window.refreshStaffUnreadBadges();
+            window.setTimeout(window.refreshStaffUnreadBadges, 400);
         }
     });
     channel.listen('.communication.reply', (payload) => {
-        window.playSupportNotificationSound();
+        if (staffSoundAlertsEnabled()) {
+            window.playSupportNotificationSound();
+        }
         if (window.Livewire) {
-            window.Livewire.dispatch('staffCommunicationReply', payload || {});
+            window.Livewire.dispatch('staffCommunicationReply', (payload && payload.uuid) ? { uuid: payload.uuid } : {});
+        }
+        if (typeof window.refreshStaffUnreadBadges === 'function') {
+            window.refreshStaffUnreadBadges();
+            window.setTimeout(window.refreshStaffUnreadBadges, 400);
         }
     });
 
@@ -506,13 +645,7 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
 };
 
 function teardownSupportAdminRealtime() {
-    const s = window.__supportAdminRealtimeState;
-    if (!s) {
-        return;
-    }
-    if (typeof s.detachStaff === 'function') {
-        s.detachStaff();
-    }
+    window.__supportStaffEchoOnIncoming = null;
     window.__supportAdminRealtimeState = null;
 }
 
@@ -552,6 +685,113 @@ function ngnStartAlpineIfNeeded() {
     window.__ngnAlpineStarted = true;
 }
 
+function applyStaffUnreadBadge(selector, count) {
+    const n = Math.max(0, parseInt(count, 10) || 0);
+    document.querySelectorAll(selector).forEach((el) => {
+        el.textContent = n > 99 ? '99+' : String(n);
+        el.setAttribute('data-count', String(n));
+        el.classList.toggle('hidden', n <= 0);
+        el.hidden = n <= 0;
+    });
+}
+
+window.refreshStaffUnreadBadges = function refreshStaffUnreadBadges() {
+    const url = document.body.getAttribute('data-staff-unread-url');
+    if (!url || document.hidden || window.__staffUnreadBadgeBusy) {
+        return;
+    }
+
+    window.__staffUnreadBadgeBusy = true;
+    fetch(`${url}${url.includes('?') ? '&' : '?'}_cb=${Date.now()}`, {
+        cache: 'no-store',
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => {
+            if (!data) {
+                return;
+            }
+            applyStaffUnreadBadge('.js-staff-inbox-unread', data.inbox);
+            applyStaffUnreadBadge('.js-staff-notifications-unread', data.notifications);
+        })
+        .catch(() => {})
+        .finally(() => {
+            window.__staffUnreadBadgeBusy = false;
+        });
+};
+
+window.bindStaffUnreadBadgePoll = function bindStaffUnreadBadgePoll() {
+    if (window.__staffUnreadBadgeTimer) {
+        window.clearInterval(window.__staffUnreadBadgeTimer);
+        window.__staffUnreadBadgeTimer = null;
+    }
+    if (!document.body.getAttribute('data-staff-unread-url')) {
+        return;
+    }
+    window.refreshStaffUnreadBadges();
+    window.__staffUnreadBadgeTimer = window.setInterval(window.refreshStaffUnreadBadges, 8000);
+    if (!window.__staffUnreadBadgeVisibilityBound) {
+        window.__staffUnreadBadgeVisibilityBound = true;
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                window.refreshStaffUnreadBadges();
+            }
+        });
+    }
+};
+
+window.refreshPortalNotificationsLive = function refreshPortalNotificationsLive() {
+    const url = document.body.getAttribute('data-notifications-live-url');
+    if (!url) {
+        return;
+    }
+
+    fetch(`${url}${url.includes('?') ? '&' : '?'}_cb=${Date.now()}`, {
+        cache: 'no-store',
+        credentials: 'same-origin',
+        headers: {
+            Accept: 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+    })
+        .then((response) => (response.ok ? response.json() : null))
+        .then((data) => {
+            if (!data) {
+                return;
+            }
+            const items = Array.isArray(data.items) ? data.items : [];
+            const fingerprint = `${data.unread || 0}:${items.map((item) => `${item.uuid}:${item.unread ? 1 : 0}`).join(',')}`;
+            if (window.__portalNotificationsFingerprint === fingerprint) {
+                return;
+            }
+            const wasReady = typeof window.__portalNotificationsFingerprint === 'string';
+            const unreadGrew = wasReady && (parseInt(data.unread, 10) || 0) > (parseInt(String(window.__portalNotificationsFingerprint).split(':')[0], 10) || 0);
+            window.__portalNotificationsFingerprint = fingerprint;
+            applyPortalNotificationsBadge(data.unread);
+            renderCustomerNotificationMenu(items);
+            if (unreadGrew && !window.supportEchoEnabled && typeof window.playSupportNotificationSound === 'function') {
+                window.playSupportNotificationSound();
+            }
+        })
+        .catch(() => {});
+};
+
+window.bindPortalNotificationsLive = function bindPortalNotificationsLive() {
+    if (window.__portalNotificationsTimer) {
+        window.clearInterval(window.__portalNotificationsTimer);
+        window.__portalNotificationsTimer = null;
+    }
+    if (!document.body.getAttribute('data-notifications-live-url')) {
+        return;
+    }
+    window.refreshPortalNotificationsLive();
+    window.__portalNotificationsTimer = window.setInterval(window.refreshPortalNotificationsLive, 1500);
+};
+
 document.addEventListener('DOMContentLoaded', function () {
     ngnStartAlpineIfNeeded();
 
@@ -568,6 +808,18 @@ document.addEventListener('DOMContentLoaded', function () {
     if (document.body.getAttribute('data-staff-communications') === '1' && typeof window.setupCommunicationsStaffEcho === 'function') {
         window.setupCommunicationsStaffEcho();
     }
+    if (document.body.getAttribute('data-staff-unread-url') && typeof window.setupSupportStaffEcho === 'function') {
+        window.setupSupportStaffEcho();
+    }
+    if (typeof window.refreshStaffUnreadBadges === 'function') {
+        window.refreshStaffUnreadBadges();
+    }
+    if (typeof window.bindStaffUnreadBadgePoll === 'function') {
+        window.bindStaffUnreadBadgePoll();
+    }
+    if (typeof window.bindPortalNotificationsLive === 'function') {
+        window.bindPortalNotificationsLive();
+    }
     bindCommunicationAlertControls();
 });
 
@@ -578,6 +830,12 @@ document.addEventListener('livewire:init', function () {
     window.Livewire.on('support:incoming-message', function () {
         if (typeof window.playSupportNotificationSound === 'function') {
             window.playSupportNotificationSound();
+        }
+    });
+    window.Livewire.on('staffUnreadBadgesChanged', function () {
+        if (typeof window.refreshStaffUnreadBadges === 'function') {
+            window.refreshStaffUnreadBadges();
+            window.setTimeout(window.refreshStaffUnreadBadges, 400);
         }
     });
 });
@@ -605,6 +863,18 @@ document.addEventListener('livewire:navigated', function () {
     }
     if (document.body.getAttribute('data-staff-communications') === '1' && typeof window.setupCommunicationsStaffEcho === 'function') {
         window.setupCommunicationsStaffEcho();
+    }
+    if (document.body.getAttribute('data-staff-unread-url') && typeof window.setupSupportStaffEcho === 'function') {
+        window.setupSupportStaffEcho();
+    }
+    if (typeof window.refreshStaffUnreadBadges === 'function') {
+        window.refreshStaffUnreadBadges();
+    }
+    if (typeof window.bindStaffUnreadBadgePoll === 'function') {
+        window.bindStaffUnreadBadgePoll();
+    }
+    if (typeof window.bindPortalNotificationsLive === 'function') {
+        window.bindPortalNotificationsLive();
     }
     bindCommunicationAlertControls();
 });

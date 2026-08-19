@@ -14,7 +14,7 @@
     @livewireStyles
     <style>[x-cloak]{display:none!important}</style>
 </head>
-<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}">
+<body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}" @if(auth('customer')->check()) data-notifications-live-url="{{ route('account.notifications.live') }}" @endif>
 
 {{-- Top Nav --}}
 <nav class="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 sticky top-0 z-40">

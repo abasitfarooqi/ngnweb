@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\RecurringController as JudopayRecurringController
 use App\Http\Controllers\FluxAdmin\CommunicationAttachmentController;
 use App\Http\Controllers\FluxAdmin\CommunicationEmailPreviewController;
 use App\Http\Controllers\FluxAdmin\SpacesVaultController;
+use App\Http\Controllers\FluxAdmin\UnreadBadgeController;
 use App\Livewire\FluxAdmin\Pages\Access\RentalTerminateForm;
 use App\Livewire\FluxAdmin\Pages\Access\RentalTerminateIndex;
 use App\Livewire\FluxAdmin\Pages\Access\ServiceVideoForm;
@@ -393,12 +394,22 @@ Route::get('/branches', BranchIndex::class)->name('flux-admin.branches.index');
 Route::get('/branches/create', BranchForm::class)->name('flux-admin.branches.create');
 Route::get('/branches/{branch}', BranchShow::class)->name('flux-admin.branches.show');
 
+Route::get('/unread-badges', UnreadBadgeController::class)->name('flux-admin.unread-badges');
+
 Route::get('/communications', CommunicationIndex::class)->name('flux-admin.communications.index');
 Route::get('/communications/sent', CommunicationSentIndex::class)->name('flux-admin.communications.sent.index');
 Route::get('/communications/sent/{communication:uuid}/attachments/{attachment}', CommunicationAttachmentController::class)->name('flux-admin.communications.sent.attachments.show');
 Route::get('/communications/sent/{communication:uuid}', CommunicationSentShow::class)->name('flux-admin.communications.sent.show');
 Route::get('/communications/{communicationDefinition}/email-preview', CommunicationEmailPreviewController::class)->name('flux-admin.communications.email-preview');
 Route::get('/communications/{communicationDefinition}', CommunicationShow::class)->name('flux-admin.communications.show');
+
+Route::post('/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+
+    return redirect()->route('flux-admin.login');
+})->name('flux-admin.logout');
 
 // Phase 1 — Users & Security
 Route::get('/users', UserIndex::class)->name('flux-admin.users.index');

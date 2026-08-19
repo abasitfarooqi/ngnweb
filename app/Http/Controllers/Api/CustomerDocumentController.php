@@ -32,7 +32,7 @@ class CustomerDocumentController extends Controller
         }
 
         $context = (string) $request->query('context', 'all');
-        $query = DocumentType::query()->orderBy('sort_order');
+        $query = DocumentType::query()->orderBy('sort_order')->forCustomerUpload();
 
         if ($context === 'rental') {
             $query->forRental();

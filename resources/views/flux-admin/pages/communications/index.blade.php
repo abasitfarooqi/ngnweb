@@ -15,9 +15,9 @@
                 <flux:text class="mt-2 max-w-3xl">
                     When OFF, this control layer is bypassed and existing transactional email behaviour remains active. OFF does not stop customer emails.
                 </flux:text>
-                @if(\App\Support\FluxAdminAccess::isSuperAdmin())
+                @if($canToggleGlobal)
                     <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-                        Hidden from global search. To give one staff member temporary access, assign the <span class="font-mono">manage-communications</span> permission on their user record. Remove it to lock them out again (403).
+                        Hidden from global search. Super Admin always has access. Others need the manage-communications right.
                     </p>
                 @endif
                 @unless($schemaReady)
@@ -60,74 +60,140 @@
         </div>
     </div>
 
-    <x-flux-admin::data-table title="Communication definitions" description="Transactional customer communications only. Campaign and marketing systems are excluded.">
+    @if($canToggleGlobal)
+        <div class="overflow-hidden border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+            <flux:heading size="lg">Temporary access</flux:heading>
+            <flux:text class="mt-2 max-w-3xl">
+                Super Admin can grant this to any account in Users — Admin, Super Admin, or a normal person with no admin role. They sign in at Flux Admin and only see Communications. It does not make them an Admin. Remove it when the work is finished.
+            </flux:text>
+
+            <form wire:submit="grantTemporaryAccess" class="mt-4 space-y-3">
+                <flux:input
+                    wire:model.live.debounce.400ms="grantUserSearch"
+                    placeholder="Search name, email or username…"
+                    icon="magnifying-glass"
+                />
+                <select
+                    wire:model="grantAccessUserId"
+                    size="4"
+                    class="comms-grant-user-list w-full border border-zinc-300 bg-white px-2 py-1 text-sm text-zinc-900 !rounded-none focus:border-zinc-600 focus:outline-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                >
+                    @forelse($grantableUsers as $grantableUser)
+                        <option value="{{ $grantableUser->id }}">
+                            {{ trim(($grantableUser->first_name ?? '').' '.($grantableUser->last_name ?? '')) ?: ($grantableUser->name ?: $grantableUser->email) }}
+                            — {{ $grantableUser->email }}
+                            @if($grantableUser->username) · {{ $grantableUser->username }} @endif
+                            · {{ $grantableUser->is_admin ? 'Admin' : 'User' }}
+                        </option>
+                    @empty
+                        <option value="" disabled>No users match that search.</option>
+                    @endforelse
+                </select>
+                @error('grantAccessUserId')
+                    <p class="text-xs text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+                <div class="flex flex-wrap items-center justify-between gap-2 bg-white py-1 dark:bg-zinc-900">
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">
+                        Four names visible. Scroll that list, or type to search.
+                    </p>
+                    <flux:button type="submit" size="sm" variant="primary" class="!rounded-none" :disabled="$grantableUsers->isEmpty()">Grant access</flux:button>
+                </div>
+            </form>
+
+            @if($temporaryAccessUsers->isNotEmpty())
+                <div class="mt-4 divide-y divide-zinc-200 border border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+                    @foreach($temporaryAccessUsers as $accessUser)
+                        <div class="flex flex-wrap items-center justify-between gap-2 px-3 py-2" wire:key="comms-access-{{ $accessUser->id }}">
+                            <div class="min-w-0">
+                                <div class="text-sm font-medium text-zinc-900 dark:text-white">
+                                    {{ trim(($accessUser->first_name ?? '').' '.($accessUser->last_name ?? '')) ?: ($accessUser->name ?: $accessUser->email) }}
+                                </div>
+                                <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $accessUser->email }}</div>
+                            </div>
+                            <flux:button
+                                size="xs"
+                                variant="danger"
+                                class="!rounded-none"
+                                wire:click="revokeTemporaryAccess({{ $accessUser->id }})"
+                                wire:confirm="Remove communications access for this user? They will get a 403 until you grant it again."
+                            >Remove</flux:button>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">No temporary access is currently granted.</p>
+            @endif
+        </div>
+    @endif
+
+    <x-flux-admin::data-table title="Communication definitions" description="Transactional customer communications only, including rental agreements, finance contracts and PDF attachments. Campaign and marketing systems are excluded.">
         <x-slot:actions>
             <a href="{{ route('flux-admin.communications.sent.index') }}">
                 <flux:button size="sm" variant="ghost" icon="inbox" class="!rounded-none">Sent log</flux:button>
             </a>
-            <flux:button size="sm" variant="ghost" icon="arrow-path" wire:click="$refresh" class="!rounded-none">Refresh</flux:button>
+            <flux:button size="sm" variant="ghost" icon="arrow-path" wire:click="syncCatalogue" class="!rounded-none">Sync list</flux:button>
         </x-slot:actions>
         <x-slot:toolbar>
             <x-flux-admin::filter-bar search-placeholder="Search name, key, category or class...">
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
-                    <flux:select wire:model.live="filters.classification" placeholder="Type">
-                        <flux:select.option value="">Any type</flux:select.option>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.classification" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any type</option>
                         @foreach($filterClassifications as $classification)
-                            <flux:select.option value="{{ $classification }}">{{ ucfirst((string) $classification) }}</flux:select.option>
+                            <option value="{{ $classification }}">{{ ucfirst((string) $classification) }}</option>
                         @endforeach
-                    </flux:select>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
-                    <flux:select wire:model.live="filters.category" placeholder="Category">
-                        <flux:select.option value="">Any category</flux:select.option>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.category" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any category</option>
                         @foreach($filterCategories as $category)
-                            <flux:select.option value="{{ $category }}">{{ ucfirst((string) $category) }}</flux:select.option>
+                            <option value="{{ $category }}">{{ ucfirst((string) $category) }}</option>
                         @endforeach
-                    </flux:select>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
-                    <flux:select wire:model.live="filters.priority" placeholder="Priority">
-                        <flux:select.option value="">Any priority</flux:select.option>
-                        <flux:select.option value="critical">Critical</flux:select.option>
-                        <flux:select.option value="important">Important</flux:select.option>
-                        <flux:select.option value="normal">Normal</flux:select.option>
-                        <flux:select.option value="informational">Informational</flux:select.option>
-                    </flux:select>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.priority" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any priority</option>
+                        <option value="critical">Critical</option>
+                        <option value="important">Important</option>
+                        <option value="normal">Normal</option>
+                        <option value="informational">Informational</option>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
-                    <flux:select wire:model.live="filters.mode" placeholder="Mode">
-                        <flux:select.option value="">Any mode</flux:select.option>
-                        <flux:select.option value="managed">Managed</flux:select.option>
-                        <flux:select.option value="legacy">Legacy</flux:select.option>
-                    </flux:select>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.mode" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any mode</option>
+                        <option value="managed">Managed</option>
+                        <option value="legacy">Legacy</option>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
-                    <flux:select wire:model.live="filters.email" placeholder="Email">
-                        <flux:select.option value="">Any email</flux:select.option>
-                        <flux:select.option value="on">Email ON</flux:select.option>
-                        <flux:select.option value="off">Email OFF</flux:select.option>
-                    </flux:select>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.email" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any email</option>
+                        <option value="on">Email ON</option>
+                        <option value="off">Email OFF</option>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
-                    <flux:select wire:model.live="filters.inbox" placeholder="Inbox">
-                        <flux:select.option value="">Any inbox</flux:select.option>
-                        <flux:select.option value="on">Inbox ON</flux:select.option>
-                        <flux:select.option value="off">Inbox OFF</flux:select.option>
-                    </flux:select>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.inbox" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any inbox</option>
+                        <option value="on">Inbox ON</option>
+                        <option value="off">Inbox OFF</option>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-36 lg:flex-none">
-                    <flux:select wire:model.live="filters.web_push" placeholder="Web push">
-                        <flux:select.option value="">Any web push</flux:select.option>
-                        <flux:select.option value="on">Web push ON</flux:select.option>
-                        <flux:select.option value="off">Web push OFF</flux:select.option>
-                    </flux:select>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.web_push" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any web push</option>
+                        <option value="on">Web push ON</option>
+                        <option value="off">Web push OFF</option>
+                    </select>
                 </div>
-                <div class="min-w-0 w-full sm:min-w-[11rem] sm:flex-1 lg:w-40 lg:flex-none">
-                    <flux:select wire:model.live="filters.mobile_push" placeholder="Mobile push">
-                        <flux:select.option value="">Any mobile push</flux:select.option>
-                        <flux:select.option value="on">Mobile push ON</flux:select.option>
-                        <flux:select.option value="off">Mobile push OFF</flux:select.option>
-                    </flux:select>
+                <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.mobile_push" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any mobile push</option>
+                        <option value="on">Mobile push ON</option>
+                        <option value="off">Mobile push OFF</option>
+                    </select>
                 </div>
             </x-flux-admin::filter-bar>
         </x-slot:toolbar>
@@ -150,7 +216,13 @@
                     @php($policy = $definition->policy)
                     <flux:table.row wire:key="comm-def-{{ $definition->id }}">
                         <flux:table.cell>
-                            <div class="font-medium text-zinc-900 dark:text-white">{{ $definition->name }}</div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="font-medium text-zinc-900 dark:text-white">{{ $definition->name }}</div>
+                                @php($definitionVars = is_array($definition->variables) ? $definition->variables : [])
+                                @if(in_array('pdf', $definitionVars, true) || in_array('documents', $definitionVars, true))
+                                    <flux:badge color="zinc">PDF</flux:badge>
+                                @endif
+                            </div>
                             <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ $definition->classification }}</div>
                             <div class="mt-1 max-w-md truncate font-mono text-[11px] text-zinc-500 dark:text-zinc-500">
                                 {{ $definition->email_class ?: $definition->source_class ?: 'No source declared' }}
@@ -238,7 +310,7 @@
                     <flux:table.row>
                         <flux:table.cell colspan="10" class="py-10 text-center text-zinc-500 dark:text-zinc-400">
                             @if($schemaReady)
-                                No transactional communication definitions have been synchronized yet.
+                                No definitions yet. Use Sync list to load rental agreements, finance contracts and the other transactional emails.
                             @else
                                 Communication tables are not available yet. Run the migration before synchronizing definitions.
                             @endif

@@ -47,4 +47,11 @@ trait WithAuthorization
             throw new AuthorizationException('You do not have permission to access this section.');
         }
     }
+
+    protected function authorizeSuperAdmin(): void
+    {
+        if (! FluxAdminAccess::isSuperAdmin()) {
+            throw new AuthorizationException('Only Super Admin can access this section.');
+        }
+    }
 }
