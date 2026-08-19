@@ -90,6 +90,12 @@
             padding-left: 10px;
         }
 
+        .td-cont {
+            border: none;
+            padding: 8px;
+            padding-left: 10px;
+        }
+
         .attention {
             color: red;
             font-weight: bold;
@@ -158,40 +164,39 @@
         {{ $motorbike->reg_no }}
         {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }} {{ $motorbike->reg_no }}
         {{ $motorbike->reg_no }} {{ $customer->first_name }}
-        {{ $customer->last_name }} </div>
-    <div class="container">
+        {{ $customer->last_name }}
+    </div>
+    <div class="watermark" style="letter-spacing: 1.7px">{{ $motorbike->reg_no }}
+        {{ $customer->first_name }}
+        {{ $customer->last_name }} | V1 Rev#0 | Hire Contract Termination
+    </div>
 
-
-        <div class="header" style="padding:1px;margin:1px">
-            <span style="font-size:7px">V1 Rev#0</span>
-            <table style="border:none !important;padding:1px;margin:1px">
-                <tr>
-                    <td style="width: 20%">
-                        <img src="{{ $agreementPdfLogoSrc }}"
-                            alt="Neguinho Motors" width="85%">
-                    </td>
-                    <td style="width: 50%">
-                        <div class="address">
-                            9-13 Catford Hill, <br>
-                            London, SE6 4NU<br>
-                            0203 409 5478 / 0208 314 1498<br>
-                            customerservice@neguinhomotors.co.uk<br>
-                            ngnmotors.co.uk
-                        </div>
-                    </td>
-                    <td style="width: 30%">
-                        <div class="title">HIRE CONTRACT TERMINATION</div>
-                    </td>
-                </tr>
-            </table>
-        </div>
-
+    <div class="header" style="padding:1px;margin:0px">
+        <table style="padding:0px !important;width: 100%;">
+            <tr>
+                <td style="width: 20%;">
+                    <img src="{{ $agreementPdfLogoSrc }}"
+                        alt="Neguinho Motors" width="100%" style="padding-top:10px">
+                </td>
+                <td style="width: 50%;padding: 10px 8px;">
+                    <div class="address">
+                        9-13 Catford Hill, <br>
+                        London, SE6 4NU<br>
+                        0203 409 5478 / 0208 314 1498<br>
+                        customerservice@neguinhomotors.co.uk<br>
+                        ngnmotors.co.uk
+                    </div>
+                </td>
+                <td style="width: 30%">
+                    <div class="title">HIRE CONTRACT TERMINATION</div>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <div class="container">
 
-        <h3
-            style="text-align: center; background-color: #c31924; color: white; padding: 10px; letter-spacing: 1.3px; font-weight: bolder; text-transform: uppercase;">
+        <h3 style="text-align: center; padding:10px 0px !important; margin:15px 0px 10px 0px !important;">
             Confirmation of Contract Termination. Contract ID: {{ $booking->id }}
         </h3>
 
@@ -380,23 +385,17 @@
             steps to conclude this contractual relationship in good faith have been taken.
         </p>
 
-        {{-- Signature Section --}}
-        <div style="margin-top: 10px;">
-
-            <p class="td-cont">
-                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '', 'private') }}" style="width: 199.25px; height: 71.2px">
-
-            </p>
-            <p>Sincerely,</p>
-            <p><strong>{{ $customer->first_name }} {{ $customer->last_name }}</strong></p>
-            <p>Date: {{ \Carbon\Carbon::parse($bookingItem->updated_at)->format('d-F-Y') }}</p>
+        <div class="agreement-section">
+            <div class="agreement-section">
+                <h3>Name: {{ $customer->first_name }} {{ $customer->last_name }}</h3>
+                <h4>Signature Date: {{ $signatureDate }}</h4>
+                <h3>Signature</h3>
+                <p>By signing below, the customer agrees to the terms and conditions of this Hire Contract Termination.</p>
+                <img src="{{ \App\Support\AgreementPdfViewAssets::signatureSrc($SIGFILE ?? '', 'private') }}" style="width: 313.6px; height: 112px">
+            </div>
         </div>
 
     </div>
-
-    </div>
-
-    
 
     @include('livewire.agreements.pdf.partials.pdf-page-script')
     <div class="footer">
