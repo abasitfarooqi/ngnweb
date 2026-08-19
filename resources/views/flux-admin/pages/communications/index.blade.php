@@ -322,24 +322,43 @@
         <x-slot:footer>{{ $definitions->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 
-    <x-flux-admin::data-table title="Excluded or legacy email areas" description="These are intentionally not controlled by this transactional customer communication panel.">
-        <flux:table>
-            <flux:table.columns>
-                <flux:table.column>Email area</flux:table.column>
-                <flux:table.column>Classification</flux:table.column>
-                <flux:table.column>Reason</flux:table.column>
-            </flux:table.columns>
-            <flux:table.rows>
-                @foreach($excludedInventory as $item)
-                    <flux:table.row wire:key="excluded-{{ md5((string) ($item['name'] ?? '')) }}">
-                        <flux:table.cell class="font-medium text-zinc-900 dark:text-white">{{ $item['name'] ?? 'Unknown' }}</flux:table.cell>
-                        <flux:table.cell>
-                            <flux:badge color="zinc">{{ $item['type'] ?? 'Excluded' }}</flux:badge>
-                        </flux:table.cell>
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $item['reason'] ?? '' }}</flux:table.cell>
-                    </flux:table.row>
-                @endforeach
-            </flux:table.rows>
-        </flux:table>
-    </x-flux-admin::data-table>
+    <div class="flex flex-col gap-4">
+        <div class="min-w-0">
+            <h2 class="flux-admin-page-title text-2xl font-bold text-zinc-900 dark:text-white">Excluded or legacy email areas</h2>
+            <p class="mt-1 max-w-3xl text-sm text-zinc-500 dark:text-zinc-400">These are intentionally not controlled by this transactional customer communication panel.</p>
+        </div>
+
+        <div class="divide-y divide-zinc-200 border border-zinc-200 bg-white shadow-sm dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900 md:hidden">
+            @foreach($excludedInventory as $item)
+                <div class="p-4" wire:key="excluded-mobile-{{ md5((string) ($item['name'] ?? '')) }}">
+                    <div class="font-medium text-zinc-900 dark:text-white">{{ $item['name'] ?? 'Unknown' }}</div>
+                    <div class="mt-2">
+                        <flux:badge color="zinc">{{ $item['type'] ?? 'Excluded' }}</flux:badge>
+                    </div>
+                    <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{{ $item['reason'] ?? '' }}</p>
+                </div>
+            @endforeach
+        </div>
+
+        <div class="flux-admin-table-panel flux-admin-table-readable hidden border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900 md:block">
+            <flux:table>
+                <flux:table.columns>
+                    <flux:table.column class="w-[28%]">Email area</flux:table.column>
+                    <flux:table.column class="w-[14%]">Classification</flux:table.column>
+                    <flux:table.column>Reason</flux:table.column>
+                </flux:table.columns>
+                <flux:table.rows>
+                    @foreach($excludedInventory as $item)
+                        <flux:table.row wire:key="excluded-{{ md5((string) ($item['name'] ?? '')) }}">
+                            <flux:table.cell class="font-medium text-zinc-900 dark:text-white">{{ $item['name'] ?? 'Unknown' }}</flux:table.cell>
+                            <flux:table.cell>
+                                <flux:badge color="zinc">{{ $item['type'] ?? 'Excluded' }}</flux:badge>
+                            </flux:table.cell>
+                            <flux:table.cell class="text-zinc-600 dark:text-zinc-400">{{ $item['reason'] ?? '' }}</flux:table.cell>
+                        </flux:table.row>
+                    @endforeach
+                </flux:table.rows>
+            </flux:table>
+        </div>
+    </div>
 </div>
