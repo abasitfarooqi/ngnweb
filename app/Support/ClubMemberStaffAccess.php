@@ -10,7 +10,7 @@ final class ClubMemberStaffAccess
 {
     public static function canAccessPortal(): bool
     {
-        return FluxAdminAccess::user() !== null;
+        return FluxAdminAccess::isSuperAdmin();
     }
 
     public static function isRestrictedStaff(): bool

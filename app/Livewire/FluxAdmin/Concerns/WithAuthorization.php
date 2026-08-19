@@ -3,6 +3,7 @@
 namespace App\Livewire\FluxAdmin\Concerns;
 
 use App\Support\FluxAdminAccess;
+use App\Support\FluxAdminPageAccess;
 use Illuminate\Auth\Access\AuthorizationException;
 
 /**
@@ -16,25 +17,28 @@ trait WithAuthorization
 
     protected function authorizeModule(string $permission): void
     {
-        $user = backpack_user();
+        $user = backpack_user() ?? FluxAdminAccess::user();
 
         if (! $user) {
             abort(403);
+        }
+
+        $route = request()->route();
+        $name = $route?->getName();
+
+        if (is_string($name) && str_starts_with($name, 'flux-admin.')) {
+            if (! FluxAdminPageAccess::allows($user, $name, $route?->parameter('module'))) {
+                throw new AuthorizationException('You do not have permission to access this section.');
+            }
+
+            return;
         }
 
         if (FluxAdminAccess::isSuperAdmin($user)) {
             return;
         }
 
-        $permissionExists = app(\Spatie\Permission\PermissionRegistrar::class)
-            ->getPermissions()
-            ->contains('name', $permission);
-
-        if (! $permissionExists) {
-            return;
-        }
-
-        if (method_exists($user, 'can') && $user->can($permission)) {
+        if (FluxAdminPageAccess::userHasPermission($user, $permission)) {
             return;
         }
 
@@ -43,7 +47,7 @@ trait WithAuthorization
 
     protected function authorizeFullClubAdmin(): void
     {
-        if (! FluxAdminAccess::canFullClubAdmin()) {
+        if (! FluxAdminAccess::isSuperAdmin()) {
             throw new AuthorizationException('You do not have permission to access this section.');
         }
     }

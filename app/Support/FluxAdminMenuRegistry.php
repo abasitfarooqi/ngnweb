@@ -2,7 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
@@ -67,50 +66,35 @@ final class FluxAdminMenuRegistry
 
         $when = $entry['when'] ?? null;
 
-        if ($when === 'full_club_admin') {
-            return FluxAdminAccess::canFullClubAdmin($user);
+        if ($when === 'full_club_admin' || $when === 'super_admin' || ! empty($entry['super_admin'])) {
+            return FluxAdminAccess::isSuperAdmin($user);
         }
 
-        if ($when === 'limited_club') {
-            return ! FluxAdminAccess::canFullClubAdmin($user);
-        }
-
-        if ($when === 'club_commons_role') {
-            return method_exists($user, 'hasRole')
-                && $user->hasRole('see-menu-commons')
-                && ! FluxAdminAccess::canFullClubAdmin($user);
-        }
+        $requirement = [];
 
         if (! empty($entry['role'])) {
-            return method_exists($user, 'hasRole') && $user->hasRole((string) $entry['role']);
+            $requirement['role'] = (string) $entry['role'];
         }
 
         if (! empty($entry['canany']) && is_array($entry['canany'])) {
-            foreach ($entry['canany'] as $permission) {
-                if (self::userCan($user, (string) $permission)) {
-                    return true;
-                }
-            }
-
-            return false;
+            $requirement['any'] = $entry['canany'];
         }
 
         $permission = $entry['permission'] ?? null;
 
         if ($permission !== null && $permission !== '') {
-            return self::userCan($user, (string) $permission);
+            $requirement['permission'] = (string) $permission;
         }
 
-        return true;
-    }
-
-    protected static function userCan(Authenticatable $user, string $permission): bool
-    {
-        if (method_exists($user, 'can') && $user->can($permission)) {
-            return true;
+        if ($requirement !== []) {
+            return FluxAdminPageAccess::allowsRequirement($user, $requirement);
         }
 
-        return FluxAdminAccess::isSuperAdmin($user) || FluxAdminAccess::isAdmin($user);
+        $route = $entry['route'] ?? null;
+
+        return is_string($route) && $route !== ''
+            ? FluxAdminPageAccess::allows($user, $route)
+            : true;
     }
 
     public static function matches(string $query, array $item): bool

@@ -23,6 +23,7 @@ class Kernel extends HttpKernel
         'sync.auth' => \App\Http\Middleware\SyncAuth::class,
         'check.admin.access' => \App\Http\Middleware\CheckAdminAccessMiddleware::class,
         'flux.communications-only' => \App\Http\Middleware\RestrictCommunicationsOnlyStaff::class,
+        'flux.page-access' => \App\Http\Middleware\EnsureFluxAdminPageAccess::class,
     ];
 
     protected $middlewareGroups = [

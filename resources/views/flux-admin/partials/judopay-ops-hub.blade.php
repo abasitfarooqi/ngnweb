@@ -7,6 +7,7 @@
         ['label' => 'NGN MIT queue', 'route' => 'flux-admin.ngn-mit-queue.index', 'match' => 'flux-admin.ngn-mit-queue.*'],
         ['label' => 'Judopay MIT queue', 'route' => 'flux-admin.judopay-mit-queue.index', 'match' => 'flux-admin.judopay-mit-queue.*'],
     ];
+    $opsHub = \App\Support\FluxAdminPageAccess::visibleLinks($opsHub);
 @endphp
 <div class="mb-4 flex flex-col gap-3 border border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-900 sm:flex-row sm:items-center sm:justify-between">
     <div class="flex flex-wrap gap-2">

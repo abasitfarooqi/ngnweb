@@ -106,6 +106,32 @@
                 display: none;
             }
         }
+        .flux-admin-table-readable [data-flux-table] {
+            width: 100%;
+            min-width: 100%;
+            table-layout: fixed;
+        }
+        .flux-admin-table-readable [data-flux-table] th,
+        .flux-admin-table-readable [data-flux-table] td {
+            white-space: normal;
+            overflow-wrap: anywhere;
+            vertical-align: top;
+        }
+        .flux-admin-table-readable [data-flux-table] th:last-child,
+        .flux-admin-table-readable [data-flux-table] td:last-child {
+            position: static;
+            right: auto;
+            box-shadow: none;
+            background-color: inherit;
+        }
+        .dark .flux-admin-table-readable [data-flux-table] th:last-child,
+        .dark .flux-admin-table-readable [data-flux-table] td:last-child {
+            box-shadow: none;
+            background-color: inherit;
+        }
+        .flux-admin-table-readable [data-flux-table] > :is(thead, tbody) > tr > * {
+            display: table-cell !important;
+        }
         .flux-admin-page-title {
             overflow-wrap: anywhere;
             letter-spacing: 0;
@@ -911,14 +937,19 @@
 
         @if(! $commsOnlyStaff)
         <div class="flux-admin-quick-grid">
+            @canany(['see-menu-vehicles', 'see-menu-commons'])
             <a href="{{ route('flux-admin.delivery-enquiries.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="truck" class="h-4 w-4" /></span>
                 <span class="flux-admin-quick-label">Delivery enquiries</span>
             </a>
+            @endcanany
+            @can('see-menu-mot-bookings')
             <a href="{{ route('flux-admin.mot-bookings.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="clipboard-document-check" class="h-4 w-4" /></span>
                 <span class="flux-admin-quick-label">MOT</span>
             </a>
+            @endcan
+            @can('see-menu-commons')
             <a href="{{ route('flux-admin.service-bookings.index') }}" class="flux-admin-quick-link">
                 <span class="flux-admin-quick-icon"><flux:icon name="wrench-screwdriver" class="h-4 w-4" /></span>
                 <span class="flux-admin-quick-label">Services</span>
@@ -930,6 +961,7 @@
                 </span>
                 <span class="flux-admin-quick-label">Inbox</span>
             </a>
+            @endcan
         </div>
         @endif
 
@@ -980,17 +1012,10 @@
             @can('see-menu-services-and-repairs-and-report')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'services') }}" icon="wrench-screwdriver" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'services' || request()->routeIs('flux-admin.customer-appointments.*','flux-admin.motorbike-repairs.*','flux-admin.motorbike-repair-updates.*')">Services and repairs</flux:navlist.item>
             @endcan
-            @role('see-menu-commons')
-            <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
-            @endrole
-            {{-- 7. Club (Admin role or allowlisted staff — same gate as page access) --}}
-            @if(\App\Support\FluxAdminAccess::canFullClubAdmin())
-                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-*','flux-admin.club-members.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
+            {{-- 7. Club (Super Admin only) --}}
+            @if(\App\Support\FluxAdminAccess::isSuperAdmin())
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-members.*','flux-admin.club-purchases.*','flux-admin.club-redemptions.*','flux-admin.club-spending.*','flux-admin.club-spending-payments.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
             @endif
-
-            @unless(\App\Support\FluxAdminAccess::canFullClubAdmin())
-                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club-members.*')">Club</flux:navlist.item>
-            @endunless
 
             {{-- 8. Delivery order --}}
             @canany(['see-menu-vehicles', 'see-menu-commons'])
@@ -1049,7 +1074,7 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'b2b') }}" icon="building-office" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'b2b' || request()->routeIs('flux-admin.inventory-partners.*')">B2B</flux:navlist.item>
             @endcan
 
-            @can('see-menu-surveys')
+            @can('see-menu-commons')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'surveys') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'surveys' || request()->routeIs('flux-admin.survey*')">Surveys</flux:navlist.item>
             @endcan
 
@@ -1069,9 +1094,9 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'security') }}" icon="lock-closed" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'security' || request()->routeIs('flux-admin.ip-restrictions.*','flux-admin.access-logs.*')">Security</flux:navlist.item>
             @endcan
 
-            @can('see-menu-permissions')
+            @if(\App\Support\FluxAdminAccess::isSuperAdmin())
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'permissions') }}" icon="key" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'permissions' || request()->routeIs('flux-admin.users.*','flux-admin.user','flux-admin.user.*','flux-admin.backpack.user.*','flux-admin.roles.*','flux-admin.role','flux-admin.role.*','flux-admin.backpack.role.*','flux-admin.permissions.*','flux-admin.permission','flux-admin.permission.*','flux-admin.backpack.permission.*')">Permissions</flux:navlist.item>
-            @endcan
+            @endif
 
             {{-- 18. Judopay --}}
             @canany(['see-judopay-home', 'see-judopay'])
@@ -1245,10 +1270,12 @@
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072M17.95 6.05a8 8 0 010 11.9M11 5L6 9H3v6h3l5 4V5z"/></svg>
                     Sound alerts
                 </button>
+                @if(\App\Support\FluxAdminAccess::canViewCommunicationsLog())
                 <a href="{{ route('flux-admin.communications.sent.index') }}" class="flux-admin-header-unread">
                     <flux:button size="sm" variant="ghost" icon="bell" class="!rounded-none">Notifications</flux:button>
                     <span class="js-staff-notifications-unread flux-admin-unread-badge{{ ($staffUnread['notifications'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['notifications'] ?? 0) }}">{{ ($staffUnread['notifications'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['notifications'] ?? 0) }}</span>
                 </a>
+                @endif
                 @if(! $commsOnlyStaff)
                 <a href="{{ route('flux-admin.dashboard') }}">
                     <flux:button size="sm" variant="ghost" icon="home" class="!rounded-none">Dashboard</flux:button>

@@ -11,7 +11,7 @@ return [
 
     'entries' => [
         // Quick links (sidebar top)
-        ['group' => 'Quick links', 'label' => 'Delivery enquiries', 'route' => 'flux-admin.delivery-enquiries.index', 'permission' => 'see-menu-vehicles'],
+        ['group' => 'Quick links', 'label' => 'Delivery enquiries', 'route' => 'flux-admin.delivery-enquiries.index', 'canany' => ['see-menu-vehicles', 'see-menu-commons']],
         ['group' => 'Quick links', 'label' => 'MOT bookings', 'route' => 'flux-admin.mot-bookings.index', 'permission' => 'see-menu-mot-bookings', 'keywords' => 'mot booking'],
         ['group' => 'Quick links', 'label' => 'Service enquiries', 'route' => 'flux-admin.service-bookings.index', 'permission' => 'see-menu-commons'],
         ['group' => 'Quick links', 'label' => 'Support inbox', 'route' => 'flux-admin.support-inbox.index', 'permission' => 'see-menu-commons', 'keywords' => 'chat conversations'],
@@ -68,18 +68,16 @@ return [
         ['group' => 'Book services / repairs / report', 'label' => 'Repairs report', 'route' => 'flux-admin.motorbike-repairs.index', 'permission' => 'see-menu-services-and-repairs-and-report'],
         ['group' => 'Book services / repairs / report', 'label' => 'Repair updates', 'route' => 'flux-admin.motorbike-repair-updates.index', 'permission' => 'see-menu-services-and-repairs-and-report'],
 
-        ['group' => 'Club', 'label' => 'Club members', 'route' => 'flux-admin.club.index', 'when' => 'full_club_admin', 'keywords' => 'ngn club loyalty'],
-        ['group' => 'Club', 'label' => 'Club member access', 'route' => 'flux-admin.club-members.index', 'when' => 'full_club_admin'],
-        ['group' => 'Club', 'label' => 'Club member purchases', 'route' => 'flux-admin.club-purchases.index', 'when' => 'full_club_admin'],
-        ['group' => 'Club', 'label' => 'Club member redeems', 'route' => 'flux-admin.club-redemptions.index', 'when' => 'full_club_admin'],
-        ['group' => 'Club', 'label' => '0% spendings', 'route' => 'flux-admin.club-spending.index', 'when' => 'full_club_admin'],
-        ['group' => 'Club', 'label' => 'Spending payments', 'route' => 'flux-admin.club-spending-payments.index', 'when' => 'full_club_admin'],
-        ['group' => 'Club', 'label' => 'Dev Club OTP', 'route' => 'flux-admin.dev-club-otp.index', 'when' => 'full_club_admin'],
-        ['group' => 'Club', 'label' => 'Club member access', 'route' => 'flux-admin.club-members.index', 'when' => 'club_commons_role', 'keywords' => 'staff club portal'],
-        ['group' => 'Club', 'label' => 'Club members', 'route' => 'flux-admin.club-members.index', 'when' => 'limited_club', 'keywords' => 'ngn club'],
+        ['group' => 'Club', 'label' => 'Club members', 'route' => 'flux-admin.club.index', 'super_admin' => true, 'keywords' => 'ngn club loyalty'],
+        ['group' => 'Club', 'label' => 'Club member access', 'route' => 'flux-admin.club-members.index', 'super_admin' => true],
+        ['group' => 'Club', 'label' => 'Club member purchases', 'route' => 'flux-admin.club-purchases.index', 'super_admin' => true],
+        ['group' => 'Club', 'label' => 'Club member redeems', 'route' => 'flux-admin.club-redemptions.index', 'super_admin' => true],
+        ['group' => 'Club', 'label' => '0% spendings', 'route' => 'flux-admin.club-spending.index', 'super_admin' => true],
+        ['group' => 'Club', 'label' => 'Spending payments', 'route' => 'flux-admin.club-spending-payments.index', 'super_admin' => true],
+        ['group' => 'Club', 'label' => 'Dev Club OTP', 'route' => 'flux-admin.dev-club-otp.index', 'super_admin' => true],
 
-        ['group' => 'Delivery', 'label' => 'Delivery enquiries', 'route' => 'flux-admin.delivery-enquiries.index', 'permission' => 'see-menu-vehicles'],
-        ['group' => 'Delivery', 'label' => 'Motorbike delivery orders', 'route' => 'flux-admin.vehicle-delivery-orders.index', 'permission' => 'see-menu-commons'],
+        ['group' => 'Delivery', 'label' => 'Delivery enquiries', 'route' => 'flux-admin.delivery-enquiries.index', 'canany' => ['see-menu-vehicles', 'see-menu-commons']],
+        ['group' => 'Delivery', 'label' => 'Motorbike delivery orders', 'route' => 'flux-admin.vehicle-delivery-orders.index', 'role' => 'Admin'],
 
         ['group' => 'Sale', 'label' => 'Used Motorcycle Sale', 'route' => 'flux-admin.motorbike-sales.index', 'permission' => 'see-menu-vehicles', 'keywords' => 'used bike sale'],
         ['group' => 'Sale', 'label' => 'Brand New vehicles', 'route' => 'flux-admin.motorbike-for-sale.index', 'permission' => 'see-menu-vehicles', 'keywords' => 'new stock catalogue'],
@@ -114,7 +112,7 @@ return [
         ['group' => 'Inventory', 'label' => 'Product models', 'route' => 'flux-admin.inventory-models.index', 'permission' => 'see-menu-inventory'],
         ['group' => 'Inventory', 'label' => 'Oxford products', 'route' => 'flux-admin.oxford-products.index', 'permission' => 'see-menu-inventory'],
         ['group' => 'Inventory', 'label' => 'Purchase requests', 'route' => 'flux-admin.purchase-requests.index', 'permission' => 'see-menu-inventory'],
-        ['group' => 'Inventory', 'label' => 'Purchase request items', 'route' => 'flux-admin.purchase-request-items.index', 'permission' => 'see-menu-inventory'],
+        ['group' => 'Inventory', 'label' => 'Purchase request items', 'route' => 'flux-admin.purchase-request-items.index', 'role' => 'Admin'],
         ['group' => 'Inventory', 'label' => 'Store front', 'route' => 'flux-admin.store-front.index', 'permission' => 'see-menu-inventory'],
 
         ['group' => 'Orders', 'label' => 'DS orders', 'route' => 'flux-admin.ds-orders.index', 'role' => 'Admin'],
@@ -135,11 +133,11 @@ return [
 
         ['group' => 'B2B', 'label' => 'Partners', 'route' => 'flux-admin.inventory-partners.index', 'permission' => 'see-menu-b2b'],
 
-        ['group' => 'Surveys', 'label' => 'Surveys', 'route' => 'flux-admin.surveys.index', 'permission' => 'see-menu-surveys'],
-        ['group' => 'Surveys', 'label' => 'Questions', 'route' => 'flux-admin.survey-questions.index', 'permission' => 'see-menu-surveys'],
-        ['group' => 'Surveys', 'label' => 'Options', 'route' => 'flux-admin.survey-options.index', 'permission' => 'see-menu-surveys'],
-        ['group' => 'Surveys', 'label' => 'Responses', 'route' => 'flux-admin.survey-responses.index', 'permission' => 'see-menu-surveys'],
-        ['group' => 'Surveys', 'label' => 'Answers', 'route' => 'flux-admin.survey-answers.index', 'permission' => 'see-menu-surveys'],
+        ['group' => 'Surveys', 'label' => 'Surveys', 'route' => 'flux-admin.surveys.index', 'permission' => 'see-menu-commons'],
+        ['group' => 'Surveys', 'label' => 'Questions', 'route' => 'flux-admin.survey-questions.index', 'permission' => 'see-menu-commons'],
+        ['group' => 'Surveys', 'label' => 'Options', 'route' => 'flux-admin.survey-options.index', 'permission' => 'see-menu-commons'],
+        ['group' => 'Surveys', 'label' => 'Responses', 'route' => 'flux-admin.survey-responses.index', 'permission' => 'see-menu-commons'],
+        ['group' => 'Surveys', 'label' => 'Answers', 'route' => 'flux-admin.survey-answers.index', 'permission' => 'see-menu-commons'],
 
         ['group' => 'Misc / Experiments', 'label' => 'Calendar', 'route' => 'flux-admin.calendar.index', 'role' => 'Admin'],
         ['group' => 'Misc / Experiments', 'label' => 'Staff schedules', 'route' => 'flux-admin.employee-schedules.index', 'role' => 'Admin'],
@@ -150,18 +148,18 @@ return [
         ['group' => 'Misc / Experiments', 'label' => 'Queue monitor', 'route' => 'flux-admin.queue-monitor.index', 'role' => 'Admin'],
 
         ['group' => 'Security', 'label' => 'IP restrictions', 'route' => 'flux-admin.ip-restrictions.index', 'permission' => 'see-menu-security'],
-        ['group' => 'Security', 'label' => 'Access logs', 'route' => 'flux-admin.access-logs.index', 'permission' => 'manage_access_logs'],
+        ['group' => 'Security', 'label' => 'Access logs', 'route' => 'flux-admin.access-logs.index', 'permission' => 'see-menu-security'],
 
-        ['group' => 'Permissions', 'label' => 'Users', 'route' => 'flux-admin.users.index', 'permission' => 'see-menu-permissions'],
-        ['group' => 'Permissions', 'label' => 'Roles', 'route' => 'flux-admin.roles.index', 'permission' => 'see-menu-permissions'],
-        ['group' => 'Permissions', 'label' => 'Permissions', 'route' => 'flux-admin.permissions.index', 'permission' => 'see-menu-permissions'],
+        ['group' => 'Permissions', 'label' => 'Users', 'route' => 'flux-admin.users.index', 'super_admin' => true],
+        ['group' => 'Permissions', 'label' => 'Roles', 'route' => 'flux-admin.roles.index', 'super_admin' => true],
+        ['group' => 'Permissions', 'label' => 'Permissions', 'route' => 'flux-admin.permissions.index', 'super_admin' => true],
 
         ['group' => 'Judo Pay', 'label' => 'Judo Pay', 'route' => 'flux-admin.judopay.index', 'canany' => ['see-judopay-home', 'see-judopay']],
-        ['group' => 'Judo Pay', 'label' => 'MIT dashboard', 'route' => 'flux-admin.judopay.mit-dashboard', 'canany' => ['see-judopay-home', 'see-judopay']],
-        ['group' => 'Judo Pay', 'label' => 'Weekly schedule', 'route' => 'flux-admin.judopay.weekly-mit-queue', 'canany' => ['see-judopay-home', 'see-judopay']],
+        ['group' => 'Judo Pay', 'label' => 'MIT dashboard', 'route' => 'flux-admin.judopay.mit-dashboard', 'permission' => 'can-run-mit'],
+        ['group' => 'Judo Pay', 'label' => 'Weekly schedule', 'route' => 'flux-admin.judopay.weekly-mit-queue', 'permission' => 'see-weekly-queue'],
         ['group' => 'Judo Pay', 'label' => 'Subscriptions', 'route' => 'flux-admin.judopay-subscriptions.index', 'canany' => ['see-judopay-home', 'see-judopay']],
-        ['group' => 'Judo Pay', 'label' => 'NGN MIT queue', 'route' => 'flux-admin.ngn-mit-queue.index', 'canany' => ['see-judopay-home', 'see-judopay']],
-        ['group' => 'Judo Pay', 'label' => 'Judopay MIT queue', 'route' => 'flux-admin.judopay-mit-queue.index', 'canany' => ['see-judopay-home', 'see-judopay']],
+        ['group' => 'Judo Pay', 'label' => 'NGN MIT queue', 'route' => 'flux-admin.ngn-mit-queue.index', 'permission' => 'see-monthly-queue'],
+        ['group' => 'Judo Pay', 'label' => 'Judopay MIT queue', 'route' => 'flux-admin.judopay-mit-queue.index', 'permission' => 'can-run-mit'],
         ['group' => 'Judo Pay', 'label' => 'Open in Backpack UI', 'url' => '/ngn-admin/judopay', 'canany' => ['see-judopay-home', 'see-judopay'], 'keywords' => 'legacy judopay'],
     ],
 

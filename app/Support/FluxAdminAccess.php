@@ -49,6 +49,13 @@ final class FluxAdminAccess
             && (self::isSuperAdmin($user) || self::userHasRole($user, 'Admin'));
     }
 
+    public static function userHasNamedRole(?Authenticatable $user, string $roleName): bool
+    {
+        $user ??= self::user();
+
+        return $user !== null && self::userHasRole($user, $roleName);
+    }
+
     /** @return list<int> */
     public static function fullClubAdminUserIds(): array
     {
@@ -59,18 +66,7 @@ final class FluxAdminAccess
 
     public static function canFullClubAdmin(?Authenticatable $user = null): bool
     {
-        $user ??= self::user();
-        if ($user === null) {
-            return false;
-        }
-
-        if (self::isAdmin($user)) {
-            return true;
-        }
-
-        $userId = (int) ($user->getAuthIdentifier() ?? 0);
-
-        return $userId > 0 && in_array($userId, self::fullClubAdminUserIds(), true);
+        return self::isSuperAdmin($user);
     }
 
     /**
@@ -79,17 +75,7 @@ final class FluxAdminAccess
      */
     public static function canAccessCommunications(?Authenticatable $user = null): bool
     {
-        $user ??= self::user();
-
-        if ($user === null) {
-            return false;
-        }
-
-        if (self::isSuperAdmin($user)) {
-            return true;
-        }
-
-        return self::userHasPermission($user, self::COMMUNICATIONS_PERMISSION);
+        return self::isSuperAdmin($user);
     }
 
     public static function canManageCommunications(?Authenticatable $user = null): bool
@@ -97,10 +83,9 @@ final class FluxAdminAccess
         return self::canAccessCommunications($user);
     }
 
-    /** Sent/received log: every signed-in Flux staff member, read-only unless they can manage. */
     public static function canViewCommunicationsLog(?Authenticatable $user = null): bool
     {
-        return ($user ?? self::user()) !== null;
+        return self::isSuperAdmin($user);
     }
 
     public static function canAssignCommunicationsPermission(?Authenticatable $user = null): bool

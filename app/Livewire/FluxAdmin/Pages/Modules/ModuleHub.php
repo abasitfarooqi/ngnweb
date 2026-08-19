@@ -2,10 +2,10 @@
 
 namespace App\Livewire\FluxAdmin\Pages\Modules;
 
-use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\PcnCase;
 use App\Support\FluxAdminAccess;
 use App\Support\FluxAdminModuleRegistry;
+use App\Support\FluxAdminPageAccess;
 use App\Support\PcnDashboardData;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Url;
@@ -14,8 +14,6 @@ use Livewire\Component;
 #[Layout('flux-admin.layouts.app')]
 class ModuleHub extends Component
 {
-    use WithAuthorization;
-
     public string $module;
 
     #[Url(history: true)]
@@ -33,74 +31,11 @@ class ModuleHub extends Component
 
         $config = FluxAdminModuleRegistry::get($module);
         abort_if($config === null, 404);
+        abort_unless(FluxAdminPageAccess::allows(backpack_user() ?? FluxAdminAccess::user(), 'flux-admin.modules.show', $module), 403);
 
-        if ($module === 'pcn') {
-            $this->authorizeModule('see-menu-pcns');
-
-            if (! in_array($this->listSort, ['asc', 'desc'], true)) {
-                $this->listSort = 'desc';
-            }
+        if ($module === 'pcn' && ! in_array($this->listSort, ['asc', 'desc'], true)) {
+            $this->listSort = 'desc';
         }
-
-        if ($module === 'rentals') {
-            $this->authorizeModule('see-menu-rentals');
-        }
-
-        $permissions = [
-            'finance' => ['see-menu-finance'],
-            'customers' => ['see-menu-commons'],
-            'pcn' => ['see-menu-pcns'],
-            'vehicles' => 'see-menu-vehicles',
-            'vehicle-records' => 'see-menu-commons',
-            'services' => 'see-menu-services-and-repairs-and-report',
-            'club' => 'see-menu-commons',
-            'delivery' => 'see-menu-commons',
-            'claims' => 'see-menu-claims',
-            'ecommerce' => 'see-menu-ecommerce',
-            'spare-parts' => 'see-menu-inventory',
-            'inventory' => 'see-menu-inventory',
-            'orders' => 'Admin',
-            'blog' => 'see-menu-commons',
-            'chat' => 'see-menu-commons',
-            'b2b' => 'see-menu-b2b',
-            'surveys' => 'see-menu-surveys',
-            'misc' => 'Admin',
-            'security' => 'see-menu-security',
-            'permissions' => 'see-menu-permissions',
-            'judopay' => ['see-judopay-home', 'see-judopay'],
-        ];
-
-        if (isset($permissions[$module])) {
-            $required = $permissions[$module];
-
-            if ($module === 'orders' || $module === 'misc') {
-                abort_unless(FluxAdminAccess::isAdmin(backpack_user()), 403);
-            } elseif (is_array($required)) {
-                $this->authorizeAny($required);
-            } else {
-                $this->authorizeModule($required);
-            }
-        }
-    }
-
-    /** @param list<string> $permissions */
-    protected function authorizeAny(array $permissions): void
-    {
-        $user = backpack_user();
-
-        abort_unless($user, 403);
-
-        if (FluxAdminAccess::isSuperAdmin($user) || FluxAdminAccess::isAdmin($user)) {
-            return;
-        }
-
-        foreach ($permissions as $permission) {
-            if (method_exists($user, 'can') && $user->can($permission)) {
-                return;
-            }
-        }
-
-        abort(403);
     }
 
     public function sendReminder(int $id): void
@@ -122,7 +57,8 @@ class ModuleHub extends Component
 
     public function render()
     {
-        $config = FluxAdminModuleRegistry::get($this->module);
+        $config = FluxAdminModuleRegistry::get($this->module) ?? [];
+        $config['links'] = FluxAdminPageAccess::visibleLinks($config['links'] ?? []);
 
         if ($this->module === 'pcn') {
             return view('flux-admin.pages.modules.pcn-hub', array_merge(
