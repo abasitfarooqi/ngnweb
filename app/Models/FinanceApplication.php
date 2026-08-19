@@ -124,6 +124,15 @@ class FinanceApplication extends Model
             && $this->logbook_transfer_date === null;
     }
 
+    /** Matches flux-admin finance index with ?status=active (posted applications only). */
+    public static function activePaymentPlanListedCount(): int
+    {
+        return static::query()
+            ->activePaymentPlan()
+            ->where('is_posted', true)
+            ->count();
+    }
+
     public function application_items()
     {
         return $this->hasMany('App\Models\ApplicationItem', 'application_id');

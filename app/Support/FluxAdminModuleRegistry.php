@@ -203,7 +203,7 @@ class FluxAdminModuleRegistry
             'description' => 'Finance applications, contracts and related customer records.',
             'stats'       => [
                 ['label' => 'Payment Plans', 'value' => FinanceApplication::count()],
-                ['label' => 'Active Payment Plans', 'value' => TotalVehiclesQuery::activePaymentPlanMotorbikeCount()],
+                ['label' => 'Active Payment Plans', 'value' => FinanceApplication::activePaymentPlanListedCount()],
             ],
             'links' => [
                 ['label' => 'Finance applications', 'route' => 'flux-admin.finance.index', 'icon' => 'banknotes'],

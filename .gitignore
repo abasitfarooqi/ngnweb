@@ -8,6 +8,8 @@ public/storage
 storage/*.key
 /storage/app/public/*
 !/storage/app/public/.gitignore
+/storage/app/private/*
+!/storage/app/private/.gitignore
 /storage/app/customers/*
 !/storage/app/customers/.gitignore
 /storage/app/livewire-tmp/*
@@ -24,6 +26,8 @@ storage/*.key
 !/storage/logs/.gitignore
 /storage/backups/*
 !/storage/backups/.gitignore
+/storage/app/purifier/*
+/storage/app/smoke-tests/*
 vendor/*
 vendor*
 /vender/*

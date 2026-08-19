@@ -33,8 +33,8 @@ class FluxAdminDashboardStats
                 'total_vehicles' => TotalVehiclesQuery::count(),
                 'total_motorbikes' => Motorbike::count(),
                 'active_rentals' => $activeRentals,
-                // Latest application item per bike; logbook still with NGN.
-                'finance_applications' => TotalVehiclesQuery::activePaymentPlanMotorbikeCount(),
+                // Must match finance index ?status=active (posted, not cancelled, log book with NGN).
+                'finance_applications' => FinanceApplication::activePaymentPlanListedCount(),
                 'club_members' => ClubMember::count(),
             ];
         });
@@ -108,7 +108,7 @@ class FluxAdminDashboardStats
                     'last_month' => $postedFinance()->whereBetween('contract_date', [$lastMonthStart, $lastMonthEnd])->count(),
                 ],
                 'finance' => [
-                    'active' => TotalVehiclesQuery::activePaymentPlanMotorbikeCount(),
+                    'active' => FinanceApplication::activePaymentPlanListedCount(),
                     'terminated' => FinanceApplication::where('is_cancelled', true)->where('is_posted', true)->count(),
                     'closed' => FinanceApplication::where('is_posted', true)->where('log_book_sent', true)->count(),
                 ],
