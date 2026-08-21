@@ -75,7 +75,7 @@
         {{-- Sidebar --}}
         <aside class="w-full lg:w-64 xl:w-72 flex-shrink-0" x-data="{
             openBookings: {{ (request()->routeIs('account.bookings') || request()->routeIs('account.mot.*') || request()->routeIs('account.repairs.*')) ? 'true' : 'false' }},
-            openRentals:  {{ request()->routeIs('account.rentals*')  ? 'true' : 'false' }},
+            openRentals:  {{ (request()->routeIs('account.rentals*')) ? 'true' : 'false' }},
             openFinance:  {{ request()->routeIs('account.finance*')  ? 'true' : 'false' }},
             openRecovery: {{ request()->routeIs('account.recovery*') ? 'true' : 'false' }}
         }">
@@ -169,6 +169,7 @@
                         <a href="{{ route('account.rentals') }}"            class="portal-nav-sub-link px-4 py-2 {{ (request()->routeIs('account.rentals') || request()->routeIs('account.rentals.browse')) ? 'active' : '' }}">Rentals Booking</a>
                         <a href="{{ route('account.rentals.my-enquiries') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.my-enquiries') ? 'active' : '' }}">Rental Enquiries</a>
                         <a href="{{ route('account.rentals.my-rentals') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.my-rentals') ? 'active' : '' }}">My Rentals</a>
+                        <a href="{{ route('account.rentals.referrals') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.referrals') ? 'active' : '' }}">Refer a friend</a>
                     </div>
                 </div>
 

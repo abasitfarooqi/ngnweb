@@ -364,7 +364,7 @@ class RentalBookingLifecycle
             throw new RuntimeException('Missing approved documents: '.implode(', ', $missing));
         }
 
-        return DB::transaction(function () use ($booking) {
+        $result = DB::transaction(function () use ($booking) {
             $start = $booking->start_date ? \Carbon\Carbon::parse($booking->start_date) : now();
             $due = (clone $start)->addDays(7);
 
@@ -406,6 +406,10 @@ class RentalBookingLifecycle
                 'message'    => 'Rental activated for today.',
             ];
         });
+
+        $this->syncRentingReferralsForCustomer((int) $booking->customer_id);
+
+        return $result;
     }
 
     public function recordPayment(
@@ -418,7 +422,7 @@ class RentalBookingLifecycle
             throw new InvalidArgumentException('Invalid amount received.');
         }
 
-        return DB::transaction(function () use ($bookingId, $invoiceId, $paymentMethodId, $amountReceived) {
+        $result = DB::transaction(function () use ($bookingId, $invoiceId, $paymentMethodId, $amountReceived) {
             $booking = RentingBooking::findOrFail($bookingId);
             $invoice = BookingInvoice::where('booking_id', $bookingId)
                 ->where('id', $invoiceId)
@@ -493,11 +497,23 @@ class RentalBookingLifecycle
                 'message'        => 'Payment recorded successfully.',
             ];
         });
+
+        $paidInvoice = BookingInvoice::query()->find($invoiceId);
+        if ($paidInvoice?->is_paid) {
+            $this->syncRentingReferralsForInvoice($paidInvoice);
+        }
+
+        return $result;
     }
 
     public function reversePayment(BookingInvoice $invoice, ?int $auditUserId = null): array
     {
-        return DB::transaction(function () use ($invoice, $auditUserId) {
+        if (app(\App\Services\Renting\RentingReferralService::class)->invoiceHasReferralRedemption((int) $invoice->id)
+            && ! FluxAdminAccess::isSuperAdmin()) {
+            throw new RuntimeException('This invoice was paid with a rental referral reward. Super Admin reversal only.');
+        }
+
+        $result = DB::transaction(function () use ($invoice, $auditUserId) {
             $invoice->loadMissing('booking');
             $latestTransaction = RentingTransaction::where('invoice_id', $invoice->id)
                 ->orderByDesc('id')
@@ -553,6 +569,10 @@ class RentalBookingLifecycle
                 'message'              => 'Invoice payment reversed successfully.',
             ];
         });
+
+        $this->syncRentingReferralsForInvoice($invoice->fresh());
+
+        return $result;
     }
 
     /**
@@ -1106,6 +1126,35 @@ class RentalBookingLifecycle
             ]));
         } catch (Exception $e) {
             Log::error('Failed to send payment receipt: '.$e->getMessage());
+        }
+    }
+
+    private function syncRentingReferralsForCustomer(?int $customerId): void
+    {
+        if (! $customerId) {
+            return;
+        }
+
+        try {
+            $customer = Customer::query()->find($customerId);
+            if ($customer) {
+                app(\App\Services\Renting\RentingReferralService::class)->syncCustomer($customer);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('renting_referral_sync_failed', ['message' => $e->getMessage()]);
+        }
+    }
+
+    private function syncRentingReferralsForInvoice(?BookingInvoice $invoice): void
+    {
+        if (! $invoice) {
+            return;
+        }
+
+        try {
+            app(\App\Services\Renting\RentingReferralService::class)->syncPaidInvoice($invoice);
+        } catch (\Throwable $e) {
+            Log::warning('renting_referral_sync_failed', ['message' => $e->getMessage()]);
         }
     }
 }

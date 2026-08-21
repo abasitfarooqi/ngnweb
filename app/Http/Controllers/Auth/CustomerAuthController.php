@@ -155,6 +155,12 @@ class CustomerAuthController extends Controller
                 'country_id' => 3,
             ]);
 
+            try {
+                app(\App\Services\Renting\RentingReferralService::class)->syncCustomer($customer);
+            } catch (\Throwable $e) {
+                \Log::warning('renting_referral_sync_failed', ['customer_id' => $customer->id, 'message' => $e->getMessage()]);
+            }
+
             // Send verification email
             $customerAuth->sendEmailVerificationNotification();
 

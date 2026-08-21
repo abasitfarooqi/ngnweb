@@ -159,6 +159,7 @@ Route::prefix('/')->name('site.')->group(function () {
 
     // Rentals
     Route::get('/rentals', \App\Livewire\Site\Rentals\Index::class)->name('rentals');
+    Route::get('/rentals/refer/{code}', \App\Livewire\Site\Rentals\ReferLanding::class)->name('rentals.refer');
     Route::get('/rentals/{id}', \App\Livewire\Site\Rentals\Show::class)->name('rentals.show');
     Route::get('/honda-forza-125', \App\Livewire\Site\Rentals\BikeModel::class)->defaults('slug', 'honda-forza-125')->name('rental.forza125');
     Route::get('/honda-pcx-125', function () {
@@ -334,6 +335,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/rentals/browse', \App\Livewire\Portal\Rentals\Browse::class)->name('rentals.browse');
     Route::get('/rentals/my-enquiries', \App\Livewire\Portal\Rentals\MyEnquiries::class)->name('rentals.my-enquiries');
     Route::get('/rentals/my-rentals', \App\Livewire\Portal\Rentals\MyRentals::class)->name('rentals.my-rentals');
+    Route::get('/rentals/referrals', \App\Livewire\Portal\Rentals\Referrals::class)->name('rentals.referrals');
     Route::get('/rentals/create/{motorbikeId}', \App\Livewire\Portal\Rentals\Create::class)->name('rentals.create');
     Route::view('/rentals/payment/{bookingId}', 'portal.rentals.payment')->name('rentals.payment');
     Route::post('/rentals/payment/{bookingId}/initialize', [\App\Http\Controllers\Portal\RentalPaymentController::class, 'initializePayment'])->name('rentals.payment.initialize');

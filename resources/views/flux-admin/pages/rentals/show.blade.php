@@ -108,6 +108,10 @@
     </x-flux-admin::summary-header>
 
     <div class="mb-6">
+        <livewire:flux-admin.partials.rentals.referral-card :bookingId="$booking->id" :key="'referral-card-' . $booking->id" />
+    </div>
+
+    <div class="mb-6">
         <livewire:flux-admin.partials.rentals.rental-price-editor :bookingId="$booking->id" :key="'price-summary-' . $booking->id" />
     </div>
 

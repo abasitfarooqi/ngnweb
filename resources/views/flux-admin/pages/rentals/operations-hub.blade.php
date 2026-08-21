@@ -6,6 +6,7 @@
 
     @php
         $cards = [
+            ['Rentals referrals', 'Investigate referrals, pending points and free-week rewards.', route('flux-admin.rental-referrals.index'), 'user-plus'],
             ['New booking', 'Same-day intake wizard.', route('flux-admin.new-booking.index'), 'plus-circle'],
             ['Active bookings rental', 'Filters, outstanding balances, open booking detail.', route('flux-admin.rentals.index'), 'list-bullet'],
             ['Inactive bookings', 'Ended rentals (end date set on item).', route('flux-admin.inactive-bookings.index'), 'archive-box'],

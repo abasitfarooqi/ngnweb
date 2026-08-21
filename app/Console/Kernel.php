@@ -102,6 +102,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('app:renting-invoice-generate')
             ->dailyAt('01:05');
 
+        $schedule->command('renting-referrals:qualify')
+            ->hourly()
+            ->description('Match and qualify rental referrals from paid weekly invoices');
+
         // Finance Application forward
         $schedule->command('app:instalment-notification')
             ->weeklyOn(4, '00:10');

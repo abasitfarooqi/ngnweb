@@ -12,7 +12,7 @@
     {{-- Tabs --}}
     <div class="border-b border-zinc-200 dark:border-zinc-700 mb-6">
         <nav class="flex gap-0 -mb-px overflow-x-auto">
-            @foreach(['profile' => 'Profile', 'addresses' => 'Addresses', 'documents' => 'Documents', 'bookings' => 'Bookings', 'finance' => 'Finance', 'pcn' => 'PCN Cases', 'club' => 'Club'] as $key => $label)
+            @foreach(['profile' => 'Profile', 'addresses' => 'Addresses', 'documents' => 'Documents', 'bookings' => 'Bookings', 'finance' => 'Finance', 'pcn' => 'PCN Cases', 'club' => 'Club', 'rental_referrals' => 'Rental referrals'] as $key => $label)
                 <button
                     wire:click="setTab('{{ $key }}')"
                     class="px-4 py-3 text-sm font-medium border-b-2 whitespace-nowrap transition {{ $activeTab === $key ? 'border-zinc-900 dark:border-white text-zinc-900 dark:text-white' : 'border-transparent text-zinc-500 dark:text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-300 hover:border-zinc-300 dark:hover:border-zinc-600' }}"
@@ -48,6 +48,9 @@
             @break
         @case('club')
             <livewire:flux-admin.partials.customers.club-section :customer="$customer" wire:key="tab-club" />
+            @break
+        @case('rental_referrals')
+            <livewire:flux-admin.partials.customers.rentals-referrals-section :customer="$customer" wire:key="tab-rental-referrals" />
             @break
     @endswitch
 </div>
