@@ -35,8 +35,7 @@ class ClubReferralSubmissionService
             return ['success' => false, 'message' => 'Campaign not found.'];
         }
 
-        $now = Carbon::now();
-        if (! $now->between($campaign->start_date, $campaign->end_date)) {
+        if (! $this->campaignIsLive($campaign)) {
             return ['success' => false, 'message' => 'The campaign is not active at this time. Please try again later.'];
         }
 
@@ -79,5 +78,71 @@ class ClubReferralSubmissionService
 
             return ['success' => false, 'message' => 'An error occurred while submitting your referral. Please try again.'];
         }
+    }
+
+    /**
+     * Same rules as the old /ngn-club/subscribe page: code + referrer id + active campaign.
+     *
+     * @return array{ok: bool, accepted: bool, unused: bool, referral?: NgnCompaignReferral, message?: string}
+     */
+    public function resolveForJoin(string $code, int $referrerId, bool $requireUnused = false): array
+    {
+        $code = trim($code);
+        if ($code === '' || $referrerId <= 0) {
+            return ['ok' => false, 'accepted' => false, 'unused' => false, 'message' => 'Invalid or already used referral code.'];
+        }
+
+        $referral = NgnCompaignReferral::query()
+            ->where('referral_code', $code)
+            ->where('referrer_club_member_id', $referrerId)
+            ->first();
+
+        if (! $referral) {
+            return ['ok' => false, 'accepted' => false, 'unused' => false, 'message' => 'Invalid or already used referral code.'];
+        }
+
+        $unused = ! $referral->validated;
+        if ($requireUnused && ! $unused) {
+            return ['ok' => false, 'accepted' => false, 'unused' => false, 'referral' => $referral, 'message' => 'Invalid or already used referral code.'];
+        }
+
+        $campaign = NgnCompaign::query()->find($referral->ngn_campaign_id);
+        if (! $campaign) {
+            return ['ok' => false, 'accepted' => false, 'unused' => $unused, 'referral' => $referral, 'message' => 'Invalid referral campaign.'];
+        }
+
+        if (! $this->campaignIsLive($campaign)) {
+            return ['ok' => false, 'accepted' => false, 'unused' => $unused, 'referral' => $referral, 'message' => 'The referral campaign is not active.'];
+        }
+
+        return [
+            'ok' => true,
+            'accepted' => true,
+            'unused' => $unused,
+            'referral' => $referral,
+        ];
+    }
+
+    public function markValidated(NgnCompaignReferral $referral): void
+    {
+        $referral->validated = true;
+        $referral->save();
+    }
+
+    public function campaignIsLive(?NgnCompaign $campaign): bool
+    {
+        if (! $campaign) {
+            return false;
+        }
+
+        if (strcasecmp((string) $campaign->status, 'Active') === 0) {
+            return true;
+        }
+
+        if ($campaign->start_date && $campaign->end_date) {
+            return Carbon::now()->between($campaign->start_date, $campaign->end_date);
+        }
+
+        return false;
     }
 }

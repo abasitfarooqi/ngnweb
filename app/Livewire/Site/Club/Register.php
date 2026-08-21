@@ -3,6 +3,7 @@
 namespace App\Livewire\Site\Club;
 
 use App\Services\Club\ClubMemberRegistrationService;
+use App\Services\Club\ClubReferralSubmissionService;
 use App\Support\UkMobilePhone;
 use Livewire\Component;
 
@@ -23,6 +24,32 @@ class Register extends Component
     public string $vrm = '';
 
     public bool $tc_agreed = false;
+
+    public string $referralCode = '';
+
+    public string $referrerId = '';
+
+    public bool $referralAccepted = false;
+
+    public function mount(ClubReferralSubmissionService $referrals): void
+    {
+        $ref = trim((string) request()->query('ref', ''));
+        $id = (int) request()->query('id', 0);
+
+        if ($ref !== '' && $id > 0) {
+            $resolved = $referrals->resolveForJoin($ref, $id, false);
+            if ($resolved['accepted'] ?? false) {
+                $this->referralCode = $ref;
+                $this->referrerId = (string) $id;
+                $this->referralAccepted = (bool) ($resolved['unused'] ?? false);
+            }
+        }
+
+        $phone = trim((string) request()->query('phone', ''));
+        if ($phone !== '') {
+            $this->phone = UkMobilePhone::sanitizeLiveInput($phone);
+        }
+    }
 
     public function updatedPhone(string $value): void
     {
@@ -104,6 +131,8 @@ class Register extends Component
             'year' => $this->year,
             'vrm' => $this->vrm,
             'tc_agreed' => $this->tc_agreed,
+            'ref' => $this->referralCode !== '' ? $this->referralCode : null,
+            'id' => $this->referrerId !== '' ? (int) $this->referrerId : null,
         ]);
 
         if (! ($result['ok'] ?? false)) {

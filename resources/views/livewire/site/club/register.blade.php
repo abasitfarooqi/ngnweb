@@ -29,6 +29,11 @@
     @else
         <x-site.form-panel title="Your Details">
             <form wire:submit="joinClub" class="site-form site-form-stack">
+                @if($referralAccepted)
+                    <flux:callout variant="success" icon="check-circle">
+                        <flux:callout.text>Referral accepted.</flux:callout.text>
+                    </flux:callout>
+                @endif
 
                 <flux:field>
                     <flux:label>Full Name *</flux:label>

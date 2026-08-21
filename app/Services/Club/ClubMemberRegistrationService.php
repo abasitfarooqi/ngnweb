@@ -6,6 +6,7 @@ use App\Http\Controllers\SMSController;
 use App\Mail\NewSubscriberNotification;
 use App\Models\ClubMember;
 use App\Models\Customer;
+use App\Models\NgnCompaignReferral;
 use App\Support\UkMobilePhone;
 use Illuminate\Support\Facades\Mail;
 
@@ -24,7 +25,9 @@ class ClubMemberRegistrationService
      *     model?:string|null,
      *     year?:string|null|int,
      *     vrm?:string|null,
-     *     tc_agreed?:bool
+     *     tc_agreed?:bool,
+     *     ref?:string|null,
+     *     id?:int|string|null
      * }  $input
      * @return array{
      *     ok:bool,
@@ -91,6 +94,22 @@ class ClubMemberRegistrationService
 
         $customer = $customerByEmail ?: $customerByPhone;
 
+        $ref = trim((string) ($input['ref'] ?? ''));
+        $referrerId = (int) ($input['id'] ?? 0);
+        $pendingReferral = null;
+        if ($ref !== '' && $referrerId > 0) {
+            $resolved = app(ClubReferralSubmissionService::class)->resolveForJoin($ref, $referrerId, true);
+            if (! ($resolved['ok'] ?? false)) {
+                return [
+                    'ok' => false,
+                    'errors' => [
+                        'full_name' => (string) ($resolved['message'] ?? 'Invalid or already used referral code.'),
+                    ],
+                ];
+            }
+            $pendingReferral = $resolved['referral'] ?? null;
+        }
+
         $passkey = (string) random_int(100000, 999999);
 
         $clubMember = ClubMember::query()->create([
@@ -119,11 +138,18 @@ class ClubMemberRegistrationService
 
         $this->sendCredentials($clubMember, $passkey);
 
+        $referralApplied = false;
+        if ($pendingReferral instanceof NgnCompaignReferral) {
+            app(ClubReferralSubmissionService::class)->markValidated($pendingReferral);
+            $referralApplied = true;
+        }
+
         return [
             'ok' => true,
             'member' => $clubMember->fresh(),
             'was_existing' => false,
             'linked_customer' => $linkedCustomer,
+            'referral_applied' => $referralApplied,
         ];
     }
 
