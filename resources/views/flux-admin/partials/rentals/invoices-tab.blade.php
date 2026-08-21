@@ -3,10 +3,6 @@
         <livewire:flux-admin.partials.rentals.schedule-tab :booking-id="$bookingId" :key="'schedule-invoices-' . $bookingId" />
     </div>
 
-    <div class="border-b border-zinc-200 p-4 dark:border-zinc-700">
-        <livewire:flux-admin.partials.rentals.rental-price-editor :bookingId="$bookingId" :key="'price-invoices-' . $bookingId" />
-    </div>
-
     @if($flashMessage)
         <div class="mx-4 mt-4 p-3 text-sm font-medium border
             {{ $flashType === 'success' ? 'border-emerald-400 bg-emerald-50 text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700' : 'border-red-400 bg-red-50 text-red-800 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700' }}">
@@ -49,7 +45,7 @@
                             $isPaid = (bool) $invoice->is_paid;
                             $isDue = (bool) $invoice->is_due;
                             $outstanding = max((float) $invoice->outstanding_balance, 0);
-                            $rowClass = $isPaid ? '' : ($isDue ? 'bg-red-50 dark:bg-red-900/10 cursor-pointer' : 'bg-amber-50/60 dark:bg-amber-900/10 cursor-pointer');
+                            $rowClass = $isPaid ? 'cursor-pointer' : ($isDue ? 'bg-red-50 dark:bg-red-900/10 cursor-pointer' : 'bg-amber-50/60 dark:bg-amber-900/10 cursor-pointer');
                         @endphp
                         <flux:table.row
                             wire:key="invoice-row-{{ $invoice->id }}"
@@ -93,7 +89,7 @@
                             </flux:table.cell>
                         </flux:table.row>
 
-                        @if(!$isPaid && $expandedInvoiceId === $invoice->id)
+                        @if($expandedInvoiceId === $invoice->id)
                             <flux:table.row wire:key="invoice-detail-{{ $invoice->id }}" class="bg-zinc-50 dark:bg-zinc-800/50">
                                 <flux:table.cell colspan="11" class="!p-4">
                                     <div class="space-y-4" wire:click.stop>
@@ -137,7 +133,13 @@
                                                     </div>
                                                     <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Amount</dt><dd>£{{ number_format((float) $expandedDetail['amount'], 2) }}</dd></div>
                                                     <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Outstanding</dt><dd>£{{ number_format($outstanding, 2) }}</dd></div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd><flux:badge color="red" size="sm">Unpaid</flux:badge></dd></div>
+                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd>
+                                                        @if($isPaid)
+                                                            <flux:badge color="emerald" size="sm">Paid</flux:badge>
+                                                        @else
+                                                            <flux:badge color="red" size="sm">Unpaid</flux:badge>
+                                                        @endif
+                                                    </dd></div>
                                                 </dl>
                                             </div>
                                             <div>
@@ -169,6 +171,12 @@
                                                 </button>
                                             </div>
                                         </div>
+
+                                        <livewire:flux-admin.partials.rentals.weekly-updates-panel
+                                            :booking-id="$bookingId"
+                                            :invoice-id="$invoice->id"
+                                            :key="'invoice-weekly-updates-'.$invoice->id"
+                                        />
                                         @endif
                                     </div>
                                 </flux:table.cell>
@@ -184,6 +192,13 @@
                 </flux:table.rows>
             </flux:table>
         </div>
+    </div>
+
+    <div class="mt-6 border-t border-zinc-200 px-4 py-4 dark:border-zinc-700">
+        <livewire:flux-admin.partials.rentals.weekly-updates-panel
+            :booking-id="$bookingId"
+            :key="'booking-weekly-updates-'.$bookingId"
+        />
     </div>
 
     <flux:modal wire:model.self="showPayModal" class="w-full max-w-md">

@@ -133,6 +133,11 @@ final class ClubMemberStaffAccess
                 );
             }
 
+            $q->orWhereHas('purchases', fn (Builder $pq) => $pq->where('pos_invoice', 'like', '%'.$term.'%'))
+                ->orWhereHas('redemptions', fn (Builder $rq) => $rq->where('pos_invoice', 'like', '%'.$term.'%'))
+                ->orWhereHas('spendings', fn (Builder $sq) => $sq->where('pos_invoice', 'like', '%'.$term.'%'))
+                ->orWhereHas('spendings.payments', fn (Builder $pq) => $pq->where('pos_invoice', 'like', '%'.$term.'%'));
+
             $q->orWhereHas('customer', function (Builder $cq) use ($term, $phoneDigits) {
                 $cq->where('first_name', 'like', "%{$term}%")
                     ->orWhere('last_name', 'like', "%{$term}%")
@@ -172,5 +177,137 @@ final class ClubMemberStaffAccess
         }
 
         return $parts !== [] ? implode(' · ', $parts) : 'No vehicle details recorded';
+    }
+
+    public static function invoiceMatches(?string $value, string $term): bool
+    {
+        $term = trim($term);
+        $value = trim((string) $value);
+
+        if ($term === '' || $value === '') {
+            return false;
+        }
+
+        return Str::contains(Str::lower($value), Str::lower($term));
+    }
+
+    /**
+     * @param  list<int>  $memberIds
+     * @return array<int, array{tab: string, invoice: string, kinds: list<string>}>
+     */
+    public static function invoiceHitsForMembers(array $memberIds, string $term): array
+    {
+        $memberIds = array_values(array_filter(array_map('intval', $memberIds)));
+        $term = trim($term);
+
+        if ($memberIds === [] || $term === '') {
+            return [];
+        }
+
+        $like = '%'.$term.'%';
+        $hits = [];
+
+        $collect = static function (iterable $rows, string $kind) use (&$hits): void {
+            foreach ($rows as $row) {
+                $id = (int) $row->club_member_id;
+                $invoice = trim((string) $row->pos_invoice);
+                if ($id <= 0 || $invoice === '') {
+                    continue;
+                }
+                $hits[$id]['invoice'] ??= $invoice;
+                $hits[$id]['kinds'] ??= [];
+                if (! in_array($kind, $hits[$id]['kinds'], true)) {
+                    $hits[$id]['kinds'][] = $kind;
+                }
+            }
+        };
+
+        $collect(
+            \App\Models\ClubMemberPurchase::query()->whereIn('club_member_id', $memberIds)->where('pos_invoice', 'like', $like)->get(['club_member_id', 'pos_invoice']),
+            'Purchase'
+        );
+        $collect(
+            \App\Models\ClubMemberRedeem::query()->whereIn('club_member_id', $memberIds)->where('pos_invoice', 'like', $like)->get(['club_member_id', 'pos_invoice']),
+            'Redemption'
+        );
+        $collect(
+            \App\Models\ClubMemberSpending::query()->whereIn('club_member_id', $memberIds)->where('pos_invoice', 'like', $like)->get(['club_member_id', 'pos_invoice']),
+            'Spending'
+        );
+        $collect(
+            \App\Models\ClubMemberSpendingPayment::query()->whereIn('club_member_id', $memberIds)->where('pos_invoice', 'like', $like)->get(['club_member_id', 'pos_invoice']),
+            'Spending payment'
+        );
+
+        foreach ($hits as $id => $hit) {
+            $kinds = $hit['kinds'] ?? [];
+            $hasActivity = in_array('Purchase', $kinds, true) || in_array('Redemption', $kinds, true);
+            $hits[$id]['tab'] = $hasActivity ? 'activity' : 'spendings';
+        }
+
+        return $hits;
+    }
+
+    /**
+     * @return array{tab: string, invoice: string, kinds: list<string>}|null
+     */
+    public static function posInvoiceHitForMember(int $memberId, string $term): ?array
+    {
+        $term = trim($term);
+        if ($memberId <= 0 || $term === '') {
+            return null;
+        }
+
+        $like = '%'.$term.'%';
+        $kinds = [];
+        $matchedInvoice = '';
+
+        $purchase = \App\Models\ClubMemberPurchase::query()
+            ->where('club_member_id', $memberId)
+            ->where('pos_invoice', 'like', $like)
+            ->value('pos_invoice');
+        if (is_string($purchase) && $purchase !== '') {
+            $kinds[] = 'Purchase';
+            $matchedInvoice = $purchase;
+        }
+
+        $redeem = \App\Models\ClubMemberRedeem::query()
+            ->where('club_member_id', $memberId)
+            ->where('pos_invoice', 'like', $like)
+            ->value('pos_invoice');
+        if (is_string($redeem) && $redeem !== '') {
+            $kinds[] = 'Redemption';
+            $matchedInvoice = $matchedInvoice !== '' ? $matchedInvoice : $redeem;
+        }
+
+        $spending = \App\Models\ClubMemberSpending::query()
+            ->where('club_member_id', $memberId)
+            ->where('pos_invoice', 'like', $like)
+            ->value('pos_invoice');
+        if (is_string($spending) && $spending !== '') {
+            $kinds[] = 'Spending';
+            $matchedInvoice = $matchedInvoice !== '' ? $matchedInvoice : $spending;
+        }
+
+        $payment = \App\Models\ClubMemberSpendingPayment::query()
+            ->where('club_member_id', $memberId)
+            ->where('pos_invoice', 'like', $like)
+            ->value('pos_invoice');
+        if (is_string($payment) && $payment !== '') {
+            $kinds[] = 'Spending payment';
+            $matchedInvoice = $matchedInvoice !== '' ? $matchedInvoice : $payment;
+        }
+
+        if ($kinds === []) {
+            return null;
+        }
+
+        $hasActivity = in_array('Purchase', $kinds, true) || in_array('Redemption', $kinds, true);
+
+        return [
+            'tab' => $hasActivity ? 'activity' : 'spendings',
+            'invoice' => $matchedInvoice,
+            'kinds' => $kinds,
+        ];
     }
 }

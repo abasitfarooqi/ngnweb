@@ -60,8 +60,14 @@ class ClubMembersIndex extends Component
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate($this->perPage);
 
+        $invoiceHits = ClubMemberStaffAccess::invoiceHitsForMembers(
+            $members->pluck('id')->all(),
+            trim($this->search)
+        );
+
         return view('flux-admin.pages.club.members-index', [
             'members' => $members,
+            'invoiceHits' => $invoiceHits,
         ]);
     }
 

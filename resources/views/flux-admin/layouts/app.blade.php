@@ -423,6 +423,80 @@
             border-width: 0 !important;
             background: transparent !important;
         }
+        body.flux-admin-app .club-activity-feed {
+            color: rgb(24 24 27);
+        }
+        html.dark body.flux-admin-app .club-activity-feed {
+            color: rgb(244 244 245);
+        }
+        body.flux-admin-app .club-activity-row.is-hit {
+            background-color: rgb(239 246 255) !important;
+        }
+        html.dark body.flux-admin-app .club-activity-row.is-hit {
+            background-color: rgb(30 58 138) !important;
+        }
+        body.flux-admin-app .club-activity-title {
+            color: rgb(24 24 27) !important;
+        }
+        html.dark body.flux-admin-app .club-activity-title {
+            color: rgb(250 250 250) !important;
+        }
+        body.flux-admin-app .club-activity-meta {
+            color: rgb(82 82 91) !important;
+        }
+        html.dark body.flux-admin-app .club-activity-meta {
+            color: rgb(212 212 216) !important;
+        }
+        body.flux-admin-app .club-activity-type {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.125rem 0.375rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        body.flux-admin-app .club-activity-type-blue { background: rgb(219 234 254); color: rgb(30 64 175); }
+        body.flux-admin-app .club-activity-type-green { background: rgb(220 252 231); color: rgb(22 101 52); }
+        body.flux-admin-app .club-activity-type-amber { background: rgb(254 243 199); color: rgb(146 64 14); }
+        html.dark body.flux-admin-app .club-activity-type-blue { background: rgb(30 64 175); color: rgb(219 234 254); }
+        html.dark body.flux-admin-app .club-activity-type-green { background: rgb(21 128 61); color: rgb(220 252 231); }
+        html.dark body.flux-admin-app .club-activity-type-amber { background: rgb(180 83 9); color: rgb(254 243 199); }
+        body.flux-admin-app .club-activity-icon-blue { background: rgb(219 234 254); color: rgb(30 64 175); }
+        body.flux-admin-app .club-activity-icon-green { background: rgb(220 252 231); color: rgb(22 101 52); }
+        body.flux-admin-app .club-activity-icon-amber { background: rgb(254 243 199); color: rgb(146 64 14); }
+        html.dark body.flux-admin-app .club-activity-icon-blue { background: rgb(30 58 138); color: rgb(191 219 254); }
+        html.dark body.flux-admin-app .club-activity-icon-green { background: rgb(20 83 45); color: rgb(187 247 208); }
+        body.flux-admin-app .weekly-update-form {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+            min-width: 0;
+        }
+        @media (min-width: 1024px) {
+            body.flux-admin-app .weekly-update-form {
+                flex-direction: row;
+                align-items: flex-end;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-date {
+                width: 10rem;
+                flex: 0 0 10rem;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-time {
+                width: 8rem;
+                flex: 0 0 8rem;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-note {
+                flex: 1 1 auto;
+                min-width: 0;
+                width: auto;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-save {
+                width: auto;
+                flex: 0 0 auto;
+                height: 2.5rem;
+            }
+        }
 
         {{-- Sidebar redesign: clear left navigation with compact operations shortcuts and sectioned menus. --}}
         body.flux-admin-app [data-flux-sidebar] {
@@ -992,7 +1066,14 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'pcn') }}" icon="shield-exclamation" :current="(request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'pcn') || request()->routeIs('flux-admin.pcn.*','flux-admin.pcn-*','flux-admin.pcn-dashboard.*')">PCN cases</flux:navlist.item>
             @endcan
 
-            {{-- 4. Vehicles (+ vehicle commons items that belong here) --}}
+            {{-- 4. Club: Super Admin hub, or Club Member Access staff lookup --}}
+            @if(\App\Support\FluxAdminAccess::isSuperAdmin())
+                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-members.*','flux-admin.club-purchases.*','flux-admin.club-redemptions.*','flux-admin.club-spending.*','flux-admin.club-spending-payments.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
+            @elseif(\App\Support\ClubMemberStaffAccess::canAccessPortal())
+                <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" icon="users" :current="request()->routeIs('flux-admin.club-members.*') || (request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club')">Club</flux:navlist.item>
+            @endif
+
+            {{-- 5. Vehicles (+ vehicle commons items that belong here) --}}
             @can('see-menu-vehicles')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'vehicles') }}" icon="truck" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'vehicles' || request()->routeIs('flux-admin.motorbikes*','flux-admin.motorbike-compliance.*','flux-admin.motorbike-new.*','flux-admin.ebikes.*','flux-admin.vehicle-notifications.*','flux-admin.recovered-motorbikes.*','flux-admin.backpack.motorbike-available.*')">Vehicles</flux:navlist.item>
             @endcan
@@ -1000,25 +1081,18 @@
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'vehicle-records') }}" icon="clipboard-document-list" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'vehicle-records' || request()->routeIs('flux-admin.motorbike-cat-b.*','flux-admin.vehicle-history.*','flux-admin.company-vehicles.*','flux-admin.club-member-vehicles.*')">Vehicle records</flux:navlist.item>
             @endcan
 
-            {{-- 5. Customers (was Chat position) --}}
+            {{-- 6. Customers (was Chat position) --}}
             @can('see-menu-commons')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'customers') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'customers' || request()->routeIs('flux-admin.customers.*','flux-admin.customer-documents.*')">Customers</flux:navlist.item>
             @endcan
 
-            {{-- 6. Service enquiries + services bookings --}}
+            {{-- 7. Service enquiries + services bookings --}}
             @can('see-menu-commons')
                 <flux:navlist.item href="{{ route('flux-admin.service-bookings.index') }}" icon="inbox" :current="request()->routeIs('flux-admin.service-bookings.*')">Service enquiries</flux:navlist.item>
             @endcan
             @can('see-menu-services-and-repairs-and-report')
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'services') }}" icon="wrench-screwdriver" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'services' || request()->routeIs('flux-admin.customer-appointments.*','flux-admin.motorbike-repairs.*','flux-admin.motorbike-repair-updates.*')">Services and repairs</flux:navlist.item>
             @endcan
-            {{-- 7. Club: Super Admin hub, or Club Member Access staff lookup --}}
-            @if(\App\Support\FluxAdminAccess::isSuperAdmin())
-                <flux:navlist.item href="{{ route('flux-admin.modules.show', 'club') }}" icon="users" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club' || request()->routeIs('flux-admin.club.*','flux-admin.club-members.*','flux-admin.club-purchases.*','flux-admin.club-redemptions.*','flux-admin.club-spending.*','flux-admin.club-spending-payments.*','flux-admin.dev-club-otp.*')">Club</flux:navlist.item>
-            @elseif(\App\Support\ClubMemberStaffAccess::canAccessPortal())
-                <flux:navlist.item href="{{ route('flux-admin.club-members.index') }}" icon="users" :current="request()->routeIs('flux-admin.club-members.*') || (request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'club')">Club</flux:navlist.item>
-            @endif
-
             {{-- 8. Delivery order --}}
             @canany(['see-menu-vehicles', 'see-menu-commons'])
                 <flux:navlist.item href="{{ route('flux-admin.modules.show', 'delivery') }}" icon="truck" :current="request()->routeIs('flux-admin.modules.show') && request()->route('module') === 'delivery' || request()->routeIs('flux-admin.delivery-enquiries.*','flux-admin.vehicle-delivery-orders.*')">Delivery</flux:navlist.item>

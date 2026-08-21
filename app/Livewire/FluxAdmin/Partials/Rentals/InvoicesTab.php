@@ -60,7 +60,7 @@ class InvoicesTab extends Component
             ->whereKey($invoiceId)
             ->first();
 
-        if (! $invoice || $invoice->is_paid) {
+        if (! $invoice) {
             return;
         }
 

@@ -7,6 +7,7 @@ use App\Models\NgnPartner;
 use App\Support\ClubMemberStaffAccess;
 use Illuminate\Auth\Access\AuthorizationException;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Url;
 use Livewire\Component;
 
 #[Layout('flux-admin.layouts.app')]
@@ -14,7 +15,11 @@ class ClubMembersShow extends Component
 {
     public ClubMember $clubMember;
 
+    #[Url(as: 'tab', history: true, except: 'spendings')]
     public string $activeTab = 'spendings';
+
+    #[Url(as: 'invoice', history: true, except: '')]
+    public string $highlightInvoice = '';
 
     public array $vehicleForm = [];
 
@@ -33,6 +38,30 @@ class ClubMembersShow extends Component
             'is_partner' => (bool) $clubMember->is_partner,
             'ngn_partner_id' => $clubMember->ngn_partner_id,
         ];
+
+        if (! in_array($this->activeTab, ['spendings', 'activity'], true)) {
+            $this->activeTab = 'spendings';
+        }
+
+        $this->syncTabToInvoiceHit();
+    }
+
+    public function updatedHighlightInvoice(): void
+    {
+        $this->syncTabToInvoiceHit();
+    }
+
+    protected function syncTabToInvoiceHit(): void
+    {
+        $term = trim($this->highlightInvoice);
+        if ($term === '') {
+            return;
+        }
+
+        $hit = ClubMemberStaffAccess::posInvoiceHitForMember((int) $this->clubMember->id, $term);
+        if ($hit !== null) {
+            $this->activeTab = $hit['tab'];
+        }
     }
 
     public function getTitle(): string
@@ -73,8 +102,14 @@ class ClubMembersShow extends Component
 
     public function render()
     {
+        $term = trim($this->highlightInvoice);
+        $invoiceHit = $term === ''
+            ? null
+            : ClubMemberStaffAccess::posInvoiceHitForMember((int) $this->clubMember->id, $term);
+
         return view('flux-admin.pages.club.members-show', [
             'partners' => NgnPartner::orderBy('companyname')->get(['id', 'companyname']),
+            'invoiceNotFound' => $term !== '' && $invoiceHit === null,
         ]);
     }
 }

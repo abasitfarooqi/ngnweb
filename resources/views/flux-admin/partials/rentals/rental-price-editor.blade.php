@@ -8,7 +8,7 @@
                     <p class="font-semibold text-zinc-900 dark:text-white">£{{ number_format($currentWeeklyRent, 2) }}</p>
                 </div>
                 <div>
-                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Due unpaid invoices</p>
+                    <p class="text-xs text-zinc-500 dark:text-zinc-400">Due outstanding</p>
                     <p class="font-semibold text-zinc-900 dark:text-white">
                         {{ $unpaidInvoiceCount }} invoice(s), £{{ number_format($unpaidInvoiceTotal, 2) }}
                     </p>

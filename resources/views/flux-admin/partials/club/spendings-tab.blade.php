@@ -17,8 +17,19 @@
 
                 <flux:table.rows>
                     @foreach($spendings as $spending)
-                        <flux:table.row wire:key="spending-{{ $spending->id }}">
+                        @php
+                            $spendingMatched = \App\Support\ClubMemberStaffAccess::invoiceMatches((string) $spending->pos_invoice, $highlightInvoice ?? '');
+                            $paymentMatched = $spending->payments->contains(
+                                fn ($payment) => \App\Support\ClubMemberStaffAccess::invoiceMatches((string) $payment->pos_invoice, $highlightInvoice ?? '')
+                            );
+                            $rowMatched = $spendingMatched || $paymentMatched;
+                        @endphp
+                        <flux:table.row wire:key="spending-{{ $spending->id }}" class="{{ $rowMatched ? 'bg-blue-50 dark:bg-blue-950/30' : '' }}">
                             <flux:table.cell>
+                                @if($rowMatched && empty($posHitMarked))
+                                    @php $posHitMarked = true; @endphp
+                                    <span id="club-pos-invoice-hit"></span>
+                                @endif
                                 @if($spending->payments->count())
                                     <button wire:click="togglePayments({{ $spending->id }})" class="text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition">
                                         <flux:icon :name="$expandedSpendingId === $spending->id ? 'chevron-down' : 'chevron-right'" variant="micro" class="w-4 h-4" />
@@ -45,7 +56,7 @@
                         {{-- Expandable payments sub-rows --}}
                         @if($expandedSpendingId === $spending->id && $spending->payments->count())
                             @foreach($spending->payments as $payment)
-                                <flux:table.row wire:key="payment-{{ $payment->id }}" class="bg-zinc-50 dark:bg-zinc-900/50">
+                                <flux:table.row wire:key="payment-{{ $payment->id }}" class="{{ \App\Support\ClubMemberStaffAccess::invoiceMatches((string) $payment->pos_invoice, $highlightInvoice ?? '') ? 'bg-blue-50 dark:bg-blue-950/30' : 'bg-zinc-50 dark:bg-zinc-900/50' }}">
                                     <flux:table.cell></flux:table.cell>
                                     <flux:table.cell class="text-xs text-zinc-500 dark:text-zinc-400">
                                         {{ $payment->date ? $payment->date->format('d M Y') : '—' }}
@@ -66,8 +77,8 @@
             </div>
             </div>
         @else
-            <div class="p-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
-                No spendings found.
+            <div class="p-8 text-center text-sm text-zinc-700 dark:text-zinc-200">
+                {{ ! empty($highlightInvoice) ? 'POS invoice not found for this member.' : 'No spendings found.' }}
             </div>
         @endif
     </div>

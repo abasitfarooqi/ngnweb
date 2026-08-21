@@ -51,19 +51,33 @@
 
     <section class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div class="border-b border-zinc-200 px-4 pt-3 dark:border-zinc-800">
-            <flux:tabs wire:model.live="activeTab">
-                <flux:tab name="spendings">Spendings</flux:tab>
-                <flux:tab name="activity">Activity</flux:tab>
-            </flux:tabs>
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <flux:tabs wire:model.live="activeTab">
+                    <flux:tab name="spendings">Spendings</flux:tab>
+                    <flux:tab name="activity">Activity</flux:tab>
+                </flux:tabs>
+                <div class="min-w-0 w-full pb-3 sm:max-w-xs">
+                    <flux:input
+                        wire:model.live.debounce.300ms="highlightInvoice"
+                        placeholder="Find POS invoice…"
+                        variant="filled"
+                    />
+                </div>
+            </div>
+            @if($invoiceNotFound)
+                <p class="pb-3 text-sm font-medium text-zinc-800 dark:text-zinc-100">
+                    POS invoice not found for this member.
+                </p>
+            @endif
         </div>
 
         <div class="club-members-tab-body">
             @switch($activeTab)
                 @case('spendings')
-                    <livewire:flux-admin.partials.club.spendings-tab :clubMemberId="$clubMember->id" key="members-tab-spendings-{{ $clubMember->id }}" />
+                    <livewire:flux-admin.partials.club.spendings-tab :clubMemberId="$clubMember->id" :highlightInvoice="$highlightInvoice" :key="'members-tab-spendings-'.$clubMember->id.'-'.$highlightInvoice" />
                     @break
                 @case('activity')
-                    <livewire:flux-admin.partials.club.activity-tab :clubMemberId="$clubMember->id" key="members-tab-activity-{{ $clubMember->id }}" />
+                    <livewire:flux-admin.partials.club.activity-tab :clubMemberId="$clubMember->id" :highlightInvoice="$highlightInvoice" :key="'members-tab-activity-'.$clubMember->id.'-'.$highlightInvoice" />
                     @break
             @endswitch
         </div>
@@ -127,6 +141,11 @@
     const scrollIfHash = () => {
         if (window.location.hash === '#club-member-edit-vehicle') {
             window.scrollToClubMemberEdit();
+        }
+
+        const hit = document.getElementById('club-pos-invoice-hit');
+        if (hit) {
+            hit.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
     };
 

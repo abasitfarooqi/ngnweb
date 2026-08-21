@@ -2,9 +2,9 @@
 
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
-use App\Models\BookingInvoice;
 use App\Models\RentingBookingItem;
 use App\Services\RentingInvoiceSyncService;
+use App\Support\RentalInvoiceTabData;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -46,14 +46,11 @@ class RentalPriceEditor extends Component
         $this->currentWeeklyRent = (float) ($item?->weekly_rent ?? 0);
         $this->weeklyRent = number_format($this->currentWeeklyRent, 2, '.', '');
 
-        $unpaid = BookingInvoice::query()
-            ->where('booking_id', $this->bookingId)
-            ->where('is_paid', false)
-            ->whereDate('invoice_date', '<=', now()->toDateString())
-            ->where('amount', '>', 0);
+        $due = RentalInvoiceTabData::rows($this->bookingId)
+            ->filter(fn ($invoice) => ! (bool) $invoice->is_paid && (bool) $invoice->is_due);
 
-        $this->unpaidInvoiceCount = (clone $unpaid)->count();
-        $this->unpaidInvoiceTotal = (float) (clone $unpaid)->sum('amount');
+        $this->unpaidInvoiceCount = $due->count();
+        $this->unpaidInvoiceTotal = (float) $due->sum(fn ($invoice) => max((float) $invoice->outstanding_balance, 0));
     }
 
     public function saveWeeklyRent(): void

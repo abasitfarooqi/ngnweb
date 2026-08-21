@@ -11,7 +11,7 @@
             <div class="min-w-0 w-full lg:flex-1">
                 <flux:input
                     wire:model.live.debounce.300ms="search"
-                    placeholder="Search name, email, phone, VRM, make or model…"
+                    placeholder="Search name, email, phone, VRM, POS invoice…"
                     variant="filled"
                 />
             </div>
@@ -68,12 +68,22 @@
                                 $showEmail = \App\Support\ClubMemberStaffAccess::showEmailInList($row, $search);
                                 $showPhone = \App\Support\ClubMemberStaffAccess::showPhoneInList($row, $search);
                                 $displayName = \App\Support\ClubMemberStaffAccess::displayNameInList($row, $search);
+                                $invoiceHit = $invoiceHits[$row->id] ?? null;
+                                $openUrl = route('flux-admin.club-members.show', $row->id);
+                                if (is_array($invoiceHit)) {
+                                    $openUrl .= '?tab='.urlencode((string) $invoiceHit['tab']).'&invoice='.urlencode((string) $invoiceHit['invoice']);
+                                }
                             @endphp
                             <flux:table.row wire:key="club-member-staff-{{ $row->id }}">
                                 <flux:table.cell>
-                                    <a href="{{ route('flux-admin.club-members.show', $row->id) }}" wire:navigate class="font-medium text-zinc-900 dark:text-white hover:underline">
+                                    <a href="{{ $openUrl }}" wire:navigate class="font-medium text-zinc-900 dark:text-white hover:underline">
                                         {{ $displayName }}
                                     </a>
+                                    @if(is_array($invoiceHit))
+                                        <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                                            POS {{ $invoiceHit['invoice'] }} · {{ implode(', ', $invoiceHit['kinds']) }}
+                                        </div>
+                                    @endif
                                 </flux:table.cell>
                                 <flux:table.cell>
                                     @if($showEmail)
@@ -118,7 +128,7 @@
                                     {{ $row->created_at?->format('d M Y') ?? '—' }}
                                 </flux:table.cell>
                                 <flux:table.cell>
-                                    <a href="{{ route('flux-admin.club-members.show', $row->id) }}" wire:navigate>
+                                    <a href="{{ $openUrl }}" wire:navigate>
                                         <flux:button size="xs" variant="ghost" icon="eye" class="!rounded-none">Open</flux:button>
                                     </a>
                                 </flux:table.cell>
