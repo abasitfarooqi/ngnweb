@@ -19,7 +19,9 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Facades\View;
+use App\Livewire\FluxAdmin\Hooks\ValidateDatabaseRequiredHook;
 use Illuminate\Support\ServiceProvider;
+use Livewire\Livewire;
 
 // Laravel\Cashier\Cashier - ignoreMigrations() removed in v15
 
@@ -106,5 +108,7 @@ class AppServiceProvider extends ServiceProvider
 
         // Flux Admin anonymous Blade components: <x-flux-admin::stat-card> etc.
         Blade::anonymousComponentPath(resource_path('views/flux-admin/components'), 'flux-admin');
+
+        Livewire::componentHook(ValidateDatabaseRequiredHook::class);
     }
 }

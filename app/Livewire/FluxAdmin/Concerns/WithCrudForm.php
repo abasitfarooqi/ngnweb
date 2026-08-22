@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Concerns;
 
 use App\Support\FluxAdminFormPayload;
 use App\Support\FluxAdminRequiredColumn;
+use App\Support\FluxAdminSchemaRules;
 use App\Support\FluxAdminUniqueViolation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
@@ -61,10 +62,12 @@ trait WithCrudForm
 
     public function save(): Model
     {
+        $schemaRules = FluxAdminSchemaRules::rulesForBag($this->formModel(), $this->formData, 'formData');
+
         $validator = validator(
             ['formData' => $this->formData],
-            ['formData' => 'array'] + $this->ruleKeysOf($this->formRules()),
-            $this->formMessages(),
+            ['formData' => 'array'] + $this->ruleKeysOf($this->formRules()) + $schemaRules,
+            $this->formMessages() + FluxAdminSchemaRules::messages($schemaRules),
         );
 
         $validator->validate();
