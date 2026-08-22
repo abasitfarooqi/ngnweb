@@ -41,6 +41,23 @@ class CommunicationDefinitionRegistryTest extends TestCase
         $this->assertTrue($keys->contains('contract.hire.issued'));
         $this->assertTrue($keys->contains('finance.contract.review'));
         $this->assertTrue($keys->contains('rental.deposit.return'));
+        $this->assertTrue($keys->contains('rental.referral.approval_report'));
+        $this->assertTrue($keys->contains('rental.referral.staff_invoice_notice'));
+        $this->assertTrue($keys->contains('rental.direct.free_week'));
+        $this->assertFalse($keys->contains('rental.weekly.follow_up_report'));
+        $this->assertTrue($keys->contains('rental.invoice.update_reminder'));
+        $this->assertTrue($keys->contains('rental.referral.invitation'));
+        $this->assertTrue($keys->contains('rental.referral.under_review'));
+        $this->assertTrue($keys->contains('rental.referral.reward_available'));
+
+        $byKey = collect($definitions)->keyBy('key');
+        $this->assertSame('Referral invitation to a friend', $byKey['rental.referral.invitation']->name);
+        $this->assertSame('We have your referral', $byKey['rental.referral.under_review']->name);
+        $this->assertSame('Referral free week is ready', $byKey['rental.referral.reward_available']->name);
+        $this->assertSame('Referral approved (director copy)', $byKey['rental.referral.approval_report']->name);
+        $this->assertSame('Referral free week applied (director copy)', $byKey['rental.referral.staff_invoice_notice']->name);
+        $this->assertSame('Staff free week, not a referral (director copy)', $byKey['rental.direct.free_week']->name);
+        $this->assertSame('Invoice chase note to the customer', $byKey['rental.invoice.update_reminder']->name);
         $this->assertTrue($keys->contains('ecommerce.order.confirmed'));
         $this->assertTrue($keys->contains('customer.document.request'));
         $this->assertFalse($keys->contains('campaign.survey'));

@@ -42,6 +42,15 @@ class CustomerShow extends Component
             'pcn'      => PcnCase::where('customer_id', $id)->count(),
         ];
 
+        if (\Illuminate\Support\Facades\Schema::hasTable('renting_referrals')) {
+            $tabCounts['rental_referrals'] = \App\Models\RentingReferral::query()
+                ->where(function ($q) use ($id) {
+                    $q->where('referrer_customer_id', $id)
+                        ->orWhere('referred_customer_id', $id);
+                })
+                ->count();
+        }
+
         return view('flux-admin.pages.customers.show', compact('tabCounts'));
     }
 }

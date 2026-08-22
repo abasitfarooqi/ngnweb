@@ -87,6 +87,7 @@
             ['icon'=>'document-text', 'title'=>'Upload Documents',    'sub'=>'Manage your documents',     'route'=>route('account.documents')],
             ['icon'=>'calendar',      'title'=>'Book MOT',            'sub'=>'Schedule your MOT test',    'route'=>route('account.bookings')],
             ['icon'=>'clock',         'title'=>'Rental Enquiry','sub'=>'Browse available bikes',    'route'=>route('account.rentals')],
+            ['icon'=>'user-plus',     'title'=>'Refer a friend (rental)','sub'=>'Share your rental referral', 'route'=>route('account.rentals.referrals')],
             ['icon'=>'banknotes',     'title'=>'Apply for Finance',   'sub'=>'Finance applications',      'route'=>route('account.finance')],
             ['icon'=>'bolt',          'title'=>'Request Recovery',    'sub'=>'Breakdown assistance',      'route'=>route('account.recovery')],
             ['icon'=>'star',          'title'=>'NGN Club',            'sub'=>'Membership & credits',      'route'=>route('account.club')],

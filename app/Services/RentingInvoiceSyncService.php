@@ -91,6 +91,10 @@ class RentingInvoiceSyncService
             $invoicesCompleted = 0;
 
             foreach ($unpaidInvoices as $invoice) {
+                if (app(\App\Services\Renting\RentingReferralService::class)->invoiceHasReferralRedemption((int) $invoice->id)) {
+                    continue;
+                }
+
                 $targetAmount = $this->invoiceAmountForWeeklyRent($invoice, $weeklyRent);
                 $paid = $paidTotals->get($invoice->id);
                 $paidTotal = round((float) ($paid?->paid_total ?? 0), 2);
@@ -460,6 +464,10 @@ class RentingInvoiceSyncService
      */
     protected function isFutureDeletable(BookingInvoice $invoice, string $today, array $invoiceIdsWithTransactions): bool
     {
+        if (app(\App\Services\Renting\RentingReferralService::class)->invoiceHasReferralRedemption((int) $invoice->id)) {
+            return false;
+        }
+
         if ($invoice->is_paid) {
             return false;
         }

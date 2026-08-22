@@ -23,12 +23,16 @@ class CommunicationDefinitionSynchronizer
             return ['created' => 0, 'updated' => 0, 'skipped' => count($definitions)];
         }
 
+        $knownKeys = [];
+
         foreach ($definitions as $definition) {
             if ($definition->classification !== 'transactional') {
                 $skipped++;
 
                 continue;
             }
+
+            $knownKeys[] = $definition->key;
 
             DB::transaction(function () use ($definition, &$created, &$updated): void {
                 $model = CommunicationDefinition::query()->where('key', $definition->key)->first();
@@ -48,6 +52,14 @@ class CommunicationDefinitionSynchronizer
                     $this->policyDefaults($definition)
                 );
             });
+        }
+
+        if ($knownKeys !== []) {
+            CommunicationDefinition::query()
+                ->where('classification', 'transactional')
+                ->whereNotIn('key', $knownKeys)
+                ->where('active', true)
+                ->update(['active' => false]);
         }
 
         return compact('created', 'updated', 'skipped');

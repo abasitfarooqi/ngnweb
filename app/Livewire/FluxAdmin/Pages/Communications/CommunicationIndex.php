@@ -9,6 +9,7 @@ use App\Models\CommunicationPolicy;
 use App\Models\SystemSetting;
 use App\Models\User;
 use App\Services\Communications\CommunicationAuditRecorder;
+use App\Services\Communications\CommunicationDefinitionRegistry;
 use App\Services\Communications\CommunicationDefinitionSynchronizer;
 use App\Services\Communications\CommunicationSchema;
 use App\Services\Communications\CommunicationSystemSwitch;
@@ -298,11 +299,15 @@ class CommunicationIndex extends Component
         $schemaReady = $schema->ready();
 
         if ($schemaReady) {
+            $catalogueKeys = collect(app(CommunicationDefinitionRegistry::class)->all())->pluck('key')->all();
+
             $definitions = CommunicationDefinition::query()
                 ->with('policy')
+                ->whereIn('key', $catalogueKeys !== [] ? $catalogueKeys : [''])
                 ->when($this->search, function ($q, string $term): void {
                     $q->where(function ($nested) use ($term): void {
                         $nested->where('name', 'like', '%'.$term.'%')
+                            ->orWhere('description', 'like', '%'.$term.'%')
                             ->orWhere('key', 'like', '%'.$term.'%')
                             ->orWhere('category', 'like', '%'.$term.'%')
                             ->orWhere('source_class', 'like', '%'.$term.'%')

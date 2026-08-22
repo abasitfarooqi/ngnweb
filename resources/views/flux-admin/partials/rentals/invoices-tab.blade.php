@@ -210,29 +210,128 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Payment method <span class="text-red-500">*</span></label>
-                    <select wire:model="paymentMethodId" class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
-                        <option value="">— Select method —</option>
-                        @foreach($paymentMethods as $method)
-                            <option value="{{ $method->id }}">{{ $method->title }}</option>
-                        @endforeach
+                    <select wire:model.live="paymentKind" class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
+                        <option value="cash">Cash</option>
+                        <option value="card">Card</option>
+                        @if($programmeReferrals->isNotEmpty())
+                            <option value="referral">Referral</option>
+                        @else
+                            <option value="direct">Referral</option>
+                        @endif
                     </select>
                     @error('paymentMethodId') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Amount received (£) <span class="text-red-500">*</span></label>
-                    <input
-                        wire:model="paymentAmount"
-                        type="number"
-                        step="0.01"
-                        min="0.01"
-                        class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
-                    />
-                    @error('paymentAmount') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
-                </div>
+                @if($paymentKind === 'referral')
+                    <div class="space-y-3">
+                        @if($needsEarlyApply)
+                            <p class="text-xs text-zinc-500">Early apply. Pick the friend they referred and explain this to the boss. Approval already covered the background story.</p>
+                        @else
+                            <p class="text-xs text-zinc-500">Programme free week. Pick the friend they referred. No extra explanation — the boss already has the approval story.</p>
+                        @endif
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Referred customer <span class="text-red-500">*</span></label>
+                            <input
+                                wire:model.live.debounce.300ms="referralSearch"
+                                type="search"
+                                placeholder="Name, mobile or referral number"
+                                class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+                            />
+                        </div>
+                        <div class="border border-zinc-200 dark:border-zinc-700 max-h-40 overflow-y-auto">
+                            @forelse($matchedReferrals as $row)
+                                <button
+                                    type="button"
+                                    wire:click="$set('referralId', {{ $row->id }})"
+                                    class="block w-full text-left px-3 py-2 text-sm {{ (int) $referralId === (int) $row->id ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800' }}"
+                                >
+                                    {{ trim(($row->referred?->first_name.' '.$row->referred?->last_name) ?: $row->submitted_name) }}
+                                    · {{ $row->referred?->phone ?: $row->submitted_phone }}
+                                    · referral #{{ $row->id }}
+                                </button>
+                            @empty
+                                <p class="px-3 py-2 text-xs text-zinc-500">No programme referral matches that search.</p>
+                            @endforelse
+                        </div>
+                        @error('referralId') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        @if($needsEarlyApply)
+                            <div>
+                                <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Explanation for the boss <span class="text-red-500">*</span></label>
+                                <textarea
+                                    wire:model="referralProof"
+                                    rows="3"
+                                    placeholder="Why this is being applied before the wait ends"
+                                    class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+                                ></textarea>
+                                @error('referralProof') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            </div>
+                        @endif
+                    </div>
+                @elseif($paymentKind === 'direct')
+                    <div class="space-y-3">
+                        <p class="text-xs text-zinc-500">Staff direct free week. Search any customer. You must explain this to the boss. Thiago is emailed with who did it and why.</p>
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Search any customer <span class="text-red-500">*</span></label>
+                            <input
+                                wire:model.live.debounce.300ms="referralSearch"
+                                type="search"
+                                placeholder="Name, mobile or email"
+                                class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+                            />
+                        </div>
+                        <div class="border border-zinc-200 dark:border-zinc-700 max-h-40 overflow-y-auto">
+                            @forelse($directCustomers as $customer)
+                                <button
+                                    type="button"
+                                    wire:click="$set('directCustomerId', {{ $customer->id }})"
+                                    class="block w-full text-left px-3 py-2 text-sm {{ (int) $directCustomerId === (int) $customer->id ? 'bg-emerald-50 dark:bg-emerald-950/30' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800' }}"
+                                >
+                                    #{{ $customer->id }} {{ $customer->first_name }} {{ $customer->last_name }}
+                                    · {{ $customer->phone ?: 'no phone' }}
+                                </button>
+                            @empty
+                                <p class="px-3 py-2 text-xs text-zinc-500">Type at least two characters to search all customers.</p>
+                            @endforelse
+                        </div>
+                        @if($selectedDirectCustomer)
+                            <p class="text-xs">Selected #{{ $selectedDirectCustomer->id }} {{ $selectedDirectCustomer->first_name }} {{ $selectedDirectCustomer->last_name }}</p>
+                        @endif
+                        @error('directCustomerId') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        <div>
+                            <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Explanation for the boss <span class="text-red-500">*</span></label>
+                            <textarea
+                                wire:model="referralProof"
+                                rows="3"
+                                placeholder="Why this free week is being given, and who it relates to"
+                                class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+                            ></textarea>
+                            @error('referralProof') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                        </div>
+                    </div>
+                @else
+                    <div>
+                        <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Amount received (£) <span class="text-red-500">*</span></label>
+                        <input
+                            wire:model="paymentAmount"
+                            type="number"
+                            step="0.01"
+                            min="0.01"
+                            class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
+                        />
+                        @error('paymentAmount') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                    </div>
+                @endif
             </div>
             <div class="flex gap-3 mt-5 justify-end">
                 <flux:button type="button" variant="ghost" wire:click="closePayModal">Cancel</flux:button>
-                <flux:button type="button" variant="primary" wire:click="markPaid">Confirm payment</flux:button>
+                <flux:button type="button" variant="primary" wire:click="markPaid">
+                    @if($paymentKind === 'referral' && $needsEarlyApply)
+                        Release early and apply
+                    @elseif(in_array($paymentKind, ['referral', 'direct'], true))
+                        Apply free week
+                    @else
+                        Confirm payment
+                    @endif
+                </flux:button>
             </div>
         </div>
     </flux:modal>

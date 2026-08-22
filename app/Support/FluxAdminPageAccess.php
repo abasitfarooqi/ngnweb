@@ -199,6 +199,7 @@ final class FluxAdminPageAccess
             'backpack.application-item' => $p('see-menu-finance'),
             'backpack.contract-extra-item' => $p('see-menu-finance'),
 
+            'rental-referrals' => $p('see-menu-rentals'),
             'rental-operations' => $p('see-menu-rentals'),
             'rental-due-payments' => $p('see-menu-rentals'),
             'rental-terminate' => $p('see-menu-rentals'),
