@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Access;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\RentingBooking;
 use App\Models\RentingServiceVideo;
+use App\Support\UploadLimit;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -89,9 +90,9 @@ class ServiceVideoForm extends Component
         ];
 
         if ($this->serviceVideo && $this->serviceVideo->exists) {
-            $rules['videoFile'] = ['nullable', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:512000'];
+            $rules['videoFile'] = ['nullable', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:'.UploadLimit::maxKilobytes()];
         } else {
-            $rules['videoFile'] = ['required', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:512000'];
+            $rules['videoFile'] = ['required', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:'.UploadLimit::maxKilobytes()];
         }
 
         return $rules;
@@ -185,6 +186,8 @@ class ServiceVideoForm extends Component
     {
         return view('flux-admin.pages.access.service-video-form', [
             'bookingResults' => $this->bookingSearchResults(),
+            'maxUploadBytes' => UploadLimit::maxBytes(),
+            'maxUploadLabel' => UploadLimit::label(),
         ]);
     }
 }

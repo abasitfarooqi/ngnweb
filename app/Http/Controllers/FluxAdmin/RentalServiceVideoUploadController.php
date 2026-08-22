@@ -5,6 +5,7 @@ namespace App\Http\Controllers\FluxAdmin;
 use App\Http\Controllers\Controller;
 use App\Models\RentingBooking;
 use App\Models\RentingServiceVideo;
+use App\Support\UploadLimit;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -14,7 +15,7 @@ class RentalServiceVideoUploadController extends Controller
     public function store(Request $request, RentingBooking $booking): RedirectResponse
     {
         $validator = Validator::make($request->all(), [
-            'video' => ['required', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:512000'],
+            'video' => ['required', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:'.UploadLimit::maxKilobytes()],
         ]);
 
         if ($validator->fails()) {

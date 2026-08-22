@@ -2373,7 +2373,7 @@ class RentingController extends Controller
         $booking = RentingBooking::findOrFail($bookingId);
 
         $request->validate([
-            'video_file' => 'required|file|mimes:mp4,mov,avi,wmv,mkv',
+            'video_file' => 'required|file|mimes:mp4,mov,avi,wmv,mkv|max:'.\App\Support\UploadLimit::maxKilobytes(),
         ]);
 
         try {

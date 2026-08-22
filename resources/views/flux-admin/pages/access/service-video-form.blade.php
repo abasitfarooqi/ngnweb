@@ -80,14 +80,28 @@
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Video file" :required="! ($serviceVideo && $serviceVideo->exists)" :error="$errors->first('videoFile')">
-                    <input type="file" wire:model="videoFile" accept="video/*" class="text-sm" />
+                    <input
+                        type="file"
+                        wire:model="videoFile"
+                        accept="video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/x-matroska"
+                        class="text-sm"
+                        x-data
+                        x-on:change="
+                            const file = $event.target.files[0];
+                            if (file && file.size > {{ (int) $maxUploadBytes }}) {
+                                alert('That video is larger than {{ $maxUploadLabel }}. Compress it or pick a shorter clip.');
+                                $event.target.value = '';
+                            }
+                        "
+                    />
+                    <p class="mt-1 text-xs text-zinc-500" wire:loading wire:target="videoFile">Uploading video… keep this page open.</p>
                     @if($serviceVideo && $serviceVideo->exists && $serviceVideo->video_path)
                         <p class="mt-2 text-xs text-zinc-500">
                             Current:
                             <a href="{{ $serviceVideo->video_url }}" target="_blank" rel="noopener noreferrer" class="text-blue-600 hover:underline dark:text-blue-400">Open video ↗</a>
                         </p>
                     @endif
-                    <p class="mt-1 text-xs text-zinc-500">MP4, MOV, AVI, WMV, or MKV. Max 500 MB.</p>
+                    <p class="mt-1 text-xs text-zinc-500">MP4, MOV, AVI, WMV, or MKV. Max {{ $maxUploadLabel }}.</p>
                 </x-flux-admin::field-group>
             </div>
         </div>

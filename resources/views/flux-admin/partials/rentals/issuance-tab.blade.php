@@ -114,8 +114,21 @@
                             action="{{ route('flux-admin.rentals.service-videos.store', $booking) }}"
                             enctype="multipart/form-data"
                             class="max-w-full space-y-2"
-                            x-data="{ fileName: '', uploading: false }"
-                            x-on:submit="uploading = true"
+                            x-data="{ fileName: '', uploading: false, maxBytes: {{ \App\Support\UploadLimit::maxBytes() }} }"
+                            x-on:submit="
+                                const input = $refs.videoInput;
+                                const file = input && input.files && input.files[0] ? input.files[0] : null;
+                                if (! file) {
+                                    $event.preventDefault();
+                                    return;
+                                }
+                                if (file.size > maxBytes) {
+                                    $event.preventDefault();
+                                    alert('That video is larger than {{ \App\Support\UploadLimit::label() }}. Compress it or pick a shorter clip.');
+                                    return;
+                                }
+                                uploading = true;
+                            "
                         >
                             @csrf
                             <label
@@ -131,7 +144,16 @@
                                 accept="video/mp4,video/quicktime,video/x-msvideo,video/x-ms-wmv,video/x-matroska"
                                 class="sr-only"
                                 required
-                                x-on:change="fileName = $event.target.files.length ? $event.target.files[0].name : ''"
+                                x-ref="videoInput"
+                                x-on:change="
+                                    const file = $event.target.files[0];
+                                    fileName = file ? file.name : '';
+                                    if (file && file.size > maxBytes) {
+                                        alert('That video is larger than {{ \App\Support\UploadLimit::label() }}. Compress it or pick a shorter clip.');
+                                        $event.target.value = '';
+                                        fileName = '';
+                                    }
+                                "
                             />
 
                             <div class="min-h-5 max-w-full text-xs text-zinc-500 dark:text-zinc-400">
@@ -139,6 +161,7 @@
                             </div>
 
                             @error('video') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
+                            <p class="text-xs text-zinc-500">MP4, MOV, AVI, WMV, or MKV. Max {{ \App\Support\UploadLimit::label() }}.</p>
 
                             <flux:button
                                 type="submit"

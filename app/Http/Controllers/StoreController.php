@@ -74,4 +74,23 @@ class StoreController extends Controller
         // Return the results to the view
         return view('livewire.agreements.migrated.frontend.ngnstore.search-results', compact('query', 'products', 'filteredPages'));
     }
+
+    public function productDetails(string $identifier)
+    {
+        $product = NgnProduct::query()
+            ->where('sku', $identifier)
+            ->orWhere('slug', $identifier)
+            ->first();
+
+        if (! $product) {
+            abort(404);
+        }
+
+        $slug = trim((string) ($product->slug ?: $product->sku));
+        if ($slug === '') {
+            abort(404);
+        }
+
+        return redirect()->route('shop.product', ['slug' => $slug], 301);
+    }
 }

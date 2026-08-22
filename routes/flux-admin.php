@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\RecurringController as JudopayRecurringController;
 use App\Http\Controllers\FluxAdmin\CommunicationAttachmentController;
 use App\Http\Controllers\FluxAdmin\CommunicationEmailPreviewController;
+use App\Http\Controllers\FluxAdmin\RentalServiceVideoUploadController;
 use App\Http\Controllers\FluxAdmin\SpacesVaultController;
 use App\Http\Controllers\FluxAdmin\UnreadBadgeController;
 use App\Livewire\FluxAdmin\Pages\Access\RentalTerminateForm;

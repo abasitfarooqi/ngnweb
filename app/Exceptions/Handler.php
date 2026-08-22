@@ -2,8 +2,10 @@
 
 namespace App\Exceptions;
 
+use App\Support\UploadLimit;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Support\Facades\Cookie;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -81,6 +83,23 @@ class Handler extends ExceptionHandler
                 ->with('error', 'Your session has expired. Please refresh the page and try again.');
         }
         
+        if ($exception instanceof PostTooLargeException) {
+            $message = 'That file is too large for this server. Use a file under '.UploadLimit::label().'.';
+
+            if ($request->expectsJson() || $request->header('X-Livewire')) {
+                return response()->json(['message' => $message], 413);
+            }
+
+            return redirect()
+                ->back()
+                ->withInput()
+                ->with('error', $message)
+                ->withErrors([
+                    'video' => $message,
+                    'videoFile' => $message,
+                ]);
+        }
+
         if ($exception instanceof NotFoundHttpException) {
             if (($request->is('flux-admin') || $request->is('flux-admin/*')) && ! auth()->check()) {
                 return redirect()->guest(route('flux-admin.login'));

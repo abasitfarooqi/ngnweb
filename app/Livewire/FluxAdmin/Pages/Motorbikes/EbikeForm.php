@@ -49,6 +49,7 @@ class EbikeForm extends Component
         $data = $this->validate($this->formRules());
         $payload = $data['form'];
         $payload['is_ebike'] = true;
+        $payload['engine'] = trim((string) ($payload['engine'] ?? '')) ?: 'electric';
 
         if ($this->motorbike && $this->motorbike->exists) {
             $this->motorbike->update($payload);
