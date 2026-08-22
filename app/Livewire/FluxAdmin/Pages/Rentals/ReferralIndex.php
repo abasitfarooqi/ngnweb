@@ -49,6 +49,10 @@ class ReferralIndex extends Component
 
     public function createReferral(RentingReferralService $service): void
     {
+        if (! self::staffAddFormEnabled()) {
+            return;
+        }
+
         if (! RentingReferralAccess::canView()) {
             abort(403);
         }
@@ -108,7 +112,7 @@ class ReferralIndex extends Component
             ->paginate($this->perPage);
 
         $referrerChoices = [];
-        if (strlen(trim($this->newReferrerSearch)) >= 2) {
+        if (self::staffAddFormEnabled() && strlen(trim($this->newReferrerSearch)) >= 2) {
             $term = '%'.trim($this->newReferrerSearch).'%';
             $referrerChoices = Customer::query()
                 ->where(function ($q) use ($term) {
@@ -126,7 +130,12 @@ class ReferralIndex extends Component
             'rows' => $rows,
             'metrics' => $service->bossMetrics(),
             'referrerChoices' => $referrerChoices,
-            'canCreate' => RentingReferralAccess::canView(),
+            'canCreate' => self::staffAddFormEnabled() && RentingReferralAccess::canView(),
         ]);
+    }
+
+    private static function staffAddFormEnabled(): bool
+    {
+        return false;
     }
 }
