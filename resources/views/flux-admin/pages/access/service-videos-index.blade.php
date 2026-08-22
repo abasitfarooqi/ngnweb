@@ -1,4 +1,14 @@
 <div>
+    @if (session('status'))
+        <div class="mb-4 border border-emerald-400 bg-emerald-50 p-3 text-sm text-emerald-800 dark:bg-emerald-900/20 dark:text-emerald-300 dark:border-emerald-700">
+            {{ session('status') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="mb-4 border border-red-400 bg-red-50 p-3 text-sm text-red-800 dark:bg-red-900/20 dark:text-red-300 dark:border-red-700">
+            {{ session('error') }}
+        </div>
+    @endif
     <x-flux-admin::data-table title="Service videos" description="Rental bike service/handover video recordings.">
         <x-slot:actions>
             <a href="{{ route('flux-admin.service-videos.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">Add video</flux:button></a>

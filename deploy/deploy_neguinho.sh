@@ -57,18 +57,31 @@ fix_known_nginx_issue() {
   fi
 }
 
+upsert_nginx_http_directive() {
+  local key="$1"
+  local value="$2"
+  local file="/etc/nginx/nginx.conf"
+
+  if [ ! -f "$file" ]; then
+    return
+  fi
+
+  if grep -qE "^[[:space:]]*${key}[[:space:]]+" "$file"; then
+    sed -i "s#^[[:space:]]*${key}[[:space:]].*#    ${key} ${value};#" "$file"
+  else
+    sed -i "/^[[:space:]]*http[[:space:]]*{/a \    ${key} ${value};" "$file"
+  fi
+}
+
 fix_upload_limits() {
   log "FIX VIDEO UPLOAD LIMITS"
 
-  if [ -f /etc/nginx/nginx.conf ]; then
-    if grep -qE "^[[:space:]]*client_max_body_size[[:space:]]+" /etc/nginx/nginx.conf; then
-      sed -i "s#^[[:space:]]*client_max_body_size[[:space:]].*#    client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};#" /etc/nginx/nginx.conf
-    else
-      sed -i "/^[[:space:]]*http[[:space:]]*{/a \    client_max_body_size ${NGINX_CLIENT_MAX_BODY_SIZE};" /etc/nginx/nginx.conf
-    fi
-
-    echo "Nginx client_max_body_size set to ${NGINX_CLIENT_MAX_BODY_SIZE}."
-  fi
+  upsert_nginx_http_directive "client_max_body_size" "${NGINX_CLIENT_MAX_BODY_SIZE}"
+  upsert_nginx_http_directive "client_body_timeout" "600s"
+  upsert_nginx_http_directive "send_timeout" "600s"
+  upsert_nginx_http_directive "fastcgi_read_timeout" "600s"
+  upsert_nginx_http_directive "fastcgi_send_timeout" "600s"
+  echo "Nginx upload size and timeouts set (body ${NGINX_CLIENT_MAX_BODY_SIZE}, 600s)."
 
   local php_conf_dir
   for php_conf_dir in /etc/php/8.3/fpm/conf.d /etc/php/8.3/cli/conf.d; do
@@ -80,6 +93,18 @@ max_input_time=600
 max_execution_time=600
 EOF
       echo "PHP upload limits written to $php_conf_dir/99-ngn-upload.ini."
+    fi
+  done
+
+  local pool
+  for pool in /etc/php/8.3/fpm/pool.d/neguinhomotors.conf /etc/php/8.3/fpm/pool.d/www.conf; do
+    if [ -f "$pool" ]; then
+      if grep -qE "^[[:space:]]*request_terminate_timeout[[:space:]]*=" "$pool"; then
+        sed -i "s#^[[:space:]]*request_terminate_timeout[[:space:]]*=.*#request_terminate_timeout = 600#" "$pool"
+      else
+        printf '\nrequest_terminate_timeout = 600\n' >> "$pool"
+      fi
+      echo "PHP-FPM request_terminate_timeout set in $pool."
     fi
   done
 }

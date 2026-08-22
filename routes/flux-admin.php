@@ -603,6 +603,7 @@ Route::get('/upload-document-links/create', UploadDocumentForm::class)->name('fl
 Route::get('/upload-document-links/{id}/edit', UploadDocumentForm::class)->name('flux-admin.upload-document-links.edit');
 Route::get('/service-videos', ServiceVideoIndex::class)->name('flux-admin.service-videos.index');
 Route::get('/service-videos/create', ServiceVideoForm::class)->name('flux-admin.service-videos.create');
+Route::post('/service-videos', [RentalServiceVideoUploadController::class, 'storeFromForm'])->name('flux-admin.service-videos.store');
 Route::get('/service-videos/{serviceVideo}/edit', ServiceVideoForm::class)->name('flux-admin.service-videos.edit');
 
 // Phase 19 — Remaining sub-CRUDs

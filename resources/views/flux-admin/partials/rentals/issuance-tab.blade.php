@@ -114,7 +114,9 @@
                             action="{{ route('flux-admin.rentals.service-videos.store', $booking) }}"
                             enctype="multipart/form-data"
                             class="max-w-full space-y-2"
+                            wire:ignore
                             x-data="{ fileName: '', uploading: false, maxBytes: {{ \App\Support\UploadLimit::maxBytes() }} }"
+                            x-on:pageshow.window="uploading = false"
                             x-on:submit="
                                 const input = $refs.videoInput;
                                 const file = input && input.files && input.files[0] ? input.files[0] : null;
@@ -163,15 +165,14 @@
                             @error('video') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                             <p class="text-xs text-zinc-500">MP4, MOV, AVI, WMV, or MKV. Max {{ \App\Support\UploadLimit::label() }}.</p>
 
-                            <flux:button
+                            <button
                                 type="submit"
-                                size="sm"
-                                class="!rounded-none"
+                                class="inline-flex items-center px-3 py-2 text-sm font-medium bg-emerald-600 text-white hover:bg-emerald-700 disabled:opacity-60"
                                 x-bind:disabled="uploading || ! fileName"
                             >
                                 <span x-show="! uploading">Upload video</span>
-                                <span x-cloak x-show="uploading">Uploading...</span>
-                            </flux:button>
+                                <span x-cloak x-show="uploading">Uploading… keep this page open</span>
+                            </button>
                         </form>
                         <p class="mt-2">
                             <a href="{{ route('flux-admin.service-videos.create', ['booking_id' => $booking->id]) }}" class="text-xs text-blue-600 hover:underline dark:text-blue-400">Upload via service videos page ↗</a>

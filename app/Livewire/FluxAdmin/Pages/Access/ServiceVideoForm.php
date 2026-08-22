@@ -12,13 +12,11 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\WithFileUploads;
 
 #[Layout('flux-admin.layouts.app')]
 class ServiceVideoForm extends Component
 {
     use WithAuthorization;
-    use WithFileUploads;
 
     public ?RentingServiceVideo $serviceVideo = null;
 
@@ -28,11 +26,8 @@ class ServiceVideoForm extends Component
 
     public ?string $selectedBookingLabel = null;
 
-    public $videoFile = null;
-
     public function mount(?RentingServiceVideo $serviceVideo = null): void
     {
-        $this->resetErrorBag();
         $this->authorizeModule('see-menu-renting-page');
         $this->serviceVideo = $serviceVideo;
 
@@ -48,9 +43,16 @@ class ServiceVideoForm extends Component
             $this->form = $attrs;
             $this->loadSelectedBookingLabel((int) $serviceVideo->booking_id);
         } else {
-            $this->form = ['recorded_at' => now()->format('Y-m-d\TH:i')];
+            $recordedAt = old('recorded_at', now()->format('Y-m-d\TH:i'));
+            try {
+                $recordedAt = Carbon::parse((string) $recordedAt)->format('Y-m-d\TH:i');
+            } catch (\Throwable) {
+                $recordedAt = now()->format('Y-m-d\TH:i');
+            }
 
-            $prefillBookingId = (int) request()->query('booking_id', 0);
+            $this->form = ['recorded_at' => $recordedAt];
+
+            $prefillBookingId = (int) (request()->query('booking_id') ?: old('booking_id', 0));
             if ($prefillBookingId > 0) {
                 $this->form['booking_id'] = $prefillBookingId;
                 $this->loadSelectedBookingLabel($prefillBookingId);
@@ -86,42 +88,27 @@ class ServiceVideoForm extends Component
 
     protected function formRules(): array
     {
-        $rules = [
+        return [
             'form.booking_id' => ['required', 'integer', 'exists:renting_bookings,id'],
             'form.recorded_at' => ['required', 'date'],
         ];
-
-        if ($this->serviceVideo && $this->serviceVideo->exists) {
-            $rules['videoFile'] = ['nullable', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:'.UploadLimit::maxKilobytes()];
-        } else {
-            $rules['videoFile'] = ['required', 'file', 'mimes:mp4,mov,avi,wmv,mkv', 'max:'.UploadLimit::maxKilobytes()];
-        }
-
-        return $rules;
     }
 
     public function save(): void
     {
+        if (! $this->serviceVideo || ! $this->serviceVideo->exists) {
+            $this->addError('video', 'Choose a video file and press Save. The file is sent as a normal upload, not through Livewire.');
+
+            return;
+        }
+
         $data = $this->validate($this->formRules());
         $payload = $data['form'];
         $payload['recorded_at'] = Carbon::parse($payload['recorded_at']);
 
-        if ($this->videoFile) {
-            $bookingId = (int) $payload['booking_id'];
-            $timestamp = now()->format('Ymd_His');
-            $extension = $this->videoFile->getClientOriginalExtension();
-            $fileName = $bookingId.'_'.$timestamp.'.'.$extension;
-            $payload['video_path'] = $this->videoFile->storeAs('rental_service_videos', $fileName, 'public');
-        }
-
         try {
-            if ($this->serviceVideo && $this->serviceVideo->exists) {
-                $this->serviceVideo->update($payload);
-                $this->dispatch('flux-admin:toast', type: 'success', message: 'Video updated.');
-            } else {
-                RentingServiceVideo::create($payload);
-                $this->dispatch('flux-admin:toast', type: 'success', message: 'Video uploaded.');
-            }
+            $this->serviceVideo->update($payload);
+            $this->dispatch('flux-admin:toast', type: 'success', message: 'Video updated.');
         } catch (QueryException $e) {
             if (FluxAdminRequiredColumn::matches($e)) {
                 FluxAdminRequiredColumn::failValidation($this, $e);
