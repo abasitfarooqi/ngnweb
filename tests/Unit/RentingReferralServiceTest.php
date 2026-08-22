@@ -60,7 +60,7 @@ class RentingReferralServiceTest extends TestCase
         $this->assertSame('Sent', $referral->friendlyStatus());
 
         $referral->status = RentingReferral::STATUS_REVIEW;
-        $this->assertSame('Under review', $referral->friendlyStatus());
+        $this->assertSame('Sent', $referral->friendlyStatus());
     }
 
     public function test_invoice_redemption_lookup_does_not_throw(): void
@@ -68,5 +68,10 @@ class RentingReferralServiceTest extends TestCase
         $service = app(RentingReferralService::class);
 
         $this->assertFalse($service->invoiceHasReferralRedemption(0));
+        $this->assertCount(0, $service->spendableReferrals(0));
+        $this->assertTrue($service->checkIsHealthy('referrer_qualified', true));
+        $this->assertFalse($service->checkIsHealthy('referrer_qualified', false));
+        $this->assertTrue($service->checkIsHealthy('duplicate', false));
+        $this->assertFalse($service->checkIsHealthy('duplicate', true));
     }
 }

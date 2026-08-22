@@ -26,6 +26,9 @@ class RentingReferralRewardAvailableMail extends Mailable
     public function content(): Content
     {
         $points = RentingReferralSettings::pointsPerQualifiedReferral();
+        $rewardLine = $points === 100
+            ? 'Your rental referral reward is now available ('.$points.' points — one free week).'
+            : 'Your rental referral reward is now available ('.$points.' points).';
 
         return new Content(
             view: 'emails.templates.agreement-controller-universal',
@@ -34,7 +37,7 @@ class RentingReferralRewardAvailableMail extends Mailable
                 [
                     'referral' => $this->referral,
                     'points' => $points,
-                    'weeks' => $points === 100 ? 1 : null,
+                    'reward_line' => $rewardLine,
                 ],
                 'Your rental referral reward is available',
             ),

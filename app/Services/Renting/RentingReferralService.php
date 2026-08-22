@@ -2,9 +2,11 @@
 
 namespace App\Services\Renting;
 
+use App\Mail\RentingDirectFreeWeekMail;
 use App\Mail\RentingReferralApprovalReportMail;
 use App\Mail\RentingReferralInvitationMail;
 use App\Mail\RentingReferralRewardAvailableMail;
+use App\Mail\RentingReferralStaffInvoiceMail;
 use App\Mail\RentingReferralUnderReviewMail;
 use App\Models\BookingInvoice;
 use App\Models\Customer;
@@ -309,9 +311,6 @@ class RentingReferralService
 
             $fresh = $locked->fresh(['referrer', 'referred', 'ledger', 'logs', 'referredQualifyingBooking', 'referredQualifyingInvoice']);
             $this->sendApprovalReport($fresh, $userId);
-            if ($credit->fresh()?->isSpendable()) {
-                $this->sendRewardAvailable($fresh);
-            }
 
             return $fresh;
         });
@@ -350,6 +349,50 @@ class RentingReferralService
         });
     }
 
+    public function undoReview(RentingReferral $referral, ?int $userId): RentingReferral
+    {
+        $this->assertCanReview($userId);
+
+        return DB::transaction(function () use ($referral, $userId) {
+            $locked = RentingReferral::query()->whereKey($referral->id)->lockForUpdate()->firstOrFail();
+            $credit = $this->creditFor($locked);
+
+            if ($credit && $credit->status === RentingReferralPointLedger::STATUS_REDEEMED) {
+                throw new RuntimeException('This free week has already been used. Undo is not allowed.');
+            }
+
+            if (! in_array($locked->status, [RentingReferral::STATUS_APPROVED, RentingReferral::STATUS_REJECTED], true)) {
+                throw new RuntimeException('Undo is only for an approved or disapproved referral.');
+            }
+
+            $old = $this->snapshot($locked);
+
+            if ($credit && in_array($credit->status, [
+                RentingReferralPointLedger::STATUS_AVAILABLE,
+                RentingReferralPointLedger::STATUS_REJECTED,
+            ], true)) {
+                $credit->update([
+                    'status' => RentingReferralPointLedger::STATUS_PENDING,
+                    'available_from' => null,
+                    'approved_by' => null,
+                    'approved_at' => null,
+                    'released_early_at' => null,
+                    'released_early_by' => null,
+                    'release_reason' => null,
+                ]);
+            }
+
+            $locked->update([
+                'status' => RentingReferral::STATUS_REVIEW,
+                'reviewed_at' => now(),
+                'reviewed_by' => $userId,
+            ]);
+            $this->writeLog($locked, 'UNDO_REVIEW', $old, $this->snapshot($locked->fresh(['ledger'])), $userId);
+
+            return $locked->fresh(['ledger']);
+        });
+    }
+
     public function hold(RentingReferral $referral, ?int $userId, string $reason): RentingReferral
     {
         $this->assertCanReview($userId);
@@ -369,7 +412,7 @@ class RentingReferralService
         return $referral->fresh();
     }
 
-    public function releaseEarly(RentingReferral $referral, ?int $userId, string $reason): RentingReferral
+    public function releaseEarly(RentingReferral $referral, ?int $userId, string $reason, BookingInvoice $invoice): RentingReferral
     {
         $this->assertCanReview($userId);
 
@@ -379,15 +422,21 @@ class RentingReferralService
 
         $reason = trim($reason);
         if ($reason === '') {
-            throw ValidationException::withMessages(['release_reason' => 'Please enter a reason.']);
+            throw ValidationException::withMessages(['release_reason' => 'Please enter a reason that Thiago can check.']);
         }
 
-        return DB::transaction(function () use ($referral, $userId, $reason) {
+        $this->assertCanRedeem($userId);
+
+        DB::transaction(function () use ($referral, $userId, $reason) {
             $locked = RentingReferral::query()->whereKey($referral->id)->lockForUpdate()->firstOrFail();
             $credit = $this->creditFor($locked);
 
             if ($locked->status !== RentingReferral::STATUS_APPROVED || ! $credit || $credit->status !== RentingReferralPointLedger::STATUS_AVAILABLE) {
                 throw new RuntimeException('Early release is only available after approval.');
+            }
+
+            if ($credit->released_early_at || $credit->status === RentingReferralPointLedger::STATUS_REDEEMED) {
+                throw new RuntimeException('Early release has already been used for this reward.');
             }
 
             $old = $credit->only(['available_from', 'released_early_at', 'release_reason']);
@@ -397,21 +446,24 @@ class RentingReferralService
                 'release_reason' => $reason,
                 'available_from' => now(),
             ]);
-            $this->writeLog($locked, 'EARLY_RELEASE', $old, $credit->fresh()->only(['available_from', 'released_early_at', 'release_reason']));
-            $fresh = $locked->fresh(['referrer', 'ledger']);
-            $this->sendRewardAvailable($fresh);
-
-            return $fresh;
+            $this->writeLog($locked, 'EARLY_RELEASE', $old, $credit->fresh()->only(['available_from', 'released_early_at', 'release_reason']), $userId);
         });
+
+        return $this->redeem($referral->fresh(), $invoice, $userId, $reason);
     }
 
-    public function redeem(RentingReferral $referral, BookingInvoice $invoice, ?int $userId): RentingReferral
+    public function redeem(RentingReferral $referral, BookingInvoice $invoice, ?int $userId, ?string $proof = null): RentingReferral
     {
-        $this->assertCanReview($userId);
+        $this->assertCanRedeem($userId);
+        $proof = trim((string) $proof);
 
-        return DB::transaction(function () use ($referral, $invoice, $userId) {
+        $result = DB::transaction(function () use ($referral, $invoice, $userId, $proof) {
             $locked = RentingReferral::query()->whereKey($referral->id)->lockForUpdate()->firstOrFail();
             $credit = $this->creditFor($locked);
+
+            if ($credit && $credit->status === RentingReferralPointLedger::STATUS_REDEEMED) {
+                throw new RuntimeException('This free week has already been used.');
+            }
 
             if (! $credit || ! $credit->isSpendable()) {
                 throw new RuntimeException('Points are not available to use yet.');
@@ -481,10 +533,109 @@ class RentingReferralService
                 'invoice_id' => $invoice->id,
                 'transaction_id' => $transaction->id,
                 'amount' => $remaining,
+                'proof' => $proof !== '' ? $proof : null,
+            ], $userId);
+
+            return [
+                'referral' => $locked->fresh(['referrer', 'referred', 'ledger', 'referrerQualifyingBooking', 'referredQualifyingBooking', 'referredQualifyingInvoice']),
+                'invoice' => $invoice->fresh(),
+                'booking' => $booking->fresh(),
+                'transaction' => $transaction,
+                'amount' => $remaining,
+            ];
+        });
+
+        $this->sendStaffInvoiceNotice(
+            $result['referral'],
+            'redeemed',
+            $userId,
+            $result['invoice'],
+            $result['booking'],
+            $result['transaction'],
+            $result['amount'],
+            $proof !== '' ? $proof : null
+        );
+
+        return $result['referral'];
+    }
+
+    public function applyDirectFreeWeek(
+        BookingInvoice $invoice,
+        Customer $selectedCustomer,
+        ?int $userId,
+        string $proof
+    ): RentingTransaction {
+        $this->assertCanRedeem($userId);
+        $proof = trim($proof);
+        if (strlen($proof) < 8) {
+            throw ValidationException::withMessages([
+                'referralProof' => 'Explain this free week so the boss can check it.',
+            ]);
+        }
+
+        $result = DB::transaction(function () use ($invoice, $selectedCustomer, $userId, $proof) {
+            $invoice = BookingInvoice::query()->whereKey($invoice->id)->lockForUpdate()->firstOrFail();
+            $booking = RentingBooking::query()->whereKey($invoice->booking_id)->lockForUpdate()->firstOrFail();
+
+            if ($invoice->is_paid) {
+                throw new RuntimeException('That invoice is already paid.');
+            }
+
+            if ((float) $invoice->amount <= 0) {
+                throw new RuntimeException('That invoice has no rental amount.');
+            }
+
+            if ($this->invoiceHasReferralRedemption((int) $invoice->id)) {
+                throw new RuntimeException('A free week has already been applied to this invoice.');
+            }
+
+            $paid = (float) RentingTransaction::query()->where('invoice_id', $invoice->id)->sum('amount');
+            $remaining = round((float) $invoice->amount - $paid, 2);
+            if ($remaining <= 0) {
+                throw new RuntimeException('That invoice has no remaining balance.');
+            }
+
+            $transaction = RentingTransaction::query()->create([
+                'transaction_date' => now(),
+                'booking_id' => $booking->id,
+                'invoice_id' => $invoice->id,
+                'transaction_type_id' => $this->rewardTransactionTypeId(),
+                'payment_method_id' => $this->rewardPaymentMethodId(),
+                'amount' => $remaining,
+                'user_id' => $userId,
+                'notes' => 'Staff direct free week — selected customer #'.$selectedCustomer->id.' — '.$proof,
             ]);
 
-            return $locked->fresh(['ledger']);
+            $invoice->update([
+                'is_paid' => true,
+                'is_posted' => true,
+                'paid_date' => now(),
+                'state' => 'Completed',
+                'notes' => trim(((string) ($invoice->notes ?? ''))."\nStaff direct free week — customer #{$selectedCustomer->id}"),
+            ]);
+
+            return [
+                'invoice' => $invoice->fresh(),
+                'booking' => $booking->fresh(),
+                'transaction' => $transaction,
+                'amount' => $remaining,
+            ];
         });
+
+        $hirer = Customer::query()->find($result['booking']->customer_id);
+        $to = RentingReferralSettings::approvalReportTo();
+        $this->safeMail(fn () => Mail::to($to)->send(new RentingDirectFreeWeekMail(
+            $result['booking'],
+            $result['invoice'],
+            $result['transaction'],
+            $hirer ?: $selectedCustomer,
+            $selectedCustomer,
+            $proof,
+            $userId,
+            $result['amount']
+        )));
+
+        return $result['transaction'];
     }
 
     public function invoiceHasReferralRedemption(int $invoiceId): bool
@@ -493,9 +644,16 @@ class RentingReferralService
             return false;
         }
 
-        return RentingReferralPointLedger::query()
+        if (RentingReferralPointLedger::query()
             ->where('redeemed_invoice_id', $invoiceId)
             ->where('direction', RentingReferralPointLedger::DIRECTION_DEBIT)
+            ->exists()) {
+            return true;
+        }
+
+        return RentingTransaction::query()
+            ->where('invoice_id', $invoiceId)
+            ->where('transaction_type_id', $this->rewardTransactionTypeId())
             ->exists();
     }
 
@@ -505,12 +663,16 @@ class RentingReferralService
         $referrer = $referral->referrer;
         $referred = $referral->referred;
         $credit = $this->creditFor($referral);
-        $createdAfterStart = false;
+        $earliestPosted = $referred
+            ? RentingBooking::query()
+                ->where('customer_id', $referred->id)
+                ->where('is_posted', true)
+                ->orderBy('start_date')
+                ->orderBy('id')
+                ->first()
+            : null;
 
-        if ($referred && $referral->referred_qualifying_booking_id) {
-            $start = optional($referral->referredQualifyingBooking?->start_date);
-            $createdAfterStart = $start && $referral->created_at && $referral->created_at->gt($start);
-        }
+        $createdAfterStart = $this->referralCreatedAfterBookingStart($referral, $earliestPosted);
 
         $competing = $referred
             ? RentingReferral::query()
@@ -524,13 +686,156 @@ class RentingReferralService
             'referrer_qualified' => $referrer ? $this->referrerIsEligible($referrer) : false,
             'matched' => $referral->referred_customer_id !== null,
             'prior_rental' => $referred ? $this->hadPostedRentalBefore($referred, $referral->created_at ?? now()) : false,
-            'paid_week' => $referral->referred_qualifying_invoice_id !== null,
+            'paid_week' => $referral->referred_qualifying_invoice_id !== null
+                || ($referred && $this->firstPaidWeeklyInvoiceForCustomer($referred, $referral->created_at) !== null),
             'duplicate' => $competing,
             'self_referral' => $referrer && $this->identifiersMatchCustomer($referrer, $referral->submitted_phone, $referral->submitted_email),
             'competing_referrer' => $competing,
             'reward_generated' => $credit !== null,
             'created_after_start' => $createdAfterStart,
         ];
+    }
+
+    public function checkIsHealthy(string $key, bool $value): bool
+    {
+        $noIsGood = ['prior_rental', 'duplicate', 'self_referral', 'competing_referrer', 'created_after_start'];
+
+        return in_array($key, $noIsGood, true) ? ! $value : $value;
+    }
+
+    public function readyToApprove(RentingReferral $referral): bool
+    {
+        if ($referral->status !== RentingReferral::STATUS_REVIEW) {
+            return false;
+        }
+
+        $credit = $this->creditFor($referral);
+        if (! $credit || $credit->status !== RentingReferralPointLedger::STATUS_PENDING) {
+            return false;
+        }
+
+        foreach ($this->investigationChecks($referral) as $key => $value) {
+            if (is_bool($value) && ! $this->checkIsHealthy($key, $value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public function notifySpendableRewards(): int
+    {
+        if (! $this->tablesReady()) {
+            return 0;
+        }
+
+        $sent = 0;
+        RentingReferral::query()
+            ->where('status', RentingReferral::STATUS_APPROVED)
+            ->with(['referrer', 'referred', 'ledger'])
+            ->orderBy('id')
+            ->get()
+            ->each(function (RentingReferral $referral) use (&$sent) {
+                $credit = $this->creditFor($referral);
+                if (! $credit || ! $credit->isSpendable() || $credit->status === RentingReferralPointLedger::STATUS_REDEEMED) {
+                    return;
+                }
+
+                $already = RentingReferralLog::query()
+                    ->where('referral_id', $referral->id)
+                    ->where('action', 'REWARD_READY')
+                    ->exists();
+                if ($already) {
+                    return;
+                }
+
+                $this->sendRewardAvailable($referral);
+                $this->sendStaffInvoiceNotice($referral, 'ready', $this->staffId());
+                $this->writeLog($referral, 'REWARD_READY', null, [
+                    'available_from' => optional($credit->available_from)?->toDateTimeString(),
+                ]);
+                $sent++;
+            });
+
+        return $sent;
+    }
+
+    /** @return Collection<int, RentingReferral> */
+    public function approvedUnusedReferrals(int $referrerCustomerId): Collection
+    {
+        if (! $this->tablesReady()) {
+            return collect();
+        }
+
+        return RentingReferral::query()
+            ->where('referrer_customer_id', $referrerCustomerId)
+            ->where('status', RentingReferral::STATUS_APPROVED)
+            ->with(['referred', 'ledger'])
+            ->orderByDesc('id')
+            ->get()
+            ->filter(function (RentingReferral $row) {
+                $credit = $this->creditFor($row);
+
+                return $credit && $credit->status === RentingReferralPointLedger::STATUS_AVAILABLE;
+            })
+            ->values();
+    }
+
+    /** @return Collection<int, RentingReferral> */
+    public function spendableReferrals(int $referrerCustomerId): Collection
+    {
+        return $this->approvedUnusedReferrals($referrerCustomerId)
+            ->filter(fn (RentingReferral $row) => $this->creditFor($row)?->isSpendable())
+            ->values();
+    }
+
+    public function activePostedBookingAt(Customer $customer, Carbon $at): ?RentingBooking
+    {
+        return RentingBooking::query()
+            ->where('customer_id', $customer->id)
+            ->where('is_posted', true)
+            ->where(function ($q) use ($at) {
+                $q->whereNull('start_date')->orWhere('start_date', '<=', $at);
+            })
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    public function investigationNote(RentingReferral $referral): ?string
+    {
+        $referred = $referral->referred;
+        if (! $referred || ! $referral->created_at) {
+            return null;
+        }
+
+        $booking = RentingBooking::query()
+            ->where('customer_id', $referred->id)
+            ->where('is_posted', true)
+            ->orderByDesc('id')
+            ->first();
+
+        if (! $booking) {
+            return 'No posted rental for the matched customer yet. Refer first, then start their rental, then take one paid week.';
+        }
+
+        if ($this->referralCreatedAfterBookingStart($referral, $booking)) {
+            return 'Paid invoices on booking #'.$booking->id.' do not count. That rental started '
+                .$booking->start_date->format('d M Y')
+                .', which is before this referral ('
+                .$referral->created_at->format('d M Y H:i')
+                .'). Refer first, then start the friend’s rental on or after that day.';
+        }
+
+        if ($referral->referred_qualifying_invoice_id) {
+            return null;
+        }
+
+        $paid = $this->firstPaidWeeklyInvoiceForCustomer($referred, $referral->created_at);
+
+        return $paid
+            ? null
+            : 'Matched, but there is not yet a paid weekly invoice on a rental that started on or after the referral.';
     }
 
     public function availablePoints(int $customerId): int
@@ -634,14 +939,21 @@ class RentingReferralService
 
     public function refreshOpenReferral(RentingReferral $referral): RentingReferral
     {
-        $this->applyMatch($referral);
-        $fresh = $referral->fresh();
+        $this->restoreStatusFromCredit($referral);
+        $referral = $referral->fresh() ?? $referral;
 
-        if ($fresh && in_array($fresh->status, [RentingReferral::STATUS_MATCHED, RentingReferral::STATUS_QUALIFYING], true)) {
-            return $this->qualify($fresh);
+        if (! $referral->referred_customer_id) {
+            $this->applyMatch($referral);
+            $referral = $referral->fresh() ?? $referral;
         }
 
-        return $fresh ?? $referral;
+        if (in_array($referral->status, [RentingReferral::STATUS_MATCHED, RentingReferral::STATUS_QUALIFYING], true)) {
+            return $this->qualify($referral);
+        }
+
+        $this->attachQualifyingInvoiceIfMissing($referral);
+
+        return $referral->fresh() ?? $referral;
     }
 
     public function qualify(RentingReferral $referral): RentingReferral
@@ -678,7 +990,7 @@ class RentingReferralService
             }
 
             $booking = RentingBooking::query()->find($invoice->booking_id);
-            if ($booking?->start_date && $locked->created_at && $locked->created_at->gt($booking->start_date)) {
+            if ($this->referralCreatedAfterBookingStart($locked, $booking)) {
                 $warnings = $locked->warnings ?? [];
                 $warnings['created_after_start'] = true;
                 $locked->update(['warnings' => $warnings]);
@@ -687,6 +999,14 @@ class RentingReferralService
             }
 
             if ($this->creditFor($locked)) {
+                if (! $locked->referred_qualifying_invoice_id) {
+                    $locked->update([
+                        'referred_qualifying_booking_id' => $invoice->booking_id,
+                        'referred_qualifying_invoice_id' => $invoice->id,
+                        'qualified_at' => $locked->qualified_at ?? now(),
+                    ]);
+                }
+
                 return $locked->fresh();
             }
 
@@ -700,7 +1020,7 @@ class RentingReferralService
             $this->createPendingCredit($locked);
             $this->writeLog($locked, 'QUALIFY', $old, $this->snapshot($locked->fresh(['ledger'])));
 
-            $fresh = $locked->fresh(['referrer', 'referred', 'ledger']);
+            $fresh = $locked->fresh(['referrer', 'referred', 'ledger', 'referredQualifyingBooking', 'referredQualifyingInvoice', 'referrerQualifyingBooking']);
             $this->sendUnderReview($fresh);
 
             return $fresh;
@@ -709,8 +1029,16 @@ class RentingReferralService
 
     private function applyMatch(RentingReferral $referral, ?Customer $forced = null, bool $superAdminException = false): void
     {
-        if (in_array($referral->status, [RentingReferral::STATUS_REJECTED, RentingReferral::STATUS_CANCELLED, RentingReferral::STATUS_APPROVED], true)
-            && $forced === null) {
+        if (in_array($referral->status, [
+            RentingReferral::STATUS_REJECTED,
+            RentingReferral::STATUS_CANCELLED,
+            RentingReferral::STATUS_APPROVED,
+            RentingReferral::STATUS_REVIEW,
+        ], true) && $forced === null) {
+            return;
+        }
+
+        if ($referral->referred_customer_id && $forced === null) {
             return;
         }
 
@@ -784,7 +1112,7 @@ class RentingReferralService
         }
 
         $postedAfter = $this->firstPostedBookingAfter($customer, $referral->created_at ?? now());
-        if ($postedAfter?->start_date && $referral->created_at && $referral->created_at->gt($postedAfter->start_date) && ! $superAdminException) {
+        if ($this->referralCreatedAfterBookingStart($referral, $postedAfter) && ! $superAdminException) {
             $warnings['created_after_start'] = true;
             $referral->update([
                 'referred_customer_id' => $customer->id,
@@ -906,7 +1234,7 @@ class RentingReferralService
             ->where('customer_id', $customer->id)
             ->where('is_posted', true)
             ->where(function ($q) use ($before) {
-                $q->where('start_date', '<', $before)
+                $q->where('start_date', '<', $before->copy()->startOfDay())
                     ->orWhere(function ($inner) use ($before) {
                         $inner->whereNull('start_date')->where('created_at', '<', $before);
                     });
@@ -920,7 +1248,7 @@ class RentingReferralService
             ->where('customer_id', $customer->id)
             ->where('is_posted', true)
             ->where(function ($q) use ($after) {
-                $q->where('start_date', '>=', $after)
+                $q->where('start_date', '>=', $after->copy()->startOfDay())
                     ->orWhere(function ($inner) use ($after) {
                         $inner->whereNull('start_date')->where('created_at', '>=', $after);
                     });
@@ -937,7 +1265,7 @@ class RentingReferralService
             ->where('is_posted', true)
             ->when($after, function ($q) use ($after) {
                 $q->where(function ($inner) use ($after) {
-                    $inner->where('start_date', '>=', $after)
+                    $inner->where('start_date', '>=', $after->copy()->startOfDay())
                         ->orWhere(function ($nested) use ($after) {
                             $nested->whereNull('start_date')->where('created_at', '>=', $after);
                         });
@@ -1044,12 +1372,75 @@ class RentingReferralService
         return $user?->getAuthIdentifier() ? (int) $user->getAuthIdentifier() : null;
     }
 
+    private function attachQualifyingInvoiceIfMissing(RentingReferral $referral): void
+    {
+        if ($referral->referred_qualifying_invoice_id || ! $referral->referred_customer_id || ! $referral->created_at) {
+            return;
+        }
+
+        $referred = $referral->referred ?: Customer::query()->find($referral->referred_customer_id);
+        if (! $referred) {
+            return;
+        }
+
+        $invoice = $this->firstPaidWeeklyInvoiceForCustomer($referred, $referral->created_at);
+        if (! $invoice) {
+            return;
+        }
+
+        $referral->update([
+            'referred_qualifying_booking_id' => $invoice->booking_id,
+            'referred_qualifying_invoice_id' => $invoice->id,
+            'qualified_at' => $referral->qualified_at ?? now(),
+            'matched_at' => $referral->matched_at ?? $referral->created_at,
+        ]);
+    }
+
+    private function restoreStatusFromCredit(RentingReferral $referral): void
+    {
+        $credit = $this->creditFor($referral);
+        if (! $credit) {
+            return;
+        }
+
+        if (in_array($credit->status, [
+            RentingReferralPointLedger::STATUS_AVAILABLE,
+            RentingReferralPointLedger::STATUS_REDEEMED,
+        ], true) && $referral->status !== RentingReferral::STATUS_APPROVED) {
+            $referral->update(['status' => RentingReferral::STATUS_APPROVED]);
+
+            return;
+        }
+
+        if ($credit->status === RentingReferralPointLedger::STATUS_PENDING
+            && $referral->status !== RentingReferral::STATUS_REVIEW) {
+            $referral->update(['status' => RentingReferral::STATUS_REVIEW]);
+        }
+    }
+
     private function assertCanReview(?int $userId): void
     {
         $user = $userId ? \App\Models\User::query()->find($userId) : FluxAdminAccess::user();
         if (! RentingReferralAccess::canReview($user)) {
             throw new RuntimeException('You do not have permission to review rental referrals.');
         }
+    }
+
+    private function assertCanRedeem(?int $userId): void
+    {
+        $user = $userId ? \App\Models\User::query()->find($userId) : FluxAdminAccess::user();
+        if (! RentingReferralAccess::canView($user)) {
+            throw new RuntimeException('You do not have permission to apply a rental referral reward.');
+        }
+    }
+
+    private function referralCreatedAfterBookingStart(RentingReferral $referral, ?RentingBooking $booking): bool
+    {
+        if (! $booking?->start_date || ! $referral->created_at) {
+            return false;
+        }
+
+        return $referral->created_at->toDateString() > $booking->start_date->toDateString();
     }
 
     private function rewardTransactionTypeId(): int
@@ -1109,6 +1500,29 @@ class RentingReferralService
     {
         $to = RentingReferralSettings::approvalReportTo();
         $this->safeMail(fn () => Mail::to($to)->send(new RentingReferralApprovalReportMail($referral, $userId)));
+    }
+
+    private function sendStaffInvoiceNotice(
+        RentingReferral $referral,
+        string $event,
+        ?int $userId,
+        ?BookingInvoice $invoice = null,
+        ?RentingBooking $booking = null,
+        ?RentingTransaction $transaction = null,
+        ?float $amount = null,
+        ?string $proof = null
+    ): void {
+        $to = RentingReferralSettings::approvalReportTo();
+        $this->safeMail(fn () => Mail::to($to)->send(new RentingReferralStaffInvoiceMail(
+            $referral,
+            $event,
+            $userId,
+            $invoice,
+            $booking,
+            $transaction,
+            $amount,
+            $proof
+        )));
     }
 
     private function safeMail(callable $send): void

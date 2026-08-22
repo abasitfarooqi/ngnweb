@@ -18,12 +18,20 @@ class Referrals extends Component
 
     public string $email = '';
 
+    public bool $acceptTerms = false;
+
     public function submit(RentingReferralService $service): void
     {
         $customer = Auth::guard('customer')->user()?->customer;
         if (! $customer) {
             abort(403);
         }
+
+        $this->validate([
+            'acceptTerms' => 'accepted',
+        ], [
+            'acceptTerms.accepted' => 'Please confirm you have read and accept the rental referral terms.',
+        ]);
 
         try {
             $service->create($customer, [
@@ -39,7 +47,7 @@ class Referrals extends Component
             return;
         }
 
-        $this->reset(['name', 'phone', 'email']);
+        $this->reset(['name', 'phone', 'email', 'acceptTerms']);
         session()->flash('success', 'Referral sent.');
     }
 

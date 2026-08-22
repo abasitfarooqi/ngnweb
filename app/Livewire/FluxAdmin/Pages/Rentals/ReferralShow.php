@@ -35,10 +35,10 @@ class ReferralShow extends Component
 
     public string $releaseReason = '';
 
-    public function mount(RentingReferral $referral): void
+    public function mount(RentingReferral $referral, RentingReferralService $service): void
     {
         $this->authorizeModule('see-menu-rentals');
-        $this->referral = $referral->load([
+        $this->referral = $service->refreshOpenReferral($referral)->load([
             'referrer',
             'referred',
             'ledger',
@@ -48,7 +48,7 @@ class ReferralShow extends Component
             'referrerQualifyingBooking',
             'reviewedBy',
         ]);
-        $this->reviewReason = (string) ($referral->review_reason ?? '');
+        $this->reviewReason = (string) ($this->referral->review_reason ?? '');
     }
 
     public function addNote(RentingReferralService $service): void
@@ -94,19 +94,34 @@ class ReferralShow extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Referral rejected.');
     }
 
-    public function hold(RentingReferralService $service): void
+    public function undoReview(RentingReferralService $service): void
     {
         $this->guardReview();
-        $service->hold($this->referral, $this->staffId(), $this->reviewReason);
+        try {
+            $service->undoReview($this->referral, $this->staffId());
+        } catch (\Throwable $e) {
+            $this->addError('reviewReason', $e->getMessage());
+
+            return;
+        }
         $this->reload();
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Referral held.');
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Review undone. This referral is waiting for approve or disapprove again.');
     }
 
     public function releaseEarly(RentingReferralService $service): void
     {
         $this->guardReview();
+        $this->validate([
+            'redeemInvoiceId' => 'required|integer|exists:booking_invoices,id',
+            'releaseReason' => 'required|string|min:8',
+        ], [
+            'redeemInvoiceId.required' => 'Pick the unpaid invoice for this one-time free week.',
+            'releaseReason.required' => 'Explain this early apply so the boss can check it.',
+            'releaseReason.min' => 'Explain this early apply so the boss can check it.',
+        ]);
+        $invoice = BookingInvoice::query()->findOrFail((int) $this->redeemInvoiceId);
         try {
-            $service->releaseEarly($this->referral, $this->staffId(), $this->releaseReason);
+            $service->releaseEarly($this->referral, $this->staffId(), $this->releaseReason, $invoice);
         } catch (ValidationException $e) {
             throw $e;
         } catch (\Throwable $e) {
@@ -115,8 +130,9 @@ class ReferralShow extends Component
             return;
         }
         $this->releaseReason = '';
+        $this->redeemInvoiceId = null;
         $this->reload();
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Reward released.');
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Free week applied. This reward is now locked.');
     }
 
     public function matchCustomer(RentingReferralService $service): void
@@ -142,7 +158,9 @@ class ReferralShow extends Component
     public function redeem(RentingReferralService $service): void
     {
         $this->guardReview();
-        $this->validate(['redeemInvoiceId' => 'required|integer|exists:booking_invoices,id']);
+        $this->validate([
+            'redeemInvoiceId' => 'required|integer|exists:booking_invoices,id',
+        ]);
         $invoice = BookingInvoice::query()->findOrFail((int) $this->redeemInvoiceId);
         try {
             $service->redeem($this->referral, $invoice, $this->staffId());
@@ -151,8 +169,10 @@ class ReferralShow extends Component
 
             return;
         }
+        $this->releaseReason = '';
+        $this->redeemInvoiceId = null;
         $this->reload();
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Reward applied to the invoice.');
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Free week applied. This reward is now locked.');
     }
 
     public function render(RentingReferralService $service)
@@ -183,8 +203,14 @@ class ReferralShow extends Component
         $portalLogs = $this->referral->logs->where('action', '!=', 'NOTE');
         $notes = $this->referral->logs->where('action', 'NOTE');
 
+        $referrerActiveBooking = ($this->referral->referrer && $this->referral->created_at)
+            ? $service->activePostedBookingAt($this->referral->referrer, $this->referral->created_at)
+            : null;
+
         return view('flux-admin.pages.rentals.referral-show', [
             'checks' => $service->investigationChecks($this->referral),
+            'checkNote' => $service->investigationNote($this->referral),
+            'referrerActiveBooking' => $referrerActiveBooking,
             'canReview' => RentingReferralAccess::canReview(),
             'isSuperAdmin' => RentingReferralAccess::isSuperAdmin(),
             'referrerHistory' => $referrerHistory,
@@ -198,6 +224,8 @@ class ReferralShow extends Component
             'notes' => $notes,
             'availablePoints' => $service->availablePoints((int) $this->referral->referrer_customer_id),
             'pendingPoints' => $service->pendingPoints((int) $this->referral->referrer_customer_id),
+            'readyToApprove' => $service->readyToApprove($this->referral),
+            'checkIsHealthy' => fn (string $key, bool $value) => $service->checkIsHealthy($key, $value),
         ]);
     }
 

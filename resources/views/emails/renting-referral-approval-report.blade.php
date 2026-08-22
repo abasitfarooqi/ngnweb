@@ -19,7 +19,7 @@
 <p><strong>Approved by</strong></p>
 <ul>
     <li>User ID: {{ $approver?->id ?? '—' }}</li>
-    <li>Name: {{ $approver?->name ?? '—' }}</li>
+    <li>Name: {{ $approver?->full_name ?: ($approver?->name ?? '—') }}</li>
     <li>Email: {{ $approver?->email ?? '—' }}</li>
 </ul>
 

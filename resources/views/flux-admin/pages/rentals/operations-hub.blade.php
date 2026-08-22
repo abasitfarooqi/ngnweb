@@ -6,11 +6,13 @@
 
     @php
         $cards = [
-            ['Rentals referrals', 'Investigate referrals, pending points and free-week rewards.', route('flux-admin.rental-referrals.index'), 'user-plus'],
+            
             ['New booking', 'Same-day intake wizard.', route('flux-admin.new-booking.index'), 'plus-circle'],
             ['Active bookings rental', 'Filters, outstanding balances, open booking detail.', route('flux-admin.rentals.index'), 'list-bullet'],
             ['Inactive bookings', 'Ended rentals (end date set on item).', route('flux-admin.inactive-bookings.index'), 'archive-box'],
             ['Inactive pendings payments', 'Ended with balances still outstanding (proceed-anyway).', route('flux-admin.ended-with-pendings.index'), 'exclamation-triangle'],
+            ['Rentals referrals', 'Investigate referrals, pending points and free-week rewards.', route('flux-admin.rental-referrals.index'), 'user-plus'],
+            ['Weekly follow-up report', 'Monday–Saturday snapshot of invoice and rental history notes for the director.', route('flux-admin.rental-weekly-follow-up-report.index'), 'document-text'],
             ['All bookings', 'Historical bookings list.', route('flux-admin.all-bookings.index'), 'clock'],
             ['E-bike manager', 'Add and edit fleet e-bikes.', route('flux-admin.ebikes.index'), 'bolt'],
             ['Price Adjustment', 'Rental price history and weekly rates by vehicle.', route('flux-admin.motorbike-pricing.index'), 'currency-pound'],

@@ -133,13 +133,13 @@ class RentingReferral extends Model
         }
 
         return match ($this->status) {
-            self::STATUS_SUBMITTED => 'Sent',
-            self::STATUS_MATCHED => 'Waiting for rental',
-            self::STATUS_QUALIFYING => 'Qualifying',
-            self::STATUS_REVIEW => 'Under review',
-            self::STATUS_APPROVED => $credit?->isSpendable() ? 'Reward available' : 'Approved',
+            self::STATUS_SUBMITTED,
+            self::STATUS_MATCHED,
+            self::STATUS_QUALIFYING,
+            self::STATUS_REVIEW => 'Sent',
+            self::STATUS_APPROVED => $credit?->isSpendable() ? 'Reward available' : 'Sent',
             self::STATUS_REJECTED, self::STATUS_CANCELLED => 'Not eligible',
-            default => ucfirst((string) $this->status),
+            default => 'Sent',
         };
     }
 

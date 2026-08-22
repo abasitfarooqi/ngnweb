@@ -169,7 +169,7 @@
                         <a href="{{ route('account.rentals') }}"            class="portal-nav-sub-link px-4 py-2 {{ (request()->routeIs('account.rentals') || request()->routeIs('account.rentals.browse')) ? 'active' : '' }}">Rentals Booking</a>
                         <a href="{{ route('account.rentals.my-enquiries') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.my-enquiries') ? 'active' : '' }}">Rental Enquiries</a>
                         <a href="{{ route('account.rentals.my-rentals') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.my-rentals') ? 'active' : '' }}">My Rentals</a>
-                        <a href="{{ route('account.rentals.referrals') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.referrals') ? 'active' : '' }}">Refer a friend</a>
+                        <!-- <a href="{{ route('account.rentals.referrals') }}" class="portal-nav-sub-link px-4 py-2 {{ request()->routeIs('account.rentals.referrals') ? 'active' : '' }}">Refer a friend</a> -->
                     </div>
                 </div>
 

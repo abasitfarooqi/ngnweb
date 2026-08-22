@@ -28,7 +28,7 @@ class ReferralCard extends Component
             $referredBy = RentingReferral::query()
                 ->where('referred_customer_id', $booking->customer_id)
                 ->whereIn('status', RentingReferral::ACTIVE_ATTRIBUTION_STATUSES)
-                ->with('referrer')
+                ->with(['referrer', 'referrerQualifyingBooking'])
                 ->orderBy('created_at')
                 ->first();
 
@@ -38,6 +38,16 @@ class ReferralCard extends Component
             }
         }
 
-        return view('flux-admin.partials.rentals.referral-card', compact('referredBy', 'availablePoints', 'pendingPoints', 'booking'));
+        $referrerActiveBooking = ($referredBy?->referrer && $referredBy->created_at)
+            ? $service->activePostedBookingAt($referredBy->referrer, $referredBy->created_at)
+            : null;
+
+        return view('flux-admin.partials.rentals.referral-card', compact(
+            'referredBy',
+            'availablePoints',
+            'pendingPoints',
+            'booking',
+            'referrerActiveBooking'
+        ));
     }
 }

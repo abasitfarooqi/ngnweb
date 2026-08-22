@@ -126,7 +126,7 @@
         </div>
     @endif
 
-    <x-flux-admin::data-table title="Communication definitions" description="Transactional customer communications only, including rental agreements, finance contracts and PDF attachments. Campaign and marketing systems are excluded.">
+    <x-flux-admin::data-table title="Communication definitions" description="Transactional one-to-one emails only. Bulk, campaign and Saturday cron reports stay out of this list. The alias is the plain-English name staff should use.">
         <x-slot:actions>
             <a href="{{ route('flux-admin.communications.sent.index') }}">
                 <flux:button size="sm" variant="ghost" icon="inbox" class="!rounded-none">Sent log</flux:button>
@@ -200,7 +200,7 @@
 
         <flux:table>
             <flux:table.columns>
-                <flux:table.column>Communication</flux:table.column>
+                <flux:table.column>Alias</flux:table.column>
                 <flux:table.column>Key</flux:table.column>
                 <flux:table.column>Category</flux:table.column>
                 <flux:table.column>Mode</flux:table.column>
@@ -223,7 +223,10 @@
                                     <flux:badge color="zinc">PDF</flux:badge>
                                 @endif
                             </div>
-                            <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ $definition->classification }}</div>
+                            @if($definition->description)
+                                <div class="mt-1 max-w-md text-xs text-zinc-600 dark:text-zinc-400">{{ $definition->description }}</div>
+                            @endif
+                            <div class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ $definition->classification }}@if($definition->recipient_summary) · {{ $definition->recipient_summary }}@endif</div>
                             <div class="mt-1 max-w-md truncate font-mono text-[11px] text-zinc-500 dark:text-zinc-500">
                                 {{ $definition->email_class ?: $definition->source_class ?: 'No source declared' }}
                             </div>

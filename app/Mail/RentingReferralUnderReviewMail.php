@@ -19,7 +19,7 @@ class RentingReferralUnderReviewMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Your rental referral is under review');
+        return new Envelope(subject: 'We have your rental referral');
     }
 
     public function content(): Content
@@ -32,7 +32,7 @@ class RentingReferralUnderReviewMail extends Mailable
                     'referral' => $this->referral,
                     'friend_name' => $this->referral->submitted_name,
                 ],
-                'Your rental referral is under review',
+                'We have your rental referral',
             ),
         );
     }

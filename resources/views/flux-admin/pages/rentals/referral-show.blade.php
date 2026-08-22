@@ -27,7 +27,15 @@
                     <div><dt class="text-xs text-zinc-500">Pending points</dt><dd>{{ $pendingPoints }}</dd></div>
                     <div><dt class="text-xs text-zinc-500">Available points</dt><dd>{{ $availablePoints }}</dd></div>
                 </dl>
-                <a href="{{ route('flux-admin.customers.show', $referrer->id) }}" class="mt-3 inline-block text-sm text-blue-600 dark:text-blue-400 hover:underline">Open customer</a>
+                <div class="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                    <a href="{{ route('flux-admin.customers.show', $referrer->id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">Open customer</a>
+                    @if($referral->referrer_qualifying_booking_id)
+                        <a href="{{ route('flux-admin.rentals.show', $referral->referrer_qualifying_booking_id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">Rental that made them eligible to refer #{{ $referral->referrer_qualifying_booking_id }}</a>
+                    @endif
+                    @if($referrerActiveBooking && (int) $referrerActiveBooking->id !== (int) $referral->referrer_qualifying_booking_id)
+                        <a href="{{ route('flux-admin.rentals.show', $referrerActiveBooking) }}" class="text-blue-600 dark:text-blue-400 hover:underline">Rental active when they referred #{{ $referrerActiveBooking->id }}</a>
+                    @endif
+                </div>
                 <ul class="mt-3 text-xs text-zinc-600 dark:text-zinc-400 space-y-1">
                     @forelse($referrerHistory as $booking)
                         <li>
@@ -83,14 +91,35 @@
 
     <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4">
         <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Checks</h2>
+        @if($referral->status === 'review')
+            @if($readyToApprove)
+                <p class="mt-3 text-sm font-medium text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30 px-3 py-2">System is green. This referral is good to approve.</p>
+            @else
+                <p class="mt-3 text-sm font-medium text-red-800 dark:text-red-200 border border-red-300 dark:border-red-800 bg-red-50 dark:bg-red-950/30 px-3 py-2">Red checks still need to be clear before approval.</p>
+            @endif
+        @endif
+        @if($referral->status === 'approved' && $credit && $credit->status !== 'redeemed')
+            <p class="mt-3 text-sm border border-zinc-200 dark:border-zinc-700 px-3 py-2">
+                Approved. This free week can be used now, once, on any unpaid weekly invoice of the referrer’s posted rentals.
+            </p>
+        @endif
         <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-sm">
             @foreach($checks as $key => $value)
+                @php
+                    $healthy = is_bool($value) ? $checkIsHealthy($key, $value) : true;
+                    $badgeClass = $healthy
+                        ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-200'
+                        : 'bg-red-100 text-red-800 dark:bg-red-950/40 dark:text-red-200';
+                @endphp
                 <div class="flex justify-between gap-3 border border-zinc-100 dark:border-zinc-800 px-3 py-2">
                     <span class="text-zinc-500">{{ str_replace('_', ' ', $key) }}</span>
-                    <span class="font-medium {{ $value ? 'text-zinc-900 dark:text-white' : 'text-zinc-500' }}">{{ is_bool($value) ? $yesNo($value) : ($value ?: '—') }}</span>
+                    <span class="inline-flex items-center px-2 py-0.5 text-xs font-semibold {{ $badgeClass }}">{{ is_bool($value) ? $yesNo($value) : ($value ?: '—') }}</span>
                 </div>
             @endforeach
         </div>
+        @if($checkNote)
+            <p class="mt-3 text-sm text-amber-800 dark:text-amber-200 border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 px-3 py-2">{{ $checkNote }}</p>
+        @endif
         @if($referral->hasWarning())
             <pre class="mt-3 text-xs bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900 p-3 overflow-x-auto">{{ json_encode($referral->warnings, JSON_PRETTY_PRINT) }}</pre>
         @endif
@@ -99,44 +128,52 @@
     @if($canReview)
         <div class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-4 space-y-3">
             <h2 class="text-sm font-semibold text-zinc-900 dark:text-white">Review</h2>
-            <flux:textarea wire:model="reviewReason" rows="3" placeholder="Reason / notes for approve, reject, hold or unmatch" class="!rounded-none" />
+            <flux:textarea wire:model="reviewReason" rows="3" placeholder="Reason for approve or disapprove" class="!rounded-none" />
             @error('reviewReason') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
             @error('review_reason') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-            <div class="flex flex-wrap gap-2">
-                <flux:button size="sm" variant="primary" wire:click="approve" wire:confirm="Approve this reward?" class="!rounded-none">Approve reward</flux:button>
-                <flux:button size="sm" variant="danger" wire:click="reject" wire:confirm="Reject this referral?" class="!rounded-none">Reject</flux:button>
-                <flux:button size="sm" variant="ghost" wire:click="hold" class="!rounded-none">Hold</flux:button>
-                @if($referral->referred_customer_id && $credit?->status !== 'redeemed')
-                    <flux:button size="sm" variant="ghost" wire:click="unmatch" wire:confirm="Remove the matched customer?" class="!rounded-none">Unmatch</flux:button>
+            <div class="flex flex-wrap gap-2 items-center">
+                @if($referral->status === 'review' && $credit?->status === 'pending')
+                    <flux:button size="sm" variant="primary" wire:click="approve" wire:confirm="Approve this reward?" class="!rounded-none">Approve</flux:button>
+                    <flux:button size="sm" variant="danger" wire:click="reject" wire:confirm="Disapprove this referral?" class="!rounded-none">Disapprove</flux:button>
+                @elseif(in_array($referral->status, ['approved', 'rejected'], true) && $credit?->status !== 'redeemed')
+                    <p class="text-sm text-zinc-600 dark:text-zinc-300">
+                        {{ $referral->status === 'approved' ? 'Approved' : 'Disapproved' }}{{ $referral->reviewed_at ? ' on '.$referral->reviewed_at->format('d M Y H:i') : '' }}.
+                    </p>
+                    <flux:button size="sm" variant="ghost" wire:click="undoReview" wire:confirm="Undo this review and send it back to waiting?" class="!rounded-none">Undo</flux:button>
+                @elseif($credit?->status === 'redeemed')
+                    <p class="text-sm text-zinc-600 dark:text-zinc-300">Free week already used. Review is locked.</p>
                 @endif
             </div>
 
-            @if($referral->status === 'approved' && $credit)
-                <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                    <p class="text-xs text-zinc-500">Available from {{ optional($credit->available_from)->format('d M Y H:i') ?: 'now' }}</p>
-                    <div class="mt-2 flex flex-wrap gap-2 items-end">
-                        <flux:input wire:model="releaseReason" placeholder="Early release reason" class="!rounded-none" />
-                        <flux:button size="sm" wire:click="releaseEarly" class="!rounded-none">Release early</flux:button>
-                    </div>
-                    @error('release_reason') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-                </div>
-            @endif
-
-            @if($credit?->isSpendable())
-                <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800">
-                    <p class="text-sm font-medium">Apply free week to an unpaid referrer invoice</p>
-                    <div class="mt-2 flex flex-wrap gap-2 items-end">
-                        <select wire:model="redeemInvoiceId" class="border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm">
-                            <option value="">Choose invoice</option>
-                            @foreach($redeemableInvoices as $invoice)
-                                <option value="{{ $invoice->id }}">#{{ $invoice->id }} · booking {{ $invoice->booking_id }} · {{ optional($invoice->invoice_date)->format('d M Y') }} · £{{ number_format((float) $invoice->amount, 2) }}</option>
-                            @endforeach
-                        </select>
-                        <flux:button size="sm" variant="primary" wire:click="redeem" wire:confirm="Apply the free week to this invoice?" class="!rounded-none">Apply reward</flux:button>
-                    </div>
+            @if($credit?->status === 'redeemed')
+                <p class="pt-3 border-t border-zinc-200 dark:border-zinc-800 text-sm font-medium text-emerald-800 dark:text-emerald-200">
+                    Free week already applied to invoice #{{ $credit->redeemed_invoice_id }}. This reward is locked.
+                </p>
+            @elseif($referral->status === 'approved' && $credit)
+                <div class="pt-3 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
+                    @if(! $credit->isSpendable())
+                        <p class="text-sm">Points are being transferred and will be usable from {{ optional($credit->available_from)->format('d M Y H:i') ?: 'now' }}.</p>
+                        <p class="text-sm">Early apply: pick one unpaid invoice. Explain this to the boss. Approval already covered the background story.</p>
+                    @else
+                        <p class="text-sm">Pick one unpaid invoice on any of the referrer’s posted rentals. Once only. No extra explanation — the boss already has the approval story.</p>
+                    @endif
+                    <select wire:model="redeemInvoiceId" class="w-full border border-zinc-300 dark:border-zinc-700 bg-white dark:bg-zinc-900 px-3 py-2 text-sm">
+                        <option value="">Choose invoice</option>
+                        @foreach($redeemableInvoices as $invoice)
+                            <option value="{{ $invoice->id }}">#{{ $invoice->id }} · booking {{ $invoice->booking_id }} · {{ optional($invoice->invoice_date)->format('d M Y') }} · £{{ number_format((float) $invoice->amount, 2) }}</option>
+                        @endforeach
+                    </select>
                     @error('redeemInvoiceId') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                    @if(! $credit->isSpendable())
+                        <flux:input wire:model="releaseReason" placeholder="Explain this early apply for the boss" class="!rounded-none" />
+                        @error('releaseReason') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        @error('release_reason') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        <flux:button size="sm" variant="primary" wire:click="releaseEarly" wire:confirm="Apply this one-time free week now?" class="!rounded-none">Release early and apply</flux:button>
+                    @else
+                        <flux:button size="sm" variant="primary" wire:click="redeem" wire:confirm="Apply this one-time free week now?" class="!rounded-none">Apply free week</flux:button>
+                    @endif
                     @if($redeemableInvoices->isEmpty())
-                        <p class="text-xs text-zinc-500 mt-2">No unpaid weekly invoices on the referrer’s bookings.</p>
+                        <p class="text-xs text-zinc-500">No unpaid weekly invoices on the referrer’s bookings.</p>
                     @endif
                 </div>
             @endif

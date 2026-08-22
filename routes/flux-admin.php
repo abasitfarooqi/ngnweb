@@ -166,6 +166,7 @@ use App\Livewire\FluxAdmin\Pages\Rentals\NewBookingWizard;
 use App\Livewire\FluxAdmin\Pages\Rentals\OperationsHub as RentalOperationsHub;
 use App\Livewire\FluxAdmin\Pages\Rentals\ReferralIndex as RentalReferralIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\ReferralShow as RentalReferralShow;
+use App\Livewire\FluxAdmin\Pages\Rentals\WeeklyUpdateReport as RentalWeeklyUpdateReport;
 use App\Livewire\FluxAdmin\Pages\Rentals\RentalIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\RentalShow;
 use App\Livewire\FluxAdmin\Pages\Roles\RoleForm;
@@ -628,6 +629,7 @@ Route::get('/support-messages/{supportMessage}/edit', SupportMessageForm::class)
 Route::get('/rental-operations', RentalOperationsHub::class)->name('flux-admin.rental-operations.index');
 Route::get('/rental-referrals', RentalReferralIndex::class)->name('flux-admin.rental-referrals.index');
 Route::get('/rental-referrals/{referral}', RentalReferralShow::class)->name('flux-admin.rental-referrals.show');
+Route::get('/rental-weekly-follow-up-report', RentalWeeklyUpdateReport::class)->name('flux-admin.rental-weekly-follow-up-report.index');
 Route::get('/active-rentals', ActiveRentalsIndex::class)->name('flux-admin.active-rentals.index');
 Route::get('/rental-due-payments', RentalDuePaymentsIndex::class)->name('flux-admin.rental-due-payments.index');
 Route::get('/adjust-weekday', AdjustWeekdayIndex::class)->name('flux-admin.adjust-weekday.index');

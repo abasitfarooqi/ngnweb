@@ -3,8 +3,13 @@
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\BookingInvoice;
+use App\Models\Customer;
 use App\Models\PaymentMethod;
+use App\Models\RentingBooking;
+use App\Models\RentingReferral;
+use App\Services\Renting\RentingReferralService;
 use App\Services\RentingInvoiceSyncService;
+use App\Support\FluxAdminAccess;
 use App\Support\RentalBookingLifecycle;
 use App\Support\RentalInvoiceTabData;
 use Livewire\Attributes\Lazy;
@@ -21,6 +26,16 @@ class InvoicesTab extends Component
     public ?int $payingInvoiceId = null;
 
     public ?int $paymentMethodId = null;
+
+    public string $paymentKind = 'cash';
+
+    public ?int $referralId = null;
+
+    public ?int $directCustomerId = null;
+
+    public string $referralSearch = '';
+
+    public string $referralProof = '';
 
     public string $paymentAmount = '';
 
@@ -81,7 +96,13 @@ class InvoicesTab extends Component
 
         $this->payingInvoiceId = $invoiceId;
         $this->paymentOutstanding = $remaining;
-        $this->paymentMethodId = PaymentMethod::where('title', 'Cash')->value('id');
+        $this->paymentKind = 'cash';
+        $this->referralId = null;
+        $this->directCustomerId = null;
+        $this->referralSearch = '';
+        $this->referralProof = '';
+        $this->paymentMethodId = PaymentMethod::query()->where('slug', 'cash')->value('id')
+            ?? PaymentMethod::query()->where('title', 'Cash')->value('id');
         $this->paymentAmount = number_format($remaining, 2, '.', '');
         $this->showPayModal = true;
     }
@@ -90,12 +111,49 @@ class InvoicesTab extends Component
     {
         $this->showPayModal = false;
         $this->payingInvoiceId = null;
+        $this->paymentKind = 'cash';
+        $this->referralId = null;
+        $this->directCustomerId = null;
+        $this->referralSearch = '';
+        $this->referralProof = '';
         $this->paymentAmount = '';
         $this->paymentOutstanding = 0.0;
     }
 
+    public function updatedPaymentKind(string $kind): void
+    {
+        if (in_array($kind, ['referral', 'direct'], true)) {
+            $this->paymentMethodId = null;
+            $this->paymentAmount = number_format($this->paymentOutstanding, 2, '.', '');
+            $this->referralId = $kind === 'referral' ? $this->referralId : null;
+            $this->directCustomerId = $kind === 'direct' ? $this->directCustomerId : null;
+            $this->referralSearch = '';
+            $this->referralProof = '';
+
+            return;
+        }
+
+        $this->referralId = null;
+        $this->directCustomerId = null;
+        $this->referralProof = '';
+        $this->paymentMethodId = PaymentMethod::query()->where('slug', $kind)->value('id')
+            ?? PaymentMethod::query()->where('title', ucfirst($kind))->value('id');
+    }
+
     public function markPaid(): void
     {
+        if ($this->paymentKind === 'referral') {
+            $this->applyReferralPayment();
+
+            return;
+        }
+
+        if ($this->paymentKind === 'direct') {
+            $this->applyDirectFreeWeek();
+
+            return;
+        }
+
         $this->validate([
             'paymentMethodId' => 'required|integer|exists:payment_methods,id',
             'paymentAmount' => 'required|numeric|min:0.01',
@@ -118,6 +176,107 @@ class InvoicesTab extends Component
             $this->flashMessage = $balance > 0
                 ? 'Payment received. Remaining balance on this invoice: £'.number_format($balance, 2).'.'
                 : 'Payment recorded. Invoice marked as paid.';
+            $this->flashType = 'success';
+            $this->dispatch('rental-updated');
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+        }
+    }
+
+    private function applyReferralPayment(): void
+    {
+        $this->validate([
+            'referralId' => 'required|integer|exists:renting_referrals,id',
+            'payingInvoiceId' => 'required|integer',
+        ], [
+            'referralId.required' => 'Select the referred customer for this programme free week.',
+        ]);
+
+        $booking = RentingBooking::query()->findOrFail($this->bookingId);
+        $invoice = BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($this->payingInvoiceId)
+            ->firstOrFail();
+        $referral = RentingReferral::query()->findOrFail((int) $this->referralId);
+
+        if ((int) $referral->referrer_customer_id !== (int) $booking->customer_id) {
+            $this->flashMessage = 'That referral does not belong to this rental customer.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $credit = $referral->credit();
+        $needsEarlyApply = ! $credit?->isSpendable();
+        if ($needsEarlyApply) {
+            $this->validate([
+                'referralProof' => 'required|string|min:8',
+            ], [
+                'referralProof.required' => 'Explain this early apply so the boss can check it.',
+                'referralProof.min' => 'Explain this early apply so the boss can check it.',
+            ]);
+        }
+
+        try {
+            $staffId = FluxAdminAccess::user()?->getAuthIdentifier();
+            $service = app(RentingReferralService::class);
+            if ($needsEarlyApply) {
+                $service->releaseEarly(
+                    $referral,
+                    $staffId ? (int) $staffId : null,
+                    $this->referralProof,
+                    $invoice
+                );
+            } else {
+                $service->redeem(
+                    $referral,
+                    $invoice,
+                    $staffId ? (int) $staffId : null
+                );
+            }
+            $this->closePayModal();
+            $this->expandedInvoiceId = null;
+            $this->expandedDetail = null;
+            $this->flashMessage = 'Referral free week applied. Invoice marked paid with a rental referral reward transaction.';
+            $this->flashType = 'success';
+            $this->dispatch('rental-updated');
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+        }
+    }
+
+    private function applyDirectFreeWeek(): void
+    {
+        $this->validate([
+            'directCustomerId' => 'required|integer|exists:customers,id',
+            'payingInvoiceId' => 'required|integer',
+            'referralProof' => 'required|string|min:8',
+        ], [
+            'directCustomerId.required' => 'Search and select any customer this free week is linked to.',
+            'referralProof.required' => 'Explain this free week so the boss can check it.',
+            'referralProof.min' => 'Explain this free week so the boss can check it.',
+        ]);
+
+        $invoice = BookingInvoice::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($this->payingInvoiceId)
+            ->firstOrFail();
+        $selected = Customer::query()->findOrFail((int) $this->directCustomerId);
+
+        try {
+            $staffId = FluxAdminAccess::user()?->getAuthIdentifier();
+            app(RentingReferralService::class)->applyDirectFreeWeek(
+                $invoice,
+                $selected,
+                $staffId ? (int) $staffId : null,
+                $this->referralProof
+            );
+            $this->closePayModal();
+            $this->expandedInvoiceId = null;
+            $this->expandedDetail = null;
+            $this->flashMessage = 'Direct free week applied. Invoice marked paid. The boss has been emailed with your explanation.';
             $this->flashType = 'success';
             $this->dispatch('rental-updated');
         } catch (\Throwable $e) {
@@ -209,12 +368,63 @@ class InvoicesTab extends Component
         $totalUnpaid = $invoices
             ->filter(fn ($invoice) => ! (bool) $invoice->is_paid && (bool) $invoice->is_due)
             ->sum('outstanding_balance');
-        $paymentMethods = PaymentMethod::query()->where('is_enabled', true)->orderBy('title')->get();
+        $booking = RentingBooking::query()->find($this->bookingId);
+        $programmeReferrals = ($booking?->customer_id)
+            ? app(RentingReferralService::class)->approvedUnusedReferrals((int) $booking->customer_id)
+            : collect();
+        $spendableReferrals = $programmeReferrals
+            ->filter(fn (RentingReferral $row) => $row->credit()?->isSpendable())
+            ->values();
+        $term = strtolower(trim($this->referralSearch));
+        $matchedReferrals = $term === ''
+            ? $programmeReferrals
+            : $programmeReferrals->filter(function (RentingReferral $row) use ($term) {
+                $haystack = strtolower(trim(implode(' ', [
+                    $row->id,
+                    $row->submitted_name,
+                    $row->submitted_phone,
+                    $row->referred?->first_name,
+                    $row->referred?->last_name,
+                    $row->referred?->phone,
+                    $row->referred?->email,
+                ])));
+
+                return str_contains($haystack, $term);
+            })->values();
+
+        $directCustomers = collect();
+        if ($this->paymentKind === 'direct' && strlen(trim($this->referralSearch)) >= 2) {
+            $like = '%'.trim($this->referralSearch).'%';
+            $directCustomers = Customer::query()
+                ->where(function ($q) use ($like) {
+                    $q->where('first_name', 'like', $like)
+                        ->orWhere('last_name', 'like', $like)
+                        ->orWhere('email', 'like', $like)
+                        ->orWhere('phone', 'like', $like);
+                })
+                ->orderBy('first_name')
+                ->limit(12)
+                ->get();
+        }
+
+        $selectedDirectCustomer = $this->directCustomerId
+            ? Customer::query()->find($this->directCustomerId)
+            : null;
+        $selectedProgrammeReferral = $this->referralId
+            ? $programmeReferrals->firstWhere('id', (int) $this->referralId)
+            : null;
 
         return view('flux-admin.partials.rentals.invoices-tab', [
             'invoices' => $invoices,
             'totalUnpaid' => $totalUnpaid,
-            'paymentMethods' => $paymentMethods,
+            'programmeReferrals' => $programmeReferrals,
+            'spendableReferrals' => $spendableReferrals,
+            'matchedReferrals' => $matchedReferrals,
+            'directCustomers' => $directCustomers,
+            'selectedDirectCustomer' => $selectedDirectCustomer,
+            'needsEarlyApply' => $selectedProgrammeReferral
+                ? ! $selectedProgrammeReferral->credit()?->isSpendable()
+                : $spendableReferrals->isEmpty() && $programmeReferrals->isNotEmpty(),
         ]);
     }
 }

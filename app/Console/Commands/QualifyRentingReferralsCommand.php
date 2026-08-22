@@ -61,6 +61,11 @@ class QualifyRentingReferralsCommand extends Command
             $service->syncPaidInvoice($invoice);
         }
 
+        $ready = $service->notifySpendableRewards();
+        if ($ready > 0) {
+            $this->info('Ready-to-use notices sent: '.$ready);
+        }
+
         $this->info('Done.');
 
         return self::SUCCESS;
