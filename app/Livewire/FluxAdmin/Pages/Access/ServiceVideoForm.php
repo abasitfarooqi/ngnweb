@@ -5,8 +5,10 @@ namespace App\Livewire\FluxAdmin\Pages\Access;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\RentingBooking;
 use App\Models\RentingServiceVideo;
+use App\Support\FluxAdminRequiredColumn;
 use App\Support\UploadLimit;
 use Carbon\Carbon;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -112,12 +114,20 @@ class ServiceVideoForm extends Component
             $payload['video_path'] = $this->videoFile->storeAs('rental_service_videos', $fileName, 'public');
         }
 
-        if ($this->serviceVideo && $this->serviceVideo->exists) {
-            $this->serviceVideo->update($payload);
-            $this->dispatch('flux-admin:toast', type: 'success', message: 'Video updated.');
-        } else {
-            RentingServiceVideo::create($payload);
-            $this->dispatch('flux-admin:toast', type: 'success', message: 'Video uploaded.');
+        try {
+            if ($this->serviceVideo && $this->serviceVideo->exists) {
+                $this->serviceVideo->update($payload);
+                $this->dispatch('flux-admin:toast', type: 'success', message: 'Video updated.');
+            } else {
+                RentingServiceVideo::create($payload);
+                $this->dispatch('flux-admin:toast', type: 'success', message: 'Video uploaded.');
+            }
+        } catch (QueryException $e) {
+            if (FluxAdminRequiredColumn::matches($e)) {
+                FluxAdminRequiredColumn::failValidation($this, $e);
+            }
+
+            throw $e;
         }
 
         $this->redirect(route('flux-admin.service-videos.index'), navigate: true);

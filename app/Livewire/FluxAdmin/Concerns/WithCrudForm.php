@@ -3,8 +3,10 @@
 namespace App\Livewire\FluxAdmin\Concerns;
 
 use App\Support\FluxAdminFormPayload;
+use App\Support\FluxAdminRequiredColumn;
 use App\Support\FluxAdminUniqueViolation;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 
 /**
@@ -79,6 +81,16 @@ trait WithCrudForm
             $model->fill($attributes)->save();
         } catch (UniqueConstraintViolationException $e) {
             FluxAdminUniqueViolation::failValidation($this, $e);
+        } catch (QueryException $e) {
+            if (FluxAdminRequiredColumn::matches($e)) {
+                FluxAdminRequiredColumn::failValidation($this, $e);
+            }
+
+            if (FluxAdminUniqueViolation::matches($e)) {
+                FluxAdminUniqueViolation::failValidation($this, $e);
+            }
+
+            throw $e;
         }
 
         $this->recordId = $model->getKey();

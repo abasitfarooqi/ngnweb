@@ -2,8 +2,11 @@
 
 namespace App\Exceptions;
 
+use App\Support\FluxAdminRequiredColumn;
+use App\Support\FluxAdminUniqueViolation;
 use App\Support\UploadLimit;
 use Illuminate\Auth\AuthenticationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Http\Exceptions\PostTooLargeException;
 use Illuminate\Support\Facades\Cookie;
@@ -83,6 +86,32 @@ class Handler extends ExceptionHandler
                 ->with('error', 'Your session has expired. Please refresh the page and try again.');
         }
         
+        if ($exception instanceof QueryException
+            && ($request->is('flux-admin') || $request->is('flux-admin/*'))
+            && ! $request->header('X-Livewire')
+        ) {
+            $column = null;
+            $message = null;
+
+            if (FluxAdminRequiredColumn::matches($exception)) {
+                $column = FluxAdminRequiredColumn::column($exception);
+                $message = FluxAdminRequiredColumn::message($column);
+            } elseif (FluxAdminUniqueViolation::matches($exception)) {
+                $column = FluxAdminUniqueViolation::column($exception);
+                $message = FluxAdminUniqueViolation::message($column);
+            }
+
+            if ($message !== null) {
+                $key = $column ?? 'form';
+
+                return redirect()
+                    ->back()
+                    ->withInput()
+                    ->with('error', $message)
+                    ->withErrors([$key => $message]);
+            }
+        }
+
         if ($exception instanceof PostTooLargeException) {
             $message = 'That file is too large for this server. Use a file under '.UploadLimit::label().'.';
 
