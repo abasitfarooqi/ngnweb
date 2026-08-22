@@ -1,7 +1,5 @@
 <div
     x-data="{
-        bookingId: @entangle('form.booking_id'),
-        recordedAt: @entangle('form.recorded_at'),
         fileName: '',
         uploading: false,
         maxBytes: {{ (int) $maxUploadBytes }}
@@ -96,11 +94,32 @@
                         @if($selectedBookingLabel)
                             <p class="text-xs text-emerald-700 dark:text-emerald-300">Selected: {{ $selectedBookingLabel }}</p>
                         @endif
+                        @unless($serviceVideo && $serviceVideo->exists)
+                            <input
+                                id="service-video-booking-id"
+                                type="hidden"
+                                form="service-video-native-form"
+                                name="booking_id"
+                                value="{{ $form['booking_id'] ?? '' }}"
+                                wire:key="sv-booking-id-{{ $form['booking_id'] ?? 'none' }}"
+                            />
+                        @endunless
                     </div>
                 </x-flux-admin::field-group>
 
                 <x-flux-admin::field-group label="Recorded at" required :error="$errors->first('form.recorded_at') ?: $errors->first('recorded_at')">
-                    <flux:input type="datetime-local" wire:model="form.recorded_at" />
+                    @if($serviceVideo && $serviceVideo->exists)
+                        <flux:input type="datetime-local" wire:model="form.recorded_at" />
+                    @else
+                        <input
+                            type="datetime-local"
+                            form="service-video-native-form"
+                            name="recorded_at"
+                            value="{{ $form['recorded_at'] ?? '' }}"
+                            class="w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
+                            required
+                        />
+                    @endif
                 </x-flux-admin::field-group>
 
                 @if($serviceVideo && $serviceVideo->exists)
@@ -134,6 +153,7 @@
                 class="space-y-6"
                 x-on:submit="
                     const file = $refs.videoInput && $refs.videoInput.files[0] ? $refs.videoInput.files[0] : null;
+                    const bookingId = document.getElementById('service-video-booking-id')?.value;
                     if (! bookingId) {
                         $event.preventDefault();
                         alert('Choose a booking first.');
@@ -153,8 +173,6 @@
                 "
             >
                 @csrf
-                <input type="hidden" name="booking_id" x-bind:value="bookingId">
-                <input type="hidden" name="recorded_at" x-bind:value="recordedAt">
 
                 <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
                     <x-flux-admin::field-group label="Video file" required :error="$errors->first('video')">

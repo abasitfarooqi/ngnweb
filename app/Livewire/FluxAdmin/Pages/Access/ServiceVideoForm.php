@@ -50,7 +50,10 @@ class ServiceVideoForm extends Component
                 $recordedAt = now()->format('Y-m-d\TH:i');
             }
 
-            $this->form = ['recorded_at' => $recordedAt];
+            $this->form = [
+                'booking_id' => null,
+                'recorded_at' => $recordedAt,
+            ];
 
             $prefillBookingId = (int) (request()->query('booking_id') ?: old('booking_id', 0));
             if ($prefillBookingId > 0) {
