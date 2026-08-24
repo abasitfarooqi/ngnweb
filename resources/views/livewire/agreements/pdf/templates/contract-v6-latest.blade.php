@@ -545,6 +545,20 @@ This contract supersedes and replaces any prior agreements, understandings, or a
 
 
 
+        <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 20px 0;">Company Authorisation Clause</h3>
+        <p>
+            Neguinho Motors Ltd and HI-BIKE4U LTD jointly confirm and agree that any employee, manager, or representative of the company acting within the course of their duties is authorised to:
+        </p>
+        <ul style="margin-left: 0px;">
+            <li>execute hire, rental, subscription, or payment plan agreements for vehicles.</li>
+            <li>sign, certify, and provide copies of such agreements and related documents.</li>
+            <li>supply hirer/customer information to Police, Councils, Transport Authorities, DVLA, and Enforcement Agencies.</li>
+            <li>sign any correspondence relating to the transfer of liability for penalties, offences, or charges incurred in respect of such vehicles.</li>
+        </ul>
+        <p>
+            All such signatures and actions are valid and binding upon Neguinho Motors Ltd and HI-BIKE4U LTD and may be relied upon by any enforcement authority as given by an authorised representative of the companies.
+        </p>
+
             <!-- Road Traffic Accidents Section -->
             <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;;text-transform:uppercase"><b>Road Traffic Accidents & Claims - Terms & Conditions</b></h3>
 
@@ -595,6 +609,32 @@ This contract supersedes and replaces any prior agreements, understandings, or a
                 Nothing in this clause affects the Customer's's statutory rights under the Consumer Rights Act 2015 or any compulsory insurance provisions under the Road Traffic Act 1988.
             </p>
 
+
+
+
+        <!-- Legal Proceedings & Costs -->
+        <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;">Legal Proceedings & Costs</h3>
+
+<h4><b>1. Customer’s Right to Claim</b></h4>
+<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
+    <li style="padding-top:2px !important;">Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of England and Wales.</li>
+</ul>
+
+<h4><b>2. Costs Where Claim Is Unsuccessful</b></h4>
+<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
+    <li style="padding-top:2px !important;">If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed, withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:
+        <ul style="margin-top:0px !important; padding-top:0px !important; padding-left:20px !important;">
+            <li style="padding-top:2px !important;">Reasonable legal fees and court fees;</li>
+            <li style="padding-top:2px !important;">Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time away from their normal duties;</li>
+            <li style="padding-top:2px !important;">Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
+        </ul>
+    </li>
+</ul>
+
+<h4><b>3. Consistency With Court Rules</b></h4>
+<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
+    <li style="padding-top:2px !important;">This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</li>
+</ul>
 
 
             <!-- Appendix A - Fees Schedule -->
@@ -1023,46 +1063,6 @@ This contract supersedes and replaces any prior agreements, understandings, or a
                 By signing the Agreement (or the Delivery &amp; Condition Report) the Customer confirms receipt of the Battery Safety Leaflet and agrees to comply with the obligations in this clause. The Customer further acknowledges that failure to comply may result in termination of the Agreement, recovery of the Vehicle and liability for costs, the Customer acknowledges that, responsibility for the Battery (including safe charging, storage, maintenance and disposal) rests solely with the Buyer from the time of delivery .
             </li>
         </ol>
-
-    
-       
-        <!-- Legal Proceedings & Costs -->
-        <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;">Legal Proceedings & Costs</h3>
-
-<h4><b>1. Customer’s Right to Claim</b></h4>
-<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
-    <li style="padding-top:2px !important;">Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of England and Wales.</li>
-</ul>
-
-<h4><b>2. Costs Where Claim Is Unsuccessful</b></h4>
-<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
-    <li style="padding-top:2px !important;">If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed, withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:
-        <ul style="margin-top:0px !important; padding-top:0px !important; padding-left:20px !important;">
-            <li style="padding-top:2px !important;">Reasonable legal fees and court fees;</li>
-            <li style="padding-top:2px !important;">Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time away from their normal duties;</li>
-            <li style="padding-top:2px !important;">Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
-        </ul>
-    </li>
-</ul>
-
-<h4><b>3. Consistency With Court Rules</b></h4>
-<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
-    <li style="padding-top:2px !important;">This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</li>
-</ul>
-
-<h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 20px 0;">Company Authorisation Clause</h3>
-        <p>
-            Neguinho Motors Ltd and HI-BIKE4U LTD jointly confirm and agree that any employee, manager, or representative of the company acting within the course of their duties is authorised to:
-        </p>
-        <ul style="margin-left: 0px;">
-            <li>execute hire, rental, subscription, or payment plan agreements for vehicles.</li>
-            <li>sign, certify, and provide copies of such agreements and related documents.</li>
-            <li>supply hirer/customer information to Police, Councils, Transport Authorities, DVLA, and Enforcement Agencies.</li>
-            <li>sign any correspondence relating to the transfer of liability for penalties, offences, or charges incurred in respect of such vehicles.</li>
-        </ul>
-        <p>
-            All such signatures and actions are valid and binding upon Neguinho Motors Ltd and HI-BIKE4U LTD and may be relied upon by any enforcement authority as given by an authorised representative of the companies.
-        </p>
 
         </div>
 

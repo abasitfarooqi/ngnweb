@@ -681,6 +681,36 @@
 
 
 
+
+        <!-- Legal Proceedings & Costs -->
+        <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;">Legal Proceedings & Costs</h3>
+
+<h4><b>1. Customer’s Right to Claim</b></h4>
+<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
+    <li style="padding-top:2px !important;">Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of England and Wales.</li>
+</ul>
+
+<h4><b>2. Costs Where Claim Is Unsuccessful</b></h4>
+<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
+    <li style="padding-top:2px !important;">If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed, withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:
+        <ul style="margin-top:0px !important; padding-top:0px !important; padding-left:20px !important;">
+            <li style="padding-top:2px !important;">Reasonable legal fees and court fees;</li>
+            <li style="padding-top:2px !important;">Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time away from their normal duties;</li>
+            <li style="padding-top:2px !important;">Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
+        </ul>
+    </li>
+</ul>
+
+<h4><b>3. Consistency With Court Rules</b></h4>
+<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
+    <li style="padding-top:2px !important;">This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</li>
+</ul>
+
+
+
+        </div>
+
+
             <!-- Appendix A - Fees Schedule -->
             <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;">Appendix A - Terms & Conditions</h3>
             
@@ -1109,33 +1139,6 @@
         </ol>
 
     
-        <!-- Legal Proceedings & Costs -->
-        <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;">Legal Proceedings & Costs</h3>
-
-<h4><b>1. Customer’s Right to Claim</b></h4>
-<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
-    <li style="padding-top:2px !important;">Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of England and Wales.</li>
-</ul>
-
-<h4><b>2. Costs Where Claim Is Unsuccessful</b></h4>
-<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
-    <li style="padding-top:2px !important;">If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed, withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:
-        <ul style="margin-top:0px !important; padding-top:0px !important; padding-left:20px !important;">
-            <li style="padding-top:2px !important;">Reasonable legal fees and court fees;</li>
-            <li style="padding-top:2px !important;">Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time away from their normal duties;</li>
-            <li style="padding-top:2px !important;">Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
-        </ul>
-    </li>
-</ul>
-
-<h4><b>3. Consistency With Court Rules</b></h4>
-<ul style="margin-top:0px !important; padding-top:0px !important; padding-left:10px !important;">
-    <li style="padding-top:2px !important;">This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</li>
-</ul>
-
-
-
-        </div>
 
         <div class="agreement-section">
             <!-- Signature Section -->

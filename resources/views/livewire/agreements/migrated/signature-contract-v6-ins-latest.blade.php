@@ -705,6 +705,40 @@ label a{
         <p>Nothing in this clause affects the Customer's's statutory rights under the Consumer Rights Act 2015 or any compulsory insurance provisions under the Road Traffic Act 1988.</p>
 
 
+
+           <!-- Legal Proceedings & Costs -->
+           <h4 style="text-align: center; font-weight: bold; margin: 30px 0;text-transform:uppercase;" id="legal-proceedings-and-costs">Legal Proceedings &
+            Costs</h4>
+        <h6><b>1. Customer’s Right to Claim</b></h6>
+        
+        <p>Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of
+            England and Wales.</p>
+        
+        <h6><b>2. Costs Where Claim Is Unsuccessful</b></h6>
+        
+        <p>If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed,
+            withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:</p>
+        <ul>
+            <li>Reasonable legal fees and court fees;</li>
+            <li>Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time
+                away from their normal duties;</li>
+            <li>Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
+        </ul>
+        
+        <h6><b>3. Consistency With Court Rules</b></h6>
+        
+        <p>This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure
+            Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</p>
+
+
+
+
+
+            
+
+    </div>
+
+
         <!-- Appendix A - Fees Schedule -->
         <h4 style="text-align: center; font-weight: bold; margin: 30px 0;text-transform:uppercase;" id="appendix-a">Appendix A - Terms & Conditions</h4>
         
@@ -1106,38 +1140,6 @@ label a{
                 By signing the Agreement (or the Delivery &amp; Condition Report) the Customer confirms receipt of the Battery Safety Leaflet and agrees to comply with the obligations in this clause. The Customer further acknowledges that failure to comply may result in termination of the Agreement, recovery of the Vehicle and liability for costs, the Customer acknowledges that, responsibility for the Battery (including safe charging, storage, maintenance and disposal) rests solely with the Buyer from the time of delivery .
             </p>
 
-
-           <!-- Legal Proceedings & Costs -->
-           <h4 style="text-align: center; font-weight: bold; margin: 30px 0;text-transform:uppercase;" id="legal-proceedings-and-costs">Legal Proceedings &
-            Costs</h4>
-        <h6><b>1. Customer’s Right to Claim</b></h6>
-        
-        <p>Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of
-            England and Wales.</p>
-        
-        <h6><b>2. Costs Where Claim Is Unsuccessful</b></h6>
-        
-        <p>If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed,
-            withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:</p>
-        <ul>
-            <li>Reasonable legal fees and court fees;</li>
-            <li>Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time
-                away from their normal duties;</li>
-            <li>Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
-        </ul>
-        
-        <h6><b>3. Consistency With Court Rules</b></h6>
-        
-        <p>This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure
-            Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</p>
-
-
-
-
-
-            
-
-    </div>
 
 
     <!-- Signature Section -->

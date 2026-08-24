@@ -586,6 +586,17 @@
             <h4>7. No Waiver of Statutory Rights</h4>
             <p>Nothing in this section affects the Customer's statutory rights or compulsory insurance provisions.</p>
 
+            <h3 style="text-align: center; padding:10px 0px !important; margin:15px 0px 10px 0px !important;">LEGAL PROCEEDINGS & COSTS</h3>
+
+            <h4>1. Customer's Right to Claim</h4>
+            <p>Nothing in this Agreement restricts the Customer's statutory right to bring proceedings before the courts of England and Wales.</p>
+
+            <h4>2. Costs Where Claim Is Unsuccessful</h4>
+            <p>If the Customer issues proceedings that are dismissed, withdrawn, or unsuccessful, the Customer shall indemnify the Owner for reasonable legal fees and court fees, reasonable expenses of witnesses and staff, and reasonable costs of preparing and producing documents, subject to the Civil Procedure Rules and the court's discretion.</p>
+
+            <h4>3. Consistency With Court Rules</h4>
+            <p>This clause shall be interpreted consistently with the Civil Procedure Rules and does not remove or restrict the court's discretion when awarding costs.</p>
+
             <h3 style="text-align: center; padding:10px 0px !important; margin:15px 0px 10px 0px !important;">APPENDIX A - TERMS & CONDITIONS</h3>
 
             <h4>1. Ownership & Title</h4>
@@ -1040,18 +1051,6 @@
             <p>
                 By signing the Agreement (or the Delivery &amp; Condition Report) the Customer confirms receipt of the Battery Safety Leaflet and agrees to comply with the obligations in this clause. The Customer further acknowledges that failure to comply may result in termination of the Agreement, recovery of the Vehicle and liability for costs, the Customer acknowledges that, responsibility for the Battery (including safe charging, storage, maintenance and disposal) rests solely with the Buyer from the time of delivery .
             </p>
-
-            
-            <h3 style="text-align: center; padding:10px 0px !important; margin:15px 0px 10px 0px !important;">LEGAL PROCEEDINGS & COSTS</h3>
-
-            <h4>1. Customer's Right to Claim</h4>
-            <p>Nothing in this Agreement restricts the Customer's statutory right to bring proceedings before the courts of England and Wales.</p>
-
-            <h4>2. Costs Where Claim Is Unsuccessful</h4>
-            <p>If the Customer issues proceedings that are dismissed, withdrawn, or unsuccessful, the Customer shall indemnify the Owner for reasonable legal fees and court fees, reasonable expenses of witnesses and staff, and reasonable costs of preparing and producing documents, subject to the Civil Procedure Rules and the court's discretion.</p>
-
-            <h4>3. Consistency With Court Rules</h4>
-            <p>This clause shall be interpreted consistently with the Civil Procedure Rules and does not remove or restrict the court's discretion when awarding costs.</p>
 
 
 

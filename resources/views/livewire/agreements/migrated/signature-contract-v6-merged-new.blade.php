@@ -564,6 +564,21 @@ label a{
         <p>This Agreement is governed by the law of England and Wales. The courts of England and Wales have exclusive jurisdiction.</p>
 
         
+        <h4 style="text-align: center; font-weight: bold; margin: 30px 0;" id="company-authorisation-clause">COMPANY AUTHORISATION CLAUSE</h4>
+        <p>
+            Neguinho Motors Ltd and HI-BIKE4U LTD jointly confirm and agree that any employee, manager, or representative of the company acting within the course of their duties is authorised to:
+        </p>
+        <ul style="margin-left: 0px;">
+            <li>execute hire, rental, subscription, or payment plan agreements for vehicles.</li>
+                2.1 On delivery NGN will provide the Customer with the Battery Safety Leaflet. The Customer shall be asked for acknowledgement of receipt via a text message or via email (either in person or electronically).<br>
+            <li>supply hirer/customer information to Police, Councils, Transport Authorities, DVLA, and Enforcement Agencies.</li>
+                2.2 The Customer confirms receipt of, and familiarity with, the safety information supplied and accepts the continued obligations.
+            <li>sign any correspondence relating to the transfer of liability for penalties, offences, or charges incurred in respect of such vehicles.</li>
+        </ul>
+        <p>
+            All such signatures and actions are valid and binding upon Neguinho Motors Ltd and HI-BIKE4U LTD and may be relied upon by any enforcement authority as given by an authorised representative of the companies.
+        </p>
+
         <!-- Road Traffic Accidents Section -->
         <h4 style="text-align: center; font-weight: bold; margin: 20px 0;text-transform:uppercase" id="accidents">Road Traffic Accidents & Claims Terms & Conditions</h4>
 
@@ -601,6 +616,30 @@ label a{
         <h5><b>7. No Waiver of Statutory Rights</b></h5>
         <p>Nothing in this clause affects the Customer's's statutory rights under the Consumer Rights Act 2015 or any compulsory insurance provisions under the Road Traffic Act 1988.</p>
 
+
+         <!-- Legal Proceedings & Costs -->
+                <h4 style="text-align: center; font-weight: bold; margin: 30px 0;text-transform:uppercase;" id="legal-proceedings-and-costs">Legal Proceedings &
+            Costs</h4>
+               <h6><b>1. Customer’s Right to Claim</b></h6>
+        
+        <p>Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of
+            England and Wales.</p>
+        
+        <h6><b>2. Costs Where Claim Is Unsuccessful</b></h6>
+        
+        <p>If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed,
+            withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:</p>
+        <ul>
+            <li>Reasonable legal fees and court fees;</li>
+            <li>Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time
+                away from their normal duties;</li>
+            <li>Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
+        </ul>
+        
+        <h6><b>3. Consistency With Court Rules</b></h6>
+        
+        <p>This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure
+            Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</p>
 
         <!-- Appendix A - Fees Schedule -->
         <h4 style="text-align: center; font-weight: bold; margin: 30px 0;text-transform:uppercase;" id="appendix-a">Appendix A - Terms & Conditions</h4>
@@ -1005,51 +1044,6 @@ label a{
 
 
             
-         <!-- Legal Proceedings & Costs -->
-                <h4 style="text-align: center; font-weight: bold; margin: 30px 0;text-transform:uppercase;" id="legal-proceedings-and-costs">Legal Proceedings &
-            Costs</h4>
-               <h6><b>1. Customer’s Right to Claim</b></h6>
-        
-        <p>Nothing in this Agreement restricts the Customer’s statutory right to bring legal proceedings before the courts of
-            England and Wales.</p>
-        
-        <h6><b>2. Costs Where Claim Is Unsuccessful</b></h6>
-        
-        <p>If the Customer brings proceedings against the Seller/Owner in relation to this Agreement and the claim is dismissed,
-            withdrawn, or otherwise unsuccessful, the Customer shall indemnify the Seller/Owner for:</p>
-        <ul>
-            <li>Reasonable legal fees and court fees;</li>
-            <li>Reasonable expenses of employees or directors required to give evidence or attend proceedings, including time
-                away from their normal duties;</li>
-            <li>Reasonable costs of preparing and producing documents, records, or evidence for the proceedings.</li>
-        </ul>
-        
-        <h6><b>3. Consistency With Court Rules</b></h6>
-        
-        <p>This clause shall be interpreted in accordance with the normal rules on recovery of costs under the Civil Procedure
-            Rules (CPR) and does not remove or restrict the court’s discretion when awarding costs.</p>
-
-
-
-
-
-        <h4 style="text-align: center; font-weight: bold; margin: 30px 0;" id="company-authorisation-clause">COMPANY AUTHORISATION CLAUSE</h4>
-        <p>
-            Neguinho Motors Ltd and HI-BIKE4U LTD jointly confirm and agree that any employee, manager, or representative of the company acting within the course of their duties is authorised to:
-        </p>
-        <ul style="margin-left: 0px;">
-            <li>execute hire, rental, subscription, or payment plan agreements for vehicles.</li>
-                2.1 On delivery NGN will provide the Customer with the Battery Safety Leaflet. The Customer shall be asked for acknowledgement of receipt via a text message or via email (either in person or electronically).<br>
-            <li>supply hirer/customer information to Police, Councils, Transport Authorities, DVLA, and Enforcement Agencies.</li>
-                2.2 The Customer confirms receipt of, and familiarity with, the safety information supplied and accepts the continued obligations.
-            <li>sign any correspondence relating to the transfer of liability for penalties, offences, or charges incurred in respect of such vehicles.</li>
-        </ul>
-        <p>
-            All such signatures and actions are valid and binding upon Neguinho Motors Ltd and HI-BIKE4U LTD and may be relied upon by any enforcement authority as given by an authorised representative of the companies.
-        </p>
-
-
-
     </div>
     {{-- Subscription Contract Section --}}
     <div class="container" style="margin-top: 0px;">
