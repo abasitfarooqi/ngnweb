@@ -143,6 +143,7 @@ class AgreementController extends Controller
                 'title' => $data['title'],
                 'body' => $data['body'],
                 'url' => $url,
+                'actionLabel' => 'Open rental agreement',
             ];
 
             try {
@@ -1841,12 +1842,12 @@ class AgreementController extends Controller
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        $path = "customers/{$Booking->customer_id}/rental-agreement-v6-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/rental-agreement-".$tm.$rand_no.'.pdf';
 
         $customerAgreement = CustomerAgreement::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'rental-agreement-v6-'.$tm.$rand_no.'.pdf',
+            'file_name' => 'rental-agreement-'.$tm.$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1870,7 +1871,7 @@ class AgreementController extends Controller
             'document_number' => $customerAgreement->document_number,
         ], $twelveMonthDates))->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/rental-agreement-v6-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/rental-agreement-'.$tm.$rand_no.'.pdf');
 
         $pcnPdfs = $this->buildRentalPcnInsCopies(
             $Booking,
@@ -1961,12 +1962,12 @@ class AgreementController extends Controller
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        $path = "customers/{$Booking->customer_id}/rental-agreement-ins-v6-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/rental-agreement-".$tm.$rand_no.'.pdf';
 
         $customerAgreement = CustomerAgreement::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf',
+            'file_name' => 'rental-agreement-'.$tm.$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1990,7 +1991,7 @@ class AgreementController extends Controller
             'document_number' => $customerAgreement->document_number,
         ], $twelveMonthDates))->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/rental-agreement-ins-v6-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/rental-agreement-'.$tm.$rand_no.'.pdf');
 
         $pcnPdfs = $this->buildRentalPcnInsCopies(
             $Booking,
@@ -2422,18 +2423,17 @@ class AgreementController extends Controller
     ): array {
         $pcnPdfName = 'pdf.agreement-v6-ins';
         $segments = AgreementDateTime::rentalPcnSegments(AgreementDateTime::rentalStart($booking));
-        $ordinals = ['1st', '2nd', '3rd'];
         $pdfs = [];
         $userName = $booking->user->first_name.' '.$booking->user->last_name;
 
         foreach ($segments as $index => $segment) {
-            $ordinal = $ordinals[$index];
-            $relativePath = "customers/{$booking->customer_id}/{$ordinal}-{$pcnPdfName}-{$tm}{$randNo}.pdf";
+            $pcnFileName = 'rental-agreement-pcn-'.($index + 1).'-'.$tm.$randNo.'.pdf';
+            $relativePath = "customers/{$booking->customer_id}/{$pcnFileName}";
 
             $agreement = CustomerAgreement::create([
                 'customer_id' => $booking->customer_id,
                 'document_type_id' => $documentType->id,
-                'file_name' => "{$ordinal}-{$pcnPdfName}-{$tm}{$randNo}.pdf",
+                'file_name' => $pcnFileName,
                 'file_path' => $relativePath,
                 'file_format' => 'pdf',
                 'document_number' => '',
@@ -2459,7 +2459,7 @@ class AgreementController extends Controller
                 'document_number' => $agreement->document_number,
             ])->setPaper('a4', 'portrait')
                 ->setOption('isPhpEnabled', true)
-                ->save($pdfPath."/{$ordinal}-{$pcnPdfName}-{$tm}{$randNo}.pdf");
+                ->save($pdfPath.'/'.$pcnFileName);
         }
 
         return [

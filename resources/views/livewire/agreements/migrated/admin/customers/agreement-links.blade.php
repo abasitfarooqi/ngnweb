@@ -17,8 +17,7 @@
                                         <th>Expires At</th>
                                         <th>Created At</th>
                                         <th>Updated At</th>
-                                        <th>Standard link</th>
-                                        <th>Insurance/PCN link</th>
+                                        <th>Customer signing link</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -30,8 +29,7 @@
                                             <td>{{ $item->expires_at }}</td>
                                             <td>{{ $item->created_at }}</td>
                                             <td>{{ $item->updated_at }}</td>
-                                            <td><a href="{{ $item->link_standard }}" target="_blank">Standard</a></td>
-                                            <td><a href="{{ $item->link_ins }}" target="_blank">Insurance/PCN</a></td>
+                                            <td><a href="{{ $item->link_ins }}" target="_blank">Open</a></td>
                                         </tr>
                                     @endforeach
                                 </tbody>

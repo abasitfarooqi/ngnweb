@@ -1,5 +1,5 @@
 <div>
-    <x-flux-admin::data-table title="Rental agreement links" description="Customer V6 rental signing URL and optional Loyalty Scheme signing URL (same passcode).">
+    <x-flux-admin::data-table title="Rental agreement links" description="Customer rental signing URL and optional Loyalty Scheme signing URL (same passcode).">
         <x-slot:actions>
             <a href="{{ route('flux-admin.agreement-access.create') }}"><flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New link</flux:button></a>
         </x-slot:actions>
@@ -11,7 +11,7 @@
                 <flux:table.column>ID</flux:table.column>
                 <flux:table.column>Customer</flux:table.column>
                 <flux:table.column>Booking</flux:table.column>
-                <flux:table.column>Customer V6 link</flux:table.column>
+                <flux:table.column>Customer signing link</flux:table.column>
                 <flux:table.column>Loyalty Scheme link</flux:table.column>
                 <flux:table.column>Expires</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>

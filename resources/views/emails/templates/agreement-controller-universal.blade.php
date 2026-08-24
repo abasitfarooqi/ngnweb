@@ -37,7 +37,9 @@
     $outroLines = is_array($outroLines) ? $outroLines : [];
     $actionLabel = trim((string) ($mailData['actionLabel'] ?? ''));
     if ($actionLabel === '' && $rawUrl !== '') {
-        $actionLabel = 'Open link';
+        $actionLabel = strcasecmp($rawTitle, 'Rental Agreement') === 0
+            ? 'Open rental agreement'
+            : 'Open link';
     }
 @endphp
 

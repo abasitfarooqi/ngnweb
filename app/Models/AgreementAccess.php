@@ -32,7 +32,7 @@ class AgreementAccess extends Model
     }
 
     /**
-     * Customer-facing rental signing URL (V6 first priority).
+     * Customer-facing rental signing URL (INS only).
      * Used for automated email and the staff copy-paste link.
      */
     public static function customerSigningUrl(int $customerId, string $passcode): string

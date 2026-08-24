@@ -2,7 +2,7 @@
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-4 border-b border-zinc-200 dark:border-zinc-700">
         <div>
             <p class="text-sm font-semibold text-zinc-900 dark:text-white">Rental agreement</p>
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate / email the V6 signing link, then verify signed PDFs (same as legacy Documents tab “Verified: FILE”).</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Generate / email the customer signing link, then verify signed PDFs (same as legacy Documents tab “Verified: FILE”).</p>
         </div>
         <div class="flex flex-col sm:flex-row gap-2">
             <flux:button size="sm" variant="primary" wire:click="generateAgreement" wire:loading.attr="disabled" class="!rounded-none">
@@ -30,7 +30,7 @@
 
     @if($agreementUrl)
         <div class="mx-4 mt-4 p-4 border border-zinc-200 dark:border-zinc-700">
-            <p class="text-xs font-bold text-zinc-500 mb-2">Customer signing link (V6 — email / copy-paste)</p>
+            <p class="text-xs font-bold text-zinc-500 mb-2">Customer signing link (email / copy-paste)</p>
             <a href="{{ $agreementUrl }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 break-all hover:underline">{{ $agreementUrl }}</a>
             @if($qrImage)
                 <div class="mt-3">
@@ -100,7 +100,7 @@
                     </div>
                     <div class="mt-4 grid grid-cols-1 gap-4">
                         <div>
-                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Customer signing link (V6)</p>
+                            <p class="text-xs font-medium text-zinc-500 dark:text-zinc-400 mb-1">Customer signing link</p>
                             <a href="{{ $customerUrl }}" target="_blank" class="text-sm text-blue-600 dark:text-blue-400 hover:underline break-all">{{ $customerUrl }}</a>
                         </div>
                         <div>

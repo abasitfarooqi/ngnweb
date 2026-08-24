@@ -38,7 +38,7 @@ class RentalAgreementNgn extends Mailable
     // public function attachments()
     // {
     //     return [
-    //         Attachment::fromData(fn () => $this->mailData['pdf']->output(), 'Rental-Agreement.pdf')
+    //         Attachment::fromData(fn () => $this->mailData['pdf']->output(), 'rental-agreement.pdf')
     //             ->withMime('application/pdf'),
     //     ];
     // }
@@ -56,24 +56,23 @@ class RentalAgreementNgn extends Mailable
 
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf1']->output(),
-                'Rental-Agreement-NGN-1.pdf'
+                'rental-agreement-pcn-1.pdf'
             )->withMime('application/pdf');
 
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf2']->output(),
-                'Rental-Agreement-NGN-2.pdf'
+                'rental-agreement-pcn-2.pdf'
             )->withMime('application/pdf');
 
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf3']->output(),
-                'Rental-Agreement-NGN-3.pdf'
+                'rental-agreement-pcn-3.pdf'
             )->withMime('application/pdf');
 
         } elseif (isset($this->mailData['pdf']) && method_exists($this->mailData['pdf'], 'output')) {
-            // Fallback to single pdf
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf']->output(),
-                'Rental-Agreement-NGN.pdf'
+                'rental-agreement.pdf'
             )->withMime('application/pdf');
         }
 

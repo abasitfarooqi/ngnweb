@@ -32,7 +32,7 @@ class AgreementAccessCrudController extends BaseCrudController
 
         $this->crud->addColumn([
             'name' => 'rental_agreement_customer',
-            'label' => 'Customer signing link (V6)',
+            'label' => 'Customer signing link',
             'type' => 'closure',
             'function' => function ($entry) {
                 $url = \App\Models\AgreementAccess::customerSigningUrl(

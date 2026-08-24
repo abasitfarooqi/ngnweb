@@ -67,7 +67,7 @@ class RentalAgreement extends Mailable
                 if ($filename === '') {
                     $filename = $isBatterySafetyLeaflet
                         ? 'batterySafetyDataLeaflet.pdf'
-                        : 'Rental-Agreement-'.($index + 1).'.pdf';
+                        : 'rental-agreement-'.($index + 1).'.pdf';
                 }
 
                 $attachments[] = Attachment::fromPath($path)
@@ -84,7 +84,7 @@ class RentalAgreement extends Mailable
             // Handle array of PDFs
             foreach ($this->mailData['pdf'] as $index => $pdf) {
                 if ($pdf && method_exists($pdf, 'output')) {
-                    $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'Rental-Agreement-'.($index + 1).'.pdf';
+                    $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'rental-agreement-'.($index + 1).'.pdf';
                     $attachments[] = Attachment::fromData(
                         fn () => $pdf->output(),
                         $filename
@@ -93,7 +93,7 @@ class RentalAgreement extends Mailable
             }
         } elseif (isset($this->mailData['pdf']) && method_exists($this->mailData['pdf'], 'output')) {
             // Handle single PDF
-            $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'Rental-Agreement.pdf';
+            $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'rental-agreement.pdf';
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf']->output(),
                 $filename

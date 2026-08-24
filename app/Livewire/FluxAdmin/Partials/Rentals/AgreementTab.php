@@ -96,6 +96,7 @@ class AgreementTab extends Component
                 'title' => 'Rental Agreement',
                 'body' => 'Agreement link sent successfully. Please check the email you provided for your agreement link. If you can\'t see the email in your inbox, please check your Spam or Junk folder.',
                 'url' => $url,
+                'actionLabel' => 'Open rental agreement',
             ]));
 
             $this->agreementUrl = $url;
