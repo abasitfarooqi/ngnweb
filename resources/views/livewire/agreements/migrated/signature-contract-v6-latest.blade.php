@@ -456,7 +456,7 @@ label a{
 
     
 <div class="container">
-        <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">MOTORCYCLE SALE AGREEMENT</h4>
+        <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">THE AGREEMENT TERMS & CONDITIONS</h4>
 
    
         <h5><b>1. Contract Term</b></h5>

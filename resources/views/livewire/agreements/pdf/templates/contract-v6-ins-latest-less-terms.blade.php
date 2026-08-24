@@ -397,7 +397,7 @@
         </tr>
         <tr>
             <td class="td-cont" style="width:18%; height: 35px">Date</td>
-            <td class="td-cont">{{ \Carbon\Carbon::parse($contractStartDate)->format('d-F-Y') }}</td>
+            <td class="td-cont">{{ \App\Support\AgreementDateTime::format($contractStartDate) }}</td>
         </tr>
         <tr>
             <td class="td-cont">Signature</td>

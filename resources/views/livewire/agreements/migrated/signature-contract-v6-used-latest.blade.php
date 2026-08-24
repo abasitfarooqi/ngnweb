@@ -454,7 +454,7 @@ label a{
 
     
 <div class="container">
-        <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">MOTORCYCLE SALE AGREEMENT</h4>
+        <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">THE AGREEMENT TERMS & CONDITIONS</h4>
 
         <h5><b>1. Contract Term</b></h5>
         <p>This is a fixed-term  agreement for a <b>maximum period of 12 months</b> from the start date shown in the Contract Information Schedule. This agreement is not a regulated credit agreement under the Consumer Credit Act 1974.</p>

@@ -291,6 +291,24 @@
 
     <table class="table-con">
         <tr>
+            <th colspan="4" style="text-align:center;">LICENCE INFORMATION</th>
+        </tr>
+        <tr>
+            <td class="td-cont">LICENCE NUMBER</td>
+            <td class="td-cont">ISSUANCE DATE</td>
+            <td class="td-cont">EXPIRY DATE</td>
+            <td class="td-cont">COUNTRY</td>
+        </tr>
+        <tr>
+            <td class="td-cont">{{ $customer->license_number }}</td>
+            <td class="td-cont">{{ \Carbon\Carbon::parse($customer->license_issuance_date)->format('d-F-Y') }}</td>
+            <td class="td-cont">{{ \Carbon\Carbon::parse($customer->license_expiry_date)->format('d-F-Y') }}</td>
+            <td class="td-cont">{{ $customer->license_issuance_authority }}</td>
+        </tr>
+    </table>
+
+    <table class="table-con">
+        <tr>
             <th colspan="8" style="text-align:center; ">CONTRACT INFORMATION</th>
         </tr>
         <tr>
@@ -362,7 +380,7 @@
         </tr>
         <tr>
             <td class="td-cont" style="width:18%; height: 35px">Date</td>
-            <td class="td-cont">{{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}</td>
+            <td class="td-cont">{{ \App\Support\AgreementDateTime::format($booking->contract_date) }}</td>
         </tr>
         <tr>
             <td class="td-cont">Signature</td>
@@ -378,12 +396,12 @@
         
         <p><strong>Neguinho Motors Ltd / HI-BIKE4U LTD — 12-Month Subscription Terms & Conditions</strong></p>
         <br>
-        <p>These Terms & Conditions form part of the Agreement between you ("{{ $customer->first_name }} {{ $customer->last_name }}") and Neguinho Motors Ltd / HI-BIKE4U LTD (trading as NGN) ("NGN", "we", "us") for the supply of a vehicle and related services under our 12-month subscription programme ("the Scheme"). The Scheme is provided on the terms set out below. The Contract Start Date ({{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}) is the date you take physical delivery of the motorcycle.</p>
+        <p>These Terms & Conditions form part of the Agreement between you ("{{ $customer->first_name }} {{ $customer->last_name }}") and Neguinho Motors Ltd / HI-BIKE4U LTD (trading as NGN) ("NGN", "we", "us") for the supply of a vehicle and related services under our 12-month subscription programme ("the Scheme"). The Scheme is provided on the terms set out below. The Contract Start Date ({{ \App\Support\AgreementDateTime::format($booking->contract_date) }}) is the date you take physical delivery of the motorcycle.</p>
         <br>
         <h5><b>1. Key facts summary</b></h5>
         <p>
             <strong>Product:</strong> 12-month motorcycle subscription<br>
-            <strong>Groups & Monthly Fees:</strong> {{ $subscriptionOption['text'] ?? 'Group ' . $booking->subscription_option . ' - £' . number_format($subscriptionOption['price'] ?? 0, 2) . '/month' }}<br>
+            <strong>Monthly Instalment:</strong> £{{ number_format((float) ($booking->weekly_instalment ?? 0), 2) }}/month<br>
             <strong>Deposit:</strong> No deposit required (unless explicitly agreed)<br>
             <strong>Payments due:</strong> First month + accessories (if any) payable on or before delivery. Subsequent monthly payments due in advance by direct debit or agreed payment method.<br>
             <strong>Maintenance:</strong> Where the chosen Group includes maintenance, standard maintenance is included up to the limits in the Service Schedule. Additional maintenance and consumables outside the Service Schedule are charged separately.<br>
@@ -515,9 +533,8 @@
         </p>
 
         <p><strong>Customer Name:</strong> {{ $customer->first_name }} {{ $customer->last_name }}</p>
-        <p><strong>Contract Start Date:</strong> {{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}</p>
-        <p><strong>Contract Start Time:</strong> {{ \Carbon\Carbon::parse($booking->contract_date)->format('H:i') }}</p>
-        <p><strong>Selected Subscription Option:</strong> {{ $subscriptionOption['text'] ?? 'Group ' . $booking->subscription_option . ' - £' . number_format($subscriptionOption['price'] ?? 0, 2) . '/month' }}</p>
+        <p><strong>Contract Start Date:</strong> {{ \App\Support\AgreementDateTime::format($booking->contract_date) }}</p>
+        <p><strong>Monthly Instalment:</strong> £{{ number_format((float) ($booking->weekly_instalment ?? 0), 2) }}/month</p>
         <p><strong>Payment date:</strong> {{ $booking->subs_payment_date ? \Carbon\Carbon::createFromDate(2000, 1, (int) $booking->subs_payment_date)->format('jS') . ' of each month' : '—' }}</p>
     </div>
 

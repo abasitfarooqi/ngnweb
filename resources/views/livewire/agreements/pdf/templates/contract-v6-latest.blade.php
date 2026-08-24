@@ -395,7 +395,7 @@
         </tr>
         <tr>
             <td class="td-cont" style="width:18%; height: 35px">Date</td>
-            <td class="td-cont">{{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}</td>
+            <td class="td-cont">{{ \App\Support\AgreementDateTime::format($booking->contract_date) }}</td>
         </tr>
         <tr>
             <td class="td-cont">Signature</td>
@@ -408,11 +408,7 @@
     <div class="container">
         <div>
             <h3 style="text-align: center;text-transform: uppercase; font-weight: bold; margin: 15px 0;;text-transform:uppercase">
-                <b>MOTORCYCLE SALE AGREEMENT
-                @if(isset($booking) && ($booking->is_subscription ?? false))
-                <br>12 months subscription agreement
-                @endif
-                <b>
+                <b>THE AGREEMENT TERMS & CONDITIONS</b>
             </h3>
 
         </div>

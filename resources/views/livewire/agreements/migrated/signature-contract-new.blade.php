@@ -355,7 +355,7 @@
         </tr>
         <tr>
             <td class="td-cont" style="width:18%; height: 35px">Date</td>
-            <td class="td-cont">{{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}</td>
+            <td class="td-cont">{{ \App\Support\AgreementDateTime::format($booking->contract_date) }}</td>
         </tr>
         <tr>
             <td class="td-cont">Signature</td>

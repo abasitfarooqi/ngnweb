@@ -461,26 +461,6 @@ class FinanceApplicationCrudController extends BaseCrudController
         ]);
 
         CRUD::addField([
-            'name' => 'subscription_option',
-            'type' => 'radio',
-            'label' => 'Subscription Option',
-            'options' => [
-                'A' => 'Group A - £299.99/month',
-                'B' => 'Group B - £399.99/month',
-                'C' => 'Group C - £549.99/month',
-                'D' => 'Group D - £649.99/month',
-            ],
-            'default' => 'A',
-            'wrapper' => [
-                'class' => 'form-group col-md-12',
-                'id' => 'subscription-option-wrapper',
-            ],
-            'attributes' => [
-                'id' => 'subscription-option-field',
-            ],
-        ]);
-
-        CRUD::addField([
             'name' => 'items',
             'type' => 'repeatable',
             'label' => 'Application Items',

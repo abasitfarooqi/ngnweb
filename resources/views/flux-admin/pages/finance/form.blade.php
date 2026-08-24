@@ -116,7 +116,7 @@
                     </x-flux-admin::field-group>
                 @endif
 
-                <x-flux-admin::field-group label="Monthly Instalment (£)" hint="Sale finance instalment — separate from subscription group fee." :error="$errors->first('form.weekly_instalment')">
+                <x-flux-admin::field-group label="Monthly Instalment (£)" hint="Monthly fee used on sale and 12-month subscription contracts." :error="$errors->first('form.weekly_instalment')">
                     <flux:input type="number" step="0.01" min="0" wire:model="form.weekly_instalment" placeholder="0.00" />
                 </x-flux-admin::field-group>
 
@@ -148,30 +148,6 @@
                     <flux:textarea wire:model="form.notes" placeholder="Internal notes…" rows="3" />
                 </x-flux-admin::field-group>
             </div>
-
-            @if(!empty($form['is_subscription']))
-                <div class="mt-4">
-                    <x-flux-admin::field-group label="Subscription option" hint="Subscription monthly fee group (A–D). Does not overwrite Monthly Instalment." :error="$errors->first('form.subscription_option')">
-                        <div class="grid max-w-3xl grid-cols-2 gap-2 lg:grid-cols-4">
-                            @foreach([
-                                'A' => 'A – £299.99',
-                                'B' => 'B – £399.99',
-                                'C' => 'C – £549.99',
-                                'D' => 'D – £649.99',
-                            ] as $value => $label)
-                                <label @class([
-                                    'flux-admin-choice flex items-center gap-2 border px-3 py-2 text-sm',
-                                    'flux-admin-choice-active border-blue-400 dark:border-blue-500' => ($form['subscription_option'] ?? null) === $value,
-                                    'border-zinc-200 dark:border-zinc-700' => ($form['subscription_option'] ?? null) !== $value,
-                                ])>
-                                    <input type="radio" name="subscription_option" wire:model="form.subscription_option" value="{{ $value }}" />
-                                    {{ $label }}
-                                </label>
-                            @endforeach
-                        </div>
-                    </x-flux-admin::field-group>
-                </div>
-            @endif
 
             <div class="mt-4 border-t border-zinc-200 pt-4 dark:border-zinc-800 overflow-visible">
                 <div class="mb-3 flex items-center justify-between gap-3">

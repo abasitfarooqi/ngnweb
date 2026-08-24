@@ -87,7 +87,7 @@ class FinanceForm extends Component
                 'is_new_latest'           => true,
                 'is_used_latest'          => false,
                 'is_subscription'         => false,
-                'subscription_option'     => 'A',
+                'subscription_option'     => null,
                 'subs_payment_date'       => null,
                 'insurance_pcn'           => true,
                 'no_email'                => true,
@@ -124,14 +124,7 @@ class FinanceForm extends Component
     public function updatedFormIsSubscription($value): void
     {
         $this->form['is_subscription'] = (bool) $value;
-
-        if ($this->form['is_subscription'] && empty($this->form['subscription_option'])) {
-            $this->form['subscription_option'] = 'A';
-        }
-
-        if (! $this->form['is_subscription']) {
-            $this->form['subscription_option'] = null;
-        }
+        $this->form['subscription_option'] = null;
     }
 
     /**
@@ -313,10 +306,7 @@ class FinanceForm extends Component
         $this->form['is_new_latest'] = ($type === 'is_new_latest');
         $this->form['is_used_latest'] = ($type === 'is_used_latest');
         $this->form['is_monthly'] = true;
-
-        if (! empty($this->form['is_subscription']) && empty($this->form['subscription_option'])) {
-            $this->form['subscription_option'] = 'A';
-        }
+        $this->form['subscription_option'] = null;
     }
 
     protected function resolveContractType(FinanceApplication $application): string
@@ -356,8 +346,6 @@ class FinanceForm extends Component
 
     protected function formRules(): array
     {
-        $subscriptionRequired = ! empty($this->form['is_subscription']);
-
         return [
             'form.customer_id'              => ['required', 'integer', 'exists:customers,id'],
             'form.user_id'                  => ['nullable', 'integer', 'exists:users,id'],
@@ -378,7 +366,7 @@ class FinanceForm extends Component
             'form.is_used_latest'           => ['boolean'],
             'form.is_used_extended_custom'  => ['boolean'],
             'form.is_subscription'          => ['boolean'],
-            'form.subscription_option'      => [$subscriptionRequired ? 'required' : 'nullable', Rule::in(['A', 'B', 'C', 'D'])],
+            'form.subscription_option'      => ['nullable'],
             'form.subs_payment_date'        => ['nullable', 'integer', 'min:1', 'max:31'],
             'form.insurance_pcn'            => ['boolean'],
             'form.no_email'                 => ['boolean'],
@@ -420,9 +408,7 @@ class FinanceForm extends Component
         $payload['is_used_latest'] = (bool) ($this->form['is_used_latest'] ?? false);
         $payload['is_subscription'] = (bool) ($this->form['is_subscription'] ?? false);
         $payload['is_monthly'] = true;
-        if (! $payload['is_subscription']) {
-            $payload['subscription_option'] = null;
-        }
+        $payload['subscription_option'] = null;
         if (! $payload['is_subscription'] && ! $payload['is_new_latest'] && ! $payload['is_used_latest']) {
             $payload['subs_payment_date'] = null;
         }

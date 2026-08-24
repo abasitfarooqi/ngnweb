@@ -67,16 +67,10 @@
             </div>
         @endif
     @else
-        <flux:field>
-            <flux:label>Subscription group (monthly fee) *</flux:label>
-            <flux:select wire:model.live="subscriptionGroup" variant="listbox" placeholder="Choose one group">
-                @foreach (\App\Livewire\Portal\Finance\EnquiryPanel::SUBSCRIPTION_GROUPS_TEXT as $groupKey => $groupLabel)
-                    <flux:select.option value="{{ $groupKey }}">{{ $groupLabel }}</flux:select.option>
-                @endforeach
-            </flux:select>
-            <flux:error name="subscriptionGroup" />
-            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">One group only. Final group and inclusions are confirmed by staff on your contract.</p>
-        </flux:field>
+        <div class="border border-gray-200 dark:border-gray-600 p-4 bg-gray-50 dark:bg-gray-900/50">
+            <p class="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Monthly instalment</p>
+            <p class="text-sm text-gray-700 dark:text-gray-300 mt-1">Staff set the monthly instalment on your 12-month subscription contract. Use notes if you have a preferred amount.</p>
+        </div>
     @endif
 
     <flux:field>

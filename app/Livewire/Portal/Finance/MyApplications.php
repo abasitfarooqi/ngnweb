@@ -9,16 +9,6 @@ use Livewire\Component;
 
 class MyApplications extends Component
 {
-    protected function subscriptionOptions(): array
-    {
-        return [
-            'A' => ['label' => 'Group A - £299.99/month', 'amount' => 299.99],
-            'B' => ['label' => 'Group B - £399.99/month', 'amount' => 399.99],
-            'C' => ['label' => 'Group C - £549.99/month', 'amount' => 549.99],
-            'D' => ['label' => 'Group D - £649.99/month', 'amount' => 649.99],
-        ];
-    }
-
     protected function resolveStatus(FinanceApplication $application): array
     {
         if ((bool) $application->is_cancelled) {
@@ -50,20 +40,12 @@ class MyApplications extends Component
 
     protected function deriveFinanceSnapshot(FinanceApplication $application): array
     {
-        $subscriptionMap = $this->subscriptionOptions();
-        $selectedSubscription = null;
-
-        if ((bool) $application->is_subscription && ! empty($application->subscription_option)) {
-            $selectedSubscription = $subscriptionMap[$application->subscription_option] ?? null;
-        }
-
         $principal = max(0, (float) $application->motorbike_price - (float) $application->deposit);
         $extra = max(0, (float) ($application->extra ?? 0));
         $instalment = max(0.0, (float) $application->weekly_instalment);
         $totalMonths = 0;
 
-        if ($selectedSubscription) {
-            $instalment = (float) $selectedSubscription['amount'];
+        if ((bool) $application->is_subscription) {
             $totalMonths = 12;
             $financedTotal = $instalment * $totalMonths;
         } else {
@@ -103,7 +85,6 @@ class MyApplications extends Component
             'months_passed' => $monthsPassed,
             'total_paid' => $totalPaid,
             'remaining_balance' => $remainingBalance,
-            'subscription_label' => $selectedSubscription['label'] ?? null,
         ];
     }
 

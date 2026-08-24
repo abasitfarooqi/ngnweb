@@ -453,7 +453,7 @@ label a{
 
 
       
-        <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">MOTORCYCLE SALE AGREEMENT</h4>
+        <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">THE AGREEMENT TERMS & CONDITIONS</h4>
 
 
 
@@ -1060,13 +1060,13 @@ label a{
         <br>
         <p><strong>Neguinho Motors Ltd / HI-BIKE4U LTD — 12-Month Subscription Terms & Conditions</strong></p>
         <br>
-        <p>These Terms & Conditions form part of the Agreement between you ("{{ $customer->first_name }} {{ $customer->last_name }}") and Neguinho Motors Ltd / HI-BIKE4U LTD (trading as NGN) ("NGN", "we", "us") for the supply of a vehicle and related services under our 12-month subscription programme ("the Scheme"). The Scheme is provided on the terms set out below. The Contract Start Date ({{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}) is the date you take physical delivery of the motorcycle.</p>
+        <p>These Terms & Conditions form part of the Agreement between you ("{{ $customer->first_name }} {{ $customer->last_name }}") and Neguinho Motors Ltd / HI-BIKE4U LTD (trading as NGN) ("NGN", "we", "us") for the supply of a vehicle and related services under our 12-month subscription programme ("the Scheme"). The Scheme is provided on the terms set out below. The Contract Start Date ({{ \App\Support\AgreementDateTime::format($booking->contract_date) }}) is the date you take physical delivery of the motorcycle.</p>
         <br>
         <h5><b>1. Key facts summary</b></h5>
         <br>
         <p>
             <strong>Product:</strong> 12-month motorcycle subscription<br>
-            <strong>Groups & Monthly Fees:</strong> {{ $subscriptionOption['text'] ?? 'Group ' . $booking->subscription_option . ' - £' . number_format($subscriptionOption['price'] ?? 0, 2) . '/month' }}<br>
+            <strong>Monthly Instalment:</strong> £{{ number_format((float) ($booking->weekly_instalment ?? 0), 2) }}/month<br>
             <strong>Deposit:</strong> No deposit required (unless explicitly agreed)<br>
             <strong>Payments due:</strong> First month + accessories (if any) payable on or before delivery. Subsequent monthly payments due in advance by direct debit or agreed payment method.<br>
             <strong>Maintenance:</strong> Where the chosen Group includes maintenance, standard maintenance is included up to the limits in the Service Schedule. Additional maintenance and consumables outside the Service Schedule are charged separately.<br>
@@ -1176,9 +1176,8 @@ label a{
         </p>
         <br>
         <p><strong>Customer Name:</strong> {{ $customer->first_name }} {{ $customer->last_name }}</p>
-        <p><strong>Contract Start Date:</strong> {{ \Carbon\Carbon::parse($booking->contract_date)->format('d-F-Y') }}</p>
-        <p><strong>Contract Start Time:</strong> {{ \Carbon\Carbon::parse($booking->contract_date)->format('H:i') }}</p>
-        <p><strong>Selected Subscription Option:</strong> {{ $subscriptionOption['text'] ?? 'Group ' . $booking->subscription_option . ' - £' . number_format($subscriptionOption['price'] ?? 0, 2) . '/month' }}</p>
+        <p><strong>Contract Start Date:</strong> {{ \App\Support\AgreementDateTime::format($booking->contract_date) }}</p>
+        <p><strong>Monthly Instalment:</strong> £{{ number_format((float) ($booking->weekly_instalment ?? 0), 2) }}/month</p>
         <p><strong>Payment date:</strong> @include('livewire.agreements.partials.payment-day', ['booking' => $booking])</p>
         <br>
 

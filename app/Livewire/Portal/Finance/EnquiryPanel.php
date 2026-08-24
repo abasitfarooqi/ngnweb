@@ -8,7 +8,6 @@ use App\Models\Motorcycle;
 use App\Models\ServiceBooking as ServiceBookingModel;
 use App\Models\SupportConversation;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 use Livewire\Component;
 
 class EnquiryPanel extends Component
@@ -16,14 +15,6 @@ class EnquiryPanel extends Component
     public const CONTRACT_SALE = 'sale_instalments';
 
     public const CONTRACT_SUBSCRIPTION = 'subscription_12m';
-
-    /** @var array<string, string> */
-    public const SUBSCRIPTION_GROUPS_TEXT = [
-        'A' => 'Group A — £299.99/month',
-        'B' => 'Group B — £399.99/month',
-        'C' => 'Group C — £549.99/month',
-        'D' => 'Group D — £649.99/month',
-    ];
 
     /** @var numeric-string|int|float|string Bike price for illustration (untyped so Livewire hydrates reliably). */
     public $bikePrice = 5000;
@@ -36,9 +27,6 @@ class EnquiryPanel extends Component
 
     /** @var string sale_instalments|subscription_12m */
     public $financePlan = self::CONTRACT_SALE;
-
-    /** @var string A|B|C|D — subscription monthly fee group */
-    public $subscriptionGroup = 'A';
 
     public $notes = '';
 
@@ -125,9 +113,6 @@ class EnquiryPanel extends Component
         $tm = (int) $this->termMonths;
         $this->termMonths = in_array($tm, [6, 12], true) ? $tm : 12;
 
-        $g = is_string($this->subscriptionGroup) ? strtoupper($this->subscriptionGroup) : 'A';
-        $this->subscriptionGroup = array_key_exists($g, self::SUBSCRIPTION_GROUPS_TEXT) ? $g : 'A';
-
         $this->clampDepositToBikePrice();
     }
 
@@ -141,10 +126,6 @@ class EnquiryPanel extends Component
             if (! in_array($this->termMonths, [6, 12], true)) {
                 $this->termMonths = 12;
             }
-        }
-        if ($field === 'subscriptionGroup') {
-            $g = is_string($this->subscriptionGroup) ? strtoupper($this->subscriptionGroup) : 'A';
-            $this->subscriptionGroup = array_key_exists($g, self::SUBSCRIPTION_GROUPS_TEXT) ? $g : 'A';
         }
     }
 
@@ -189,9 +170,6 @@ class EnquiryPanel extends Component
             'financePlan' => ['required', 'in:'.self::CONTRACT_SALE.','.self::CONTRACT_SUBSCRIPTION],
             'notes' => ['nullable', 'string', 'max:2000'],
         ];
-        if ($this->financePlan === self::CONTRACT_SUBSCRIPTION) {
-            $rules['subscriptionGroup'] = ['required', 'string', Rule::in(array_keys(self::SUBSCRIPTION_GROUPS_TEXT))];
-        }
         $this->validate($rules);
 
         $customerAuth = Auth::guard('customer')->user();
@@ -238,9 +216,6 @@ class EnquiryPanel extends Component
             'Term (months): '.$this->termMonths,
             $this->financePlan === self::CONTRACT_SALE && ($m = $this->indicativeMonthly()) !== null
                 ? 'Indicative monthly (balance ÷ '.(int) $this->termMonths.'): £'.number_format($m, 2, '.', '')
-                : null,
-            $this->financePlan === self::CONTRACT_SUBSCRIPTION
-                ? 'Preferred subscription group: '.(self::SUBSCRIPTION_GROUPS_TEXT[$this->subscriptionGroup] ?? 'Group '.$this->subscriptionGroup)
                 : null,
             $this->notes !== '' ? 'Customer notes: '.$this->notes : null,
         ]));

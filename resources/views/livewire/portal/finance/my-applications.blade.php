@@ -127,7 +127,7 @@
                             <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Insurance/PCN: {{ $app->insurance_pcn ? 'Yes' : 'No' }}</span>
                             @if ($app->is_subscription)
                                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                                    Subscription: {{ $snapshot['subscription_label'] ?? ('Group '.$app->subscription_option) }}
+                                    Monthly: £{{ number_format((float) ($snapshot['instalment'] ?? $app->weekly_instalment ?? 0), 2) }}
                                 </span>
                             @endif
                             @if (!empty($app->sold_by))

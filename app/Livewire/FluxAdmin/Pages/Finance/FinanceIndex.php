@@ -157,7 +157,7 @@ class FinanceIndex extends Component
             'formData.is_used_extended'       => ['boolean'],
             'formData.is_used_extended_custom' => ['boolean'],
             'formData.is_subscription'        => ['boolean'],
-            'formData.subscription_option'    => ['nullable', \Illuminate\Validation\Rule::in(['A', 'B', 'C', 'D'])],
+            'formData.subscription_option'    => ['nullable'],
             'formData.subs_payment_date'      => ['nullable', 'integer', 'min:1', 'max:31'],
             'formData.is_posted'              => ['boolean'],
             'formData.is_cancelled'           => ['boolean'],
@@ -179,9 +179,7 @@ class FinanceIndex extends Component
         $attributes['is_new_latest'] = (bool) ($attributes['is_new_latest'] ?? false);
         $attributes['is_used_latest'] = (bool) ($attributes['is_used_latest'] ?? false);
 
-        if (empty($attributes['is_subscription'])) {
-            $attributes['subscription_option'] = null;
-        }
+        $attributes['subscription_option'] = null;
         if (empty($attributes['is_subscription']) && empty($attributes['is_new_latest']) && empty($attributes['is_used_latest'])) {
             $attributes['subs_payment_date'] = null;
         }

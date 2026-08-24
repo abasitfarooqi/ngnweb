@@ -520,12 +520,12 @@ class AgreementController extends Controller
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        $path = "customers/{$Booking->customer_id}/finance-contract-latest-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/sale-contract-latest-".$tm.$rand_no.'.pdf';
 
         $customerAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'finance-contract-latest-'.time().$rand_no.'.pdf',
+            'file_name' => 'sale-contract-latest-'.time().$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -550,7 +550,7 @@ class AgreementController extends Controller
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/finance-contract-latest-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/sale-contract-latest-'.$tm.$rand_no.'.pdf');
 
         $data['pdf'] = $pdf;
 
@@ -663,11 +663,11 @@ class AgreementController extends Controller
 
         // Customer And Us Single PDF
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
-        $path = "customers/{$Booking->customer_id}/finance-contract-ins-latest-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/sale-contract-ins-latest-".$tm.$rand_no.'.pdf';
         $customerAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'finance-contract-ins-latest-'.time().$rand_no.'.pdf',
+            'file_name' => 'sale-contract-ins-latest-'.time().$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -693,7 +693,7 @@ class AgreementController extends Controller
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/finance-contract-ins-latest-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/sale-contract-ins-latest-'.$tm.$rand_no.'.pdf');
 
 
         // Customer And Us Single Email Settings
@@ -806,12 +806,12 @@ class AgreementController extends Controller
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        $path = "customers/{$Booking->customer_id}/finance-contract-ins-used-latest-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/sale-contract-ins-used-latest-".$tm.$rand_no.'.pdf';
 
         $customerAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'finance-contract-ins-used-latest-'.time().$rand_no.'.pdf',
+            'file_name' => 'sale-contract-ins-used-latest-'.time().$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -836,7 +836,7 @@ class AgreementController extends Controller
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/finance-contract-ins-used-latest-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/sale-contract-ins-used-latest-'.$tm.$rand_no.'.pdf');
 
 
 
@@ -858,7 +858,7 @@ class AgreementController extends Controller
 
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
             $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'], // Carbon instance
                 'SIGFILE' => $fileName,
@@ -976,12 +976,12 @@ class AgreementController extends Controller
 
         $documentType = DocumentType::where('name', 'Rental Agreement')->first();
 
-        $path = "customers/{$Booking->customer_id}/finance-contract-used-latest-".$tm.$rand_no.'.pdf';
+        $path = "customers/{$Booking->customer_id}/sale-contract-used-latest-".$tm.$rand_no.'.pdf';
 
         $customerAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'finance-contract-used-latest-'.time().$rand_no.'.pdf',
+            'file_name' => 'sale-contract-used-latest-'.time().$rand_no.'.pdf',
             'file_path' => $path,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1006,7 +1006,7 @@ class AgreementController extends Controller
             'document_number' => $customerAgreement->document_number,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/finance-contract-used-latest-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/sale-contract-used-latest-'.$tm.$rand_no.'.pdf');
 
 
 
@@ -1276,12 +1276,12 @@ class AgreementController extends Controller
 
         // 1. Generate Sale Contract PDF
         $salePdfName = $Booking->is_used_latest ? 'pdf.contract-v6-used-latest' : 'pdf.contract-v6-latest';
-        $salePath = "customers/{$Booking->customer_id}/finance-contract-latest-".$tm.$rand_no.'.pdf';
+        $salePath = "customers/{$Booking->customer_id}/sale-contract-latest-".$tm.$rand_no.'.pdf';
         
         $saleAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'finance-contract-latest-'.time().$rand_no.'.pdf',
+            'file_name' => 'sale-contract-latest-'.time().$rand_no.'.pdf',
             'file_path' => $salePath,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1306,16 +1306,16 @@ class AgreementController extends Controller
             'document_number' => $saleAgreement->document_number,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/finance-contract-latest-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/sale-contract-latest-'.$tm.$rand_no.'.pdf');
 
 
         // 2. Generate Subscription Contract PDF
-        $subscriptionPath = "customers/{$Booking->customer_id}/subscription-contract-".$tm.$rand_no.'.pdf';
+        $subscriptionPath = "customers/{$Booking->customer_id}/12-month-subscription-contract-".$tm.$rand_no.'.pdf';
         
         $subscriptionAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'subscription-contract-'.time().$rand_no.'.pdf',
+            'file_name' => '12-month-subscription-contract-'.time().$rand_no.'.pdf',
             'file_path' => $subscriptionPath,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1343,7 +1343,7 @@ class AgreementController extends Controller
             'subs_payment_date' => $Booking->subs_payment_date,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/subscription-contract-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/12-month-subscription-contract-'.$tm.$rand_no.'.pdf');
 
 
         // 3. Generate PCN PDFs (3 PDFs for company - always generate regardless of ins/non-ins)
@@ -1364,7 +1364,7 @@ class AgreementController extends Controller
 
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
             $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
@@ -1469,12 +1469,12 @@ class AgreementController extends Controller
         $salePdfName = $Booking->is_used_latest 
             ? 'pdf.contract-v6-ins-used-latest' 
             : 'pdf.contract-v6-ins-latest';
-        $salePath = "customers/{$Booking->customer_id}/finance-contract-ins-latest-".$tm.$rand_no.'.pdf';
+        $salePath = "customers/{$Booking->customer_id}/sale-contract-ins-latest-".$tm.$rand_no.'.pdf';
         
         $saleAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'finance-contract-ins-latest-'.time().$rand_no.'.pdf',
+            'file_name' => 'sale-contract-ins-latest-'.time().$rand_no.'.pdf',
             'file_path' => $salePath,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1499,16 +1499,16 @@ class AgreementController extends Controller
             'document_number' => $saleAgreement->document_number,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/finance-contract-ins-latest-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/sale-contract-ins-latest-'.$tm.$rand_no.'.pdf');
 
 
         // 2. Generate Subscription Contract PDF
-        $subscriptionPath = "customers/{$Booking->customer_id}/subscription-contract-".$tm.$rand_no.'.pdf';
+        $subscriptionPath = "customers/{$Booking->customer_id}/12-month-subscription-contract-".$tm.$rand_no.'.pdf';
         
         $subscriptionAgreement = CustomerContract::create([
             'customer_id' => $Booking->customer_id,
             'document_type_id' => $documentType->id,
-            'file_name' => 'subscription-contract-'.time().$rand_no.'.pdf',
+            'file_name' => '12-month-subscription-contract-'.time().$rand_no.'.pdf',
             'file_path' => $subscriptionPath,
             'file_format' => 'pdf',
             'document_number' => '',
@@ -1536,7 +1536,7 @@ class AgreementController extends Controller
             'subs_payment_date' => $Booking->subs_payment_date,
         ])->setPaper('a4', 'portrait')
             ->setOption('isPhpEnabled', true)
-            ->save($pdfPath.'/subscription-contract-'.$tm.$rand_no.'.pdf');
+            ->save($pdfPath.'/12-month-subscription-contract-'.$tm.$rand_no.'.pdf');
 
 
         // 3. Generate PCN PDFs (3 PDFs for insurance contracts)
@@ -1557,7 +1557,7 @@ class AgreementController extends Controller
 
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
             $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
@@ -2248,7 +2248,7 @@ class AgreementController extends Controller
 
         return response($pdf->output(), 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'inline; filename="finance-contract-test-'.$template.'.pdf"',
+            'Content-Disposition' => 'inline; filename="sale-contract-test-'.$template.'.pdf"',
         ]);
     }
 
@@ -2290,7 +2290,7 @@ class AgreementController extends Controller
 
         $lessTermsPdfs = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/finance-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
             $lessTermsPdfs[] = $this->pdfLoadView($lessTermsPdfName, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
