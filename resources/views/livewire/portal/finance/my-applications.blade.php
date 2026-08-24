@@ -124,7 +124,6 @@
                         <div class="mt-2 flex flex-wrap gap-2 text-xs">
                             <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Logbook Transfer: {{ $app->log_book_sent ? 'Yes (contract completed successfully)' : 'No' }}</span>
                             <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Cancelled: {{ $app->is_cancelled ? 'Yes (contract no longer active)' : 'No' }}</span>
-                            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">Insurance/PCN: {{ $app->insurance_pcn ? 'Yes' : 'No' }}</span>
                             @if ($app->is_subscription)
                                 <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                                     Monthly: £{{ number_format((float) ($snapshot['instalment'] ?? $app->weekly_instalment ?? 0), 2) }}

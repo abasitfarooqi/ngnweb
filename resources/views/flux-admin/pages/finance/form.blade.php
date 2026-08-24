@@ -89,10 +89,6 @@
                     <flux:checkbox wire:model="form.is_posted" />
                     Generate Contract
                 </label>
-                <label class="flex cursor-pointer items-center gap-2 text-sm text-zinc-600 dark:text-zinc-400">
-                    <flux:checkbox wire:model="form.insurance_pcn" />
-                    Insurance / PCN
-                </label>
                 @if($application && $application->exists)
                     <label class="flex cursor-pointer items-center gap-2 text-sm text-zinc-800 dark:text-zinc-200">
                         <flux:checkbox wire:model.live="form.log_book_sent" />

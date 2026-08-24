@@ -26,6 +26,11 @@ class FinanceContractLinkResolver
                 'url' => route('finance.show.latest', $params),
             ],
             [
+                'key' => 'sale_used_latest',
+                'label' => 'Used Motorcycle – 12 Month (Latest) Sale Contract',
+                'url' => route('finance.show.used.latest', $params),
+            ],
+            [
                 'key' => 'sale_subscription_new',
                 'label' => 'New Motorcycle – Sale + Subscription',
                 'url' => route('finance.show.merged.new', $params),
@@ -55,9 +60,12 @@ class FinanceContractLinkResolver
             return 'sale_latest';
         }
 
-        // Used latest (with or without subscription): merged used template.
-        if ($application->is_used_latest) {
+        if ($application->is_used_latest && $application->is_subscription) {
             return 'sale_subscription_used';
+        }
+
+        if ($application->is_used_latest) {
+            return 'sale_used_latest';
         }
 
         return null;
@@ -123,6 +131,7 @@ class FinanceContractLinkResolver
      *     standard: string,
      *     ins: string,
      *     sale_latest: string,
+     *     sale_used_latest: string,
      *     sale_subscription_new: string,
      *     sale_subscription_used: string,
      *     links: list<array{key: string, label: string, url: string, is_customer: bool}>
@@ -150,6 +159,7 @@ class FinanceContractLinkResolver
             'standard' => $primary['url'],
             'ins' => $primary['url'],
             'sale_latest' => $catalogue['sale_latest']['url'] ?? $primary['url'],
+            'sale_used_latest' => $catalogue['sale_used_latest']['url'] ?? $primary['url'],
             'sale_subscription_new' => $catalogue['sale_subscription_new']['url'] ?? $primary['url'],
             'sale_subscription_used' => $catalogue['sale_subscription_used']['url'] ?? $primary['url'],
             'links' => $links,

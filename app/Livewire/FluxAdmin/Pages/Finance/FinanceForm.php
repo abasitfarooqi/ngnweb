@@ -53,7 +53,7 @@ class FinanceForm extends Component
                 }
             }
             $attrs['contract_type'] = $this->resolveContractType($application);
-            $attrs['insurance_pcn'] = true;
+            $attrs['insurance_pcn'] = false;
             $attrs['no_email'] = true;
             $this->form = $this->normalizeFormBooleans($attrs);
             $this->customerSearch = $application->customer
@@ -89,7 +89,7 @@ class FinanceForm extends Component
                 'is_subscription'         => false,
                 'subscription_option'     => null,
                 'subs_payment_date'       => null,
-                'insurance_pcn'           => true,
+                'insurance_pcn'           => false,
                 'no_email'                => true,
                 'is_monthly'              => true,
                 'is_posted'               => false,
@@ -420,7 +420,7 @@ class FinanceForm extends Component
             ?? now()->format('Y-m-d H:i:s');
 
         $generationContext = [
-            'insurance_pcn' => (bool) ($payload['insurance_pcn'] ?? true),
+            'insurance_pcn' => false,
             'no_email' => (bool) ($payload['no_email'] ?? true),
             'is_new' => false,
             'is_used' => false,
