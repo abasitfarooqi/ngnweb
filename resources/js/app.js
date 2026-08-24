@@ -477,12 +477,18 @@ window.setupCustomerCommunicationsEcho = function setupCustomerCommunicationsEch
         if (customerCommunicationAlertsEnabled()) {
             showCustomerCommunicationBrowserAlert(payload);
         }
+        if (typeof window.refreshPortalNotificationsLive === 'function') {
+            window.refreshPortalNotificationsLive();
+        }
         if (window.Livewire && payload && payload.uuid) {
             window.Livewire.dispatch('customerCommunicationCreated', { uuid: payload.uuid });
         }
     });
     channel.listen('.communication.reply', (payload) => {
         window.playSupportNotificationSound();
+        if (typeof window.refreshPortalNotificationsLive === 'function') {
+            window.refreshPortalNotificationsLive();
+        }
         if (window.Livewire && payload && payload.uuid) {
             window.Livewire.dispatch('customerCommunicationReply', { uuid: payload.uuid });
         }
@@ -746,10 +752,11 @@ window.bindStaffUnreadBadgePoll = function bindStaffUnreadBadgePoll() {
 
 window.refreshPortalNotificationsLive = function refreshPortalNotificationsLive() {
     const url = document.body.getAttribute('data-notifications-live-url');
-    if (!url) {
+    if (!url || document.hidden || window.__portalNotificationsBusy) {
         return;
     }
 
+    window.__portalNotificationsBusy = true;
     fetch(`${url}${url.includes('?') ? '&' : '?'}_cb=${Date.now()}`, {
         cache: 'no-store',
         credentials: 'same-origin',
@@ -777,19 +784,38 @@ window.refreshPortalNotificationsLive = function refreshPortalNotificationsLive(
                 window.playSupportNotificationSound();
             }
         })
-        .catch(() => {});
+        .catch(() => {})
+        .finally(() => {
+            window.__portalNotificationsBusy = false;
+        });
 };
 
 window.bindPortalNotificationsLive = function bindPortalNotificationsLive() {
-    if (window.__portalNotificationsTimer) {
-        window.clearInterval(window.__portalNotificationsTimer);
-        window.__portalNotificationsTimer = null;
-    }
     if (!document.body.getAttribute('data-notifications-live-url')) {
+        if (window.__portalNotificationsTimer) {
+            window.clearInterval(window.__portalNotificationsTimer);
+            window.__portalNotificationsTimer = null;
+        }
         return;
     }
+
     window.refreshPortalNotificationsLive();
-    window.__portalNotificationsTimer = window.setInterval(window.refreshPortalNotificationsLive, 1500);
+
+    if (window.__portalNotificationsTimer) {
+        return;
+    }
+
+    const intervalMs = window.supportEchoEnabled ? 30000 : 8000;
+    window.__portalNotificationsTimer = window.setInterval(window.refreshPortalNotificationsLive, intervalMs);
+
+    if (!window.__portalNotificationsVisibilityBound) {
+        window.__portalNotificationsVisibilityBound = true;
+        document.addEventListener('visibilitychange', function () {
+            if (!document.hidden) {
+                window.refreshPortalNotificationsLive();
+            }
+        });
+    }
 };
 
 document.addEventListener('DOMContentLoaded', function () {
