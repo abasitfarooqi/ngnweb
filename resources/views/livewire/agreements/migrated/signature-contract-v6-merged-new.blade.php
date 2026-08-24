@@ -1182,10 +1182,10 @@ label a{
                     I confirm that I have read, understood, and agree to be bound by the 
                 <a href="#agreement">Motorcycle Sale Agreement</a>, 
                 the <a href="#accidents">Road Traffic Accidents & Claims - Terms & Conditions</a>, 
+                the <a href="#legal-proceedings-and-costs">Legal Proceedings & Costs</a>,
                 the <a href="#appendix-a">Appendix A - Terms & Conditions</a>,
                 the <a href="#appendix-b">Appendix B - Administration & Fees Schedule</a>,
                 the <a href="#appendix-c">Appendix C - Lithium-Ion Battery Safety - Terms & Conditions</a>,
-                the <a href="#legal-proceedings-and-costs">Legal Proceedings & Costs</a>,
                 and the <a href="#subscription-agreement">12-Month Subscription Terms & Conditions</a>.
                 </span>
             </label>

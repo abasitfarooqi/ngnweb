@@ -388,7 +388,7 @@
         <tr>
             <td colspan="2" class="td-cont">
                 <span style="padding:2px !important;margin:2px !important; padding-top: 2px !important">
-                Yes, I {{ $customer->first_name }} {{ $customer->last_name }} confirm that I have read, understood, and agree to be bound by the Vehicle Sale Agreement, the Police, Council & Legal Liability - Terms & Conditions, the Road Traffic Accidents & Claims - Terms & Conditions, the Appendix A - Terms & Conditions and the Appendix B - Administration & Fees Schedule and the Appendix C - Lithium-Ion Battery Safety - Terms & Conditions and Legal Proceedings & Costs.
+                Yes, I {{ $customer->first_name }} {{ $customer->last_name }} confirm that I have read, understood, and agree to be bound by the Vehicle Sale Agreement, the Police, Council & Legal Liability - Terms & Conditions, the Road Traffic Accidents & Claims - Terms & Conditions, the Legal Proceedings & Costs, the Appendix A - Terms & Conditions, the Appendix B - Administration & Fees Schedule, and the Appendix C - Lithium-Ion Battery Safety - Terms & Conditions.
 
                 </span>
             </td>
