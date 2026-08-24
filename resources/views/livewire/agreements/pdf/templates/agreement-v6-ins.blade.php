@@ -372,7 +372,7 @@
         </tr>
         <tr>
             <td class="td-cont" style="width:18%; height: 35px">Date</td>
-            <td class="td-cont">{{ \App\Support\AgreementDateTime::format($booking->created_at) }}</td>
+            <td class="td-cont">{{ $signatureDate ?? \App\Support\AgreementDateTime::format($booking->start_date ?? $booking->created_at) }}</td>
         </tr>
         <tr>
             <td class="td-cont">Signature</td>
@@ -384,12 +384,13 @@
 
     <div class="container">
 
-        <h3 style="text-align: center; padding:10px 0px !important; margin:15px 0px 10px 0px !important;">MOTORCYCLE RENTAL AGREEMENT - TERMS & CONDITIONS</h3>
+        <h3 style="text-align: center; padding:10px 0px !important; margin:15px 0px 10px 0px !important;">THE AGREEMENT TERMS & CONDITIONS</h3>
 
         <h4>1. Contract Term & Regulatory Status</h4>
         <p><b>1.1</b> This Agreement is a fixed-term hire of a vehicle (petrol motorcycle or E-Bike) for the Term shown in the Contract Information Schedule. This is a rental contract only: it does not confer title or an option to purchase, and no rent constitutes part-payment towards any price.</p>
         <p><b>1.2</b> This Agreement is not intended to create a regulated consumer credit arrangement under the Consumer Credit Act 1974. Hire of a vehicle under this Agreement remains a hire/rental not a sale. If any hire arrangement is later structured in a way that operates as hire-purchase or a credit agreement, the parties will put in place a separate written arrangement.</p>
         <p><b>1.3</b> Nothing in this Agreement excludes or restricts any statutory rights that cannot be contracted out (for example, consumer rights under the Consumer Rights Act 2015).</p>
+        <p>This contract is valid till date <b>{{ \App\Support\AgreementDateTime::format(\Carbon\Carbon::parse($booking->start_date)->addMonths(12)) }}</b> from the 'contract date' under the 'contract information' section shown at the first page of this document.</p>
         
 
         

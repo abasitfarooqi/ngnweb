@@ -466,7 +466,7 @@ label a{
                 $isLicenseValidForContract = $licenseExpiryDate >= $contractExpiry;
             @endphp
 
-            <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">MOTORCYCLE RENTAL AGREEMENT - TERMS & CONDITIONS            </h4>
+            <h4 style="text-align: center; font-weight: bold; margin: 20px 0;" id="agreement">THE AGREEMENT TERMS & CONDITIONS</h4>
 
 
            
@@ -474,6 +474,7 @@ label a{
         <p><b>1.1</b> This Agreement is a fixed-term hire of a vehicle (petrol motorcycle or E-Bike) for the Term shown in the Contract Information Schedule. This is a rental contract only: it does not confer title or an option to purchase, and no rent constitutes part-payment towards any price.</p>
         <p><b>1.2</b> This Agreement is not intended to create a regulated consumer credit arrangement under the Consumer Credit Act 1974. Hire of a vehicle under this Agreement remains a hire/rental not a sale. If any hire arrangement is later structured in a way that operates as hire-purchase or a credit agreement, the parties will put in place a separate written arrangement.</p>
         <p><b>1.3</b> Nothing in this Agreement excludes or restricts any statutory rights that cannot be contracted out (for example, consumer rights under the Consumer Rights Act 2015).</p>
+        <p>This contract is valid till date <b>{{ \App\Support\AgreementDateTime::format($contractExpiry) }}</b> from the 'contract date' under the 'contract information' section shown at the first page of this document.</p>
       
             @if (!$isLicenseValidForContract)
                 <p style="color: red;">
