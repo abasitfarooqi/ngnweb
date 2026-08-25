@@ -280,6 +280,13 @@ class RentingReferralService
             $locked = RentingReferral::query()->whereKey($referral->id)->lockForUpdate()->firstOrFail();
             $credit = $this->creditFor($locked);
 
+            if ($this->coveringDirectAward($locked) || (
+                $locked->referred_customer_id
+                && $this->referredFriendAlreadyUsed((int) $locked->referrer_customer_id, (int) $locked->referred_customer_id, (int) $locked->id)
+            )) {
+                throw new RuntimeException('This friend has already been used for a free week (direct or programme). It cannot be approved. Mark as redeemed already if a direct week exists, or refer a different person.');
+            }
+
             if ($locked->status !== RentingReferral::STATUS_REVIEW && ! $superAdminOverride) {
                 throw new RuntimeException('This referral is not waiting for approval.');
             }
@@ -472,30 +479,15 @@ class RentingReferralService
                 throw new RuntimeException('Points are not available to use yet.');
             }
 
+            if ($this->coveringDirectAward($locked)) {
+                throw new RuntimeException('This friend already received a direct free week. Use Mark as redeemed already instead of applying another week.');
+            }
+
             $invoice = BookingInvoice::query()->whereKey($invoice->id)->lockForUpdate()->firstOrFail();
             $booking = RentingBooking::query()->whereKey($invoice->booking_id)->lockForUpdate()->firstOrFail();
-
-            if ((int) $booking->customer_id !== (int) $locked->referrer_customer_id) {
-                throw new RuntimeException('The reward can only be applied to the referrer’s invoices.');
-            }
-
-            if ($invoice->is_paid) {
-                throw new RuntimeException('That invoice is already paid.');
-            }
-
-            if ((float) $invoice->amount <= 0) {
-                throw new RuntimeException('That invoice has no rental amount.');
-            }
-
-            if (RentingReferralPointLedger::query()->where('redeemed_invoice_id', $invoice->id)->exists()) {
-                throw new RuntimeException('A referral reward has already been applied to this invoice.');
-            }
-
-            $paid = (float) RentingTransaction::query()->where('invoice_id', $invoice->id)->sum('amount');
-            $remaining = round((float) $invoice->amount - $paid, 2);
-            if ($remaining <= 0) {
-                throw new RuntimeException('That invoice has no remaining balance.');
-            }
+            $invoice->setRelation('booking', $booking);
+            $this->assertExtraFreeWeekExplained((int) $booking->customer_id, $proof);
+            $remaining = $this->assertInvoiceCanTakeFreeWeek($invoice, (int) $locked->referrer_customer_id);
 
             $typeId = $this->rewardTransactionTypeId();
             $methodId = $this->rewardPaymentMethodId();
@@ -562,9 +554,11 @@ class RentingReferralService
                 'booking' => $booking->fresh(),
                 'transaction' => $transaction,
                 'amount' => $remaining,
+                'ordinal' => $this->appliedFreeWeekCountForCustomer((int) $booking->customer_id),
             ];
         });
 
+        $ordinal = (int) ($result['ordinal'] ?? 1);
         $this->sendStaffInvoiceNotice(
             $result['referral'],
             'redeemed',
@@ -573,15 +567,26 @@ class RentingReferralService
             $result['booking'],
             $result['transaction'],
             $result['amount'],
-            $proof !== '' ? $proof : null
+            $proof !== '' ? $proof : null,
+            $ordinal,
+            $result['referral']->id,
         );
 
+        $hirer = Customer::query()->find($result['booking']->customer_id);
+        $awardId = Schema::hasTable('renting_free_week_awards')
+            ? RentingFreeWeekAward::query()->where('awarded_invoice_id', $result['invoice']->id)->value('id')
+            : null;
         $this->sendFreeWeekPaymentReceipt(
             $result['booking'],
             $result['invoice'],
             $result['transaction'],
             (float) $result['amount'],
-            true
+            true,
+            $hirer,
+            $ordinal,
+            $ordinal,
+            $awardId ? (int) $awardId : null,
+            $result['referral']->id,
         );
 
         return $result['referral'];
@@ -604,23 +609,17 @@ class RentingReferralService
         $result = DB::transaction(function () use ($invoice, $selectedCustomer, $userId, $proof) {
             $invoice = BookingInvoice::query()->whereKey($invoice->id)->lockForUpdate()->firstOrFail();
             $booking = RentingBooking::query()->whereKey($invoice->booking_id)->lockForUpdate()->firstOrFail();
+            $invoice->setRelation('booking', $booking);
+            $hirer = Customer::query()->find($booking->customer_id) ?: $selectedCustomer;
+            $this->assertExtraFreeWeekExplained((int) $hirer->id, $proof);
+            $remaining = $this->assertInvoiceCanTakeFreeWeek($invoice);
 
-            if ($invoice->is_paid) {
-                throw new RuntimeException('That invoice is already paid.');
+            if ((int) $hirer->id === (int) $selectedCustomer->id) {
+                throw new RuntimeException('The new customer and the named referrer must be different people. Pay the new customer’s week, or apply programme points on the referrer’s hire after a different friend qualifies.');
             }
 
-            if ((float) $invoice->amount <= 0) {
-                throw new RuntimeException('That invoice has no rental amount.');
-            }
-
-            if ($this->invoiceHasReferralRedemption((int) $invoice->id)) {
-                throw new RuntimeException('A free week has already been applied to this invoice.');
-            }
-
-            $paid = (float) RentingTransaction::query()->where('invoice_id', $invoice->id)->sum('amount');
-            $remaining = round((float) $invoice->amount - $paid, 2);
-            if ($remaining <= 0) {
-                throw new RuntimeException('That invoice has no remaining balance.');
+            if ($this->referredFriendAlreadyUsed((int) $selectedCustomer->id, (int) $hirer->id)) {
+                throw new RuntimeException('This new customer has already been used for a free week with this referrer. Refer a different person.');
             }
 
             $transaction = RentingTransaction::query()->create([
@@ -642,7 +641,16 @@ class RentingReferralService
                 'notes' => trim(((string) ($invoice->notes ?? ''))."\nStaff direct free week — customer #{$selectedCustomer->id}"),
             ]);
 
-            $hirer = Customer::query()->find($booking->customer_id) ?: $selectedCustomer;
+            $consumed = $this->consumeMatchingProgrammeCredit(
+                $selectedCustomer,
+                $hirer,
+                $invoice,
+                $booking,
+                $transaction,
+                $userId,
+                $proof
+            );
+
             $this->recordFreeWeekAward(
                 RentingFreeWeekAward::SOURCE_DIRECT,
                 $invoice,
@@ -652,19 +660,31 @@ class RentingReferralService
                 $hirer,
                 $selectedCustomer,
                 $userId,
-                null,
+                $consumed,
                 $proof,
             );
+
+            $award = Schema::hasTable('renting_free_week_awards')
+                ? RentingFreeWeekAward::query()->where('awarded_invoice_id', $invoice->id)->first()
+                : null;
+            $ordinal = $this->appliedFreeWeekCountForCustomer((int) $hirer->id);
 
             return [
                 'invoice' => $invoice->fresh(),
                 'booking' => $booking->fresh(),
                 'transaction' => $transaction,
                 'amount' => $remaining,
+                'hirer' => $hirer,
+                'consumedReferral' => $consumed,
+                'award' => $award,
+                'ordinal' => $ordinal,
             ];
         });
 
-        $hirer = Customer::query()->find($result['booking']->customer_id);
+        $hirer = $result['hirer'] ?? Customer::query()->find($result['booking']->customer_id);
+        $ordinal = (int) ($result['ordinal'] ?? 1);
+        $award = $result['award'] ?? null;
+        $consumed = $result['consumedReferral'] ?? null;
         $to = RentingReferralSettings::approvalReportTo();
         $this->safeMail(fn () => Mail::to($to)->send(new RentingDirectFreeWeekMail(
             $result['booking'],
@@ -674,7 +694,11 @@ class RentingReferralService
             $selectedCustomer,
             $proof,
             $userId,
-            $result['amount']
+            $result['amount'],
+            $ordinal,
+            $ordinal,
+            $award?->id,
+            $consumed?->id,
         )));
 
         $this->sendFreeWeekPaymentReceipt(
@@ -682,7 +706,12 @@ class RentingReferralService
             $result['invoice'],
             $result['transaction'],
             (float) $result['amount'],
-            false
+            false,
+            $hirer ?: $selectedCustomer,
+            $ordinal,
+            $ordinal,
+            $award?->id,
+            $consumed?->id,
         );
 
         return $result['transaction'];
@@ -805,6 +834,15 @@ class RentingReferralService
 
     public function invoiceHasReferralRedemption(int $invoiceId): bool
     {
+        if ($invoiceId < 1) {
+            return false;
+        }
+
+        if (Schema::hasTable('renting_free_week_awards')
+            && RentingFreeWeekAward::query()->where('awarded_invoice_id', $invoiceId)->exists()) {
+            return true;
+        }
+
         if (! $this->tablesReady()) {
             return false;
         }
@@ -831,6 +869,38 @@ class RentingReferralService
         return RentingFreeWeekAward::query()
             ->with(['selectedReferrer', 'hirer', 'referral', 'appliedBy'])
             ->where('awarded_booking_id', $bookingId)
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /** @return Collection<int, RentingFreeWeekAward> */
+    public function awardsForReferral(int $referralId): Collection
+    {
+        if ($referralId < 1 || ! Schema::hasTable('renting_free_week_awards')) {
+            return collect();
+        }
+
+        return RentingFreeWeekAward::query()
+            ->with(['hirer', 'selectedReferrer', 'appliedBy', 'awardedTransaction', 'awardedInvoice', 'awardedBooking'])
+            ->where('referral_id', $referralId)
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /** @return Collection<int, RentingFreeWeekAward> */
+    public function directAwardsForCustomer(int $customerId): Collection
+    {
+        if ($customerId < 1 || ! Schema::hasTable('renting_free_week_awards')) {
+            return collect();
+        }
+
+        return RentingFreeWeekAward::query()
+            ->with(['hirer', 'selectedReferrer', 'appliedBy', 'awardedTransaction', 'awardedInvoice', 'awardedBooking'])
+            ->where('source', RentingFreeWeekAward::SOURCE_DIRECT)
+            ->where(function ($q) use ($customerId) {
+                $q->where('hirer_customer_id', $customerId)
+                    ->orWhere('selected_referrer_customer_id', $customerId);
+            })
             ->orderByDesc('id')
             ->get();
     }
@@ -886,12 +956,14 @@ class RentingReferralService
             'competing_referrer' => $competing,
             'reward_generated' => $credit !== null,
             'created_after_start' => $createdAfterStart,
+            'friend_already_used' => $referred
+                && $this->referredFriendAlreadyUsed((int) $referral->referrer_customer_id, (int) $referred->id, (int) $referral->id),
         ];
     }
 
     public function checkIsHealthy(string $key, bool $value): bool
     {
-        $noIsGood = ['prior_rental', 'duplicate', 'self_referral', 'competing_referrer', 'created_after_start'];
+        $noIsGood = ['prior_rental', 'duplicate', 'self_referral', 'competing_referrer', 'created_after_start', 'friend_already_used'];
 
         return in_array($key, $noIsGood, true) ? ! $value : $value;
     }
@@ -904,6 +976,10 @@ class RentingReferralService
 
         $credit = $this->creditFor($referral);
         if (! $credit || $credit->status !== RentingReferralPointLedger::STATUS_PENDING) {
+            return false;
+        }
+
+        if ($this->coveringDirectAward($referral)) {
             return false;
         }
 
@@ -1059,6 +1135,172 @@ class RentingReferralService
             ->sum('points');
     }
 
+    public function redeemedPoints(int $customerId): int
+    {
+        if (! $this->tablesReady()) {
+            return 0;
+        }
+
+        return (int) RentingReferralPointLedger::query()
+            ->where('customer_id', $customerId)
+            ->where('direction', RentingReferralPointLedger::DIRECTION_CREDIT)
+            ->where('status', RentingReferralPointLedger::STATUS_REDEEMED)
+            ->sum('points');
+    }
+
+    public function appliedFreeWeekCountForCustomer(int $customerId): int
+    {
+        if ($customerId < 1 || ! Schema::hasTable('renting_free_week_awards')) {
+            return 0;
+        }
+
+        return (int) RentingFreeWeekAward::query()
+            ->where(function ($q) use ($customerId) {
+                $q->where('hirer_customer_id', $customerId)
+                    ->orWhere('selected_referrer_customer_id', $customerId);
+            })
+            ->count();
+    }
+
+    public function portalRedeemedPoints(int $customerId): int
+    {
+        $fromLedger = $this->redeemedPoints($customerId);
+        $fromAwards = $this->appliedFreeWeekCountForCustomer($customerId)
+            * RentingReferralSettings::pointsPerQualifiedReferral();
+
+        return max($fromLedger, $fromAwards);
+    }
+
+    public function needsExtraFreeWeekProof(int $customerId): bool
+    {
+        return $this->appliedFreeWeekCountForCustomer($customerId) >= 1;
+    }
+
+    public function coveringDirectAward(RentingReferral $referral): ?RentingFreeWeekAward
+    {
+        if ((int) ($referral->referred_customer_id ?? 0) < 1 || ! Schema::hasTable('renting_free_week_awards')) {
+            return null;
+        }
+
+        return RentingFreeWeekAward::query()
+            ->with(['awardedInvoice', 'awardedBooking', 'awardedTransaction'])
+            ->where('selected_referrer_customer_id', $referral->referrer_customer_id)
+            ->where('hirer_customer_id', $referral->referred_customer_id)
+            ->orderBy('id')
+            ->first();
+    }
+
+    public function referredFriendAlreadyUsed(int $referrerId, int $friendId, ?int $exceptReferralId = null): bool
+    {
+        if ($referrerId < 1 || $friendId < 1) {
+            return false;
+        }
+
+        $redeemedProgramme = RentingReferral::query()
+            ->where('referrer_customer_id', $referrerId)
+            ->where('referred_customer_id', $friendId)
+            ->when($exceptReferralId, fn ($q) => $q->where('id', '!=', $exceptReferralId))
+            ->get()
+            ->contains(function (RentingReferral $row) {
+                $credit = $this->creditFor($row);
+
+                return $credit && $credit->status === RentingReferralPointLedger::STATUS_REDEEMED;
+            });
+
+        if ($redeemedProgramme) {
+            return true;
+        }
+
+        if (! Schema::hasTable('renting_free_week_awards')) {
+            return false;
+        }
+
+        return RentingFreeWeekAward::query()
+            ->where('selected_referrer_customer_id', $referrerId)
+            ->where('hirer_customer_id', $friendId)
+            ->exists();
+    }
+
+    public function markAlreadyRedeemedByDirect(RentingReferral $referral, ?int $userId): RentingReferral
+    {
+        $this->assertCanReview($userId);
+
+        return DB::transaction(function () use ($referral, $userId) {
+            $locked = RentingReferral::query()->whereKey($referral->id)->lockForUpdate()->firstOrFail();
+            $credit = $this->creditFor($locked);
+            if ($credit && $credit->status === RentingReferralPointLedger::STATUS_REDEEMED) {
+                return $locked->fresh(['ledger', 'referred', 'referrer']);
+            }
+
+            $award = $this->coveringDirectAward($locked);
+            if (! $award?->awardedInvoice || ! $award->awardedBooking || ! $award->awardedTransaction) {
+                throw new RuntimeException('There is no direct free week for this friend to mark against.');
+            }
+
+            $consumed = $this->consumeReferralCredit(
+                $locked,
+                $award->awardedInvoice,
+                $award->awardedBooking,
+                $award->awardedTransaction,
+                $userId,
+                (string) ($award->staff_proof ?? 'Marked redeemed against existing direct free week')
+            );
+            if ($consumed && ! $award->referral_id) {
+                $award->update(['referral_id' => $consumed->id]);
+            }
+
+            return $locked->fresh(['ledger', 'referred', 'referrer']);
+        });
+    }
+
+    public function reconcileDirectAwardsAgainstProgramme(Customer $customer): void
+    {
+        if (! $this->tablesReady() || ! Schema::hasTable('renting_free_week_awards')) {
+            return;
+        }
+
+        $awards = RentingFreeWeekAward::query()
+            ->with(['awardedInvoice', 'awardedBooking', 'awardedTransaction'])
+            ->where('source', RentingFreeWeekAward::SOURCE_DIRECT)
+            ->where(function ($q) use ($customer) {
+                $q->where('selected_referrer_customer_id', $customer->id)
+                    ->orWhere('hirer_customer_id', $customer->id);
+            })
+            ->orderBy('id')
+            ->get();
+
+        foreach ($awards as $award) {
+            $invoice = $award->awardedInvoice;
+            $booking = $award->awardedBooking;
+            $transaction = $award->awardedTransaction;
+            if (! $invoice || ! $booking || ! $transaction) {
+                continue;
+            }
+
+            $selected = Customer::query()->find($award->selected_referrer_customer_id);
+            $hirer = Customer::query()->find($award->hirer_customer_id);
+            $proof = (string) ($award->staff_proof ?? '');
+            if (! $selected || ! $hirer) {
+                continue;
+            }
+
+            DB::transaction(function () use ($award, $selected, $hirer, $invoice, $booking, $transaction, $proof) {
+                $consumed = $this->consumeMatchingProgrammeCredit(
+                    $selected,
+                    $hirer,
+                    $invoice,
+                    $booking,
+                    $transaction,
+                    $award->applied_by,
+                    $proof
+                );
+                if ($consumed && ! $award->referral_id) {
+                    $award->update(['referral_id' => $consumed->id]);
+                }
+            });
+        }
+    }
+
     /** @return Collection<int, BookingInvoice> */
     public function redeemableInvoices(Customer $referrer): Collection
     {
@@ -1071,17 +1313,176 @@ class RentingReferralService
             return collect();
         }
 
-        $redeemedIds = RentingReferralPointLedger::query()
-            ->whereNotNull('redeemed_invoice_id')
-            ->pluck('redeemed_invoice_id');
-
         return BookingInvoice::query()
+            ->with('booking')
             ->whereIn('booking_id', $bookingIds)
+            ->where('is_posted', true)
             ->where('is_paid', false)
             ->where('amount', '>', 0)
-            ->when($redeemedIds->isNotEmpty(), fn ($q) => $q->whereNotIn('id', $redeemedIds))
+            ->whereDate('invoice_date', '<=', now()->toDateString())
             ->orderBy('invoice_date')
-            ->get();
+            ->orderBy('id')
+            ->get()
+            ->filter(function (BookingInvoice $invoice) use ($referrer) {
+                try {
+                    $this->assertInvoiceCanTakeFreeWeek($invoice, (int) $referrer->id);
+
+                    return true;
+                } catch (RuntimeException) {
+                    return false;
+                }
+            })
+            ->values();
+    }
+
+    /**
+     * Current unpaid week only. Not paid, not already rewarded, not a future week.
+     *
+     * @throws RuntimeException
+     */
+    public function assertInvoiceCanTakeFreeWeek(BookingInvoice $invoice, ?int $mustBelongToCustomerId = null): float
+    {
+        $booking = ($invoice->relationLoaded('booking') && $invoice->booking)
+            ? $invoice->booking
+            : RentingBooking::query()->find($invoice->booking_id);
+
+        if ($booking === null) {
+            throw new RuntimeException('That invoice has no rental booking.');
+        }
+
+        if ($mustBelongToCustomerId !== null && (int) $booking->customer_id !== (int) $mustBelongToCustomerId) {
+            throw new RuntimeException('The reward can only be applied to the referrer’s invoices.');
+        }
+
+        $invoiceDate = $invoice->invoice_date?->toDateString();
+        if ($invoiceDate === null) {
+            throw new RuntimeException('That invoice has no week date.');
+        }
+
+        if ($invoiceDate > now()->toDateString()) {
+            throw new RuntimeException('That invoice is for a future week. Wait until the week is current and still unpaid.');
+        }
+
+        if ($invoice->is_paid) {
+            throw new RuntimeException('That invoice is already paid. Wait for the next unpaid week.');
+        }
+
+        if ((float) $invoice->amount <= 0) {
+            throw new RuntimeException('That invoice has no rental amount.');
+        }
+
+        if ($this->invoiceHasReferralRedemption((int) $invoice->id)) {
+            throw new RuntimeException('A free week has already been applied to this invoice. Wait for the next unpaid week.');
+        }
+
+        $remaining = $this->remainingOnInvoice($invoice);
+        if ($remaining <= 0) {
+            throw new RuntimeException('That invoice is already paid. Wait for the next unpaid week.');
+        }
+
+        return $remaining;
+    }
+
+    private function remainingOnInvoice(BookingInvoice $invoice): float
+    {
+        $paid = (float) RentingTransaction::query()->where('invoice_id', $invoice->id)->sum('amount');
+
+        return round((float) $invoice->amount - $paid, 2);
+    }
+
+    private function assertExtraFreeWeekExplained(int $customerId, string $proof): void
+    {
+        if (! $this->needsExtraFreeWeekProof($customerId)) {
+            return;
+        }
+
+        if (strlen(trim($proof)) < 8) {
+            throw ValidationException::withMessages([
+                'referralProof' => 'This person already has a free week. Explain why this extra free week is being given so the boss can check it.',
+                'release_reason' => 'This person already has a free week. Explain why this extra free week is being given so the boss can check it.',
+            ]);
+        }
+    }
+
+    private function consumeMatchingProgrammeCredit(
+        Customer $referrer,
+        Customer $friend,
+        BookingInvoice $invoice,
+        RentingBooking $booking,
+        RentingTransaction $transaction,
+        ?int $userId,
+        string $proof
+    ): ?RentingReferral {
+        $matching = RentingReferral::query()
+            ->where('referrer_customer_id', $referrer->id)
+            ->where('referred_customer_id', $friend->id)
+            ->whereIn('status', [
+                RentingReferral::STATUS_MATCHED,
+                RentingReferral::STATUS_QUALIFYING,
+                RentingReferral::STATUS_REVIEW,
+                RentingReferral::STATUS_APPROVED,
+            ])
+            ->orderBy('id')
+            ->lockForUpdate()
+            ->first();
+
+        if (! $matching) {
+            return null;
+        }
+
+        return $this->consumeReferralCredit($matching, $invoice, $booking, $transaction, $userId, $proof);
+    }
+
+    private function consumeReferralCredit(
+        RentingReferral $referral,
+        BookingInvoice $invoice,
+        RentingBooking $booking,
+        RentingTransaction $transaction,
+        ?int $userId,
+        string $proof
+    ): ?RentingReferral {
+        if (! $this->tablesReady()) {
+            return null;
+        }
+
+        $already = RentingReferralPointLedger::query()
+            ->where('redeemed_invoice_id', $invoice->id)
+            ->where('referral_id', $referral->id)
+            ->where('direction', RentingReferralPointLedger::DIRECTION_DEBIT)
+            ->exists();
+        if ($already) {
+            return $referral->fresh();
+        }
+
+        $credit = $this->creditFor($referral);
+        if (! $credit || ! in_array($credit->status, [
+            RentingReferralPointLedger::STATUS_PENDING,
+            RentingReferralPointLedger::STATUS_AVAILABLE,
+        ], true)) {
+            return $credit?->status === RentingReferralPointLedger::STATUS_REDEEMED ? $referral : null;
+        }
+
+        $credit->update(['status' => RentingReferralPointLedger::STATUS_REDEEMED]);
+
+        RentingReferralPointLedger::query()->create([
+            'customer_id' => $referral->referrer_customer_id,
+            'referral_id' => $referral->id,
+            'direction' => RentingReferralPointLedger::DIRECTION_DEBIT,
+            'status' => RentingReferralPointLedger::STATUS_REDEEMED,
+            'points' => $credit->points,
+            'redeemed_booking_id' => $booking->id,
+            'redeemed_invoice_id' => $invoice->id,
+            'redeemed_transaction_id' => $transaction->id,
+        ]);
+
+        $this->writeLog($referral, 'REDEEM', ['invoice_id' => null], [
+            'invoice_id' => $invoice->id,
+            'transaction_id' => $transaction->id,
+            'via' => 'direct',
+            'proof' => $proof !== '' ? $proof : null,
+        ], $userId);
+
+        return $referral->fresh();
     }
 
     /** @return array<string, int|float> */
@@ -1128,6 +1529,38 @@ class RentingReferralService
             'warnings' => RentingReferral::query()->whereNotNull('warnings')->where('warnings', '!=', '[]')->count(),
             'early_releases' => RentingReferralPointLedger::query()->whereNotNull('released_early_at')->count(),
         ];
+    }
+
+    /** @return array{programme: int, direct: int, programme_value: float, direct_value: float} */
+    public function freeWeekMetrics(): array
+    {
+        $empty = [
+            'programme' => 0,
+            'direct' => 0,
+            'programme_value' => 0.0,
+            'direct_value' => 0.0,
+        ];
+
+        if (! Schema::hasTable('renting_free_week_awards')) {
+            return $empty;
+        }
+
+        $rows = RentingFreeWeekAward::query()
+            ->selectRaw('source, COUNT(*) as aggregate, COALESCE(SUM(amount), 0) as value')
+            ->groupBy('source')
+            ->get();
+
+        foreach ($rows as $row) {
+            if ($row->source === RentingFreeWeekAward::SOURCE_DIRECT) {
+                $empty['direct'] = (int) $row->aggregate;
+                $empty['direct_value'] = (float) $row->value;
+            } else {
+                $empty['programme'] = (int) $row->aggregate;
+                $empty['programme_value'] = (float) $row->value;
+            }
+        }
+
+        return $empty;
     }
 
     public function refreshOpenReferral(RentingReferral $referral): RentingReferral
@@ -1703,7 +2136,9 @@ class RentingReferralService
         ?RentingBooking $booking = null,
         ?RentingTransaction $transaction = null,
         ?float $amount = null,
-        ?string $proof = null
+        ?string $proof = null,
+        ?int $freeWeekOrdinal = null,
+        ?int $consumedReferralId = null,
     ): void {
         $to = RentingReferralSettings::approvalReportTo();
         $this->safeMail(fn () => Mail::to($to)->send(new RentingReferralStaffInvoiceMail(
@@ -1714,7 +2149,9 @@ class RentingReferralService
             $booking,
             $transaction,
             $amount,
-            $proof
+            $proof,
+            $freeWeekOrdinal,
+            $consumedReferralId,
         )));
     }
 
@@ -1723,16 +2160,29 @@ class RentingReferralService
         BookingInvoice $invoice,
         RentingTransaction $transaction,
         float $amount,
-        bool $fromProgramme
+        bool $fromProgramme,
+        ?Customer $customer = null,
+        int $ordinal = 1,
+        int $total = 1,
+        ?int $awardId = null,
+        ?int $referralId = null,
     ): void {
         $methodId = (int) ($transaction->payment_method_id ?? 0);
         if ($methodId < 1) {
             return;
         }
 
-        $note = $fromProgramme
-            ? 'Applied! This user has redeemed a free week on this invoice through the rental referral programme.'
-            : 'Applied! This user has redeemed a free week on this invoice through the rental referral programme (direct).';
+        $customer ??= Customer::query()->find($booking->customer_id);
+        $source = $fromProgramme ? 'programme' : 'direct (staff)';
+        $note = 'Applied! Free week '.$ordinal.' of '.$total
+            .' for customer #'.($customer?->id ?? '—')
+            .' '.trim(($customer?->first_name ?? '').' '.($customer?->last_name ?? ''))
+            .'. Source: '.$source
+            .'. Invoice #'.$invoice->id
+            .', transaction #'.$transaction->id
+            .($awardId ? ', award #'.$awardId : '')
+            .($referralId ? ', referral #'.$referralId : '')
+            .'.';
 
         app(RentalBookingLifecycle::class)->sendPaidInvoiceReceipt(
             (int) $booking->id,

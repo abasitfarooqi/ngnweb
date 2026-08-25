@@ -75,4 +75,34 @@ class RentingFreeWeekAward extends Model
     {
         return $this->belongsTo(User::class, 'applied_by');
     }
+
+    public function isDirect(): bool
+    {
+        return $this->source === self::SOURCE_DIRECT;
+    }
+
+    public function sourceLabel(): string
+    {
+        return $this->isDirect() ? 'Direct' : 'Programme';
+    }
+
+    public function payoutStatus(): string
+    {
+        $invoice = $this->awardedInvoice;
+        if ($invoice && ! $invoice->is_paid) {
+            return 'reversed';
+        }
+
+        return 'redeemed';
+    }
+
+    public function payoutStatusLabel(): string
+    {
+        return $this->payoutStatus() === 'reversed' ? 'Reversed' : 'Redeemed';
+    }
+
+    public function payoutStatusTone(): string
+    {
+        return $this->payoutStatus() === 'reversed' ? 'red' : 'green';
+    }
 }

@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Rentals;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Services\Renting\RentingWeeklyUpdateReportService;
+use App\Support\RentingReferralAccess;
 use Carbon\Carbon;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -20,7 +21,9 @@ class WeeklyUpdateReport extends Component
 
     public function mount(RentingWeeklyUpdateReportService $service): void
     {
-        $this->authorizeModule('see-menu-rentals');
+        if (! RentingReferralAccess::canInvestigate()) {
+            $this->authorizeModule('see-menu-rentals');
+        }
         $this->periodKey = $service->recentPeriods()[0]['key'] ?? '';
     }
 

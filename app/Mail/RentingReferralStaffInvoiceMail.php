@@ -28,6 +28,8 @@ class RentingReferralStaffInvoiceMail extends Mailable
         public ?RentingTransaction $transaction = null,
         public ?float $amount = null,
         public ?string $proof = null,
+        public ?int $freeWeekOrdinal = null,
+        public ?int $consumedReferralId = null,
     ) {}
 
     public function envelope(): Envelope
@@ -76,6 +78,8 @@ class RentingReferralStaffInvoiceMail extends Mailable
                     'transaction' => $this->transaction,
                     'amount' => $this->amount,
                     'proof' => $this->proof,
+                    'freeWeekOrdinal' => $this->freeWeekOrdinal,
+                    'consumedReferralId' => $this->consumedReferralId,
                 ],
                 $title,
             ),

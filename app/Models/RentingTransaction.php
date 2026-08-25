@@ -22,6 +22,11 @@ class RentingTransaction extends Model
         'notes',
     ];
 
+    protected $casts = [
+        'transaction_date' => 'date',
+        'amount' => 'decimal:2',
+    ];
+
     public function booking()
     {
         return $this->belongsTo(RentingBooking::class, 'booking_id');

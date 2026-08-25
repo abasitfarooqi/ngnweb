@@ -240,18 +240,24 @@
                     <select wire:model.live="paymentKind" class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red">
                         <option value="cash">Cash</option>
                         <option value="card">Card</option>
-                        @if($programmeReferrals->isNotEmpty())
-                            <option value="referral">Referral</option>
-                        @else
-                            <option value="direct">Referral</option>
+                        @if($canApplyFreeWeek)
+                            @if($programmeReferrals->isNotEmpty())
+                                <option value="referral">Programme referral</option>
+                            @endif
+                            <option value="direct">Staff direct</option>
                         @endif
                     </select>
+                    @if(! $canApplyFreeWeek && $freeWeekBlockReason)
+                        <p class="text-xs text-zinc-500 mt-1">{{ $freeWeekBlockReason }}</p>
+                    @endif
                     @error('paymentMethodId') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
                 </div>
                 @if($paymentKind === 'referral')
                     <div class="space-y-3">
                         @if($needsEarlyApply)
                             <p class="text-xs text-zinc-500">Early apply. Pick the friend they referred and explain this to the boss. Approval already covered the background story.</p>
+                        @elseif($needsExtraFreeWeekProof)
+                            <p class="text-xs text-amber-800 dark:text-amber-200">This customer already has {{ $hirerFreeWeekCount }} applied free week{{ $hirerFreeWeekCount === 1 ? '' : 's' }} (programme or direct). Another 100 from a different friend is allowed. You must explain why this extra week is being given.</p>
                         @else
                             <p class="text-xs text-zinc-500">Programme free week. Pick the friend they referred. No extra explanation — the boss already has the approval story.</p>
                         @endif
@@ -288,13 +294,13 @@
                                 'bookingId' => $referrerEvidence['booking_id'] ?? null,
                             ])
                         @endif
-                        @if($needsEarlyApply)
+                        @if($needsEarlyApply || $needsExtraFreeWeekProof)
                             <div>
                                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Explanation for the boss <span class="text-red-500">*</span></label>
                                 <textarea
                                     wire:model="referralProof"
                                     rows="3"
-                                    placeholder="Why this is being applied before the wait ends"
+                                    placeholder="{{ $needsExtraFreeWeekProof && ! $needsEarlyApply ? 'Why this extra free week is being given' : 'Why this is being applied before the wait ends' }}"
                                     class="w-full border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-red"
                                 ></textarea>
                                 @error('referralProof') <p class="text-xs text-red-600 mt-1">{{ $message }}</p> @enderror
@@ -303,7 +309,10 @@
                     </div>
                 @elseif($paymentKind === 'direct')
                     <div class="space-y-3">
-                        <p class="text-xs text-zinc-500">Staff direct free week. Search any customer. You must explain this to the boss. Thiago is emailed with who did it and why.</p>
+                        <p class="text-xs text-zinc-500">Staff direct free week. Search any customer. You must explain this to the boss. Unused programme points for the named person are marked redeemed. Thiago is emailed with the running free-week count.</p>
+                        @if($needsExtraFreeWeekProof)
+                            <p class="text-xs text-amber-800 dark:text-amber-200">This customer already has {{ $hirerFreeWeekCount }} applied free week{{ $hirerFreeWeekCount === 1 ? '' : 's' }}. This will be number {{ $hirerFreeWeekCount + 1 }}. Explain why.</p>
+                        @endif
                         <div>
                             <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Search any customer <span class="text-red-500">*</span></label>
                             <input
@@ -365,7 +374,7 @@
             <div class="flex gap-3 mt-5 justify-end">
                 <flux:button type="button" variant="ghost" wire:click="closePayModal">Cancel</flux:button>
                 <flux:button type="button" variant="primary" wire:click="markPaid">
-                    @if($paymentKind === 'referral' && $needsEarlyApply)
+                    @if($paymentKind === 'referral' && ($needsEarlyApply || $needsExtraFreeWeekProof))
                         Release early and apply
                     @elseif(in_array($paymentKind, ['referral', 'direct'], true))
                         Apply free week

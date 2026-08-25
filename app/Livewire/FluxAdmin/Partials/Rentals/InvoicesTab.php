@@ -209,12 +209,18 @@ class InvoicesTab extends Component
 
         $credit = $referral->credit();
         $needsEarlyApply = ! $credit?->isSpendable();
-        if ($needsEarlyApply) {
+        $needsExtraProof = $booking->customer_id
+            && app(RentingReferralService::class)->needsExtraFreeWeekProof((int) $booking->customer_id);
+        if ($needsEarlyApply || $needsExtraProof) {
             $this->validate([
                 'referralProof' => 'required|string|min:8',
             ], [
-                'referralProof.required' => 'Explain this early apply so the boss can check it.',
-                'referralProof.min' => 'Explain this early apply so the boss can check it.',
+                'referralProof.required' => $needsExtraProof && ! $needsEarlyApply
+                    ? 'This person already has a free week. Explain why this extra free week is being given so the boss can check it.'
+                    : 'Explain this early apply so the boss can check it.',
+                'referralProof.min' => $needsExtraProof && ! $needsEarlyApply
+                    ? 'This person already has a free week. Explain why this extra free week is being given so the boss can check it.'
+                    : 'Explain this early apply so the boss can check it.',
             ]);
         }
 
@@ -232,7 +238,8 @@ class InvoicesTab extends Component
                 $service->redeem(
                     $referral,
                     $invoice,
-                    $staffId ? (int) $staffId : null
+                    $staffId ? (int) $staffId : null,
+                    $this->referralProof
                 );
             }
             $this->closePayModal();
@@ -372,6 +379,8 @@ class InvoicesTab extends Component
         $referralService = app(RentingReferralService::class);
         $programmeReferrals = ($booking?->customer_id)
             ? $referralService->approvedUnusedReferrals((int) $booking->customer_id)
+                ->reject(fn (RentingReferral $row) => $referralService->coveringDirectAward($row))
+                ->values()
             : collect();
         $spendableReferrals = $programmeReferrals
             ->filter(fn (RentingReferral $row) => $row->credit()?->isSpendable())
@@ -422,6 +431,20 @@ class InvoicesTab extends Component
             $referrerEvidence = $referralService->lastPaidInvoiceHistoryForCustomer((int) $booking->customer_id);
         }
 
+        $payingInvoice = $this->payingInvoiceId
+            ? BookingInvoice::query()->where('booking_id', $this->bookingId)->whereKey($this->payingInvoiceId)->first()
+            : null;
+        $canApplyFreeWeek = false;
+        $freeWeekBlockReason = null;
+        if ($payingInvoice) {
+            try {
+                $referralService->assertInvoiceCanTakeFreeWeek($payingInvoice);
+                $canApplyFreeWeek = true;
+            } catch (\RuntimeException $e) {
+                $freeWeekBlockReason = $e->getMessage();
+            }
+        }
+
         return view('flux-admin.partials.rentals.invoices-tab', [
             'invoices' => $invoices,
             'totalUnpaid' => $totalUnpaid,
@@ -437,7 +460,15 @@ class InvoicesTab extends Component
                 : null,
             'needsEarlyApply' => $selectedProgrammeReferral
                 ? ! $selectedProgrammeReferral->credit()?->isSpendable()
-                : $spendableReferrals->isEmpty() && $programmeReferrals->isNotEmpty(),
+                : false,
+            'canApplyFreeWeek' => $canApplyFreeWeek,
+            'freeWeekBlockReason' => $freeWeekBlockReason,
+            'needsExtraFreeWeekProof' => $booking?->customer_id
+                ? $referralService->needsExtraFreeWeekProof((int) $booking->customer_id)
+                : false,
+            'hirerFreeWeekCount' => $booking?->customer_id
+                ? $referralService->appliedFreeWeekCountForCustomer((int) $booking->customer_id)
+                : 0,
         ]);
     }
 }

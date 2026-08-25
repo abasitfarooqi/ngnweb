@@ -9,6 +9,9 @@ return [
     /** Staff user IDs allowed full club admin (matches Backpack ClubMemberCrudController). */
     'full_club_admin_user_ids' => [65, 66, 93],
 
+    /** Flip on when the director panel is ready to show in menus. The URL still works. */
+    'director_panel_in_menu' => false,
+
     'entries' => [
         // Quick links (sidebar top)
         ['group' => 'Quick links', 'label' => 'Delivery enquiries', 'route' => 'flux-admin.delivery-enquiries.index', 'canany' => ['see-menu-vehicles', 'see-menu-commons']],
@@ -16,6 +19,7 @@ return [
         ['group' => 'Quick links', 'label' => 'Service enquiries', 'route' => 'flux-admin.service-bookings.index', 'permission' => 'see-menu-commons'],
         ['group' => 'Quick links', 'label' => 'Support inbox', 'route' => 'flux-admin.support-inbox.index', 'permission' => 'see-menu-commons', 'keywords' => 'chat conversations'],
 
+        ['group' => 'General', 'label' => 'Director panel', 'route' => 'flux-admin.director-command-centre.index', 'when' => 'director_panel_in_menu', 'keywords' => 'thiago boss investigate cash rentals club finance mot referral week month year'],
         ['group' => 'General', 'label' => 'Dashboard', 'route' => 'flux-admin.dashboard', 'keywords' => 'home grid overview'],
         ['group' => 'General', 'label' => 'Total NGN Vehicles', 'route' => 'flux-admin.total-vehicles.index', 'permission' => 'see-menu-commons', 'keywords' => 'fleet internal ngn vehicles'],
         ['group' => 'General', 'label' => 'Global search', 'route' => 'flux-admin.search', 'keywords' => 'find menu records'],
@@ -25,6 +29,8 @@ return [
         ['group' => 'Payment Plan', 'label' => 'Contract signature expire', 'route' => 'flux-admin.contract-access.index', 'permission' => 'see-menu-finance', 'keywords' => 'passcode signing link'],
 
         ['group' => 'Rentals', 'label' => 'Rentals home', 'route' => 'flux-admin.rental-operations.index', 'permission' => 'see-menu-rentals', 'keywords' => 'module hub'],
+        ['group' => 'Rentals', 'label' => 'Referral investigation', 'route' => 'flux-admin.rental-referral-investigation.index', 'when' => 'renting_referral_investigate', 'keywords' => 'director thiago free week cash programme direct chained'],
+        ['group' => 'Rentals', 'label' => 'Rentals referrals', 'route' => 'flux-admin.rental-referrals.index', 'permission' => 'see-menu-rentals', 'keywords' => 'programme chain staff direct'],
         ['group' => 'Rentals', 'label' => 'New booking', 'route' => 'flux-admin.new-booking.index', 'permission' => 'see-menu-rentals', 'keywords' => 'create booking wizard'],
         ['group' => 'Rentals', 'label' => 'Active bookings rental', 'route' => 'flux-admin.rentals.index', 'permission' => 'see-menu-rentals', 'keywords' => 'manage bookings'],
         ['group' => 'Rentals', 'label' => 'Inactive bookings', 'route' => 'flux-admin.inactive-bookings.index', 'permission' => 'see-menu-rentals', 'keywords' => 'ended closed'],

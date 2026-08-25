@@ -6,6 +6,7 @@
     'trend' => null,
     'trendUp' => null,
     'href' => null,
+    'hint' => null,
 ])
 
 @php
@@ -28,6 +29,10 @@
         <div class="flex-1 min-w-0">
             <p class="text-sm font-medium text-zinc-500 dark:text-zinc-400 truncate">{{ $label }}</p>
             <p class="mt-2 text-2xl font-bold text-zinc-900 dark:text-white">{{ $value }}</p>
+
+            @if($hint)
+                <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400 leading-snug">{{ $hint }}</p>
+            @endif
 
             @if($trend)
                 <p class="mt-1 text-xs font-medium {{ $trendUp ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">

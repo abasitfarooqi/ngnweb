@@ -9,6 +9,14 @@
 
 <p>{{ $intro }}</p>
 
+@if($event === 'redeemed' && ! empty($freeWeekOrdinal))
+<p><strong>Free week count (programme + direct combined)</strong></p>
+<ul>
+    <li>This is free week {{ $freeWeekOrdinal }} for this customer</li>
+    <li>Referral / points record: #{{ $consumedReferralId ?? $referral->id }}</li>
+</ul>
+@endif
+
 @if(! empty($proof))
 <p><strong>Staff explanation / proof</strong></p>
 <ul>

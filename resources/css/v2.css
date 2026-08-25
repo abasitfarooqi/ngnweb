@@ -360,7 +360,10 @@ body.flux-admin-app [data-flux-select-search] > .absolute.start-0 {
 }
 
 /* Dropdown panels */
-body.flux-admin-app [data-flux-options] {
+body.flux-admin-app [data-flux-options],
+body.flux-admin-app [data-flux-select-options],
+body.flux-admin-app ui-options,
+body.flux-admin-app [data-flux-menu] {
     border-radius: 0 !important;
     border-color: rgb(212 212 216) !important;
     background-color: rgb(255 255 255) !important;

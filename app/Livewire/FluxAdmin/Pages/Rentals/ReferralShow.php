@@ -38,6 +38,9 @@ class ReferralShow extends Component
     public function mount(RentingReferral $referral, RentingReferralService $service): void
     {
         $this->authorizeModule('see-menu-rentals');
+        if ($referral->referrer) {
+            $service->reconcileDirectAwardsAgainstProgramme($referral->referrer);
+        }
         $this->referral = $service->refreshOpenReferral($referral)->load([
             'referrer',
             'referred',
@@ -162,8 +165,16 @@ class ReferralShow extends Component
             'redeemInvoiceId' => 'required|integer|exists:booking_invoices,id',
         ]);
         $invoice = BookingInvoice::query()->findOrFail((int) $this->redeemInvoiceId);
+        if ($service->needsExtraFreeWeekProof((int) $this->referral->referrer_customer_id)) {
+            $this->validate([
+                'releaseReason' => 'required|string|min:8',
+            ], [
+                'releaseReason.required' => 'This person already has a free week. Explain why this extra free week is being given so the boss can check it.',
+                'releaseReason.min' => 'This person already has a free week. Explain why this extra free week is being given so the boss can check it.',
+            ]);
+        }
         try {
-            $service->redeem($this->referral, $invoice, $this->staffId());
+            $service->redeem($this->referral, $invoice, $this->staffId(), $this->releaseReason);
         } catch (\Throwable $e) {
             $this->addError('redeemInvoiceId', $e->getMessage());
 
@@ -173,6 +184,20 @@ class ReferralShow extends Component
         $this->redeemInvoiceId = null;
         $this->reload();
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Free week applied. This reward is now locked.');
+    }
+
+    public function markAlreadyRedeemed(RentingReferralService $service): void
+    {
+        $this->guardReview();
+        try {
+            $service->markAlreadyRedeemedByDirect($this->referral, $this->staffId());
+        } catch (\Throwable $e) {
+            $this->addError('reviewReason', $e->getMessage());
+
+            return;
+        }
+        $this->reload();
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Points marked redeemed against the existing direct free week. No second week was applied.');
     }
 
     public function render(RentingReferralService $service)
@@ -203,6 +228,14 @@ class ReferralShow extends Component
         $portalLogs = $this->referral->logs->where('action', '!=', 'NOTE');
         $notes = $this->referral->logs->where('action', 'NOTE');
 
+        $otherProgrammeReferrals = RentingReferral::query()
+            ->where('referrer_customer_id', $this->referral->referrer_customer_id)
+            ->where('id', '!=', $this->referral->id)
+            ->with(['referred', 'ledger'])
+            ->orderByDesc('id')
+            ->limit(20)
+            ->get();
+
         $referrerActiveBooking = ($this->referral->referrer && $this->referral->created_at)
             ? $service->activePostedBookingAt($this->referral->referrer, $this->referral->created_at)
             : null;
@@ -226,6 +259,15 @@ class ReferralShow extends Component
             'pendingPoints' => $service->pendingPoints((int) $this->referral->referrer_customer_id),
             'readyToApprove' => $service->readyToApprove($this->referral),
             'checkIsHealthy' => fn (string $key, bool $value) => $service->checkIsHealthy($key, $value),
+            'programmeAwards' => $service->awardsForReferral((int) $this->referral->id),
+            'directAwards' => $this->referral->referrer_customer_id
+                ? $service->directAwardsForCustomer((int) $this->referral->referrer_customer_id)
+                : collect(),
+            'otherProgrammeReferrals' => $otherProgrammeReferrals,
+            'needsExtraFreeWeekProof' => $this->referral->referrer_customer_id
+                ? $service->needsExtraFreeWeekProof((int) $this->referral->referrer_customer_id)
+                : false,
+            'coveringDirectAward' => $service->coveringDirectAward($this->referral),
         ]);
     }
 

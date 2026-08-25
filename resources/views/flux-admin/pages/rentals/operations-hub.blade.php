@@ -6,12 +6,11 @@
 
     @php
         $cards = [
-            
             ['New booking', 'Same-day intake wizard.', route('flux-admin.new-booking.index'), 'plus-circle'],
             ['Active bookings rental', 'Filters, outstanding balances, open booking detail.', route('flux-admin.rentals.index'), 'list-bullet'],
             ['Inactive bookings', 'Ended rentals (end date set on item).', route('flux-admin.inactive-bookings.index'), 'archive-box'],
             ['Inactive pendings payments', 'Ended with balances still outstanding (proceed-anyway).', route('flux-admin.ended-with-pendings.index'), 'exclamation-triangle'],
-            ['Rentals referrals', 'Investigate referrals, pending points and free-week rewards.', route('flux-admin.rental-referrals.index'), 'user-plus'],
+            ['Rentals referrals', 'Programme chain, staff direct free weeks, and applied reward transactions.', route('flux-admin.rental-referrals.index'), 'user-plus'],
             ['Weekly follow-up report', 'Monday–Saturday snapshot of invoice and rental history notes for the director.', route('flux-admin.rental-weekly-follow-up-report.index'), 'document-text'],
             ['All bookings', 'Historical bookings list.', route('flux-admin.all-bookings.index'), 'clock'],
             ['E-bike manager', 'Add and edit fleet e-bikes.', route('flux-admin.ebikes.index'), 'bolt'],
@@ -23,6 +22,12 @@
             ['Rental Due Whatsapp Reminders', 'Overdue invoices with WhatsApp reminders.', route('flux-admin.rental-due-payments.index'), 'chat-bubble-left-right'],
             ['Renting service videos', 'Upload and manage rental service videos.', route('flux-admin.service-videos.index'), 'video-camera'],
         ];
+        if (\App\Support\RentingReferralAccess::canInvestigate()) {
+            array_unshift($cards, ['Referral investigation', 'Director dashboard: programme chain, staff direct, cash given, warnings and full record filters.', route('flux-admin.rental-referral-investigation.index'), 'user-plus']);
+            if (config('flux-admin-menu.director_panel_in_menu')) {
+                array_unshift($cards, ['Director panel', 'Whole-business cash, rentals, club, finance, MOT and referrals for the week, month or year.', route('flux-admin.director-command-centre.index'), 'clipboard-document-check']);
+            }
+        }
     @endphp
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

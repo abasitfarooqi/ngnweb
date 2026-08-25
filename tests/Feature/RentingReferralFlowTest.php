@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Livewire\FluxAdmin\Pages\Rentals\ReferralIndex;
 use App\Models\BookingInvoice;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
@@ -12,10 +13,12 @@ use App\Models\RentingTransaction;
 use App\Models\TransactionType;
 use App\Models\User;
 use App\Services\Renting\RentingReferralService;
+use App\Support\RentingReferralAccess;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class RentingReferralFlowTest extends TestCase
@@ -51,6 +54,68 @@ class RentingReferralFlowTest extends TestCase
         $this->get('/rentals/refer/'.$referral->referral_code)
             ->assertOk()
             ->assertSessionHas('renting_referral_code', $referral->referral_code);
+    }
+
+    public function test_staff_index_stats_stay_the_same_on_every_tab(): void
+    {
+        $staff = User::query()->where('is_admin', 1)->orderBy('id')->first();
+        if (! $staff) {
+            $this->markTestSkipped('No admin user.');
+        }
+
+        $this->actingAs($staff);
+
+        $page = Livewire::test(ReferralIndex::class);
+
+        foreach (['programme', 'direct', 'all'] as $view) {
+            $page->call('setView', $view)
+                ->assertSee('Weeks given')
+                ->assertSee('£ given')
+                ->assertSee('Programme weeks')
+                ->assertSee('Direct weeks')
+                ->assertSee('Waiting for staff')
+                ->assertSee('Points ready')
+                ->assertSee('Points not ready')
+                ->assertSee('Need a look')
+                ->assertSee('These boxes stay the same')
+                ->assertDontSee('Direct applied')
+                ->assertDontSee('Redeemed value');
+        }
+    }
+
+    public function test_investigation_dashboard_is_visible_to_an_investigator(): void
+    {
+        $staff = User::query()->where('email', 'thiago@neguinhomotors.co.uk')->first();
+        if (! $staff) {
+            $staff = User::query()->where('is_admin', 1)->orderBy('id')->get()
+                ->first(fn (User $user) => RentingReferralAccess::canInvestigate($user));
+        }
+        if (! $staff) {
+            $this->markTestSkipped('No investigator user.');
+        }
+
+        $this->actingAs($staff);
+
+        $this->get(route('flux-admin.rental-referral-investigation.index'))
+            ->assertOk()
+            ->assertSee('Referral investigation');
+
+        Livewire::test(\App\Livewire\FluxAdmin\Pages\Rentals\ReferralInvestigation::class)
+            ->assertSee('Referral investigation')
+            ->assertSee('£ given')
+            ->assertSee('Staff direct')
+            ->call('setKind', 'direct')
+            ->assertSee('£ given')
+            ->call('setKind', 'programme')
+            ->assertSee('Programme chain');
+
+        $blocked = User::query()->where('is_admin', 1)->orderBy('id')->get()
+            ->first(fn (User $user) => ! RentingReferralAccess::canInvestigate($user));
+        if ($blocked) {
+            $this->actingAs($blocked)
+                ->get(route('flux-admin.rental-referral-investigation.index'))
+                ->assertForbidden();
+        }
     }
 
     public function test_ineligible_renter_cannot_refer(): void
@@ -155,6 +220,42 @@ class RentingReferralFlowTest extends TestCase
         $this->assertSame('already_attributed', $loser->fresh()->review_reason);
     }
 
+    public function test_redeemable_invoices_skip_paid_already_rewarded_and_future_weeks(): void
+    {
+        $referrer = $this->makeEligibleReferrer();
+        $bookingId = (int) \App\Models\RentingBooking::query()->where('customer_id', $referrer->id)->value('id');
+        $userId = (int) (User::query()->orderBy('id')->value('id') ?: 1);
+
+        $dueUnpaid = BookingInvoice::query()->create([
+            'booking_id' => $bookingId,
+            'user_id' => $userId,
+            'invoice_date' => now()->subDay()->toDateString(),
+            'amount' => 70,
+            'deposit' => 0,
+            'is_posted' => true,
+            'is_paid' => false,
+            'state' => 'Open',
+        ]);
+        $futureUnpaid = BookingInvoice::query()->create([
+            'booking_id' => $bookingId,
+            'user_id' => $userId,
+            'invoice_date' => now()->addWeek()->toDateString(),
+            'amount' => 70,
+            'deposit' => 0,
+            'is_posted' => true,
+            'is_paid' => false,
+            'state' => 'Open',
+        ]);
+
+        $ids = $this->service->redeemableInvoices($referrer)->pluck('id');
+
+        $this->assertTrue($ids->contains($dueUnpaid->id));
+        $this->assertFalse($ids->contains($futureUnpaid->id));
+
+        $this->expectException(\RuntimeException::class);
+        $this->service->assertInvoiceCanTakeFreeWeek($futureUnpaid);
+    }
+
     public function test_last_paid_invoice_history_lists_payment_fields_or_eligibility_message(): void
     {
         $withPaid = $this->makeEligibleReferrer();
@@ -180,6 +281,48 @@ class RentingReferralFlowTest extends TestCase
             \App\Models\RentingFreeWeekAward::ELIGIBILITY_FALLBACK,
             $missing['message']
         );
+    }
+
+    public function test_direct_free_week_redeems_unused_programme_points(): void
+    {
+        if (! Schema::hasTable('renting_free_week_awards') || ! Schema::hasTable('renting_transactions')) {
+            $this->markTestSkipped('Free week award tables are not migrated.');
+        }
+
+        $referrer = $this->makeEligibleReferrer();
+        $friendPhone = $this->uniqueMobile();
+        $referral = $this->service->create($referrer, [
+            'name' => 'Alex Friend',
+            'phone' => $friendPhone,
+        ]);
+        $friend = $this->makeCustomer('Alex', 'Friend', $friendPhone);
+        $referral->update([
+            'referred_customer_id' => $friend->id,
+            'status' => RentingReferral::STATUS_APPROVED,
+        ]);
+
+        RentingReferralPointLedger::query()->create([
+            'customer_id' => $referrer->id,
+            'referral_id' => $referral->id,
+            'direction' => RentingReferralPointLedger::DIRECTION_CREDIT,
+            'status' => RentingReferralPointLedger::STATUS_AVAILABLE,
+            'points' => 100,
+            'available_from' => now()->subDay(),
+        ]);
+
+        $unpaid = $this->makeUnpaidWeeklyInvoice($friend);
+        $staffId = (int) (User::query()->orderBy('id')->value('id') ?: 1);
+
+        $this->service->applyDirectFreeWeek($unpaid, $referrer, $staffId, 'testtesttest');
+
+        $credit = $referral->ledger()->where('direction', 'credit')->first();
+        $this->assertSame(RentingReferralPointLedger::STATUS_REDEEMED, $credit?->status);
+        $this->assertSame(0, $this->service->availablePoints((int) $referrer->id));
+        $this->assertSame(100, $this->service->portalRedeemedPoints((int) $referrer->id));
+        $this->assertSame(1, $this->service->appliedFreeWeekCountForCustomer((int) $referrer->id));
+
+        $this->expectException(\RuntimeException::class);
+        $this->service->applyDirectFreeWeek($this->makeUnpaidWeeklyInvoice($friend), $referrer, $staffId, 'secondweekok');
     }
 
     private function makeEligibleReferrer(): Customer
@@ -232,6 +375,31 @@ class RentingReferralFlowTest extends TestCase
         }
 
         return $invoice;
+    }
+
+    private function makeUnpaidWeeklyInvoice(Customer $customer): BookingInvoice
+    {
+        $userId = (int) (User::query()->orderBy('id')->value('id') ?: 1);
+
+        $booking = RentingBooking::query()->create([
+            'customer_id' => $customer->id,
+            'user_id' => $userId,
+            'start_date' => now()->subWeek(),
+            'state' => 'Active',
+            'is_posted' => true,
+            'deposit' => 0,
+        ]);
+
+        return BookingInvoice::query()->create([
+            'booking_id' => $booking->id,
+            'user_id' => $userId,
+            'invoice_date' => now()->toDateString(),
+            'amount' => 150,
+            'deposit' => 0,
+            'is_posted' => true,
+            'is_paid' => false,
+            'state' => 'Awaiting Payment',
+        ]);
     }
 
     private function makeCustomer(string $first, string $last, string $phone, ?string $email = null): Customer

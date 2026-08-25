@@ -110,6 +110,11 @@ class RentingReferral extends Model
         return $this->hasMany(RentingReferralPointLedger::class, 'referral_id');
     }
 
+    public function awards(): HasMany
+    {
+        return $this->hasMany(RentingFreeWeekAward::class, 'referral_id');
+    }
+
     public function credit(): ?RentingReferralPointLedger
     {
         return $this->ledger->firstWhere('direction', RentingReferralPointLedger::DIRECTION_CREDIT);
@@ -146,5 +151,65 @@ class RentingReferral extends Model
     public function hasWarning(): bool
     {
         return is_array($this->warnings) && $this->warnings !== [];
+    }
+
+    public function staffStatusLabel(): string
+    {
+        $credit = $this->relationLoaded('ledger') ? $this->credit() : $this->ledger()->where('direction', 'credit')->first();
+
+        if ($credit?->status === RentingReferralPointLedger::STATUS_REDEEMED) {
+            return 'Redeemed';
+        }
+
+        return match ($this->status) {
+            self::STATUS_APPROVED => $credit?->isSpendable() ? 'Ready' : 'Waiting',
+            self::STATUS_REVIEW => 'Review',
+            self::STATUS_REJECTED => 'Rejected',
+            self::STATUS_CANCELLED => 'Cancelled',
+            default => ucfirst((string) $this->status),
+        };
+    }
+
+    public function staffStatusTone(): string
+    {
+        return match ($this->staffStatusLabel()) {
+            'Redeemed', 'Ready' => 'green',
+            'Rejected', 'Cancelled' => 'red',
+            default => 'orange',
+        };
+    }
+
+    public function pointsStatusLabel(): string
+    {
+        $credit = $this->relationLoaded('ledger') ? $this->credit() : $this->ledger()->where('direction', 'credit')->first();
+        if (! $credit) {
+            return 'No points yet';
+        }
+
+        $points = (int) $credit->points;
+
+        return match ($credit->status) {
+            RentingReferralPointLedger::STATUS_REDEEMED => $points.' spent',
+            RentingReferralPointLedger::STATUS_PENDING => $points.' pending',
+            RentingReferralPointLedger::STATUS_AVAILABLE => $credit->isSpendable()
+                ? $points.' unused'
+                : $points.' waiting',
+            RentingReferralPointLedger::STATUS_REJECTED => $points.' refused',
+            RentingReferralPointLedger::STATUS_REVERSED => $points.' reversed',
+            default => $points.' '.$credit->status,
+        };
+    }
+
+    public function pointsStatusTone(): string
+    {
+        $credit = $this->relationLoaded('ledger') ? $this->credit() : $this->ledger()->where('direction', 'credit')->first();
+
+        return match ($credit?->status) {
+            RentingReferralPointLedger::STATUS_REDEEMED => 'green',
+            RentingReferralPointLedger::STATUS_AVAILABLE => $credit->isSpendable() ? 'green' : 'orange',
+            RentingReferralPointLedger::STATUS_REJECTED,
+            RentingReferralPointLedger::STATUS_REVERSED => 'red',
+            default => 'orange',
+        };
     }
 }

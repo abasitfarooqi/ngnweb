@@ -75,6 +75,15 @@ final class FluxAdminMenuRegistry
             return FluxAdminAccess::canAccessCommunications($user);
         }
 
+        if ($when === 'renting_referral_investigate') {
+            return RentingReferralAccess::canInvestigate($user);
+        }
+
+        if ($when === 'director_panel_in_menu') {
+            return (bool) config('flux-admin-menu.director_panel_in_menu')
+                && RentingReferralAccess::canInvestigate($user);
+        }
+
         if ($when === 'full_club_admin' || $when === 'super_admin' || ! empty($entry['super_admin'])) {
             return FluxAdminAccess::isSuperAdmin($user);
         }

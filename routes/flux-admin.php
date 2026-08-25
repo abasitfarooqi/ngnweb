@@ -152,6 +152,7 @@ use App\Livewire\FluxAdmin\Pages\Permissions\PermissionForm;
 use App\Livewire\FluxAdmin\Pages\Permissions\PermissionIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\ActiveBookingsSummary;
 use App\Livewire\FluxAdmin\Pages\Rentals\ActiveRentalsIndex;
+use App\Livewire\FluxAdmin\Pages\DirectorCommandCentrePage;
 use App\Livewire\FluxAdmin\Pages\Rentals\AdjustWeekdayIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\AllBookingsIndex;
 use App\Livewire\FluxAdmin\Pages\Rentals\BookingInvoiceDatesIndex;
@@ -166,6 +167,7 @@ use App\Livewire\FluxAdmin\Pages\Rentals\MotorbikePricingHub;
 use App\Livewire\FluxAdmin\Pages\Rentals\NewBookingWizard;
 use App\Livewire\FluxAdmin\Pages\Rentals\OperationsHub as RentalOperationsHub;
 use App\Livewire\FluxAdmin\Pages\Rentals\ReferralIndex as RentalReferralIndex;
+use App\Livewire\FluxAdmin\Pages\Rentals\ReferralInvestigation as RentalReferralInvestigation;
 use App\Livewire\FluxAdmin\Pages\Rentals\ReferralShow as RentalReferralShow;
 use App\Livewire\FluxAdmin\Pages\Rentals\WeeklyUpdateReport as RentalWeeklyUpdateReport;
 use App\Livewire\FluxAdmin\Pages\Rentals\RentalIndex;
@@ -628,7 +630,9 @@ Route::get('/support-messages/create', SupportMessageForm::class)->name('flux-ad
 Route::get('/support-messages/{supportMessage}/edit', SupportMessageForm::class)->name('flux-admin.support-messages.edit');
 
 // Phase 20 — Operational dashboards & tools
+Route::get('/director', DirectorCommandCentrePage::class)->name('flux-admin.director-command-centre.index');
 Route::get('/rental-operations', RentalOperationsHub::class)->name('flux-admin.rental-operations.index');
+Route::get('/rental-referral-investigation', RentalReferralInvestigation::class)->name('flux-admin.rental-referral-investigation.index');
 Route::get('/rental-referrals', RentalReferralIndex::class)->name('flux-admin.rental-referrals.index');
 Route::get('/rental-referrals/{referral}', RentalReferralShow::class)->name('flux-admin.rental-referrals.show');
 Route::get('/rental-weekly-follow-up-report', RentalWeeklyUpdateReport::class)->name('flux-admin.rental-weekly-follow-up-report.index');

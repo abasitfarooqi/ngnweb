@@ -38,6 +38,10 @@ final class FluxAdminPageAccess
             return false;
         }
 
+        if (! empty($requirement['renting_referral_investigate'])) {
+            return RentingReferralAccess::canInvestigate($user);
+        }
+
         if (! empty($requirement['role'])) {
             return FluxAdminAccess::userHasNamedRole($user, (string) $requirement['role']);
         }
@@ -163,6 +167,7 @@ final class FluxAdminPageAccess
             'search' => ['open' => true],
             'unread-badges' => ['open' => true],
             'logout' => ['open' => true],
+            'director-command-centre' => ['renting_referral_investigate' => true],
 
             'communications' => $sa,
             'users' => $sa,
@@ -199,6 +204,8 @@ final class FluxAdminPageAccess
             'backpack.application-item' => $p('see-menu-finance'),
             'backpack.contract-extra-item' => $p('see-menu-finance'),
 
+            'rental-referral-investigation' => ['renting_referral_investigate' => true],
+            'rental-weekly-follow-up-report' => ['renting_referral_investigate' => true],
             'rental-referrals' => $p('see-menu-rentals'),
             'rental-operations' => $p('see-menu-rentals'),
             'rental-due-payments' => $p('see-menu-rentals'),

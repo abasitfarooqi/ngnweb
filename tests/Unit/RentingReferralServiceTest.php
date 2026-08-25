@@ -74,4 +74,22 @@ class RentingReferralServiceTest extends TestCase
         $this->assertTrue($service->checkIsHealthy('duplicate', false));
         $this->assertFalse($service->checkIsHealthy('duplicate', true));
     }
+
+    public function test_only_thiago_and_super_admins_can_investigate(): void
+    {
+        $thiago = new \App\Models\User;
+        $thiago->forceFill(['email' => 'thiago@neguinhomotors.co.uk']);
+        $thiago->id = 1;
+        $this->assertTrue(\App\Support\RentingReferralAccess::canInvestigate($thiago));
+
+        $byStaffId = new \App\Models\User;
+        $byStaffId->forceFill(['email' => 'not-the-director@example.test']);
+        $byStaffId->id = 66;
+        $this->assertTrue(\App\Support\RentingReferralAccess::canInvestigate($byStaffId));
+
+        $other = new \App\Models\User;
+        $other->forceFill(['email' => 'front-desk@example.test']);
+        $other->id = 999001;
+        $this->assertFalse(\App\Support\RentingReferralAccess::canInvestigate($other));
+    }
 }

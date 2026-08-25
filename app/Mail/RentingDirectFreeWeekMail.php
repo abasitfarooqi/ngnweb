@@ -28,12 +28,18 @@ class RentingDirectFreeWeekMail extends Mailable
         public string $proof,
         public ?int $handledByUserId = null,
         public float $amount = 0,
+        public int $freeWeekOrdinal = 1,
+        public int $freeWeekTotal = 1,
+        public ?int $awardId = null,
+        public ?int $consumedReferralId = null,
     ) {}
 
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Staff direct free week on booking #'.$this->booking->id,
+            subject: $this->freeWeekOrdinal > 1
+                ? 'Staff direct free week '.$this->freeWeekOrdinal.' of '.$this->freeWeekTotal.' on booking #'.$this->booking->id
+                : 'Staff direct free week on booking #'.$this->booking->id,
             cc: ['customerservice@neguinhomotors.co.uk'],
         );
     }
@@ -57,6 +63,10 @@ class RentingDirectFreeWeekMail extends Mailable
                     'proof' => $this->proof,
                     'handler' => $handler,
                     'amount' => $this->amount,
+                    'freeWeekOrdinal' => $this->freeWeekOrdinal,
+                    'freeWeekTotal' => $this->freeWeekTotal,
+                    'awardId' => $this->awardId,
+                    'consumedReferralId' => $this->consumedReferralId,
                 ],
                 'Staff direct free week',
             ),

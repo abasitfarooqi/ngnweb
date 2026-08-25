@@ -46,6 +46,16 @@
             colour="pink"
             :href="route('flux-admin.club.index')"
         />
+        @if(config('flux-admin-menu.director_panel_in_menu') && \App\Support\RentingReferralAccess::canInvestigate())
+            <x-flux-admin::stat-card
+                label="Director panel"
+                value="Open"
+                icon="clipboard-document-check"
+                colour="indigo"
+                hint="Rentals, club, finance, MOT, referrals and cash for this week, month or year."
+                :href="route('flux-admin.director-command-centre.index')"
+            />
+        @endif
     </div>
 
     @include('flux-admin.partials.dashboard-legacy', ['legacy' => $legacy])

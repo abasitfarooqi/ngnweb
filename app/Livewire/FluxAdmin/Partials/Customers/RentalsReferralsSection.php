@@ -59,13 +59,14 @@ class RentalsReferralsSection extends Component
     public function render(RentingReferralService $service)
     {
         if (! Schema::hasTable('renting_referrals')) {
-            return view('flux-admin.partials.customers.rentals-referrals-section', [
-                'made' => collect(),
-                'received' => collect(),
-                'availablePoints' => 0,
-                'pendingPoints' => 0,
-                'eligible' => false,
-            ]);
+        return view('flux-admin.partials.customers.rentals-referrals-section', [
+            'made' => collect(),
+            'received' => collect(),
+            'directAwards' => collect(),
+            'availablePoints' => 0,
+            'pendingPoints' => 0,
+            'eligible' => false,
+        ]);
         }
 
         $made = RentingReferral::query()
@@ -85,6 +86,7 @@ class RentalsReferralsSection extends Component
         return view('flux-admin.partials.customers.rentals-referrals-section', [
             'made' => $made,
             'received' => $received,
+            'directAwards' => $service->directAwardsForCustomer((int) $this->customer->id),
             'availablePoints' => $service->availablePoints((int) $this->customer->id),
             'pendingPoints' => $service->pendingPoints((int) $this->customer->id),
             'eligible' => $service->referrerIsEligible($this->customer),

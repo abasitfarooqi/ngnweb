@@ -4,6 +4,13 @@
 <body>
 <p>A staff member applied a direct free week. This is a direct referral reward. No money was taken. A real rental referral reward transaction marked the invoice paid.</p>
 
+<p><strong>Free week count (programme + direct combined)</strong></p>
+<ul>
+    <li>This is free week {{ $freeWeekOrdinal }} of {{ $freeWeekTotal }} for this customer</li>
+    <li>Award ID: {{ $awardId ?? '—' }}</li>
+    <li>Programme points taken from referral: {{ $consumedReferralId ? '#'.$consumedReferralId : 'none unused — direct only' }}</li>
+</ul>
+
 <p><strong>Staff explanation / proof (required)</strong></p>Free week
 <ul>
     <li>{{ $proof }}</li>

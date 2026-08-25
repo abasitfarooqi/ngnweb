@@ -59,7 +59,7 @@ class Referrals extends Component
         }
 
         $eligible = Schema::hasTable('renting_referrals') && $service->referrerIsEligible($customer);
-        $rows = $eligible
+        $rows = Schema::hasTable('renting_referrals')
             ? RentingReferral::query()
                 ->where('referrer_customer_id', $customer->id)
                 ->with('ledger')
@@ -74,6 +74,8 @@ class Referrals extends Component
             'rows' => $rows,
             'availablePoints' => $service->availablePoints((int) $customer->id),
             'pendingPoints' => $service->pendingPoints((int) $customer->id),
+            'redeemedPoints' => $service->portalRedeemedPoints((int) $customer->id),
+            'redeemedFreeWeeks' => $service->appliedFreeWeekCountForCustomer((int) $customer->id),
             'pointsPerWeek' => RentingReferralSettings::pointsPerQualifiedReferral(),
             'shareUrl' => $share?->shareUrl(),
             'shareCode' => $share?->referral_code,

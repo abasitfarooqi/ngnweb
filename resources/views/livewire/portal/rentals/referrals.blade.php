@@ -10,12 +10,12 @@
         </flux:callout>
     @endif
 
-    @if(! $eligible)
+    @if(! $eligible && $redeemedFreeWeeks < 1)
         <flux:card class="p-6">
             <p class="text-sm text-gray-600 dark:text-gray-400">You can refer a friend after you have paid one weekly rental invoice.</p>
         </flux:card>
     @else
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <flux:card class="p-5">
                 <p class="text-xs uppercase tracking-wide text-gray-500">Available points</p>
                 <p class="mt-1 text-2xl font-semibold">{{ $availablePoints }}</p>
@@ -25,34 +25,45 @@
                 <p class="mt-1 text-2xl font-semibold">{{ $pendingPoints }}</p>
             </flux:card>
             <flux:card class="p-5">
+                <p class="text-xs uppercase tracking-wide text-gray-500">Redeemed</p>
+                <p class="mt-1 text-2xl font-semibold">{{ $redeemedPoints }}</p>
+                <p class="mt-1 text-xs text-gray-500">{{ $redeemedFreeWeeks }} free week{{ $redeemedFreeWeeks === 1 ? '' : 's' }} applied</p>
+            </flux:card>
+            <flux:card class="p-5">
                 <p class="text-xs uppercase tracking-wide text-gray-500">Reward</p>
                 <p class="mt-1 text-sm">{{ $pointsPerWeek }} points = 1 free week at your weekly rent when applied.</p>
             </flux:card>
         </div>
 
-        @if($shareCode)
-            <flux:card class="p-5">
-                <p class="text-sm font-medium">Your latest code</p>
-                <p class="mt-1 font-mono text-lg">{{ $shareCode }}</p>
-                <p class="mt-1 text-sm break-all">{{ $shareUrl }}</p>
-            </flux:card>
+        @if(! $eligible)
+            <p class="text-sm text-gray-600 dark:text-gray-400">A free week has already been applied on your hire. You can refer a friend after you have paid one weekly rental invoice.</p>
         @endif
 
-        <flux:card class="p-5 space-y-3">
-            <p class="text-sm font-medium">Refer someone</p>
-            <flux:input wire:model="name" placeholder="Their name" class="!rounded-none" />
-            @error('name') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-            <flux:input wire:model="phone" placeholder="UK mobile starting 07" class="!rounded-none" />
-            @error('phone') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-            <flux:input wire:model="email" placeholder="Email (optional)" class="!rounded-none" />
-            @error('email') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-            <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
-                <input type="checkbox" wire:model="acceptTerms" class="mt-1">
-                <span>I confirm I have permission to share this person’s details, and I have read and accept the rental referral terms below.</span>
-            </label>
-            @error('acceptTerms') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
-            <flux:button variant="primary" wire:click="submit" class="!rounded-none bg-brand-red text-white">Send referral</flux:button>
-        </flux:card>
+        @if($eligible)
+            @if($shareCode)
+                <flux:card class="p-5">
+                    <p class="text-sm font-medium">Your latest code</p>
+                    <p class="mt-1 font-mono text-lg">{{ $shareCode }}</p>
+                    <p class="mt-1 text-sm break-all">{{ $shareUrl }}</p>
+                </flux:card>
+            @endif
+
+            <flux:card class="p-5 space-y-3">
+                <p class="text-sm font-medium">Refer someone</p>
+                <flux:input wire:model="name" placeholder="Their name" class="!rounded-none" />
+                @error('name') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                <flux:input wire:model="phone" placeholder="UK mobile starting 07" class="!rounded-none" />
+                @error('phone') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                <flux:input wire:model="email" placeholder="Email (optional)" class="!rounded-none" />
+                @error('email') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                <label class="flex items-start gap-2 text-sm text-gray-700 dark:text-gray-300">
+                    <input type="checkbox" wire:model="acceptTerms" class="mt-1">
+                    <span>I confirm I have permission to share this person’s details, and I have read and accept the rental referral terms below.</span>
+                </label>
+                @error('acceptTerms') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                <flux:button variant="primary" wire:click="submit" class="!rounded-none bg-brand-red text-white">Send referral</flux:button>
+            </flux:card>
+        @endif
 
         <div class="space-y-3">
             <h2 class="text-sm font-semibold">Your referrals</h2>
@@ -95,7 +106,7 @@
 
         <h3 class="font-semibold text-zinc-900 dark:text-white">4. The reward</h3>
         <ul class="list-disc pl-5 space-y-1">
-            <li>{{ $pointsPerWeek }} points equal one free weekly rental charge on <strong>your</strong> unpaid weekly invoice, at the weekly rent then due. It is not cash and has no cash value.</li>
+            <li>{{ $pointsPerWeek }} points equal one free weekly rental charge on <strong>your</strong> unpaid weekly invoice, at the weekly rent then due. It is not cash and has no cash value. Staff direct free weeks count in the same running total.</li>
             <li>The reward is applied only to the referrer’s hire. It cannot pay the friend’s invoice, a deposit, other charges, PCNs, damage, recovery or arrears.</li>
             <li>One accepted referral = one free week, used once only. It cannot be split, transferred, sold or used on more than one invoice.</li>
             <li>Staff apply the free week. A real “rental referral reward” transaction marks that invoice paid. No money is taken for that week.</li>

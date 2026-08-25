@@ -192,6 +192,24 @@
         html.dark body.flux-admin-app .flux-admin-panel {
             background-color: rgb(24 24 27);
         }
+        {{-- style.css reset paints a { color:#161616 } and header/div padding:0, which made chase-report titles unreadable. --}}
+        body.flux-admin-app .flux-admin-on-dark,
+        body.flux-admin-app .flux-admin-on-dark a,
+        body.flux-admin-app .flux-admin-on-dark a:hover,
+        body.flux-admin-app .flux-admin-on-dark a:focus {
+            color: #fff;
+        }
+        body.flux-admin-app .flux-admin-chase-head {
+            padding: 1.25rem;
+            color: #fff;
+        }
+        body.flux-admin-app .flux-admin-chase-head.bg-red-800 { background-color: rgb(153 27 27) !important; }
+        body.flux-admin-app .flux-admin-chase-head.bg-zinc-800 { background-color: rgb(39 39 42) !important; }
+        body.flux-admin-app .flux-admin-chase-head.bg-sky-800 { background-color: rgb(7 89 133) !important; }
+        body.flux-admin-app .flux-admin-chase-head.bg-indigo-800 { background-color: rgb(55 48 163) !important; }
+        body.flux-admin-app .flux-admin-chase-body {
+            padding: 1.25rem;
+        }
         body.flux-admin-app .flux-admin-autocomplete {
             position: relative;
             z-index: 40;
@@ -297,6 +315,7 @@
         body.flux-admin-app [popover],
         body.flux-admin-app :popover-open {
             z-index: 10060 !important;
+            border-radius: 0 !important;
         }
         {{-- Flux Pro `navlist.group expandable` uses Tailwind v4 `data-open:*` / `group-data-open/*` variants, which Tailwind v3 (this project) does not compile. Flux JS propagates `data-open` onto <ui-disclosure>, the trigger button, and the panel div on toggle (flux.js L7194-7196); hook directly on those so clicks actually open/close. --}}
         [data-flux-navlist-group][data-open] > div.hidden,
@@ -1050,6 +1069,9 @@
         @else
         <flux:navlist id="flux-admin-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
             <flux:navlist.item href="{{ route('flux-admin.dashboard') }}" icon="home" :current="request()->routeIs('flux-admin.dashboard*')">Dashboard</flux:navlist.item>
+            @if(config('flux-admin-menu.director_panel_in_menu') && \App\Support\RentingReferralAccess::canInvestigate())
+                <flux:navlist.item href="{{ route('flux-admin.director-command-centre.index') }}" icon="clipboard-document-check" :current="request()->routeIs('flux-admin.director-command-centre.*')">Director panel</flux:navlist.item>
+            @endif
          
             {{-- 1. Payment Plan --}}
             @can('see-menu-finance')
