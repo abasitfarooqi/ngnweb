@@ -3,7 +3,7 @@
 namespace App\Livewire\FluxAdmin\Pages\Motorbikes;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
-use App\Models\MotorbikeRepairServicesList;
+use App\Models\MotorbikeRepair;
 use App\Models\MotorbikeRepairUpdate;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -15,71 +15,70 @@ class RepairUpdateForm extends Component
 {
     use WithAuthorization;
 
-    public ?MotorbikeRepairUpdate $motorbikeRepairUpdate = null;
+    public string $repairSearch = '';
 
-    public array $form = [];
+    public array $repairSuggestions = [];
 
     public function mount(?MotorbikeRepairUpdate $motorbikeRepairUpdate = null): void
     {
-        $this->resetErrorBag();
-        $this->authorizeModule('see-menu-commons');
-        $this->motorbikeRepairUpdate = $motorbikeRepairUpdate;
+        $this->authorizeModule('see-menu-services-and-repairs-and-report');
 
-        if ($motorbikeRepairUpdate && $motorbikeRepairUpdate->exists) {
-            $this->form = $motorbikeRepairUpdate->getAttributes();
-            $this->form['services'] = $motorbikeRepairUpdate->services
-                ->pluck('id')
-                ->map(fn ($id) => (string) $id)
-                ->all();
-        } else {
-            $this->form = [
-                'price' => 0,
-                'services' => [],
-            ];
+        if ($motorbikeRepairUpdate && $motorbikeRepairUpdate->exists && $motorbikeRepairUpdate->motorbike_repair_id) {
+            $this->redirectToRepair((int) $motorbikeRepairUpdate->motorbike_repair_id);
+
+            return;
+        }
+
+        $repairId = (int) request('repair', request('motorbike_repair_id', 0));
+        if ($repairId > 0 && MotorbikeRepair::query()->whereKey($repairId)->exists()) {
+            $this->redirectToRepair($repairId);
         }
     }
 
-    public function save(): void
+    public function updatingRepairSearch(): void
     {
-        $this->validate([
-            'form.motorbike_repair_id' => ['required', 'integer'],
-            'form.job_description' => ['required', 'string'],
-            'form.price' => ['required', 'numeric', 'min:0'],
-            'form.note' => ['nullable', 'string'],
-            'form.services' => ['array'],
-            'form.services.*' => ['integer', 'exists:motorbike_repair_services_lists,id'],
-        ]);
+        $term = trim($this->repairSearch);
+        if ($term === '') {
+            $this->repairSuggestions = [];
 
-        $payload = collect($this->form)->only([
-            'motorbike_repair_id', 'job_description', 'price', 'note',
-        ])->all();
-
-        if ($this->motorbikeRepairUpdate && $this->motorbikeRepairUpdate->exists) {
-            $this->motorbikeRepairUpdate->update($payload);
-            $model = $this->motorbikeRepairUpdate;
-            $message = 'Repair update saved.';
-        } else {
-            $model = MotorbikeRepairUpdate::create($payload);
-            $message = 'Repair update created.';
+            return;
         }
 
-        $ids = collect($this->form['services'] ?? [])
-            ->map(fn ($id) => (int) $id)
-            ->filter(fn ($id) => $id > 0)
-            ->unique()
-            ->values()
+        $this->repairSuggestions = MotorbikeRepair::query()
+            ->with('motorbike:id,reg_no')
+            ->where(function ($query) use ($term): void {
+                $query->where('fullname', 'like', "%{$term}%")
+                    ->orWhere('phone', 'like', "%{$term}%")
+                    ->orWhereHas('motorbike', fn ($bike) => $bike->where('reg_no', 'like', "%{$term}%"));
+                if (ctype_digit($term)) {
+                    $query->orWhere('motorbikes_repair.id', (int) $term)
+                        ->orWhere('motorbike_id', (int) $term);
+                }
+            })
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get(['id', 'motorbike_id', 'fullname'])
+            ->map(fn (MotorbikeRepair $repair) => [
+                'id' => $repair->id,
+                'label' => 'Repair #'.$repair->id
+                    .' · '.($repair->motorbike?->reg_no ?: 'no reg')
+                    .' · '.($repair->fullname ?: 'no name'),
+            ])
             ->all();
+    }
 
-        $model->services()->sync($ids);
-
-        $this->dispatch('flux-admin:toast', type: 'success', message: $message);
-        $this->redirect(route('flux-admin.motorbike-repair-updates.index'), navigate: true);
+    public function openRepair(int $id): void
+    {
+        $this->redirectToRepair($id);
     }
 
     public function render()
     {
-        $services = MotorbikeRepairServicesList::query()->orderBy('name')->get(['id', 'name', 'price']);
+        return view('flux-admin.pages.motorbikes.repair-update-form');
+    }
 
-        return view('flux-admin.pages.motorbikes.repair-update-form', compact('services'));
+    private function redirectToRepair(int $id): void
+    {
+        $this->redirect(route('flux-admin.motorbike-repairs.edit', $id), navigate: true);
     }
 }

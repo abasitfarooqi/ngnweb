@@ -34,8 +34,18 @@ class RepairUpdateIndex extends Component
     public function render()
     {
         $rows = MotorbikeRepairUpdate::query()
-            ->with('services:id,name')
-            ->when($this->search, fn ($q, $v) => $q->where(fn ($q) => $q->where('job_description', 'like', "%{$v}%")->orWhere('motorbike_repair_id', $v)))
+            ->with(['services:id,name', 'motorbikeRepair.motorbike:id,reg_no'])
+            ->when($this->search, function ($q, $v): void {
+                $q->where(function ($q) use ($v): void {
+                    $q->where('job_description', 'like', "%{$v}%")
+                        ->orWhere('note', 'like', "%{$v}%")
+                        ->orWhere('motorbike_repair_id', $v)
+                        ->orWhereHas('motorbikeRepair', function ($repair) use ($v): void {
+                            $repair->where('fullname', 'like', "%{$v}%")
+                                ->orWhereHas('motorbike', fn ($bike) => $bike->where('reg_no', 'like', "%{$v}%"));
+                        });
+                });
+            })
             ->when($this->filter('motorbike_repair_id'), fn ($q, $v) => $q->where('motorbike_repair_id', $v))
             ->orderByDesc('id')
             ->paginate($this->perPage);

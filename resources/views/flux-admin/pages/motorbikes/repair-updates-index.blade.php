@@ -1,12 +1,12 @@
 <div>
-    <x-flux-admin::data-table title="Repair updates" description="Individual jobs/line items attached to motorbike repairs.">
+        <x-flux-admin::data-table title="Repair updates" description="Job lines on each repair. Open a repair to add or edit them.">
         <x-slot:actions>
             <a href="{{ route('flux-admin.motorbike-repair-updates.create') }}" wire:navigate>
                 <flux:button size="sm" variant="primary" icon="plus" class="!rounded-none">New update</flux:button>
             </a>
         </x-slot:actions>
         <x-slot:toolbar>
-            <x-flux-admin::filter-bar search-placeholder="Search description or repair ID…">
+            <x-flux-admin::filter-bar search-placeholder="Search job, note, customer, registration or repair ID…">
                 <div class="min-w-0 w-full sm:min-w-[10rem] sm:flex-1 lg:w-40 lg:flex-none">
                     <flux:input type="number" wire:model.live.debounce.500ms="filters.motorbike_repair_id" placeholder="Repair ID" />
                 </div>
@@ -24,7 +24,14 @@
             <flux:table.rows>
                 @forelse($rows as $r)
                     <flux:table.row wire:key="mru-{{ $r->id }}">
-                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">#{{ $r->motorbike_repair_id }}</flux:table.cell>
+                        <flux:table.cell class="text-zinc-600 dark:text-zinc-400">
+                            <a href="{{ route('flux-admin.motorbike-repairs.edit', $r->motorbike_repair_id) }}" class="hover:underline" wire:navigate>
+                                #{{ $r->motorbike_repair_id }}
+                                @if($r->motorbikeRepair?->motorbike?->reg_no)
+                                    · {{ $r->motorbikeRepair->motorbike->reg_no }}
+                                @endif
+                            </a>
+                        </flux:table.cell>
                         <flux:table.cell class="text-zinc-900 dark:text-white max-w-md truncate">{{ $r->job_description }}</flux:table.cell>
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 max-w-xs">
                             {{ $r->services->pluck('name')->join(', ') ?: '—' }}
@@ -33,8 +40,8 @@
                         <flux:table.cell class="text-zinc-600 dark:text-zinc-400 max-w-sm truncate">{{ $r->note ?: '—' }}</flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
-                                <a href="{{ route('flux-admin.motorbike-repair-updates.edit', $r) }}" wire:navigate>
-                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit</flux:button>
+                                <a href="{{ route('flux-admin.motorbike-repairs.edit', $r->motorbike_repair_id) }}" wire:navigate>
+                                    <flux:button size="xs" variant="ghost" icon="pencil-square" class="!rounded-none">Edit on repair</flux:button>
                                 </a>
                                 <flux:button size="xs" variant="danger" wire:click="delete({{ $r->id }})" wire:confirm="Delete this update?" icon="trash" class="!rounded-none">Delete</flux:button>
                             </div>
