@@ -11,7 +11,7 @@ return [
     | via the same can() stack). Super-admins always see everything.
     |
     | - permission: required ability name; omit / null = visible to all admins
-    | - hidden: true = never appear in global search (direct URL may still work)
+    | - hidden: true = never appear in global search (sidebar Menu may still list it)
     |
     */
 

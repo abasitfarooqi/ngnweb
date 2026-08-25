@@ -56,17 +56,17 @@ class RentalAgreementNgn extends Mailable
 
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf1']->output(),
-                'rental-agreement-pcn-1.pdf'
+                'rental-agreement-1.pdf'
             )->withMime('application/pdf');
 
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf2']->output(),
-                'rental-agreement-pcn-2.pdf'
+                'rental-agreement-2.pdf'
             )->withMime('application/pdf');
 
             $attachments[] = Attachment::fromData(
                 fn () => $this->mailData['pdf3']->output(),
-                'rental-agreement-pcn-3.pdf'
+                'rental-agreement-3.pdf'
             )->withMime('application/pdf');
 
         } elseif (isset($this->mailData['pdf']) && method_exists($this->mailData['pdf'], 'output')) {

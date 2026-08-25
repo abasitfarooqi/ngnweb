@@ -12,12 +12,15 @@ use App\Models\BookingInvoice;
 use App\Models\Customer;
 use App\Models\PaymentMethod;
 use App\Models\RentingBooking;
+use App\Models\RentingFreeWeekAward;
 use App\Models\RentingReferral;
 use App\Models\RentingReferralLog;
 use App\Models\RentingReferralPointLedger;
 use App\Models\RentingTransaction;
 use App\Models\TransactionType;
 use App\Support\FluxAdminAccess;
+use App\Support\RentalBookingLifecycle;
+use App\Support\RentalInvoiceTabData;
 use App\Support\RentingReferralAccess;
 use App\Support\RentingReferralIdentity;
 use App\Support\RentingReferralSettings;
@@ -536,6 +539,23 @@ class RentingReferralService
                 'proof' => $proof !== '' ? $proof : null,
             ], $userId);
 
+            $hirer = Customer::query()->find($booking->customer_id);
+            $referrer = $locked->referrer ?: Customer::query()->find($locked->referrer_customer_id);
+            if ($hirer && $referrer) {
+                $this->recordFreeWeekAward(
+                    RentingFreeWeekAward::SOURCE_PROGRAMME,
+                    $invoice,
+                    $booking,
+                    $transaction,
+                    $remaining,
+                    $hirer,
+                    $referrer,
+                    $userId,
+                    $locked,
+                    $proof !== '' ? $proof : null,
+                );
+            }
+
             return [
                 'referral' => $locked->fresh(['referrer', 'referred', 'ledger', 'referrerQualifyingBooking', 'referredQualifyingBooking', 'referredQualifyingInvoice']),
                 'invoice' => $invoice->fresh(),
@@ -554,6 +574,14 @@ class RentingReferralService
             $result['transaction'],
             $result['amount'],
             $proof !== '' ? $proof : null
+        );
+
+        $this->sendFreeWeekPaymentReceipt(
+            $result['booking'],
+            $result['invoice'],
+            $result['transaction'],
+            (float) $result['amount'],
+            true
         );
 
         return $result['referral'];
@@ -614,6 +642,20 @@ class RentingReferralService
                 'notes' => trim(((string) ($invoice->notes ?? ''))."\nStaff direct free week — customer #{$selectedCustomer->id}"),
             ]);
 
+            $hirer = Customer::query()->find($booking->customer_id) ?: $selectedCustomer;
+            $this->recordFreeWeekAward(
+                RentingFreeWeekAward::SOURCE_DIRECT,
+                $invoice,
+                $booking,
+                $transaction,
+                $remaining,
+                $hirer,
+                $selectedCustomer,
+                $userId,
+                null,
+                $proof,
+            );
+
             return [
                 'invoice' => $invoice->fresh(),
                 'booking' => $booking->fresh(),
@@ -635,7 +677,130 @@ class RentingReferralService
             $result['amount']
         )));
 
+        $this->sendFreeWeekPaymentReceipt(
+            $result['booking'],
+            $result['invoice'],
+            $result['transaction'],
+            (float) $result['amount'],
+            false
+        );
+
         return $result['transaction'];
+    }
+
+    /**
+     * Last posted booking for this customer that has a paid weekly invoice, with payment-history fields.
+     *
+     * @return array{booking_id: int|null, invoices: list<array<string, mixed>>, missing: bool, message: string|null}
+     */
+    public function lastPaidInvoiceHistoryForCustomer(int $customerId): array
+    {
+        $empty = [
+            'booking_id' => null,
+            'invoices' => [],
+            'missing' => true,
+            'message' => RentingFreeWeekAward::ELIGIBILITY_FALLBACK,
+        ];
+
+        if ($customerId < 1) {
+            return $empty;
+        }
+
+        $bookingIds = RentingBooking::query()
+            ->where('customer_id', $customerId)
+            ->where('is_posted', true)
+            ->orderByDesc('start_date')
+            ->orderByDesc('id')
+            ->pluck('id');
+
+        foreach ($bookingIds as $bookingId) {
+            $paid = RentalInvoiceTabData::rows((int) $bookingId)
+                ->filter(fn ($row) => (bool) $row->is_paid)
+                ->values();
+
+            if ($paid->isEmpty()) {
+                continue;
+            }
+
+            return [
+                'booking_id' => (int) $bookingId,
+                'invoices' => $paid->map(fn ($row) => $this->snapshotPaidInvoiceRow($row, (int) $bookingId))->all(),
+                'missing' => false,
+                'message' => null,
+            ];
+        }
+
+        return $empty;
+    }
+
+    /**
+     * @param  object{
+     *     id: mixed,
+     *     transaction_no: mixed,
+     *     invoice_date: mixed,
+     *     amount: mixed,
+     *     total_paid_amount: mixed,
+     *     paid_date: mixed,
+     *     state: mixed,
+     *     deposit: mixed,
+     *     received_by: mixed,
+     *     transaction_datetime: mixed
+     * }  $row
+     * @return array<string, mixed>
+     */
+    private function snapshotPaidInvoiceRow(object $row, int $bookingId): array
+    {
+        return [
+            'booking_id' => $bookingId,
+            'invoice_id' => (int) $row->id,
+            'transaction_no' => $row->transaction_no,
+            'invoice_date' => $row->invoice_date,
+            'invoice_amount' => (float) $row->amount,
+            'paid_amount' => (float) $row->total_paid_amount,
+            'paid_date' => $row->paid_date,
+            'invoice_state' => $row->state,
+            'deposit' => (float) $row->deposit,
+            'received_by' => $row->received_by,
+            'posting_time' => $row->transaction_datetime,
+        ];
+    }
+
+    private function recordFreeWeekAward(
+        string $source,
+        BookingInvoice $invoice,
+        RentingBooking $booking,
+        RentingTransaction $transaction,
+        float $amount,
+        Customer $hirer,
+        Customer $selectedReferrer,
+        ?int $userId,
+        ?RentingReferral $referral,
+        ?string $proof,
+    ): void {
+        if (! Schema::hasTable('renting_free_week_awards')) {
+            return;
+        }
+
+        $history = $this->lastPaidInvoiceHistoryForCustomer((int) $selectedReferrer->id);
+        $proof = trim((string) $proof);
+
+        RentingFreeWeekAward::query()->updateOrCreate(
+            ['awarded_invoice_id' => $invoice->id],
+            [
+                'source' => $source,
+                'referral_id' => $referral?->id,
+                'awarded_booking_id' => $booking->id,
+                'awarded_transaction_id' => $transaction->id,
+                'amount' => $amount,
+                'hirer_customer_id' => $hirer->id,
+                'selected_referrer_customer_id' => $selectedReferrer->id,
+                'selected_referrer_booking_id' => $history['booking_id'],
+                'selected_paid_invoices' => $history['invoices'],
+                'eligibility_note' => $history['missing'] ? RentingFreeWeekAward::ELIGIBILITY_FALLBACK : null,
+                'staff_proof' => $proof !== '' ? $proof : null,
+                'applied_by' => $userId,
+            ]
+        );
     }
 
     public function invoiceHasReferralRedemption(int $invoiceId): bool
@@ -655,6 +820,34 @@ class RentingReferralService
             ->where('invoice_id', $invoiceId)
             ->where('transaction_type_id', $this->rewardTransactionTypeId())
             ->exists();
+    }
+
+    public function awardsForBooking(int $bookingId): Collection
+    {
+        if (! Schema::hasTable('renting_free_week_awards')) {
+            return collect();
+        }
+
+        return RentingFreeWeekAward::query()
+            ->with(['selectedReferrer', 'hirer', 'referral', 'appliedBy'])
+            ->where('awarded_booking_id', $bookingId)
+            ->orderByDesc('id')
+            ->get();
+    }
+
+    /** @return array<string, mixed>|null */
+    public function awardSnapshotForInvoice(int $invoiceId): ?array
+    {
+        if (! Schema::hasTable('renting_free_week_awards')) {
+            return null;
+        }
+
+        $award = RentingFreeWeekAward::query()
+            ->with(['selectedReferrer', 'hirer', 'referral', 'appliedBy', 'selectedReferrerBooking'])
+            ->where('awarded_invoice_id', $invoiceId)
+            ->first();
+
+        return $award?->toArray();
     }
 
     /** @return array<string, bool|string|null> */
@@ -1523,6 +1716,35 @@ class RentingReferralService
             $amount,
             $proof
         )));
+    }
+
+    private function sendFreeWeekPaymentReceipt(
+        RentingBooking $booking,
+        BookingInvoice $invoice,
+        RentingTransaction $transaction,
+        float $amount,
+        bool $fromProgramme
+    ): void {
+        $methodId = (int) ($transaction->payment_method_id ?? 0);
+        if ($methodId < 1) {
+            return;
+        }
+
+        $note = $fromProgramme
+            ? 'Applied! This user has redeemed a free week on this invoice through the rental referral programme.'
+            : 'Applied! This user has redeemed a free week on this invoice through the rental referral programme (direct).';
+
+        app(RentalBookingLifecycle::class)->sendPaidInvoiceReceipt(
+            (int) $booking->id,
+            $invoice,
+            $transaction,
+            $methodId,
+            $amount,
+            0.0,
+            'Paid in full',
+            'We have received your payment and this invoice is now marked as paid in full.',
+            $note
+        );
     }
 
     private function safeMail(callable $send): void

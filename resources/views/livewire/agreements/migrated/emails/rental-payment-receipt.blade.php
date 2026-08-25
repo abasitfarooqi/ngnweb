@@ -188,6 +188,12 @@
                         <td>{{ $notesText }}</td>
                     </tr>
                 @endif
+                @if(! empty($free_week_note))
+                    <tr>
+                        <td class="label">Free week</td>
+                        <td><strong>{{ $free_week_note }}</strong></td>
+                    </tr>
+                @endif
             </table>
         </div>
 

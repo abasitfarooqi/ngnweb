@@ -31,6 +31,11 @@ final class FluxAdminMenuShortcuts
         $hits = [];
 
         foreach (self::items() as $item) {
+            $route = $item['route'] ?? null;
+            if (is_string($route) && $route !== '' && ! FluxAdminSearchGate::allowsMenuRoute($route)) {
+                continue;
+            }
+
             $score = FluxAdminMenuRegistry::matchScore($term, $item);
 
             if ($score <= 0) {

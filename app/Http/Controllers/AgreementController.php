@@ -859,7 +859,7 @@ class AgreementController extends Controller
 
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-'.($index + 1).'-'.$tm.$rand_no.'.pdf';
             $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'], // Carbon instance
                 'SIGFILE' => $fileName,
@@ -1365,7 +1365,7 @@ class AgreementController extends Controller
 
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-'.($index + 1).'-'.$tm.$rand_no.'.pdf';
             $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
@@ -1558,7 +1558,7 @@ class AgreementController extends Controller
 
         $less_terms_pdf_data = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-'.($index + 1).'-'.$tm.$rand_no.'.pdf';
             $less_terms_pdf = $this->pdfLoadView($less_terms_pdf_name, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
@@ -2291,7 +2291,7 @@ class AgreementController extends Controller
 
         $lessTermsPdfs = [];
         foreach ($contractDates as $index => $dates) {
-            $pdfFileName = '/sale-contract-ins-latest-less-terms-'.$index.'-'.$tm.$rand_no.'.pdf';
+            $pdfFileName = '/sale-contract-'.($index + 1).'-'.$tm.$rand_no.'.pdf';
             $lessTermsPdfs[] = $this->pdfLoadView($lessTermsPdfName, [
                 'today' => $dates['start'],
                 'SIGFILE' => $fileName,
@@ -2427,7 +2427,7 @@ class AgreementController extends Controller
         $userName = $booking->user->first_name.' '.$booking->user->last_name;
 
         foreach ($segments as $index => $segment) {
-            $pcnFileName = 'rental-agreement-pcn-'.($index + 1).'-'.$tm.$randNo.'.pdf';
+            $pcnFileName = 'rental-agreement-'.($index + 1).'-'.$tm.$randNo.'.pdf';
             $relativePath = "customers/{$booking->customer_id}/{$pcnFileName}";
 
             $agreement = CustomerAgreement::create([

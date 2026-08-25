@@ -1189,15 +1189,23 @@
                     $label = strtolower($label);
                     return match (true) {
                         str_contains($label, 'dashboard') => 'home',
+                        str_contains($label, 'career') => 'briefcase',
+                        str_contains($label, 'notification') => 'bell',
+                        str_contains($label, 'communication') => 'bell-alert',
+                        str_contains($label, 'chat') || str_contains($label, 'inbox') || str_contains($label, 'conversation') => 'chat-bubble-left-right',
                         str_contains($label, 'vehicle') || str_contains($label, 'motorbike') => 'truck',
                         str_contains($label, 'rental') || str_contains($label, 'booking') => 'key',
                         str_contains($label, 'customer') || str_contains($label, 'club') => 'users',
-                        str_contains($label, 'invoice') || str_contains($label, 'payment') => 'banknotes',
+                        str_contains($label, 'invoice') || str_contains($label, 'payment') || str_contains($label, 'judo') => 'banknotes',
                         str_contains($label, 'calendar') || str_contains($label, 'schedule') => 'calendar-days',
-                        str_contains($label, 'repair') || str_contains($label, 'service') => 'wrench-screwdriver',
+                        str_contains($label, 'repair') || str_contains($label, 'service') || str_contains($label, 'spare') => 'wrench-screwdriver',
                         str_contains($label, 'document') || str_contains($label, 'blog') => 'document-text',
-                        str_contains($label, 'security') || str_contains($label, 'permission') || str_contains($label, 'role') => 'shield-check',
-                        str_contains($label, 'sale') || str_contains($label, 'purchase') || str_contains($label, 'order') => 'shopping-cart',
+                        str_contains($label, 'security') || str_contains($label, 'permission') || str_contains($label, 'role') => 'lock-closed',
+                        str_contains($label, 'sale') || str_contains($label, 'purchase') || str_contains($label, 'order') || str_contains($label, 'ecommerce') => 'shopping-cart',
+                        str_contains($label, 'survey') => 'clipboard-document-list',
+                        str_contains($label, 'claim') => 'exclamation-triangle',
+                        str_contains($label, 'inventory') => 'cube',
+                        str_contains($label, 'b2b') || str_contains($label, 'partner') => 'building-office',
                         str_contains($label, 'mot') => 'clipboard-document-check',
                         default => 'squares-2x2',
                     };
@@ -1211,7 +1219,7 @@
                     @php($groupExpanded = request()->routeIs('flux-admin.dashboard*') || $items->contains(function ($item) { return str_contains((string) $item['url'], request()->path()); }))
                     <flux:navlist.group expandable :expanded="$groupExpanded" heading="{{ $group }}">
                         @foreach($items as $item)
-                            <flux:navlist.item href="{{ $item['url'] }}" icon="{{ $menuIcon($item['label']) }}">{{ $item['label'] }}</flux:navlist.item>
+                            <flux:navlist.item href="{{ $item['url'] }}" icon="{{ $menuIcon($item['label']) }}">{{ $item['label'] }}@if(($item['label'] ?? '') === 'Notifications') <span class="js-staff-notifications-unread flux-admin-unread-badge{{ ($staffUnread['notifications'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['notifications'] ?? 0) }}">{{ ($staffUnread['notifications'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['notifications'] ?? 0) }}</span>@endif</flux:navlist.item>
                         @endforeach
                     </flux:navlist.group>
                 @endforeach

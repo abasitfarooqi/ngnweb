@@ -1092,6 +1092,30 @@ class RentalBookingLifecycle
         $rentingBooking->save();
     }
 
+    public function sendPaidInvoiceReceipt(
+        int $bookingId,
+        BookingInvoice $invoice,
+        RentingTransaction $transaction,
+        int $paymentMethodId,
+        float $amountReceived,
+        float $remainingBalance,
+        string $statusLabel,
+        string $receiptMessage,
+        ?string $freeWeekNote = null
+    ): void {
+        $this->sendPaymentReceipt(
+            $bookingId,
+            $invoice,
+            $transaction,
+            $paymentMethodId,
+            $amountReceived,
+            $remainingBalance,
+            $statusLabel,
+            $receiptMessage,
+            $freeWeekNote
+        );
+    }
+
     private function sendPaymentReceipt(
         int $bookingId,
         BookingInvoice $invoice,
@@ -1100,7 +1124,8 @@ class RentalBookingLifecycle
         float $amountReceived,
         float $remainingBalance,
         string $statusLabel,
-        string $receiptMessage
+        string $receiptMessage,
+        ?string $freeWeekNote = null
     ): void {
         try {
             $booking = RentingBooking::findOrFail($bookingId);
@@ -1109,7 +1134,7 @@ class RentalBookingLifecycle
 
             Mail::to([$customer->email, 'customerservice@neguinhomotors.co.uk'])->send(new RentalPaymentReceipt([
                 'email'                 => [$customer->email, 'customerservice@neguinhomotors.co.uk'],
-                'title'                 => 'Hire Payment Receipt',
+                'title'                 => 'Rental Hire Payment Receipt',
                 'body'                  => 'Find your payment details:',
                 'booking_id'            => $bookingId,
                 'invoice_id'            => $invoice->id,
@@ -1124,6 +1149,7 @@ class RentalBookingLifecycle
                 'remaining_balance'     => $remainingBalance,
                 'invoice_status_label'  => $statusLabel,
                 'receipt_message'       => $receiptMessage,
+                'free_week_note'        => $freeWeekNote,
             ]));
         } catch (Exception $e) {
             Log::error('Failed to send payment receipt: '.$e->getMessage());

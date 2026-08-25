@@ -155,6 +155,33 @@ class RentingReferralFlowTest extends TestCase
         $this->assertSame('already_attributed', $loser->fresh()->review_reason);
     }
 
+    public function test_last_paid_invoice_history_lists_payment_fields_or_eligibility_message(): void
+    {
+        $withPaid = $this->makeEligibleReferrer();
+        $found = $this->service->lastPaidInvoiceHistoryForCustomer((int) $withPaid->id);
+
+        $this->assertFalse($found['missing']);
+        $this->assertNotNull($found['booking_id']);
+        $this->assertNotEmpty($found['invoices']);
+        $this->assertArrayHasKey('invoice_id', $found['invoices'][0]);
+        $this->assertArrayHasKey('transaction_no', $found['invoices'][0]);
+        $this->assertArrayHasKey('invoice_amount', $found['invoices'][0]);
+        $this->assertArrayHasKey('paid_amount', $found['invoices'][0]);
+        $this->assertArrayHasKey('paid_date', $found['invoices'][0]);
+        $this->assertArrayHasKey('invoice_state', $found['invoices'][0]);
+        $this->assertSame(150.0, (float) $found['invoices'][0]['invoice_amount']);
+
+        $withoutPaid = $this->makeCustomer('No', 'Invoice', $this->uniqueMobile());
+        $missing = $this->service->lastPaidInvoiceHistoryForCustomer((int) $withoutPaid->id);
+
+        $this->assertTrue($missing['missing']);
+        $this->assertSame([], $missing['invoices']);
+        $this->assertSame(
+            \App\Models\RentingFreeWeekAward::ELIGIBILITY_FALLBACK,
+            $missing['message']
+        );
+    }
+
     private function makeEligibleReferrer(): Customer
     {
         $customer = $this->makeCustomer('Riley', 'Renter', $this->uniqueMobile());

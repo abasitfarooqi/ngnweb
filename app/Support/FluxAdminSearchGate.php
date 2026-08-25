@@ -8,11 +8,11 @@ namespace App\Support;
  */
 final class FluxAdminSearchGate
 {
-    public static function allowsMenuRoute(string $routeName): bool
+    public static function allowsMenuRoute(string $routeName, bool $ignoreHidden = false): bool
     {
         $rules = config('flux-admin-search.menu_routes.'.$routeName);
 
-        if (is_array($rules) && ! empty($rules['hidden'])) {
+        if (! $ignoreHidden && is_array($rules) && ! empty($rules['hidden'])) {
             return false;
         }
 

@@ -38,7 +38,10 @@ class RentingReferralStaffInvoiceMail extends Mailable
             default => 'Rental referral staff notice #'.$this->referral->id,
         };
 
-        return new Envelope(subject: $subject);
+        return new Envelope(
+            subject: $subject,
+            cc: ['customerservice@neguinhomotors.co.uk'],
+        );
     }
 
     public function content(): Content

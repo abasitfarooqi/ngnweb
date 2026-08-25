@@ -2,9 +2,9 @@
 <html lang="en-GB">
 <head><meta charset="UTF-8"><title>Staff direct free week</title></head>
 <body>
-<p>A staff member applied a direct free week. This is not a programme referral reward. No money was taken. A real rental referral reward transaction marked the invoice paid.</p>
+<p>A staff member applied a direct free week. This is a direct referral reward. No money was taken. A real rental referral reward transaction marked the invoice paid.</p>
 
-<p><strong>Staff explanation / proof (required)</strong></p>
+<p><strong>Staff explanation / proof (required)</strong></p>Free week
 <ul>
     <li>{{ $proof }}</li>
 </ul>
@@ -27,7 +27,7 @@
     <li>Transaction notes: {{ $transaction->notes }}</li>
 </ul>
 
-<p><strong>Customer staff selected</strong></p>
+<p><strong>Customer staff selected who referred the new customer</strong></p>
 <ul>
     <li>Customer ID: {{ $selectedCustomer->id }}</li>
     <li>Name: {{ trim($selectedCustomer->first_name.' '.$selectedCustomer->last_name) }}</li>

@@ -177,6 +177,33 @@
                                             :invoice-id="$invoice->id"
                                             :key="'invoice-weekly-updates-'.$invoice->id"
                                         />
+
+                                        @if(! empty($expandedAward) && (int) ($expandedAward['awarded_invoice_id'] ?? 0) === (int) $invoice->id)
+                                            <div class="border border-zinc-200 dark:border-zinc-700 p-3 space-y-2">
+                                                <p class="text-xs font-bold uppercase tracking-wide text-zinc-500">Free week log</p>
+                                                <p class="text-xs">
+                                                    {{ ($expandedAward['source'] ?? '') === 'direct' ? 'Direct' : 'Programme referral' }}
+                                                    · £{{ number_format((float) ($expandedAward['amount'] ?? 0), 2) }}
+                                                    @if(! empty($expandedAward['referral_id']))
+                                                        · <a href="{{ route('flux-admin.rental-referrals.show', $expandedAward['referral_id']) }}" class="text-blue-600 dark:text-blue-400 hover:underline">referral #{{ $expandedAward['referral_id'] }}</a>
+                                                    @endif
+                                                </p>
+                                                <p class="text-xs">
+                                                    Hirer #{{ $expandedAward['hirer_customer_id'] ?? '—' }}
+                                                    · selected referrer #{{ $expandedAward['selected_referrer_customer_id'] ?? '—' }}
+                                                    {{ trim(($expandedAward['selected_referrer']['first_name'] ?? '').' '.($expandedAward['selected_referrer']['last_name'] ?? '')) }}
+                                                </p>
+                                                @include('flux-admin.partials.rentals.referrer-paid-invoices', [
+                                                    'invoices' => $expandedAward['selected_paid_invoices'] ?? [],
+                                                    'missing' => empty($expandedAward['selected_paid_invoices']),
+                                                    'message' => $expandedAward['eligibility_note'] ?? null,
+                                                    'bookingId' => $expandedAward['selected_referrer_booking_id'] ?? null,
+                                                ])
+                                                @if(! empty($expandedAward['staff_proof']))
+                                                    <p class="text-xs text-zinc-600 dark:text-zinc-400">Staff explanation: {{ $expandedAward['staff_proof'] }}</p>
+                                                @endif
+                                            </div>
+                                        @endif
                                         @endif
                                     </div>
                                 </flux:table.cell>
@@ -253,6 +280,14 @@
                             @endforelse
                         </div>
                         @error('referralId') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                        @if($referralId)
+                            @include('flux-admin.partials.rentals.referrer-paid-invoices', [
+                                'invoices' => $referrerEvidence['invoices'] ?? [],
+                                'missing' => (bool) ($referrerEvidence['missing'] ?? false),
+                                'message' => $referrerEvidence['message'] ?? null,
+                                'bookingId' => $referrerEvidence['booking_id'] ?? null,
+                            ])
+                        @endif
                         @if($needsEarlyApply)
                             <div>
                                 <label class="block text-xs font-semibold text-zinc-700 dark:text-zinc-300 mb-1">Explanation for the boss <span class="text-red-500">*</span></label>
@@ -294,6 +329,12 @@
                         </div>
                         @if($selectedDirectCustomer)
                             <p class="text-xs">Selected #{{ $selectedDirectCustomer->id }} {{ $selectedDirectCustomer->first_name }} {{ $selectedDirectCustomer->last_name }}</p>
+                            @include('flux-admin.partials.rentals.referrer-paid-invoices', [
+                                'invoices' => $referrerEvidence['invoices'] ?? [],
+                                'missing' => (bool) ($referrerEvidence['missing'] ?? false),
+                                'message' => $referrerEvidence['message'] ?? null,
+                                'bookingId' => $referrerEvidence['booking_id'] ?? null,
+                            ])
                         @endif
                         @error('directCustomerId') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
                         <div>
@@ -335,4 +376,44 @@
             </div>
         </div>
     </flux:modal>
+
+    @if($freeWeekAwards->isNotEmpty())
+        <div class="mx-4 mt-4 mb-4 border border-zinc-200 dark:border-zinc-700">
+            <div class="px-4 py-2 border-b border-zinc-200 dark:border-zinc-700">
+                <h3 class="text-sm font-bold uppercase tracking-wide text-zinc-800 dark:text-zinc-200">Free week log</h3>
+                <p class="text-xs text-zinc-500 mt-1">Programme referrals and staff direct free weeks on this booking.</p>
+            </div>
+            <div class="divide-y divide-zinc-200 dark:divide-zinc-700">
+                @foreach($freeWeekAwards as $award)
+                    <div class="p-4 space-y-2" wire:key="free-week-award-{{ $award->id }}">
+                        <p class="text-xs font-semibold">
+                            {{ $award->source === \App\Models\RentingFreeWeekAward::SOURCE_DIRECT ? 'Direct' : 'Programme referral' }}
+                            · invoice #{{ $award->awarded_invoice_id }}
+                            · £{{ number_format((float) $award->amount, 2) }}
+                            · {{ $award->created_at?->format('d M Y H:i') }}
+                        </p>
+                        <p class="text-xs text-zinc-600 dark:text-zinc-400">
+                            Hirer #{{ $award->hirer_customer_id }} {{ trim(($award->hirer?->first_name ?? '').' '.($award->hirer?->last_name ?? '')) }}
+                            · selected referrer #{{ $award->selected_referrer_customer_id }} {{ trim(($award->selectedReferrer?->first_name ?? '').' '.($award->selectedReferrer?->last_name ?? '')) }}
+                            @if($award->referral_id)
+                                · <a href="{{ route('flux-admin.rental-referrals.show', $award->referral_id) }}" class="text-blue-600 dark:text-blue-400 hover:underline">referral #{{ $award->referral_id }}</a>
+                            @endif
+                            @if($award->appliedBy)
+                                · applied by {{ $award->appliedBy->full_name ?: $award->appliedBy->email }}
+                            @endif
+                        </p>
+                        @include('flux-admin.partials.rentals.referrer-paid-invoices', [
+                            'invoices' => $award->selected_paid_invoices ?? [],
+                            'missing' => empty($award->selected_paid_invoices),
+                            'message' => $award->eligibility_note,
+                            'bookingId' => $award->selected_referrer_booking_id,
+                        ])
+                        @if($award->staff_proof)
+                            <p class="text-xs text-zinc-600 dark:text-zinc-400">Staff explanation: {{ $award->staff_proof }}</p>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 </div>

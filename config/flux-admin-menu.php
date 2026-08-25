@@ -129,7 +129,7 @@ return [
         ['group' => 'Chat', 'label' => 'Support messages', 'route' => 'flux-admin.support-messages.index', 'permission' => 'see-menu-commons'],
         ['group' => 'Chat', 'label' => 'Contact queries', 'route' => 'flux-admin.contact-queries.index', 'permission' => 'see-menu-commons'],
 
-        ['group' => 'General', 'label' => 'Careers', 'route' => 'flux-admin.careers.index', 'permission' => 'see-menu-commons', 'keywords' => 'jobs vacancies'],
+        ['group' => 'Careers', 'label' => 'Careers', 'route' => 'flux-admin.careers.index', 'permission' => 'see-menu-commons', 'keywords' => 'jobs vacancies'],
 
         ['group' => 'B2B', 'label' => 'Partners', 'route' => 'flux-admin.inventory-partners.index', 'permission' => 'see-menu-b2b'],
 
@@ -138,6 +138,9 @@ return [
         ['group' => 'Surveys', 'label' => 'Options', 'route' => 'flux-admin.survey-options.index', 'permission' => 'see-menu-commons'],
         ['group' => 'Surveys', 'label' => 'Responses', 'route' => 'flux-admin.survey-responses.index', 'permission' => 'see-menu-commons'],
         ['group' => 'Surveys', 'label' => 'Answers', 'route' => 'flux-admin.survey-answers.index', 'permission' => 'see-menu-commons'],
+
+        ['group' => 'Notifications', 'label' => 'Notifications', 'route' => 'flux-admin.communications.sent.index', 'when' => 'communications_log', 'keywords' => 'sent mail staff alerts'],
+        ['group' => 'Communications', 'label' => 'Communications', 'route' => 'flux-admin.communications.index', 'when' => 'communications', 'keywords' => 'policy email compose'],
 
         ['group' => 'Misc / Experiments', 'label' => 'Calendar', 'route' => 'flux-admin.calendar.index', 'role' => 'Admin'],
         ['group' => 'Misc / Experiments', 'label' => 'Staff schedules', 'route' => 'flux-admin.employee-schedules.index', 'role' => 'Admin'],

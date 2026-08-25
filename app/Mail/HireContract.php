@@ -70,7 +70,7 @@ class HireContract extends Mailable
                 if ($filename === '') {
                     $filename = $isBatterySafetyLeaflet
                         ? 'batterySafetyDataLeaflet.pdf'
-                        : 'Sale-Agreement-'.($index + 1).'.pdf';
+                        : 'sale-contract-'.($index + 1).'.pdf';
                 }
 
                 $attachments[] = Attachment::fromPath($path)
@@ -93,7 +93,7 @@ class HireContract extends Mailable
                 if ($item && method_exists($item, 'output')) {
                     $filename = $isBatterySafetyLeaflet
                         ? 'batterySafetyDataLeaflet.pdf'
-                        : 'Sale-Agreement-'.($index + 1).'.pdf';
+                        : 'sale-contract-'.($index + 1).'.pdf';
                     $attachments[] = Attachment::fromData(
                         fn () => $item->output(),
                         $filename
@@ -105,7 +105,7 @@ class HireContract extends Mailable
         }
 
         if (method_exists($pdf, 'output')) {
-            $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'Sale-Agreement.pdf';
+            $filename = $isBatterySafetyLeaflet ? 'batterySafetyDataLeaflet.pdf' : 'sale-contract.pdf';
             $attachments[] = Attachment::fromData(
                 fn () => $pdf->output(),
                 $filename

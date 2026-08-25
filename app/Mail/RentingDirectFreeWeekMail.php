@@ -32,7 +32,10 @@ class RentingDirectFreeWeekMail extends Mailable
 
     public function envelope(): Envelope
     {
-        return new Envelope(subject: 'Staff direct free week on booking #'.$this->booking->id);
+        return new Envelope(
+            subject: 'Staff direct free week on booking #'.$this->booking->id,
+            cc: ['customerservice@neguinhomotors.co.uk'],
+        );
     }
 
     public function content(): Content

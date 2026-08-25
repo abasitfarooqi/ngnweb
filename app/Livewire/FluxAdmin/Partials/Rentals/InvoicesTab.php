@@ -369,8 +369,9 @@ class InvoicesTab extends Component
             ->filter(fn ($invoice) => ! (bool) $invoice->is_paid && (bool) $invoice->is_due)
             ->sum('outstanding_balance');
         $booking = RentingBooking::query()->find($this->bookingId);
+        $referralService = app(RentingReferralService::class);
         $programmeReferrals = ($booking?->customer_id)
-            ? app(RentingReferralService::class)->approvedUnusedReferrals((int) $booking->customer_id)
+            ? $referralService->approvedUnusedReferrals((int) $booking->customer_id)
             : collect();
         $spendableReferrals = $programmeReferrals
             ->filter(fn (RentingReferral $row) => $row->credit()?->isSpendable())
@@ -414,6 +415,13 @@ class InvoicesTab extends Component
             ? $programmeReferrals->firstWhere('id', (int) $this->referralId)
             : null;
 
+        $referrerEvidence = ['booking_id' => null, 'invoices' => [], 'missing' => false, 'message' => null];
+        if ($this->paymentKind === 'direct' && $selectedDirectCustomer) {
+            $referrerEvidence = $referralService->lastPaidInvoiceHistoryForCustomer((int) $selectedDirectCustomer->id);
+        } elseif ($this->paymentKind === 'referral' && $booking?->customer_id) {
+            $referrerEvidence = $referralService->lastPaidInvoiceHistoryForCustomer((int) $booking->customer_id);
+        }
+
         return view('flux-admin.partials.rentals.invoices-tab', [
             'invoices' => $invoices,
             'totalUnpaid' => $totalUnpaid,
@@ -422,6 +430,11 @@ class InvoicesTab extends Component
             'matchedReferrals' => $matchedReferrals,
             'directCustomers' => $directCustomers,
             'selectedDirectCustomer' => $selectedDirectCustomer,
+            'referrerEvidence' => $referrerEvidence,
+            'freeWeekAwards' => $referralService->awardsForBooking($this->bookingId),
+            'expandedAward' => $this->expandedInvoiceId
+                ? $referralService->awardSnapshotForInvoice((int) $this->expandedInvoiceId)
+                : null,
             'needsEarlyApply' => $selectedProgrammeReferral
                 ? ! $selectedProgrammeReferral->credit()?->isSpendable()
                 : $spendableReferrals->isEmpty() && $programmeReferrals->isNotEmpty(),

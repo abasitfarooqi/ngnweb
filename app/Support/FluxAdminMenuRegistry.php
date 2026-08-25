@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 final class FluxAdminMenuRegistry
 {
     /**
-     * @return list<array{label: string, group: string, url: string, keywords: string, search_text: string}>
+     * @return list<array{label: string, group: string, url: string, route: ?string, keywords: string, search_text: string}>
      */
     public static function items(): array
     {
@@ -28,7 +28,7 @@ final class FluxAdminMenuRegistry
                     continue;
                 }
 
-                if (! FluxAdminSearchGate::allowsMenuRoute($route)) {
+                if (! isset($entry['when']) && ! FluxAdminSearchGate::allowsMenuRoute($route, ignoreHidden: true)) {
                     continue;
                 }
 
@@ -47,6 +47,7 @@ final class FluxAdminMenuRegistry
                 'label' => $label,
                 'group' => $group,
                 'url' => $url,
+                'route' => is_string($route) ? $route : null,
                 'keywords' => $keywords,
                 'search_text' => $keywords,
             ];
@@ -65,6 +66,14 @@ final class FluxAdminMenuRegistry
         }
 
         $when = $entry['when'] ?? null;
+
+        if ($when === 'communications_log') {
+            return FluxAdminAccess::canViewCommunicationsLog($user);
+        }
+
+        if ($when === 'communications') {
+            return FluxAdminAccess::canAccessCommunications($user);
+        }
 
         if ($when === 'full_club_admin' || $when === 'super_admin' || ! empty($entry['super_admin'])) {
             return FluxAdminAccess::isSuperAdmin($user);
