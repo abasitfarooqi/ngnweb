@@ -4,9 +4,9 @@ namespace App\Livewire\FluxAdmin\Pages\Rentals;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
-use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
 use App\Models\RentingBookingItem;
+use App\Support\RentalInvoiceTabData;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Layout;
@@ -104,11 +104,7 @@ class RentalIndex extends Component
 
     protected function rowsQuery(): Builder
     {
-        $invoiceSummary = BookingInvoice::query()
-            ->select('booking_id')
-            ->selectRaw('MIN(CASE WHEN is_paid = 0 THEN invoice_date END) as next_unpaid_invoice_date')
-            ->selectRaw('SUM(CASE WHEN is_paid = 0 AND invoice_date <= CURDATE() THEN amount ELSE 0 END) as outstanding_amount')
-            ->groupBy('booking_id');
+        $invoiceSummary = RentalInvoiceTabData::outstandingByBookingSubquery();
 
         $query = RentingBookingItem::query()
             ->toBase()
@@ -210,18 +206,27 @@ class RentalIndex extends Component
     {
         $activeBookings = RentingBooking::with([
             'rentingBookingItems' => fn ($q) => $q->whereNull('end_date'),
-            'bookingInvoices' => fn ($q) => $q->where('is_paid', false),
         ])
             ->where('is_posted', true)
             ->where('state', '!=', 'DRAFT')
             ->whereHas('rentingBookingItems', fn ($q) => $q->whereNull('end_date'))
             ->get();
 
+        $bookingIds = $activeBookings->pluck('id');
+        $outstanding = $bookingIds->isEmpty()
+            ? (object) ['unpaid_invoices' => 0, 'due_payments' => 0]
+            : DB::query()
+                ->fromSub(RentalInvoiceTabData::outstandingByBookingSubquery(), 'os')
+                ->whereIn('os.booking_id', $bookingIds)
+                ->selectRaw('COALESCE(SUM(os.outstanding_amount), 0) as unpaid_invoices')
+                ->selectRaw('COALESCE(SUM(os.due_invoice_count), 0) as due_payments')
+                ->first();
+
         return [
             'active_rentals' => $activeBookings->flatMap->rentingBookingItems->count(),
             'weekly_revenue' => $activeBookings->flatMap->rentingBookingItems->sum('weekly_rent'),
-            'due_payments' => $activeBookings->sum(fn ($b) => $b->bookingInvoices->where('invoice_date', '<=', now())->count()),
-            'unpaid_invoices' => $activeBookings->sum(fn ($b) => $b->bookingInvoices->where('invoice_date', '<=', now())->sum('amount')),
+            'due_payments' => (int) ($outstanding->due_payments ?? 0),
+            'unpaid_invoices' => (float) ($outstanding->unpaid_invoices ?? 0),
         ];
     }
 

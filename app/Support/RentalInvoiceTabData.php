@@ -14,10 +14,7 @@ class RentalInvoiceTabData
             ->whereNotNull('invoice_id')
             ->groupBy('invoice_id');
 
-        $invoicePaymentSums = DB::table('renting_transactions')
-            ->selectRaw('invoice_id, SUM(amount) as total_paid_amount')
-            ->whereNotNull('invoice_id')
-            ->groupBy('invoice_id');
+        $invoicePaymentSums = self::invoicePaymentSumsSubquery();
 
         return DB::table('booking_invoices as BI')
             ->leftJoinSub($latestTransactionIds, 'LRT', fn ($join) => $join->on('LRT.invoice_id', '=', 'BI.id'))
@@ -124,6 +121,51 @@ class RentalInvoiceTabData
             .self::staffSignature().'.';
 
         return 'https://wa.me/'.$number.'?text='.rawurlencode($message);
+    }
+
+    /**
+     * Payments posted against invoices. Used so a half-paid week shows the remainder,
+     * not the full invoice amount.
+     */
+    public static function invoicePaymentSumsSubquery()
+    {
+        return DB::table('renting_transactions')
+            ->selectRaw('invoice_id, SUM(amount) as total_paid_amount')
+            ->whereNotNull('invoice_id')
+            ->groupBy('invoice_id');
+    }
+
+    /**
+     * Per-booking due remainder: invoice amount minus transactions.
+     * Marked-paid invoices count as zero even if a transaction was never logged.
+     */
+    public static function outstandingByBookingSubquery()
+    {
+        $invoices = DB::table('booking_invoices as bi')
+            ->leftJoinSub(self::invoicePaymentSumsSubquery(), 'ips', fn ($join) => $join->on('ips.invoice_id', '=', 'bi.id'))
+            ->where('bi.amount', '>', 0)
+            ->select('bi.booking_id', 'bi.invoice_date')
+            ->selectRaw('CASE WHEN DATE(bi.invoice_date) <= CURDATE() THEN 1 ELSE 0 END as is_due')
+            ->selectRaw('CASE WHEN bi.is_paid = 1 THEN 0 ELSE GREATEST(bi.amount - COALESCE(ips.total_paid_amount, 0), 0) END as remaining');
+
+        return DB::query()
+            ->fromSub($invoices, 'inv')
+            ->select('booking_id')
+            ->selectRaw('MIN(CASE WHEN is_due = 1 AND remaining > 0 THEN invoice_date END) as next_unpaid_invoice_date')
+            ->selectRaw('SUM(CASE WHEN is_due = 1 THEN remaining ELSE 0 END) as outstanding_amount')
+            ->selectRaw('SUM(CASE WHEN is_due = 1 AND remaining > 0 THEN 1 ELSE 0 END) as due_invoice_count')
+            ->groupBy('booking_id');
+    }
+
+    public static function outstandingForBooking(int $bookingId): float
+    {
+        $row = DB::query()
+            ->fromSub(self::outstandingByBookingSubquery(), 'os')
+            ->where('os.booking_id', $bookingId)
+            ->selectRaw('COALESCE(os.outstanding_amount, 0) as outstanding_amount')
+            ->first();
+
+        return (float) ($row->outstanding_amount ?? 0);
     }
 
     private static function staffSignature(): string
