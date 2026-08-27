@@ -85,7 +85,7 @@
 
     <section class="border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 p-5 space-y-3 text-sm text-zinc-700 dark:text-zinc-300">
         <h2 class="text-base font-semibold text-zinc-900 dark:text-white">Rental referral terms</h2>
-        <p>These terms apply to the motorcycle rental referral programme operated by Neguinho Motors Ltd (trading as NGN Motors) (“we”, “us”). By sending a referral you enter a promotional arrangement. It is not a lottery, prize draw or cash reward scheme. Your hire agreement still applies in full.</p>
+        <p>These terms apply to the motorcycle rental referral programme operated by NGN (“we”, “us”). By sending a referral you enter a promotional arrangement. It is not a lottery, prize draw or cash reward scheme. Your hire agreement still applies in full.</p>
 
         <h3 class="font-semibold text-zinc-900 dark:text-white">1. Who may refer</h3>
         <p>You may refer only if you are a current or recent rental customer and you have at least one paid weekly rental invoice with us. Staff may refuse a referral if that is not shown on our records.</p>

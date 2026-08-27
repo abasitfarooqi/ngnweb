@@ -100,7 +100,7 @@ class NgnOXProductsImport implements ToModel, WithHeadingRow
 
         // Prepare meta title and description
         $metaTitle = $name;
-        $metaDescription = 'Buy '.strtolower($name).' | Explore our range of Jackets, helmets, gears, shoes, and accessories at Neguinho Motors Ltd.';
+        $metaDescription = 'Buy '.strtolower($name).' | Explore our range of Jackets, helmets, gears, shoes, and accessories at NGN.';
 
         return [
             'sku' => $sku,

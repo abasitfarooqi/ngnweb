@@ -13,7 +13,7 @@
         <div>
             <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-5">Our Story</h2>
             <div class="space-y-4 text-gray-600 dark:text-gray-400 leading-relaxed">
-                <p>Incorporated in October 2018, <strong>Neguinho Motors Limited (NGN)</strong> was founded with a single vision: to provide London riders with a trusted, reliable and comprehensive motorcycle service centre.</p>
+                <p>Incorporated in October 2018, <strong>NGN</strong> was founded with a single vision: to provide London riders with a trusted, reliable and comprehensive motorcycle service centre.</p>
                 <p>We started at our Catford branch and have since expanded to three London locations – Catford, Tooting and Sutton – serving thousands of riders across the city.</p>
                 <p>Our mission is to keep your motorcycle roadworthy and performing at its best, offering everything from daily rentals and MOT Booking to full workshop repairs and motorcycle sales.</p>
             </div>

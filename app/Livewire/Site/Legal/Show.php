@@ -17,16 +17,16 @@ class Show extends Component
             'title' => 'Terms & Conditions',
             'content' => <<<'HTML'
                 <h2>Introduction</h2>
-                <p>These Terms & Conditions apply to the website www.ngnmotors.co.uk owned by Neguinho Motors Ltd and govern your use of our services. By accessing this website you accept these terms in full.</p>
+                <p>These Terms & Conditions apply to the website www.ngnmotors.co.uk owned by NGN and govern your use of our services. By accessing this website you accept these terms in full.</p>
 
                 <h2>Website Policy</h2>
-                <p>Neguinho Motors Ltd takes a proactive approach to user privacy and ensures the necessary steps are taken to protect the privacy of its users throughout their visit to this site. This website complies with all UK national laws and requirements for user privacy.</p>
+                <p>NGN takes a proactive approach to user privacy and ensures the necessary steps are taken to protect the privacy of its users throughout their visit to this site. This website complies with all UK national laws and requirements for user privacy.</p>
 
                 <h2>Use of the Website</h2>
                 <p>You agree to use this website only for lawful purposes and in a manner that does not infringe the rights of others. You must not misuse our website by knowingly introducing viruses or other material that is malicious or technologically harmful.</p>
 
                 <h2>Intellectual Property</h2>
-                <p>All content on this site, including but not limited to text, graphics, logos, images and software, is the property of Neguinho Motors Ltd and is protected by applicable intellectual property laws. Unauthorised use is prohibited.</p>
+                <p>All content on this site, including but not limited to text, graphics, logos, images and software, is the property of NGN and is protected by applicable intellectual property laws. Unauthorised use is prohibited.</p>
 
                 <h2>Rental & Service Agreements</h2>
                 <p>All motorcycle rentals and services are subject to separate rental agreements signed at the time of booking. Customers must hold a valid UK driving licence appropriate for the class of vehicle rented. Full insurance details are required before any rental begins.</p>
@@ -44,7 +44,7 @@ class Show extends Component
                 <p>We reserve the right to update these Terms & Conditions at any time. Continued use of this website after any changes constitutes acceptance of the new terms.</p>
 
                 <h2>Contact</h2>
-                <p>Neguinho Motors Ltd, 9–13 Catford Hill, London SE6 4NU. Email: <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></p>
+                <p>NGN, 9–13 Catford Hill, London SE6 4NU. Email: <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></p>
             HTML,
         ],
     ];

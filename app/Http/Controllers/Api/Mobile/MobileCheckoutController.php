@@ -238,7 +238,7 @@ class MobileCheckoutController extends Controller
 
         return response()->json([
             'data' => $this->mapOrder($order->fresh('items.product', 'shippingMethod', 'paymentMethod')),
-            'available_shipping_methods' => EcShippingMethod::query()->active()->get(['id', 'name', 'slug', 'shipping_amount', 'in_store_pickup']),
+            'available_shipping_methods' => EcShippingMethod::query()->active()->get(['id', 'name', 'slug', 'shipping_amount', 'in_store_pickup', 'description']),
             'available_payment_methods' => EcPaymentMethod::query()->active()->get(['id', 'title', 'slug']),
         ]);
     }

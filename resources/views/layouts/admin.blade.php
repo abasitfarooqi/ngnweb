@@ -3,10 +3,10 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>Admin Dashboard | Neguinhomotors</title>
+    <title>Admin Dashboard | NGN</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description"
-        content="Neguinhomotors Admin Dashboard - Control and manage all aspects of Neguinhomotors services including motorbike rentals, customer relations, and rental agreements.">
+        content="NGN Admin Dashboard - Control and manage all aspects of NGN services including motorbike rentals, customer relations, and rental agreements.">
     <meta name="author" content="Shariq">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">

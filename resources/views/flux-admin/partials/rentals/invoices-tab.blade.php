@@ -221,13 +221,6 @@
         </div>
     </div>
 
-    <div class="mt-6 border-t border-zinc-200 px-4 py-4 dark:border-zinc-700">
-        <livewire:flux-admin.partials.rentals.weekly-updates-panel
-            :booking-id="$bookingId"
-            :key="'booking-weekly-updates-'.$bookingId"
-        />
-    </div>
-
     <flux:modal wire:model.self="showPayModal" class="w-full max-w-md">
         <div class="p-5">
             <h3 class="text-base font-bold text-zinc-900 dark:text-white mb-1">Receive payment</h3>

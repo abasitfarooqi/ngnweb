@@ -43,13 +43,12 @@
                     <button
                         type="button"
                         wire:click="addInvoiceUpdate"
-                        wire:confirm="Email this note to the customer and copy customer service? Click Cancel if you are not sure."
                         class="weekly-update-save inline-flex w-full shrink-0 items-center justify-center px-3 py-2 text-xs font-semibold bg-emerald-600 text-white transition hover:bg-emerald-700 lg:h-10 lg:w-auto"
                     >
                         Add update
                     </button>
                 </div>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400">Leave date or time blank to use now. Add update asks you to confirm before the customer is emailed.</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Leave date or time blank to use now. Notes stay on this invoice for staff. The customer is not emailed.</p>
 
                 @forelse($updates as $update)
                     <div class="border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/60" wire:key="inv-upd-{{ $update->id }}">

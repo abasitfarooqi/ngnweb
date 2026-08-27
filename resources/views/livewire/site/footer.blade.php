@@ -118,7 +118,7 @@
             <div class="mb-3 flex justify-center">
                 <x-theme-toggle-icon variant="footer" />
             </div>
-            <p class="mb-1">&copy; {{ date('Y') }} Neguinho Motors Limited – All Rights Reserved</p>
+            <p class="mb-1">&copy; {{ date('Y') }} NGN – All Rights Reserved</p>
             <p class="mb-1">{{ config('site.hours') }}</p>
             <p>Registered Company: NEGUINHO MOTORS LTD | Company No: 11600635 | Registered: 9–13 Catford Hill, London SE6 4NU</p>
             <p class="mt-1">Customer Service: <a href="mailto:enquiries@neguinhomotors.co.uk" class="hover:text-gray-300">enquiries@neguinhomotors.co.uk</a> | 0208 314 1498</p>
@@ -129,7 +129,7 @@
     {
         "@@context": "https://schema.org",
         "@@type": "AutoDealer",
-        "name": "Neguinho Motors Ltd",
+        "name": "NGN",
         "url": "{{ url('/') }}",
         "logo": "{{ asset('img/ngn-motor-logo-fit-small.png') }}",
         "telephone": "+442083141498",

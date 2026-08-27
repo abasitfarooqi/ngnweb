@@ -2,13 +2,11 @@
 
 namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
-use App\Mail\RentingInvoiceUpdateReminderMail;
 use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
 use App\Models\RentingWeeklyUpdate;
 use App\Models\RentingWeeklyUpdateLog;
 use App\Support\FluxAdminAccess;
-use Illuminate\Support\Facades\Mail;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\On;
@@ -163,33 +161,12 @@ class WeeklyUpdatesPanel extends Component
         $update->created_at = $this->resolveNotedAt($this->newNotedDate, $this->newNotedTime);
         $update->save();
 
-        $emailed = $this->emailInvoiceUpdate($update, $invoice);
-
         $this->newNote = '';
         $this->newNotedDate = '';
         $this->newNotedTime = '';
-        $this->flashMessage = $emailed
-            ? 'Update added. The customer has been emailed, and customer service was copied.'
-            : 'Update added. No customer email is on file, so nothing was sent.';
+        $this->flashMessage = 'Update added.';
         $this->flashType = 'success';
         $this->dispatch('weekly-updates-changed');
-    }
-
-    private function emailInvoiceUpdate(RentingWeeklyUpdate $update, BookingInvoice $invoice): bool
-    {
-        $booking = RentingBooking::query()
-            ->with(['customer', 'rentingBookingItems.motorbike:id,reg_no'])
-            ->find($invoice->booking_id);
-        $customer = $booking?->customer;
-        $email = trim((string) ($customer?->email ?? ''));
-
-        if (! $booking || ! $customer || $email === '' || ! filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return false;
-        }
-
-        Mail::to($email)->send(new RentingInvoiceUpdateReminderMail($update, $booking, $invoice, $customer));
-
-        return true;
     }
 
     public function removeUpdate(int $id): void
