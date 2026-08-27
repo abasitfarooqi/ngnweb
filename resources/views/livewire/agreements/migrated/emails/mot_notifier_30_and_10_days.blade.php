@@ -42,7 +42,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" style="max-width: 150px;">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" style="max-width: 150px;">
             <h3>MOT Reminder Notification</h3>
         </div>
         <p>Dear {{ $customer_name }},</p>

@@ -2,7 +2,7 @@
 
 return [
 
-    'logo' => 'img/ngn-motor-logo-fit-small.png',
+    'logo' => 'img/ngn-motor-logo-fit-small-ngn.png',
 
     'hours' => env('SITE_HOURS', 'Monday to Friday, 9:00 AM – 6:00 PM · Saturday 9:00 AM – 3:45 PM · Sunday Closed'),
 

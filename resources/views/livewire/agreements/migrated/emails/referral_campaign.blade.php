@@ -124,7 +124,7 @@
         <!-- Header Section -->
         <div class="header">
             <div style="text-align: center;">
-                <img src="https://neguinhomotors.co.uk/img/ngn_transparent_logo96.png" alt="NGN Club"
+                <img src="https://neguinhomotors.co.uk/img/ngn_transparent_logo96-ngn.png" alt="NGN Club"
                     style="width: 96px; display: block; margin: 0 auto;">
                 <h1 style="margin-top: 1px;">NGN Club Referral for £5.</h1>
             </div>

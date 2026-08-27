@@ -6,7 +6,7 @@
 
             {{-- Brand + Social --}}
             <div>
-                <a href="/"><img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-12 w-auto mb-4 brightness-0 invert"></a>
+                <a href="/"><img src="{{ asset('img/ngn-motor-logo-fit-small-ngn.png') }}" alt="NGN Motors" class="h-12 w-auto mb-4 brightness-0 invert"></a>
                 <p class="text-sm text-gray-400 mb-4">London's trusted motorcycle specialists since 2018. Serving South London & Greater London.</p>
                 <div class="flex items-center gap-4 mb-6">
                     <a href="https://www.facebook.com/p/Neguinho-Motors-LTD-100063111406747/" target="_blank" rel="noopener" aria-label="Facebook" class="text-gray-400 hover:text-white transition">
@@ -131,7 +131,7 @@
         "@@type": "AutoDealer",
         "name": "NGN",
         "url": "{{ url('/') }}",
-        "logo": "{{ asset('img/ngn-motor-logo-fit-small.png') }}",
+        "logo": "{{ asset('img/ngn-motor-logo-fit-small-ngn.png') }}",
         "telephone": "+442083141498",
         "email": "enquiries@neguinhomotors.co.uk"
     }

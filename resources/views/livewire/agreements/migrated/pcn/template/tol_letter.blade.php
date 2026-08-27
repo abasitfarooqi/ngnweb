@@ -35,7 +35,7 @@
                     <table>
                         <tr>
                             <td class="title">
-                                <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motors Logo" style="width: 130px;">
+                                <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motors Logo" style="width: 130px;">
                             </td>
                             <td>
                                 <strong>PCN #:</strong> {{ $pcnNumber }}<br>

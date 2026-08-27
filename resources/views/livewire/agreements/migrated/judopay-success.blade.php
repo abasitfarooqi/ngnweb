@@ -127,7 +127,7 @@
         $subscriptionId = $judopay_subscription->id ?? null;
     @endphp
     <div class="thanks-container">
-        <img src="{{ secure_asset('https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png') }}"
+        <img src="{{ secure_asset('https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png') }}"
             alt="Neguinho Motors" class="logo">
         
         <div class="success-icon">✓</div>

@@ -3,8 +3,8 @@
     'wrapClass' => 'agreement-brand-logo-wrap',
 ])
 @php
-    $light = asset(config('agreement.brand.web_logo_light', 'img/ngn-motor-logo-fit-small.png'));
-    $dark = asset(config('agreement.brand.web_logo_dark', 'img/ngn-motor-logo-fit-small.png'));
+    $light = asset(config('agreement.brand.web_logo_light', 'img/ngn-motor-logo-fit-small-ngn.png'));
+    $dark = asset(config('agreement.brand.web_logo_dark', 'img/ngn-motor-logo-fit-small-ngn.png'));
 @endphp
 <span {{ $attributes->merge(['class' => $wrapClass]) }}>
     <img src="{{ $light }}" alt="{{ $alt }}" width="150" class="agreement-logo agreement-logo--light" style="max-width:150px;height:auto;">

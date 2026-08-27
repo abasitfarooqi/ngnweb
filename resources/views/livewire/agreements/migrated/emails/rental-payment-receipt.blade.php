@@ -125,7 +125,7 @@
 
     <div class="container">
         <div class="header">
-            <img class="logo" src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motors">
+            <img class="logo" src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motors">
             <h1 class="title">{{ $mailTitle }}</h1>
             <p class="subtitle">{{ $mailSubtitle }}</p>
         </div>

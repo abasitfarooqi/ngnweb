@@ -76,7 +76,7 @@
 <body>
     <div class="container">
         <div class="header" style="text-align: center;">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
             <p style="color: green; font-weight: bold; text-align: center;">Contact Us</p>
         </div>
        
@@ -92,7 +92,7 @@
             <p style="color: #000; font-weight: bold;"><strong>Mark as Dealt (if you have dealt with this query):</strong> <a href="{{ url('ngn-admin/contact-query/' . ($request->id ?? 'N/A') . '/edit') }}">Mark as Dealt</a></p>
         @endif
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" class="footer-logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" class="footer-logo">
             <p class="contact-info">
                 <strong>Contact Us:</strong><br>
                 <span class="contact-text">Email: <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></span><br>

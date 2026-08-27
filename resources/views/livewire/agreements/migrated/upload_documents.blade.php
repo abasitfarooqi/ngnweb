@@ -31,12 +31,12 @@
         <div class="upload-doc-topbar">
             <div>
                 <img
-                    src="{{ asset(config('agreement.brand.web_logo_light', 'img/ngn-motor-logo-fit-small.png')) }}"
+                    src="{{ asset(config('agreement.brand.web_logo_light', 'img/ngn-motor-logo-fit-small-ngn.png')) }}"
                     alt="Neguinho Motors"
                     class="upload-doc-logo-light"
                 >
                 <img
-                    src="{{ asset(config('agreement.brand.web_logo_dark', 'img/ngn-motor-logo-fit-small.png')) }}"
+                    src="{{ asset(config('agreement.brand.web_logo_dark', 'img/ngn-motor-logo-fit-small-ngn.png')) }}"
                     alt="Neguinho Motors"
                     class="upload-doc-logo-dark"
                 >

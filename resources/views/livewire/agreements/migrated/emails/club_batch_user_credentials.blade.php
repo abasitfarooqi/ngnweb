@@ -139,7 +139,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn_transparent_logo96.png" alt="NGN Club" class="logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn_transparent_logo96-ngn.png" alt="NGN Club" class="logo">
             <h1>NGN Club Login Credentials</h1>
         </div>
         <div class="content">

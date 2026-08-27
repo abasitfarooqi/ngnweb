@@ -47,7 +47,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" style="max-width: 150px !important;">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" style="max-width: 150px !important;">
             <h3>Motorbike Preference Survey</h3>
         </div>
         <p>Dear {{ $name }},</p>

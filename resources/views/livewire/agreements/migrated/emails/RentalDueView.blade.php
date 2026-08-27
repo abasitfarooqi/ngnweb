@@ -351,7 +351,7 @@
                                             The Neguinho Motors Team
                                         </p>
                                         <img style="width: 40%; height: auto; margin-bottom: 10px; display: block; text-align: left;"
-                                            src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png"
+                                            src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png"
                                             alt="">
                                     </div>
                                 </td>
@@ -368,7 +368,7 @@
                         <tr style="border-bottom: 1px solid rgba(0,0,0,.05);">
                             <td valign="middle" width="80%" style="text-align:left; padding: 0 2.5em;">
                                 <div class="product-entry">
-                                    <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="" style="width: 100px; max-width: 600px; height: auto; margin-bottom: 20px; display: block;">
+                                    <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="" style="width: 100px; max-width: 600px; height: auto; margin-bottom: 20px; display: block;">
                                     <div class="text">
                                         <h3>Analog Wrest Watch</h3>
                                         <span>Small</span>

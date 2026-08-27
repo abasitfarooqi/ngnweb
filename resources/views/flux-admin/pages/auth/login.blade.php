@@ -2,7 +2,7 @@
     <div class="mx-auto w-full max-w-md">
         <div class="mb-8 text-center">
             <img
-                src="{{ asset(config('site.logo', 'img/ngn-motor-logo-fit-small.png')) }}"
+                src="{{ asset(config('site.logo', 'img/ngn-motor-logo-fit-small-ngn.png')) }}"
                 alt="NGN Motors"
                 class="mx-auto h-12 w-auto"
                 width="180"

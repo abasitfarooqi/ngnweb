@@ -1023,7 +1023,7 @@
             {{-- Brand --}}
             <a href="{{ route('flux-admin.dashboard') }}" class="flux-admin-brand flex items-center" aria-label="NGN Motors admin">
                 <span class="flux-admin-brand-mark">
-                    <img src="{{ asset('img/ngn-motor-logo-fit-small.png') }}" alt="NGN Motors" class="h-8 w-auto">
+                    <img src="{{ asset('img/ngn-motor-logo-fit-small-ngn.png') }}" alt="NGN Motors" class="h-8 w-auto">
                 </span>
             </a>
         </div>

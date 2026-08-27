@@ -75,7 +75,7 @@
 
 <body>
     <div class="header" style="padding-top: 20px;">
-        <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+        <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
         <h1 style="font-style: italic; font-weight: lighter;">Loyalty Upgrade Scheme Policy</h1>
     </div>
     <div class="container">
@@ -87,7 +87,7 @@
     </div>
     <div class="footer" style="background-color: #c31924; padding: 20px; margin-top: 30px; border-top: 1px solid  #e7e7e7;">
         <div class="footer-content" style="max-width: 600px; margin: 0 auto; text-align: center;">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" class="footer-logo" style="width: 120px; margin-bottom: 15px;">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" class="footer-logo" style="width: 120px; margin-bottom: 15px;">
             <p>Kind regards,</p>
             <p>The Neguinho Motors Team</p>
             <p><strong>Email:</strong> <a href="mailto:customerservice@neguinhomotors.co.uk">customerservice@neguinhomotors.co.uk</a></p>

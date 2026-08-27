@@ -162,7 +162,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p style="color: red; font-weight: bold;">PCN APPEAL STILL PENDING</p>
                 <div class="sub-title">
@@ -191,7 +191,7 @@
         </ul>
 
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" class="footer-logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" class="footer-logo">
             <p class="contact-info">
                 <strong>Contact Us:</strong><br>
                 <span class="contact-text">Email: <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></span><br>

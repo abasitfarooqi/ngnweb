@@ -122,7 +122,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p style="color: red; font-weight: bold;">PCN NOTICE</p>
                 <div class="sub-title">
@@ -147,7 +147,7 @@
         <p>For further details, kindly call us: <a href="tel:02083141498" class="active-color">0208 314 1498</a></p>
         <p>Please address this matter within the next 48 hours to avoid an additional £25 fee on top of the PCN charges.</p>
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" class="footer-logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" class="footer-logo">
             <p class="contact-info">
                 <strong>Contact Us:</strong><br>
                 <span class="contact-text">Email: <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></span><br>
@@ -165,7 +165,7 @@
 
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p style="color: red; font-weight: bold;">AVISO DE PCN</p>
                 <div class="sub-title">
@@ -190,7 +190,7 @@
         <p>Por favor, ligue para nós para mais detalhes: <a href="tel:02083141498" class="active-color">0208 314 1498</a></p>
         <p>Por favor, resolva esta questão nas próximas 48 horas para evitar uma taxa adicional de £25 além das cobranças do PCN.</p>
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo" class="footer-logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo" class="footer-logo">
             <p class="contact-info">
                 <strong>Contacte-nos:</strong><br>
                 <span class="contact-text">Email: <a href="mailto:enquiries@neguinhomotors.co.uk">enquiries@neguinhomotors.co.uk</a></span><br>

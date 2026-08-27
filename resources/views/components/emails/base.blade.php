@@ -44,7 +44,7 @@
                 <tr>
                     <td align="center" style="padding-bottom:22px;">
                         <a href="https://ngnmotors.co.uk" style="text-decoration:none;display:inline-block;">
-                            <img src="https://ngnmotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motors" width="140" height="auto" style="display:block;height:auto;max-width:140px;">
+                            <img src="https://ngnmotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motors" width="140" height="auto" style="display:block;height:auto;max-width:140px;">
                         </a>
                     </td>
                 </tr>

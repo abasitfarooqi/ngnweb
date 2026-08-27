@@ -117,7 +117,7 @@
 
 <body>
     <div class="header">
-        <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+        <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
         <h1>New Partner Registration</h1>
     </div>
     <div class="container">
@@ -157,7 +157,7 @@
             </div>
         </div>
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo"
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo"
                 class="footer-logo">
             <div class="contact-info">
                 <p class="contact-text">

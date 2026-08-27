@@ -157,7 +157,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo">
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo">
             <div class="header-text">
                 <p>Order Refund Confirmation</p>
                 <div class="status-badge">
@@ -219,7 +219,7 @@
         </div>
 
         <div class="footer">
-            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small.png" alt="NGN Motor Logo"
+            <img src="https://neguinhomotors.co.uk/img/ngn-motor-logo-fit-small-ngn.png" alt="NGN Motor Logo"
                 class="footer-logo" style="max-width: 120px; width: 50%; height: auto;">
 
             <div class="contact-info">
