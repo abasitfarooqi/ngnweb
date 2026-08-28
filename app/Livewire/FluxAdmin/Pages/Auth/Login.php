@@ -67,7 +67,7 @@ class Login extends Component
                 return $intended;
             }
 
-            return route('flux-admin.communications.index');
+            return \App\Support\FluxAdminAccess::homeRoute($user);
         }
 
         return $intended !== '' ? $intended : route('flux-admin.dashboard');

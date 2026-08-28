@@ -166,6 +166,7 @@ class CommunicationSnapshotWriter
             'policy_snapshot' => [
                 'email_enabled' => (bool) ($policy?->email_enabled ?? true),
                 'internal_inbox_enabled' => (bool) ($policy?->internal_inbox_enabled ?? false),
+                'staff_copy_enabled' => (bool) ($policy?->staff_copy_enabled ?? false),
                 'web_push_enabled' => $webPush,
                 'mobile_push_enabled' => $mobilePush,
                 'reply_allowed' => (bool) ($policy?->reply_allowed ?? false),

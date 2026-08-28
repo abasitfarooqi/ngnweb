@@ -25,7 +25,7 @@ class CommunicationListResource extends JsonResource
             'archived' => $recipient?->archived_at !== null,
             'has_attachments' => (int) $this->attachments_count > 0,
             'attachment_count' => (int) $this->attachments_count,
-            'reply_allowed' => (bool) data_get($this->policy_snapshot, 'reply_allowed', false),
+            'reply_allowed' => true,
             'enquiry_allowed' => (bool) data_get($this->policy_snapshot, 'enquiry_allowed', false),
         ];
     }

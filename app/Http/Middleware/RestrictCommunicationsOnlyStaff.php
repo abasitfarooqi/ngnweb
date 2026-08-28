@@ -19,6 +19,6 @@ class RestrictCommunicationsOnlyStaff
             return $next($request);
         }
 
-        return redirect()->route('flux-admin.communications.index');
+        return redirect()->to(FluxAdminAccess::homeRoute());
     }
 }

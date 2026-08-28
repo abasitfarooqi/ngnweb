@@ -15,6 +15,7 @@ use App\Services\Communications\CommunicationSchema;
 use App\Services\Communications\CommunicationSystemSwitch;
 use App\Support\FluxAdminAccess;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Title;
@@ -35,6 +36,8 @@ class CommunicationIndex extends Component
     public ?int $grantAccessUserId = null;
 
     public string $grantUserSearch = '';
+
+    public string $grantAccessKind = 'communications';
 
     private const LIST_STATE_SESSION_KEY = 'flux_admin.communications.list';
 
@@ -104,6 +107,7 @@ class CommunicationIndex extends Component
         $allowed = [
             'email_enabled',
             'internal_inbox_enabled',
+            'staff_copy_enabled',
             'web_push_enabled',
             'mobile_push_enabled',
             'reply_allowed',
@@ -112,11 +116,18 @@ class CommunicationIndex extends Component
 
         abort_unless(in_array($field, $allowed, true), 404);
 
+        if ($field === 'staff_copy_enabled' && ! Schema::hasColumn('communication_policies', 'staff_copy_enabled')) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Run the latest communication migration before turning Staff copy on.');
+
+            return;
+        }
+
         $definition = CommunicationDefinition::query()->with('policy')->findOrFail($definitionId);
         $policy = $definition->policy ?: CommunicationPolicy::query()->create([
             'communication_definition_id' => $definition->id,
             'email_enabled' => true,
             'internal_inbox_enabled' => false,
+            'staff_copy_enabled' => false,
             'web_push_enabled' => false,
             'mobile_push_enabled' => false,
             'reply_allowed' => false,
@@ -196,6 +207,7 @@ class CommunicationIndex extends Component
             'communication_definition_id' => $definition->id,
             'email_enabled' => true,
             'internal_inbox_enabled' => false,
+            'staff_copy_enabled' => false,
             'web_push_enabled' => false,
             'mobile_push_enabled' => false,
             'reply_allowed' => false,
@@ -229,6 +241,7 @@ class CommunicationIndex extends Component
 
         $this->validate([
             'grantAccessUserId' => ['required', 'integer', 'min:1', 'exists:users,id'],
+            'grantAccessKind' => ['required', Rule::in(['communications', 'notifications'])],
         ], [
             'grantAccessUserId.required' => 'Choose a user to grant access.',
         ]);
@@ -241,18 +254,22 @@ class CommunicationIndex extends Component
             return;
         }
 
-        if ($user->hasDirectPermission(FluxAdminAccess::COMMUNICATIONS_PERMISSION)) {
-            $this->dispatch('flux-admin:toast', type: 'error', message: 'This user already has temporary communications access.');
+        $permission = $this->grantAccessKind === 'notifications'
+            ? FluxAdminAccess::NOTIFICATIONS_PERMISSION
+            : FluxAdminAccess::COMMUNICATIONS_PERMISSION;
+
+        if ($user->hasDirectPermission($permission)) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'This user already has that access.');
 
             return;
         }
 
-        $user->givePermissionTo(FluxAdminAccess::COMMUNICATIONS_PERMISSION);
+        $user->givePermissionTo($permission);
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $audit->record(
             event: 'temporary_access_granted',
-            field: FluxAdminAccess::COMMUNICATIONS_PERMISSION,
+            field: $permission,
             oldValue: false,
             newValue: true,
             metadata: [
@@ -265,20 +282,28 @@ class CommunicationIndex extends Component
         $this->grantAccessUserId = null;
         $this->grantUserSearch = '';
 
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Temporary communications access granted. They can sign in at Flux Admin. Remove it when the work is finished.');
+        $this->dispatch(
+            'flux-admin:toast',
+            type: 'success',
+            message: $permission === FluxAdminAccess::NOTIFICATIONS_PERMISSION
+                ? 'Notifications access granted. They can sign in at Flux Admin and only see Notifications. Remove it when the work is finished.'
+                : 'Communications access granted. They can sign in at Flux Admin and only see the control panel. Remove it when the work is finished.',
+        );
     }
 
-    public function revokeTemporaryAccess(int $userId, CommunicationAuditRecorder $audit): void
+    public function revokeTemporaryAccess(int $userId, string $permission, CommunicationAuditRecorder $audit): void
     {
         $this->assertCanToggleGlobalSwitch();
 
+        abort_unless(in_array($permission, FluxAdminAccess::restrictedPermissionNames(), true), 404);
+
         $user = User::query()->findOrFail($userId);
-        $user->revokePermissionTo(FluxAdminAccess::COMMUNICATIONS_PERMISSION);
+        $user->revokePermissionTo($permission);
         app(PermissionRegistrar::class)->forgetCachedPermissions();
 
         $audit->record(
             event: 'temporary_access_revoked',
-            field: FluxAdminAccess::COMMUNICATIONS_PERMISSION,
+            field: $permission,
             oldValue: true,
             newValue: false,
             metadata: [
@@ -288,7 +313,7 @@ class CommunicationIndex extends Component
             ],
         );
 
-        $this->dispatch('flux-admin:toast', type: 'success', message: 'Temporary communications access removed.');
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Temporary access removed.');
     }
 
     public function render(CommunicationSystemSwitch $switch, CommunicationSchema $schema)
@@ -331,6 +356,8 @@ class CommunicationIndex extends Component
                 ->when($this->filter('email') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('email_enabled', false)))
                 ->when($this->filter('inbox') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('internal_inbox_enabled', true)))
                 ->when($this->filter('inbox') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('internal_inbox_enabled', false)))
+                ->when(Schema::hasColumn('communication_policies', 'staff_copy_enabled') && $this->filter('staff_copy') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('staff_copy_enabled', true)))
+                ->when(Schema::hasColumn('communication_policies', 'staff_copy_enabled') && $this->filter('staff_copy') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('staff_copy_enabled', false)))
                 ->when($this->filter('web_push') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('web_push_enabled', true)))
                 ->when($this->filter('web_push') === 'off', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('web_push_enabled', false)))
                 ->when($this->filter('mobile_push') === 'on', fn ($q) => $q->whereHas('policy', fn ($p) => $p->where('mobile_push_enabled', true)))
@@ -360,6 +387,7 @@ class CommunicationIndex extends Component
             'filterClassifications' => $schemaReady
                 ? CommunicationDefinition::query()->whereNotNull('classification')->where('classification', '!=', '')->distinct()->orderBy('classification')->pluck('classification')
                 : collect(),
+            'canViewNotifications' => FluxAdminAccess::canViewCommunicationsLog(),
             'temporaryAccessUsers' => $canToggleGlobal ? $this->temporaryAccessUsers() : collect(),
             'grantableUsers' => $canToggleGlobal ? $this->grantableUsers() : collect(),
         ]);
@@ -457,7 +485,8 @@ class CommunicationIndex extends Component
     private function temporaryAccessUsers()
     {
         return User::query()
-            ->whereHas('permissions', fn ($q) => $q->where('name', FluxAdminAccess::COMMUNICATIONS_PERMISSION))
+            ->whereHas('permissions', fn ($q) => $q->whereIn('name', FluxAdminAccess::restrictedPermissionNames()))
+            ->with(['permissions' => fn ($q) => $q->whereIn('name', FluxAdminAccess::restrictedPermissionNames())])
             ->orderBy('first_name')
             ->orderBy('last_name')
             ->get(['id', 'first_name', 'last_name', 'email']);

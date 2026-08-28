@@ -1021,7 +1021,7 @@
             <flux:sidebar.toggle class="shrink-0 lg:hidden" icon="x-mark" aria-label="Close menu" />
 
             {{-- Brand --}}
-            <a href="{{ route('flux-admin.dashboard') }}" class="flux-admin-brand flex items-center" aria-label="NGN Motors admin">
+            <a href="{{ \App\Support\FluxAdminAccess::homeRoute() }}" class="flux-admin-brand flex items-center" aria-label="NGN Motors admin">
                 <span class="flux-admin-brand-mark">
                     <img src="{{ asset('img/ngn-motor-logo-fit-small-ngn.png') }}" alt="NGN Motors" class="h-8 w-auto">
                 </span>
@@ -1063,8 +1063,12 @@
         <div x-show="navMode === 'home'" x-cloak class="flux-admin-nav-mode flex min-h-0 flex-1 flex-col overflow-y-auto">
         @if($commsOnlyStaff)
         <flux:navlist id="flux-admin-navlist-comms" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>
+                @if(\App\Support\FluxAdminAccess::canViewCommunicationsLog())
                 <flux:navlist.item href="{{ route('flux-admin.communications.sent.index') }}" icon="bell" :current="request()->routeIs('flux-admin.communications.sent.*')">Notifications <span class="js-staff-notifications-unread flux-admin-unread-badge{{ ($staffUnread['notifications'] ?? 0) > 0 ? '' : ' hidden' }}" data-count="{{ (int) ($staffUnread['notifications'] ?? 0) }}">{{ ($staffUnread['notifications'] ?? 0) > 99 ? '99+' : (int) ($staffUnread['notifications'] ?? 0) }}</span></flux:navlist.item>
+                @endif
+                @if(\App\Support\FluxAdminAccess::canAccessCommunications())
                 <flux:navlist.item href="{{ route('flux-admin.communications.index') }}" icon="bell-alert" :current="request()->routeIs('flux-admin.communications.index') || request()->routeIs('flux-admin.communications.show') || request()->routeIs('flux-admin.communications.email-preview')">Communications</flux:navlist.item>
+                @endif
         </flux:navlist>
         @else
         <flux:navlist id="flux-admin-navlist" class="flux-admin-menu min-h-0 overflow-y-auto" wire:navigate:scroll>

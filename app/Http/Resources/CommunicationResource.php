@@ -36,7 +36,7 @@ class CommunicationResource extends JsonResource
                 'read_at' => optional($recipient?->read_at)->toIso8601String(),
                 'archived_at' => optional($recipient?->archived_at)->toIso8601String(),
             ],
-            'reply_allowed' => (bool) data_get($this->policy_snapshot, 'reply_allowed', false),
+            'reply_allowed' => true,
             'enquiry_allowed' => (bool) data_get($this->policy_snapshot, 'enquiry_allowed', false),
             'attachments' => CommunicationAttachmentResource::collection($this->whenLoaded('attachments')),
             'replies' => $this->whenLoaded('replies', fn () => $this->replies->map(fn ($reply) => [

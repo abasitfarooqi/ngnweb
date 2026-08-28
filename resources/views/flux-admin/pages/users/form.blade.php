@@ -96,7 +96,7 @@
 
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Permissions</h2>
-            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Permissions inherited from roles are shown for reference. Extra permissions are granted directly to this user. Tick manage-communications to give this user the Communications page.</p>
+            <p class="text-sm text-zinc-500 dark:text-zinc-400 mb-4">Permissions inherited from roles are shown for reference. Extra permissions are granted directly to this user. Tick manage-communications for the Communications control panel, and view-notifications for the Notifications page. They are separate.</p>
 
             <x-flux-admin::field-group hint="Granted in addition to the user's role permissions.">
                 <div class="mb-2">

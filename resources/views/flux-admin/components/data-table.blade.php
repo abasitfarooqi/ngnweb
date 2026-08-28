@@ -28,7 +28,7 @@
 
     <div class="flux-admin-table-panel border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
         <div class="touch-pan-x overflow-x-auto">
-            <div class="min-w-[44rem] md:min-w-0">
+            <div class="min-w-0">
                 {{ $slot }}
             </div>
         </div>

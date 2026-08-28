@@ -45,10 +45,11 @@ class RoleForm extends Component
     public function render()
     {
         $permissionModel = config('permission.models.permission');
+        $restrictedNames = FluxAdminAccess::restrictedPermissionNames();
         $permissions = $permissionModel::query()
             ->when(
                 ! FluxAdminAccess::canAssignCommunicationsPermission(),
-                fn ($q) => $q->where('name', '!=', FluxAdminAccess::COMMUNICATIONS_PERMISSION),
+                fn ($q) => $q->whereNotIn('name', $restrictedNames),
             )
             ->when($this->permissionSearch, fn ($q) => $q->where('name', 'like', "%{$this->permissionSearch}%"))
             ->orderBy('name')
@@ -80,25 +81,27 @@ class RoleForm extends Component
         $role->save();
 
         $permissionModel = config('permission.models.permission');
-        $communicationsPermissionId = $permissionModel::query()
-            ->where('name', FluxAdminAccess::COMMUNICATIONS_PERMISSION)
-            ->value('id');
+        $restrictedIds = $permissionModel::query()
+            ->whereIn('name', FluxAdminAccess::restrictedPermissionNames())
+            ->pluck('id', 'name')
+            ->map(fn ($id) => (int) $id)
+            ->all();
 
         $rolePermissionIds = array_map('intval', $this->selectedPermissions);
+        $selectedIds = $rolePermissionIds;
 
-        if ($communicationsPermissionId) {
-            $communicationsPermissionId = (int) $communicationsPermissionId;
+        foreach ($restrictedIds as $permissionName => $restrictedId) {
             $rolePermissionIds = array_values(array_filter(
                 $rolePermissionIds,
-                fn (int $id) => $id !== $communicationsPermissionId,
+                fn (int $id) => $id !== $restrictedId,
             ));
 
-            $keepCommunications = FluxAdminAccess::canAssignCommunicationsPermission()
-                ? in_array($communicationsPermissionId, array_map('intval', $this->selectedPermissions), true)
-                : $role->permissions()->where('permissions.id', $communicationsPermissionId)->exists();
+            $keep = FluxAdminAccess::canAssignCommunicationsPermission()
+                ? in_array($restrictedId, $selectedIds, true)
+                : $role->permissions()->where('permissions.id', $restrictedId)->exists();
 
-            if ($keepCommunications) {
-                $rolePermissionIds[] = $communicationsPermissionId;
+            if ($keep) {
+                $rolePermissionIds[] = $restrictedId;
             }
         }
 

@@ -40,7 +40,7 @@
         <div class="border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 p-5">
             <h2 class="text-sm font-semibold text-zinc-700 dark:text-zinc-300 uppercase tracking-wide mb-4">Permissions</h2>
 
-            <x-flux-admin::field-group :error="$errors->first('selectedPermissions')" hint="Tick the permissions that should be granted to this role. Only Super Admin can assign manage-communications.">
+            <x-flux-admin::field-group :error="$errors->first('selectedPermissions')" hint="Tick the permissions that should be granted to this role. Only Super Admin can assign manage-communications (control panel) and view-notifications (Notifications page).">
                 <div class="mb-2">
                     <flux:input wire:model.live.debounce.250ms="permissionSearch" placeholder="Filter permissions…" />
                 </div>

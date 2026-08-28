@@ -115,8 +115,7 @@ class Show extends Component
         return view('livewire.portal.communications.show', [
             'communication' => $communication,
             'recipient' => $this->recipient(),
-            'replyAllowed' => (bool) data_get($communication->policy_snapshot, 'reply_allowed', false)
-                && app(CommunicationReplyRecorder::class)->ready(),
+            'replyAllowed' => app(CommunicationReplyRecorder::class)->ready(),
             'enquiry' => $enquiry,
             'enquiryOpen' => $enquiry !== null && ! in_array((string) $enquiry->status, ['resolved', 'closed'], true),
         ])->layout('components.layouts.portal', [

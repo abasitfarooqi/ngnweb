@@ -27,9 +27,11 @@
             @endif
         </div>
         <div class="flex flex-wrap gap-2">
+            @if($canViewNotifications ?? false)
             <a href="{{ route('flux-admin.communications.sent.index') }}">
-                <flux:button size="sm" variant="ghost" icon="inbox" class="!rounded-none">Sent log</flux:button>
+                <flux:button size="sm" variant="ghost" icon="inbox" class="!rounded-none">Notifications</flux:button>
             </a>
+            @endif
             <a href="{{ route('flux-admin.communications.index') }}">
                 <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Back to list</flux:button>
             </a>
@@ -47,7 +49,7 @@
                     <div><span class="text-zinc-500">Subject:</span> {{ $emailPreview['subject'] }}</div>
                     <div class="font-mono text-xs">{{ $emailPreview['source'] }}</div>
                 </div>
-                <x-communication-email-snapshot class="mt-4" :html="$emailPreview['html'] ?? ''" />
+                    <x-communication-email-snapshot class="mt-4" :html="\App\Support\Communications\CommunicationStaffRedactor::html($emailPreview['html'] ?? '')" />
             @else
                 <div class="mt-4 border border-zinc-200 p-4 text-sm text-zinc-600 dark:border-zinc-700 dark:text-zinc-400">
                     {{ $emailPreview['error'] ?? 'Preview is not available for this communication yet.' }}
@@ -92,9 +94,11 @@
 
                     @foreach([
                         'email_enabled' => ['label' => 'Email', 'help' => 'Sends a real email to the customer. Turning OFF stops delivery through email (Super Admin only).'],
-                        'internal_inbox_enabled' => ['label' => 'Internal Inbox', 'help' => 'Stores a copy in the customer portal inbox. Does not send email by itself.'],
+                        'internal_inbox_enabled' => ['label' => 'Internal Inbox', 'help' => 'Stores a copy in the customer portal inbox. Off is off for the customer and for staff, unless Staff copy is on.'],
+                        'staff_copy_enabled' => ['label' => 'Staff copy', 'help' => 'Keep a redacted staff view when Inbox is off. Passwords and passkeys are never shown to staff.'],
                         'web_push_enabled' => ['label' => 'Web push', 'help' => 'Browser push notification when that channel is wired up.'],
                         'mobile_push_enabled' => ['label' => 'Mobile push', 'help' => 'Mobile app push when that channel is wired up.'],
+                        'reply_allowed' => ['label' => 'Customer replies', 'help' => 'Lets the customer reply in their portal inbox. Staff can always reply from Notifications.'],
                     ] as $field => $meta)
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">

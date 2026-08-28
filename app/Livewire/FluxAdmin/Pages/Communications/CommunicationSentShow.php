@@ -9,9 +9,12 @@ use App\Models\SupportConversation;
 use App\Services\Communications\CommunicationEnquiryStarter;
 use App\Services\Communications\CommunicationReplyRecorder;
 use App\Services\Communications\CommunicationSchema;
+use App\Support\Communications\CommunicationStaffRedactor;
 use App\Support\FluxAdminAccess;
 use App\Support\FluxAdminUnreadBadges;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Title;
@@ -19,7 +22,7 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 
 #[Layout('flux-admin.layouts.app')]
-#[Title('Sent communication - Flux Admin')]
+#[Title('Notification - Flux Admin')]
 class CommunicationSentShow extends Component
 {
     use WithAuthorization;
@@ -37,7 +40,7 @@ class CommunicationSentShow extends Component
     public function mount(Communication $communication): void
     {
         if (! FluxAdminAccess::canViewCommunicationsLog()) {
-            abort(403, 'You do not have permission to view communications.');
+            abort(403, 'You do not have permission to view notifications.');
         }
 
         $this->communication = $communication->load(['deliveries', 'recipients', 'definition', 'attachments']);
@@ -74,7 +77,7 @@ class CommunicationSentShow extends Component
 
     public function sendReply(): void
     {
-        abort_unless(FluxAdminAccess::canManageCommunications(), 403);
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
 
         $this->validate(array_merge([
             'replyBody' => ['nullable', 'string', 'max:5000'],
@@ -99,26 +102,89 @@ class CommunicationSentShow extends Component
         $this->loadReplies();
     }
 
+    public function hideFromStaff(): void
+    {
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
+        abort_unless(Schema::hasColumn('communications', 'staff_hidden_at'), 503);
+
+        $this->communication->forceFill([
+            'staff_hidden_at' => now(),
+            'staff_hidden_by' => FluxAdminAccess::user()?->getAuthIdentifier(),
+        ])->save();
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Hidden from staff. The log is kept.');
+    }
+
+    public function unhideFromStaff(): void
+    {
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
+        abort_unless(Schema::hasColumn('communications', 'staff_hidden_at'), 503);
+
+        $this->communication->forceFill([
+            'staff_hidden_at' => null,
+            'staff_hidden_by' => null,
+        ])->save();
+
+        $this->dispatch('flux-admin:toast', type: 'success', message: 'Shown to staff again.');
+    }
+
+    public function downloadPdf()
+    {
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
+
+        $this->communication->loadMissing(['deliveries', 'recipients', 'definition', 'attachments']);
+        $this->loadReplies();
+
+        $pdf = Pdf::loadView('flux-admin.pages.communications.sent-pdf', $this->staffViewData())
+            ->setPaper('a4');
+
+        $filename = 'notification-'.$this->communication->uuid.'.pdf';
+
+        return response()->streamDownload(function () use ($pdf): void {
+            echo $pdf->output();
+        }, $filename, [
+            'Content-Type' => 'application/pdf',
+        ]);
+    }
+
     public function render()
     {
         $this->communication->loadMissing(['deliveries', 'recipients', 'definition', 'attachments']);
         $this->loadReplies();
 
         $enquiry = $this->enquiryConversation();
-
         $canManage = FluxAdminAccess::canManageCommunications();
+        $canView = FluxAdminAccess::canViewCommunicationsLog();
 
-        return view('flux-admin.pages.communications.sent-show', [
+        return view('flux-admin.pages.communications.sent-show', array_merge($this->staffViewData(), [
             'canManageCommunications' => $canManage,
-            'replyAllowed' => $canManage
-                && (bool) data_get($this->communication->policy_snapshot, 'reply_allowed', false)
-                && app(CommunicationReplyRecorder::class)->ready(),
+            'canViewNotifications' => $canView,
+            'replyAllowed' => $canView && app(CommunicationReplyRecorder::class)->ready(),
             'enquiry' => $enquiry,
             'enquiryOpen' => $enquiry !== null && ! in_array((string) $enquiry->status, ['resolved', 'closed'], true),
             'canStartEnquiry' => $canManage
                 && (int) ($this->communication->customer_auth_id
                     ?: $this->communication->recipients()->value('customer_auth_id')) > 0,
-        ]);
+            'hideReady' => Schema::hasColumn('communications', 'staff_hidden_at'),
+        ]));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function staffViewData(): array
+    {
+        $maySeeBody = $this->communication->staffMaySeeBody();
+
+        return [
+            'staffMaySeeBody' => $maySeeBody,
+            'staffHtml' => $maySeeBody
+                ? CommunicationStaffRedactor::html($this->communication->content_html)
+                : '',
+            'staffText' => $maySeeBody
+                ? CommunicationStaffRedactor::text($this->communication->content_text)
+                : CommunicationStaffRedactor::text($this->communication->preview),
+        ];
     }
 
     private function enquiryConversation(): ?SupportConversation

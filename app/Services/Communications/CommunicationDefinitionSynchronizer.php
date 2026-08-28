@@ -98,6 +98,7 @@ class CommunicationDefinitionSynchronizer
         return [
             'email_enabled' => $definition->emailDefault,
             'internal_inbox_enabled' => $definition->internalInboxDefault,
+            'staff_copy_enabled' => false,
             'web_push_enabled' => $definition->webPushDefault,
             'mobile_push_enabled' => $definition->mobilePushDefault,
             'reply_allowed' => $definition->replyAllowedDefault,

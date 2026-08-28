@@ -1,24 +1,39 @@
 <div class="space-y-6" wire:poll.1500ms="$refresh">
-    <div class="flex flex-wrap items-start justify-between gap-3">
-        <div>
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div class="min-w-0">
             <flux:heading size="xl">{{ $communication->title }}</flux:heading>
-            <flux:text class="mt-1 font-mono text-xs">{{ $communication->uuid }}</flux:text>
-            @unless($canManageCommunications)
-                <p class="mt-2 text-xs text-zinc-500">Read only. Replies and enquiry chat are for staff with communications rights.</p>
-            @endunless
+            <flux:text class="mt-1 break-all font-mono text-xs">{{ $communication->uuid }}</flux:text>
+            @if($communication->isHiddenFromStaff())
+                <p class="mt-2 text-xs text-zinc-500">Hidden from the staff list. The log is still kept.</p>
+            @endif
         </div>
-        <a href="{{ route('flux-admin.communications.sent.index') }}">
-            <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Back</flux:button>
-        </a>
+        <div class="flex flex-wrap gap-2">
+            <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="downloadPdf">Export PDF</flux:button>
+            @if($hideReady && ! $communication->isHiddenFromStaff())
+                <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="hideFromStaff" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
+            @elseif($hideReady)
+                <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="unhideFromStaff">Show</flux:button>
+            @endif
+            <a href="{{ route('flux-admin.communications.sent.index') }}">
+                <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Back</flux:button>
+            </a>
+        </div>
     </div>
 
-    <div class="grid gap-4 xl:grid-cols-3">
-        <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900 xl:col-span-2">
+    <div class="grid gap-4 lg:grid-cols-3">
+        <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900 lg:col-span-2">
             <flux:heading size="lg">Stored snapshot</flux:heading>
             <flux:text class="mt-1">{{ $communication->subject }}</flux:text>
-            <div class="mt-4">
-                <x-communication-email-snapshot :html="$communication->content_html" />
-            </div>
+
+            @if(! $staffMaySeeBody)
+                <div class="mt-4 border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-700 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300">
+                    Inbox was off for this send, so the body is off for staff and the customer. Turn Staff copy on this communication in the control panel if a later send should keep a redacted staff view. Passwords and passkeys are never shown to staff.
+                </div>
+            @else
+                <div class="mt-4">
+                    <x-communication-email-snapshot :html="$staffHtml" />
+                </div>
+            @endif
 
             @php
                 $mailAttachments = $communication->attachments->filter(fn ($file) => data_get($file->metadata, 'source') !== 'reply');
@@ -60,7 +75,7 @@
 
                 @if($replyAllowed)
                     <form wire:submit="sendReply" class="mt-4 space-y-3">
-                        <textarea wire:model="replyBody" rows="4" class="w-full border border-zinc-300 bg-white p-3 text-sm dark:border-zinc-700 dark:bg-zinc-950" placeholder="Write a reply on this communication"></textarea>
+                        <textarea wire:model="replyBody" rows="4" class="w-full border border-zinc-300 bg-white p-3 text-sm dark:border-zinc-700 dark:bg-zinc-950" placeholder="Write a reply. The customer sees it in their portal inbox when Inbox was on for this send."></textarea>
                         @error('replyBody') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
                         <div>
                             <p class="text-sm">Attachments (optional)</p>
@@ -76,7 +91,7 @@
         </div>
 
         <div class="space-y-4">
-            <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">Enquiry chat</flux:heading>
                 @if($enquiry)
                     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
@@ -92,11 +107,11 @@
                 @elseif($canManageCommunications)
                     <p class="mt-2 text-sm text-zinc-500">No portal account is linked, so a support chat cannot be started yet.</p>
                 @else
-                    <p class="mt-2 text-sm text-zinc-500">Read only. Enquiry chat cannot be started from this page.</p>
+                    <p class="mt-2 text-sm text-zinc-500">Enquiry chat is part of the Communications control panel.</p>
                 @endif
             </div>
 
-            <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">Delivery</flux:heading>
                 <dl class="mt-3 space-y-3 text-sm">
                     @forelse($communication->deliveries as $delivery)
@@ -116,7 +131,7 @@
                 </dl>
             </div>
 
-            <div class="border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">Customer</flux:heading>
                 @forelse($communication->recipients as $recipient)
                     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
@@ -126,11 +141,15 @@
                         · {{ $recipient->archived_at ? 'archived' : 'in inbox' }}
                     </p>
                 @empty
-                    <p class="mt-2 text-sm text-zinc-500">No portal recipient yet. Inbox is waiting for a matching portal account, or Inbox was off.</p>
+                    <p class="mt-2 text-sm text-zinc-500">No portal recipient. Inbox is off, or a matching portal account is still waiting.</p>
                 @endforelse
                 @if(data_get($communication->payload_snapshot, 'legacy_email_fallback'))
                     <p class="mt-3 text-sm text-zinc-500">Email was sent as a no-portal fallback.</p>
                 @endif
+                <p class="mt-3 text-xs text-zinc-500">
+                    Customer inbox {{ $communication->inboxEnabledForCustomer() ? 'on' : 'off' }}
+                    · Staff copy {{ $communication->staffCopyEnabled() ? 'on' : 'off' }}
+                </p>
             </div>
         </div>
     </div>

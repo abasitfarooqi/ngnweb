@@ -70,6 +70,7 @@ class CommunicationShow extends Component
             'audits' => $audits,
             'emailPreview' => $emailPreview,
             'canManageCommunications' => FluxAdminAccess::canAccessCommunications(),
+            'canViewNotifications' => FluxAdminAccess::canViewCommunicationsLog(),
             'canDisableEmail' => FluxAdminAccess::isSuperAdmin(),
         ]);
     }
@@ -82,11 +83,19 @@ class CommunicationShow extends Component
         $allowed = [
             'email_enabled',
             'internal_inbox_enabled',
+            'staff_copy_enabled',
             'web_push_enabled',
             'mobile_push_enabled',
+            'reply_allowed',
         ];
 
         abort_unless(in_array($field, $allowed, true), 404);
+
+        if ($field === 'staff_copy_enabled' && ! \Illuminate\Support\Facades\Schema::hasColumn('communication_policies', 'staff_copy_enabled')) {
+            $this->dispatch('flux-admin:toast', type: 'error', message: 'Run the latest communication migration before turning Staff copy on.');
+
+            return;
+        }
 
         $definition = $this->communicationDefinition;
         abort_if($definition === null, 404);
@@ -200,6 +209,7 @@ class CommunicationShow extends Component
             'communication_definition_id' => $definition->id,
             'email_enabled' => true,
             'internal_inbox_enabled' => false,
+            'staff_copy_enabled' => false,
             'web_push_enabled' => false,
             'mobile_push_enabled' => false,
             'reply_allowed' => false,

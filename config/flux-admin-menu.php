@@ -145,7 +145,7 @@ return [
         ['group' => 'Surveys', 'label' => 'Responses', 'route' => 'flux-admin.survey-responses.index', 'permission' => 'see-menu-commons'],
         ['group' => 'Surveys', 'label' => 'Answers', 'route' => 'flux-admin.survey-answers.index', 'permission' => 'see-menu-commons'],
 
-        ['group' => 'Notifications', 'label' => 'Notifications', 'route' => 'flux-admin.communications.sent.index', 'when' => 'communications_log', 'keywords' => 'sent mail staff alerts'],
+        ['group' => 'Notifications', 'label' => 'Notifications', 'route' => 'flux-admin.communications.sent.index', 'when' => 'communications_log', 'keywords' => 'sent mail staff alerts notifications log'],
         ['group' => 'Communications', 'label' => 'Communications', 'route' => 'flux-admin.communications.index', 'when' => 'communications', 'keywords' => 'policy email compose'],
 
         ['group' => 'Misc / Experiments', 'label' => 'Calendar', 'route' => 'flux-admin.calendar.index', 'role' => 'Admin'],

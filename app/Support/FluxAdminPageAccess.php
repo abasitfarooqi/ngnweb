@@ -142,11 +142,7 @@ final class FluxAdminPageAccess
 
     public static function userHasPermission(Authenticatable $user, string $permission): bool
     {
-        try {
-            return method_exists($user, 'can') && $user->can($permission);
-        } catch (\Throwable) {
-            return false;
-        }
+        return FluxAdminAccess::userHasPermission($user, $permission);
     }
 
     /**
@@ -169,7 +165,8 @@ final class FluxAdminPageAccess
             'logout' => ['open' => true],
             'director-command-centre' => ['renting_referral_investigate' => true],
 
-            'communications' => $sa,
+            'communications.sent' => ['permission' => FluxAdminAccess::NOTIFICATIONS_PERMISSION],
+            'communications' => ['permission' => FluxAdminAccess::COMMUNICATIONS_PERMISSION],
             'users' => $sa,
             'user' => $sa,
             'roles' => $sa,

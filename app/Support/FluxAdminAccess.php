@@ -10,6 +10,8 @@ final class FluxAdminAccess
 {
     public const COMMUNICATIONS_PERMISSION = 'manage-communications';
 
+    public const NOTIFICATIONS_PERMISSION = 'view-notifications';
+
     /** @var array<string, bool> */
     private static array $superAdminCache = [];
 
@@ -78,12 +80,18 @@ final class FluxAdminAccess
     }
 
     /**
-     * Policy panel: Super Admin, or anyone Super Admin granted
-     * manage-communications on (user or role).
+     * Communications control panel: Super Admin, or anyone granted
+     * manage-communications on the user or a role.
      */
     public static function canAccessCommunications(?Authenticatable $user = null): bool
     {
-        return self::isSuperAdmin($user);
+        $user ??= self::user();
+        if ($user === null) {
+            return false;
+        }
+
+        return self::isSuperAdmin($user)
+            || self::userHasPermission($user, self::COMMUNICATIONS_PERMISSION);
     }
 
     public static function canManageCommunications(?Authenticatable $user = null): bool
@@ -91,9 +99,19 @@ final class FluxAdminAccess
         return self::canAccessCommunications($user);
     }
 
+    /**
+     * Notifications log (sent/received): Super Admin, or anyone granted
+     * view-notifications. Independent of the communications control panel.
+     */
     public static function canViewCommunicationsLog(?Authenticatable $user = null): bool
     {
-        return self::isSuperAdmin($user);
+        $user ??= self::user();
+        if ($user === null) {
+            return false;
+        }
+
+        return self::isSuperAdmin($user)
+            || self::userHasPermission($user, self::NOTIFICATIONS_PERMISSION);
     }
 
     public static function canAssignCommunicationsPermission(?Authenticatable $user = null): bool
@@ -110,10 +128,11 @@ final class FluxAdminAccess
 
         return (int) ($user->is_admin ?? 0) === 1
             || self::isSuperAdmin($user)
-            || self::canAccessCommunications($user);
+            || self::canAccessCommunications($user)
+            || self::canViewCommunicationsLog($user);
     }
 
-    /** Granted communications access, but not a Flux admin account. */
+    /** Granted communications or notifications access, but not a Flux admin account. */
     public static function isCommunicationsOnlyStaff(?Authenticatable $user = null): bool
     {
         $user ??= self::user();
@@ -125,7 +144,28 @@ final class FluxAdminAccess
             return false;
         }
 
-        return self::canAccessCommunications($user);
+        return self::canAccessCommunications($user)
+            || self::canViewCommunicationsLog($user);
+    }
+
+    public static function homeRoute(?Authenticatable $user = null): string
+    {
+        if (self::isCommunicationsOnlyStaff($user)) {
+            return self::canAccessCommunications($user)
+                ? route('flux-admin.communications.index')
+                : route('flux-admin.communications.sent.index');
+        }
+
+        return route('flux-admin.dashboard');
+    }
+
+    /** @return list<string> */
+    public static function restrictedPermissionNames(): array
+    {
+        return [
+            self::COMMUNICATIONS_PERMISSION,
+            self::NOTIFICATIONS_PERMISSION,
+        ];
     }
 
     private static function resolveIsSuperAdmin(Authenticatable $user): bool
@@ -166,8 +206,12 @@ final class FluxAdminAccess
                 ->exists();
     }
 
-    private static function userHasPermission(Authenticatable $user, string $permission): bool
+    public static function userHasPermission(?Authenticatable $user, string $permission): bool
     {
+        if ($user === null) {
+            return false;
+        }
+
         try {
             if (method_exists($user, 'can') && $user->can($permission)) {
                 return true;
@@ -177,9 +221,63 @@ final class FluxAdminAccess
                 return true;
             }
         } catch (\Throwable) {
+            // Fall through to table checks.
+        }
+
+        return self::permissionAssignedInTables($user, $permission);
+    }
+
+    private static function permissionAssignedInTables(Authenticatable $user, string $permission): bool
+    {
+        if (! Schema::hasTable('permissions')) {
             return false;
         }
 
-        return false;
+        $permissionId = DB::table('permissions')
+            ->where('name', $permission)
+            ->where('guard_name', 'web')
+            ->value('id');
+
+        if (! $permissionId) {
+            return false;
+        }
+
+        $userId = (int) ($user->getAuthIdentifier() ?? 0);
+        if ($userId <= 0) {
+            return false;
+        }
+
+        $modelType = $user::class;
+
+        if (Schema::hasTable('model_has_permissions')
+            && DB::table('model_has_permissions')
+                ->where('permission_id', $permissionId)
+                ->where('model_id', $userId)
+                ->where('model_type', $modelType)
+                ->exists()) {
+            return true;
+        }
+
+        if (! Schema::hasTable('model_has_roles') || ! Schema::hasTable('role_has_permissions')) {
+            return false;
+        }
+
+        $roleIds = DB::table('model_has_roles')
+            ->where('model_id', $userId)
+            ->where('model_type', $modelType)
+            ->pluck('role_id');
+
+        if ($roleIds->isEmpty() && isset($user->role_id) && (int) $user->role_id > 0) {
+            $roleIds = collect([(int) $user->role_id]);
+        }
+
+        if ($roleIds->isEmpty()) {
+            return false;
+        }
+
+        return DB::table('role_has_permissions')
+            ->where('permission_id', $permissionId)
+            ->whereIn('role_id', $roleIds->all())
+            ->exists();
     }
 }

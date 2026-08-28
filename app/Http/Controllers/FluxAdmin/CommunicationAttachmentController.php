@@ -13,7 +13,7 @@ class CommunicationAttachmentController extends Controller
     public function __invoke(Communication $communication, string $attachment)
     {
         if (! FluxAdminAccess::canViewCommunicationsLog()) {
-            abort(403, 'You do not have permission to view communications.');
+            abort(403, 'You do not have permission to view notifications.');
         }
 
         abort_unless(app(CommunicationSchema::class)->ready(), 404);

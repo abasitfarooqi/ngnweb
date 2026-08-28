@@ -25,7 +25,14 @@ class CommunicationReplyRecorder
         array $files = [],
     ): CommunicationReply {
         abort_unless($this->ready(), 503, 'Communication replies are not available yet.');
-        abort_unless((bool) data_get($communication->policy_snapshot, 'reply_allowed', false), 403);
+
+        $staffAuthor = $author instanceof User;
+        if (! $staffAuthor) {
+            abort_unless(
+                $communication->recipients()->where('customer_auth_id', $author->id)->exists(),
+                403
+            );
+        }
 
         $trimmed = trim($body);
         abort_if($trimmed === '' && $files === [], 422, 'Reply body or attachment is required.');

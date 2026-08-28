@@ -50,6 +50,7 @@ final class FluxAdminUnreadBadges
 
         $since = self::notificationsSeenAt($user);
         $count = (int) Communication::query()
+            ->when(\Illuminate\Support\Facades\Schema::hasColumn('communications', 'staff_hidden_at'), fn ($q) => $q->whereNull('staff_hidden_at'))
             ->where('created_at', '>', $since)
             ->count();
 

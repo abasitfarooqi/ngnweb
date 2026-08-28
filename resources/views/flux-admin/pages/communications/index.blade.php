@@ -17,7 +17,7 @@
                 </flux:text>
                 @if($canToggleGlobal)
                     <p class="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
-                        Hidden from global search. Super Admin always has access. Others need the manage-communications right.
+                        Hidden from global search. Super Admin always has access. Others need manage-communications for this control panel, and view-notifications for the Notifications page. Those rights are separate.
                     </p>
                 @endif
                 @unless($schemaReady)
@@ -64,7 +64,7 @@
         <div class="overflow-hidden border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             <flux:heading size="lg">Temporary access</flux:heading>
             <flux:text class="mt-2 max-w-3xl">
-                Super Admin can grant this to any account in Users — Admin, Super Admin, or a normal person with no admin role. They sign in at Flux Admin and only see Communications. It does not make them an Admin. Remove it when the work is finished.
+                Super Admin can grant this to any account in Users — Admin, Super Admin, or a normal person with no admin role. Communications is the control panel. Notifications is the sent/received log. They are separate. It does not make them an Admin. Remove it when the work is finished.
             </flux:text>
 
             <form wire:submit="grantTemporaryAccess" class="mt-4 space-y-3">
@@ -73,6 +73,13 @@
                     placeholder="Search name, email or username…"
                     icon="magnifying-glass"
                 />
+                <select
+                    wire:model="grantAccessKind"
+                    class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 !rounded-none focus:border-zinc-600 focus:outline-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100"
+                >
+                    <option value="communications">Communications control panel</option>
+                    <option value="notifications">Notifications page only</option>
+                </select>
                 <select
                     wire:model="grantAccessUserId"
                     size="4"
@@ -109,14 +116,23 @@
                                     {{ trim(($accessUser->first_name ?? '').' '.($accessUser->last_name ?? '')) ?: ($accessUser->name ?: $accessUser->email) }}
                                 </div>
                                 <div class="text-xs text-zinc-500 dark:text-zinc-400">{{ $accessUser->email }}</div>
+                                <div class="mt-1 flex flex-wrap gap-1">
+                                    @foreach($accessUser->permissions as $granted)
+                                        <flux:badge color="zinc">{{ $granted->name === 'view-notifications' ? 'Notifications' : 'Communications' }}</flux:badge>
+                                    @endforeach
+                                </div>
                             </div>
-                            <flux:button
-                                size="xs"
-                                variant="danger"
-                                class="!rounded-none"
-                                wire:click="revokeTemporaryAccess({{ $accessUser->id }})"
-                                wire:confirm="Remove communications access for this user? They will get a 403 until you grant it again."
-                            >Remove</flux:button>
+                            <div class="flex flex-wrap gap-1">
+                                @foreach($accessUser->permissions as $granted)
+                                    <flux:button
+                                        size="xs"
+                                        variant="danger"
+                                        class="!rounded-none"
+                                        wire:click="revokeTemporaryAccess({{ $accessUser->id }}, '{{ $granted->name }}')"
+                                        wire:confirm="Remove {{ $granted->name }} for this user?"
+                                    >Remove {{ $granted->name === 'view-notifications' ? 'Notifications' : 'Communications' }}</flux:button>
+                                @endforeach
+                            </div>
                         </div>
                     @endforeach
                 </div>
@@ -128,9 +144,11 @@
 
     <x-flux-admin::data-table title="Communication definitions" description="Transactional one-to-one emails only. Bulk, campaign and Saturday cron reports stay out of this list. The alias is the plain-English name staff should use.">
         <x-slot:actions>
-            <a href="{{ route('flux-admin.communications.sent.index') }}">
-                <flux:button size="sm" variant="ghost" icon="inbox" class="!rounded-none">Sent log</flux:button>
-            </a>
+            @if($canViewNotifications)
+                <a href="{{ route('flux-admin.communications.sent.index') }}">
+                    <flux:button size="sm" variant="ghost" icon="inbox" class="!rounded-none">Notifications</flux:button>
+                </a>
+            @endif
             <flux:button size="sm" variant="ghost" icon="arrow-path" wire:click="syncCatalogue" class="!rounded-none">Sync list</flux:button>
         </x-slot:actions>
         <x-slot:toolbar>
@@ -182,6 +200,13 @@
                     </select>
                 </div>
                 <div class="min-w-0 w-full">
+                    <select wire:model.live="filters.staff_copy" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
+                        <option value="">Any staff copy</option>
+                        <option value="on">Staff copy ON</option>
+                        <option value="off">Staff copy OFF</option>
+                    </select>
+                </div>
+                <div class="min-w-0 w-full">
                     <select wire:model.live="filters.web_push" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
                         <option value="">Any web push</option>
                         <option value="on">Web push ON</option>
@@ -198,6 +223,76 @@
             </x-flux-admin::filter-bar>
         </x-slot:toolbar>
 
+        <div class="divide-y divide-zinc-200 dark:divide-zinc-800 lg:hidden">
+            @forelse($definitions as $definition)
+                @php($policy = $definition->policy)
+                <div class="p-4" wire:key="comm-def-card-{{ $definition->id }}">
+                    <div class="font-medium text-zinc-900 dark:text-white">{{ $definition->name }}</div>
+                    <div class="mt-1 font-mono text-[11px] text-zinc-500">{{ $definition->key }}</div>
+                    @if($definition->description)
+                        <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{{ $definition->description }}</p>
+                    @endif
+                    <p class="mt-1 text-xs text-zinc-500">{{ $definition->category }} · {{ $definition->classification }}</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        @if($definition->active)
+                            <flux:button size="xs" variant="ghost" wire:click="toggleManaged({{ $definition->id }})" class="!rounded-none">
+                                <flux:badge color="blue">Managed</flux:badge>
+                            </flux:button>
+                        @else
+                            <flux:button size="xs" variant="ghost" wire:click="toggleManaged({{ $definition->id }})" class="!rounded-none">
+                                <flux:badge color="zinc">Legacy</flux:badge>
+                            </flux:button>
+                        @endif
+                        <select class="border border-zinc-300 bg-white px-2 py-1 text-xs text-zinc-900 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100" wire:change="updatePriority({{ $definition->id }}, $event.target.value)">
+                            @foreach(['critical' => 'Critical', 'important' => 'Important', 'normal' => 'Normal', 'informational' => 'Informational'] as $value => $label)
+                                <option value="{{ $value }}" @selected(($policy?->priority ?? $definition->priority) === $value)>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3">
+                        <div>
+                            <p class="text-[11px] text-zinc-500">Email</p>
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'email_enabled')" class="!rounded-none">
+                                <x-flux-admin::status-badge :status="(bool) ($policy?->email_enabled ?? true)" />
+                            </flux:button>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-zinc-500">Inbox</p>
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'internal_inbox_enabled')" wire:confirm="Inbox off hides this from the customer and from staff. Turn Staff copy on if you still need a redacted staff view." class="!rounded-none">
+                                <x-flux-admin::status-badge :status="(bool) ($policy?->internal_inbox_enabled ?? false)" />
+                            </flux:button>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-zinc-500">Staff copy</p>
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'staff_copy_enabled')" class="!rounded-none">
+                                <x-flux-admin::status-badge :status="(bool) ($policy?->staff_copy_enabled ?? false)" />
+                            </flux:button>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-zinc-500">Web push</p>
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'web_push_enabled')" class="!rounded-none">
+                                <x-flux-admin::status-badge :status="(bool) ($policy?->web_push_enabled ?? false)" />
+                            </flux:button>
+                        </div>
+                        <div>
+                            <p class="text-[11px] text-zinc-500">Mobile push</p>
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'mobile_push_enabled')" class="!rounded-none">
+                                <x-flux-admin::status-badge :status="(bool) ($policy?->mobile_push_enabled ?? false)" />
+                            </flux:button>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ route('flux-admin.communications.show', $definition) }}">
+                            <flux:button size="xs" variant="ghost" icon="eye" class="!rounded-none">View</flux:button>
+                        </a>
+                    </div>
+                </div>
+            @empty
+                <div class="p-8 text-center text-sm text-zinc-500">No definitions yet. Use Sync list to load them.</div>
+            @endforelse
+        </div>
+
+        <div class="hidden lg:block">
         <flux:table>
             <flux:table.columns>
                 <flux:table.column>Alias</flux:table.column>
@@ -206,8 +301,9 @@
                 <flux:table.column>Mode</flux:table.column>
                 <flux:table.column>Priority</flux:table.column>
                 <flux:table.column>Email</flux:table.column>
-                <flux:table.column>Inbox</flux:table.column>
-                <flux:table.column>Web push</flux:table.column>
+                        <flux:table.column>Inbox</flux:table.column>
+                        <flux:table.column>Staff copy</flux:table.column>
+                        <flux:table.column>Web push</flux:table.column>
                 <flux:table.column>Mobile push</flux:table.column>
                 <flux:table.column>Actions</flux:table.column>
             </flux:table.columns>
@@ -289,8 +385,13 @@
                             @endif
                         </flux:table.cell>
                         <flux:table.cell>
-                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'internal_inbox_enabled')" class="!rounded-none">
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'internal_inbox_enabled')" wire:confirm="Inbox off hides this from the customer and from staff. Turn Staff copy on if you still need a redacted staff view. Passwords are never shown to staff." class="!rounded-none">
                                 <x-flux-admin::status-badge :status="(bool) ($policy?->internal_inbox_enabled ?? false)" />
+                            </flux:button>
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            <flux:button size="xs" variant="ghost" wire:click="togglePolicy({{ $definition->id }}, 'staff_copy_enabled')" class="!rounded-none">
+                                <x-flux-admin::status-badge :status="(bool) ($policy?->staff_copy_enabled ?? false)" />
                             </flux:button>
                         </flux:table.cell>
                         <flux:table.cell>
@@ -311,7 +412,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="10" class="py-10 text-center text-zinc-500 dark:text-zinc-400">
+                        <flux:table.cell colspan="11" class="py-10 text-center text-zinc-500 dark:text-zinc-400">
                             @if($schemaReady)
                                 No definitions yet. Use Sync list to load rental agreements, finance contracts and the other transactional emails.
                             @else
@@ -322,6 +423,7 @@
                 @endforelse
             </flux:table.rows>
         </flux:table>
+        </div>
         <x-slot:footer>{{ $definitions->links() }}</x-slot:footer>
     </x-flux-admin::data-table>
 

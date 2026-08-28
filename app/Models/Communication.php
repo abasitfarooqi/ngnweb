@@ -30,13 +30,36 @@ class Communication extends Model
         'template_version',
         'priority',
         'category',
+        'staff_hidden_at',
+        'staff_hidden_by',
     ];
 
     protected $casts = [
         'structured_content' => 'array',
         'payload_snapshot' => 'array',
         'policy_snapshot' => 'array',
+        'staff_hidden_at' => 'datetime',
     ];
+
+    public function inboxEnabledForCustomer(): bool
+    {
+        return (bool) data_get($this->policy_snapshot, 'internal_inbox_enabled', false);
+    }
+
+    public function staffCopyEnabled(): bool
+    {
+        return (bool) data_get($this->policy_snapshot, 'staff_copy_enabled', false);
+    }
+
+    public function staffMaySeeBody(): bool
+    {
+        return $this->inboxEnabledForCustomer() || $this->staffCopyEnabled();
+    }
+
+    public function isHiddenFromStaff(): bool
+    {
+        return $this->staff_hidden_at !== null;
+    }
 
     public function getPreviewAttribute(?string $value): string
     {
