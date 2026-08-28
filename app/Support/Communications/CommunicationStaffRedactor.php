@@ -11,17 +11,21 @@ final class CommunicationStaffRedactor
             return '';
         }
 
-        $html = preg_replace(
-            '/(>(?:password|passkey|passcode|pin)<\/t[dh]>\s*<t[dh][^>]*>)([^<]+)/i',
-            '$1[hidden]',
-            $html
-        ) ?? $html;
+        try {
+            $html = preg_replace(
+                '/(>(?:password|passkey|passcode|pin)<\/t[dh]>\s*<t[dh][^>]*>)([^<]+)/i',
+                '$1[hidden]',
+                $html
+            ) ?? $html;
 
-        return preg_replace(
-            '/\b((?:password|passkey|passcode|pin)\s*[:：]\s*)([^\s<]+)/i',
-            '$1[hidden]',
-            $html
-        ) ?? $html;
+            return preg_replace(
+                '/\b((?:password|passkey|passcode|pin)\s*[:：]\s*)([^\s<]+)/i',
+                '$1[hidden]',
+                $html
+            ) ?? $html;
+        } catch (\Throwable) {
+            return $html;
+        }
     }
 
     public static function text(?string $text): string

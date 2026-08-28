@@ -12,7 +12,6 @@ use App\Services\Communications\CommunicationSchema;
 use App\Support\Communications\CommunicationStaffRedactor;
 use App\Support\FluxAdminAccess;
 use App\Support\FluxAdminUnreadBadges;
-use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Layout;
@@ -36,6 +35,8 @@ class CommunicationSentShow extends Component
     public array $replyFiles = [];
 
     public int $realtimeTick = 0;
+
+    private const PDF_EXPORT_READY = false;
 
     public function mount(Communication $communication): void
     {
@@ -128,23 +129,9 @@ class CommunicationSentShow extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Shown to staff again.');
     }
 
-    public function downloadPdf()
+    public function downloadPdf(): void
     {
-        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
-
-        $this->communication->loadMissing(['deliveries', 'recipients', 'definition', 'attachments']);
-        $this->loadReplies();
-
-        $pdf = Pdf::loadView('flux-admin.pages.communications.sent-pdf', $this->staffViewData())
-            ->setPaper('a4');
-
-        $filename = 'notification-'.$this->communication->uuid.'.pdf';
-
-        return response()->streamDownload(function () use ($pdf): void {
-            echo $pdf->output();
-        }, $filename, [
-            'Content-Type' => 'application/pdf',
-        ]);
+        abort_unless(FluxAdminAccess::canManageCommunications() && self::PDF_EXPORT_READY, 403);
     }
 
     public function render()
@@ -159,6 +146,7 @@ class CommunicationSentShow extends Component
         return view('flux-admin.pages.communications.sent-show', array_merge($this->staffViewData(), [
             'canManageCommunications' => $canManage,
             'canViewNotifications' => $canView,
+            'canExportPdf' => $canManage && self::PDF_EXPORT_READY,
             'replyAllowed' => $canView && app(CommunicationReplyRecorder::class)->ready(),
             'enquiry' => $enquiry,
             'enquiryOpen' => $enquiry !== null && ! in_array((string) $enquiry->status, ['resolved', 'closed'], true),
@@ -176,14 +164,23 @@ class CommunicationSentShow extends Component
     {
         $maySeeBody = $this->communication->staffMaySeeBody();
 
+        try {
+            $html = $maySeeBody
+                ? CommunicationStaffRedactor::html($this->communication->content_html)
+                : '';
+            $text = CommunicationStaffRedactor::text(
+                $maySeeBody ? $this->communication->content_text : $this->communication->preview
+            );
+        } catch (\Throwable) {
+            $html = '';
+            $text = '';
+            $maySeeBody = false;
+        }
+
         return [
             'staffMaySeeBody' => $maySeeBody,
-            'staffHtml' => $maySeeBody
-                ? CommunicationStaffRedactor::html($this->communication->content_html)
-                : '',
-            'staffText' => $maySeeBody
-                ? CommunicationStaffRedactor::text($this->communication->content_text)
-                : CommunicationStaffRedactor::text($this->communication->preview),
+            'staffHtml' => $html,
+            'staffText' => $text,
         ];
     }
 

@@ -58,7 +58,8 @@ class Communication extends Model
 
     public function isHiddenFromStaff(): bool
     {
-        return $this->staff_hidden_at !== null;
+        return array_key_exists('staff_hidden_at', $this->attributes)
+            && $this->staff_hidden_at !== null;
     }
 
     public function getPreviewAttribute(?string $value): string

@@ -8,7 +8,9 @@
             @endif
         </div>
         <div class="flex flex-wrap gap-2">
-            <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="downloadPdf">Export PDF</flux:button>
+            @if($canExportPdf)
+                <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="downloadPdf">Export PDF</flux:button>
+            @endif
             @if($hideReady && ! $communication->isHiddenFromStaff())
                 <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="hideFromStaff" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
             @elseif($hideReady)
