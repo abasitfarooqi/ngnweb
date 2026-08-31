@@ -23,7 +23,7 @@
     @endif
 
     <div class="touch-pan-x overflow-x-auto mt-3">
-        <div class="min-w-[72rem] xl:min-w-0">
+        <div class="min-w-[72rem]">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>Invoice ID</flux:table.column>
@@ -49,7 +49,7 @@
                         @endphp
                         <flux:table.row
                             wire:key="invoice-row-{{ $invoice->id }}"
-                            class="{{ $rowClass }}"
+                            class="{{ $rowClass }} {{ $expandedInvoiceId === $invoice->id ? 'bg-zinc-100 dark:bg-zinc-800' : '' }}"
                             wire:click="toggleInvoice({{ $invoice->id }})"
                         >
                             <flux:table.cell class="font-medium text-xs">#{{ $invoice->id }}</flux:table.cell>
@@ -88,127 +88,6 @@
                                 @endif
                             </flux:table.cell>
                         </flux:table.row>
-
-                        @if($expandedInvoiceId === $invoice->id)
-                            <flux:table.row wire:key="invoice-detail-{{ $invoice->id }}" class="bg-zinc-50 dark:bg-zinc-800/50">
-                                <flux:table.cell colspan="11" class="!p-4 !whitespace-normal">
-                                    <div class="invoice-detail-panel sticky left-0 z-[1] min-w-0 space-y-4 whitespace-normal" wire:click.stop>
-                                        @if(empty($expandedDetail))
-                                            <p class="text-sm text-red-600">Could not load invoice details.</p>
-                                        @else
-                                        <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Invoice details &amp; reminder management</h4>
-
-                                        <div class="grid gap-4 xl:grid-cols-2">
-                                            <div>
-                                                <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Customer information</p>
-                                                <dl class="space-y-1 text-sm">
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Name</dt><dd>{{ $expandedDetail['customer_name'] ?: 'N/A' }}</dd></div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Phone</dt><dd>{{ $expandedDetail['customer_phone'] ?: 'N/A' }}</dd></div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">WhatsApp</dt><dd>{{ $expandedDetail['customer_whatsapp'] ?: ($expandedDetail['customer_phone'] ?: 'N/A') }}</dd></div>
-                                                </dl>
-                                            </div>
-                                            <div>
-                                                <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Motorbike information</p>
-                                                <dl class="space-y-1 text-sm">
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Registration</dt><dd>{{ $expandedDetail['motorbike_reg_no'] ?: 'N/A' }}</dd></div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Weekly rent</dt><dd>£{{ number_format((float) $expandedDetail['weekly_rent'], 2) }}</dd></div>
-                                                </dl>
-                                            </div>
-                                        </div>
-
-                                        <div class="grid gap-4 xl:grid-cols-2">
-                                            <div>
-                                                <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Invoice details</p>
-                                                <dl class="space-y-2 text-sm">
-                                                    <div class="flex flex-wrap items-center gap-2">
-                                                        <dt class="text-zinc-500 min-w-[7rem]">Invoice date</dt>
-                                                        <dd>
-                                                            <input
-                                                                type="date"
-                                                                value="{{ $expandedDetail['invoice_date'] ? \Carbon\Carbon::parse($expandedDetail['invoice_date'])->format('Y-m-d') : '' }}"
-                                                                wire:change="updateInvoiceDate({{ $invoice->id }}, $event.target.value)"
-                                                                class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 py-1 text-sm"
-                                                            />
-                                                        </dd>
-                                                    </div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Amount</dt><dd>£{{ number_format((float) $expandedDetail['amount'], 2) }}</dd></div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Outstanding</dt><dd>£{{ number_format($outstanding, 2) }}</dd></div>
-                                                    <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd>
-                                                        @if($isPaid)
-                                                            <flux:badge color="emerald" size="sm">Paid</flux:badge>
-                                                        @else
-                                                            <flux:badge color="red" size="sm">Unpaid</flux:badge>
-                                                        @endif
-                                                    </dd></div>
-                                                </dl>
-                                            </div>
-                                            <div>
-                                                <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">WhatsApp reminder</p>
-                                                <dl class="space-y-1 text-sm mb-3">
-                                                    <div class="flex gap-2">
-                                                        <dt class="text-zinc-500 min-w-[7rem]">Reminder sent</dt>
-                                                        <dd>
-                                                            @if($expandedDetail['is_whatsapp_sent'])
-                                                                <flux:badge color="emerald" size="sm">Yes</flux:badge>
-                                                            @else
-                                                                <flux:badge color="amber" size="sm">No</flux:badge>
-                                                            @endif
-                                                        </dd>
-                                                    </div>
-                                                    <div class="flex gap-2">
-                                                        <dt class="text-zinc-500 min-w-[7rem]">Last reminder</dt>
-                                                        <dd>
-                                                            {{ ! empty($expandedDetail['whatsapp_last_reminder_sent_at']) ? \Carbon\Carbon::parse($expandedDetail['whatsapp_last_reminder_sent_at'])->format('d M Y H:i') : 'N/A' }}
-                                                        </dd>
-                                                    </div>
-                                                </dl>
-                                                <button
-                                                    type="button"
-                                                    wire:click="sendWhatsAppReminder({{ $invoice->id }})"
-                                                    class="inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
-                                                >
-                                                    Send WhatsApp reminder
-                                                </button>
-                                            </div>
-                                        </div>
-
-                                        <livewire:flux-admin.partials.rentals.weekly-updates-panel
-                                            :booking-id="$bookingId"
-                                            :invoice-id="$invoice->id"
-                                            :key="'invoice-weekly-updates-'.$invoice->id"
-                                        />
-
-                                        @if(! empty($expandedAward) && (int) ($expandedAward['awarded_invoice_id'] ?? 0) === (int) $invoice->id)
-                                            <div class="border border-zinc-200 dark:border-zinc-700 p-3 space-y-2">
-                                                <p class="text-xs font-bold uppercase tracking-wide text-zinc-500">Free week log</p>
-                                                <p class="text-xs">
-                                                    {{ ($expandedAward['source'] ?? '') === 'direct' ? 'Direct' : 'Programme referral' }}
-                                                    · £{{ number_format((float) ($expandedAward['amount'] ?? 0), 2) }}
-                                                    @if(! empty($expandedAward['referral_id']))
-                                                        · <a href="{{ route('flux-admin.rental-referrals.show', $expandedAward['referral_id']) }}" class="text-blue-600 dark:text-blue-400 hover:underline">referral #{{ $expandedAward['referral_id'] }}</a>
-                                                    @endif
-                                                </p>
-                                                <p class="text-xs">
-                                                    Hirer #{{ $expandedAward['hirer_customer_id'] ?? '—' }}
-                                                    · selected referrer #{{ $expandedAward['selected_referrer_customer_id'] ?? '—' }}
-                                                    {{ trim(($expandedAward['selected_referrer']['first_name'] ?? '').' '.($expandedAward['selected_referrer']['last_name'] ?? '')) }}
-                                                </p>
-                                                @include('flux-admin.partials.rentals.referrer-paid-invoices', [
-                                                    'invoices' => $expandedAward['selected_paid_invoices'] ?? [],
-                                                    'missing' => empty($expandedAward['selected_paid_invoices']),
-                                                    'message' => $expandedAward['eligibility_note'] ?? null,
-                                                    'bookingId' => $expandedAward['selected_referrer_booking_id'] ?? null,
-                                                ])
-                                                @if(! empty($expandedAward['staff_proof']))
-                                                    <p class="text-xs text-zinc-600 dark:text-zinc-400">Staff explanation: {{ $expandedAward['staff_proof'] }}</p>
-                                                @endif
-                                            </div>
-                                        @endif
-                                        @endif
-                                    </div>
-                                </flux:table.cell>
-                            </flux:table.row>
-                        @endif
                     @empty
                         <flux:table.row>
                             <flux:table.cell colspan="11" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
@@ -220,6 +99,118 @@
             </flux:table>
         </div>
     </div>
+
+    @if($expandedInvoiceId)
+        @php
+            $expandedInvoice = $invoices->firstWhere('id', $expandedInvoiceId);
+            $expandedIsPaid = $expandedInvoice ? (bool) $expandedInvoice->is_paid : false;
+            $expandedOutstanding = $expandedInvoice ? max((float) $expandedInvoice->outstanding_balance, 0) : 0;
+        @endphp
+        <div class="invoice-detail-panel mx-4 mt-3 mb-4 border border-zinc-200 bg-zinc-50 p-4 dark:border-zinc-700 dark:bg-zinc-800/50" wire:key="invoice-detail-{{ $expandedInvoiceId }}">
+            @if(empty($expandedDetail))
+                <p class="text-sm text-red-600">Could not load invoice details.</p>
+            @else
+                <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Invoice details &amp; reminder management</h4>
+
+                <div class="invoice-detail-grid">
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Customer information</p>
+                        <dl class="invoice-kv text-sm">
+                            <dt>Name</dt><dd>{{ $expandedDetail['customer_name'] ?: 'N/A' }}</dd>
+                            <dt>Phone</dt><dd>{{ $expandedDetail['customer_phone'] ?: 'N/A' }}</dd>
+                            <dt>WhatsApp</dt><dd>{{ $expandedDetail['customer_whatsapp'] ?: ($expandedDetail['customer_phone'] ?: 'N/A') }}</dd>
+                        </dl>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Motorbike information</p>
+                        <dl class="invoice-kv text-sm">
+                            <dt>Registration</dt><dd>{{ $expandedDetail['motorbike_reg_no'] ?: 'N/A' }}</dd>
+                            <dt>Weekly rent</dt><dd>£{{ number_format((float) $expandedDetail['weekly_rent'], 2) }}</dd>
+                        </dl>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Invoice details</p>
+                        <dl class="invoice-kv text-sm">
+                            <dt>Invoice date</dt>
+                            <dd>
+                                <input
+                                    type="date"
+                                    value="{{ $expandedDetail['invoice_date'] ? \Carbon\Carbon::parse($expandedDetail['invoice_date'])->format('Y-m-d') : '' }}"
+                                    wire:change="updateInvoiceDate({{ $expandedInvoiceId }}, $event.target.value)"
+                                    class="w-full max-w-[11rem] border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white px-2 py-1 text-sm"
+                                />
+                            </dd>
+                            <dt>Amount</dt><dd>£{{ number_format((float) $expandedDetail['amount'], 2) }}</dd>
+                            <dt>Outstanding</dt><dd>£{{ number_format($expandedOutstanding, 2) }}</dd>
+                            <dt>Status</dt>
+                            <dd>
+                                @if($expandedIsPaid)
+                                    <flux:badge color="emerald" size="sm">Paid</flux:badge>
+                                @else
+                                    <flux:badge color="red" size="sm">Unpaid</flux:badge>
+                                @endif
+                            </dd>
+                        </dl>
+                    </div>
+                    <div>
+                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">WhatsApp reminder</p>
+                        <dl class="invoice-kv text-sm">
+                            <dt>Reminder sent</dt>
+                            <dd>
+                                @if($expandedDetail['is_whatsapp_sent'])
+                                    <flux:badge color="emerald" size="sm">Yes</flux:badge>
+                                @else
+                                    <flux:badge color="amber" size="sm">No</flux:badge>
+                                @endif
+                            </dd>
+                            <dt>Last reminder</dt>
+                            <dd>{{ ! empty($expandedDetail['whatsapp_last_reminder_sent_at']) ? \Carbon\Carbon::parse($expandedDetail['whatsapp_last_reminder_sent_at'])->format('d M Y H:i') : 'N/A' }}</dd>
+                        </dl>
+                        <button
+                            type="button"
+                            wire:click="sendWhatsAppReminder({{ $expandedInvoiceId }})"
+                            class="mt-3 inline-flex items-center gap-2 px-3 py-2 text-xs font-semibold bg-emerald-600 hover:bg-emerald-700 text-white transition"
+                        >
+                            Send WhatsApp reminder
+                        </button>
+                    </div>
+                </div>
+
+                <livewire:flux-admin.partials.rentals.weekly-updates-panel
+                    :booking-id="$bookingId"
+                    :invoice-id="$expandedInvoiceId"
+                    :key="'invoice-weekly-updates-'.$expandedInvoiceId"
+                />
+
+                @if(! empty($expandedAward) && (int) ($expandedAward['awarded_invoice_id'] ?? 0) === (int) $expandedInvoiceId)
+                    <div class="mt-4 border border-zinc-200 dark:border-zinc-700 p-3 space-y-2">
+                        <p class="text-xs font-bold uppercase tracking-wide text-zinc-500">Free week log</p>
+                        <p class="text-xs">
+                            {{ ($expandedAward['source'] ?? '') === 'direct' ? 'Direct' : 'Programme referral' }}
+                            · £{{ number_format((float) ($expandedAward['amount'] ?? 0), 2) }}
+                            @if(! empty($expandedAward['referral_id']))
+                                · <a href="{{ route('flux-admin.rental-referrals.show', $expandedAward['referral_id']) }}" class="text-blue-600 dark:text-blue-400 hover:underline">referral #{{ $expandedAward['referral_id'] }}</a>
+                            @endif
+                        </p>
+                        <p class="text-xs">
+                            Hirer #{{ $expandedAward['hirer_customer_id'] ?? '—' }}
+                            · selected referrer #{{ $expandedAward['selected_referrer_customer_id'] ?? '—' }}
+                            {{ trim(($expandedAward['selected_referrer']['first_name'] ?? '').' '.($expandedAward['selected_referrer']['last_name'] ?? '')) }}
+                        </p>
+                        @include('flux-admin.partials.rentals.referrer-paid-invoices', [
+                            'invoices' => $expandedAward['selected_paid_invoices'] ?? [],
+                            'missing' => empty($expandedAward['selected_paid_invoices']),
+                            'message' => $expandedAward['eligibility_note'] ?? null,
+                            'bookingId' => $expandedAward['selected_referrer_booking_id'] ?? null,
+                        ])
+                        @if(! empty($expandedAward['staff_proof']))
+                            <p class="text-xs text-zinc-600 dark:text-zinc-400">Staff explanation: {{ $expandedAward['staff_proof'] }}</p>
+                        @endif
+                    </div>
+                @endif
+            @endif
+        </div>
+    @endif
 
     <flux:modal wire:model.self="showPayModal" class="w-full max-w-md">
         <div class="p-5">

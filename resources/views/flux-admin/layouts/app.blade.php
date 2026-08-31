@@ -485,45 +485,111 @@
         body.flux-admin-app .club-activity-icon-amber { background: rgb(254 243 199); color: rgb(146 64 14); }
         html.dark body.flux-admin-app .club-activity-icon-blue { background: rgb(30 58 138); color: rgb(191 219 254); }
         html.dark body.flux-admin-app .club-activity-icon-green { background: rgb(20 83 45); color: rgb(187 247 208); }
+        body.flux-admin-app .invoice-detail-panel {
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+            box-sizing: border-box;
+            overflow-wrap: anywhere;
+        }
+        body.flux-admin-app .invoice-detail-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        body.flux-admin-app .invoice-kv {
+            display: grid;
+            grid-template-columns: 6.5rem minmax(0, 1fr);
+            gap: 0.4rem 0.75rem;
+            align-items: center;
+        }
+        body.flux-admin-app .invoice-kv dt {
+            color: rgb(113 113 122);
+            min-width: 0;
+        }
+        html.dark body.flux-admin-app .invoice-kv dt {
+            color: rgb(161 161 170);
+        }
+        body.flux-admin-app .invoice-kv dd {
+            min-width: 0;
+            overflow-wrap: anywhere;
+        }
         body.flux-admin-app .weekly-update-form {
-            display: flex;
-            flex-direction: column;
+            display: grid;
+            grid-template-columns: 1fr;
             gap: 0.5rem;
             width: 100%;
             min-width: 0;
         }
-        @media (min-width: 1280px) {
+        body.flux-admin-app .weekly-update-form > * {
+            min-width: 0;
+            width: 100%;
+        }
+        body.flux-admin-app .weekly-update-form input {
+            width: 100%;
+            max-width: 100%;
+        }
+        /* Tablet: 640–1023 — date | time, then note and save full width */
+        @media (min-width: 640px) {
             body.flux-admin-app .weekly-update-form {
-                flex-direction: row;
-                align-items: flex-end;
+                grid-template-columns: 1fr 1fr;
             }
-            body.flux-admin-app .weekly-update-form > .weekly-update-date {
-                width: 10rem;
-                flex: 0 0 10rem;
+            body.flux-admin-app .weekly-update-form > .weekly-update-note,
+            body.flux-admin-app .weekly-update-form > .weekly-update-save {
+                grid-column: 1 / -1;
             }
-            body.flux-admin-app .weekly-update-form > .weekly-update-time {
-                width: 8rem;
-                flex: 0 0 8rem;
+        }
+        /* Tablet: 768–1023 — two info columns, form still stacked under date | time */
+        @media (min-width: 768px) {
+            body.flux-admin-app .invoice-detail-grid {
+                grid-template-columns: 1fr 1fr;
             }
-            body.flux-admin-app .weekly-update-form > .weekly-update-note {
-                flex: 1 1 auto;
-                min-width: 0;
-                width: auto;
+            body.flux-admin-app .invoice-kv {
+                grid-template-columns: 7rem minmax(0, 1fr);
+            }
+        }
+        /* Laptop: 1024–1279 — two info columns; date | time then note | save */
+        @media (min-width: 1024px) {
+            body.flux-admin-app .invoice-detail-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            body.flux-admin-app .invoice-kv {
+                grid-template-columns: 7rem minmax(0, 1fr);
+            }
+            body.flux-admin-app .weekly-update-form {
+                grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+                align-items: end;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-note,
+            body.flux-admin-app .weekly-update-form > .weekly-update-save {
+                grid-column: auto;
             }
             body.flux-admin-app .weekly-update-form > .weekly-update-save {
                 width: auto;
-                flex: 0 0 auto;
+                justify-self: start;
                 height: 2.5rem;
             }
         }
-        body.flux-admin-app .invoice-detail-panel {
-            width: min(48rem, calc(100vw - 2rem));
-            max-width: calc(100vw - 2rem);
-        }
-        @media (min-width: 1024px) {
-            body.flux-admin-app .invoice-detail-panel {
-                width: min(48rem, calc(100vw - 18rem));
-                max-width: calc(100vw - 18rem);
+        /* Desktop: 1280+ — date | time | note | save on one row */
+        @media (min-width: 1280px) {
+            body.flux-admin-app .weekly-update-form {
+                grid-template-columns: 10rem 8rem minmax(0, 1fr) auto;
+                align-items: end;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-date,
+            body.flux-admin-app .weekly-update-form > .weekly-update-time,
+            body.flux-admin-app .weekly-update-form > .weekly-update-note,
+            body.flux-admin-app .weekly-update-form > .weekly-update-save {
+                grid-column: auto;
+                width: auto;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-note {
+                width: 100%;
+            }
+            body.flux-admin-app .weekly-update-form > .weekly-update-save {
+                height: 2.5rem;
+                justify-self: auto;
             }
         }
 
