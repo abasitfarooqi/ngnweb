@@ -13,8 +13,8 @@
             </div>
 
             <div class="space-y-3 p-4">
-                <div class="weekly-update-form flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-end">
-                    <div class="weekly-update-date w-full shrink-0 lg:w-40">
+                <div class="weekly-update-form flex w-full min-w-0 flex-col gap-2 xl:flex-row xl:items-end">
+                    <div class="weekly-update-date w-full shrink-0 xl:w-40">
                         <label class="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Date</label>
                         <input
                             type="date"
@@ -22,7 +22,7 @@
                             class="w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-brand-red dark:border-zinc-600 dark:bg-zinc-800 dark:text-white"
                         />
                     </div>
-                    <div class="weekly-update-time w-full shrink-0 lg:w-32">
+                    <div class="weekly-update-time w-full shrink-0 xl:w-32">
                         <label class="mb-1 block text-xs font-semibold text-zinc-700 dark:text-zinc-300">Time</label>
                         <input
                             type="time"
@@ -43,7 +43,7 @@
                     <button
                         type="button"
                         wire:click="addInvoiceUpdate"
-                        class="weekly-update-save inline-flex w-full shrink-0 items-center justify-center px-3 py-2 text-xs font-semibold bg-emerald-600 text-white transition hover:bg-emerald-700 lg:h-10 lg:w-auto"
+                        class="weekly-update-save inline-flex w-full shrink-0 items-center justify-center px-3 py-2 text-xs font-semibold bg-emerald-600 text-white transition hover:bg-emerald-700 xl:h-10 xl:w-auto"
                     >
                         Add update
                     </button>
@@ -58,7 +58,7 @@
                                     {{ $update->created_at?->format('d M Y H:i') }}
                                     · {{ trim(($update->user?->first_name ?? '').' '.($update->user?->last_name ?? '')) ?: 'Staff' }}
                                 </p>
-                                <p class="mt-1 text-sm text-zinc-900 dark:text-white">{{ $update->note }}</p>
+                                <p class="mt-1 break-words whitespace-normal text-sm text-zinc-900 dark:text-white">{{ $update->note }}</p>
                             </div>
                             <button
                                 type="button"
@@ -93,11 +93,11 @@
                                 <button type="button" wire:click="removeDraft({{ $idx }})"
                                     class="text-xs text-red-500 transition hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">Remove</button>
                             </div>
-                            <div class="weekly-update-form flex w-full min-w-0 flex-col gap-2 lg:flex-row lg:items-end">
-                                <x-flux-admin::field-group label="Date" class="weekly-update-date w-full shrink-0 lg:w-40" :error="$errors->first('drafts.'.$idx.'.noted_date')">
+                            <div class="weekly-update-form flex w-full min-w-0 flex-col gap-2 xl:flex-row xl:items-end">
+                                <x-flux-admin::field-group label="Date" class="weekly-update-date w-full shrink-0 xl:w-40" :error="$errors->first('drafts.'.$idx.'.noted_date')">
                                     <flux:input type="date" wire:model="drafts.{{ $idx }}.noted_date" />
                                 </x-flux-admin::field-group>
-                                <x-flux-admin::field-group label="Time" class="weekly-update-time w-full shrink-0 lg:w-32" :error="$errors->first('drafts.'.$idx.'.noted_time')">
+                                <x-flux-admin::field-group label="Time" class="weekly-update-time w-full shrink-0 xl:w-32" :error="$errors->first('drafts.'.$idx.'.noted_time')">
                                     <flux:input type="time" wire:model="drafts.{{ $idx }}.noted_time" />
                                 </x-flux-admin::field-group>
                                 <x-flux-admin::field-group label="Note" class="weekly-update-note min-w-0 w-full flex-1" :error="$errors->first('drafts.'.$idx.'.note')">

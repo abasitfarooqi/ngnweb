@@ -23,7 +23,7 @@
     @endif
 
     <div class="touch-pan-x overflow-x-auto mt-3">
-        <div class="min-w-[72rem] md:min-w-0">
+        <div class="min-w-[72rem] xl:min-w-0">
             <flux:table>
                 <flux:table.columns>
                     <flux:table.column>Invoice ID</flux:table.column>
@@ -91,14 +91,14 @@
 
                         @if($expandedInvoiceId === $invoice->id)
                             <flux:table.row wire:key="invoice-detail-{{ $invoice->id }}" class="bg-zinc-50 dark:bg-zinc-800/50">
-                                <flux:table.cell colspan="11" class="!p-4">
-                                    <div class="space-y-4" wire:click.stop>
+                                <flux:table.cell colspan="11" class="!p-4 !whitespace-normal">
+                                    <div class="invoice-detail-panel sticky left-0 z-[1] min-w-0 space-y-4 whitespace-normal" wire:click.stop>
                                         @if(empty($expandedDetail))
                                             <p class="text-sm text-red-600">Could not load invoice details.</p>
                                         @else
                                         <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Invoice details &amp; reminder management</h4>
 
-                                        <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="grid gap-4 xl:grid-cols-2">
                                             <div>
                                                 <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Customer information</p>
                                                 <dl class="space-y-1 text-sm">
@@ -116,7 +116,7 @@
                                             </div>
                                         </div>
 
-                                        <div class="grid gap-4 md:grid-cols-2">
+                                        <div class="grid gap-4 xl:grid-cols-2">
                                             <div>
                                                 <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Invoice details</p>
                                                 <dl class="space-y-2 text-sm">

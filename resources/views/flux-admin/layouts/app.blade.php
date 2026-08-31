@@ -492,7 +492,7 @@
             width: 100%;
             min-width: 0;
         }
-        @media (min-width: 1024px) {
+        @media (min-width: 1280px) {
             body.flux-admin-app .weekly-update-form {
                 flex-direction: row;
                 align-items: flex-end;
@@ -514,6 +514,16 @@
                 width: auto;
                 flex: 0 0 auto;
                 height: 2.5rem;
+            }
+        }
+        body.flux-admin-app .invoice-detail-panel {
+            width: min(48rem, calc(100vw - 2rem));
+            max-width: calc(100vw - 2rem);
+        }
+        @media (min-width: 1024px) {
+            body.flux-admin-app .invoice-detail-panel {
+                width: min(48rem, calc(100vw - 18rem));
+                max-width: calc(100vw - 18rem);
             }
         }
 
