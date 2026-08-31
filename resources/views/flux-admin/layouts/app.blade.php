@@ -485,12 +485,36 @@
         body.flux-admin-app .club-activity-icon-amber { background: rgb(254 243 199); color: rgb(146 64 14); }
         html.dark body.flux-admin-app .club-activity-icon-blue { background: rgb(30 58 138); color: rgb(191 219 254); }
         html.dark body.flux-admin-app .club-activity-icon-green { background: rgb(20 83 45); color: rgb(187 247 208); }
+        body.flux-admin-app .invoice-table-scroll {
+            container-type: inline-size;
+            container-name: invoice-table;
+        }
+        body.flux-admin-app [data-flux-table] tr:has(.invoice-detail-panel) > td,
+        body.flux-admin-app [data-flux-table] tr:has(.invoice-detail-panel) > td:last-child,
+        body.flux-admin-app [data-flux-table] tr.invoice-accordion-row > td,
+        body.flux-admin-app [data-flux-table] td.invoice-accordion-cell {
+            position: static !important;
+            right: auto !important;
+            white-space: normal !important;
+            box-shadow: none !important;
+            background-color: transparent !important;
+            padding: 0.75rem 0 !important;
+            z-index: auto !important;
+            vertical-align: top;
+        }
         body.flux-admin-app .invoice-detail-panel {
             width: 100%;
             max-width: 100%;
             min-width: 0;
             box-sizing: border-box;
             overflow-wrap: anywhere;
+        }
+        body.flux-admin-app .invoice-accordion-cell .invoice-detail-panel {
+            position: sticky;
+            left: 0;
+            width: 100cqw;
+            max-width: 100cqw;
+            margin: 0;
         }
         body.flux-admin-app .invoice-detail-grid {
             display: grid;
