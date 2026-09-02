@@ -20,6 +20,8 @@ class PcnCaseUpdate extends Model
         'user_id',
         'update_date',
         'is_appealed',
+        'is_tol_requested',
+        'is_appeal_rejected',
         'is_paid_by_owner',
         'is_paid_by_keeper',
         'is_transferred',

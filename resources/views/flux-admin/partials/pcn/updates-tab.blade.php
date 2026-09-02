@@ -6,6 +6,8 @@
             <flux:table.columns>
                 <flux:table.column>Date</flux:table.column>
                 <flux:table.column>Appealed?</flux:table.column>
+                <flux:table.column>TOL Request?</flux:table.column>
+                <flux:table.column>Appeal Rejected?</flux:table.column>
                 <flux:table.column>Paid by Owner?</flux:table.column>
                 <flux:table.column>Paid by Keeper?</flux:table.column>
                 <flux:table.column>Transferred?</flux:table.column>
@@ -22,6 +24,20 @@
                         <flux:table.cell>
                             @if($row->is_appealed)
                                 <flux:badge color="amber" size="sm">Yes</flux:badge>
+                            @else
+                                <span class="text-zinc-400 dark:text-zinc-500">No</span>
+                            @endif
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            @if($row->is_tol_requested)
+                                <flux:badge color="blue" size="sm">Yes</flux:badge>
+                            @else
+                                <span class="text-zinc-400 dark:text-zinc-500">No</span>
+                            @endif
+                        </flux:table.cell>
+                        <flux:table.cell>
+                            @if($row->is_appeal_rejected)
+                                <flux:badge color="red" size="sm">Yes</flux:badge>
                             @else
                                 <span class="text-zinc-400 dark:text-zinc-500">No</span>
                             @endif
@@ -66,7 +82,7 @@
                     </flux:table.row>
                 @empty
                     <flux:table.row>
-                        <flux:table.cell colspan="9" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
+                        <flux:table.cell colspan="11" class="text-center py-8 text-zinc-500 dark:text-zinc-400">
                             No updates found.
                         </flux:table.cell>
                     </flux:table.row>

@@ -59,6 +59,12 @@
                     <input type="checkbox" wire:model="form.is_appealed" class="accent-zinc-900 dark:accent-zinc-200"> Appealed
                 </label>
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <input type="checkbox" wire:model="form.is_tol_requested" class="accent-zinc-900 dark:accent-zinc-200"> TOL Request
+                </label>
+                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
+                    <input type="checkbox" wire:model="form.is_appeal_rejected" class="accent-zinc-900 dark:accent-zinc-200"> Appeal Rejected
+                </label>
+                <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">
                     <input type="checkbox" wire:model="form.is_paid_by_owner" class="accent-zinc-900 dark:accent-zinc-200"> Paid by NGN
                 </label>
                 <label class="flex items-center gap-2 text-sm text-zinc-700 dark:text-zinc-300">

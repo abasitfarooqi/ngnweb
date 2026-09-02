@@ -45,6 +45,8 @@ class PcnUpdateForm extends Component
         } else {
             $this->form = [
                 'is_appealed' => false,
+                'is_tol_requested' => false,
+                'is_appeal_rejected' => false,
                 'is_paid_by_owner' => false,
                 'is_paid_by_keeper' => false,
                 'is_transferred' => false,
@@ -90,7 +92,7 @@ class PcnUpdateForm extends Component
 
     public function save(): void
     {
-        foreach (['is_appealed', 'is_paid_by_owner', 'is_paid_by_keeper', 'is_transferred', 'is_cancled'] as $field) {
+        foreach (['is_appealed', 'is_tol_requested', 'is_appeal_rejected', 'is_paid_by_owner', 'is_paid_by_keeper', 'is_transferred', 'is_cancled'] as $field) {
             $this->form[$field] = (bool) ($this->form[$field] ?? false);
         }
 
@@ -98,6 +100,8 @@ class PcnUpdateForm extends Component
             'form.case_id' => ['required', 'integer', 'exists:pcn_cases,id'],
             'form.update_date' => ['required', 'date'],
             'form.is_appealed' => ['boolean'],
+            'form.is_tol_requested' => ['boolean'],
+            'form.is_appeal_rejected' => ['boolean'],
             'form.is_paid_by_owner' => ['boolean'],
             'form.is_paid_by_keeper' => ['boolean'],
             'form.is_transferred' => ['boolean'],
@@ -110,6 +114,8 @@ class PcnUpdateForm extends Component
             'case_id' => $this->form['case_id'],
             'update_date' => $this->form['update_date'],
             'is_appealed' => $this->form['is_appealed'],
+            'is_tol_requested' => $this->form['is_tol_requested'],
+            'is_appeal_rejected' => $this->form['is_appeal_rejected'],
             'is_paid_by_owner' => $this->form['is_paid_by_owner'],
             'is_paid_by_keeper' => $this->form['is_paid_by_keeper'],
             'is_transferred' => $this->form['is_transferred'],
@@ -150,6 +156,8 @@ class PcnUpdateForm extends Component
         }
 
         $this->form['is_appealed'] = (bool) $last->is_appealed;
+        $this->form['is_tol_requested'] = (bool) $last->is_tol_requested;
+        $this->form['is_appeal_rejected'] = (bool) $last->is_appeal_rejected;
         $this->form['is_paid_by_owner'] = (bool) $last->is_paid_by_owner;
         $this->form['is_paid_by_keeper'] = (bool) $last->is_paid_by_keeper;
         $this->form['is_transferred'] = (bool) $last->is_transferred;
