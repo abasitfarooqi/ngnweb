@@ -31,15 +31,20 @@ class CommunicationSentIndex extends Component
         if (! FluxAdminAccess::canViewCommunicationsLog()) {
             abort(403, 'You do not have permission to view notifications.');
         }
+    }
+
+    public function markAllNotificationsRead(): void
+    {
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
 
         FluxAdminUnreadBadges::markNotificationsSeen();
+        $this->dispatch('staffUnreadBadgesChanged');
     }
 
     #[On('staffCommunicationCreated')]
     #[On('staffCommunicationReply')]
     public function refreshFromRealtime(): void
     {
-        FluxAdminUnreadBadges::markNotificationsSeen();
         $this->realtimeTick++;
         $this->resetPage();
     }

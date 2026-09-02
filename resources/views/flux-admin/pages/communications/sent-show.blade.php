@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.1500ms="$refresh">
+<div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div class="min-w-0">
             <flux:heading size="xl">{{ $communication->title }}</flux:heading>

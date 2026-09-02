@@ -638,7 +638,7 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
         }
     }
 
-    state.pollTimer = window.setInterval(syncFromServer, 400);
+    state.pollTimer = window.setInterval(syncFromServer, 5000);
     syncFromServer();
     window.__supportThreadSync = syncFromServer;
 
@@ -904,4 +904,3 @@ document.addEventListener('livewire:navigated', function () {
     }
     bindCommunicationAlertControls();
 });
-

@@ -46,7 +46,6 @@ class CommunicationSentShow extends Component
 
         $this->communication = $communication->load(['deliveries', 'recipients', 'definition', 'attachments']);
         $this->loadReplies();
-        FluxAdminUnreadBadges::markNotificationsSeen();
     }
 
     #[On('staffCommunicationReply')]

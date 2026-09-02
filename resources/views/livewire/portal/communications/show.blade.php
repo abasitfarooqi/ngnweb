@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.1500ms="$refresh">
+<div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex flex-wrap items-center justify-between gap-3">
         <a href="{{ route('account.notifications') }}" class="text-sm text-brand-red hover:underline">← Notifications</a>
         @if($recipient->archived_at)

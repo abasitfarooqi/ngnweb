@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.1500ms="$refresh">
+<div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div class="min-w-0">
             <flux:heading size="xl">Notifications</flux:heading>
@@ -9,9 +9,14 @@
             <p class="js-communication-alerts-status mt-1 text-xs text-zinc-500 dark:text-zinc-400"></p>
         </div>
         @if($canManageCommunications)
-            <a href="{{ route('flux-admin.communications.index') }}">
-                <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Control panel</flux:button>
-            </a>
+            <div class="flex flex-wrap gap-2">
+                <flux:button size="sm" variant="ghost" wire:click="markAllNotificationsRead" class="!rounded-none">Mark all as read</flux:button>
+                <a href="{{ route('flux-admin.communications.index') }}">
+                    <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Control panel</flux:button>
+                </a>
+            </div>
+        @else
+            <flux:button size="sm" variant="ghost" wire:click="markAllNotificationsRead" class="!rounded-none">Mark all as read</flux:button>
         @endif
     </div>
 

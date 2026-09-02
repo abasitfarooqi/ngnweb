@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.1500ms="$refresh">
+<div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
             <flux:heading size="xl">Notifications</flux:heading>

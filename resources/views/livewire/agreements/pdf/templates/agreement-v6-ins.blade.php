@@ -262,7 +262,7 @@
             <div class="col-md-3">
                 <table class="table-con" >
                     <tr>
-                        <th colspan="2" style="text-align:center;">CUSTOMER DETAILS</th>
+                        <th colspan="2" style="text-align:center;">CUSTOMER INFORMATION</th>
                     </tr>
                     <tr>
                         <td class="td-cont" style="width:14%">Name</td>
@@ -308,7 +308,7 @@
             <td class="td-cont">LICENCE NUMBER</td>
             <td class="td-cont">ISSUANCE DATE</td>
             <td class="td-cont">EXPIRY DATE</td>
-            <td class="td-cont">COUNTRY</td>
+            <td class="td-cont">ISSUANCE COUNTRY</td>
         </tr>
         <tr>
             <td class="td-cont">{{ $customer->license_number }}</td>
@@ -322,26 +322,30 @@
     <!-- CONTRACT Information -->
     <table class="table-con">
             <tr>
-                <th colspan="4" style="text-align:center;">CONTRACT INFORMATION</th>
+                <th colspan="6" style="text-align:center;">CONTRACT INFORMATION</th>
             </tr>
             <tr>
                 <td class="td-cont">CONTRACT ID</td>
                 <td class="td-cont">CONTRACT DATE</td>
                 <td class="td-cont">EXPIRY DATE</td>
+                <td class="td-cont">DEPOSIT</td>
                 <td class="td-cont">WEEKLY</td>
+                <td class="td-cont">STAFF</td>
 
             </tr>
             <tr>
                 <td class="td-cont">{{ $booking->id }}</td>
                 <td class="td-cont">{{ isset($agreementStartDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementStartDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->format('d-F-Y H:i:s') }}</td>
                 <td class="td-cont">{{ isset($agreementEndDate) ? \Carbon\Carbon::createFromFormat('d/m/Y H:i', $agreementEndDate)->format('d-F-Y H:i:s') : \Carbon\Carbon::parse($booking->start_date)->addMonths(12)->format('d-F-Y H:i:s') }}</td>
+                <td class="td-cont">{{ $booking->deposit }}</td>
                 <td class="td-cont">{{ $bookingItem->weekly_rent }}</td>
+                <td class="td-cont">{{ $user_name }}</td>
             </tr>
         </table>
     <!-- Vehicle Information -->
     <table class="table-con">
         <tr>
-            <th colspan="6" style="text-align:center;">VEHICLE INFORMATION</th>
+            <th colspan="7" style="text-align:center;">VEHICLE INFORMATION</th>
         </tr>
         <tr>
             <td class="td-cont">Registration</td>
@@ -350,6 +354,7 @@
             <td class="td-cont">Engine</td>
             <td class="td-cont">Model</td>
             <td class="td-cont">Colour</td>
+            <td class="td-cont">Year</td>
         </tr>
         <tr>
             <td class="td-cont">{{ $motorbike->reg_no }}</td>
@@ -358,6 +363,7 @@
             <td class="td-cont">{{ $motorbike->engine }}</td>
             <td class="td-cont">{{ $motorbike->model }}</td>
             <td class="td-cont">{{ $motorbike->color }}</td>
+            <td class="td-cont">{{ $motorbike->year }}</td>
         </tr>
     </table>
 

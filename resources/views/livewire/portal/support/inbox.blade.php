@@ -1,4 +1,4 @@
-<div class="space-y-6" wire:poll.1500ms="$refresh">
+<div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex items-center justify-between gap-3">
         <div>
             <flux:heading size="xl">Conversations</flux:heading>
@@ -94,4 +94,3 @@
         </flux:card>
     </div>
 </div>
-
