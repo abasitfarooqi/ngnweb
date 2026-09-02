@@ -127,21 +127,27 @@
                                     class="text-xs text-red-500 transition hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">Remove</button>
                             </div>
 
-                            <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                            <div class="grid grid-cols-1 items-end gap-2 sm:grid-cols-4">
                                 <x-flux-admin::field-group label="Date" :error="$errors->first('caseUpdates.'.$idx.'.update_date')">
                                     <flux:input type="date" wire:model="caseUpdates.{{ $idx }}.update_date" />
                                 </x-flux-admin::field-group>
                                 <x-flux-admin::field-group label="Additional fee (£)" :error="$errors->first('caseUpdates.'.$idx.'.additional_fee')">
                                     <flux:input type="number" step="0.01" wire:model="caseUpdates.{{ $idx }}.additional_fee" />
                                 </x-flux-admin::field-group>
-                                <x-flux-admin::field-group label="Notes" :error="$errors->first('caseUpdates.'.$idx.'.note')">
-                                    <flux:input wire:model="caseUpdates.{{ $idx }}.note" />
+                                <x-flux-admin::field-group label="Notes" span="2" :error="$errors->first('caseUpdates.'.$idx.'.note')">
+                                    <flux:textarea wire:model="caseUpdates.{{ $idx }}.note" rows="5" class="min-h-32" />
                                 </x-flux-admin::field-group>
                             </div>
 
-                            <div class="grid grid-cols-2 gap-x-3 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-5">
+                            <div class="flex flex-wrap items-center gap-x-6 gap-y-2">
                                 <label class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
                                     <input type="checkbox" wire:model="caseUpdates.{{ $idx }}.is_appealed" class="accent-zinc-900"> Appealed
+                                </label>
+                                <label class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <input type="checkbox" wire:model="caseUpdates.{{ $idx }}.is_tol_requested" class="accent-zinc-900"> TOL Request
+                                </label>
+                                <label class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
+                                    <input type="checkbox" wire:model="caseUpdates.{{ $idx }}.is_appeal_rejected" class="accent-zinc-900"> Appeal Rejected
                                 </label>
                                 <label class="flex items-center gap-1.5 text-sm text-zinc-600 dark:text-zinc-400">
                                     <input type="checkbox" wire:model="caseUpdates.{{ $idx }}.is_paid_by_owner" class="accent-zinc-900"> Paid by NGN
