@@ -92,18 +92,18 @@
             <div class="min-w-[72rem] md:min-w-0">
                 <flux:table>
                     <flux:table.columns>
-                        <flux:table.column sortable :sorted="$sortField === 'booking_id'" :direction="$sortDirection" wire:click="sortBy('booking_id')">Booking</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'ren_no'" :direction="$sortField === 'ren_no' ? $sortDirection : null" wire:click="sortBy('ren_no')">Ren no.</flux:table.column>
                         <flux:table.column>State</flux:table.column>
-                        <flux:table.column>Reg</flux:table.column>
-                        <flux:table.column sortable :sorted="$sortField === 'customer'" :direction="$sortDirection" wire:click="sortBy('customer')">Customer</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'reg_no'" :direction="$sortField === 'reg_no' ? $sortDirection : null" wire:click="sortBy('reg_no')">Reg</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'customer'" :direction="$sortField === 'customer' ? $sortDirection : null" wire:click="sortBy('customer')">Customer</flux:table.column>
                         <flux:table.column>Contact</flux:table.column>
-                        <flux:table.column sortable :sorted="$sortField === 'weekly_rent'" :direction="$sortDirection" wire:click="sortBy('weekly_rent')">Weekly rent</flux:table.column>
+                        <flux:table.column sortable :sorted="$sortField === 'weekly_rent'" :direction="$sortField === 'weekly_rent' ? $sortDirection : null" wire:click="sortBy('weekly_rent')">Weekly rent</flux:table.column>
                         
                         @if($scope !== 'active')
-                            <flux:table.column sortable :sorted="$sortField === 'end_date'" :direction="$sortDirection" wire:click="sortBy('end_date')">End</flux:table.column>
+                            <flux:table.column sortable :sorted="$sortField === 'end_date'" :direction="$sortField === 'end_date' ? $sortDirection : null" wire:click="sortBy('end_date')">End</flux:table.column>
                         @else
-                            <flux:table.column sortable :sorted="$sortField === 'due_date'" :direction="$sortDirection" wire:click="sortBy('due_date')">Due</flux:table.column>
-                            <flux:table.column sortable :sorted="$sortField === 'outstanding'" :direction="$sortDirection" wire:click="sortBy('outstanding')">Outstanding</flux:table.column>
+                            <flux:table.column sortable :sorted="$sortField === 'due_date'" :direction="$sortField === 'due_date' ? $sortDirection : null" wire:click="sortBy('due_date')">Due</flux:table.column>
+                            <flux:table.column sortable :sorted="$sortField === 'outstanding'" :direction="$sortField === 'outstanding' ? $sortDirection : null" wire:click="sortBy('outstanding')">Outstanding</flux:table.column>
                         @endif
                         <flux:table.column>&nbsp;</flux:table.column>
                     </flux:table.columns>

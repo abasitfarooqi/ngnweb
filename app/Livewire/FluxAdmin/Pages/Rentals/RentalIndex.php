@@ -190,6 +190,8 @@ class RentalIndex extends Component
 
         $sortColumn = match ($this->sortField) {
             'booking_id' => 'rb.id',
+            'ren_no' => 'rb.id',
+            'reg_no' => DB::raw('COALESCE(mr.registration_number, mb.reg_no)'),
             'customer' => 'c.first_name',
             'weekly_rent' => 'rbi.weekly_rent',
             'start_date' => 'rbi.start_date',
