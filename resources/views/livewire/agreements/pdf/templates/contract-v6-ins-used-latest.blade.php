@@ -881,7 +881,7 @@ d) Any enforcement liability arising during the period in which the Customer is 
                 </tr>
                 <tr>
                     <td>Repossession Fee</td>
-                    <td>£100</td>
+                    <td>£300</td>
                     <td>Charged if the vehicle is repossessed</td>
                 </tr>
                 <tr>

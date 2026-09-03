@@ -730,7 +730,7 @@ label a{
             </tr>
             <tr>
                 <td>Repossession Fee</td>
-                <td>£100</td>
+                <td>£300</td>
                 <td>Charged if the vehicle is repossessed</td>
             </tr>
             <tr>

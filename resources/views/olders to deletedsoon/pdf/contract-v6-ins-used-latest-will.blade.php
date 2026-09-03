@@ -813,7 +813,7 @@ This contract supersedes and replaces any prior agreements, understandings, or a
                 </tr>
                 <tr>
                     <td>Repossession Fee</td>
-                    <td>£100</td>
+                    <td>£300</td>
                     <td>Charged if the vehicle is repossessed</td>
                 </tr>
                 <tr>
