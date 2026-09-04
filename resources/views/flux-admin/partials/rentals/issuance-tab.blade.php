@@ -193,7 +193,7 @@
                         <div>
                             <h4 class="text-sm font-bold text-zinc-900 dark:text-white mb-2">Maintenance log</h4>
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                                <input wire:model="logDescription" type="text" placeholder="Description" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
+                                <textarea wire:model="logDescription" maxlength="1500" rows="4" placeholder="Description (up to 1500 characters)" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm"></textarea>
                                 <input wire:model="logCost" type="number" step="0.01" min="0" placeholder="Cost (£)" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
                                 <input wire:model="logServicedAt" type="date" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />
                                 <input wire:model="logNote" type="text" placeholder="Note (optional)" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" />

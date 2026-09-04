@@ -193,7 +193,7 @@ class IssuanceTab extends Component
         }
 
         $this->validate([
-            'logDescription' => 'required|string|max:255',
+            'logDescription' => 'required|string|max:1500',
             'logCost' => 'required|numeric|min:0',
             'logServicedAt' => 'required|date',
             'logNote' => 'nullable|string',

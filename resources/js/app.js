@@ -739,7 +739,7 @@ window.bindStaffUnreadBadgePoll = function bindStaffUnreadBadgePoll() {
         return;
     }
     window.refreshStaffUnreadBadges();
-    window.__staffUnreadBadgeTimer = window.setInterval(window.refreshStaffUnreadBadges, 8000);
+    window.__staffUnreadBadgeTimer = window.setInterval(window.refreshStaffUnreadBadges, 30000);
     if (!window.__staffUnreadBadgeVisibilityBound) {
         window.__staffUnreadBadgeVisibilityBound = true;
         document.addEventListener('visibilitychange', function () {

@@ -2419,7 +2419,7 @@ class RentingController extends Controller
             'motorbike_id' => 'required|exists:motorbikes,id',
             'cost' => 'required|numeric|min:0',
             'serviced_at' => 'required|date',
-            'description' => 'required|string|max:255',
+            'description' => 'required|string|max:1500',
             'note' => 'nullable|string',
         ]);
 

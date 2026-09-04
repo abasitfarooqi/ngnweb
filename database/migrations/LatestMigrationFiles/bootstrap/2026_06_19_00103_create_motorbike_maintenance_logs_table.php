@@ -22,7 +22,7 @@ CREATE TABLE `motorbike_maintenance_logs` (
   `user_id` bigint unsigned NOT NULL,
   `cost` decimal(10,2) NOT NULL DEFAULT '0.00',
   `serviced_at` datetime NOT NULL,
-  `description` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `description` varchar(1500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `note` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
