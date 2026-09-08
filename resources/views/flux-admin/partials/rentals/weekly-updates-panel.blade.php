@@ -6,10 +6,10 @@
         </div>
     @endif
 
-    @if($invoiceId)
+    @if($invoiceId || $chargeId)
         <section class="overflow-hidden border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
             <div class="flex items-center justify-between border-b border-zinc-200 bg-zinc-100 px-4 py-2 dark:border-zinc-700 dark:bg-zinc-800">
-                <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-200">This invoice</h2>
+                <h2 class="text-xs font-semibold uppercase tracking-wide text-zinc-700 dark:text-zinc-200">{{ $chargeId ? 'This additional charge' : 'This invoice' }}</h2>
             </div>
 
             <div class="space-y-3 p-4">
@@ -42,13 +42,13 @@
                     </div>
                     <button
                         type="button"
-                        wire:click="addInvoiceUpdate"
+                        wire:click="{{ $chargeId ? 'addChargeUpdate' : 'addInvoiceUpdate' }}"
                         class="weekly-update-save inline-flex items-center justify-center px-3 py-2 text-xs font-semibold bg-emerald-600 text-white transition hover:bg-emerald-700"
                     >
                         Add update
                     </button>
                 </div>
-                <p class="text-xs text-zinc-500 dark:text-zinc-400">Leave date or time blank to use now. Notes stay on this invoice for staff. The customer is not emailed.</p>
+                <p class="text-xs text-zinc-500 dark:text-zinc-400">Leave date or time blank to use now. Notes stay on this {{ $chargeId ? 'charge' : 'invoice' }} for staff. The customer is not emailed.</p>
 
                 @forelse($updates as $update)
                     <div class="border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700 dark:bg-zinc-800/60" wire:key="inv-upd-{{ $update->id }}">

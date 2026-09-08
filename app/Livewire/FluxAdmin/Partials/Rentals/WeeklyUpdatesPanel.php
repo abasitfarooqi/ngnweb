@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Partials\Rentals;
 
 use App\Models\BookingInvoice;
 use App\Models\RentingBooking;
+use App\Models\RentingOtherCharge;
 use App\Models\RentingWeeklyUpdate;
 use App\Models\RentingWeeklyUpdateLog;
 use App\Support\FluxAdminAccess;
@@ -17,6 +18,8 @@ class WeeklyUpdatesPanel extends Component
     public int $bookingId;
 
     public ?int $invoiceId = null;
+
+    public ?int $chargeId = null;
 
     public string $newNote = '';
 
@@ -36,12 +39,13 @@ class WeeklyUpdatesPanel extends Component
 
     public ?string $flashType = null;
 
-    public function mount(int $bookingId, ?int $invoiceId = null): void
+    public function mount(int $bookingId, ?int $invoiceId = null, ?int $chargeId = null): void
     {
         $this->bookingId = $bookingId;
         $this->invoiceId = $invoiceId;
+        $this->chargeId = $chargeId;
 
-        if (! $this->isInvoicePanel()) {
+        if (! $this->isScopedPanel()) {
             $this->loadDrafts();
         }
     }
@@ -49,7 +53,7 @@ class WeeklyUpdatesPanel extends Component
     #[On('weekly-updates-changed')]
     public function refreshFromPeer(): void
     {
-        if ($this->isInvoicePanel() || $this->isDirty) {
+        if ($this->isScopedPanel() || $this->isDirty) {
             return;
         }
 
@@ -58,7 +62,7 @@ class WeeklyUpdatesPanel extends Component
 
     public function addDraft(): void
     {
-        $this->drafts[] = ['id' => null, 'note' => '', 'invoice_id' => null, 'noted_date' => '', 'noted_time' => ''];
+        $this->drafts[] = ['id' => null, 'note' => '', 'invoice_id' => null, 'charge_id' => null, 'noted_date' => '', 'noted_time' => ''];
         $this->isDirty = true;
     }
 
@@ -122,6 +126,7 @@ class WeeklyUpdatesPanel extends Component
             $update = new RentingWeeklyUpdate([
                 'booking_id' => $booking->id,
                 'invoice_id' => null,
+                'charge_id' => null,
                 'note' => $note,
                 'user_id' => $staffId,
             ]);
@@ -155,6 +160,39 @@ class WeeklyUpdatesPanel extends Component
         $update = new RentingWeeklyUpdate([
             'booking_id' => $invoice->booking_id,
             'invoice_id' => $invoice->id,
+            'charge_id' => null,
+            'note' => trim($this->newNote),
+            'user_id' => RentingWeeklyUpdate::staffId(),
+        ]);
+        $update->created_at = $this->resolveNotedAt($this->newNotedDate, $this->newNotedTime);
+        $update->save();
+
+        $this->newNote = '';
+        $this->newNotedDate = '';
+        $this->newNotedTime = '';
+        $this->flashMessage = 'Update added.';
+        $this->flashType = 'success';
+        $this->dispatch('weekly-updates-changed');
+    }
+
+    public function addChargeUpdate(): void
+    {
+        $this->flashMessage = null;
+        $this->validate([
+            'newNote' => ['required', 'string', 'min:1'],
+            'newNotedDate' => ['nullable', 'date'],
+            'newNotedTime' => ['nullable'],
+        ], ['newNote.required' => 'Please enter a note.']);
+
+        $charge = RentingOtherCharge::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($this->chargeId)
+            ->firstOrFail();
+
+        $update = new RentingWeeklyUpdate([
+            'booking_id' => $charge->booking_id,
+            'invoice_id' => null,
+            'charge_id' => $charge->id,
             'note' => trim($this->newNote),
             'user_id' => RentingWeeklyUpdate::staffId(),
         ]);
@@ -173,7 +211,7 @@ class WeeklyUpdatesPanel extends Component
     {
         $this->ownedQuery()->whereKey($id)->first()?->delete();
 
-        if (! $this->isInvoicePanel()) {
+        if (! $this->isScopedPanel()) {
             $this->loadDrafts();
         }
 
@@ -202,12 +240,24 @@ class WeeklyUpdatesPanel extends Component
         return $this->invoiceId !== null;
     }
 
+    protected function isChargePanel(): bool
+    {
+        return $this->chargeId !== null;
+    }
+
+    protected function isScopedPanel(): bool
+    {
+        return $this->isInvoicePanel() || $this->isChargePanel();
+    }
+
     protected function ownedQuery()
     {
         $query = RentingWeeklyUpdate::query()->where('booking_id', $this->bookingId);
 
         if ($this->isInvoicePanel()) {
             $query->where('invoice_id', $this->invoiceId);
+        } elseif ($this->isChargePanel()) {
+            $query->where('charge_id', $this->chargeId);
         }
 
         return $query;
@@ -218,11 +268,12 @@ class WeeklyUpdatesPanel extends Component
         $this->drafts = $this->ownedQuery()
             ->orderBy('created_at')
             ->orderBy('id')
-            ->get(['id', 'note', 'invoice_id', 'created_at'])
+            ->get(['id', 'note', 'invoice_id', 'charge_id', 'created_at'])
             ->map(fn (RentingWeeklyUpdate $update) => [
                 'id' => $update->id,
                 'note' => $update->note,
                 'invoice_id' => $update->invoice_id,
+                'charge_id' => $update->charge_id,
                 'noted_date' => $update->created_at?->format('Y-m-d') ?? '',
                 'noted_time' => $update->created_at?->format('H:i') ?? '',
             ])
@@ -265,7 +316,7 @@ class WeeklyUpdatesPanel extends Component
 
     protected function auditLogs(): Collection
     {
-        if ($this->isInvoicePanel() || ! FluxAdminAccess::isSuperAdmin()) {
+        if ($this->isScopedPanel() || ! FluxAdminAccess::isSuperAdmin()) {
             return collect();
         }
 

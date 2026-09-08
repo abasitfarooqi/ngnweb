@@ -69,6 +69,7 @@
                         <flux:table.column>ID</flux:table.column>
                         <flux:table.column>Description</flux:table.column>
                         <flux:table.column>Amount</flux:table.column>
+                        <flux:table.column>Added</flux:table.column>
                         <flux:table.column>Status</flux:table.column>
                         <flux:table.column>&nbsp;</flux:table.column>
                     </flux:table.columns>
@@ -87,6 +88,9 @@
                                 <flux:table.cell class="font-medium">#{{ $charge->id }}</flux:table.cell>
                                 <flux:table.cell>{{ $charge->description ?? '—' }}</flux:table.cell>
                                 <flux:table.cell class="font-semibold">£{{ number_format($amount, 2) }}</flux:table.cell>
+                                <flux:table.cell class="text-xs whitespace-nowrap">
+                                    {{ $charge->created_at?->format('d M Y H:i') ?? '—' }}
+                                </flux:table.cell>
                                 <flux:table.cell>
                                     <flux:badge :color="$isPaid ? 'emerald' : 'amber'" size="sm">
                                         {{ $isPaid ? 'Paid' : 'Unpaid' }}
@@ -119,12 +123,18 @@
 
                             @if($expandedChargeId === $charge->id)
                                 <flux:table.row wire:key="charge-detail-{{ $charge->id }}" class="bg-zinc-50 dark:bg-zinc-800/50">
-                                    <flux:table.cell colspan="5" class="!p-4">
+                                    <flux:table.cell colspan="6" class="!p-4">
                                         <div class="space-y-4" wire:click.stop>
                                             @if(empty($expandedDetail))
                                                 <p class="text-sm text-red-600">Could not load charge details.</p>
                                             @else
                                                 <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Charge details &amp; reminder management</h4>
+
+                                                <livewire:flux-admin.partials.rentals.weekly-updates-panel
+                                                    :booking-id="$bookingId"
+                                                    :charge-id="$charge->id"
+                                                    :key="'charge-updates-' . $charge->id"
+                                                />
 
                                                 @if($editingChargeId === $charge->id)
                                                     <div class="grid gap-3 md:grid-cols-[1fr_10rem_auto]">
@@ -170,6 +180,7 @@
                                                         <dl class="space-y-1 text-sm">
                                                             <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Description</dt><dd>{{ $expandedDetail['description'] ?: '—' }}</dd></div>
                                                             <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Amount</dt><dd>£{{ number_format((float) $expandedDetail['amount'], 2) }}</dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Added</dt><dd>{{ ! empty($expandedDetail['created_at']) ? \Carbon\Carbon::parse($expandedDetail['created_at'])->format('d M Y H:i') : '—' }}</dd></div>
                                                             <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd><flux:badge :color="$isPaid ? 'emerald' : 'amber'" size="sm">{{ $isPaid ? 'Paid' : 'Unpaid' }}</flux:badge></dd></div>
                                                         </dl>
                                                     </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\RentingOtherCharge;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Validation\ValidationException;
@@ -13,6 +14,7 @@ class RentingWeeklyUpdate extends Model
     protected $fillable = [
         'booking_id',
         'invoice_id',
+        'charge_id',
         'note',
         'user_id',
     ];
@@ -41,8 +43,14 @@ class RentingWeeklyUpdate extends Model
                         'invoice_id' => 'That invoice does not belong to this booking.',
                     ]);
                 }
+            } elseif ($update->charge_id) {
+                $chargeBookingId = RentingOtherCharge::query()->whereKey($update->charge_id)->value('booking_id');
+                if ((int) $chargeBookingId !== (int) $update->booking_id) {
+                    throw ValidationException::withMessages(['charge_id' => 'That charge does not belong to this booking.']);
+                }
             } else {
                 $update->invoice_id = null;
+                $update->charge_id = null;
             }
         });
 
@@ -60,7 +68,7 @@ class RentingWeeklyUpdate extends Model
             $oldDiff = [];
             $newDiff = [];
 
-            foreach (['booking_id', 'invoice_id', 'note', 'created_at'] as $key) {
+            foreach (['booking_id', 'invoice_id', 'charge_id', 'note', 'created_at'] as $key) {
                 if (($old[$key] ?? null) !== ($new[$key] ?? null)) {
                     $oldDiff[$key] = $old[$key] ?? null;
                     $newDiff[$key] = $new[$key] ?? null;
@@ -100,6 +108,7 @@ class RentingWeeklyUpdate extends Model
         return [
             'booking_id' => (int) $this->booking_id,
             'invoice_id' => $this->invoice_id ? (int) $this->invoice_id : null,
+            'charge_id' => $this->charge_id ? (int) $this->charge_id : null,
             'note' => (string) $this->note,
             'user_id' => $this->user_id ? (int) $this->user_id : null,
             'created_at' => optional($this->created_at)?->toDateTimeString(),
@@ -112,6 +121,7 @@ class RentingWeeklyUpdate extends Model
         return [
             'booking_id' => (int) $this->getOriginal('booking_id'),
             'invoice_id' => $this->getOriginal('invoice_id') ? (int) $this->getOriginal('invoice_id') : null,
+            'charge_id' => $this->getOriginal('charge_id') ? (int) $this->getOriginal('charge_id') : null,
             'note' => (string) $this->getOriginal('note'),
             'user_id' => $this->getOriginal('user_id') ? (int) $this->getOriginal('user_id') : null,
             'created_at' => (string) ($this->getOriginal('created_at') ?? ''),
