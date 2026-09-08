@@ -20,6 +20,9 @@ class OtherChargesTab extends Component
 
     public string $description = '';
     public string $amount = '';
+    public ?int $editingChargeId = null;
+    public string $editingDescription = '';
+    public string $editingAmount = '';
     public ?int $payingChargeId = null;
     public ?int $paymentMethodId = null;
     public bool $showPayModal = false;
@@ -65,7 +68,7 @@ class OtherChargesTab extends Component
             ->whereKey($chargeId)
             ->first();
 
-        if (! $charge || (bool) $charge->getRawOriginal('is_paid')) {
+        if (! $charge) {
             return;
         }
 
@@ -78,6 +81,92 @@ class OtherChargesTab extends Component
 
         $this->expandedChargeId = $chargeId;
         $this->expandedDetail = RentalOtherChargeTabData::detail($chargeId, $this->bookingId) ?? [];
+    }
+
+    public function startEdit(int $chargeId): void
+    {
+        $charge = RentingOtherCharge::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($chargeId)
+            ->firstOrFail();
+
+        if ((bool) $charge->getRawOriginal('is_paid')) {
+            $this->flashMessage = 'Reverse the payment before editing a paid charge.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $this->editingChargeId = $charge->id;
+        $this->editingDescription = (string) $charge->description;
+        $this->editingAmount = number_format((float) $charge->getRawOriginal('amount'), 2, '.', '');
+        $this->expandedChargeId = $charge->id;
+        $this->expandedDetail = RentalOtherChargeTabData::detail($charge->id, $this->bookingId) ?? [];
+    }
+
+    public function cancelEdit(): void
+    {
+        $this->editingChargeId = null;
+        $this->editingDescription = '';
+        $this->editingAmount = '';
+        $this->resetValidation();
+    }
+
+    public function saveEdit(): void
+    {
+        $this->validate([
+            'editingChargeId' => 'required|integer',
+            'editingDescription' => 'required|string|min:3|max:255',
+            'editingAmount' => 'required|numeric|min:0.01',
+        ]);
+
+        $charge = RentingOtherCharge::query()
+            ->where('booking_id', $this->bookingId)
+            ->whereKey($this->editingChargeId)
+            ->firstOrFail();
+
+        if ((bool) $charge->getRawOriginal('is_paid')) {
+            $this->flashMessage = 'Reverse the payment before editing a paid charge.';
+            $this->flashType = 'error';
+
+            return;
+        }
+
+        $charge->update([
+            'description' => trim($this->editingDescription),
+            'amount' => $this->editingAmount,
+        ]);
+
+        $chargeId = $charge->id;
+        $this->cancelEdit();
+        $this->expandedChargeId = $chargeId;
+        $this->expandedDetail = RentalOtherChargeTabData::detail($chargeId, $this->bookingId);
+        $this->flashMessage = 'Additional charge updated.';
+        $this->flashType = 'success';
+    }
+
+    public function reverseCharge(int $chargeId): void
+    {
+        try {
+            $charge = RentingOtherCharge::query()
+                ->where('booking_id', $this->bookingId)
+                ->whereKey($chargeId)
+                ->firstOrFail();
+
+            app(RentalBookingLifecycle::class)->reverseOtherCharge(
+                $charge->id,
+                auth()->id() ? (int) auth()->id() : null,
+            );
+
+            $this->editingChargeId = null;
+            $this->expandedChargeId = $chargeId;
+            $this->expandedDetail = RentalOtherChargeTabData::detail($chargeId, $this->bookingId);
+            $this->flashMessage = 'Latest payment reversed for charge #'.$chargeId.'. It can now be edited or paid again.';
+            $this->flashType = 'success';
+        } catch (\Throwable $e) {
+            $this->flashMessage = $e->getMessage();
+            $this->flashType = 'error';
+        }
     }
 
     public function openPayModal(int $chargeId): void

@@ -5,6 +5,7 @@ namespace App\Support;
 use App\Mail\RentalAgreement;
 use App\Mail\RentalPaymentReceipt;
 use App\Mail\RentalPaymentReversedNotice;
+use App\Mail\RentalOtherChargePaymentReversedNotice;
 use App\Models\AgreementAccess;
 use App\Models\BookingClosing;
 use App\Models\BookingInvoice;
@@ -807,6 +808,66 @@ class RentalBookingLifecycle
                 'success'     => true,
                 'transaction' => $transaction,
                 'message'     => 'Charge paid successfully.',
+            ];
+        });
+    }
+
+    public function reverseOtherCharge(int $chargeId, ?int $auditUserId = null): array
+    {
+        return DB::transaction(function () use ($chargeId, $auditUserId) {
+            $charge = RentingOtherCharge::query()->findOrFail($chargeId);
+            $transaction = RentingOtherChargesTransaction::query()
+                ->where('charges_id', $charge->id)
+                ->orderByDesc('id')
+                ->first();
+
+            if (! $transaction) {
+                throw new RuntimeException('No payment transaction found for this charge.');
+            }
+
+            $reversedAmount = (float) $transaction->amount;
+            $reversedTransactionId = $transaction->id;
+            $transaction->delete();
+
+            $charge->update([
+                'is_paid' => false,
+            ]);
+
+            $charge->loadMissing('booking.customer');
+            $customer = $charge->booking?->customer;
+            if ($customer?->email) {
+                try {
+                    Mail::to([$customer->email, 'customerservice@neguinhomotors.co.uk'])->send(
+                        new RentalOtherChargePaymentReversedNotice([
+                            'email' => [$customer->email, 'customerservice@neguinhomotors.co.uk'],
+                            'customer_name' => trim($customer->first_name.' '.$customer->last_name),
+                            'booking_id' => $charge->booking_id,
+                            'charge_id' => $charge->id,
+                            'charge_description' => $charge->description,
+                            'outstanding_amount' => (float) $charge->getRawOriginal('amount'),
+                        ])
+                    );
+                } catch (Exception $e) {
+                    Log::error('Failed to send reversed other charge email: '.$e->getMessage(), [
+                        'charge_id' => $charge->id,
+                        'booking_id' => $charge->booking_id,
+                    ]);
+                }
+            }
+
+            Log::info('rental_other_charge_payment_reversed', [
+                'charge_id' => $charge->id,
+                'booking_id' => $charge->booking_id,
+                'deleted_transaction_id' => $reversedTransactionId,
+                'deleted_transaction_amount' => $reversedAmount,
+                'user_id' => $auditUserId,
+            ]);
+
+            return [
+                'success' => true,
+                'charge_id' => $charge->id,
+                'deleted_transaction_id' => $reversedTransactionId,
+                'reversed_amount' => $reversedAmount,
             ];
         });
     }

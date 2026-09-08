@@ -59,7 +59,7 @@
         </div>
 
         <div class="px-4 pt-2 pb-2 border-b border-zinc-200 dark:border-zinc-700">
-            <p class="text-xs text-zinc-500 dark:text-zinc-400">Click an unpaid charge to expand details and send WhatsApp or email reminders.</p>
+            <p class="text-xs text-zinc-500 dark:text-zinc-400">Click a charge to expand details, edit it, reverse payment, or send WhatsApp/email reminders.</p>
         </div>
 
         <div class="touch-pan-x overflow-x-auto">
@@ -81,7 +81,7 @@
                             @endphp
                             <flux:table.row
                                 wire:key="charge-{{ $charge->id }}"
-                                class="{{ $isPaid ? '' : 'bg-amber-50 dark:bg-amber-900/10 cursor-pointer' }}"
+                                class="{{ $isPaid ? 'bg-emerald-50/30 dark:bg-emerald-900/5' : 'bg-amber-50 dark:bg-amber-900/10' }} cursor-pointer"
                                 wire:click="toggleCharge({{ $charge->id }})"
                             >
                                 <flux:table.cell class="font-medium">#{{ $charge->id }}</flux:table.cell>
@@ -96,16 +96,28 @@
                                     @if(!$isPaid)
                                         <button
                                             type="button"
+                                            wire:click.stop="startEdit({{ $charge->id }})"
+                                            class="inline-flex items-center px-2 py-1 text-xs font-semibold border border-zinc-400 text-zinc-700 hover:bg-zinc-100 dark:border-zinc-600 dark:text-zinc-200 dark:hover:bg-zinc-800 transition"
+                                        >Edit</button>
+                                    @endif
+                                    @if(!$isPaid)
+                                        <button
+                                            type="button"
                                             wire:click.stop="openPayModal({{ $charge->id }})"
                                             class="inline-flex items-center gap-1 px-2 py-1 text-xs font-bold bg-brand-red hover:opacity-90 text-white transition"
-                                        >Pay</button>
+                                        >Mark as paid</button>
                                     @else
-                                        <span class="text-xs text-zinc-400">Settled</span>
+                                        <button
+                                            type="button"
+                                            wire:click.stop="reverseCharge({{ $charge->id }})"
+                                            wire:confirm="Reverse the latest payment and mark this charge unpaid?"
+                                            class="inline-flex items-center px-2 py-1 text-xs font-semibold border border-amber-400 text-amber-800 hover:bg-amber-50 dark:border-amber-600 dark:text-amber-300 dark:hover:bg-amber-900/20 transition"
+                                        >Reverse</button>
                                     @endif
                                 </flux:table.cell>
                             </flux:table.row>
 
-                            @if(!$isPaid && $expandedChargeId === $charge->id)
+                            @if($expandedChargeId === $charge->id)
                                 <flux:table.row wire:key="charge-detail-{{ $charge->id }}" class="bg-zinc-50 dark:bg-zinc-800/50">
                                     <flux:table.cell colspan="5" class="!p-4">
                                         <div class="space-y-4" wire:click.stop>
@@ -113,6 +125,25 @@
                                                 <p class="text-sm text-red-600">Could not load charge details.</p>
                                             @else
                                                 <h4 class="text-sm font-bold text-zinc-900 dark:text-white">Charge details &amp; reminder management</h4>
+
+                                                @if($editingChargeId === $charge->id)
+                                                    <div class="grid gap-3 md:grid-cols-[1fr_10rem_auto]">
+                                                        <input wire:model="editingDescription" type="text" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" placeholder="Description" />
+                                                        <input wire:model="editingAmount" type="number" step="0.01" min="0.01" class="border border-zinc-300 dark:border-zinc-600 bg-white dark:bg-zinc-800 px-3 py-2 text-sm" placeholder="Amount" />
+                                                        <div class="flex gap-2">
+                                                            <button type="button" wire:click="saveEdit" class="px-3 py-2 text-xs font-semibold bg-emerald-600 text-white">Save</button>
+                                                            <button type="button" wire:click="cancelEdit" class="px-3 py-2 text-xs font-semibold border border-zinc-300">Cancel</button>
+                                                        </div>
+                                                    </div>
+                                                    @error('editingDescription') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                                                    @error('editingAmount') <p class="text-xs text-red-600">{{ $message }}</p> @enderror
+                                                @else
+                                                    <div class="flex flex-wrap gap-2">
+                                                        @if(!$isPaid)
+                                                            <button type="button" wire:click="openPayModal({{ $charge->id }})" class="px-3 py-2 text-xs font-semibold bg-brand-red text-white">Mark as paid</button>
+                                                        @endif
+                                                    </div>
+                                                @endif
 
                                                 <div class="grid gap-4 md:grid-cols-2">
                                                     <div>
@@ -139,11 +170,14 @@
                                                         <dl class="space-y-1 text-sm">
                                                             <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Description</dt><dd>{{ $expandedDetail['description'] ?: '—' }}</dd></div>
                                                             <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Amount</dt><dd>£{{ number_format((float) $expandedDetail['amount'], 2) }}</dd></div>
-                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd><flux:badge color="amber" size="sm">Unpaid</flux:badge></dd></div>
+                                                            <div class="flex gap-2"><dt class="text-zinc-500 min-w-[7rem]">Status</dt><dd><flux:badge :color="$isPaid ? 'emerald' : 'amber'" size="sm">{{ $isPaid ? 'Paid' : 'Unpaid' }}</flux:badge></dd></div>
                                                         </dl>
                                                     </div>
                                                     <div>
                                                         <p class="text-xs font-bold uppercase tracking-wide text-zinc-500 mb-2">Reminders</p>
+                                                        @if($isPaid)
+                                                            <p class="text-xs text-zinc-500 dark:text-zinc-400">Reverse the payment first if this charge needs further changes or payment activity.</p>
+                                                        @else
                                                         <dl class="space-y-1 text-sm mb-3">
                                                             <div class="flex gap-2">
                                                                 <dt class="text-zinc-500 min-w-[7rem]">WhatsApp sent</dt>
@@ -180,6 +214,7 @@
                                                                 Send email reminder
                                                             </button>
                                                         </div>
+                                                        @endif
                                                     </div>
                                                 </div>
                                             @endif
