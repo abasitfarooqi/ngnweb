@@ -4,7 +4,7 @@
 </div>
 @error('form') <p class="text-danger">{{ $message }}</p> @enderror
 @if (config('contact.captcha_enabled') === true)
-    <div wire:ignore class="space-y-2">
+    <div wire:ignore class="contact-captcha space-y-2">
         <div class="g-recaptcha" data-sitekey="{{ config('captcha.sitekey') }}"
              data-callback="ngnContactCaptchaCompleted"></div>
     </div>
@@ -13,7 +13,9 @@
             <script src="https://www.google.com/recaptcha/api.js" async defer></script>
             <script>
                 window.ngnContactCaptchaCompleted = token => {
-                    const component = document.querySelector('[wire\\:id]');
+                    const widget = [...document.querySelectorAll('.contact-captcha')]
+                        .find(element => element.offsetParent !== null) || document.querySelector('.contact-captcha');
+                    const component = widget?.closest('[wire\\:id]');
                     component && Livewire.find(component.getAttribute('wire:id'))?.set('captchaToken', token);
                 };
                 document.addEventListener('livewire:init', () => {
@@ -22,4 +24,9 @@
             </script>
         @endpush
     @endonce
+    <style>
+        .contact-captcha textarea.g-recaptcha-response {
+            display: none !important;
+        }
+    </style>
 @endif
