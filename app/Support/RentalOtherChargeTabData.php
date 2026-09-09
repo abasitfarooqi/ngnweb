@@ -85,11 +85,10 @@ class RentalOtherChargeTabData
         string $description,
         float $amount,
     ): string {
-        $number = preg_replace('/\s+|^0/', '', $phone);
-        $number = preg_replace('/^(\+44)+/', '', (string) $number);
-        $number = preg_replace('/^44/', '', (string) $number);
-        $number = '+44'.$number;
-        $number = preg_replace('/\s+/', '', $number);
+        $number = WhatsAppPhoneNumber::normalize($phone);
+        if ($number === null) {
+            return '';
+        }
 
         $message = self::reminderMessage($customerName, $bookingId, $regNo, $description, $amount);
 

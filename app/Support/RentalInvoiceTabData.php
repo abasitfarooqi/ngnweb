@@ -109,11 +109,10 @@ class RentalInvoiceTabData
         float $weeklyRent,
         string $invoiceDate,
     ): string {
-        $number = preg_replace('/\s+|^0/', '', $phone);
-        $number = preg_replace('/^(\+44)+/', '', (string) $number);
-        $number = preg_replace('/^44/', '', (string) $number);
-        $number = '+44'.$number;
-        $number = preg_replace('/\s+/', '', $number);
+        $number = WhatsAppPhoneNumber::normalize($phone);
+        if ($number === null) {
+            return '';
+        }
 
         $formattedDate = \Carbon\Carbon::parse($invoiceDate)->format('d M Y');
         $message = "Dear {$customerName}, this is a reminder regarding your Weekly Rental payment for motorbike {$regNo}. The outstanding amount of £"

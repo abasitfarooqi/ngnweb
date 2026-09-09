@@ -305,17 +305,13 @@ class RentingController extends Controller
 
         // Format phone number for WhatsApp
         $number = $invoice->customer_whatsapp ?: $invoice->customer_phone;
-        $number = preg_replace('/\s+|^0/', '', $number);
-        $number = preg_replace('/^(\+44)+/', '', $number);
-        $number = preg_replace('/^44/', '', $number);
-        $number = '+44'.$number;
-        $number = preg_replace('/\s+/', '', $number);
+        $number = \App\Support\WhatsAppPhoneNumber::normalize((string) $number);
 
         // Generate WhatsApp message
         $invoiceDate = \Carbon\Carbon::parse($invoice->invoice_date)->format('d M Y');
         $message = "Dear {$invoice->customer_name}, this is a reminder regarding your Weekly Rental payment for motorbike {$invoice->motorbike_reg_no}. The outstanding amount of £".number_format($invoice->weekly_rent, 2)." is due on {$invoiceDate}. Please ensure payment is made as soon as possible to avoid late fees. If you have already paid, please contact us immediately at 0208 314 1498 or WhatsApp us on 07951790568, NGN Motors, ".$this->buildWhatsappStaffSignature().'.';
 
-        $whatsappUrl = "https://wa.me/{$number}?text=".urlencode($message);
+        $whatsappUrl = $number !== null ? "https://wa.me/{$number}?text=".urlencode($message) : '';
 
         return response()->json([
             'success' => true,
