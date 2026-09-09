@@ -13,9 +13,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Book extends Component
 {
+    use HasContactSpamProtection;
     public string $branch_id = '';
 
     public string $branchLabel = 'Catford';
@@ -45,6 +47,7 @@ class Book extends Component
 
     public function mount(): void
     {
+        $this->startContactSpamProtection();
         $this->timeSlots = MOTBooking::motTimeSlots();
 
         $catfordBranchId = MOTBooking::catfordBranchId();
@@ -101,7 +104,8 @@ class Book extends Component
 
     public function submitBooking(): void
     {
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
 
         $customerAuth = Auth::guard('customer')->user();
         $customerProfile = $customerAuth?->customer;
@@ -217,6 +221,7 @@ class Book extends Component
             $this->phone = (string) $profile->phone;
         }
         $this->formNonce++;
+        $this->resetContactSpamProtection();
     }
 
     public function getAvailableTimeSlotsProperty(): array

@@ -5,9 +5,11 @@ namespace App\Livewire\Site\Ebikes;
 use App\Http\Controllers\MailController;
 use App\Models\ServiceBooking;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Index extends Component
 {
+    use HasContactSpamProtection;
     /** @var list<string> */
     public array $galleryUrls = [];
 
@@ -25,6 +27,7 @@ class Index extends Component
 
     public function mount(): void
     {
+        $this->startContactSpamProtection();
         $this->galleryUrls = [
             asset('assets/images/ebike-london-cheap-price-uk.png'),
             asset('assets/images/your-front-view.png'),
@@ -50,7 +53,7 @@ class Index extends Component
 
     public function submitEnquiry(): void
     {
-        $this->validate([
+        $validated = $this->validate([
             'name' => ['required', 'string', 'min:2'],
             'email' => ['nullable', 'email'],
             'phone' => ['required', 'string', 'min:7'],
@@ -58,6 +61,7 @@ class Index extends Component
             'privacy' => ['accepted'],
             'reg_no' => ['nullable', 'string', 'max:20'],
         ]);
+        $this->protectContactSubmission($validated);
 
         $customerAuth = auth('customer')->user();
 
@@ -87,6 +91,7 @@ class Index extends Component
 
         session()->flash('enquiry_success', 'Thank you — your e-bike enquiry has been sent. Our team will contact you shortly.');
         $this->privacy = false;
+        $this->resetContactSpamProtection();
     }
 
     public function render()

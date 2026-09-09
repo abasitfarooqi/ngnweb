@@ -13,9 +13,11 @@ use App\Support\MotorbikeAccessoriesHtml;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Show extends Component
 {
+    use HasContactSpamProtection;
     public $bike;
 
     public $isNew = false;
@@ -38,6 +40,7 @@ class Show extends Component
 
     public function mount($type, $id)
     {
+        $this->startContactSpamProtection();
         $this->isNew = ($type === 'new');
 
         if ($this->isNew) {
@@ -97,13 +100,14 @@ class Show extends Component
 
     public function submitEnquiry(): void
     {
-        $this->validate([
+        $validated = $this->validate([
             'name' => ['required', 'string', 'min:2'],
             'email' => ['nullable', 'email'],
             'phone' => ['required', 'string', 'min:7'],
             'message' => ['required', 'string', 'min:5'],
             'privacy' => ['accepted'],
         ]);
+        $this->protectContactSubmission($validated);
 
         $price = $this->isNew
             ? (float) ($this->bike->sale_new_price ?? $this->bike->price ?? 0)
@@ -140,6 +144,7 @@ class Show extends Component
 
         session()->flash('enquiry_success', 'Enquiry received. Our team will contact you shortly.');
         $this->privacy = false;
+        $this->resetContactSpamProtection();
     }
 
     /** @return list<string> */

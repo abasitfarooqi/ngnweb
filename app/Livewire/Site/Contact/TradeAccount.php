@@ -5,9 +5,11 @@ namespace App\Livewire\Site\Contact;
 use App\Mail\ContactSubmission;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class TradeAccount extends Component
 {
+    use HasContactSpamProtection;
     public $companyName = '';
 
     public $contactName = '';
@@ -22,9 +24,14 @@ class TradeAccount extends Component
 
     public $message = '';
 
+    public function mount(): void
+    {
+        $this->startContactSpamProtection();
+    }
+
     public function submitEnquiry(): void
     {
-        $this->validate([
+        $validated = $this->validate([
             'companyName' => 'required|string|min:2',
             'contactName' => 'required|string|min:2',
             'email' => 'required|email',
@@ -33,6 +40,7 @@ class TradeAccount extends Component
             'message' => 'required|string|min:10',
             'vatNumber' => 'nullable|string|max:32',
         ]);
+        $this->protectContactSubmission($validated);
 
         $toEmail = config('mail.from.address', 'customerservice@neguinhomotors.co.uk');
         $body = 'Trade account application'."\n\n"
@@ -56,6 +64,7 @@ class TradeAccount extends Component
 
         session()->flash('success', 'Trade account enquiry received. Our team will contact you within 24 hours.');
         $this->reset(['companyName', 'contactName', 'email', 'phone', 'address', 'vatNumber', 'message']);
+        $this->resetContactSpamProtection();
     }
 
     public function render()

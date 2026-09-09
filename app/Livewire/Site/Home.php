@@ -7,9 +7,11 @@ use App\Models\BlogPost;
 use App\Models\Motorbike;
 use App\Models\ServiceBooking;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Home extends Component
 {
+    use HasContactSpamProtection;
     /** @var list<array{href: string, img: string, title: string, weekly: int, alt: string}> Same order as legacy home: slide 1 (3), slide 2 (3). */
     public array $homeRentalModels = [];
 
@@ -29,6 +31,7 @@ class Home extends Component
 
     public function mount(): void
     {
+        $this->startContactSpamProtection();
         // Order matches legacy home carousel: slide 1 (3), slide 2 (3).
         $this->homeRentalModels = [
             [
@@ -112,6 +115,7 @@ class Home extends Component
             'contactSubject' => 'subject',
             'contactMessage' => 'message',
         ]);
+        $this->protectContactSubmission($data);
 
         $customerAuth = auth('customer')->user();
         $customerId = $customerAuth?->customer_id;
@@ -137,6 +141,7 @@ class Home extends Component
         app(MailController::class)->sendBookingConfirmation($booking, internalUseContactSubmission: true);
 
         $this->reset(['contactName', 'contactEmail', 'contactPhone', 'contactSubject', 'contactMessage']);
+        $this->resetContactSpamProtection();
         session()->flash('success', 'Your enquiry has been sent successfully.');
     }
 

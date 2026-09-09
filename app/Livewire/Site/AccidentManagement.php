@@ -4,9 +4,11 @@ namespace App\Livewire\Site;
 
 use Livewire\Component;
 use Illuminate\Support\Facades\Mail;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class AccidentManagement extends Component
 {
+    use HasContactSpamProtection;
     public string $name = '';
     public string $phone = '';
     public string $email = '';
@@ -30,7 +32,8 @@ class AccidentManagement extends Component
 
     public function submit()
     {
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
 
         try {
             $data = [
@@ -61,6 +64,12 @@ class AccidentManagement extends Component
 
         $this->submitted = true;
         $this->reset(['name', 'phone', 'email', 'reg_no', 'language', 'privacy_policy']);
+        $this->resetContactSpamProtection();
+    }
+
+    public function mount(): void
+    {
+        $this->startContactSpamProtection();
     }
 
     public function render()

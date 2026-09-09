@@ -5,9 +5,11 @@ namespace App\Livewire\Site\Mot;
 use App\Models\MotTaxAlertSubscription;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Alert extends Component
 {
+    use HasContactSpamProtection;
     public $firstName = '';
 
     public $lastName = '';
@@ -32,9 +34,15 @@ class Alert extends Component
         'regNo' => 'required|string|min:2|max:10',
     ];
 
+    public function mount(): void
+    {
+        $this->startContactSpamProtection();
+    }
+
     public function submitAlert(): void
     {
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
         $this->regNo = strtoupper(str_replace(' ', '', trim($this->regNo)));
 
         MotTaxAlertSubscription::create([
@@ -88,6 +96,7 @@ class Alert extends Component
         $this->notifyEmail = true;
         $this->notifyPhone = false;
         $this->enableDeals = false;
+        $this->resetContactSpamProtection();
     }
 
     public function render()

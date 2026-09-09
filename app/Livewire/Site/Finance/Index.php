@@ -7,9 +7,11 @@ use App\Models\Motorbike;
 use App\Models\Motorcycle;
 use App\Models\ServiceBooking;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Index extends Component
 {
+    use HasContactSpamProtection;
     private const ALLOWED_TERMS = [6, 10, 12];
 
     public $loanAmount = 3000;
@@ -62,6 +64,7 @@ class Index extends Component
 
     public function mount(): void
     {
+        $this->startContactSpamProtection();
         // Populate from query string when coming from /bikes pages
         $this->bikeId = request()->integer('bike_id') ?: null;
         $this->bikeType = request()->string('bike_type')->lower()->value() ?: null;
@@ -160,7 +163,8 @@ class Index extends Component
 
     public function submitApplication(): void
     {
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
 
         $fullName = trim($this->firstName.' '.$this->lastName);
         $amount = (float) $this->loanAmount;
@@ -225,6 +229,7 @@ class Index extends Component
 
         // Keep calculator + bike context so the page still reflects the bike
         $this->calculatePayment();
+        $this->resetContactSpamProtection();
     }
 
     public function render()

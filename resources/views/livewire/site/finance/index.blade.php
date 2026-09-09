@@ -74,6 +74,7 @@
 
     <x-site.form-panel title="Apply for a Payment Plan">
         <form wire:submit="submitApplication" class="site-form site-form-stack">
+            @include('livewire.site.partials.contact-spam-fields')
             <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>First Name *</flux:label>

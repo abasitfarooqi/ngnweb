@@ -27,6 +27,7 @@
 
     <x-site.form-panel title="Apply for This Role" heading-class="text-xl font-bold text-gray-900 dark:text-white mb-5">
         <form wire:submit="submitApplication" class="site-form site-form-stack">
+            @include('livewire.site.partials.contact-spam-fields')
             <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>First Name *</flux:label>

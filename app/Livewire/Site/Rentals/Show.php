@@ -6,9 +6,11 @@ use App\Http\Controllers\MailController;
 use App\Models\Motorbike;
 use App\Models\ServiceBooking;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Show extends Component
 {
+    use HasContactSpamProtection;
     public $motorbike;
 
     public $pricing;
@@ -27,6 +29,7 @@ class Show extends Component
 
     public function mount($id)
     {
+        $this->startContactSpamProtection();
         try {
             $this->motorbike = Motorbike::with(['images', 'currentRentingPricing', 'branch'])
                 ->whereRaw("NOT (UPPER(COALESCE(make, '')) LIKE '%HONDA%' AND UPPER(COALESCE(model, '')) LIKE '%PCX%')")
@@ -74,13 +77,14 @@ class Show extends Component
 
     public function submitEnquiry(): void
     {
-        $this->validate([
+        $validated = $this->validate([
             'name' => ['required', 'string', 'min:2'],
             'email' => ['nullable', 'email'],
             'phone' => ['required', 'string', 'min:7'],
             'message' => ['required', 'string', 'min:5'],
             'privacy' => ['accepted'],
         ]);
+        $this->protectContactSubmission($validated);
 
         $booking = ServiceBooking::query()->create([
             'enquiry_type' => 'rental',
@@ -107,6 +111,7 @@ class Show extends Component
         app(MailController::class)->sendBookingConfirmation($booking);
         session()->flash('enquiry_success', 'Rental enquiry sent. Our team will contact you shortly.');
         $this->privacy = false;
+        $this->resetContactSpamProtection();
     }
 
     public function render()

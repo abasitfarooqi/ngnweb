@@ -135,6 +135,7 @@
 
         <x-site.form-panel>
             <form wire:key="repairs-index-enquiry-{{ $formNonce }}" wire:submit="submitEnquiry" class="site-form site-form-stack">
+                @include('livewire.site.partials.contact-spam-fields')
                 <flux:field>
                     <flux:label>Service type *</flux:label>
                     <flux:select wire:model="selectedService" variant="listbox" placeholder="Select service…">

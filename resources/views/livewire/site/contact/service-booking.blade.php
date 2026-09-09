@@ -27,6 +27,7 @@
 
     <x-site.form-panel :title="$embeddedHeading ?: ($embedded ? 'Service enquiry' : 'Service Booking Form')">
         <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="site-form site-form-stack">
+            @include('livewire.site.partials.contact-spam-fields')
             @if($portalRepairsEnquiry && $repairsEnquiryCompactMode)
                 <flux:field>
                     <flux:label>Enquiry type *</flux:label>

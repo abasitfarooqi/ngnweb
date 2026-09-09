@@ -6,9 +6,11 @@ use App\Http\Controllers\MailController;
 use App\Models\Motorbike;
 use App\Models\ServiceBooking;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class BikeModel extends Component
 {
+    use HasContactSpamProtection;
     public $modelSlug;
 
     public $make;
@@ -38,6 +40,7 @@ class BikeModel extends Component
 
     public function mount(?string $slug = null)
     {
+        $this->startContactSpamProtection();
         $slug = $slug ?? (string) request()->route('slug', '');
         $this->modelSlug = $slug;
 
@@ -153,13 +156,14 @@ class BikeModel extends Component
 
     public function submitEnquiry(): void
     {
-        $this->validate([
+        $validated = $this->validate([
             'name' => ['required', 'string', 'min:2'],
             'email' => ['nullable', 'email'],
             'phone' => ['required', 'string', 'min:7'],
             'message' => ['required', 'string', 'min:5'],
             'privacy' => ['accepted'],
         ]);
+        $this->protectContactSubmission($validated);
 
         $booking = ServiceBooking::query()->create([
             'enquiry_type' => 'rental',
@@ -186,6 +190,7 @@ class BikeModel extends Component
         app(MailController::class)->sendBookingConfirmation($booking);
         session()->flash('enquiry_success', 'Rental enquiry sent. Our team will contact you shortly.');
         $this->privacy = false;
+        $this->resetContactSpamProtection();
     }
 
     public function render()

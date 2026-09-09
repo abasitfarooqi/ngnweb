@@ -5,9 +5,11 @@ namespace App\Livewire\Site\Repairs;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Index extends Component
 {
+    use HasContactSpamProtection;
     public $branches;
 
     public int $formNonce = 0;
@@ -44,6 +46,7 @@ class Index extends Component
 
     public function mount(): void
     {
+        $this->startContactSpamProtection();
         $this->branches = Branch::orderBy('name')->get();
 
         $allowed = ['Basic Service', 'Major Service', 'Repairs / diagnostics', 'MOT', 'Other'];
@@ -62,7 +65,8 @@ class Index extends Component
 
     public function submitEnquiry(): void
     {
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
         $reg = $this->regNo ? strtoupper(str_replace(' ', '', trim($this->regNo))) : '';
 
         $branchName = optional($this->branches->firstWhere('id', (int) $this->selectedBranch))->name ?? 'Unknown';
@@ -108,6 +112,7 @@ class Index extends Component
             'model',
         ]);
         $this->formNonce++;
+        $this->resetContactSpamProtection();
     }
 
     public function render()

@@ -129,6 +129,7 @@
         @else
             <x-site.form-panel>
             <form wire:submit.prevent="submit" class="site-form site-form-stack">
+                @include('livewire.site.partials.contact-spam-fields')
 
                 <x-site.form-grid :cols="2">
                     <flux:field>

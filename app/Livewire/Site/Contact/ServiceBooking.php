@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class ServiceBooking extends Component
 {
+    use HasContactSpamProtection;
     public bool $embedded = false;
 
     public bool $rentalCompactMode = false;
@@ -118,6 +120,7 @@ class ServiceBooking extends Component
         ?string $initialModel = null,
         ?string $initialMessage = null
     ): void {
+        $this->startContactSpamProtection();
         $this->embedded = $embedded;
         $this->rentalCompactMode = $rentalCompactMode;
         $this->repairsEnquiryCompactMode = $repairsEnquiryCompactMode;
@@ -252,6 +255,7 @@ class ServiceBooking extends Component
     public function submitBooking(): void
     {
         $validated = $this->validate($this->rules());
+        $this->protectContactSubmission($validated);
 
         if ($this->rentalCompactMode) {
             $this->serviceType = 'Motorcycle Rental Enquiry';
@@ -407,6 +411,7 @@ class ServiceBooking extends Component
             'cookiePolicy',
         ]);
         $this->formNonce++;
+        $this->resetContactSpamProtection();
     }
 
     public function getRequiresScheduleSelectionProperty(): bool

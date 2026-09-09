@@ -298,6 +298,7 @@
                 @endif
                 <flux:card class="p-5 md:p-6 border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 ring-1 ring-gray-200/80 dark:ring-gray-700/80 shadow-sm">
                     <form wire:submit="submitContact" class="site-form site-form-stack">
+                        @include('livewire.site.partials.contact-spam-fields')
                         <flux:field>
                             <flux:label>Name *</flux:label>
                             <flux:input wire:model="contactName" autocomplete="name" />

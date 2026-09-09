@@ -6,9 +6,11 @@ use App\Mail\ContactSubmission;
 use App\Models\Branch;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Contact extends Component
 {
+    use HasContactSpamProtection;
     public $branches;
 
     public $name = '';
@@ -25,6 +27,7 @@ class Contact extends Component
 
     public function mount()
     {
+        $this->startContactSpamProtection();
         $this->branches = Branch::orderBy('name')->get();
     }
 
@@ -46,6 +49,7 @@ class Contact extends Component
             'topic' => 'required',
             'message' => 'required|min:10',
         ]);
+        $this->protectContactSubmission($validated);
 
         $branchName = '';
         if ($this->branch_id) {
@@ -57,11 +61,11 @@ class Contact extends Component
 
         try {
             Mail::to($toEmail)->send(new ContactSubmission(
-                senderName: $this->name,
-                senderEmail: $this->email,
-                phone: $this->phone,
-                topic: $this->topic,
-                messageBody: $this->message,
+                senderName: trim(str_replace(["\r", "\n"], ' ', $validated['name'])),
+                senderEmail: trim($validated['email']),
+                phone: trim($validated['phone']),
+                topic: trim(str_replace(["\r", "\n"], ' ', $validated['topic'])),
+                messageBody: trim($validated['message']),
                 branchName: $branchName,
             ));
         } catch (\Exception $e) {
@@ -70,6 +74,7 @@ class Contact extends Component
 
         session()->flash('success', 'Thank you for your message. We will get back to you soon.');
         $this->reset(['name', 'email', 'phone', 'branch_id', 'topic', 'message']);
+        $this->resetContactSpamProtection();
     }
 
     public function render()

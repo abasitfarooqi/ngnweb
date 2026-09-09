@@ -29,6 +29,7 @@
 
     <x-site.form-panel title="MOT booking form">
         <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="site-form site-form-stack">
+            @include('livewire.site.partials.contact-spam-fields')
 
             <flux:field>
                 <flux:label>Branch</flux:label>

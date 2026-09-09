@@ -14,6 +14,7 @@
     @endif
 
     <form wire:submit="submitAlert" class="site-form site-form-stack">
+        @include('livewire.site.partials.contact-spam-fields')
         <x-site.form-grid :cols="2">
             <flux:field>
                 <flux:label>First Name *</flux:label>

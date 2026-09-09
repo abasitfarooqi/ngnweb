@@ -7,9 +7,11 @@ use App\Models\NgnCareer;
 use App\Support\UkMobilePhone;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Show extends Component
 {
+    use HasContactSpamProtection;
     public NgnCareer $career;
 
     public string $firstName = '';
@@ -47,13 +49,15 @@ class Show extends Component
 
     public function mount(int $id): void
     {
+        $this->startContactSpamProtection();
         $this->career = NgnCareer::findOrFail($id);
     }
 
     public function submitApplication(): void
     {
         $this->phone = UkMobilePhone::normalize($this->phone);
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
 
         $body = "Job application for: {$this->career->job_title}\n\n"
             . "Name: {$this->firstName} {$this->lastName}\n"
@@ -76,6 +80,7 @@ class Show extends Component
 
         session()->flash('success', 'Application submitted. We will be in touch shortly.');
         $this->reset(['firstName', 'lastName', 'email', 'phone', 'coverLetter']);
+        $this->resetContactSpamProtection();
     }
 
     public function render()
