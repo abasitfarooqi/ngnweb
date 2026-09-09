@@ -135,7 +135,6 @@
 
         <x-site.form-panel>
             <form wire:key="repairs-index-enquiry-{{ $formNonce }}" wire:submit="submitEnquiry" class="site-form site-form-stack">
-                @include('livewire.site.partials.contact-spam-fields')
                 <flux:field>
                     <flux:label>Service type *</flux:label>
                     <flux:select wire:model="selectedService" variant="listbox" placeholder="Select service…">
@@ -200,6 +199,7 @@
                     <flux:error name="description" />
                 </flux:field>
 
+                @include('livewire.site.partials.contact-spam-fields')
                 <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark" wire:loading.attr="disabled">
                     <span wire:loading.remove wire:target="submitEnquiry">Submit enquiry</span>
                     <span wire:loading wire:target="submitEnquiry">Submitting…</span>

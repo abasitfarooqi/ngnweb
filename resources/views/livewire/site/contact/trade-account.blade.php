@@ -32,7 +32,6 @@
 
     <x-site.form-panel title="Trade Account Application Form">
         <form wire:submit.prevent="submitEnquiry" class="site-form site-form-stack">
-            @include('livewire.site.partials.contact-spam-fields')
             <flux:field>
                 <flux:label>Company Name *</flux:label>
                 <flux:input wire:model="companyName" type="text" placeholder="Your company name" />
@@ -75,6 +74,7 @@
                 <flux:error name="message" />
             </flux:field>
 
+            @include('livewire.site.partials.contact-spam-fields')
             <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">Submit Application</flux:button>
         </form>
     </x-site.form-panel>

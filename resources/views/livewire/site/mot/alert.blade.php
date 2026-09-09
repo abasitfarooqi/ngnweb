@@ -14,7 +14,6 @@
     @endif
 
     <form wire:submit="submitAlert" class="site-form site-form-stack">
-        @include('livewire.site.partials.contact-spam-fields')
         <x-site.form-grid :cols="2">
             <flux:field>
                 <flux:label>First Name *</flux:label>
@@ -62,6 +61,7 @@
             </label>
         </div>
 
+        @include('livewire.site.partials.contact-spam-fields')
         <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark hover:text-white">
             Subscribe to MOT/Tax Alerts
         </flux:button>

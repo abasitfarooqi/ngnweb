@@ -74,7 +74,6 @@
 
     <x-site.form-panel title="Apply for a Payment Plan">
         <form wire:submit="submitApplication" class="site-form site-form-stack">
-            @include('livewire.site.partials.contact-spam-fields')
             <x-site.form-grid :cols="2">
                 <flux:field>
                     <flux:label>First Name *</flux:label>
@@ -121,6 +120,7 @@
                 <span>I consent to NGN Motors contacting me about this application *</span>
             </label>
             <flux:error name="consent" />
+            @include('livewire.site.partials.contact-spam-fields')
             <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                 Submit Application
             </flux:button>

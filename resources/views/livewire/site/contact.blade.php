@@ -20,7 +20,6 @@
 
             <x-site.form-panel title="Send Us a Message">
                 <form wire:submit.prevent="submit" class="site-form site-form-stack">
-                    @include('livewire.site.partials.contact-spam-fields')
                 <flux:field>
                     <flux:label>Full Name *</flux:label>
                     <flux:input wire:model="name" />
@@ -66,6 +65,7 @@
                     <flux:error name="message" />
                 </flux:field>
 
+                @include('livewire.site.partials.contact-spam-fields')
                 <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                     Send Message
                 </flux:button>

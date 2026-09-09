@@ -27,7 +27,6 @@
 
     <x-site.form-panel :title="$embeddedHeading ?: ($embedded ? 'Service enquiry' : 'Service Booking Form')">
         <form wire:key="service-booking-form-{{ $formNonce }}" wire:submit.prevent="submitBooking" class="site-form site-form-stack">
-            @include('livewire.site.partials.contact-spam-fields')
             @if($portalRepairsEnquiry && $repairsEnquiryCompactMode)
                 <flux:field>
                     <flux:label>Enquiry type *</flux:label>
@@ -160,6 +159,7 @@
                 </div>
             @endif
 
+            @include('livewire.site.partials.contact-spam-fields')
             <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark" wire:loading.attr="disabled" wire:target="submitBooking">
                 <span wire:loading.remove wire:target="submitBooking">{{ $submitLabel }}</span>
                 <span wire:loading wire:target="submitBooking">Submitting...</span>

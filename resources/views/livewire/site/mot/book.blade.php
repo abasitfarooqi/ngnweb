@@ -29,8 +29,6 @@
 
     <x-site.form-panel title="MOT booking form">
         <form wire:key="mot-book-{{ $formNonce }}" wire:submit="submitBooking" class="site-form site-form-stack">
-            @include('livewire.site.partials.contact-spam-fields')
-
             <flux:field>
                 <flux:label>Branch</flux:label>
                 <flux:input value="{{ $branchLabel }}" disabled />
@@ -98,6 +96,7 @@
                 <flux:textarea wire:model="notes" rows="5" />
             </flux:field>
 
+            @include('livewire.site.partials.contact-spam-fields')
             <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                 Submit MOT Booking
             </flux:button>

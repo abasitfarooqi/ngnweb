@@ -2,11 +2,13 @@
     <label for="company_website">Website</label>
     <input id="company_website" type="text" wire:model="companyWebsite" tabindex="-1" autocomplete="off">
 </div>
-@error('form') <p class="text-danger">{{ $message }}</p> @enderror
 @if (config('contact.captcha_enabled') === true)
-    <div wire:ignore class="contact-captcha space-y-2">
-        <div class="g-recaptcha" data-sitekey="{{ config('captcha.sitekey') }}"
-             data-callback="ngnContactCaptchaCompleted"></div>
+    <div class="contact-captcha space-y-2">
+        <div wire:ignore>
+            <div class="g-recaptcha" data-sitekey="{{ config('captcha.sitekey') }}"
+                 data-callback="ngnContactCaptchaCompleted"></div>
+        </div>
+        @error('form') <p class="text-danger">{{ $message }}</p> @enderror
     </div>
     @once
         @push('scripts')
@@ -25,8 +27,10 @@
         @endpush
     @endonce
     <style>
-        .contact-captcha textarea.g-recaptcha-response {
+        textarea.g-recaptcha-response,
+        textarea[name="g-recaptcha-response"] {
             display: none !important;
+            visibility: hidden !important;
         }
     </style>
 @endif

@@ -332,7 +332,8 @@ class PcnIndex extends Component
                     ->orWhereHas('customer', function ($cq) use ($term) {
                         $cq->where('first_name', 'like', "%{$term}%")
                             ->orWhere('last_name', 'like', "%{$term}%")
-                            ->orWhere('email', 'like', "%{$term}%");
+                            ->orWhere('email', 'like', "%{$term}%")
+                            ->orWhereRaw("CONCAT_WS(' ', first_name, last_name) LIKE ?", ["%{$term}%"]);
                     })
                     ->orWhereHas('motorbike', function ($mq) use ($term) {
                         $mq->where('reg_no', 'like', "%{$term}%");

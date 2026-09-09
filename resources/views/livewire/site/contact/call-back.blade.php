@@ -16,7 +16,6 @@
 
     <x-site.form-panel title="Call Back Request Form">
         <form wire:submit.prevent="submitRequest" class="site-form site-form-stack">
-            @include('livewire.site.partials.contact-spam-fields')
             <flux:field>
                 <flux:label>Full Name *</flux:label>
                 <flux:input wire:model="name" type="text" />
@@ -52,6 +51,7 @@
                 <flux:textarea wire:model="message" rows="5" placeholder="Tell us briefly what you need help with..." />
             </flux:field>
 
+            @include('livewire.site.partials.contact-spam-fields')
             <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">Request Call Back</flux:button>
         </form>
     </x-site.form-panel>

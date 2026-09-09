@@ -129,8 +129,6 @@
         @else
             <x-site.form-panel>
             <form wire:submit.prevent="submit" class="site-form site-form-stack">
-                @include('livewire.site.partials.contact-spam-fields')
-
                 <x-site.form-grid :cols="2">
                     <flux:field>
                         <flux:label for="acc-name">Full Name *</flux:label>
@@ -180,6 +178,7 @@
                     <flux:error name="privacy_policy" />
                 </flux:field>
 
+                @include('livewire.site.partials.contact-spam-fields')
                 <flux:button type="submit" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark font-semibold py-3">
                     <span wire:loading.remove>Submit Claim</span>
                     <span wire:loading>Submitting…</span>

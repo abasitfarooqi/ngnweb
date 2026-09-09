@@ -28,7 +28,6 @@
     @endif
 
     <form wire:submit.prevent="submitEnquiry" class="site-form site-form-stack" wire:key="sales-enquiry-form">
-        @include('livewire.site.partials.contact-spam-fields')
         <x-site.form-grid :cols="2">
             <flux:field>
                 <flux:label>Full name</flux:label>
@@ -70,6 +69,8 @@
             </span>
         </label>
         <flux:error name="privacy" />
+
+        @include('livewire.site.partials.contact-spam-fields')
 
         <flux:button type="button" wire:click="submitEnquiry" variant="filled" class="w-full bg-brand-green text-white hover:bg-brand-green-dark hover:text-white">
             {{ $submitButtonLabel }}
