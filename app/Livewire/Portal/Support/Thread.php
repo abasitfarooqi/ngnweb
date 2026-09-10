@@ -45,9 +45,14 @@ class Thread extends Component
             ->orderBy('id')
             ->get();
 
-        SupportMessage::query()->where('conversation_id', $this->conversation->id)
-            ->where('sender_type', 'staff')->whereNull('read_at_customer')
-            ->update(['read_at_customer' => now()]);
+        $conversationId = (int) $this->conversation->id;
+        dispatch(function () use ($conversationId): void {
+            SupportMessage::query()
+                ->where('conversation_id', $conversationId)
+                ->where('sender_type', 'staff')
+                ->whereNull('read_at_customer')
+                ->update(['read_at_customer' => now()]);
+        })->afterResponse();
 
         $notificationUuid = null;
         foreach ($messages as $message) {

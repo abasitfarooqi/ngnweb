@@ -76,6 +76,10 @@
     .portal-nav-link.active {
         @apply bg-brand-green text-white hover:bg-brand-green-dark hover:text-white;
     }
+    .portal-nav-link.active .js-chat-unread,
+    .portal-nav-link.active .js-notifications-unread {
+        @apply bg-white text-gray-900;
+    }
     .portal-nav-sub-link {
         @apply flex items-center px-3 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors;
     }

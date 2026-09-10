@@ -185,19 +185,9 @@
                     try {
                         if (auth('customer')->check()) {
                             $customerAuthId = (int) auth('customer')->id();
-                            if (app(\App\Services\Communications\CommunicationSchema::class)->ready()) {
-                                $notificationsUnread = \App\Models\CommunicationRecipient::query()
-                                    ->where('customer_auth_id', $customerAuthId)
-                                    ->whereNull('read_at')
-                                    ->whereNull('archived_at')
-                                    ->count();
-                            }
-                            $chatUnread = \App\Models\SupportMessage::query()
-                                ->where('sender_type', 'staff')
-                                ->whereNull('read_at_customer')
-                                ->whereNull('deleted_at')
-                                ->whereHas('conversation', fn ($q) => $q->where('customer_auth_id', $customerAuthId))
-                                ->count();
+                            $menu = app(\App\Services\Communications\CustomerNotificationMenu::class)->forCurrentCustomer();
+                            $notificationsUnread = (int) ($menu['unread'] ?? 0);
+                            $chatUnread = (int) ($menu['chat_unread'] ?? 0);
                             if (request()->routeIs('account.support.thread')) {
                                 $threadUuid = (string) request()->route('conversationUuid');
                                 $generalChatActive = \App\Models\SupportConversation::query()
@@ -344,9 +334,9 @@
                         <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $item['icon'] !!}</svg>
                         <span>{{ $item['label'] }}</span>
                         @if(($item['route'] ?? '') === 'account.notifications')
-                            <span id="portal-notifications-unread" class="js-notifications-unread ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($notificationsUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($notificationsUnread ?? 0) }}">{{ (int) ($notificationsUnread ?? 0) }}</span>
+                            <span id="portal-notifications-unread" class="js-notifications-unread ml-auto shrink-0 bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($notificationsUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($notificationsUnread ?? 0) }}">{{ (int) ($notificationsUnread ?? 0) }}</span>
                         @elseif(($item['badge'] ?? '') === 'chat' || ($item['route'] ?? '') === 'account.support')
-                            <span class="js-chat-unread ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($chatUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($chatUnread ?? 0) }}">{{ (int) ($chatUnread ?? 0) }}</span>
+                            <span class="js-chat-unread ml-auto shrink-0 bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($chatUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($chatUnread ?? 0) }}">{{ (int) ($chatUnread ?? 0) }}</span>
                         @endif
                     </a>
                 @endforeach

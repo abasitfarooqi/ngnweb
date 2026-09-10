@@ -1,21 +1,21 @@
 <div class="flux-support-inbox-page" wire:poll.visible.5s="refreshRealtimeState">
     <div id="support-admin-live-root" class="hidden"></div>
 
-    <div class="flex shrink-0 items-center justify-between flex-wrap gap-4">
-        <div class="flex items-center gap-4">
-            <div class="flex size-12 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-sm dark:bg-white dark:text-zinc-950">
-                <flux:icon name="chat-bubble-left-right" class="size-6" />
+    <div class="flux-support-inbox-toolbar flex shrink-0 items-center justify-between flex-wrap gap-3 sm:gap-4">
+        <div class="flex min-w-0 items-center gap-3 sm:gap-4">
+            <div class="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-sm dark:bg-white dark:text-zinc-950 sm:size-12">
+                <flux:icon name="chat-bubble-left-right" class="size-5 sm:size-6" />
             </div>
-            <div>
+            <div class="min-w-0">
                 <div class="flex items-center gap-2">
                     <flux:heading size="xl">Support inbox</flux:heading>
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"><span class="size-1.5 rounded-full bg-emerald-500"></span>Live</span>
                 </div>
-                <flux:text class="mt-1">One secure conversation per customer.</flux:text>
+                <flux:text class="flux-support-inbox-toolbar-copy mt-1">One secure conversation per customer.</flux:text>
             </div>
         </div>
-        <div class="flex flex-wrap gap-2 items-center">
-            <flux:select wire:model.live="statusFilter" class="min-w-[11rem] rounded-xl">
+        <div class="flex w-full min-w-0 flex-wrap gap-2 items-center lg:w-auto">
+            <flux:select wire:model.live="statusFilter" class="min-w-0 w-full sm:min-w-[11rem] sm:w-auto rounded-xl">
                 <flux:select.option value="all">All statuses</flux:select.option>
                 <flux:select.option value="open">Open</flux:select.option>
                 <flux:select.option value="waiting_for_staff">Waiting for staff</flux:select.option>
@@ -23,11 +23,11 @@
                 <flux:select.option value="resolved">Resolved</flux:select.option>
                 <flux:select.option value="closed">Closed</flux:select.option>
             </flux:select>
-            <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass" placeholder="Search conversations…" class="min-w-[15rem]" />
+            <flux:input wire:model.live.debounce.400ms="search" icon="magnifying-glass" placeholder="Search conversations…" class="min-w-0 w-full sm:min-w-[15rem] sm:w-auto" />
         </div>
     </div>
 
-    <div class="flux-support-inbox-grid grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-[22rem,1fr]">
+    <div class="flux-support-inbox-grid grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-[22rem,1fr] {{ $selected ? 'is-thread-open' : '' }}">
         <div class="flux-support-inbox-list rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             @forelse($conversations as $c)
                 <a href="{{ route('flux-admin.support-inbox.index', ['c' => $c->id]) }}" wire:key="conv-{{ $c->id }}"
@@ -64,9 +64,12 @@
 
         <div class="flux-support-inbox-thread rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             @if($selected)
-                <div class="flux-support-inbox-header flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 p-5 dark:border-zinc-800">
+                <div class="flux-support-inbox-header flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 p-3 dark:border-zinc-800 sm:gap-4 sm:p-5">
                     <div class="min-w-0">
-                        <div class="flex items-center gap-2 font-semibold text-zinc-900 dark:text-white"><span class="flex size-9 items-center justify-center rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"><flux:icon name="user" class="size-4" /></span>{{ $selected->title ?: 'Conversation #'.$selected->id }}</div>
+                        <a href="{{ route('flux-admin.support-inbox.index') }}" class="mb-2 inline-flex items-center gap-1 text-xs font-medium text-zinc-600 lg:hidden dark:text-zinc-300">
+                            <flux:icon name="arrow-left" class="size-4" /> Back to chats
+                        </a>
+                        <div class="flex items-center gap-2 font-semibold text-zinc-900 dark:text-white"><span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"><flux:icon name="user" class="size-4" /></span><span class="truncate">{{ $selected->title ?: 'Conversation #'.$selected->id }}</span></div>
                         <div class="text-xs text-zinc-500">
                             {{ $selected->customerAuth?->email }} ·
                             <span class="px-1.5 py-0.5 bg-zinc-100 dark:bg-zinc-800">{{ str_replace('_', ' ', $selected->status ?? '—') }}</span>
@@ -86,7 +89,7 @@
                     </div>
                 </div>
 
-                <div data-support-chat-wall="true" tabindex="0" class="flux-chat-scroll flux-chat-wallpaper space-y-4 p-5">
+                <div data-support-chat-wall="true" tabindex="0" class="flux-chat-scroll flux-chat-wallpaper space-y-4 p-3 sm:p-5">
                     @foreach($selected->messages->sortBy('id') as $m)
                         <div class="flex {{ $m->sender_type === 'staff' ? 'justify-end' : 'justify-start' }}" wire:key="msg-{{ $m->id }}">
                             <div style="border-radius: 12px 12px {{ $m->sender_type === 'staff' ? '2px 12px' : '12px 2px' }};" class="flux-chat-bubble {{ $m->sender_type === 'staff' ? 'flux-chat-own bg-zinc-950 text-white dark:bg-white dark:text-zinc-950' : 'flux-chat-other border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }} max-w-[78%] overflow-hidden px-4 py-4 text-sm leading-5 shadow-md">
@@ -117,7 +120,7 @@
                     @endforeach
                 </div>
 
-                <form wire:submit="sendMessage" onsubmit="event.preventDefault(); return false;" class="flux-support-inbox-composer space-y-2 border-t border-zinc-200 p-4 dark:border-zinc-800">
+                <form wire:submit="sendMessage" onsubmit="event.preventDefault(); return false;" class="flux-support-inbox-composer space-y-2 border-t border-zinc-200 p-2 dark:border-zinc-800 sm:p-4">
                     <div class="flex items-end gap-2">
                         <div class="min-w-0 flex-1">
                             <textarea

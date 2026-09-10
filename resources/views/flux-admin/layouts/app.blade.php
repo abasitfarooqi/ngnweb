@@ -1110,7 +1110,7 @@
         }
 
         {{-- Support inbox: lock the Flux chrome; only the watermark history scrolls. --}}
-        .flux-chat-wallpaper { position: relative; isolation: isolate; overflow: hidden; background-color: #f0f2f1; }
+        .flux-chat-wallpaper { position: relative; isolation: isolate; background-color: #f0f2f1; }
         .flux-chat-wallpaper::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('{{ asset('img/watermark.png') }}') center / 520px auto repeat; opacity: .04; mix-blend-mode: multiply; pointer-events: none; }
         .dark .flux-chat-wallpaper { background-color: #20262d; }
         .dark .flux-chat-wallpaper::before { opacity: .03; filter: grayscale(1) brightness(1.5); mix-blend-mode: screen; }
@@ -1119,16 +1119,17 @@
         .flux-chat-bubble.flux-chat-own::after { right: -8px; border-width: 0 0 10px 10px; border-color: transparent transparent #09090b transparent; }
         .flux-chat-bubble.flux-chat-other::after { left: -8px; border-width: 10px 10px 0 0; border-color: #f4f4f5 transparent transparent transparent; }
         .dark .flux-chat-bubble.flux-chat-other::after { border-color: #27272a transparent transparent transparent; }
-        .flux-chat-scroll { min-height: 0; height: 0; flex: 1 1 0%; overflow-x: hidden; overflow-y: scroll; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-gutter: stable; scrollbar-width: auto; scrollbar-color: rgba(161,161,170,.7) transparent; }
+        .flux-chat-scroll { min-height: 0; height: 0; flex: 1 1 0%; overflow-x: hidden !important; overflow-y: scroll !important; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-gutter: stable; scrollbar-width: auto; scrollbar-color: rgba(161,161,170,.7) transparent; }
         .flux-chat-scroll::-webkit-scrollbar { width: 10px; }
         .flux-chat-scroll::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(161,161,170,.65); border: 3px solid transparent; background-clip: padding-box; }
         .flux-chat-scroll::-webkit-scrollbar-track { background: transparent; }
-        .flux-support-inbox-page { display: flex; min-height: 0; height: 100%; flex: 1 1 0%; flex-direction: column; overflow: hidden; gap: 1rem; }
-        .flux-support-inbox-page > .flux-support-inbox-grid { min-height: 0; height: 0; flex: 1 1 0%; }
-        .flux-support-inbox-list { min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+        .flux-support-inbox-page { display: flex; min-height: 0; height: 0; flex: 1 1 0%; flex-direction: column; overflow: hidden; gap: 1rem; }
+        .flux-support-inbox-page > .flux-support-inbox-grid { min-height: 0; height: 0; flex: 1 1 0%; display: grid; grid-template-rows: minmax(0, 1fr); }
+        .flux-support-inbox-list { min-height: 0; height: 100%; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
         .flux-support-inbox-thread { display: flex; min-height: 0; height: 100%; flex-direction: column; overflow: hidden; }
         .flux-support-inbox-header, .flux-support-inbox-composer { flex: 0 0 auto; }
-        @media (max-width: 1023px) { .flux-support-inbox-page { height: 100%; } }
+        .flux-support-inbox-composer textarea { height: 3rem !important; min-height: 3rem !important; max-height: 3rem !important; resize: none !important; }
+        html:has(.flux-support-inbox-page),
         body.flux-admin-app:has(.flux-support-inbox-page) {
             height: 100dvh;
             overflow: hidden;
@@ -1152,6 +1153,27 @@
             overflow: hidden;
             padding-top: 1rem;
             padding-bottom: 1rem;
+        }
+        @media (max-width: 1023px) {
+            body.flux-admin-app:has(.flux-support-inbox-page) .flux-admin-content {
+                padding: 0.5rem 0.75rem !important;
+            }
+            .flux-support-inbox-page { gap: 0.5rem; }
+            .flux-support-inbox-page > .flux-support-inbox-grid {
+                display: flex;
+                flex-direction: column;
+            }
+            .flux-support-inbox-grid.is-thread-open .flux-support-inbox-list { display: none; }
+            .flux-support-inbox-grid:not(.is-thread-open) .flux-support-inbox-thread { display: none; }
+            .flux-support-inbox-grid.is-thread-open .flux-support-inbox-thread,
+            .flux-support-inbox-grid:not(.is-thread-open) .flux-support-inbox-list {
+                flex: 1 1 0%;
+                min-height: 0;
+                height: 0;
+            }
+            .flux-support-inbox-page:has(.is-thread-open) .flux-support-inbox-toolbar { display: none; }
+            .flux-support-inbox-toolbar-copy { display: none; }
+            .flux-support-inbox-composer > p { display: none; }
         }
     </style>
 </head>
