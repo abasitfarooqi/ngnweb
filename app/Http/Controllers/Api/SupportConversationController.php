@@ -12,6 +12,7 @@ use App\Models\SupportMessage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class SupportConversationController extends Controller
 {
@@ -181,8 +182,8 @@ class SupportConversationController extends Controller
             foreach ($uploads as $upload) {
                 $originalName = $upload->getClientOriginalName();
                 $mime = $upload->getMimeType();
-                $size = (int) $upload->getSize();
                 $path = $upload->store('support-chat/'.$conversation->uuid, 'local');
+                $size = (int) Storage::disk('local')->size($path);
 
                 SupportAttachment::query()->create([
                 'message_id' => $message->id,

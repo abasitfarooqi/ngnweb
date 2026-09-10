@@ -37,7 +37,7 @@
                         <flux:table.cell><x-flux-admin::status-badge :status="$r->status" :map="['open' => ['colour' => 'emerald', 'label' => 'Open'], 'closed' => ['colour' => 'zinc', 'label' => 'Closed'], 'archived' => ['colour' => 'zinc', 'label' => 'Archived']]" /></flux:table.cell>
                         <flux:table.cell>
                             <div class="flex items-center gap-1">
-                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.support-inbox.index').'?conversation='.$r->id" icon="chat-bubble-left-right" class="!rounded-none">Open</flux:button>
+                                <flux:button size="xs" variant="ghost" :href="route('flux-admin.support-inbox.index').'?c='.$r->id" icon="chat-bubble-left-right" class="!rounded-none">Open</flux:button>
                                 <flux:button size="xs" variant="ghost" wire:click="delete({{ $r->id }})" wire:confirm="Delete this conversation and all its messages?" icon="trash" class="!rounded-none text-red-600 dark:text-red-400">Delete</flux:button>
                             </div>
                         </flux:table.cell>

@@ -14,7 +14,9 @@
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
 
     @include('components.partials.theme-boot')
-    <x-ngn-assets />
+    {{-- CSS only in head. App JS loads after @livewireScripts so it cannot
+         start Alpine before Livewire hydrates the inbox form. --}}
+    <x-ngn-assets css-only />
     @fluxAppearance
     @include('components.partials.theme-api')
     @livewireStyles
@@ -1106,6 +1108,51 @@
         body.flux-admin-app ui-modal > dialog:not([open]):not([data-flux-flyout]) {
             display: none;
         }
+
+        {{-- Support inbox: lock the Flux chrome; only the watermark history scrolls. --}}
+        .flux-chat-wallpaper { position: relative; isolation: isolate; overflow: hidden; background-color: #f0f2f1; }
+        .flux-chat-wallpaper::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('{{ asset('img/watermark.png') }}') center / 520px auto repeat; opacity: .04; mix-blend-mode: multiply; pointer-events: none; }
+        .dark .flux-chat-wallpaper { background-color: #20262d; }
+        .dark .flux-chat-wallpaper::before { opacity: .03; filter: grayscale(1) brightness(1.5); mix-blend-mode: screen; }
+        .flux-chat-bubble { position: relative; }
+        .flux-chat-bubble::after { content: ''; position: absolute; bottom: 0; width: 0; height: 0; border-style: solid; }
+        .flux-chat-bubble.flux-chat-own::after { right: -8px; border-width: 0 0 10px 10px; border-color: transparent transparent #09090b transparent; }
+        .flux-chat-bubble.flux-chat-other::after { left: -8px; border-width: 10px 10px 0 0; border-color: #f4f4f5 transparent transparent transparent; }
+        .dark .flux-chat-bubble.flux-chat-other::after { border-color: #27272a transparent transparent transparent; }
+        .flux-chat-scroll { min-height: 0; height: 0; flex: 1 1 0%; overflow-x: hidden; overflow-y: scroll; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; scrollbar-gutter: stable; scrollbar-width: auto; scrollbar-color: rgba(161,161,170,.7) transparent; }
+        .flux-chat-scroll::-webkit-scrollbar { width: 10px; }
+        .flux-chat-scroll::-webkit-scrollbar-thumb { border-radius: 999px; background: rgba(161,161,170,.65); border: 3px solid transparent; background-clip: padding-box; }
+        .flux-chat-scroll::-webkit-scrollbar-track { background: transparent; }
+        .flux-support-inbox-page { display: flex; min-height: 0; height: 100%; flex: 1 1 0%; flex-direction: column; overflow: hidden; gap: 1rem; }
+        .flux-support-inbox-page > .flux-support-inbox-grid { min-height: 0; height: 0; flex: 1 1 0%; }
+        .flux-support-inbox-list { min-height: 0; overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+        .flux-support-inbox-thread { display: flex; min-height: 0; height: 100%; flex-direction: column; overflow: hidden; }
+        .flux-support-inbox-header, .flux-support-inbox-composer { flex: 0 0 auto; }
+        @media (max-width: 1023px) { .flux-support-inbox-page { height: 100%; } }
+        body.flux-admin-app:has(.flux-support-inbox-page) {
+            height: 100dvh;
+            overflow: hidden;
+        }
+        body.flux-admin-app:has(.flux-support-inbox-page) .flux-admin-main-column {
+            min-height: 0;
+            height: 100dvh;
+            overflow: hidden;
+        }
+        body.flux-admin-app:has(.flux-support-inbox-page) #flux-admin-main {
+            overflow: hidden !important;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+        }
+        body.flux-admin-app:has(.flux-support-inbox-page) .flux-admin-content {
+            flex: 1 1 0%;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
     </style>
 </head>
 <body class="flux-admin-app min-h-dvh bg-zinc-100 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 font-sans antialiased lg:flex lg:min-h-screen lg:flex-row" data-staff-communications="1" data-staff-unread-url="{{ route('flux-admin.unread-badges') }}">
@@ -1520,8 +1567,6 @@
     </div>
 
     <flux:toast />
-    @livewireScripts
-    @fluxScripts
     <script>
         function registerFluxAdminNavigationPreference() {
             if (!window.Alpine || window.Alpine.__fluxAdminNavigationPreferenceRegistered) {
@@ -1842,5 +1887,9 @@
             }
         })();
     </script>
+    {{-- Same order as the working portal: Flux, then Livewire, then the app bundle. --}}
+    @fluxScripts
+    @livewireScripts
+    <x-ngn-assets js-only />
 </body>
 </html>

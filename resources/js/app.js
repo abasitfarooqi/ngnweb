@@ -5,6 +5,10 @@ import focus from '@alpinejs/focus';
 import intersect from '@alpinejs/intersect';
 import persist from '@alpinejs/persist';
 
+// Livewire ships and owns its Alpine runtime. Do not replace it with the
+// bundled application Alpine instance, otherwise Livewire directives such as
+// wire:submit fall back to native browser form navigation.
+const livewireAlreadyLoaded = !!window.Livewire;
 const hadAlpineAlready = !!window.Alpine;
 const AlpineRuntime = hadAlpineAlready ? window.Alpine : Alpine;
 
@@ -41,7 +45,9 @@ AlpineRuntime.data('homeRentalCarousel', (slideCount) => ({
     },
 }));
 
-window.Alpine = AlpineRuntime;
+if (!livewireAlreadyLoaded && !hadAlpineAlready) {
+    window.Alpine = AlpineRuntime;
+}
 
 function unlockSupportNotificationAudio() {
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
@@ -853,6 +859,39 @@ document.addEventListener('livewire:init', function () {
     if (!window.Livewire || typeof window.Livewire.on !== 'function') {
         return;
     }
+
+    // The inbox polls as a fallback when Pusher is unavailable. Preserve the
+    // operator's reading position while Livewire morphs the message list.
+    if (!window.__supportChatScrollHooksInstalled && typeof window.Livewire.hook === 'function') {
+        window.__supportChatScrollHooksInstalled = true;
+        let savedScroll = null;
+
+        window.Livewire.hook('morph.updating', ({ el }) => {
+            const wall = document.querySelector('[data-support-chat-wall="true"]');
+            if (!wall || (el !== wall && !wall.contains(el))) {
+                return;
+            }
+
+            const distanceFromBottom = wall.scrollHeight - wall.scrollTop - wall.clientHeight;
+            savedScroll = {
+                top: wall.scrollTop,
+                stickToBottom: distanceFromBottom < 48,
+            };
+        });
+
+        window.Livewire.hook('morph.updated', ({ el }) => {
+            const wall = document.querySelector('[data-support-chat-wall="true"]');
+            if (!wall || !savedScroll || (el !== wall && !wall.contains(el))) {
+                return;
+            }
+
+            wall.scrollTop = savedScroll.stickToBottom
+                ? wall.scrollHeight
+                : savedScroll.top;
+            savedScroll = null;
+        });
+    }
+
     window.Livewire.on('support:incoming-message', function () {
         if (typeof window.playSupportNotificationSound === 'function') {
             window.playSupportNotificationSound();

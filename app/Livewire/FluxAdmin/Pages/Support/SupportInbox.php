@@ -14,6 +14,7 @@ use Livewire\Attributes\Title;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 #[Layout('flux-admin.layouts.app')]
 #[Title('Support inbox — Flux Admin')]
@@ -22,13 +23,12 @@ class SupportInbox extends Component
     use WithAuthorization;
     use WithFileUploads;
 
-    #[Url(as: 'c', except: null)]
     public ?int $selectedConversationId = null;
 
     #[Url(as: 's', except: 'all')]
     public string $statusFilter = 'all';
 
-    #[Url(as: 'q', except: '')]
+    #[Url(as: 'inbox_q', except: '')]
     public string $search = '';
 
     public string $newMessage = '';
@@ -45,6 +45,12 @@ class SupportInbox extends Component
         if (! FluxAdminAccess::userHasPermission(FluxAdminAccess::user(), 'view-chat') && ! FluxAdminAccess::canManageCommunications()) {
             abort(403);
         }
+
+        $fromQuery = (int) request()->query('c', 0);
+        if ($fromQuery > 0) {
+            $this->selectedConversationId = $fromQuery;
+        }
+
         $this->latestCustomerMessageId = $this->latestCustomerMessageId();
     }
 
@@ -54,6 +60,7 @@ class SupportInbox extends Component
         $latest = $this->latestCustomerMessageId();
         if ($latest > $this->latestCustomerMessageId && $this->latestCustomerMessageId > 0) {
             $this->dispatch('support:incoming-message');
+            $this->dispatch('support-inbox-scroll-bottom');
         }
 
         $this->latestCustomerMessageId = $latest;
@@ -81,6 +88,7 @@ class SupportInbox extends Component
         }
 
         $this->dispatch('staffUnreadBadgesChanged');
+        $this->dispatch('support-inbox-scroll-bottom');
     }
 
     public function assignToMe(): void
@@ -88,7 +96,7 @@ class SupportInbox extends Component
         if (! $this->selectedConversationId) return;
         $conversation = SupportConversation::findOrFail($this->selectedConversationId);
         if (! $this->canAccessConversation($conversation)) abort(403);
-        $conversation->update(['assigned_backpack_user_id' => auth()->id()]);
+        $conversation->update(['assigned_backpack_user_id' => $this->adminUserId()]);
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Assigned to you.');
     }
 
@@ -111,7 +119,7 @@ class SupportInbox extends Component
             'messageFiles.*' => \App\Support\SupportChatFileRules::eachFileRule(),
         ]);
 
-        if (trim($this->newMessage) === '' && $this->messageFiles === []) {
+        if (trim($this->newMessage) === '' && empty($this->messageFiles)) {
             $this->addError('newMessage', 'Please type a reply or attach a file.');
 
             return;
@@ -126,7 +134,7 @@ class SupportInbox extends Component
         $message = SupportMessage::create([
             'conversation_id' => $conversation->id,
             'sender_type' => 'staff',
-            'sender_user_id' => auth()->id(),
+            'sender_user_id' => $this->adminUserId(),
             'body' => trim($this->newMessage) !== '' ? trim($this->newMessage) : null,
             'reply_to_message_id' => $replyTo?->id,
             'read_at_staff' => now(),
@@ -136,8 +144,8 @@ class SupportInbox extends Component
             // Read metadata while the Livewire temporary file is still available.
             $originalName = $upload->getClientOriginalName();
             $mime = $upload->getMimeType();
-            $size = (int) $upload->getSize();
             $path = $upload->store('support-chat/'.$conversation->uuid, 'local');
+            $size = (int) Storage::disk('local')->size($path);
 
             SupportAttachment::query()->create([
                 'message_id' => $message->id,
@@ -146,7 +154,7 @@ class SupportInbox extends Component
                 'original_name' => $originalName,
                 'mime' => $mime,
                 'size' => $size,
-                'uploaded_by_user_id' => auth()->id(),
+                'uploaded_by_user_id' => $this->adminUserId(),
             ]);
         }
 
@@ -154,6 +162,7 @@ class SupportInbox extends Component
         $this->messageFiles = [];
         $this->replyToMessageId = null;
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Sent.');
+        $this->dispatch('support-inbox-scroll-bottom');
     }
 
     public function deleteMessage(int $messageId): void
@@ -162,8 +171,8 @@ class SupportInbox extends Component
         if (! $this->canAccessConversation($message->conversation)) {
             abort(403);
         }
-        $message->update(['deleted_at' => now(), 'deleted_by_user_id' => auth()->id(), 'deleted_by_role' => 'staff']);
-        $message->attachments()->whereNull('deleted_at')->update(['deleted_at' => now(), 'deleted_by_user_id' => auth()->id(), 'deleted_by_role' => 'staff']);
+        $message->update(['deleted_at' => now(), 'deleted_by_user_id' => $this->adminUserId(), 'deleted_by_role' => 'staff']);
+        $message->attachments()->whereNull('deleted_at')->update(['deleted_at' => now(), 'deleted_by_user_id' => $this->adminUserId(), 'deleted_by_role' => 'staff']);
     }
 
     protected function latestCustomerMessageId(): int
@@ -180,7 +189,7 @@ class SupportInbox extends Component
             ->withCount(['messages as unread_customer_count' => fn ($q) => $q->where('sender_type', 'customer')->whereNull('read_at_staff')])
             ->when($this->statusFilter !== 'all' && $this->statusFilter !== '', fn ($q) => $q->where('status', $this->statusFilter))
             ->when($this->search, fn ($q, $v) => $q->where(fn ($q) => $q->where('title', 'like', "%{$v}%")->orWhere('topic', 'like', "%{$v}%")))
-            ->when(! \App\Support\FluxAdminAccess::canManageCommunications(), fn ($q) => $q->where('assigned_backpack_user_id', auth()->id()))
+            ->when(! \App\Support\FluxAdminAccess::canManageCommunications(), fn ($q) => $q->where('assigned_backpack_user_id', $this->adminUserId()))
             ->orderByDesc('last_message_at')
             ->limit(100)
             ->get();
@@ -189,7 +198,7 @@ class SupportInbox extends Component
             ? SupportConversation::with(['customerAuth', 'assignedBackpackUser', 'messages' => function ($q): void {
                 $q->with(['senderUser', 'attachments' => fn ($q) => $q->when(! FluxAdminAccess::canViewDeletedChat(), fn ($q) => $q->whereNull('deleted_at'))])->when(! FluxAdminAccess::canViewDeletedChat(), fn ($q) => $q->whereNull('deleted_at'));
             }])
-                ->when(! \App\Support\FluxAdminAccess::canManageCommunications(), fn ($q) => $q->where('assigned_backpack_user_id', auth()->id()))
+                ->when(! \App\Support\FluxAdminAccess::canManageCommunications(), fn ($q) => $q->where('assigned_backpack_user_id', $this->adminUserId()))
                 ->find($this->selectedConversationId)
             : null;
 
@@ -201,6 +210,11 @@ class SupportInbox extends Component
     private function canAccessConversation(SupportConversation $conversation): bool
     {
         return \App\Support\FluxAdminAccess::canManageCommunications()
-            || (int) $conversation->assigned_backpack_user_id === (int) auth()->id();
+            || (int) $conversation->assigned_backpack_user_id === $this->adminUserId();
+    }
+
+    private function adminUserId(): int
+    {
+        return (int) (FluxAdminAccess::user()?->getAuthIdentifier() ?? 0);
     }
 }

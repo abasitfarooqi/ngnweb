@@ -28,7 +28,10 @@
     ];
     $lookup = array_merge($defaults, $map);
     $key = is_bool($status) ? ($status ? 'yes' : 'no') : (string) $status;
-    [$colour, $label] = $lookup[$key] ?? ['zinc', ucfirst(str_replace('_', ' ', (string) $status))];
+    $fallback = ['colour' => 'zinc', 'label' => ucfirst(str_replace('_', ' ', (string) $status))];
+    $entry = $lookup[$key] ?? $fallback;
+    $colour = is_array($entry) ? ($entry['colour'] ?? $entry['color'] ?? $entry[0] ?? 'zinc') : 'zinc';
+    $label = is_array($entry) ? ($entry['label'] ?? $entry[1] ?? ucfirst(str_replace('_', ' ', (string) $status))) : (string) $entry;
 @endphp
 
 <flux:badge :color="$colour" :size="$size">{{ $label }}</flux:badge>

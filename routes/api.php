@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\Mobile\MobilePortalController;
 use App\Http\Controllers\Api\Mobile\MobilePortalExperienceController;
 use App\Http\Controllers\Api\Mobile\MobilePublicFormsController;
 use App\Http\Controllers\Api\Mobile\MobileSparePartsController;
+use App\Http\Controllers\Api\Mobile\TrackingController;
 use App\Http\Controllers\Api\StaffAuthController;
 use App\Http\Controllers\Auth\CustomerAuthController;
 use App\Http\Controllers\Auth\CustomerVerificationController;
@@ -312,6 +313,13 @@ Route::prefix('v1/customer')->group(function () {
         Route::post('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'sendMessage']);
         Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\SupportMessageController::class, 'showAttachment'])->name('api.customer.support.attachments.show');
         Route::post('messages/{messageId}/attachments', [\App\Http\Controllers\Api\SupportMessageController::class, 'attachFiles']);
+    });
+
+    Route::prefix('tracking')->middleware('auth:customer,sanctum')->group(function () {
+        Route::get('config', [TrackingController::class, 'config']);
+        Route::get('agreements', [TrackingController::class, 'agreements']);
+        Route::put('agreements/{type}/{id}/sharing', [TrackingController::class, 'sharing']);
+        Route::post('agreements/{type}/{id}/locations', [TrackingController::class, 'location']);
     });
 
 });

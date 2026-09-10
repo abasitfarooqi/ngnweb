@@ -20,12 +20,23 @@ final class SupportChatFileRules
     {
         return [
             'file',
-            'max:'.self::MAX_FILE_KB,
             'mimes:jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx,mp4,mov,webm',
             'mimetypes:image/jpeg,image/png,image/webp,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,video/mp4,video/quicktime,video/webm',
             function (string $attribute, mixed $value, Closure $fail): void {
+                $realPath = method_exists($value, 'getRealPath') ? $value->getRealPath() : false;
+                if (! is_string($realPath) || ! is_file($realPath)) {
+                    $fail('The temporary upload is no longer available. Please choose the file again.');
+
+                    return;
+                }
+                $size = @filesize($realPath);
+                if ($size === false || $size > self::MAX_FILE_KB * 1024) {
+                    $fail('Each attachment must be 100MB or smaller.');
+
+                    return;
+                }
                 $mime = (string) $value->getMimeType();
-                if (str_starts_with($mime, 'image/') && @getimagesize($value->getRealPath()) === false) {
+                if (str_starts_with($mime, 'image/') && @getimagesize($realPath) === false) {
                     $fail('The uploaded image is not a valid image file.');
                 }
             },

@@ -34,10 +34,12 @@ class Kernel extends ConsoleKernel
         \App\Console\Commands\SendContractsPendingLogbookReport::class,
         \App\Console\Commands\SendQuarterlyVehicleVisitsReport::class,
         \App\Console\Commands\ImportSparePartsCatalogue::class,
+        \App\Console\Commands\TrackingHealthCheck::class,
     ];
 
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('tracking:health-check')->everyTenMinutes()->description('Check tracking freshness without requesting phone GPS');
         // Keep Livewire temporary uploads tidy so stale chunks don't block new uploads.
         // $schedule->call(function (): void {
         //     $diskName = config('livewire.temporary_file_upload.disk') ?: config('filesystems.default');

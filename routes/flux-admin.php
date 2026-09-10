@@ -49,6 +49,9 @@ use App\Livewire\FluxAdmin\Pages\Customers\PortalUserIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\PortalUserEdit;
 use App\Livewire\FluxAdmin\Pages\Customers\DocumentIndex as CustomerDocumentIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\DocumentReview as CustomerDocumentReview;
+use App\Livewire\FluxAdmin\Pages\Tracking\Index as TrackingIndex;
+use App\Livewire\FluxAdmin\Pages\Tracking\Show as TrackingShow;
+use App\Livewire\FluxAdmin\Pages\Support\ChatStart;
 use App\Livewire\FluxAdmin\Pages\Dashboard;
 use App\Livewire\FluxAdmin\Pages\Dev\DevClubOtpIndex;
 use App\Livewire\FluxAdmin\Pages\Dev\QueueMonitorIndex;
@@ -376,6 +379,8 @@ Route::get('/customers/{customer}/edit', CustomerForm::class)->name('flux-admin.
 Route::get('/customers', CustomerIndex::class)->name('flux-admin.customers.index');
 Route::get('/portal-users', PortalUserIndex::class)->name('flux-admin.portal-users.index');
 Route::get('/portal-users/{customer}/edit', PortalUserEdit::class)->name('flux-admin.portal-users.edit');
+Route::get('/tracking', TrackingIndex::class)->name('flux-admin.tracking.index');
+Route::get('/tracking/{source}', TrackingShow::class)->name('flux-admin.tracking.show');
 Route::get('/customers/{customer}', CustomerShow::class)->name('flux-admin.customers.show');
 
 Route::get('/rentals', RentalIndex::class)->name('flux-admin.rentals.index');
@@ -670,6 +675,7 @@ Route::redirect('/judopay-recurring', '/flux-admin/judopay')->name('flux-admin.j
 Route::get('/calendar', CalendarIndex::class)->name('flux-admin.calendar.index');
 Route::get('/agent-settings', AgentSettingsForm::class)->name('flux-admin.agent-settings.index');
 Route::get('/support-inbox', SupportInbox::class)->name('flux-admin.support-inbox.index');
+Route::get('/chat', ChatStart::class)->name('flux-admin.chat.index');
 
 // Phase 21 — Final parity pages
 Route::get('/vehicle-history', MotorbikeRecordViewIndex::class)->name('flux-admin.vehicle-history.index');

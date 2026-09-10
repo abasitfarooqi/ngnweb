@@ -1,18 +1,7 @@
-<style>
-    .flux-chat-wallpaper { position: relative; isolation: isolate; overflow: hidden; background-color: #f0f2f1; }
-    .flux-chat-wallpaper::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('{{ asset('img/watermark.png') }}') center / 520px auto repeat; opacity: .04; mix-blend-mode: multiply; pointer-events: none; }
-    .dark .flux-chat-wallpaper { background-color: #20262d; }
-    .dark .flux-chat-wallpaper::before { opacity: .03; filter: grayscale(1) brightness(1.5); mix-blend-mode: screen; }
-    .flux-chat-bubble { position: relative; }
-    .flux-chat-bubble::after { content: ''; position: absolute; bottom: 0; width: 0; height: 0; border-style: solid; }
-    .flux-chat-bubble.flux-chat-own::after { right: -8px; border-width: 0 0 10px 10px; border-color: transparent transparent #09090b transparent; }
-    .flux-chat-bubble.flux-chat-other::after { left: -8px; border-width: 10px 10px 0 0; border-color: #f4f4f5 transparent transparent transparent; }
-    .dark .flux-chat-bubble.flux-chat-other::after { border-color: #27272a transparent transparent transparent; }
-</style>
-<div class="space-y-6" wire:poll.visible.5s="refreshRealtimeState">
+<div class="flux-support-inbox-page" wire:poll.visible.5s="refreshRealtimeState">
     <div id="support-admin-live-root" class="hidden"></div>
 
-    <div class="flex items-center justify-between flex-wrap gap-4">
+    <div class="flex shrink-0 items-center justify-between flex-wrap gap-4">
         <div class="flex items-center gap-4">
             <div class="flex size-12 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-sm dark:bg-white dark:text-zinc-950">
                 <flux:icon name="chat-bubble-left-right" class="size-6" />
@@ -38,11 +27,11 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[22rem,1fr] gap-4 h-[calc(100vh-14rem)] min-h-[32rem]">
-        <div class="overflow-y-auto rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+    <div class="flux-support-inbox-grid grid min-h-0 grid-cols-1 gap-4 lg:grid-cols-[22rem,1fr]">
+        <div class="flux-support-inbox-list rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             @forelse($conversations as $c)
-                <button type="button" wire:click="selectConversation({{ $c->id }})" wire:key="conv-{{ $c->id }}"
-                    class="w-full border-b border-zinc-100 p-4 text-left transition hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60 {{ $selectedConversationId === $c->id ? 'bg-zinc-100 dark:bg-zinc-800' : '' }}">
+                <a href="{{ route('flux-admin.support-inbox.index', ['c' => $c->id]) }}" wire:key="conv-{{ $c->id }}"
+                    class="block w-full border-b border-zinc-100 p-4 text-left no-underline transition hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/60 {{ (int) $selectedConversationId === (int) $c->id ? 'bg-zinc-100 dark:bg-zinc-800' : '' }}">
                     <div class="flex items-start justify-between gap-2">
                         <div class="min-w-0 flex-1">
                             <div class="flex items-center gap-2 font-semibold text-zinc-900 dark:text-white truncate"><span class="flex size-8 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"><flux:icon name="user" class="size-4" /></span><span class="truncate">{{ $c->title ?: 'Conversation #'.$c->id }}</span></div>
@@ -67,15 +56,15 @@
                     @if($c->latestMessage)
                         <div class="mt-1 text-xs text-zinc-600 dark:text-zinc-400 line-clamp-2">{{ Str::limit(strip_tags((string) $c->latestMessage->body), 80) }}</div>
                     @endif
-                </button>
+                </a>
             @empty
                 <div class="p-6 text-center text-zinc-500">No conversations.</div>
             @endforelse
         </div>
 
-        <div class="flex min-h-0 flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+        <div class="flux-support-inbox-thread rounded-2xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
             @if($selected)
-                <div class="flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 p-5 dark:border-zinc-800">
+                <div class="flux-support-inbox-header flex flex-wrap items-center justify-between gap-4 border-b border-zinc-200 p-5 dark:border-zinc-800">
                     <div class="min-w-0">
                         <div class="flex items-center gap-2 font-semibold text-zinc-900 dark:text-white"><span class="flex size-9 items-center justify-center rounded-xl bg-zinc-950 text-white dark:bg-white dark:text-zinc-950"><flux:icon name="user" class="size-4" /></span>{{ $selected->title ?: 'Conversation #'.$selected->id }}</div>
                         <div class="text-xs text-zinc-500">
@@ -97,7 +86,7 @@
                     </div>
                 </div>
 
-                <div class="flux-chat-wallpaper flex-1 min-h-0 space-y-4 overflow-y-auto p-5">
+                <div data-support-chat-wall="true" tabindex="0" class="flux-chat-scroll flux-chat-wallpaper space-y-4 p-5">
                     @foreach($selected->messages->sortBy('id') as $m)
                         <div class="flex {{ $m->sender_type === 'staff' ? 'justify-end' : 'justify-start' }}" wire:key="msg-{{ $m->id }}">
                             <div style="border-radius: 12px 12px {{ $m->sender_type === 'staff' ? '2px 12px' : '12px 2px' }};" class="flux-chat-bubble {{ $m->sender_type === 'staff' ? 'flux-chat-own bg-zinc-950 text-white dark:bg-white dark:text-zinc-950' : 'flux-chat-other border border-zinc-200 bg-white text-zinc-900 dark:border-zinc-800 dark:bg-zinc-900 dark:text-white' }} max-w-[78%] overflow-hidden px-4 py-4 text-sm leading-5 shadow-md">
@@ -128,18 +117,29 @@
                     @endforeach
                 </div>
 
-                <form wire:submit.prevent="sendMessage" class="space-y-2 border-t border-zinc-200 p-4 dark:border-zinc-800" novalidate>
+                <form wire:submit="sendMessage" onsubmit="event.preventDefault(); return false;" class="flux-support-inbox-composer space-y-2 border-t border-zinc-200 p-4 dark:border-zinc-800">
                     <div class="flex items-end gap-2">
                         <div class="min-w-0 flex-1">
-                            <flux:textarea wire:model="newMessage" rows="1" class="min-h-12 rounded-2xl" placeholder="Type a reply…" />
+                            <textarea
+                                wire:model="newMessage"
+                                rows="1"
+                                class="h-12 min-h-12 w-full resize-none border border-zinc-300 bg-white px-4 py-3 text-sm text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-zinc-950 focus:ring-2 focus:ring-zinc-950/10 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+                                placeholder="Type a reply…"
+                            ></textarea>
                         </div>
                         <label class="flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-zinc-300 bg-zinc-50 px-4 text-xs font-medium text-zinc-600 transition hover:border-zinc-950 hover:text-zinc-950 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-300 dark:hover:border-white dark:hover:text-white">
                             <flux:icon name="paper-clip" class="size-4" /><span class="hidden sm:inline">Attach</span>
                             <input type="file" wire:model="messageFiles" multiple class="sr-only" accept="image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.xls,.xlsx,video/mp4,video/quicktime,video/webm">
                         </label>
-                        <flux:button type="submit" variant="primary" icon="paper-airplane" class="!m-0 size-12 shrink-0 rounded-full p-0" aria-label="Send message"></flux:button>
+                        <button type="button" wire:click="sendMessage" wire:loading.attr="disabled" wire:target="sendMessage,messageFiles" class="inline-flex size-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 p-0 text-white shadow-sm transition hover:bg-emerald-700 disabled:cursor-wait disabled:opacity-60 dark:bg-emerald-500 dark:hover:bg-emerald-400" aria-label="Send message">
+                            <flux:icon name="paper-airplane" class="size-5" />
+                        </button>
                     </div>
                     @error('newMessage') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
+                    @if(count($messageFiles) > 0)
+                        <p class="text-[11px] text-zinc-600 dark:text-zinc-300">{{ count($messageFiles) }} file{{ count($messageFiles) === 1 ? '' : 's' }} ready to send.</p>
+                    @endif
+                    <p class="text-[11px] text-zinc-500" wire:loading wire:target="messageFiles">Uploading attachment…</p>
                     <p class="text-[11px] text-zinc-500">Up to 5 files, 100MB each · images, documents, or video.</p>
                     @error('messageFiles') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
                     @error('messageFiles.*') <p class="text-sm text-brand-red">{{ $message }}</p> @enderror
@@ -155,3 +155,36 @@
         </div>
     </div>
 </div>
+
+@script
+<script>
+    const scrollSupportWall = () => {
+        const wall = document.querySelector('[data-support-chat-wall="true"]');
+        if (!wall) {
+            return;
+        }
+        wall.scrollTop = wall.scrollHeight;
+    };
+
+    $wire.on('support-inbox-scroll-bottom', () => {
+        queueMicrotask(scrollSupportWall);
+        requestAnimationFrame(scrollSupportWall);
+    });
+
+    window.__fluxInboxEnterAbort?.abort();
+    window.__fluxInboxEnterAbort = new AbortController();
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' || event.shiftKey || event.isComposing) {
+            return;
+        }
+        const ta = event.target.closest?.('.flux-support-inbox-composer textarea');
+        if (!ta) {
+            return;
+        }
+        event.preventDefault();
+        Promise.resolve($wire.set('newMessage', ta.value)).then(() => $wire.sendMessage());
+    }, { signal: window.__fluxInboxEnterAbort.signal });
+
+    queueMicrotask(scrollSupportWall);
+</script>
+@endscript

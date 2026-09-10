@@ -16,7 +16,12 @@ function ngnEnv(name, fallback = '') {
 
 const key = ngnEnv('pusher_app_key');
 const cluster = ngnEnv('pusher_app_cluster', 'mt1');
-const wsHost = ngnEnv('pusher_host');
+// PUSHER_HOST is the server-side HTTP API host (usually api.pusherapp.com),
+// not the browser WebSocket host. Use the cluster WebSocket endpoint here.
+const configuredHost = ngnEnv('pusher_host');
+const wsHost = configuredHost.startsWith('ws-')
+    ? configuredHost
+    : `ws-${cluster}.pusher.com`;
 const wsPort = Number(ngnEnv('pusher_port', '443'));
 const forceTLS = (ngnEnv('pusher_scheme', 'https')) === 'https';
 
@@ -25,7 +30,7 @@ if (key) {
         broadcaster: 'pusher',
         key,
         cluster,
-        wsHost: wsHost || `ws-${cluster}.pusher.com`,
+        wsHost,
         wsPort,
         wssPort: wsPort,
         forceTLS,

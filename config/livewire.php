@@ -73,7 +73,7 @@ return [
             'mov', 'avi', 'wmv', 'mp3', 'm4a',
             'jpg', 'jpeg', 'mpga', 'webp', 'wma', 'avif', 'mkv',
         ],
-        'max_upload_time' => 10, // Max duration (in minutes) before an upload is invalidated...
+        'max_upload_time' => 60, // Keep selected 100MB uploads available for the send action.
         'cleanup' => true, // Keep enabled; custom scheduler below removes temp files older than 10 minutes.
     ],
 
