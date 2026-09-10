@@ -169,6 +169,7 @@
     $wire.on('support-inbox-scroll-bottom', () => {
         queueMicrotask(scrollSupportWall);
         requestAnimationFrame(scrollSupportWall);
+        window.setTimeout(scrollSupportWall, 50);
     });
 
     window.__fluxInboxEnterAbort?.abort();
@@ -186,5 +187,7 @@
     }, { signal: window.__fluxInboxEnterAbort.signal });
 
     queueMicrotask(scrollSupportWall);
+    requestAnimationFrame(scrollSupportWall);
+    window.setTimeout(scrollSupportWall, 50);
 </script>
 @endscript

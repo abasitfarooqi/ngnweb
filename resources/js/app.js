@@ -228,24 +228,42 @@ function showCustomerCommunicationBrowserAlert(payload) {
     };
 }
 
-function applyPortalNotificationsBadge(count) {
+function applyCountBadge(selector, count) {
     const n = Math.max(0, parseInt(count, 10) || 0);
-    document.querySelectorAll('.js-notifications-unread').forEach((badge) => {
+    document.querySelectorAll(selector).forEach((badge) => {
         badge.setAttribute('data-count', String(n));
         badge.textContent = String(n);
         badge.classList.toggle('hidden', n <= 0);
+        badge.hidden = n <= 0;
     });
+}
+
+function applyPortalNotificationsBadge(count) {
+    applyCountBadge('.js-notifications-unread', count);
+}
+
+function applyPortalHeaderNotificationsBadge(count) {
+    applyCountBadge('.js-header-notifications-unread', count);
+}
+
+function applyPortalChatUnreadBadge(count) {
+    applyCountBadge('.js-chat-unread', count);
 }
 
 function bumpPortalNotificationsBadge() {
     const first = document.querySelector('.js-notifications-unread');
     const next = parseInt((first && (first.getAttribute('data-count') || first.textContent)) || '0', 10) + 1;
     applyPortalNotificationsBadge(next);
+    const header = document.querySelector('.js-header-notifications-unread');
+    const headerNext = parseInt((header && (header.getAttribute('data-count') || header.textContent)) || '0', 10) + 1;
+    applyPortalHeaderNotificationsBadge(headerNext);
 }
 
 function notificationMenuRow(item) {
     const link = document.createElement('a');
-    link.href = `/account/notifications/${item.uuid}`;
+    link.href = item.href || (item.uuid && String(item.uuid).startsWith('chat-')
+        ? '/account/support'
+        : `/account/notifications/${item.uuid}`);
     link.setAttribute('data-notification-uuid', item.uuid);
     link.className = 'block border-b border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700';
 
@@ -576,6 +594,9 @@ function teardownSupportThreadRealtime() {
     if (typeof s.detachCustomer === 'function') {
         s.detachCustomer();
     }
+    if (s.abort) {
+        s.abort.abort();
+    }
     window.__supportThreadRealtimeState = null;
     window.__supportThreadSync = null;
 }
@@ -592,13 +613,56 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
     let last = parseInt(root.getAttribute('data-last-message-id') || '0', 10);
     const uuid = root.getAttribute('data-conversation-uuid');
     const customerAuthId = parseInt(root.getAttribute('data-customer-auth-id') || '0', 10);
+    const abort = new AbortController();
 
     const state = {
         pollTimer: null,
         detachConversation: null,
         detachCustomer: null,
+        abort,
     };
     window.__supportThreadRealtimeState = state;
+
+    function scrollThreadWall() {
+        const panel = document.getElementById('support-thread-messages-root');
+        if (!panel) {
+            return;
+        }
+        panel.scrollTop = panel.scrollHeight;
+    }
+
+    function setComposerError(text) {
+        const el = document.getElementById('support-thread-composer-error');
+        if (!el) {
+            return;
+        }
+        el.textContent = text || '';
+        el.classList.toggle('hidden', !text);
+    }
+
+    async function reloadMessages({ playSound = false } = {}) {
+        if (!htmlUrl) {
+            return;
+        }
+        const sep2 = htmlUrl.includes('?') ? '&' : '?';
+        const r2 = await fetch(`${htmlUrl}${sep2}_cb=${Date.now()}`, {
+            cache: 'no-store',
+            credentials: 'same-origin',
+            headers: { 'X-Requested-With': 'XMLHttpRequest' },
+        });
+        if (!r2.ok) {
+            return;
+        }
+        const panel = document.getElementById('support-thread-messages-root');
+        if (!panel) {
+            return;
+        }
+        panel.innerHTML = await r2.text();
+        scrollThreadWall();
+        if (playSound && typeof window.playSupportNotificationSound === 'function') {
+            window.playSupportNotificationSound();
+        }
+    }
 
     async function syncFromServer() {
         try {
@@ -621,32 +685,85 @@ window.bindSupportThreadRealtime = function bindSupportThreadRealtime() {
             }
             const shouldNotify = j.latest_sender_type === 'staff';
             last = lid;
-            const sep2 = htmlUrl.includes('?') ? '&' : '?';
-            const r2 = await fetch(`${htmlUrl}${sep2}_cb=${Date.now()}`, {
-                cache: 'no-store',
-                credentials: 'same-origin',
-                headers: { 'X-Requested-With': 'XMLHttpRequest' },
-            });
-            if (!r2.ok) {
-                return;
-            }
-            const panel = document.getElementById('support-thread-messages-root');
-            if (!panel) {
-                return;
-            }
-            panel.innerHTML = await r2.text();
-            panel.scrollTop = panel.scrollHeight;
-            if (shouldNotify && typeof window.playSupportNotificationSound === 'function') {
-                window.playSupportNotificationSound();
-            }
+            root.setAttribute('data-last-message-id', String(last));
+            await reloadMessages({ playSound: shouldNotify });
         } catch (e) {
             /* ignore */
         }
     }
 
+    const composerSubmit = async (event) => {
+        const form = event.target.closest?.('#support-thread-composer');
+        if (!form) {
+            return;
+        }
+        event.preventDefault();
+        if (form.dataset.sending === '1') {
+            return;
+        }
+        const submitBtn = form.querySelector('[type="submit"]');
+        const body = (form.querySelector('textarea[name="body"]')?.value || '').trim();
+        const files = form.querySelector('input[type="file"]')?.files;
+        if (body === '' && (!files || files.length === 0)) {
+            setComposerError('Please type a message or attach a file.');
+            return;
+        }
+        setComposerError('');
+        form.dataset.sending = '1';
+        if (submitBtn) {
+            submitBtn.disabled = true;
+        }
+        try {
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+            const response = await fetch(form.getAttribute('action'), {
+                method: 'POST',
+                credentials: 'same-origin',
+                headers: {
+                    Accept: 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-CSRF-TOKEN': token,
+                },
+                body: new FormData(form),
+            });
+            const payload = await response.json().catch(() => ({}));
+            if (!response.ok) {
+                const firstError = payload?.errors ? Object.values(payload.errors).flat()[0] : payload?.message;
+                setComposerError(firstError || 'Could not send that message.');
+                return;
+            }
+            last = parseInt(String(payload.latest_message_id || last), 10);
+            root.setAttribute('data-last-message-id', String(last));
+            form.reset();
+            await reloadMessages();
+        } catch (e) {
+            setComposerError('Could not send that message.');
+        } finally {
+            form.dataset.sending = '0';
+            if (submitBtn) {
+                submitBtn.disabled = false;
+            }
+        }
+    };
+
+    document.addEventListener('submit', composerSubmit, { signal: abort.signal });
+    document.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter' || event.shiftKey || event.isComposing) {
+            return;
+        }
+        const form = event.target.closest?.('#support-thread-composer');
+        if (!form || !event.target.closest('textarea[name="body"]')) {
+            return;
+        }
+        event.preventDefault();
+        form.requestSubmit();
+    }, { signal: abort.signal });
+
     state.pollTimer = window.setInterval(syncFromServer, 5000);
     syncFromServer();
     window.__supportThreadSync = syncFromServer;
+    queueMicrotask(scrollThreadWall);
+    requestAnimationFrame(scrollThreadWall);
+    window.setTimeout(scrollThreadWall, 50);
 
     if (typeof window.setupSupportConversationEcho === 'function' && uuid) {
         state.detachConversation = window.setupSupportConversationEcho(uuid, syncFromServer);
@@ -777,14 +894,19 @@ window.refreshPortalNotificationsLive = function refreshPortalNotificationsLive(
                 return;
             }
             const items = Array.isArray(data.items) ? data.items : [];
-            const fingerprint = `${data.unread || 0}:${items.map((item) => `${item.uuid}:${item.unread ? 1 : 0}`).join(',')}`;
+            const emailUnread = parseInt(data.unread, 10) || 0;
+            const chatUnread = parseInt(data.chat_unread, 10) || 0;
+            const headerUnread = parseInt(data.header_unread, 10) || (emailUnread + chatUnread);
+            const fingerprint = `${headerUnread}:${chatUnread}:${items.map((item) => `${item.uuid}:${item.unread ? 1 : 0}`).join(',')}`;
             if (window.__portalNotificationsFingerprint === fingerprint) {
                 return;
             }
             const wasReady = typeof window.__portalNotificationsFingerprint === 'string';
-            const unreadGrew = wasReady && (parseInt(data.unread, 10) || 0) > (parseInt(String(window.__portalNotificationsFingerprint).split(':')[0], 10) || 0);
+            const unreadGrew = wasReady && headerUnread > (parseInt(String(window.__portalNotificationsFingerprint).split(':')[0], 10) || 0);
             window.__portalNotificationsFingerprint = fingerprint;
-            applyPortalNotificationsBadge(data.unread);
+            applyPortalNotificationsBadge(emailUnread);
+            applyPortalHeaderNotificationsBadge(headerUnread);
+            applyPortalChatUnreadBadge(chatUnread);
             renderCustomerNotificationMenu(items);
             if (unreadGrew && !window.supportEchoEnabled && typeof window.playSupportNotificationSound === 'function') {
                 window.playSupportNotificationSound();

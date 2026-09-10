@@ -61,7 +61,7 @@ class SupportPortalController extends Controller
         return redirect()->route('account.support.thread', ['conversationUuid' => $conversation->uuid]);
     }
 
-    public function sendMessage(Request $request, string $conversationUuid): RedirectResponse
+    public function sendMessage(Request $request, string $conversationUuid): RedirectResponse|JsonResponse
     {
         $customerAuth = Auth::guard('customer')->user();
         if (! $customerAuth) {
@@ -82,11 +82,26 @@ class SupportPortalController extends Controller
 
         $body = trim((string) ($validated['body'] ?? ''));
         $uploads = $request->file('files', []);
+        $wantsAjax = $request->ajax() || $request->expectsJson();
         if ($uploads !== [] && ! $customerAuth->customer?->portal_upload_access) {
+            if ($wantsAjax) {
+                return response()->json([
+                    'message' => 'NGN has not enabled document uploads for this account.',
+                    'errors' => ['files' => ['NGN has not enabled document uploads for this account.']],
+                ], 422);
+            }
+
             return redirect()->route('account.support.thread', ['conversationUuid' => $conversation->uuid])
                 ->withErrors(['files' => 'NGN has not enabled document uploads for this account.']);
         }
         if ($body === '' && empty($uploads)) {
+            if ($wantsAjax) {
+                return response()->json([
+                    'message' => 'Please type a message or attach a file.',
+                    'errors' => ['body' => ['Please type a message or attach a file.']],
+                ], 422);
+            }
+
             return redirect()
                 ->route('account.support.thread', ['conversationUuid' => $conversation->uuid])
                 ->withErrors(['body' => 'Please type a message or attach a file.']);
@@ -118,6 +133,13 @@ class SupportPortalController extends Controller
                 'mime' => $mime,
                 'size' => $size,
                 'uploaded_by_customer_auth_id' => $customerAuth->id,
+            ]);
+        }
+
+        if ($wantsAjax) {
+            return response()->json([
+                'ok' => true,
+                'latest_message_id' => (int) $message->id,
             ]);
         }
 

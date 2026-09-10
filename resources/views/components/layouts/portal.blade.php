@@ -13,6 +13,97 @@
     @include('components.partials.theme-api')
     @livewireStyles
     <style>[x-cloak]{display:none!important}</style>
+    <style>
+        html:has(.portal-support-thread-page),
+        body:has(.portal-support-thread-page) {
+            height: 100dvh;
+            overflow: hidden;
+        }
+        body:has(.portal-support-thread-page) {
+            display: flex;
+            flex-direction: column;
+        }
+        body:has(.portal-support-thread-page) > nav { flex: 0 0 auto; }
+        body:has(.portal-support-thread-page) > .portal-shell {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        body:has(.portal-support-thread-page) > .portal-shell > .flex {
+            flex: 1 1 0%;
+            min-height: 0;
+            overflow: hidden;
+        }
+        body:has(.portal-support-thread-page) aside {
+            max-height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        body:has(.portal-support-thread-page) main {
+            min-width: 0;
+            min-height: 0;
+            flex: 1 1 0%;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            align-self: stretch;
+        }
+        .portal-support-thread-page {
+            display: flex;
+            min-height: 0;
+            height: 0;
+            flex: 1 1 0%;
+            flex-direction: column;
+            overflow: hidden;
+            gap: 1rem;
+        }
+        .portal-support-thread-card {
+            display: flex;
+            min-height: 0;
+            height: 0;
+            flex: 1 1 0%;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .portal-support-thread-wall {
+            min-height: 0;
+            height: 0;
+            flex: 1 1 0%;
+            overflow-x: hidden !important;
+            overflow-y: scroll !important;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+        #support-thread-composer textarea {
+            height: 3rem !important;
+            min-height: 3rem !important;
+            max-height: 3rem !important;
+            line-height: 1.25 !important;
+            resize: none !important;
+            padding-top: 0.75rem !important;
+            padding-bottom: 0.75rem !important;
+        }
+        @media (max-width: 1023px) {
+            body:has(.portal-support-thread-page) > .portal-shell {
+                padding-top: 0.75rem;
+                padding-bottom: 0.75rem;
+            }
+            body:has(.portal-support-thread-page) aside {
+                display: none;
+            }
+            body:has(.portal-support-thread-page) main {
+                height: 0;
+            }
+            .portal-support-thread-page {
+                gap: 0.5rem;
+            }
+            #support-thread-composer > p {
+                display: none;
+            }
+        }
+    </style>
 </head>
 <body class="font-sans antialiased bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white" data-customer-auth-id="{{ auth('customer')->id() ?: '' }}" @if(auth('customer')->check()) data-notifications-live-url="{{ route('account.notifications.live') }}" @endif>
 
@@ -69,7 +160,7 @@
 </nav>
 
 {{-- Page wrapper: sidebar + main --}}
-<div class="max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+<div class="portal-shell max-w-screen-xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
     <div class="flex flex-col lg:flex-row gap-6 lg:gap-8">
 
         {{-- Sidebar --}}
@@ -89,16 +180,36 @@
 
                 @php
                     $notificationsUnread = 0;
+                    $chatUnread = 0;
+                    $generalChatActive = request()->routeIs('account.support.start-general');
                     try {
-                        if (auth('customer')->check() && app(\App\Services\Communications\CommunicationSchema::class)->ready()) {
-                            $notificationsUnread = \App\Models\CommunicationRecipient::query()
-                                ->where('customer_auth_id', auth('customer')->id())
-                                ->whereNull('read_at')
-                                ->whereNull('archived_at')
+                        if (auth('customer')->check()) {
+                            $customerAuthId = (int) auth('customer')->id();
+                            if (app(\App\Services\Communications\CommunicationSchema::class)->ready()) {
+                                $notificationsUnread = \App\Models\CommunicationRecipient::query()
+                                    ->where('customer_auth_id', $customerAuthId)
+                                    ->whereNull('read_at')
+                                    ->whereNull('archived_at')
+                                    ->count();
+                            }
+                            $chatUnread = \App\Models\SupportMessage::query()
+                                ->where('sender_type', 'staff')
+                                ->whereNull('read_at_customer')
+                                ->whereNull('deleted_at')
+                                ->whereHas('conversation', fn ($q) => $q->where('customer_auth_id', $customerAuthId))
                                 ->count();
+                            if (request()->routeIs('account.support.thread')) {
+                                $threadUuid = (string) request()->route('conversationUuid');
+                                $generalChatActive = \App\Models\SupportConversation::query()
+                                    ->where('uuid', $threadUuid)
+                                    ->where('customer_auth_id', $customerAuthId)
+                                    ->whereNull('service_booking_id')
+                                    ->exists();
+                            }
                         }
                     } catch (\Throwable) {
                         $notificationsUnread = 0;
+                        $chatUnread = 0;
                     }
 
                     $navItem = function(string $route, string $label, string $icon) {
@@ -213,18 +324,29 @@
                     ['route'=>'account.orders',         'label'=>'My Orders',          'icon'=>$icon_bag],
                     ['route'=>'account.notifications',  'label'=>'Notifications',      'icon'=>$icon_bell],
                     ['route'=>'account.enquiries',      'label'=>'My Enquiries',       'icon'=>$icon_chat],
-                    ['route'=>'account.support',        'label'=>'Conversations',      'icon'=>$icon_chat],
+                    ['href'=>route('account.support.start-general'), 'label'=>'Chat', 'icon'=>$icon_chat, 'active'=>$generalChatActive, 'badge'=>'chat'],
+                    ['route'=>'account.support',        'label'=>'Conversations',      'icon'=>$icon_chat, 'exact'=>true],
                     ['route'=>'account.addresses',      'label'=>'Addresses',           'icon'=>$icon_map],
                     ['route'=>'account.payment-methods','label'=>'Payment Methods',     'icon'=>$icon_cc],
                     ['route'=>'account.club',           'label'=>'NGN Club',            'icon'=>$icon_star],
                     ['route'=>'account.security',       'label'=>'Security',            'icon'=>$icon_lock],
                 ] as $item)
-                    <a href="{{ route($item['route']) }}"
-                        class="portal-nav-link border-t border-gray-100 dark:border-gray-700 {{ request()->routeIs($item['route'], $item['route'].'.*') ? 'active' : '' }}">
+                    @php
+                        $href = $item['href'] ?? route($item['route']);
+                        $active = $item['active'] ?? (
+                            ! empty($item['exact'])
+                                ? request()->routeIs($item['route'])
+                                : request()->routeIs($item['route'], ($item['route'] ?? '').'.*')
+                        );
+                    @endphp
+                    <a href="{{ $href }}"
+                        class="portal-nav-link border-t border-gray-100 dark:border-gray-700 {{ $active ? 'active' : '' }}">
                         <svg class="h-5 w-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">{!! $item['icon'] !!}</svg>
                         <span>{{ $item['label'] }}</span>
-                        @if($item['route'] === 'account.notifications')
+                        @if(($item['route'] ?? '') === 'account.notifications')
                             <span id="portal-notifications-unread" class="js-notifications-unread ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($notificationsUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($notificationsUnread ?? 0) }}">{{ (int) ($notificationsUnread ?? 0) }}</span>
+                        @elseif(($item['badge'] ?? '') === 'chat' || ($item['route'] ?? '') === 'account.support')
+                            <span class="js-chat-unread ml-auto bg-brand-red px-1.5 py-0.5 text-[11px] font-semibold text-white {{ ($chatUnread ?? 0) > 0 ? '' : 'hidden' }}" data-count="{{ (int) ($chatUnread ?? 0) }}">{{ (int) ($chatUnread ?? 0) }}</span>
                         @endif
                     </a>
                 @endforeach
@@ -240,7 +362,7 @@
         </aside>
 
         {{-- Main content --}}
-        <main class="flex-1 min-w-0">
+        <main class="min-w-0 flex-1">
             {{ $slot }}
         </main>
 

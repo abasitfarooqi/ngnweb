@@ -1,7 +1,7 @@
 @auth('customer')
     @php
         $menu = app(\App\Services\Communications\CustomerNotificationMenu::class)->forCurrentCustomer();
-        $unread = (int) ($menu['unread'] ?? 0);
+        $unread = (int) ($menu['header_unread'] ?? $menu['unread'] ?? 0);
         $items = $menu['items'] ?? collect();
     @endphp
 
@@ -17,7 +17,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
             </svg>
             <span
-                class="js-notifications-unread absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none {{ $unread > 0 ? '' : 'hidden' }}"
+                class="js-header-notifications-unread absolute -top-0.5 -right-0.5 min-w-[1rem] h-4 px-1 inline-flex items-center justify-center bg-brand-red text-white text-[10px] leading-none {{ $unread > 0 ? '' : 'hidden' }}"
                 data-count="{{ $unread }}"
             >{{ $unread }}</span>
         </button>
@@ -32,23 +32,24 @@
                 <p class="text-sm font-semibold text-gray-900 dark:text-white">Notifications</p>
             </div>
             <div class="js-notifications-dropdown-list max-h-80 overflow-y-auto">
-                @forelse($items as $communication)
-                    @php($recipient = $communication->recipients->first())
+                @forelse($items as $item)
                     <a
-                        href="{{ route('account.notifications.show', $communication->uuid) }}"
+                        href="{{ $item['href'] }}"
                         class="block border-b border-gray-100 px-3 py-2.5 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700"
-                        data-notification-uuid="{{ $communication->uuid }}"
+                        data-notification-uuid="{{ $item['uuid'] }}"
                     >
                         <p class="flex items-start justify-between gap-2 text-sm font-medium text-gray-900 dark:text-white">
-                            <span class="min-w-0 truncate">{{ $communication->title }}</span>
-                            @if($recipient?->read_at === null)
+                            <span class="min-w-0 truncate">{{ $item['title'] }}</span>
+                            @if(! empty($item['unread']))
                                 <span class="mt-1 inline-block h-2 w-2 shrink-0 bg-brand-red"></span>
                             @endif
                         </p>
-                        @if($communication->preview)
-                            <p class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $communication->preview }}</p>
+                        @if(! empty($item['preview']))
+                            <p class="mt-0.5 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">{{ $item['preview'] }}</p>
                         @endif
-                        <p class="mt-1 text-[11px] text-gray-400">{{ $communication->created_at?->format('d M Y H:i') }}</p>
+                        @if(! empty($item['created_at']))
+                            <p class="mt-1 text-[11px] text-gray-400">{{ $item['created_at'] }}</p>
+                        @endif
                     </a>
                 @empty
                     <p class="js-notifications-empty px-3 py-4 text-sm text-gray-500 dark:text-gray-400">No notifications yet.</p>
