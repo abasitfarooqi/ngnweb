@@ -6,6 +6,7 @@ use Backpack\CRUD\app\Models\Traits\CrudTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 
 class SupportAttachment extends Model
@@ -22,7 +23,17 @@ class SupportAttachment extends Model
         'size',
         'uploaded_by_customer_auth_id',
         'uploaded_by_user_id',
+        'deleted_at',
+        'deleted_by_user_id',
+        'deleted_by_role',
     ];
+
+    protected $casts = ['deleted_at' => 'datetime'];
+
+    public function scopeVisible(Builder $query, bool $includeDeleted = false): Builder
+    {
+        return $includeDeleted ? $query : $query->whereNull($this->getTable().'.deleted_at');
+    }
 
     public function message(): BelongsTo
     {

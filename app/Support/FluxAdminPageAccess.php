@@ -42,6 +42,10 @@ final class FluxAdminPageAccess
             return RentingReferralAccess::canInvestigate($user);
         }
 
+        if (! empty($requirement['portal_user_admin'])) {
+            return FluxAdminAccess::canManagePortalUsers($user);
+        }
+
         if (! empty($requirement['role'])) {
             return FluxAdminAccess::userHasNamedRole($user, (string) $requirement['role']);
         }
@@ -168,6 +172,7 @@ final class FluxAdminPageAccess
             'communications.sent' => ['permission' => FluxAdminAccess::NOTIFICATIONS_PERMISSION],
             'communications' => ['permission' => FluxAdminAccess::COMMUNICATIONS_PERMISSION],
             'users' => $sa,
+            'portal-users' => ['portal_user_admin' => true],
             'user' => $sa,
             'roles' => $sa,
             'role' => $sa,

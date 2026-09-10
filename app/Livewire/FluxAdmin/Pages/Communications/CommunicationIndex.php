@@ -41,10 +41,16 @@ class CommunicationIndex extends Component
 
     private const LIST_STATE_SESSION_KEY = 'flux_admin.communications.list';
 
-    public function mount(): void
+    public function mount(CommunicationSchema $schema, CommunicationDefinitionSynchronizer $synchronizer): void
     {
         $this->assertCanViewCommunications();
         $this->restoreListState();
+
+        // Keep the control panel usable after new transactional email types are introduced.
+        // This only synchronizes the registered definitions for an authorised communications user.
+        if ($schema->ready()) {
+            $synchronizer->sync();
+        }
     }
 
     public function updatedSearch(): void

@@ -21,6 +21,9 @@ class SupportConversationController extends Controller
         if (! $customerAuth) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
+        if (! $customerAuth->is_active || ! $customerAuth->customer?->is_active || ! $customerAuth->customer?->is_register) {
+            return response()->json(['message' => 'Portal access is inactive.'], 403);
+        }
 
         $conversations = SupportConversation::query()
             ->where('customer_auth_id', $customerAuth->id)
@@ -45,7 +48,7 @@ class SupportConversationController extends Controller
                         ->orWhere('uuid', 'like', '%'.$term.'%');
                 });
             })
-            ->with(['assignedBackpackUser', 'messages' => fn ($q) => $q->latest()->limit(1)])
+            ->with(['assignedBackpackUser', 'messages' => fn ($q) => $q->whereNull('deleted_at')->latest()->limit(1)])
             ->orderByDesc('last_message_at')
             ->orderByDesc('id')
             ->paginate(20);
@@ -64,6 +67,7 @@ class SupportConversationController extends Controller
             'title' => ['nullable', 'string', 'max:255'],
             'topic' => ['nullable', 'string', 'max:255'],
             'service_booking_id' => ['nullable', 'integer'],
+            'reply_to_message_id' => ['nullable', 'integer'],
         ]);
 
         $booking = null;
@@ -73,13 +77,14 @@ class SupportConversationController extends Controller
                 ->findOrFail((int) $data['service_booking_id']);
         }
 
-        $conversation = SupportConversation::query()->create([
-            'customer_auth_id' => $customerAuth->id,
-            'service_booking_id' => $booking?->id,
-            'title' => $data['title'] ?: ($booking?->service_type ?: 'General enquiry'),
-            'topic' => $data['topic'] ?: ($booking?->subject ?: $booking?->service_type ?: 'General enquiry'),
-            'status' => 'open',
-        ]);
+        $conversation = SupportConversation::query()->firstOrCreate(
+            ['customer_auth_id' => $customerAuth->id, 'service_booking_id' => $booking?->id],
+            [
+                'title' => $data['title'] ?: ($booking?->service_type ?: 'General enquiry'),
+                'topic' => $data['topic'] ?: ($booking?->subject ?: $booking?->service_type ?: 'General enquiry'),
+                'status' => 'open',
+            ]
+        );
 
         if ($booking && ! $booking->conversation_id) {
             $booking->forceFill(['conversation_id' => $conversation->id])->save();
@@ -100,9 +105,15 @@ class SupportConversationController extends Controller
             ->where('customer_auth_id', $customerAuth->id)
             ->firstOrFail();
 
+        SupportMessage::query()->where('conversation_id', $conversation->id)
+            ->where('sender_type', 'staff')->whereNull('read_at_customer')
+            ->update(['read_at_customer' => now()]);
+
         $messages = SupportMessage::query()
             ->where('conversation_id', $conversation->id)
-            ->with(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments'])
+            ->whereNull('deleted_at')
+            ->when(trim((string) $request->string('search')) !== '', fn ($q) => $q->where('body', 'like', '%'.trim((string) $request->string('search')).'%'))
+            ->with(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments' => fn ($q) => $q->whereNull('deleted_at')])
             ->orderBy('id')
             ->paginate(50);
 
@@ -119,7 +130,7 @@ class SupportConversationController extends Controller
         $conversation = SupportConversation::query()
             ->where('uuid', $uuid)
             ->where('customer_auth_id', $customerAuth->id)
-            ->with(['assignedBackpackUser', 'customerAuth.customer', 'messages' => fn ($q) => $q->latest()->limit(1)])
+            ->with(['assignedBackpackUser', 'customerAuth.customer', 'messages' => fn ($q) => $q->whereNull('deleted_at')->latest()->limit(1)])
             ->firstOrFail();
 
         return new SupportConversationResource($conversation);
@@ -139,40 +150,66 @@ class SupportConversationController extends Controller
 
         $data = $request->validate([
             'body' => ['nullable', 'string', 'max:4000'],
-            'files' => ['nullable', 'array', 'max:5'],
-            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
+            'files' => ['nullable', 'array', 'max:'.\App\Support\SupportChatFileRules::MAX_FILES],
+            'files.*' => \App\Support\SupportChatFileRules::eachFileRule(),
+            'reply_to_message_id' => ['nullable', 'integer'],
         ]);
 
         $body = trim((string) ($data['body'] ?? ''));
         $uploads = $request->file('files', []);
+        if ($uploads !== [] && ! $customerAuth->customer?->portal_upload_access) {
+            return response()->json(['message' => 'NGN has not enabled document uploads for this account.'], 403);
+        }
         if ($body === '' && empty($uploads)) {
             return response()->json([
                 'message' => 'Please type a message or attach a file.',
             ], 422);
         }
 
+        $replyTo = ! empty($data['reply_to_message_id'])
+            ? SupportMessage::query()->where('conversation_id', $conversation->id)->findOrFail((int) $data['reply_to_message_id'])
+            : null;
+
         $message = SupportMessage::query()->create([
             'conversation_id' => $conversation->id,
             'sender_type' => 'customer',
             'sender_customer_auth_id' => $customerAuth->id,
             'body' => $body !== '' ? $body : null,
+            'reply_to_message_id' => $replyTo?->id,
         ]);
 
-        foreach ($uploads as $upload) {
-            $path = $upload->store('support-chat/'.$conversation->uuid, 'public');
+            foreach ($uploads as $upload) {
+                $originalName = $upload->getClientOriginalName();
+                $mime = $upload->getMimeType();
+                $size = (int) $upload->getSize();
+                $path = $upload->store('support-chat/'.$conversation->uuid, 'local');
 
-            SupportAttachment::query()->create([
+                SupportAttachment::query()->create([
                 'message_id' => $message->id,
-                'disk' => 'public',
+                'disk' => 'local',
                 'path' => $path,
-                'original_name' => $upload->getClientOriginalName(),
-                'mime' => $upload->getMimeType(),
-                'size' => (int) $upload->getSize(),
+                    'original_name' => $originalName,
+                    'mime' => $mime,
+                    'size' => $size,
                 'uploaded_by_customer_auth_id' => $customerAuth->id,
             ]);
         }
 
-        return new SupportMessageResource($message->load(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments']));
+        return new SupportMessageResource($message->load(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments' => fn ($q) => $q->whereNull('deleted_at')]));
+    }
+
+    public function deleteMessage(Request $request, string $uuid, int $messageId): JsonResponse
+    {
+        $customerAuth = $request->user('sanctum') ?: Auth::guard('customer')->user();
+        if (! $customerAuth) {
+            return response()->json(['message' => 'Unauthenticated'], 401);
+        }
+        $conversation = SupportConversation::query()->where('uuid', $uuid)->where('customer_auth_id', $customerAuth->id)->firstOrFail();
+        $message = $conversation->messages()->where('id', $messageId)->where('sender_type', 'customer')->where('sender_customer_auth_id', $customerAuth->id)->whereNull('deleted_at')->firstOrFail();
+        $message->update(['deleted_at' => now(), 'deleted_by_user_id' => null, 'deleted_by_role' => 'customer']);
+        $message->attachments()->whereNull('deleted_at')->update(['deleted_at' => now(), 'deleted_by_user_id' => null, 'deleted_by_role' => 'customer']);
+
+        return response()->json(['ok' => true]);
     }
 
     public function latestMessage(Request $request, string $uuid): JsonResponse

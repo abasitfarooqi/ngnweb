@@ -39,6 +39,11 @@ class Login extends Component
             return;
         }
 
+        if (! $user->is_active || ! $user->customer?->is_active || ! $user->customer?->is_register) {
+            $this->addError('email', 'Portal access is currently inactive. Please contact NGN.');
+            return;
+        }
+
         Auth::guard('customer')->login($user, $this->remember);
 
         request()->session()->regenerate();

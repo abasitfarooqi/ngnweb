@@ -26,7 +26,14 @@ class StaffSupportConversationController extends Controller
             return null;
         }
 
-        return $this->isBackpackStaff($actor) ? $actor : null;
+        if (! $this->isBackpackStaff($actor)) {
+            return null;
+        }
+
+        return \App\Support\FluxAdminAccess::isSuperAdmin($actor)
+            || \App\Support\FluxAdminAccess::userHasPermission($actor, 'view-chat')
+            || \App\Support\FluxAdminAccess::userHasPermission($actor, 'manage-communications')
+            ? $actor : null;
     }
 
     public function index(Request $request)
@@ -51,6 +58,7 @@ class StaffSupportConversationController extends Controller
                         ->orWhere('uuid', 'like', '%'.$term.'%');
                 });
             })
+            ->when(! $this->hasGlobalChatAccess($staff), fn ($q) => $q->where('assigned_backpack_user_id', $staff->id))
             ->with([
                 'assignedBackpackUser',
                 'customerAuth.customer',
@@ -79,6 +87,10 @@ class StaffSupportConversationController extends Controller
                         ->whereNull('read_at_staff');
                 },
             ]);
+
+        if (! $this->hasGlobalChatAccess($staff)) {
+            $query->where('assigned_backpack_user_id', $staff->id);
+        }
 
         $status = (string) $request->string('status', 'all');
         if ($status !== 'all' && $status !== '') {
@@ -190,6 +202,9 @@ class StaffSupportConversationController extends Controller
         $conversation = SupportConversation::query()
             ->with(['customerAuth', 'serviceBooking', 'assignedBackpackUser'])
             ->findOrFail($conversationId);
+        if (! $this->canAccessConversation($staff, $conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         SupportMessage::query()
             ->where('conversation_id', $conversation->id)
@@ -198,8 +213,9 @@ class StaffSupportConversationController extends Controller
             ->update(['read_at_staff' => Carbon::now()]);
 
         $messages = SupportMessage::query()
-            ->with('attachments')
+            ->with(['attachments' => fn ($q) => $q->when(! \App\Support\FluxAdminAccess::canViewDeletedChat($staff), fn ($q) => $q->whereNull('deleted_at'))])
             ->where('conversation_id', $conversation->id)
+            ->when(! \App\Support\FluxAdminAccess::canViewDeletedChat($staff), fn ($q) => $q->whereNull('deleted_at'))
             ->orderBy('id')
             ->limit(200)
             ->get()
@@ -208,6 +224,9 @@ class StaffSupportConversationController extends Controller
                     'id' => $message->id,
                     'sender_type' => $message->sender_type,
                     'body' => $message->body,
+                    'deleted_at' => $message->deleted_at?->toIso8601String(),
+                    'deleted_by_user_id' => $message->deleted_by_user_id,
+                    'deleted_by_role' => $message->deleted_by_role,
                     'created_at' => $message->created_at?->toDateTimeString(),
                     'created_human' => $message->created_at?->diffForHumans(),
                     'attachments' => $message->attachments->map(fn ($attachment) => [
@@ -285,10 +304,15 @@ class StaffSupportConversationController extends Controller
         }
 
         $conversation = SupportConversation::query()->findOrFail($conversationId);
+        if (! $this->canAccessConversation($staff, $conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         $messages = SupportMessage::query()
             ->where('conversation_id', $conversation->id)
-            ->with(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments'])
+            ->when(! \App\Support\FluxAdminAccess::canViewDeletedChat($staff), fn ($q) => $q->whereNull('deleted_at'))
+            ->when(trim((string) $request->string('search')) !== '', fn ($q) => $q->where('body', 'like', '%'.trim((string) $request->string('search')).'%'))
+            ->with(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments' => fn ($q) => $q->when(! \App\Support\FluxAdminAccess::canViewDeletedChat($staff), fn ($q) => $q->whereNull('deleted_at'))])
             ->orderBy('id')
             ->paginate(50);
 
@@ -305,6 +329,9 @@ class StaffSupportConversationController extends Controller
         $conversation = SupportConversation::query()
             ->with(['assignedBackpackUser', 'customerAuth.customer', 'messages' => fn ($q) => $q->latest()->limit(1)])
             ->findOrFail($conversationId);
+        if (! $this->canAccessConversation($staff, $conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         return new SupportConversationResource($conversation);
     }
@@ -317,10 +344,14 @@ class StaffSupportConversationController extends Controller
         }
 
         $conversation = SupportConversation::query()->findOrFail($conversationId);
+        if (! $this->canAccessConversation($staff, $conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         $data = $request->validate(array_merge([
             'body' => ['nullable', 'string', 'max:6000'],
-        ], SupportChatFileRules::arrayWithFiles('files', 5)));
+            'reply_to_message_id' => ['nullable', 'integer'],
+        ], SupportChatFileRules::arrayWithFiles('files')));
 
         $body = trim((string) ($data['body'] ?? ''));
         $uploads = Arr::wrap($request->file('files') ?? []);
@@ -330,23 +361,31 @@ class StaffSupportConversationController extends Controller
             ], 422);
         }
 
+        $replyTo = ! empty($data['reply_to_message_id'])
+            ? SupportMessage::query()->where('conversation_id', $conversation->id)->findOrFail((int) $data['reply_to_message_id'])
+            : null;
+
         $message = SupportMessage::query()->create([
             'conversation_id' => $conversation->id,
             'sender_type' => 'staff',
             'sender_user_id' => $staff->id,
             'body' => $body !== '' ? $body : null,
+            'reply_to_message_id' => $replyTo?->id,
         ]);
 
         foreach ($uploads as $upload) {
-            $path = $upload->store('support-chat/'.$conversation->uuid, 'public');
+            $originalName = $upload->getClientOriginalName();
+            $mime = $upload->getMimeType();
+            $size = (int) $upload->getSize();
+            $path = $upload->store('support-chat/'.$conversation->uuid, 'local');
 
             SupportAttachment::query()->create([
                 'message_id' => $message->id,
-                'disk' => 'public',
+                'disk' => 'local',
                 'path' => $path,
-                'original_name' => $upload->getClientOriginalName(),
-                'mime' => $upload->getMimeType(),
-                'size' => (int) $upload->getSize(),
+                'original_name' => $originalName,
+                'mime' => $mime,
+                'size' => $size,
                 'uploaded_by_user_id' => $staff->id,
             ]);
         }
@@ -386,6 +425,9 @@ class StaffSupportConversationController extends Controller
         $conversation = SupportConversation::query()
             ->with('assignedBackpackUser')
             ->findOrFail($conversationId);
+        if (! $this->canAccessConversation($staff, $conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
         if (array_key_exists('status', $validated) && $validated['status']) {
             $conversation->status = $validated['status'];
@@ -410,13 +452,36 @@ class StaffSupportConversationController extends Controller
         $attachment = SupportAttachment::query()
             ->with('message.conversation')
             ->findOrFail($attachmentId);
+        if (! $attachment->message?->conversation || ! $this->canAccessConversation($staff, $attachment->message->conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
 
-        $disk = $attachment->disk ?: 'public';
+        $disk = $attachment->disk ?: 'local';
         if (! Storage::disk($disk)->exists($attachment->path)) {
+            return response()->json(['message' => 'File not found'], 404);
+        }
+        if ($attachment->deleted_at && ! \App\Support\FluxAdminAccess::canViewDeletedChat($staff)) {
             return response()->json(['message' => 'File not found'], 404);
         }
 
         return Storage::disk($disk)->download($attachment->path, $attachment->original_name);
+    }
+
+    public function deleteMessage(Request $request, int $conversationId, int $messageId): JsonResponse
+    {
+        $staff = $this->staffUser($request);
+        if (! $staff) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        $conversation = SupportConversation::query()->findOrFail($conversationId);
+        if (! $this->canAccessConversation($staff, $conversation)) {
+            return response()->json(['message' => 'Forbidden'], 403);
+        }
+        $message = $conversation->messages()->where('id', $messageId)->whereNull('deleted_at')->firstOrFail();
+        $message->update(['deleted_at' => now(), 'deleted_by_user_id' => $staff->id, 'deleted_by_role' => 'staff']);
+        $message->attachments()->whereNull('deleted_at')->update(['deleted_at' => now(), 'deleted_by_user_id' => $staff->id, 'deleted_by_role' => 'staff']);
+
+        return response()->json(['ok' => true]);
     }
 
     private function isBackpackStaff(User $user): bool
@@ -442,5 +507,17 @@ class StaffSupportConversationController extends Controller
         }
 
         return false;
+    }
+
+    private function hasGlobalChatAccess(User $staff): bool
+    {
+        return \App\Support\FluxAdminAccess::isSuperAdmin($staff)
+            || \App\Support\FluxAdminAccess::userHasPermission($staff, 'manage-communications');
+    }
+
+    private function canAccessConversation(User $staff, SupportConversation $conversation): bool
+    {
+        return $this->hasGlobalChatAccess($staff)
+            || (int) $conversation->assigned_backpack_user_id === (int) $staff->id;
     }
 }

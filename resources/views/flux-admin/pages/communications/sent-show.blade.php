@@ -1,29 +1,32 @@
 <div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div class="min-w-0">
-            <flux:heading size="xl">{{ $communication->title }}</flux:heading>
-            <flux:text class="mt-1 break-all font-mono text-xs">{{ $communication->uuid }}</flux:text>
+        <div class="flex min-w-0 items-center gap-4">
+            <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-sm dark:bg-white dark:text-zinc-950"><flux:icon name="envelope-open" class="size-6" /></div>
+            <div class="min-w-0">
+                <flux:heading size="xl">{{ $communication->title }}</flux:heading>
+                <flux:text class="mt-1 break-all font-mono text-xs">{{ $communication->uuid }}</flux:text>
+            </div>
             @if($communication->isHiddenFromStaff())
                 <p class="mt-2 text-xs text-zinc-500">Hidden from the staff list. The log is still kept.</p>
             @endif
         </div>
         <div class="flex flex-wrap gap-2">
             @if($canExportPdf)
-                <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="downloadPdf">Export PDF</flux:button>
+                <flux:button size="sm" variant="ghost" icon="arrow-down-tray" class="rounded-xl" wire:click="downloadPdf">Export PDF</flux:button>
             @endif
             @if($hideReady && ! $communication->isHiddenFromStaff())
-                <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="hideFromStaff" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
+                <flux:button size="sm" variant="ghost" icon="eye-slash" class="rounded-xl" wire:click="hideFromStaff" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
             @elseif($hideReady)
-                <flux:button size="sm" variant="ghost" class="!rounded-none" wire:click="unhideFromStaff">Show</flux:button>
+                <flux:button size="sm" variant="ghost" icon="eye" class="rounded-xl" wire:click="unhideFromStaff">Show</flux:button>
             @endif
             <a href="{{ route('flux-admin.communications.sent.index') }}">
-                <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Back</flux:button>
+                <flux:button size="sm" variant="ghost" icon="arrow-left" class="rounded-xl">Back</flux:button>
             </a>
         </div>
     </div>
 
     <div class="grid gap-4 lg:grid-cols-3">
-        <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900 lg:col-span-2">
+        <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-6 dark:border-zinc-800 dark:bg-zinc-900 lg:col-span-2">
             <flux:heading size="lg">Stored snapshot</flux:heading>
             <flux:text class="mt-1">{{ $communication->subject }}</flux:text>
 
@@ -61,7 +64,7 @@
                 <flux:heading size="sm">Replies</flux:heading>
                 <div class="mt-3 space-y-3" wire:key="sent-replies-{{ $realtimeTick }}-{{ $communication->replies->count() }}">
                     @forelse($communication->replies as $reply)
-                        <div class="border border-zinc-200 p-3 dark:border-zinc-700">
+                        <div class="rounded-2xl border border-zinc-200 p-4 dark:border-zinc-700">
                             <p class="text-xs text-zinc-500">{{ $reply->authorLabel() }} · {{ $reply->created_at?->format('d M Y H:i') }}</p>
                             <p class="mt-1 whitespace-pre-wrap text-sm">{{ $reply->body }}</p>
                             @foreach($replyAttachments->get($reply->id, collect()) as $file)
@@ -93,7 +96,7 @@
         </div>
 
         <div class="space-y-4">
-            <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">Enquiry chat</flux:heading>
                 @if($enquiry)
                     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">
@@ -113,7 +116,7 @@
                 @endif
             </div>
 
-            <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">Delivery</flux:heading>
                 <dl class="mt-3 space-y-3 text-sm">
                     @forelse($communication->deliveries as $delivery)
@@ -133,7 +136,7 @@
                 </dl>
             </div>
 
-            <div class="border border-zinc-200 bg-white p-4 sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
+            <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm sm:p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">Customer</flux:heading>
                 @forelse($communication->recipients as $recipient)
                     <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">

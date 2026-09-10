@@ -17,6 +17,11 @@ class SupportMessageResource extends JsonResource
                 ? ($this->senderUser?->full_name ?? 'Staff')
                 : ($this->senderCustomerAuth?->customer?->full_name ?? $this->senderCustomerAuth?->email ?? 'Customer'),
             'body' => (string) ($this->body ?? ''),
+            'reply_to_message_id' => $this->reply_to_message_id,
+            'deleted_at' => $this->deleted_at?->toIso8601String(),
+            'deleted_by_user_id' => $this->deleted_by_user_id,
+            'deleted_by_role' => $this->deleted_by_role,
+            'reply_preview' => $this->whenLoaded('replyTo', fn () => $this->replyTo ? str((string) $this->replyTo->body)->limit(120)->toString() : null),
             'attachments' => $this->attachments->map(fn ($a) => [
                 'id' => $a->id,
                 'name' => $a->original_name,

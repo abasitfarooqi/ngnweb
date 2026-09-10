@@ -30,6 +30,11 @@ class DocumentUploadController extends Controller
                 ->with('error', 'Your account is not linked to a customer record yet.');
         }
 
+        if (! $customerAuth->is_active || ! $profile->is_active || ! $profile->portal_upload_access) {
+            return redirect()->route('account.documents', $this->returnQuery($validated))
+                ->with('error', 'NGN has not enabled document uploads for this account.');
+        }
+
         try {
             $result = $uploader->store(
                 $profile,

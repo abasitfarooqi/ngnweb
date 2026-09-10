@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Schema;
 use Throwable;
 
@@ -26,13 +27,23 @@ class SupportMessage extends Model
         'meta',
         'read_at_customer',
         'read_at_staff',
+        'reply_to_message_id',
+        'deleted_at',
+        'deleted_by_user_id',
+        'deleted_by_role',
     ];
 
     protected $casts = [
         'meta' => 'array',
         'read_at_customer' => 'datetime',
         'read_at_staff' => 'datetime',
+        'deleted_at' => 'datetime',
     ];
+
+    public function scopeVisible(Builder $query, bool $includeDeleted = false): Builder
+    {
+        return $includeDeleted ? $query : $query->whereNull($this->getTable().'.deleted_at');
+    }
 
     protected static function booted(): void
     {
@@ -105,5 +116,10 @@ class SupportMessage extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(SupportAttachment::class, 'message_id');
+    }
+
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(self::class, 'reply_to_message_id');
     }
 }

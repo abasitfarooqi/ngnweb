@@ -364,6 +364,7 @@ Route::middleware(['customer'])->prefix('account')->name('account.')->group(func
     Route::get('/support/{conversationUuid}/messages-html', [\App\Http\Controllers\Portal\SupportPortalController::class, 'messagesHtml'])->name('support.messages-html');
     Route::get('/support/{conversationUuid}', \App\Livewire\Portal\Support\Thread::class)->name('support.thread');
     Route::post('/support/{conversationUuid}/message', [\App\Http\Controllers\Portal\SupportPortalController::class, 'sendMessage'])->name('support.send-message');
+    Route::delete('/support/{conversationUuid}/messages/{messageId}', [\App\Http\Controllers\Portal\SupportPortalController::class, 'deleteMessage'])->name('support.delete-message');
     Route::get('/addresses', \App\Livewire\Portal\Addresses::class)->name('addresses');
     Route::get('/payment-methods', \App\Livewire\Portal\PaymentMethods::class)->name('payment-methods');
     Route::get('/payments/recurring', \App\Livewire\Portal\Payments\Recurring::class)->name('payments.recurring');

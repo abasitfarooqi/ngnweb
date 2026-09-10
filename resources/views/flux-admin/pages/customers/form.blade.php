@@ -5,19 +5,48 @@
             <div class="flex items-center gap-2 text-sm text-zinc-500 dark:text-zinc-400 mb-1">
                 <a href="{{ route('flux-admin.customers.index') }}" class="hover:text-zinc-700 dark:hover:text-zinc-200 transition">Customers</a>
                 <span>/</span>
-                <span>{{ $customer && $customer->exists ? 'Edit ' . $customer->full_name : 'New Customer' }}</span>
+                <span>{{ method_exists($this, 'isPortalUserEditor') ? 'Portal users / Edit' : ($customer && $customer->exists ? 'Edit ' . $customer->full_name : 'New Customer') }}</span>
             </div>
             <h1 class="text-2xl font-bold text-zinc-900 dark:text-white">
-                {{ $customer && $customer->exists ? 'Edit ' . $customer->full_name : 'New Customer' }}
+                {{ method_exists($this, 'isPortalUserEditor') ? 'Edit portal user — ' . $customer->full_name : ($customer && $customer->exists ? 'Edit ' . $customer->full_name : 'New Customer') }}
             </h1>
         </div>
         <div class="flex items-center gap-2">
-            <a href="{{ route('flux-admin.customers.index') }}">
+            <a href="{{ method_exists($this, 'isPortalUserEditor') ? route('flux-admin.portal-users.index') : route('flux-admin.customers.index') }}">
                 <flux:button variant="ghost" size="sm" class="!rounded-none">Cancel</flux:button>
             </a>
             <flux:button wire:click="save" variant="primary" size="sm" class="!rounded-none">Save customer</flux:button>
         </div>
     </div>
+
+    @if(method_exists($this, 'isPortalUserEditor') && $customer && $customer->exists)
+        <div class="mb-6 rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+            <div class="flex items-start gap-3">
+                <flux:icon name="shield-check" class="mt-0.5 size-5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <div class="min-w-0 flex-1">
+                    <h2 class="font-semibold text-zinc-900 dark:text-white">Restricted portal record</h2>
+                    <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+                        <div><div class="text-xs text-zinc-500 dark:text-zinc-400">Customer record</div><div class="font-semibold text-zinc-900 dark:text-white">#{{ $customer->id }}</div></div>
+                        <div><div class="text-xs text-zinc-500 dark:text-zinc-400">Portal auth record</div><div class="font-semibold text-zinc-900 dark:text-white">{{ $customer->customerAuth?->id ? '#'.$customer->customerAuth->id : 'Not created' }}</div></div>
+                        <div><div class="text-xs text-zinc-500 dark:text-zinc-400">Password</div><div class="font-semibold text-zinc-900 dark:text-white">{{ $customer->customerAuth?->password ? 'Set · hidden' : 'Not set' }}</div></div>
+                        <div><div class="text-xs text-zinc-500 dark:text-zinc-400">Email verification</div><div class="font-semibold text-zinc-900 dark:text-white">{{ $customer->customerAuth?->email_verified_at?->format('d M Y H:i') ?: 'Not verified' }}</div></div>
+                    </div>
+                    <div class="mt-4 flex flex-wrap gap-2">
+                        <flux:button type="button" size="sm" variant="ghost" icon="link" wire:click="sendPortalResetLink('email')" class="rounded-xl">Send reset link by email</flux:button>
+                        <flux:button type="button" size="sm" variant="ghost" icon="device-phone-mobile" wire:click="sendPortalResetLink('sms')" class="rounded-xl">Send reset link by SMS</flux:button>
+                    </div>
+                    @if(method_exists($this, 'isPortalUserEditor'))
+                        <div class="mt-4 grid max-w-2xl gap-2 sm:grid-cols-[1fr_1fr_auto]">
+                            <flux:input type="password" wire:model="portalPassword" placeholder="Set new portal password" autocomplete="new-password" />
+                            <flux:input type="password" wire:model="portalPassword_confirmation" placeholder="Confirm password" autocomplete="new-password" />
+                            <flux:button type="button" size="sm" variant="primary" wire:click="setPortalPassword" class="rounded-xl">Save password</flux:button>
+                        </div>
+                        @error('portalPassword') <div class="mt-1 text-xs text-red-600 dark:text-red-400">{{ $message }}</div> @enderror
+                    @endif
+                </div>
+            </div>
+        </div>
+    @endif
 
     <form wire:submit.prevent="save" class="space-y-6" novalidate>
 
@@ -124,6 +153,21 @@
             @if($customer && $customer->exists)
                 <div class="mt-5 border-t border-zinc-200 pt-4 dark:border-zinc-800">
                     <h3 class="text-xs font-semibold uppercase tracking-wide text-zinc-500 mb-2">Customer portal controls</h3>
+                    @if(\App\Support\FluxAdminAccess::canManagePortalUsers())
+                        <div class="mb-4 flex flex-wrap gap-2 text-sm">
+                            <span class="rounded px-2 py-1 {{ ($form['is_active'] ?? true) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ ($form['is_active'] ?? true) ? '● Customer active' : '● Customer inactive' }}</span>
+                            <span class="rounded px-2 py-1 {{ $customer->customerAuth?->is_active && ($form['is_register'] ?? $customer->is_register) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ $customer->customerAuth?->is_active && ($form['is_register'] ?? $customer->is_register) ? '● Portal active' : '● Portal inactive' }}</span>
+                            <span class="rounded px-2 py-1 {{ $customer->customerAuth?->hasVerifiedEmail() ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ $customer->customerAuth?->hasVerifiedEmail() ? '✓ Email verified' : '✕ Email not verified' }}</span>
+                            <span class="rounded px-2 py-1 {{ ($form['portal_upload_access'] ?? false) ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700' }}">{{ ($form['portal_upload_access'] ?? false) ? '✓ Uploads allowed' : '✕ Uploads disabled' }}</span>
+                        </div>
+                        <div class="mb-4 flex flex-wrap gap-2">
+                            <flux:button type="button" size="sm" variant="ghost" wire:click="toggleCustomerActive">{{ ($form['is_active'] ?? true) ? 'Deactivate customer' : 'Activate customer' }}</flux:button>
+                            <flux:button type="button" size="sm" variant="ghost" wire:click="togglePortalActive">{{ $customer->customerAuth?->is_active ? 'Deactivate portal' : 'Activate portal' }}</flux:button>
+                            <flux:button type="button" size="sm" variant="ghost" wire:click="togglePortalUploadAccess">{{ ($form['portal_upload_access'] ?? false) ? 'Disable uploads' : 'Allow uploads' }}</flux:button>
+                            <flux:button type="button" size="sm" variant="primary" wire:click="sendPortalCredentials('email')">Send credentials by email</flux:button>
+                            <flux:button type="button" size="sm" variant="primary" wire:click="sendPortalCredentials('sms')">Send credentials by SMS</flux:button>
+                        </div>
+                    @endif
                     <p class="text-xs text-zinc-500 mb-3">
                         Profile initialised: {{ $customer->profile_initialised_at?->format('d M Y H:i') ?? 'Not yet' }}
                     </p>

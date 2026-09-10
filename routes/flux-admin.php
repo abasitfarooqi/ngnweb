@@ -45,6 +45,8 @@ use App\Livewire\FluxAdmin\Pages\Customers\AppointmentIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\CustomerForm;
 use App\Livewire\FluxAdmin\Pages\Customers\CustomerIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\CustomerShow;
+use App\Livewire\FluxAdmin\Pages\Customers\PortalUserIndex;
+use App\Livewire\FluxAdmin\Pages\Customers\PortalUserEdit;
 use App\Livewire\FluxAdmin\Pages\Customers\DocumentIndex as CustomerDocumentIndex;
 use App\Livewire\FluxAdmin\Pages\Customers\DocumentReview as CustomerDocumentReview;
 use App\Livewire\FluxAdmin\Pages\Dashboard;
@@ -372,6 +374,8 @@ Route::get('/motorbikes/{motorbike}', MotorbikeShow::class)->name('flux-admin.mo
 Route::get('/customers/create', CustomerForm::class)->name('flux-admin.customers.create');
 Route::get('/customers/{customer}/edit', CustomerForm::class)->name('flux-admin.customers.edit');
 Route::get('/customers', CustomerIndex::class)->name('flux-admin.customers.index');
+Route::get('/portal-users', PortalUserIndex::class)->name('flux-admin.portal-users.index');
+Route::get('/portal-users/{customer}/edit', PortalUserEdit::class)->name('flux-admin.portal-users.edit');
 Route::get('/customers/{customer}', CustomerShow::class)->name('flux-admin.customers.show');
 
 Route::get('/rentals', RentalIndex::class)->name('flux-admin.rentals.index');

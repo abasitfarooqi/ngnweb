@@ -7,6 +7,7 @@ use App\Models\CustomerAuth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Password;
 
 class CustomerPortalCredentialIssuer
 {
@@ -40,15 +41,16 @@ class CustomerPortalCredentialIssuer
             [
                 'customer_id' => $customer->id,
                 'password' => Hash::make($temporaryPassword),
+                'is_active' => true,
             ]
         );
 
-        $customer->forceFill(['is_register' => true])->save();
+        $customer->forceFill(['is_register' => true, 'is_active' => true])->save();
 
         return $temporaryPassword;
     }
 
-    public static function issueAndNotify(Customer $customer): bool
+    public static function issueAndNotify(Customer $customer, string $channel = 'both'): bool
     {
         $email = self::normaliseEmail($customer->email);
         $temporaryPassword = self::issue($customer);
@@ -59,22 +61,20 @@ class CustomerPortalCredentialIssuer
 
         $phone = self::normalisePhone($customer->phone);
         $portalUrl = url('/login');
-        $body = "Welcome to NGN customer portal.\n\nLogin email: {$email}\nTemporary password: {$temporaryPassword}\nPortal: {$portalUrl}\n\nPlease change your password after login.";
 
-        try {
-            Mail::raw(
-                $body,
-                fn ($message) => $message->to($email)->subject('Your NGN Portal Access Credentials')
-            );
-        } catch (\Throwable $e) {
-            Log::warning('Failed to send portal credentials email', [
-                'customer_id' => $customer->id,
-                'error' => $e->getMessage(),
-            ]);
+        if (in_array($channel, ['both', 'email'], true)) {
+            try {
+                Mail::to($email)->send(new \App\Mail\PortalCredentialsMail($email, $temporaryPassword, $portalUrl));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send portal credentials email', [
+                    'customer_id' => $customer->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         // One SMS only — credentials, no URL (email already has the portal link).
-        if ($phone !== '') {
+        if ($phone !== '' && in_array($channel, ['both', 'sms'], true)) {
             $smsLockKey = 'portal_creds_sms_'.$customer->id;
             if (! cache()->add($smsLockKey, 1, now()->addSeconds(45))) {
                 Log::info('Skipped duplicate portal credentials SMS', [
@@ -93,6 +93,51 @@ class CustomerPortalCredentialIssuer
                         'error' => $e->getMessage(),
                     ]);
                 }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Create a short-lived password-reset token without exposing the existing password.
+     */
+    public static function sendResetLink(Customer $customer, string $channel = 'email'): bool
+    {
+        $auth = $customer->customerAuth;
+        $email = self::normaliseEmail($customer->email ?: $auth?->email);
+
+        if (! $auth || $email === '') {
+            return false;
+        }
+
+        $auth->forceFill(['email' => $email])->save();
+        $token = Password::broker('customers')->createToken($auth);
+        $resetUrl = url('/reset-password/'.$token.'?email='.urlencode($email));
+
+        if (in_array($channel, ['email', 'both'], true)) {
+            try {
+                Mail::to($email)->send(new \App\Mail\PortalPasswordResetMail($email, $resetUrl));
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send portal password reset email', [
+                    'customer_id' => $customer->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        $phone = self::normalisePhone($customer->phone ?: $customer->whatsapp);
+        if ($phone !== '' && in_array($channel, ['sms', 'both'], true)) {
+            try {
+                app(\App\Http\Controllers\SMSController::class)->sendSms(
+                    $phone,
+                    "NGN Motors password reset link:\n{$resetUrl}\nThis link expires in 60 minutes."
+                );
+            } catch (\Throwable $e) {
+                Log::warning('Failed to send portal password reset SMS', [
+                    'customer_id' => $customer->id,
+                    'error' => $e->getMessage(),
+                ]);
             }
         }
 

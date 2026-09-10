@@ -12,6 +12,19 @@ final class FluxAdminAccess
 
     public const NOTIFICATIONS_PERMISSION = 'view-notifications';
 
+    public const PORTAL_USER_ADMIN_IDS = [93, 66, 65];
+
+    public static function canManagePortalUsers(?Authenticatable $user = null): bool
+    {
+        $user ??= self::user();
+        return $user !== null && in_array((int) $user->getAuthIdentifier(), self::PORTAL_USER_ADMIN_IDS, true);
+    }
+
+    public static function canViewDeletedChat(?Authenticatable $user = null): bool
+    {
+        return self::canManagePortalUsers($user);
+    }
+
     /** @var array<string, bool> */
     private static array $superAdminCache = [];
 

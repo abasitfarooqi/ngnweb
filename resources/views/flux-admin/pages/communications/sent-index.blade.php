@@ -1,31 +1,36 @@
 <div class="space-y-6" wire:poll.visible.5s="$refresh">
     <div class="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div class="min-w-0">
-            <flux:heading size="xl">Notifications</flux:heading>
-            <flux:text class="mt-1">Sent and received customer messages. Hide removes a row from this list only — the log is kept.</flux:text>
-            <button type="button" data-sound-toggle class="js-enable-communication-alerts mt-3 inline-flex items-center gap-2 border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100">
-                Turn sound off
-            </button>
-            <p class="js-communication-alerts-status mt-1 text-xs text-zinc-500 dark:text-zinc-400"></p>
-        </div>
-        @if($canManageCommunications)
-            <div class="flex flex-wrap gap-2">
-                <flux:button size="sm" variant="ghost" wire:click="markAllNotificationsRead" class="!rounded-none">Mark all as read</flux:button>
-                <a href="{{ route('flux-admin.communications.index') }}">
-                    <flux:button size="sm" variant="ghost" icon="arrow-left" class="!rounded-none">Control panel</flux:button>
-                </a>
+        <div class="flex min-w-0 items-center gap-4">
+            <div class="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-zinc-950 text-white shadow-sm dark:bg-white dark:text-zinc-950">
+                <flux:icon name="paper-airplane" class="size-6" />
             </div>
-        @else
-            <flux:button size="sm" variant="ghost" wire:click="markAllNotificationsRead" class="!rounded-none">Mark all as read</flux:button>
-        @endif
+            <div class="min-w-0">
+                <div class="flex flex-wrap items-center gap-2">
+                    <flux:heading size="xl">Sent communications</flux:heading>
+                    <span class="rounded-full bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300">Live delivery log</span>
+                </div>
+                <flux:text class="mt-1">Track customer email, inbox delivery, reads, and staff visibility.</flux:text>
+            </div>
+        </div>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" data-sound-toggle class="js-enable-communication-alerts inline-flex items-center gap-2 rounded-xl border border-zinc-300 bg-white px-3 py-2 text-sm font-medium text-zinc-800 shadow-sm transition hover:border-zinc-950 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-white">
+                <flux:icon name="speaker-wave" class="size-4" />
+                Sound on
+            </button>
+            <flux:button size="sm" variant="ghost" wire:click="markAllNotificationsRead" icon="check-circle" class="rounded-xl">Mark read</flux:button>
+            @if($canManageCommunications)
+                <a href="{{ route('flux-admin.communications.index') }}"><flux:button size="sm" variant="ghost" icon="arrow-left" class="rounded-xl">Control panel</flux:button></a>
+            @endif
+        </div>
     </div>
+    <p class="js-communication-alerts-status -mt-4 pl-16 text-xs text-zinc-500 dark:text-zinc-400"></p>
 
     @if(! $schemaReady)
         <div class="border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Communication tables are not migrated yet.</div>
     @else
-        <x-flux-admin::data-table title="Message log" description="Email sent, skipped or failed, plus portal inbox delivery. Inbox off is off for the customer and for staff unless Staff copy was on for that send.">
+        <x-flux-admin::data-table title="Message log" description="Email and portal delivery status for every communication.">
             <x-slot:toolbar>
-                <x-flux-admin::filter-bar search-placeholder="Search title, email or key...">
+                <x-flux-admin::filter-bar search-placeholder="Search communications…">
                     <div class="min-w-0 w-full">
                         <select wire:model.live="filters.category" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
                             <option value="">Any category</option>
@@ -64,14 +69,15 @@
                 </x-flux-admin::filter-bar>
             </x-slot:toolbar>
 
-            <div class="divide-y divide-zinc-200 dark:divide-zinc-800 md:hidden" wire:key="sent-cards-{{ $realtimeTick }}">
+            <div class="grid gap-3 p-3 md:hidden" wire:key="sent-cards-{{ $realtimeTick }}">
                 @forelse($rows as $row)
                     @php($email = $row->deliveries->firstWhere('channel', 'email'))
                     @php($inbox = $row->deliveries->firstWhere('channel', 'internal_inbox'))
                     @php($recipient = $row->recipients->first())
-                    <div class="p-4" wire:key="sent-card-{{ $row->id }}">
-                        <div class="font-medium text-zinc-900 dark:text-white">{{ $row->title }}</div>
+                    <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" wire:key="sent-card-{{ $row->id }}">
+                        <div class="flex items-start gap-3"><span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"><flux:icon name="envelope" class="size-4" /></span><div class="min-w-0"><div class="font-semibold text-zinc-900 dark:text-white">{{ $row->title }}</div>
                         <div class="mt-1 font-mono text-[11px] text-zinc-500">{{ $row->communication_key }}</div>
+                        </div></div>
                         <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{{ $row->recipient_email ?: '—' }}</p>
                         <p class="mt-1 text-xs text-zinc-500">{{ $row->created_at?->format('d M Y H:i') }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
@@ -84,12 +90,12 @@
                         <p class="mt-2 text-xs text-zinc-500">Read {{ $recipient?->read_at?->format('d M Y H:i') ?? '—' }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
                             <a href="{{ route('flux-admin.communications.sent.show', $row) }}">
-                                <flux:button size="xs" variant="ghost" class="!rounded-none">View</flux:button>
+                                <flux:button size="xs" variant="ghost" icon="eye" class="rounded-xl">View</flux:button>
                             </a>
                             @if($hideReady && ! $row->isHiddenFromStaff())
-                                <flux:button size="xs" variant="ghost" class="!rounded-none" wire:click="hideFromStaff({{ $row->id }})" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
+                                <flux:button size="xs" variant="ghost" icon="eye-slash" class="rounded-xl" wire:click="hideFromStaff({{ $row->id }})" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
                             @elseif($hideReady)
-                                <flux:button size="xs" variant="ghost" class="!rounded-none" wire:click="unhideFromStaff({{ $row->id }})">Show</flux:button>
+                                <flux:button size="xs" variant="ghost" icon="eye" class="rounded-xl" wire:click="unhideFromStaff({{ $row->id } })">Show</flux:button>
                             @endif
                         </div>
                     </div>
@@ -98,7 +104,7 @@
                 @endforelse
             </div>
 
-            <div class="hidden md:block">
+            <div class="hidden overflow-hidden rounded-2xl border border-zinc-200 md:block dark:border-zinc-800">
                 <flux:table wire:key="sent-log-{{ $realtimeTick }}">
                     <flux:table.columns>
                         <flux:table.column>Sent</flux:table.column>
@@ -133,12 +139,12 @@
                                 <flux:table.cell>
                                     <div class="flex flex-wrap justify-end gap-1">
                                         <a href="{{ route('flux-admin.communications.sent.show', $row) }}">
-                                            <flux:button size="xs" variant="ghost" class="!rounded-none">View</flux:button>
+                                            <flux:button size="xs" variant="ghost" icon="eye" class="rounded-xl">View</flux:button>
                                         </a>
                                         @if($hideReady && ! $row->isHiddenFromStaff())
-                                            <flux:button size="xs" variant="ghost" class="!rounded-none" wire:click="hideFromStaff({{ $row->id }})" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
+                                            <flux:button size="xs" variant="ghost" icon="eye-slash" class="rounded-xl" wire:click="hideFromStaff({{ $row->id }})" wire:confirm="Hide this notification from staff? It stays in the log.">Hide</flux:button>
                                         @elseif($hideReady)
-                                            <flux:button size="xs" variant="ghost" class="!rounded-none" wire:click="unhideFromStaff({{ $row->id }})">Show</flux:button>
+                                            <flux:button size="xs" variant="ghost" icon="eye" class="rounded-xl" wire:click="unhideFromStaff({{ $row->id }})">Show</flux:button>
                                         @endif
                                     </div>
                                 </flux:table.cell>

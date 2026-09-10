@@ -28,12 +28,10 @@ class Inbox extends Component
             abort(403);
         }
 
-        $conversation = SupportConversation::query()->create([
-            'customer_auth_id' => $customerAuth->id,
-            'title' => 'General enquiry',
-            'topic' => 'General enquiry',
-            'status' => 'open',
-        ]);
+        $conversation = SupportConversation::query()->firstOrCreate(
+            ['customer_auth_id' => $customerAuth->id, 'service_booking_id' => null],
+            ['title' => 'General enquiry', 'topic' => 'General enquiry', 'status' => 'open']
+        );
 
         $this->redirectRoute('account.support.thread', ['conversationUuid' => $conversation->uuid], navigate: true);
     }

@@ -547,6 +547,7 @@ Route::prefix('v1/mobile')->group(function () {
             Route::get('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'messages']);
             Route::get('conversations/{uuid}/latest-message', [\App\Http\Controllers\Api\SupportConversationController::class, 'latestMessage']);
             Route::post('conversations/{uuid}/messages', [\App\Http\Controllers\Api\SupportConversationController::class, 'sendMessage']);
+            Route::delete('conversations/{uuid}/messages/{messageId}', [\App\Http\Controllers\Api\SupportConversationController::class, 'deleteMessage']);
             Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\SupportMessageController::class, 'showAttachment']);
             Route::post('messages/{messageId}/attachments', [\App\Http\Controllers\Api\SupportMessageController::class, 'attachFiles']);
         });
@@ -566,6 +567,7 @@ Route::prefix('v1/mobile')->group(function () {
             Route::get('conversations/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'messages']);
             Route::get('conversations/{conversationId}/latest-message', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'latestMessage']);
             Route::post('conversations/{conversationId}/messages', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'sendMessage']);
+            Route::delete('conversations/{conversationId}/messages/{messageId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'deleteMessage']);
             Route::patch('conversations/{conversationId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'updateConversation']);
             Route::get('attachments/{attachmentId}', [\App\Http\Controllers\Api\StaffSupportConversationController::class, 'showAttachment']);
         });

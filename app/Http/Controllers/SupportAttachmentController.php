@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\SupportAttachment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use App\Support\FluxAdminAccess;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class SupportAttachmentController extends Controller
@@ -25,8 +26,11 @@ class SupportAttachmentController extends Controller
         if (! $staff && (! $customerAuth || (int) $conversation->customer_auth_id !== (int) $customerAuth->id)) {
             abort(403);
         }
+        if ($attachment->deleted_at && (! $staff || ! FluxAdminAccess::canViewDeletedChat($staff))) {
+            abort(404);
+        }
 
-        $disk = $attachment->disk ?: 'public';
+        $disk = $attachment->disk ?: 'local';
         $storage = Storage::disk($disk);
 
         if (! $storage->exists($attachment->path)) {

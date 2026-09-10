@@ -203,7 +203,7 @@ class SupportInboxController extends Controller
 
         $validated = $request->validate(array_merge([
             'body' => ['nullable', 'string', 'max:6000'],
-        ], SupportChatFileRules::arrayWithFiles('files', 5)));
+        ], SupportChatFileRules::arrayWithFiles('files')));
 
         $body = trim((string) ($validated['body'] ?? ''));
         $uploads = Arr::wrap($request->file('files') ?? []);
@@ -222,15 +222,18 @@ class SupportInboxController extends Controller
         ]);
 
         foreach ($uploads as $upload) {
-            $path = $upload->store('support-chat/'.$conversation->uuid, 'public');
+            $originalName = $upload->getClientOriginalName();
+            $mime = $upload->getMimeType();
+            $size = (int) $upload->getSize();
+            $path = $upload->store('support-chat/'.$conversation->uuid, 'local');
 
             SupportAttachment::query()->create([
                 'message_id' => $message->id,
-                'disk' => 'public',
+                'disk' => 'local',
                 'path' => $path,
-                'original_name' => $upload->getClientOriginalName(),
-                'mime' => $upload->getMimeType(),
-                'size' => (int) $upload->getSize(),
+                'original_name' => $originalName,
+                'mime' => $mime,
+                'size' => $size,
                 'uploaded_by_user_id' => backpack_user()?->id,
             ]);
         }

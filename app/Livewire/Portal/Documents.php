@@ -113,7 +113,7 @@ class Documents extends Component
     {
         $profile = Auth::guard('customer')->user()?->customer;
 
-        if ($profile && ! $profile->canCustomerEditPortal()) {
+        if ($profile && ! $profile->portal_upload_access) {
             session()->flash('error', 'Document uploads are read-only until NGN authorises your account.');
 
             return;
@@ -185,6 +185,11 @@ class Documents extends Component
         if (! $profile) {
             session()->flash('error', 'Your account is not linked to a customer record yet.');
 
+            return;
+        }
+
+        if (! $customerAuth->is_active || ! $profile->is_active || ! $profile->portal_upload_access) {
+            session()->flash('error', 'NGN has not enabled document uploads for this account.');
             return;
         }
 

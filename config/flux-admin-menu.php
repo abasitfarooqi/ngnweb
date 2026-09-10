@@ -66,6 +66,7 @@ return [
 
         ['group' => 'Customers', 'label' => 'Module home', 'route' => 'flux-admin.modules.show', 'params' => ['module' => 'customers'], 'permission' => 'see-menu-commons'],
         ['group' => 'Customers', 'label' => 'Customer list', 'route' => 'flux-admin.customers.index', 'permission' => 'see-menu-commons'],
+        ['group' => 'Customers', 'label' => 'Portal users', 'route' => 'flux-admin.portal-users.index', 'portal_user_admin' => true, 'keywords' => 'customer portal access password upload verification'],
         ['group' => 'Customers', 'label' => 'Verify documents', 'route' => 'flux-admin.customer-documents.index', 'permission' => 'see-menu-commons', 'keywords' => 'kyc review queue'],
 
         ['group' => 'Service enquiries', 'label' => 'Service enquiries', 'route' => 'flux-admin.service-bookings.index', 'permission' => 'see-menu-commons'],

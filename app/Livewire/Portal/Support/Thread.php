@@ -6,12 +6,16 @@ use App\Models\SupportConversation;
 use App\Models\SupportMessage;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
+use Livewire\Attributes\Url;
 
 class Thread extends Component
 {
     public SupportConversation $conversation;
 
     public int $customerAuthId;
+
+    #[Url(except: '')]
+    public string $search = '';
 
     public function mount(string $conversationUuid): void
     {
@@ -35,9 +39,15 @@ class Thread extends Component
 
         $messages = SupportMessage::query()
             ->where('conversation_id', $this->conversation->id)
-            ->with(['senderCustomerAuth.customer', 'senderUser', 'attachments'])
+            ->whereNull('deleted_at')
+            ->when(trim($this->search) !== '', fn ($q) => $q->where('body', 'like', '%'.trim($this->search).'%'))
+            ->with(['senderCustomerAuth.customer', 'senderUser', 'attachments' => fn ($q) => $q->whereNull('deleted_at')])
             ->orderBy('id')
             ->get();
+
+        SupportMessage::query()->where('conversation_id', $this->conversation->id)
+            ->where('sender_type', 'staff')->whereNull('read_at_customer')
+            ->update(['read_at_customer' => now()]);
 
         $notificationUuid = null;
         foreach ($messages as $message) {
@@ -56,6 +66,18 @@ class Thread extends Component
         ])
             ->layout('components.layouts.portal', [
                 'title' => 'Support Chat | My Account',
-            ]);
+        ]);
+    }
+
+    public function deleteMessage(int $messageId): void
+    {
+        $message = $this->conversation->messages()
+            ->where('id', $messageId)
+            ->where('sender_type', 'customer')
+            ->where('sender_customer_auth_id', $this->customerAuthId)
+            ->whereNull('deleted_at')
+            ->firstOrFail();
+        $message->update(['deleted_at' => now(), 'deleted_by_user_id' => null, 'deleted_by_role' => 'customer']);
+        $message->attachments()->whereNull('deleted_at')->update(['deleted_at' => now(), 'deleted_by_user_id' => null, 'deleted_by_role' => 'customer']);
     }
 }

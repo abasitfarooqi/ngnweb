@@ -34,6 +34,8 @@ class CustomerProfile extends Model
         'reputation_note',
         'rating',
         'is_register',
+        'is_active',
+        'portal_upload_access',
     ];
 
     protected $casts = [
@@ -45,6 +47,8 @@ class CustomerProfile extends Model
         'locked_fields' => 'array',
         'emergency_contact' => 'array',
         'is_register' => 'boolean',
+        'is_active' => 'boolean',
+        'portal_upload_access' => 'boolean',
     ];
 
     public function customerAuth(): BelongsTo

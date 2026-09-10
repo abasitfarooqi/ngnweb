@@ -5,7 +5,10 @@ namespace App\Livewire\FluxAdmin\Pages\Customers;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Branch;
 use App\Models\Customer;
+use App\Models\CustomerProfile;
 use App\Support\FluxAdminFormPayload;
+use App\Support\CustomerPortalCredentialIssuer;
+use App\Support\FluxAdminAccess;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -27,6 +30,9 @@ class CustomerForm extends Component
 
         if ($customer && $customer->exists) {
             $attrs = $customer->getAttributes();
+            $customer->loadMissing('customerAuth');
+            $attrs['is_active'] = (bool) ($customer->is_active ?? true);
+            $attrs['portal_upload_access'] = (bool) ($customer->portal_upload_access ?? false);
             foreach (['dob', 'license_issuance_date', 'license_expiry_date'] as $field) {
                 if (! empty($attrs[$field])) {
                     try {
@@ -67,6 +73,8 @@ class CustomerForm extends Component
             'form.rating'                   => ['nullable', 'integer', 'min:1', 'max:5'],
             'form.preferred_branch_id'      => ['nullable', 'integer'],
             'form.verification_status'      => ['nullable', 'string', 'in:verified,pending,rejected,unverified'],
+            'form.is_active'                => ['nullable', 'boolean'],
+            'form.portal_upload_access'     => ['nullable', 'boolean'],
         ];
     }
 
@@ -112,6 +120,65 @@ class CustomerForm extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: $unlocked
             ? 'Customer may replace approved documents.'
             : 'Approved document re-upload locked.');
+    }
+
+    public function toggleCustomerActive(): void
+    {
+        $this->requirePortalUserAdmin();
+        $active = ! (bool) ($this->form['is_active'] ?? true);
+        $this->customer?->forceFill(['is_active' => $active])->save();
+        $this->customer?->customerAuth?->forceFill(['is_active' => $active])->save();
+        if ($this->customer?->customerAuth) {
+            CustomerProfile::query()->where('customer_auth_id', $this->customer->customerAuth->id)->update(['is_active' => $active]);
+        }
+        $this->form['is_active'] = $active;
+        $this->dispatch('flux-admin:toast', type: 'success', message: $active ? 'Customer activated.' : 'Customer deactivated.');
+    }
+
+    public function togglePortalActive(): void
+    {
+        $this->requirePortalUserAdmin();
+        if (! $this->customer?->customerAuth) {
+            $this->dispatch('flux-admin:toast', type: 'danger', message: 'Create portal access by sending credentials first.');
+            return;
+        }
+        $active = ! (bool) $this->customer->customerAuth->is_active;
+        $this->customer->customerAuth->forceFill(['is_active' => $active])->save();
+        $this->customer->forceFill(['is_register' => $active])->save();
+        CustomerProfile::query()->where('customer_auth_id', $this->customer->customerAuth->id)->update(['is_active' => $active]);
+        $this->customer->refresh()->load('customerAuth');
+        $this->form['is_register'] = $active;
+        $this->dispatch('flux-admin:toast', type: 'success', message: $active ? 'Portal activated.' : 'Portal deactivated.');
+    }
+
+    public function togglePortalUploadAccess(): void
+    {
+        $this->requirePortalUserAdmin();
+        $allowed = ! (bool) ($this->form['portal_upload_access'] ?? false);
+        $this->customer?->forceFill(['portal_upload_access' => $allowed])->save();
+        if ($this->customer?->customerAuth) {
+            CustomerProfile::query()->where('customer_auth_id', $this->customer->customerAuth->id)->update(['portal_upload_access' => $allowed]);
+        }
+        $this->form['portal_upload_access'] = $allowed;
+        $this->dispatch('flux-admin:toast', type: 'success', message: $allowed ? 'Document uploads allowed on portal and app.' : 'Document uploads disabled.');
+    }
+
+    public function sendPortalCredentials(string $channel = 'both'): void
+    {
+        $this->requirePortalUserAdmin();
+        if (! $this->customer || ! CustomerPortalCredentialIssuer::issueAndNotify($this->customer, $channel)) {
+            $this->dispatch('flux-admin:toast', type: 'danger', message: 'Customer has no email address.');
+            return;
+        }
+        $this->customer->load('customerAuth');
+        $this->dispatch('flux-admin:toast', type: 'success', message: $channel === 'sms' ? 'Credentials sent by SMS.' : ($channel === 'email' ? 'Credentials sent by email.' : 'Credentials sent by email and SMS.'));
+    }
+
+    private function requirePortalUserAdmin(): void
+    {
+        if (! FluxAdminAccess::canManagePortalUsers()) {
+            abort(403);
+        }
     }
 
     /** @param  array<string, mixed>  $payload */

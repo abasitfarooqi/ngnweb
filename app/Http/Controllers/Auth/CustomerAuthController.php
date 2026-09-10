@@ -224,7 +224,7 @@ class CustomerAuthController extends Controller
                 ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
                 ->first();
 
-            if ($user && Hash::check((string) $request->input('password'), (string) $user->password)) {
+            if ($user && $user->is_active && $user->customer?->is_active && $user->customer?->is_register && Hash::check((string) $request->input('password'), (string) $user->password)) {
                 event(new UserLoggedIn($user));
                 $token = $this->issueApiToken($user, $request);
 

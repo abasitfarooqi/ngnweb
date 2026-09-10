@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Support\SupportChatFileRules;
 
 class SupportPortalController extends Controller
 {
@@ -21,12 +22,10 @@ class SupportPortalController extends Controller
             abort(403);
         }
 
-        $conversation = SupportConversation::query()->create([
-            'customer_auth_id' => $customerAuth->id,
-            'title' => 'General enquiry',
-            'topic' => 'General enquiry',
-            'status' => 'open',
-        ]);
+        $conversation = SupportConversation::query()->firstOrCreate(
+            ['customer_auth_id' => $customerAuth->id, 'service_booking_id' => null],
+            ['title' => 'General enquiry', 'topic' => 'General enquiry', 'status' => 'open']
+        );
 
         return redirect()->route('account.support.thread', ['conversationUuid' => $conversation->uuid]);
     }
@@ -75,35 +74,48 @@ class SupportPortalController extends Controller
 
         $validated = $request->validate([
             'body' => ['nullable', 'string', 'max:4000'],
-            'files' => ['nullable', 'array', 'max:5'],
-            'files.*' => ['file', 'max:10240', 'mimes:jpg,jpeg,png,webp,pdf,doc,docx,txt'],
+            'reply_to_message_id' => ['nullable', 'integer'],
+            'files' => ['nullable', 'array', 'max:'.SupportChatFileRules::MAX_FILES],
+            'files.*' => SupportChatFileRules::eachFileRule(),
         ]);
 
         $body = trim((string) ($validated['body'] ?? ''));
         $uploads = $request->file('files', []);
+        if ($uploads !== [] && ! $customerAuth->customer?->portal_upload_access) {
+            return redirect()->route('account.support.thread', ['conversationUuid' => $conversation->uuid])
+                ->withErrors(['files' => 'NGN has not enabled document uploads for this account.']);
+        }
         if ($body === '' && empty($uploads)) {
             return redirect()
                 ->route('account.support.thread', ['conversationUuid' => $conversation->uuid])
                 ->withErrors(['body' => 'Please type a message or attach a file.']);
         }
 
+        $replyTo = ! empty($validated['reply_to_message_id'])
+            ? SupportMessage::query()->where('conversation_id', $conversation->id)->findOrFail((int) $validated['reply_to_message_id'])
+            : null;
+
         $message = SupportMessage::query()->create([
             'conversation_id' => $conversation->id,
             'sender_type' => 'customer',
             'sender_customer_auth_id' => $customerAuth->id,
             'body' => $body !== '' ? $body : null,
+            'reply_to_message_id' => $replyTo?->id,
         ]);
 
         foreach ($uploads as $upload) {
-            $path = $upload->store('support-chat/'.$conversation->uuid, 'public');
+            $originalName = $upload->getClientOriginalName();
+            $mime = $upload->getMimeType();
+            $size = (int) $upload->getSize();
+            $path = $upload->store('support-chat/'.$conversation->uuid, 'local');
 
             SupportAttachment::query()->create([
                 'message_id' => $message->id,
-                'disk' => 'public',
+                'disk' => 'local',
                 'path' => $path,
-                'original_name' => $upload->getClientOriginalName(),
-                'mime' => $upload->getMimeType(),
-                'size' => (int) $upload->getSize(),
+                'original_name' => $originalName,
+                'mime' => $mime,
+                'size' => $size,
                 'uploaded_by_customer_auth_id' => $customerAuth->id,
             ]);
         }
@@ -151,7 +163,8 @@ class SupportPortalController extends Controller
 
         $messages = SupportMessage::query()
             ->where('conversation_id', $conversation->id)
-            ->with(['senderCustomerAuth.customer', 'senderUser', 'attachments'])
+            ->whereNull('deleted_at')
+            ->with(['senderCustomerAuth.customer', 'senderUser', 'attachments' => fn ($q) => $q->whereNull('deleted_at')])
             ->orderBy('id')
             ->get();
 
@@ -159,5 +172,16 @@ class SupportPortalController extends Controller
             ->view('portal.support.partials.thread-messages', compact('messages'))
             ->header('Cache-Control', 'no-store, private, must-revalidate')
             ->header('Pragma', 'no-cache');
+    }
+
+    public function deleteMessage(string $conversationUuid, int $messageId): RedirectResponse
+    {
+        $customerAuth = Auth::guard('customer')->user();
+        $conversation = SupportConversation::query()->where('uuid', $conversationUuid)->where('customer_auth_id', $customerAuth?->id)->firstOrFail();
+        $message = $conversation->messages()->where('id', $messageId)->where('sender_type', 'customer')->where('sender_customer_auth_id', $customerAuth->id)->whereNull('deleted_at')->firstOrFail();
+        $message->update(['deleted_at' => now(), 'deleted_by_user_id' => null, 'deleted_by_role' => 'customer']);
+        $message->attachments()->whereNull('deleted_at')->update(['deleted_at' => now(), 'deleted_by_user_id' => null, 'deleted_by_role' => 'customer']);
+
+        return redirect()->route('account.support.thread', ['conversationUuid' => $conversation->uuid]);
     }
 }

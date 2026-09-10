@@ -2,7 +2,25 @@
     $latestMessageId = (int) ($messages->last()?->id ?? 0);
 @endphp
 
-<div class="space-y-4">
+<style>
+    .portal-chat-wallpaper {
+        position: relative;
+        isolation: isolate;
+        overflow: hidden;
+        background-color: #edf1ef;
+    }
+    .portal-chat-wallpaper::before { content: ''; position: absolute; inset: 0; z-index: -1; background: url('{{ asset('img/watermark.png') }}') center / 520px auto repeat; opacity: .045; mix-blend-mode: multiply; pointer-events: none; }
+    .dark .portal-chat-wallpaper { background-color: #20262d; }
+    .dark .portal-chat-wallpaper::before { opacity: .035; filter: grayscale(1) brightness(1.5); mix-blend-mode: screen; }
+    .portal-chat-bubble { position: relative; }
+    .portal-chat-bubble::after { content: ''; position: absolute; bottom: 0; width: 0; height: 0; border-style: solid; }
+    .portal-chat-bubble.portal-chat-own::after { right: -8px; border-width: 0 0 10px 10px; border-color: transparent transparent #059669 transparent; }
+    .portal-chat-bubble.portal-chat-other::after { left: -8px; border-width: 10px 10px 0 0; border-color: #ffffff transparent transparent transparent; }
+    .dark .portal-chat-bubble.portal-chat-other::after { border-color: #111827 transparent transparent transparent; }
+    .portal-chat-icon { box-shadow: 0 1px 3px rgba(15, 23, 42, .18); }
+</style>
+
+<div class="mx-auto max-w-5xl space-y-5">
     <div
         id="support-thread-live-root"
         class="hidden"
@@ -13,9 +31,11 @@
         data-customer-auth-id="{{ $customerAuthId }}"
     ></div>
 
-    <div class="flex items-center justify-between gap-3">
-        <div>
-            <flux:heading size="xl">{{ $conversation->title ?: 'Support conversation' }}</flux:heading>
+    <div class="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900 sm:p-5">
+        <div class="flex min-w-0 items-center gap-3">
+            <div class="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-brand-red text-white"><flux:icon name="chat-bubble-left-right" class="size-5" /></div>
+            <div class="min-w-0">
+            <flux:heading size="lg" class="truncate">{{ $conversation->title ?: 'Support conversation' }}</flux:heading>
             <p class="mt-1 text-xs text-gray-500">
                 Status: {{ ucfirst(str_replace('_', ' ', (string) $conversation->status)) }}
                 @if(str_starts_with((string) $conversation->topic, 'Notification:'))
@@ -27,10 +47,13 @@
                 @endif
             </p>
         </div>
-        <flux:button href="{{ route('account.support') }}" variant="outline" class="border-brand-red text-brand-red hover:bg-brand-red hover:text-white">
+        </div>
+        <flux:button href="{{ route('account.support') }}" variant="outline" icon="arrow-left" class="rounded-xl border-brand-red text-brand-red hover:bg-brand-red hover:text-white">
             Back to chats
         </flux:button>
     </div>
+
+    <flux:input wire:model.live.debounce.300ms="search" icon="magnifying-glass" placeholder="Search messages in this chat…" />
 
     @if(! empty($notificationUuid))
         <p class="text-sm text-gray-600 dark:text-gray-400">
@@ -39,13 +62,14 @@
         </p>
     @endif
 
-    <flux:card class="p-4">
-        <div id="support-thread-messages-root" wire:ignore class="space-y-3 max-h-[60vh] overflow-y-auto pr-1">
+    <flux:card class="overflow-hidden rounded-2xl border-gray-200 p-0 shadow-sm dark:border-gray-800">
+        <div class="flex items-center gap-2 border-b border-gray-200 bg-gray-50 px-4 py-3 text-xs font-medium text-gray-600 dark:border-gray-800 dark:bg-gray-950 dark:text-gray-300"><flux:icon name="lock-closed" class="size-4" /> Secure NGN support chat</div>
+        <div id="support-thread-messages-root" wire:ignore class="portal-chat-wallpaper max-h-[58vh] min-h-[22rem] space-y-3 overflow-y-auto p-4 sm:p-6">
             @include('portal.support.partials.thread-messages', ['messages' => $messages])
         </div>
     </flux:card>
 
-    <flux:card class="p-4">
+    <flux:card class="rounded-2xl border-gray-200 p-3 shadow-sm dark:border-gray-800 sm:p-4">
         <form
             action="{{ route('account.support.send-message', ['conversationUuid' => $conversation->uuid]) }}"
             method="POST"
@@ -53,35 +77,32 @@
             class="site-form site-form-stack"
         >
             @csrf
-            <flux:field>
-                <flux:label>Message</flux:label>
+            <input type="hidden" name="reply_to_message_id" value="{{ old('reply_to_message_id') }}">
+            <div class="flex items-end gap-2">
+                <div class="min-w-0 flex-1">
                 <textarea
                     name="body"
-                    rows="4"
-                    class="w-full border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-sm text-gray-900 dark:text-gray-100"
+                    rows="1"
+                    class="h-12 w-full resize-none rounded-2xl border border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-900 outline-none transition placeholder:text-gray-400 focus:border-brand-red focus:ring-2 focus:ring-brand-red/10 dark:border-gray-700 dark:bg-gray-950 dark:text-gray-100 dark:placeholder:text-gray-500"
                     placeholder="Write your message..."
                 >{{ old('body') }}</textarea>
-                <p class="text-[11px] text-gray-500 mt-1">Tip: press Shift + Enter to send quickly.</p>
                 @error('body')
                     <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>
                 @enderror
-            </flux:field>
-            <flux:field>
-                <flux:label>Attachments (optional)</flux:label>
-                <input type="file" name="files[]" multiple class="block w-full text-sm text-gray-700 dark:text-gray-300" />
-                <p class="text-xs text-gray-500 mt-1">Up to 5 files, 10MB each. Types allowed: JPG, PNG, WebP, PDF, Word, plain text.</p>
-                @error('files')
-                    <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>
-                @enderror
-                @error('files.*')
-                    <div class="text-xs text-red-600 dark:text-red-400 mt-1">{{ $message }}</div>
-                @enderror
-            </flux:field>
-            <div class="flex justify-end">
-                <flux:button type="submit" variant="filled" class="bg-brand-red text-white hover:bg-brand-red-dark px-6 py-2 font-semibold">
-                    Send
-                </flux:button>
+                </div>
+                <label class="flex h-12 shrink-0 cursor-pointer items-center justify-center gap-2 rounded-full border border-gray-300 bg-gray-50 px-4 text-xs font-medium text-gray-600 transition hover:border-brand-red hover:text-brand-red dark:border-gray-700 dark:bg-gray-950 dark:text-gray-300">
+                    <flux:icon name="paper-clip" class="size-4" /> <span class="hidden sm:inline">Attach</span>
+                    <input type="file" name="files[]" multiple class="sr-only" accept="image/jpeg,image/png,image/webp,application/pdf,.doc,.docx,.xls,.xlsx,video/mp4,video/quicktime,video/webm" />
+                </label>
+                <flux:button type="submit" variant="filled" icon="paper-airplane" class="!m-0 size-12 shrink-0 rounded-full bg-brand-red p-0 text-white shadow-sm hover:bg-brand-red-dark" aria-label="Send message"></flux:button>
             </div>
+            <p class="text-[11px] text-gray-500">Up to 5 files, 100MB each · images, documents, or video.</p>
+            @error('files')
+                <div class="text-xs text-red-600 dark:text-red-400">{{ $message }}</div>
+            @enderror
+            @error('files.*')
+                <div class="text-xs text-red-600 dark:text-red-400">{{ $message }}</div>
+            @enderror
         </form>
     </flux:card>
 </div>

@@ -9,7 +9,11 @@ class CustomerAuthenticate
 {
     public function handle($request, Closure $next, ...$guards)
     {
-        if (! Auth::guard('customer')->check()) {
+        $customerAuth = Auth::guard('customer')->user();
+        if (! $customerAuth || ! $customerAuth->is_active || ! $customerAuth->customer?->is_active || ! $customerAuth->customer?->is_register) {
+            if ($customerAuth) {
+                Auth::guard('customer')->logout();
+            }
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Unauthenticated.'], 401);
             }

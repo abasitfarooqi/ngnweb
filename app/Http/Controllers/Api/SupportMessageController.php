@@ -19,6 +19,9 @@ class SupportMessageController extends Controller
         if (! $customerAuth) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
+        if (! $customerAuth->is_active || ! $customerAuth->customer?->is_active || ! $customerAuth->customer?->is_register) {
+            return response()->json(['message' => 'Portal access is inactive.'], 403);
+        }
 
         $attachment = SupportAttachment::query()
             ->with('message.conversation')
@@ -27,8 +30,11 @@ class SupportMessageController extends Controller
         if ((int) $attachment->message->conversation->customer_auth_id !== (int) $customerAuth->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
+        if ($attachment->deleted_at) {
+            return response()->json(['message' => 'File not found'], 404);
+        }
 
-        $disk = $attachment->disk ?: 'public';
+        $disk = $attachment->disk ?: 'local';
         if (! Storage::disk($disk)->exists($attachment->path)) {
             return response()->json(['message' => 'File not found'], 404);
         }
@@ -52,23 +58,26 @@ class SupportMessageController extends Controller
         }
 
         $data = $request->validate([
-            'files' => ['required', 'array', 'max:5'],
+            'files' => ['required', 'array', 'max:'.SupportChatFileRules::MAX_FILES],
             'files.*' => SupportChatFileRules::eachFileRule(),
         ]);
 
         foreach ($data['files'] as $file) {
-            $path = $file->store('support-chat/'.$message->conversation->uuid, 'public');
+            $originalName = $file->getClientOriginalName();
+            $mime = $file->getMimeType();
+            $size = (int) $file->getSize();
+            $path = $file->store('support-chat/'.$message->conversation->uuid, 'local');
             SupportAttachment::query()->create([
                 'message_id' => $message->id,
-                'disk' => 'public',
+                'disk' => 'local',
                 'path' => $path,
-                'original_name' => $file->getClientOriginalName(),
-                'mime' => $file->getMimeType(),
-                'size' => (int) $file->getSize(),
+                'original_name' => $originalName,
+                'mime' => $mime,
+                'size' => $size,
                 'uploaded_by_customer_auth_id' => $customerAuth->id,
             ]);
         }
 
-        return new SupportMessageResource($message->fresh(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments']));
+        return new SupportMessageResource($message->fresh(['conversation', 'senderCustomerAuth.customer', 'senderUser', 'attachments' => fn ($q) => $q->whereNull('deleted_at')]));
     }
 }
