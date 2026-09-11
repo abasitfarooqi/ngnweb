@@ -24,6 +24,7 @@
             <flux:error name="notifyEmail" />
             <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">If you enter an email, we store your registration and next MOT date after a successful DVLA lookup.</p>
         </flux:field>
+        <x-site.partials.contact-spam-fields />
         <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark hover:text-white" wire:loading.attr="disabled">
             <span wire:loading.remove wire:target="checkMOT">Check MOT status</span>
             <span wire:loading wire:target="checkMOT">Checking…</span>

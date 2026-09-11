@@ -205,8 +205,6 @@ class Kernel extends ConsoleKernel
             ->cron('30 7 10 2,5,8,11 *')
             ->description('Sends the quarterly vehicle visits report on the 10th of February, May, August, and November at 7:30 AM (reports last 3 months).');
 
-        $schedule->command('email:due-invoices')->dailyAt('09:00');
-
         // $schedule->command('agreement:archive-pending-pdfs')
         //     ->everyFiveMinutes()
         //     ->description('Upload signed rental + finance contract PDFs to private DO Spaces.');

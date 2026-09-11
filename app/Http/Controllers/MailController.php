@@ -81,8 +81,14 @@ class MailController extends Controller
     // New method for sending booking confirmation emails
     public function sendBookingConfirmation($booking, bool $internalUseContactSubmission = false): void
     {
-        if (! empty($booking->email)) {
-            Mail::to($booking->email)
+        $customerAuth = auth('customer')->user();
+        $isVerifiedCustomerRecipient = $customerAuth
+            && method_exists($customerAuth, 'hasVerifiedEmail')
+            && $customerAuth->hasVerifiedEmail()
+            && mb_strtolower(trim((string) $customerAuth->email)) === mb_strtolower(trim((string) $booking->email));
+
+        if (! empty($booking->email) && ($isVerifiedCustomerRecipient || config('mail.guest_external_confirmations', false))) {
+            Mail::mailer('bulk')->to($booking->email)
                 ->send(new BookingConfirmation($booking));
         }
 

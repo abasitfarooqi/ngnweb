@@ -481,12 +481,18 @@ Route::get('/c/wm-contract', [MotorcycleDeliveryController::class, 'signatureCon
 
 // Motorcycle Delivery / Recovery (operational)
 Route::get('/motorcycle-delivery', \App\Livewire\Site\Recovery\Delivery::class)->name('motorcycle.delivery');
-Route::match(['get', 'post'], '/motorcycle-delivery/store', [MotorcycleDeliveryController::class, 'storeOrder'])->name('motorcycle.delivery.store');
-Route::post('/motorcycle-delivery/complete', [MotorcycleDeliveryController::class, 'completeOrder'])->name('motorcycle.delivery.complete');
+Route::match(['get', 'post'], '/motorcycle-delivery/store', [MotorcycleDeliveryController::class, 'storeOrder'])
+    ->middleware(['throttle:public-form', 'public.form.security'])
+    ->name('motorcycle.delivery.store');
+Route::post('/motorcycle-delivery/complete', [MotorcycleDeliveryController::class, 'completeOrder'])
+    ->middleware(['throttle:public-form', 'public.form.security'])
+    ->name('motorcycle.delivery.complete');
 Route::get('/motorcycle-delivery/success', \App\Livewire\Site\Recovery\Delivery::class)->name('motorcycle.delivery.success');
 Route::get('/motorcycle-delivery/refresh-csrf', [MotorcycleDeliveryController::class, 'refreshCsrfToken'])->name('motorcycle.delivery.refresh-csrf');
 Route::get('/motorbike-recovery/order', \App\Livewire\Site\Recovery\Index::class)->name('motorbike.recovery.order');
-Route::post('/motorbike-recovery/order', [MotorcycleDeliveryController::class, 'submitOrder'])->name('submit.order');
+Route::post('/motorbike-recovery/order', [MotorcycleDeliveryController::class, 'submitOrder'])
+    ->middleware(['throttle:public-form', 'public.form.security'])
+    ->name('submit.order');
 Route::get('/motorbike-recovery/completed', [MotorcycleDeliveryController::class, 'successRecovery'])->name('motorbike.recovery.completed');
 
 // Vehicle Estimator
@@ -783,8 +789,11 @@ Route::get('/client-motorcycle/{id}', [DashboardController::class, 'ClientMotorc
 Route::get('/client-upload-files/{id}', [DashboardController::class, 'createForm']);
 Route::post('/client-upload-file/{id}', [DashboardController::class, 'fileUpload'])->name('client.fileUpload');
 
-Route::post('/mail', [MailController::class, 'sendMail']);
-Route::post('/store/message', [MailController::class, 'storeMessage'])->name('store.message');
+Route::post('/mail', [MailController::class, 'sendMail'])
+    ->middleware(['throttle:public-form', 'public.form.security']);
+Route::post('/store/message', [MailController::class, 'storeMessage'])
+    ->middleware(['throttle:public-form', 'public.form.security'])
+    ->name('store.message');
 Route::get('/users', [UserController::class, 'index'])->name('users');
 Route::get('/users/{id}', [UserController::class, 'show'])->name('show.user');
 Route::get('/users-create', [UserController::class, 'create'])->name('create.user');
@@ -829,5 +838,9 @@ Route::permanentRedirect('/finance/apply/complete', '/finance');
 
 // Service-enquiry legacy alias (GET served by Livewire site.service.booking, POST still handled by controller)
 Route::get('/book-service', fn () => redirect('/service-enquiry-form', 301))->name('book-service');
-Route::post('/service-enquiry-form', [\App\Http\Controllers\Welcome\ContactController::class, 'handleBookingForm'])->name('handle-booking');
-Route::post('/service-enquiry-form-vue', [\App\Http\Controllers\Welcome\ContactController::class, 'handleEnquiryFormVue'])->name('handle-enquiry-form-vue');
+Route::post('/service-enquiry-form', [\App\Http\Controllers\Welcome\ContactController::class, 'handleBookingForm'])
+    ->middleware(['throttle:public-form', 'public.form.security'])
+    ->name('handle-booking');
+Route::post('/service-enquiry-form-vue', [\App\Http\Controllers\Welcome\ContactController::class, 'handleEnquiryFormVue'])
+    ->middleware(['throttle:public-form', 'public.form.security'])
+    ->name('handle-enquiry-form-vue');

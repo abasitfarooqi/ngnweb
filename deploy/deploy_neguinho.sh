@@ -232,9 +232,15 @@ fix_shared_environment() {
   fi
 
   set_env_value "$BASE/shared/.env" "APP_URL" "$CANONICAL_URL"
+  # Keep legitimate customer confirmations enabled through the protected
+  # bulk mailer. Do not overwrite the existing bulk SMTP credentials/port.
+  set_env_value "$BASE/shared/.env" "CONTACT_CAPTCHA_ENABLED" "true"
+  set_env_value "$BASE/shared/.env" "MAIL_GUEST_EXTERNAL_CONFIRMATIONS" "true"
   remove_env_key "$BASE/shared/.env" "ASSET_URL"
 
   echo "APP_URL set to $CANONICAL_URL"
+  echo "CONTACT_CAPTCHA_ENABLED=true"
+  echo "MAIL_GUEST_EXTERNAL_CONFIRMATIONS=true"
   echo "ASSET_URL removed so Backpack basset can emit relative same-origin URLs."
 }
 

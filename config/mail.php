@@ -127,6 +127,11 @@ return [
 
     'contact_inbox' => env('MAIL_CONTACT_INBOX', 'customerservice@neguinhomotors.co.uk'),
 
+    // Public forms may send a confirmation to the address supplied by the
+    // customer, but only after the route's CAPTCHA, honeypot, rate-limit and
+    // duplicate-payload checks. These confirmations use the bulk stream.
+    'guest_external_confirmations' => (bool) env('MAIL_GUEST_EXTERNAL_CONFIRMATIONS', true),
+
     /*
     | Recipients when a rental is ended with proceed-anyway outstanding balances.
     | Comma-separated. Staff who ended it are also notified when they have an email.

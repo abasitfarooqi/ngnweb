@@ -116,6 +116,7 @@
                     </x-site.form-grid>
                     <label class="flex items-start gap-2 text-sm text-gray-600 dark:text-gray-300"><input type="checkbox" wire:model="terms" class="mt-1"><span>I confirm all details are correct and authorise this order.</span></label>
                     <flux:error name="terms" />
+                    <x-site.partials.contact-spam-fields />
                 </section>
 
                 <flux:button type="submit" variant="filled" class="w-full bg-brand-red text-white hover:bg-red-700" wire:loading.attr="disabled">

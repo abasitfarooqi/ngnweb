@@ -7,9 +7,12 @@ use App\Models\Branch;
 use App\Models\MotorbikeDeliveryOrderEnquiries;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Index extends Component
 {
+    use HasContactSpamProtection;
+
     public string $name = '';
     public string $email = '';
     public string $phone = '';
@@ -37,7 +40,7 @@ class Index extends Component
 
     public function mount(): void
     {
-        // No default branch — customers choose or enter a custom address
+        $this->startContactSpamProtection();
     }
 
     public function updatedBranchId($branchId): void
@@ -54,7 +57,8 @@ class Index extends Component
 
     public function submitRequest(): void
     {
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
 
         $enquiry = MotorbikeDeliveryOrderEnquiries::query()->create([
             'order_id' => 'REC-'.now()->format('YmdHis').'-'.random_int(100, 999),
@@ -93,7 +97,14 @@ class Index extends Component
         ];
 
         try {
-            Mail::to([$this->email, 'support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
+            Mail::mailer('bulk')->to($this->email)
+                ->send(new MotorcycleRecoveryMail($this->distanceMiles, $this->fromAddress, $this->toAddress, $userDetails));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        try {
+            Mail::to(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
                 ->send(new MotorcycleRecoveryMail($this->distanceMiles, $this->fromAddress, $this->toAddress, $userDetails));
         } catch (\Throwable $e) {
             report($e);
@@ -102,6 +113,7 @@ class Index extends Component
         session()->flash('success', 'Recovery request sent. Our team will contact you shortly.');
 
         $this->reset(['name', 'email', 'phone', 'fromAddress', 'bikeReg', 'message', 'terms', 'distanceMiles']);
+        $this->resetContactSpamProtection();
         $this->dispatch('recovery-request-created', enquiryId: $enquiry->id);
     }
 

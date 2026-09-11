@@ -60,6 +60,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'auth.customer' => \App\Http\Middleware\CustomerAuthenticate::class,
         'customer' => \App\Http\Middleware\CustomerAuthenticate::class,
+        'public.form.security' => \App\Http\Middleware\PublicFormSecurity::class,
     ];
 
     protected function bootstrappers()

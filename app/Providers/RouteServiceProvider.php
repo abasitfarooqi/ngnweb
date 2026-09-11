@@ -18,6 +18,17 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(1024)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Public forms can create records and, in some legacy paths, trigger
+        // outbound mail. Keep their abuse budget separate from read-only API
+        // traffic; a generic high API limit is not form protection.
+        RateLimiter::for('public-form', function (Request $request) {
+            return Limit::perMinute(10)
+                ->by(hash('sha256', (string) $request->ip()))
+                ->response(fn () => response()->json([
+                    'message' => 'Too many submissions. Please try again later.',
+                ], 429));
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

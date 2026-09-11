@@ -9,4 +9,5 @@ return [
         'decay_seconds' => 600,
     ],
     'duplicate_seconds' => 180,
+    'api_duplicate_seconds' => 180,
 ];

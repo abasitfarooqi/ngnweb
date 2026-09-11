@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Mail\MotorbikeDeliveryOrderEnquiryInternal;
-use App\Mail\MotorbikeTransportDeliveryOrderEnquiry;
 use App\Mail\MotorcycleRecoveryMail;
+use App\Mail\MotorbikeTransportDeliveryOrderEnquiry;
 use App\Models\ContractAccess;
 use App\Models\Customer;
 use App\Models\DeliveryVehicleType;
@@ -82,13 +82,10 @@ class MotorcycleDeliveryController extends Controller
             'message' => $validatedData['message'],
         ];
 
-        $recipients = [$validatedData['email']];
-
         try {
-
-            Mail::to($recipients)
-                ->bcc('support@neguinhomotors.co.uk')
-                ->bcc('admin@neguinhomotors.co.uk')
+            Mail::mailer('bulk')->to($validatedData['email'])
+                ->send(new MotorcycleRecoveryMail($totalDistance, $validatedData['from_address'], $validatedData['to_address'], $userDetails));
+            Mail::to(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
                 ->send(new MotorcycleRecoveryMail($totalDistance, $validatedData['from_address'], $validatedData['to_address'], $userDetails));
 
         } catch (\Exception $e) {
@@ -547,18 +544,6 @@ class MotorcycleDeliveryController extends Controller
             'vehicle_type_id' => $vehicleTypeId,
         ];
 
-        // Customer Email
-        if (! app()->environment('local')) {
-            \Log::info('Sending email to customer...');
-            Mail::to($validatedData['email'])
-                ->bcc('support@neguinhomotors.co.uk')
-                ->bcc('admin@neguinhomotors.co.uk')
-                ->send(new MotorbikeTransportDeliveryOrderEnquiry($emailData));
-        } else {
-            Mail::to(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
-                ->send(new MotorbikeTransportDeliveryOrderEnquiry($emailData));
-        }
-
         // Save the order enquiry in the database
         $orderEnquiry = new MotorbikeDeliveryOrderEnquiries;
         $orderEnquiry->order_id = $order->id;
@@ -593,16 +578,11 @@ class MotorcycleDeliveryController extends Controller
         $emailData = (object) array_merge($emailData, ['id' => $orderEnquiry->id]);
         \Log::info('Email data: '.json_encode($emailData));
 
-        // Admin Email - Only send in non-local environment
-        if (! app()->environment('local')) {
-            Mail::to('customerservice@neguinhomotors.co.uk')
-                ->bcc('support@neguinhomotors.co.uk')
-                ->bcc('admin@neguinhomotors.co.uk')
-                ->send(new MotorbikeDeliveryOrderEnquiryInternal($emailData));
-        } else {
-            Mail::to(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
-                ->send(new MotorbikeDeliveryOrderEnquiryInternal($emailData));
-        }
+        // Guest submissions are sent internally only. A verified customer
+        // confirmation can be added through the authenticated workflow.
+        Mail::to('customerservice@neguinhomotors.co.uk')
+            ->bcc(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
+            ->send(new MotorbikeDeliveryOrderEnquiryInternal($emailData));
 
         // Clear session data after successful order
         Session::forget(['pickup_coords', 'dropoff_coords', 'distance', 'pickup_postcode', 'dropoff_postcode']);

@@ -13,9 +13,12 @@ use App\Support\BookingSchedule;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Delivery extends Component
 {
+    use HasContactSpamProtection;
+
     public int $step = 1;
     public string $pickupPostcode = '';
     public string $dropoffPostcode = '';
@@ -45,6 +48,7 @@ class Delivery extends Component
 
     public function mount(): void
     {
+        $this->startContactSpamProtection();
         $this->pickUpDate = BookingSchedule::defaultPickUpDate();
         $this->pickUpTime = BookingSchedule::defaultPickUpTime();
         $this->syncPickUpDatetime();
@@ -152,7 +156,8 @@ class Delivery extends Component
     public function submitOrder(): void
     {
         $this->syncPickUpDatetime();
-        $this->validate();
+        $validated = $this->validate();
+        $this->protectContactSubmission($validated);
 
         if ($this->distance <= 0 || $this->pickupLat === 0.0 || $this->dropoffLat === 0.0) {
             $this->addError('pickupPostcode', 'Please complete step 1 and proceed with valid postcodes.');
@@ -247,9 +252,13 @@ class Delivery extends Component
         $orderObject = (object) $emailData;
 
         try {
-            Mail::to(app()->environment('local') ? ['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'] : $this->email)
-                ->bcc(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
+            Mail::mailer('bulk')->to($emailData['email'])
                 ->send(new MotorbikeTransportDeliveryOrderEnquiry($orderObject));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        try {
             Mail::to(app()->environment('local') ? ['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'] : 'customerservice@neguinhomotors.co.uk')
                 ->bcc(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
                 ->send(new MotorbikeDeliveryOrderEnquiryInternal($orderObject));
@@ -259,6 +268,7 @@ class Delivery extends Component
 
         session()->flash('success', 'Delivery order submitted successfully. We will contact you shortly.');
         $this->startOver();
+        $this->resetContactSpamProtection();
     }
 
     public function render()

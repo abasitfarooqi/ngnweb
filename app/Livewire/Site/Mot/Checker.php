@@ -7,9 +7,12 @@ use App\Services\Communications\TransactionalEmailPolicy;
 use App\Services\DvlaVehicleEnquiryService;
 use Carbon\Carbon;
 use Livewire\Component;
+use App\Livewire\Concerns\HasContactSpamProtection;
 
 class Checker extends Component
 {
+    use HasContactSpamProtection;
+
     public $regNo = '';
 
     public $notifyEmail = '';
@@ -24,11 +27,24 @@ class Checker extends Component
         'notifyEmail' => 'nullable|email|max:255',
     ];
 
+    public function mount(): void
+    {
+        $this->startContactSpamProtection();
+    }
+
     public function checkMOT(DvlaVehicleEnquiryService $dvla)
     {
         $this->error = null;
         $this->motData = null;
         $this->validate();
+
+        if (trim((string) $this->notifyEmail) !== '') {
+            $this->protectContactSubmission([
+                'email' => $this->notifyEmail,
+                'phone' => '',
+                'message' => $this->regNo,
+            ]);
+        }
 
         $this->regNo = strtoupper(str_replace(' ', '', trim($this->regNo)));
 

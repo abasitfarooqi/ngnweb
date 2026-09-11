@@ -278,7 +278,10 @@ Route::prefix('v1/shop')->group(function () {
         ->middleware('auth:customer');
 
     // Service Enquiry Form submit
-    Route::post('/service-enquiry-form-vue', [ContactController::class, 'handleEnquiryFormVue'])->name('api.handle-enquiry-form-vue');
+    Route::post('/service-enquiry-form-vue', [ContactController::class, 'handleEnquiryFormVue'])
+        ->middleware('throttle:public-form')
+        ->middleware('public.form.security')
+        ->name('api.handle-enquiry-form-vue');
 });
 // ECOMMERCE / V1 API / 28/12/2024 api.php >> END
 // ECOMMERCE Customer Auth Routes / V1 API / 28/12/2024 >> START
@@ -347,7 +350,7 @@ Route::prefix('v1/staff')->middleware('auth:sanctum')->group(function () {
 
 Route::post('v1/staff/login', [StaffAuthController::class, 'login']);
 
-Route::prefix('v1/mobile')->group(function () {
+Route::prefix('v1/mobile')->middleware('public.form.security')->group(function () {
     Route::get('system-map', [MobileBootstrapController::class, 'systemMap']);
     Route::get('forms-blueprint', [MobileBootstrapController::class, 'formsBlueprint']);
     Route::get('content/page-manifest', [MobileExperienceController::class, 'pageManifest']);
@@ -403,30 +406,30 @@ Route::prefix('v1/mobile')->group(function () {
     Route::get('services/repairs/comparison', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'repairs/comparison');
     Route::get('services/recovery', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'recovery');
     Route::get('services/rentals', [MobilePublicFormsController::class, 'serviceContent'])->defaults('slug', 'rentals');
-    Route::post('mot/check', [MobilePublicFormsController::class, 'motCheck']);
-    Route::post('mot/alerts', [MobilePublicFormsController::class, 'motAlerts']);
+    Route::post('mot/check', [MobilePublicFormsController::class, 'motCheck'])->middleware('throttle:public-form');
+    Route::post('mot/alerts', [MobilePublicFormsController::class, 'motAlerts'])->middleware('throttle:public-form');
     Route::get('finance/content', [MobilePublicFormsController::class, 'financeContent']);
     Route::post('finance/calculate', [MobilePublicFormsController::class, 'financeCalculate']);
-    Route::post('finance/apply', [MobilePublicFormsController::class, 'financeApply']);
-    Route::post('contact/call-back', [MobilePublicFormsController::class, 'contactCallback']);
-    Route::post('contact/trade-account', [MobilePublicFormsController::class, 'contactTradeAccount']);
-    Route::post('contact/service-booking', [MobilePublicFormsController::class, 'contactServiceBooking']);
-    Route::post('contact/general', [MobilePublicFormsController::class, 'contactGeneral']);
-    Route::post('enquiries/sales', [MobilePublicFormsController::class, 'salesEnquiry']);
-    Route::post('rentals/{id}/enquiry', [MobilePublicFormsController::class, 'rentalEnquiry']);
-    Route::post('bikes/{type}/{id}/enquiry', [MobilePublicFormsController::class, 'bikeEnquiry'])->where('type', 'new|used');
-    Route::post('mot/book', [MobilePublicFormsController::class, 'motBook']);
+    Route::post('finance/apply', [MobilePublicFormsController::class, 'financeApply'])->middleware('throttle:public-form');
+    Route::post('contact/call-back', [MobilePublicFormsController::class, 'contactCallback'])->middleware('throttle:public-form');
+    Route::post('contact/trade-account', [MobilePublicFormsController::class, 'contactTradeAccount'])->middleware('throttle:public-form');
+    Route::post('contact/service-booking', [MobilePublicFormsController::class, 'contactServiceBooking'])->middleware('throttle:public-form');
+    Route::post('contact/general', [MobilePublicFormsController::class, 'contactGeneral'])->middleware('throttle:public-form');
+    Route::post('enquiries/sales', [MobilePublicFormsController::class, 'salesEnquiry'])->middleware('throttle:public-form');
+    Route::post('rentals/{id}/enquiry', [MobilePublicFormsController::class, 'rentalEnquiry'])->middleware('throttle:public-form');
+    Route::post('bikes/{type}/{id}/enquiry', [MobilePublicFormsController::class, 'bikeEnquiry'])->middleware('throttle:public-form')->where('type', 'new|used');
+    Route::post('mot/book', [MobilePublicFormsController::class, 'motBook'])->middleware('throttle:public-form');
     Route::get('recovery/vehicle-types', [MobilePublicFormsController::class, 'recoveryVehicleTypes']);
     Route::post('recovery/distance', [MobilePublicFormsController::class, 'recoveryDistance']);
     Route::post('recovery/quote', [MobilePublicFormsController::class, 'recoveryQuotePublic']);
-    Route::post('recovery/request', [MobilePublicFormsController::class, 'recoveryRequestPublic']);
+    Route::post('recovery/request', [MobilePublicFormsController::class, 'recoveryRequestPublic'])->middleware('throttle:public-form');
 
     Route::get('search', [MobileMiscController::class, 'search']);
-    Route::post('newsletter/subscribe', [MobileMiscController::class, 'newsletterSubscribe']);
+    Route::post('newsletter/subscribe', [MobileMiscController::class, 'newsletterSubscribe'])->middleware('throttle:public-form');
     Route::get('surveys/{id}', [MobileMiscController::class, 'surveyShow'])->whereNumber('id');
-    Route::post('surveys/submit', [MobileMiscController::class, 'surveySubmit']);
-    Route::post('partners/subscribe', [MobileMiscController::class, 'partnerSubscribe']);
-    Route::post('accident-management/claim', [MobileMiscController::class, 'accidentClaim']);
+    Route::post('surveys/submit', [MobileMiscController::class, 'surveySubmit'])->middleware('throttle:public-form');
+    Route::post('partners/subscribe', [MobileMiscController::class, 'partnerSubscribe'])->middleware('throttle:public-form');
+    Route::post('accident-management/claim', [MobileMiscController::class, 'accidentClaim'])->middleware('throttle:public-form');
     Route::post('chat/agent/message', [ChatAgentController::class, 'send']);
     Route::get('paypal/return', [MobilePaymentsController::class, 'paypalReturnBridge'])->name('mobile.paypal.return');
     Route::prefix('auth/customer')->group(function () {

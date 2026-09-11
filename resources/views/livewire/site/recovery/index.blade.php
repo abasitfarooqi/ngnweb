@@ -105,6 +105,7 @@
                     <span>I agree to the recovery terms and conditions above, and confirm I am authorised for this motorcycle.</span>
                 </label>
                 <flux:error name="terms" />
+                <x-site.partials.contact-spam-fields />
                 <flux:button type="submit" variant="filled" size="base" class="w-full bg-brand-green text-white hover:bg-brand-green-dark">
                     Submit Recovery Request
                 </flux:button>
