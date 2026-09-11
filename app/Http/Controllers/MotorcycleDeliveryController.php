@@ -578,8 +578,16 @@ class MotorcycleDeliveryController extends Controller
         $emailData = (object) array_merge($emailData, ['id' => $orderEnquiry->id]);
         \Log::info('Email data: '.json_encode($emailData));
 
-        // Guest submissions are sent internally only. A verified customer
-        // confirmation can be added through the authenticated workflow.
+        // Preserve the customer confirmation, but send it through the Bulk
+        // stream. The public route is protected by CAPTCHA, honeypot,
+        // rate-limit and duplicate-submission middleware.
+        try {
+            Mail::mailer('bulk')->to($validatedData['email'])
+                ->send(new MotorbikeTransportDeliveryOrderEnquiry($emailData));
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
         Mail::to('customerservice@neguinhomotors.co.uk')
             ->bcc(['support@neguinhomotors.co.uk', 'admin@neguinhomotors.co.uk'])
             ->send(new MotorbikeDeliveryOrderEnquiryInternal($emailData));
