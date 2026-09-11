@@ -109,27 +109,32 @@ class SaleForm extends Component
         ];
     }
 
-    public function updatingMotorbikeSearch(): void
+    /**
+     * Livewire's `updating*` hook runs before the new input value is assigned.
+     * That made paste/search requests use the previous value (an empty value
+     * when a registration was pasted), so the suggestions appeared one key
+     * behind or not at all. Use the `updated*` hook so the current value is
+     * always searched.
+     */
+    public function updatedMotorbikeSearch(): void
     {
-        if (strlen($this->motorbikeSearch) < 2) {
+        $term = trim((string) $this->motorbikeSearch);
+        if (strlen($term) < 1) {
             $this->motorbikeSuggestions = [];
 
             return;
         }
 
-        $query = Motorbike::query()
-            ->where('reg_no', 'like', '%'.$this->motorbikeSearch.'%');
+        // Registrations may be stored with spaces and pasted without them.
+        // Compare a compact, upper-case value so both forms match reliably.
+        $compact = strtoupper(preg_replace('/\s+/', '', $term) ?? $term);
 
-        // Match Backpack create: exclude bikes already on a finance application.
-        if (! ($this->motorbikesSale && $this->motorbikesSale->exists)) {
-            $query->whereNotIn('id', function ($sub) {
-                $sub->select('motorbike_id')
-                    ->from('application_items')
-                    ->whereNotNull('motorbike_id');
-            });
-        }
-
-        $this->motorbikeSuggestions = $query
+        $this->motorbikeSuggestions = Motorbike::query()
+            ->whereRaw("REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') LIKE ?", ['%'.$compact.'%'])
+            ->orderByRaw(
+                "CASE WHEN REPLACE(UPPER(COALESCE(reg_no, '')), ' ', '') = ? THEN 0 ELSE 1 END",
+                [$compact]
+            )
             ->limit(8)
             ->get(['id', 'reg_no'])
             ->map(fn ($m) => [
@@ -151,8 +156,8 @@ class SaleForm extends Component
             return;
         }
 
-        if ($this->motorbikeSuggestions === [] && strlen($this->motorbikeSearch) >= 2) {
-            $this->updatingMotorbikeSearch();
+        if ($this->motorbikeSuggestions === [] && strlen(trim($this->motorbikeSearch)) >= 1) {
+            $this->updatedMotorbikeSearch();
         }
 
         if ($this->motorbikeSuggestions === []) {
