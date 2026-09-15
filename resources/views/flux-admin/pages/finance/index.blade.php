@@ -66,6 +66,7 @@
                     <flux:select.option value="20">20 per page</flux:select.option>
                     <flux:select.option value="50">50 per page</flux:select.option>
                     <flux:select.option value="100">100 per page</flux:select.option>
+                    <flux:select.option value="0">All</flux:select.option>
                 </flux:select>
             </div>
             </div>

@@ -1,6 +1,9 @@
 <?php
 
 return [
+    'pcn_reminders' => [
+        'communications_url' => env('PCN_REMINDER_COMMUNICATIONS_URL', 'http://127.0.0.1:8001/flux-admin/communications'),
+    ],
 
     'twilio' => [
         'sid' => env('TWILIO_SID'),

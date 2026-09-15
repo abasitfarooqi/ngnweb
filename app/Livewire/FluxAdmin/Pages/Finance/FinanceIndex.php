@@ -324,7 +324,8 @@ class FinanceIndex extends Component
 
     protected function exportQuery(): Builder
     {
-        return $this->buildQuery();
+        // Export every row matching the active filters, independent of the current page.
+        return $this->buildQuery()->orderBy($this->sortField, $this->sortDirection);
     }
 
     protected function exportColumns(): array
@@ -370,7 +371,7 @@ class FinanceIndex extends Component
     {
         $applications = $this->buildQuery()
             ->orderBy($this->sortField, $this->sortDirection)
-            ->paginate($this->perPage);
+            ->paginate($this->perPage > 0 ? $this->perPage : 999999);
 
         return view('flux-admin.pages.finance.index', [
             'applications' => $applications,

@@ -4,6 +4,7 @@ namespace App\Livewire\FluxAdmin\Pages\Communications;
 
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Models\Communication;
+use App\Models\CommunicationStaffRead;
 use App\Models\CustomerAuth;
 use App\Models\SupportConversation;
 use App\Services\Communications\CommunicationEnquiryStarter;
@@ -45,6 +46,17 @@ class CommunicationSentShow extends Component
         }
 
         $this->communication = $communication->load(['deliveries', 'recipients', 'definition', 'attachments']);
+        if (Schema::hasTable('communication_staff_reads') && Auth::id()) {
+            CommunicationStaffRead::query()->firstOrCreate([
+                'communication_id' => $this->communication->id,
+                'user_id' => Auth::id(),
+            ], ['opened_at' => now()]);
+        }
+        if (Schema::hasTable('communication_staff_reads')) {
+            $this->communication->load('staffReads.user');
+        } else {
+            $this->communication->setRelation('staffReads', collect());
+        }
         $this->loadReplies();
     }
 
@@ -128,6 +140,19 @@ class CommunicationSentShow extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Shown to staff again.');
     }
 
+    public function markAsDealt(bool $dealt): void
+    {
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
+        abort_unless(Schema::hasTable('communication_staff_reads'), 503, 'Run the staff notification migration first.');
+
+        $read = CommunicationStaffRead::query()->firstOrCreate([
+            'communication_id' => $this->communication->id,
+            'user_id' => FluxAdminAccess::user()?->getAuthIdentifier(),
+        ], ['opened_at' => now()]);
+        $read->forceFill(['dealt_at' => $dealt ? now() : null])->save();
+        $this->communication->load('staffReads.user');
+    }
+
     public function downloadPdf(): void
     {
         abort_unless(FluxAdminAccess::canManageCommunications() && self::PDF_EXPORT_READY, 403);
@@ -136,6 +161,9 @@ class CommunicationSentShow extends Component
     public function render()
     {
         $this->communication->loadMissing(['deliveries', 'recipients', 'definition', 'attachments']);
+        if (Schema::hasTable('communication_staff_reads')) {
+            $this->communication->load('staffReads.user');
+        }
         $this->loadReplies();
 
         $enquiry = $this->enquiryConversation();
@@ -153,6 +181,7 @@ class CommunicationSentShow extends Component
                 && (int) ($this->communication->customer_auth_id
                     ?: $this->communication->recipients()->value('customer_auth_id')) > 0,
             'hideReady' => Schema::hasColumn('communications', 'staff_hidden_at'),
+            'staffReadReady' => Schema::hasTable('communication_staff_reads'),
         ]));
     }
 

@@ -126,7 +126,7 @@ class Kernel extends ConsoleKernel
 
         // Send Due Invoices Reminders
         $schedule->command('email:due-invoices')
-            ->dailyAt('01:25');
+            ->dailyAt('09:00');
 
         // // Global Stock Update DUE TO NONE USE
         // $schedule->command('app:global-stock')
@@ -165,10 +165,10 @@ class Kernel extends ConsoleKernel
             ->weeklyOn(1, '09:25')
             ->description('Sends weekly JudoPay rental declined payments report on Mondays at 9:25 AM.');
 
-        // Send PCN Reminders
-        // $schedule->command('app:send-pcn-reminders')
-        // ->weekly()
-        // ->at('19:00');
+        // Send PCN staff follow-up reminders daily at 01:10 (the 01:00 slot is used by other jobs).
+        $schedule->command('app:send-pcn-reminders')
+            ->dailyAt('01:10')
+            ->description('Remind Catford staff about unpaid PCNs 12 days after contravention.');
 
         // Populate MOT Notifier
         $schedule->command('mot:populate-notifier')

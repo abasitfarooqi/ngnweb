@@ -298,6 +298,7 @@ Route::prefix('v1/customer')->group(function () {
     Route::prefix('communications')->middleware('auth:customer,sanctum')->group(function () {
         Route::get('/', [CustomerCommunicationController::class, 'index']);
         Route::get('unread-count', [CustomerCommunicationController::class, 'unreadCount']);
+        Route::post('read-all', [CustomerCommunicationController::class, 'markAllRead']);
         Route::get('{communication}', [CustomerCommunicationController::class, 'show']);
         Route::post('{communication}/read', [CustomerCommunicationController::class, 'markRead']);
         Route::post('{communication}/unread', [CustomerCommunicationController::class, 'markUnread']);
@@ -525,6 +526,7 @@ Route::prefix('v1/mobile')->middleware('public.form.security')->group(function (
         Route::prefix('communications')->group(function () {
             Route::get('/', [CustomerCommunicationController::class, 'index']);
             Route::get('unread-count', [CustomerCommunicationController::class, 'unreadCount']);
+            Route::post('read-all', [CustomerCommunicationController::class, 'markAllRead']);
             Route::get('{communication}', [CustomerCommunicationController::class, 'show']);
             Route::post('{communication}/read', [CustomerCommunicationController::class, 'markRead']);
             Route::post('{communication}/unread', [CustomerCommunicationController::class, 'markUnread']);

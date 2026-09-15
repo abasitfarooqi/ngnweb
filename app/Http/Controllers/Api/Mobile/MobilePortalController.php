@@ -23,6 +23,7 @@ use App\Models\SupportConversation;
 use App\Models\VehicleDeliveryOrder;
 use App\Rules\NotSunday;
 use App\Services\Club\ClubMemberDashboardData;
+use App\Services\Club\ClubMemberRegistrationService;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -756,33 +757,21 @@ class MobilePortalController extends Controller
         ]);
     }
 
-    public function clubMember(Request $request): JsonResponse
+    public function clubMember(Request $request, ClubMemberRegistrationService $registration): JsonResponse
     {
         $customerAuth = $this->customerAuthFrom($request);
         if (! $customerAuth) {
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        $customerAuth->loadMissing('customer');
+        $customerAuth->loadMissing('customer.clubMember');
         $email = strtolower(trim((string) ($customerAuth->email ?? '')));
-        $phoneRaw = trim((string) ($customerAuth->customer?->phone ?? ''));
-
-        if ($email === '' || $phoneRaw === '') {
-            return response()->json([
-                'matched' => false,
-                'message' => 'Customer profile must include email and phone to match a club member.',
-                'member' => null,
-                'summary' => null,
-            ]);
-        }
-
-        $phoneNorm = $this->normalisePhoneForClubMemberMatch($phoneRaw);
-
-        $member = ClubMember::query()
-            ->where('is_active', true)
-            ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
-            ->get()
-            ->first(fn (ClubMember $row) => $this->normalisePhoneForClubMemberMatch((string) ($row->phone ?? '')) === $phoneNorm);
+        $member = $customerAuth->customer
+            ? $registration->resolveForCustomer($customerAuth->customer, $customerAuth->email)
+            : ClubMember::query()
+                ->where('is_active', true)
+                ->whereRaw('LOWER(TRIM(email)) = ?', [$email])
+                ->first();
 
         if (! $member) {
             return response()->json([

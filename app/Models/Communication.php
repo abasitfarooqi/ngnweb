@@ -89,6 +89,11 @@ class Communication extends Model
         return $this->hasMany(CommunicationAttachment::class);
     }
 
+    public function staffReads(): HasMany
+    {
+        return $this->hasMany(CommunicationStaffRead::class);
+    }
+
     public function replies(): HasMany
     {
         return $this->hasMany(CommunicationReply::class);

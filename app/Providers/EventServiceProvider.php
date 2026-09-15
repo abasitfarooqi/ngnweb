@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use App\Listeners\CaptureTransactionalMailMessageId;
+use App\Listeners\CreateSupportReplyCommunication;
+use App\Events\SupportMessageSent;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
@@ -21,6 +23,9 @@ class EventServiceProvider extends ServiceProvider
         ],
         MessageSent::class => [
             CaptureTransactionalMailMessageId::class,
+        ],
+        SupportMessageSent::class => [
+            CreateSupportReplyCommunication::class,
         ],
     ];
 

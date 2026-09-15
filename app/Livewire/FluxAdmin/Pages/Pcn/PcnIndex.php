@@ -24,6 +24,8 @@ class PcnIndex extends Component
 {
     use WithAuthorization, WithCrudForm, WithDataTable, WithPagination;
 
+    private const LIST_STATE_SESSION_KEY = 'flux_admin.pcn.list_state';
+
     public bool $showForm = false;
 
     #[Url(history: true, except: '')]
@@ -58,6 +60,7 @@ class PcnIndex extends Component
         $this->authorizeModule('see-menu-pcns');
         $this->sortField = 'date_of_contravention';
         $this->sortDirection = 'desc';
+        $this->restoreListState();
 
         // Honour Backpack-style query links from the overview dashboard.
         if (request()->filled('status') && in_array(request('status'), ['open', 'closed'], true)) {
@@ -80,6 +83,7 @@ class PcnIndex extends Component
         $this->filterEverAppealed = '';
         $this->filterUpdateStatus = '';
         $this->resetPage();
+        session()->forget(self::LIST_STATE_SESSION_KEY);
     }
 
     protected function formModel(): string { return PcnCase::class; }
@@ -318,6 +322,49 @@ class PcnIndex extends Component
     public function updatingFilterUpdateStatus(): void
     {
         $this->resetPage();
+    }
+
+    public function updatedSearch(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedPerPage(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedStatus(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedIsPolice(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedFilterDateFrom(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedFilterDateTo(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedFilterEverAppealed(): void { $this->resetPage(); $this->rememberListState(); }
+    public function updatedFilterUpdateStatus(): void { $this->resetPage(); $this->rememberListState(); }
+
+    public function sortBy(string $field): void
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+        $this->resetPage();
+        $this->rememberListState();
+    }
+
+    private function rememberListState(): void
+    {
+        session()->put(self::LIST_STATE_SESSION_KEY, [
+            'search' => $this->search, 'status' => $this->status, 'isPolice' => $this->isPolice,
+            'filterDateFrom' => $this->filterDateFrom, 'filterDateTo' => $this->filterDateTo,
+            'filterEverAppealed' => $this->filterEverAppealed, 'filterUpdateStatus' => $this->filterUpdateStatus,
+            'sortField' => $this->sortField, 'sortDirection' => $this->sortDirection, 'perPage' => $this->perPage,
+        ]);
+    }
+
+    private function restoreListState(): void
+    {
+        $state = session()->get(self::LIST_STATE_SESSION_KEY, []);
+        $urlAliases = ['search' => 'q', 'sortField' => 'sort', 'sortDirection' => 'dir', 'perPage' => 'pp'];
+        foreach (array_keys($state) as $property) {
+            $requestKey = $urlAliases[$property] ?? $property;
+            if (property_exists($this, $property) && ! request()->has($requestKey)) {
+                $this->{$property} = $state[$property];
+            }
+        }
     }
 
     public function render()

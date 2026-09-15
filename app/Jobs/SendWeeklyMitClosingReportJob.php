@@ -36,6 +36,11 @@ class SendWeeklyMitClosingReportJob implements ShouldQueue
             // Get weekly summary using existing helper
             $summary = JudopayWeeklyMitSummary::getWeeklySummary($weekStart->format('Y-m-d'));
 
+            if ($summary['receivedItems']->isEmpty()) {
+                Log::info('No MIT collections this week; closing report email will not be sent.');
+                return;
+            }
+
             // Get detailed decline report with failure reasons
             $detailedDeclines = JudopayWeeklyMitSummary::getDetailedDeclineReport($weekStart->format('Y-m-d'));
 

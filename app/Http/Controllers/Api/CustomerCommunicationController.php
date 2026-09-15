@@ -69,6 +69,20 @@ class CustomerCommunicationController extends Controller
         ];
     }
 
+    public function markAllRead(Request $request): JsonResponse
+    {
+        $this->abortUnlessSchemaReady();
+        $customer = $this->customer($request);
+        app(CommunicationInboxClaimer::class)->claimFor($customer);
+        CommunicationRecipient::query()
+            ->where('customer_auth_id', $customer->id)
+            ->whereNull('archived_at')
+            ->whereNull('read_at')
+            ->update(['seen_at' => now(), 'read_at' => now(), 'updated_at' => now()]);
+
+        return response()->json(['message' => 'All communications marked as read.']);
+    }
+
     public function show(Request $request, string $communication): CommunicationResource
     {
         $this->abortUnlessSchemaReady();

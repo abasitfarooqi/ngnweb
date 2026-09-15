@@ -24,6 +24,12 @@
         </div>
     </div>
     <p class="js-communication-alerts-status -mt-4 pl-16 text-xs text-zinc-500 dark:text-zinc-400"></p>
+    <div class="-mt-3 flex flex-wrap items-center gap-2 pl-16 text-xs text-zinc-500 dark:text-zinc-400">
+        <span class="font-medium">Status:</span>
+        <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-1 font-medium text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300"><span class="size-1.5 rounded-full bg-emerald-500"></span>Read</span>
+        <span class="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-1 font-medium text-orange-700 dark:bg-orange-950/60 dark:text-orange-300"><span class="size-1.5 rounded-full bg-orange-500"></span>Unread</span>
+        <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2 py-1 font-medium text-blue-700 dark:bg-blue-950/60 dark:text-blue-300"><span class="size-1.5 rounded-full bg-blue-500"></span>Delivered</span>
+    </div>
 
     @if(! $schemaReady)
         <div class="border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900">Communication tables are not migrated yet.</div>
@@ -31,6 +37,12 @@
         <x-flux-admin::data-table title="Message log" description="Email and portal delivery status for every communication.">
             <x-slot:toolbar>
                 <x-flux-admin::filter-bar search-placeholder="Search communications…">
+                    <div class="min-w-0 w-full">
+                        <select wire:model.live="filters.type" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100">
+                            <option value="">Any type</option>
+                            <option value="reminder">Reminders only</option>
+                        </select>
+                    </div>
                     <div class="min-w-0 w-full">
                         <select wire:model.live="filters.category" class="w-full border border-zinc-300 bg-white px-2 py-2 text-sm text-zinc-900 hover:border-zinc-400 focus:border-zinc-600 focus:outline-none !rounded-none dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:hover:border-zinc-500 dark:focus:border-zinc-400">
                             <option value="">Any category</option>
@@ -74,20 +86,34 @@
                     @php($email = $row->deliveries->firstWhere('channel', 'email'))
                     @php($inbox = $row->deliveries->firstWhere('channel', 'internal_inbox'))
                     @php($recipient = $row->recipients->first())
-                    <div class="rounded-2xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900" wire:key="sent-card-{{ $row->id }}">
+                    @php($staffRead = $staffReadReady ? $row->staffReads->firstWhere('user_id', auth()->id()) : null)
+                    @php($isRead = $recipient?->read_at !== null)
+                    <div class="rounded-2xl border border-zinc-200 border-l-4 {{ $isRead ? 'border-l-emerald-500 bg-white' : 'border-l-orange-500 bg-orange-50/40' }} p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900 {{ $isRead ? 'dark:border-l-emerald-500' : 'dark:border-l-orange-500 dark:bg-orange-950/10' }}" wire:key="sent-card-{{ $row->id }}">
                         <div class="flex items-start gap-3"><span class="flex size-9 shrink-0 items-center justify-center rounded-xl bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-300"><flux:icon name="envelope" class="size-4" /></span><div class="min-w-0"><div class="font-semibold text-zinc-900 dark:text-white">{{ $row->title }}</div>
                         <div class="mt-1 font-mono text-[11px] text-zinc-500">{{ $row->communication_key }}</div>
                         </div></div>
                         <p class="mt-2 text-sm text-zinc-600 dark:text-zinc-400">{{ $row->recipient_email ?: '—' }}</p>
                         <p class="mt-1 text-xs text-zinc-500">{{ $row->created_at?->format('d M Y H:i') }}</p>
                         <div class="mt-3 flex flex-wrap gap-2">
-                            <flux:badge color="{{ ($email?->status ?? '') === 'sent' ? 'green' : (($email?->status ?? '') === 'failed' ? 'red' : 'zinc') }}">Email {{ $email?->status ?? 'none' }}</flux:badge>
-                            <flux:badge color="{{ ($inbox?->status ?? '') === 'delivered' ? 'green' : (($inbox?->status ?? '') === 'failed' ? 'red' : 'zinc') }}">Inbox {{ $inbox?->status ?? 'off' }}</flux:badge>
+                            <flux:badge color="{{ ($email?->status ?? '') === 'sent' ? 'green' : (($email?->status ?? '') === 'failed' ? 'red' : (($email?->status ?? '') === 'skipped' ? 'orange' : 'zinc')) }}">Email {{ $email?->status ?? 'none' }}</flux:badge>
+                            <flux:badge color="{{ ($inbox?->status ?? '') === 'delivered' ? 'blue' : (($inbox?->status ?? '') === 'failed' ? 'red' : (($inbox?->status ?? '') === 'deferred' ? 'orange' : 'zinc')) }}">Inbox {{ $inbox?->status ?? 'off' }}</flux:badge>
                             @if($row->isHiddenFromStaff())
                                 <flux:badge color="zinc">Hidden</flux:badge>
                             @endif
                         </div>
-                        <p class="mt-2 text-xs text-zinc-500">Read {{ $recipient?->read_at?->format('d M Y H:i') ?? '—' }}</p>
+                        <div class="mt-3 flex items-center gap-2 text-xs">
+                            <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 font-semibold {{ $isRead ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300' }}">
+                                <span class="size-1.5 rounded-full {{ $isRead ? 'bg-emerald-500' : 'bg-orange-500' }}"></span>{{ $isRead ? 'Read' : 'Unread' }}
+                            </span>
+                            <span class="text-zinc-500">{{ $recipient?->read_at?->format('d M Y H:i') ?? 'Not opened by customer' }}</span>
+                        </div>
+                        @if($staffReadReady)
+                        <label class="mt-3 flex cursor-pointer items-center gap-2 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                            <input type="checkbox" class="size-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" @checked($staffRead?->dealt_at) wire:change="markAsDealt({{ $row->id }}, $event.target.checked)">
+                            <span class="{{ $staffRead?->dealt_at ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300' }}">{{ $staffRead?->dealt_at ? 'Dealt' : 'Mark as dealt' }}</span>
+                            @if($staffRead?->dealt_at)<span class="text-zinc-500">{{ $staffRead->dealt_at->format('d M Y H:i') }}</span>@endif
+                        </label>
+                        @endif
                         <div class="mt-3 flex flex-wrap gap-2">
                             <a href="{{ route('flux-admin.communications.sent.show', $row) }}">
                                 <flux:button size="xs" variant="ghost" icon="eye" class="rounded-xl">View</flux:button>
@@ -113,6 +139,7 @@
                         <flux:table.column>Email</flux:table.column>
                         <flux:table.column>Inbox</flux:table.column>
                         <flux:table.column>Read</flux:table.column>
+                        @if($staffReadReady)<flux:table.column>Staff status</flux:table.column>@endif
                         <flux:table.column></flux:table.column>
                     </flux:table.columns>
                     <flux:table.rows>
@@ -120,22 +147,37 @@
                             @php($email = $row->deliveries->firstWhere('channel', 'email'))
                             @php($inbox = $row->deliveries->firstWhere('channel', 'internal_inbox'))
                             @php($recipient = $row->recipients->first())
-                            <flux:table.row wire:key="sent-{{ $row->id }}">
+                            @php($staffRead = $staffReadReady ? $row->staffReads->firstWhere('user_id', auth()->id()) : null)
+                            @php($isRead = $recipient?->read_at !== null)
+                            <flux:table.row wire:key="sent-{{ $row->id }}" class="group {{ $isRead ? '' : 'bg-orange-50/50 dark:bg-orange-950/10' }}">
                                 <flux:table.cell class="text-sm text-zinc-600 dark:text-zinc-400">{{ $row->created_at?->format('d M Y H:i') }}</flux:table.cell>
                                 <flux:table.cell>
-                                    <div class="font-medium text-zinc-900 dark:text-white">{{ $row->title }}</div>
+                                    <div class="flex items-center gap-2 font-medium text-zinc-900 dark:text-white"><span class="size-2 rounded-full {{ $isRead ? 'bg-emerald-500' : 'bg-orange-500' }}"></span>{{ $row->title }}</div>
                                     <div class="mt-1 font-mono text-[11px] text-zinc-500">{{ $row->communication_key }}</div>
                                 </flux:table.cell>
                                 <flux:table.cell class="text-sm">{{ $row->recipient_email ?: '—' }}</flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:badge color="{{ ($email?->status ?? '') === 'sent' ? 'green' : (($email?->status ?? '') === 'failed' ? 'red' : 'zinc') }}">{{ $email?->status ?? 'none' }}</flux:badge>
+                                    <flux:badge color="{{ ($email?->status ?? '') === 'sent' ? 'green' : (($email?->status ?? '') === 'failed' ? 'red' : (($email?->status ?? '') === 'skipped' ? 'orange' : 'zinc')) }}">{{ $email?->status ?? 'none' }}</flux:badge>
                                 </flux:table.cell>
                                 <flux:table.cell>
-                                    <flux:badge color="{{ ($inbox?->status ?? '') === 'delivered' ? 'green' : (($inbox?->status ?? '') === 'failed' ? 'red' : 'zinc') }}">{{ $inbox?->status ?? 'off' }}</flux:badge>
+                                    <flux:badge color="{{ ($inbox?->status ?? '') === 'delivered' ? 'blue' : (($inbox?->status ?? '') === 'failed' ? 'red' : (($inbox?->status ?? '') === 'deferred' ? 'orange' : 'zinc')) }}">{{ $inbox?->status ?? 'off' }}</flux:badge>
                                 </flux:table.cell>
                                 <flux:table.cell class="text-sm text-zinc-600 dark:text-zinc-400">
-                                    {{ $recipient?->read_at?->format('d M Y H:i') ?? '—' }}
+                                    <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold {{ $isRead ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-orange-100 text-orange-700 dark:bg-orange-950/60 dark:text-orange-300' }}">
+                                        <span class="size-1.5 rounded-full {{ $isRead ? 'bg-emerald-500' : 'bg-orange-500' }}"></span>{{ $isRead ? 'Read' : 'Unread' }}
+                                    </span>
+                                    <div class="mt-1 text-xs text-zinc-500">{{ $recipient?->read_at?->format('d M Y H:i') ?? 'Not opened' }}</div>
                                 </flux:table.cell>
+                                @if($staffReadReady)<flux:table.cell class="text-sm">
+                                    <label class="flex items-center gap-2 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                                        <input type="checkbox" class="size-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" @checked($staffRead?->dealt_at) wire:change="markAsDealt({{ $row->id }}, $event.target.checked)">
+                                        <span class="{{ $staffRead?->dealt_at ? 'text-emerald-700 dark:text-emerald-300' : 'text-orange-700 dark:text-orange-300' }}">{{ $staffRead?->dealt_at ? 'Dealt' : 'Mark as dealt' }}</span>
+                                    </label>
+                                    <div class="mt-1 text-xs text-zinc-500">
+                                        {{ $staffRead?->opened_at?->format('d M Y H:i') ?? 'Not opened' }}
+                                    </div>
+                                </flux:table.cell>
+                                @endif
                                 <flux:table.cell>
                                     <div class="flex flex-wrap justify-end gap-1">
                                         <a href="{{ route('flux-admin.communications.sent.show', $row) }}">
@@ -151,7 +193,7 @@
                             </flux:table.row>
                         @empty
                             <flux:table.row>
-                                <flux:table.cell colspan="7" class="py-8 text-center text-sm text-zinc-500">No notifications match these filters.</flux:table.cell>
+                                <flux:table.cell colspan="{{ $staffReadReady ? 8 : 7 }}" class="py-8 text-center text-sm text-zinc-500">No notifications match these filters.</flux:table.cell>
                             </flux:table.row>
                         @endforelse
                     </flux:table.rows>

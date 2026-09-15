@@ -9,6 +9,21 @@
             @if($communication->isHiddenFromStaff())
                 <p class="mt-2 text-xs text-zinc-500">Hidden from the staff list. The log is still kept.</p>
             @endif
+            @if($communication->staffReads->isNotEmpty())
+                <p class="mt-2 text-xs text-zinc-500">Opened by:
+                    @foreach($communication->staffReads as $staffRead)
+                        {{ $staffRead->user?->name ?: trim(($staffRead->user?->first_name ?? '').' '.($staffRead->user?->last_name ?? '')) }} ({{ $staffRead->opened_at?->format('d M Y H:i') }}){{ $loop->last ? '' : ', ' }}
+                    @endforeach
+                </p>
+            @endif
+            @if($staffReadReady)
+                @php($myStaffRead = $communication->staffReads->firstWhere('user_id', auth()->id()))
+                <label class="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-xl border px-3 py-2 text-xs font-semibold {{ $myStaffRead?->dealt_at ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300' : 'border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-900 dark:bg-orange-950/40 dark:text-orange-300' }}">
+                    <input type="checkbox" class="size-4 rounded border-zinc-300 text-emerald-600 focus:ring-emerald-500" @checked($myStaffRead?->dealt_at) wire:change="markAsDealt($event.target.checked)">
+                    {{ $myStaffRead?->dealt_at ? 'Dealt by me' : 'Mark as dealt' }}
+                    @if($myStaffRead?->dealt_at)<span class="font-normal">{{ $myStaffRead->dealt_at->format('d M Y H:i') }}</span>@endif
+                </label>
+            @endif
         </div>
         <div class="flex flex-wrap gap-2">
             @if($canExportPdf)

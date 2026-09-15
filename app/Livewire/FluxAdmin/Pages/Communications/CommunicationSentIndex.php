@@ -5,6 +5,7 @@ namespace App\Livewire\FluxAdmin\Pages\Communications;
 use App\Livewire\FluxAdmin\Concerns\WithAuthorization;
 use App\Livewire\FluxAdmin\Concerns\WithDataTable;
 use App\Models\Communication;
+use App\Models\CommunicationStaffRead;
 use App\Services\Communications\CommunicationSchema;
 use App\Support\FluxAdminAccess;
 use App\Support\FluxAdminUnreadBadges;
@@ -77,14 +78,27 @@ class CommunicationSentIndex extends Component
         $this->dispatch('flux-admin:toast', type: 'success', message: 'Shown to staff again.');
     }
 
+    public function markAsDealt(int $communicationId, bool $dealt): void
+    {
+        abort_unless(FluxAdminAccess::canViewCommunicationsLog(), 403);
+        abort_unless(Schema::hasTable('communication_staff_reads'), 503, 'Run the staff notification migration first.');
+
+        $read = CommunicationStaffRead::query()->firstOrCreate([
+            'communication_id' => $communicationId,
+            'user_id' => FluxAdminAccess::user()?->getAuthIdentifier(),
+        ], ['opened_at' => now()]);
+        $read->forceFill(['dealt_at' => $dealt ? now() : null])->save();
+    }
+
     public function render()
     {
         $schemaReady = app(CommunicationSchema::class)->ready();
         $hideReady = $schemaReady && Schema::hasColumn('communications', 'staff_hidden_at');
+        $staffReadReady = $schemaReady && Schema::hasTable('communication_staff_reads');
 
         $rows = $schemaReady
             ? Communication::query()
-                ->with(['deliveries', 'recipients'])
+                ->with(array_merge(['deliveries', 'recipients'], $staffReadReady ? ['staffReads.user'] : []))
                 ->when($this->search !== '', function ($query): void {
                     $term = '%'.$this->search.'%';
                     $query->where(function ($inner) use ($term): void {
@@ -113,6 +127,11 @@ class CommunicationSentIndex extends Component
                     }
                     $query->whereHas('deliveries', fn ($d) => $d->where('channel', 'internal_inbox')->where('status', $status));
                 })
+                ->when($this->filter('type') === 'reminder', fn ($q) => $q->where(function ($inner): void {
+                    $inner->where('category', 'reminders')
+                        ->orWhere('communication_key', 'like', '%reminder%')
+                        ->orWhere('title', 'like', '%reminder%');
+                }))
                 ->when($hideReady && $this->filter('hidden') !== 'all' && $this->filter('hidden') !== 'hidden', fn ($q) => $q->whereNull('staff_hidden_at'))
                 ->when($hideReady && $this->filter('hidden') === 'hidden', fn ($q) => $q->whereNotNull('staff_hidden_at'))
                 ->latest()
@@ -123,6 +142,7 @@ class CommunicationSentIndex extends Component
             'rows' => $rows,
             'schemaReady' => $schemaReady,
             'hideReady' => $hideReady,
+            'staffReadReady' => $staffReadReady,
             'canManageCommunications' => FluxAdminAccess::canAccessCommunications(),
             'canViewNotifications' => FluxAdminAccess::canViewCommunicationsLog(),
             'filterCategories' => $schemaReady

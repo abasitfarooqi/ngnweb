@@ -20,7 +20,7 @@ class MitWeeklyClosingReportNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        return ($this->summary['receivedItems'] ?? collect())->isEmpty() ? [] : ['mail'];
     }
 
     public function toMail(object $notifiable): MailMessage
